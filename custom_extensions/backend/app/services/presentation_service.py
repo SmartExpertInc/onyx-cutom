@@ -20,6 +20,7 @@ import json
 # from .slide_capture_service import slide_capture_service, SlideVideoConfig  # DISABLED - Using clean pipeline only
 from .video_composer_service import video_composer_service, CompositionConfig
 from .video_generation_service import video_generation_service
+from .avatar_mask_service import AvatarMaskService
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class PresentationRequest:
     theme: Optional[str] = "dark-purple"  # Theme for slide generation
     avatar_code: Optional[str] = None  # Will be dynamically selected if None
     slide_only: bool = False  # Flag to generate slide-only video (no AI avatar)
+    use_avatar_mask: bool = True  # Flag to use new avatar mask service (OpenCV + MoviePy)
     duration: float = 30.0
     layout: str = "side_by_side"  # side_by_side, picture_in_picture, split_screen
     quality: str = "high"  # high, medium, low
@@ -315,7 +317,8 @@ class ProfessionalPresentationService:
                 avatar_video_path = await self._generate_avatar_video(
                     request.voiceover_texts,
                     request.avatar_code,
-                    request.duration
+                    request.duration,
+                    request.use_avatar_mask
                 )
                 job.progress = 60.0
                 
@@ -479,7 +482,7 @@ class ProfessionalPresentationService:
             logger.error(f"Error getting available avatar: {str(e)}")
             return "anna"  # Final fallback
     
-    async def _generate_avatar_video(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float) -> str:
+    async def _generate_avatar_video(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float, use_avatar_mask: bool = True) -> str:
         """
         Generate avatar video using Elai API.
         
@@ -493,6 +496,7 @@ class ProfessionalPresentationService:
         """
         try:
             logger.info(f"Generating avatar video with {len(voiceover_texts)} voiceover texts")
+            logger.info(f"Using avatar mask service: {use_avatar_mask}")
             
             # Get avatar code if not provided
             if not avatar_code:
@@ -500,6 +504,83 @@ class ProfessionalPresentationService:
                 logger.info(f"Auto-selected avatar: {avatar_code}")
             else:
                 logger.info(f"Using specified avatar: {avatar_code}")
+            
+            if use_avatar_mask:
+                # Use new avatar mask service (OpenCV + MoviePy)
+                logger.info("🎬 Using new Avatar Mask Service (OpenCV + MoviePy)")
+                try:
+                    avatar_video_path = await self._generate_with_avatar_mask_service(voiceover_texts, avatar_code)
+                    return avatar_video_path
+                except Exception as mask_error:
+                    logger.warning(f"Avatar mask service failed: {mask_error}")
+                    logger.info("Falling back to traditional method...")
+                    # Fall back to traditional method
+                    return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
+            else:
+                # Use traditional method
+                logger.info("🎬 Using traditional avatar generation method")
+                return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
+            
+        except Exception as e:
+            logger.error(f"Avatar video generation failed: {e}")
+            raise
+    
+    async def _generate_with_avatar_mask_service(self, voiceover_texts: List[str], avatar_code: str) -> str:
+        """
+        Generate avatar video using the new Avatar Mask Service (OpenCV + MoviePy).
+        
+        Args:
+            voiceover_texts: List of voiceover texts
+            avatar_code: Avatar code to use
+            
+        Returns:
+            Path to generated avatar video
+        """
+        try:
+            logger.info("🎬 Using Avatar Mask Service for professional avatar generation")
+            
+            # Initialize avatar mask service
+            avatar_mask_service = AvatarMaskService()
+            
+            try:
+                # Generate output path
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                output_path = str(self.output_dir / f"avatar_mask_video_{timestamp}.mp4")
+                
+                # Create avatar mask video
+                avatar_video_path = await avatar_mask_service.create_avatar_mask_video(
+                    voiceover_texts=voiceover_texts,
+                    avatar_code=avatar_code,
+                    output_path=output_path
+                )
+                
+                if avatar_video_path and os.path.exists(avatar_video_path):
+                    logger.info(f"✅ Avatar mask video created successfully: {avatar_video_path}")
+                    return avatar_video_path
+                else:
+                    raise Exception("Avatar mask service returned no video path")
+                    
+            finally:
+                # Cleanup
+                avatar_mask_service.cleanup()
+                
+        except Exception as e:
+            logger.error(f"Avatar mask service failed: {str(e)}")
+            raise
+    
+    async def _generate_with_traditional_method(self, voiceover_texts: List[str], avatar_code: str) -> str:
+        """
+        Generate avatar video using traditional method (Elai API + FFmpeg).
+        
+        Args:
+            voiceover_texts: List of voiceover texts
+            avatar_code: Avatar code to use
+            
+        Returns:
+            Path to generated avatar video
+        """
+        try:
+            logger.info("🎬 Using traditional avatar generation method")
             
             # Try with the specified avatar first
             try:
@@ -519,9 +600,9 @@ class ProfessionalPresentationService:
                 except Exception as fallback_error:
                     logger.error(f"Failed to generate video with fallback avatar: {fallback_error}")
                     raise Exception(f"Avatar video generation failed with both primary and fallback avatars: {first_error}")
-            
+                    
         except Exception as e:
-            logger.error(f"Avatar video generation failed: {e}")
+            logger.error(f"Traditional avatar generation failed: {str(e)}")
             raise
     
     async def _try_generate_with_avatar(self, voiceover_texts: List[str], avatar_code: str) -> str:

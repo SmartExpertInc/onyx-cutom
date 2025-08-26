@@ -17161,6 +17161,7 @@ async def create_presentation(request: Request):
         slides_data = body.get("slidesData")  # Optional - actual slide content with text, props, etc.
         theme = body.get("theme", "dark-purple")  # Theme for slide generation
         avatar_code = body.get("avatarCode")  # None will trigger auto-selection
+        use_avatar_mask = body.get("useAvatarMask", True)  # NEW: Use avatar mask service by default
         duration = body.get("duration", 30.0)
         layout = body.get("layout", "side_by_side")
         quality = body.get("quality", "high")
@@ -17187,6 +17188,7 @@ async def create_presentation(request: Request):
             slides_data=slides_data,  # NEW: Pass actual slide data
             theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
+            use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
             duration=duration,
             layout=layout,
             quality=quality,
@@ -17529,7 +17531,8 @@ async def generate_slide_video(request: Request):
             voiceover_texts=[],  # Empty for slide-only mode
             slides_data=slides_data,
             theme=theme,
-            slide_only=True  # Flag to indicate slide-only video
+            slide_only=True,  # Flag to indicate slide-only video
+            use_avatar_mask=False  # Disable avatar mask for slide-only videos
         )
         
         logger.info(f"🎬 [SLIDE_VIDEO] Creating slide-only presentation...")

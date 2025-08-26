@@ -392,6 +392,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
           slidesData: slideDataResult.slides,
           theme: slideDataResult.theme,
           // Remove hardcoded avatarCode to enable dynamic avatar selection
+          useAvatarMask: true,  // NEW: Enable avatar mask service (OpenCV + MoviePy)
           duration: 30.0,
           layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen
           quality: 'high',
