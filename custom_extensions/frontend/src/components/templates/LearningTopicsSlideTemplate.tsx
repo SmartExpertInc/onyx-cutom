@@ -367,11 +367,11 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          marginTop: '28px'
+          marginTop: '36px'
         }}>
           <div style={{
-            width: '16px',
-            height: '16px',
+            width: '10px',
+            height: '10px',
             backgroundColor: themeAccent,
             transform: 'rotate(45deg)'
           }} />
@@ -387,7 +387,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
                 style={{
-                  fontSize: '14px',
+                  fontSize: '10px',
                   color: themeContent,
                   fontWeight: '300'
                 }}
@@ -418,8 +418,10 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         position: 'relative'
       }}>
         <div style={{
-          width: '200px',
-          height: '200px',
+          width: '382px',
+          height: '543px',
+          position: 'absolute',
+          bottom: '-3px',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -431,7 +433,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'contain'
             }}
           />
         </div>

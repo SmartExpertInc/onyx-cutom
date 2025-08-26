@@ -218,10 +218,9 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '36px',
+          fontSize: '44px',
           color: themeTitle,
-          fontWeight: 'bold',
-          marginBottom: '40px',
+          marginBottom: '15px',
           lineHeight: '1.2'
         }}>
           {isEditable && editingTitle ? (
@@ -301,8 +300,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           position: 'absolute',
           bottom: '40px',
           left: '60px',
-          width: '80px',
-          height: '80px',
+          width: '105px',
+          height: '105px',
           borderRadius: '50%',
           overflow: 'hidden'
         }}>
