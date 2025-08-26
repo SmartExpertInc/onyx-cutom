@@ -471,7 +471,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           {/* Team image at bottom */}
           <div style={{
             width: '100%',
-            height: '400px',
+            height: '265px',
             borderRadius: '10px',
           }}>
             <ClickableImagePlaceholder
