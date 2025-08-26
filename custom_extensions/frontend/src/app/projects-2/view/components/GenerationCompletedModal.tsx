@@ -55,7 +55,7 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
         <div className="p-6 pb-3 border-b border-gray-200">
           <div className="flex justify-between items-center">
             {/* Video title on the left */}
-            <h2 className="text-lg font-semibold truncate max-w-[300px]" title={videoTitle}>
+            <h2 className="text-lg font-semibold text-gray-700 truncate max-w-[300px]" title={videoTitle}>
               {videoTitle}
             </h2>
             
@@ -65,10 +65,10 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
               <div className="relative" data-download-dropdown>
                 <button 
                   onClick={() => setIsDownloadDropdownOpen(!isDownloadDropdownOpen)}
-                  className="bg-white text-black border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2"
+                  className="bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2"
                 >
                   Download
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
@@ -77,20 +77,20 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
                 {isDownloadDropdownOpen && (
                   <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 w-48">
                     <div className="py-1">
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1360 1000" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 1360 1000" className="w-4 h-4 text-gray-500">
                           <path fill="currentColor" d="M1360 1v1000H0V1h1360zm-200 160h120V81h-120v80zm-200 0h120V81H960v80zm-240 0h120V81H720v80zm240 600h320V241H960v520zM520 161h120V81H520v80zm640 760h120v-80h-120v80zM280 161h120V81H280v80zm240 600h320V241H520v520zm440 160h120v-80H960v80zM80 161h120V81H80v80zm640 760h120v-80H720v80zM80 761h320V241H80v520zm440 160h120v-80H520v80zm-240 0h120v-80H280v80zm-200 0h120v-80H80v80z"/>
                         </svg>
                         Video (.mp4)
                       </button>
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-gray-500">
                           <path fill="currentColor" d="M.5 6c-.275 0-.5.225-.5.5v3c0 .275.225.5.5.5s.5-.225.5-.5v-3C1 6.225.775 6 .5 6m14 0c-.275 0-.5.225-.5.5v3c0 .275.225.5.5.5s.5-.225.5-.5v-3c0-.275-.225-.5-.5-.5m-12-3c-.275 0-.5.225-.5.5v9c0 .275.225.5.5.5s.5-.225.5-.5v-9c0-.275-.225-.5-.5-.5m2 2c-.275 0-.5.225-.5.5v5c0 .275.225.5.5.5s.5-.225.5-.5v-5c0-.275-.225-.5-.5-.5m2 2c-.275 0-.5.225-.5.5v1c0 .275.225.5.5.5s.5-.225.5-.5v-1c0-.275-.225-.5-.5-.5m2-2c-.275 0-.5.225-.5.5v5c0 .275.225.5.5.5s.5-.225.5-.5v-5c0-.275-.225-.5-.5-.5m2-4c-.275 0-.5.225-.5.5v13c0 .275.225.5.5.5s.5-.225.5-.5v-13c0-.275-.225-.5-.5-.5m2 2c-.275 0-.5.225-.5.5v9c0 .275.225.5.5.5s.5-.225.5-.5v-9c0-.275-.225-.5-.5-.5"/>
                         </svg>
                         Audio (.MP3)
                       </button>
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 6.1H3m18 6H3M15.1 18H3"/>
                         </svg>
                         Closed captions (.SRT)
@@ -99,14 +99,14 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
                       {/* Divider */}
                       <div className="border-t border-gray-200 my-1"></div>
                       
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 6.1H3m18 6H3M15.1 18H3"/>
                         </svg>
                         Closed captions (.VTT)
                       </button>
-                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="2">
                             <path strokeLinecap="round" d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.342a2 2 0 0 0-.602-1.43l-4.44-4.342A2 2 0 0 0 13.56 2H6a2 2 0 0 0-2 2Z"/>
                             <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
@@ -135,7 +135,7 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
                     isMoreOptionsOpen ? 'bg-gray-100' : 'hover:bg-gray-100'
                   }`}
                 >
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
                   </svg>
                 </button>
@@ -146,11 +146,11 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
                     <div className="py-1">
                       {/* Exit to section */}
                       <div className="px-3 py-1">
-                        <span className="text-xs text-gray-500">Exit to</span>
+                        <span className="text-xs text-gray-700">Exit to</span>
                       </div>
                       
-                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                           <polyline points="9,22 9,12 15,12 15,22"/>
                         </svg>
@@ -160,8 +160,8 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
                       {/* Divider */}
                       <div className="border-t border-gray-200 my-1"></div>
                       
-                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                      <button className="w-full text-left px-3 py-2 hover:bg-gray-100 transition-colors text-sm flex items-center gap-2 text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
                           <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v14M5 12h14"/>
                         </svg>
                         New draft

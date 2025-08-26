@@ -471,7 +471,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                             onClick={() => handleDropdownToggle(emailInput.id)}
                             className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-3 pr-2 text-sm focus:outline-none focus:border-black focus:border-[2px] cursor-pointer w-24 text-left flex items-center justify-between"
                           >
-                            <span className="capitalize">{emailInput.role}</span>
+                            <span className="capitalize text-gray-700">{emailInput.role}</span>
                             <DropdownIcon />
                           </button>
                           
