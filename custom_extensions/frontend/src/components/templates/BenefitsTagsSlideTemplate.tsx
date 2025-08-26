@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BenefitsTagsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -152,6 +153,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -227,7 +229,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           color: themeTitle,
           lineHeight: '1.1',
           marginTop: '40px',
-          position: 'absolute',
           marginLeft: '-332%'
         }}>
           {isEditable && editingTitle ? (
@@ -436,58 +437,74 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           color: themeContent
         }}>
           {currentCompanyLogoPath ? (
-            <div 
-              style={{
-                width: '60px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: isEditable ? 'pointer' : 'default'
-              }}
-              onClick={isEditable ? () => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (file) {
-                    const url = URL.createObjectURL(file);
-                    handleCompanyLogoUploaded(url);
-                  }
-                };
-                input.click();
-              } : undefined}
-            >
-              <img
-                src={currentCompanyLogoPath}
-                alt="Company logo"
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain'
-                }}
-              />
-            </div>
-          ) : (
+            // Show uploaded logo image
             <ClickableImagePlaceholder
-              imagePath=""
+              imagePath={currentCompanyLogoPath}
               onImageUploaded={handleCompanyLogoUploaded}
               size="SMALL"
               position="CENTER"
               description="Company logo"
               isEditable={isEditable}
               style={{
-                fontSize: '14px',
-                fontWeight: '300',
-                color: themeContent,
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
               }}
             />
+          ) : (
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: `2px solid ${themeContent}`,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '2px',
+                  backgroundColor: themeContent,
+                  position: 'absolute'
+                }} />
+                <div style={{
+                  width: '2px',
+                  height: '12px',
+                  backgroundColor: themeContent,
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
+              </div>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Company logo</span>
+            </div>
           )}
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
