@@ -10001,15 +10001,32 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For timeline: parse chronological content into "steps" array
             - For pyramid: parse hierarchical content into "steps" array
             
-            **CRITICAL IMAGE PROMPT EXTRACTION:**
+            **CRITICAL IMAGE PROMPT EXTRACTION - PRESENTATION ILLUSTRATIONS:**
             - ALWAYS extract image prompts from [IMAGE_PLACEHOLDER] sections
             - Format: [IMAGE_PLACEHOLDER: SIZE | POSITION | DESCRIPTION]
             - Map DESCRIPTION to "imagePrompt" and "imageAlt" fields
-            - If no IMAGE_PLACEHOLDER but template supports images, generate appropriate imagePrompt
-            - For big-image-left: use "title" as main heading, extract subtitle/content from slide text
-            - For big-image-top: use "title" as main heading, extract subtitle/content from slide text
-            - For two-column: extract leftImagePrompt and rightImagePrompt if mentioned
-                        - NEVER leave imagePrompt fields empty - always generate descriptive prompts for visual content
+            - **CRITICAL: Generate detailed, presentation-focused illustration prompts**
+            - **PRESENTATION ILLUSTRATION REQUIREMENTS:**
+              - Every image prompt must be designed for presentation slides, not generic images
+              - Focus on educational, professional, and visually engaging illustrations
+              - Include specific visual elements that enhance learning and comprehension
+              - Use presentation-appropriate styling: clean, modern, professional design
+              - Specify illustration style: "professional presentation illustration", "educational diagram", "modern infographic style"
+              - Include color schemes: "professional blue and white color scheme", "modern gradient background", "clean presentation style"
+              - Specify composition: "centered composition", "balanced layout", "professional presentation format"
+              - Add context: "suitable for business presentation", "educational slide illustration", "professional training material"
+            - **DETAILED PROMPT STRUCTURE:**
+              - Start with: "Professional presentation illustration of [main concept]"
+              - Include: "in modern infographic style with clean, professional design"
+              - Specify: "using [color scheme] with balanced composition"
+              - Add: "suitable for educational presentation slides"
+              - Include: "with clear visual hierarchy and professional typography"
+            - **ILLUSTRATION TYPES BY TEMPLATE:**
+              - For big-image-left: "Professional presentation illustration of [concept] in modern infographic style, positioned on the left side of a presentation slide, with clean professional design using [color scheme], suitable for educational presentation slides"
+              - For big-image-top: "Professional presentation illustration of [concept] in modern infographic style, positioned at the top of a presentation slide, with clean professional design using [color scheme], suitable for educational presentation slides"
+              - For bullet-points: "Supporting professional illustration of [concept] in modern infographic style, positioned alongside bullet points, with clean professional design using [color scheme], suitable for educational presentation slides"
+              - For two-column: "Professional presentation illustration of [concept] in modern infographic style, positioned in [left/right] column, with clean professional design using [color scheme], suitable for educational presentation slides"
+            - **NEVER leave imagePrompt fields empty - always generate detailed, presentation-focused illustration prompts**
             
             **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
             
