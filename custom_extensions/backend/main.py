@@ -1439,9 +1439,42 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 # If we have imageAlt but no imagePrompt, use imageAlt as the prompt
                 normalized_props['imagePrompt'] = normalized_props['imageAlt']
             
+            # Generate missing imagePrompts for templates that require them
+            if template_id in ['bullet-points', 'bullet-points-right'] and not normalized_props.get('imagePrompt'):
+                title = normalized_props.get('title', 'concept')
+                normalized_props['imagePrompt'] = f"Modern illustration representing {title}, clean design with professional colors"
+                normalized_props['imageAlt'] = f"Illustration for {title}"
+            
             # Ensure subtitle/content exists for templates that need it
-            if template_id in ['big-image-left', 'big-image-top'] and 'subtitle' not in normalized_props and 'content' in normalized_props:
-                normalized_props['subtitle'] = normalized_props['content']
+            if template_id in ['big-image-left', 'big-image-top']:
+                if 'subtitle' not in normalized_props and 'content' in normalized_props:
+                    normalized_props['subtitle'] = normalized_props['content']
+                # Ensure subtitle is different from title
+                if (normalized_props.get('subtitle') == normalized_props.get('title') and 
+                    len(normalized_props.get('subtitle', '')) > 50):
+                    # If subtitle equals title and is long, use it as subtitle and create shorter title
+                    full_text = normalized_props['subtitle']
+                    # Extract first sentence as title
+                    sentences = full_text.split('. ')
+                    if len(sentences) > 1:
+                        normalized_props['title'] = sentences[0]
+                        normalized_props['subtitle'] = '. '.join(sentences[1:])
+                        
+            # Fix template selection for analytics/evaluation content
+            if (template_id == 'metrics-analytics' and 
+                'metrics' in normalized_props and 
+                isinstance(normalized_props['metrics'], list) and 
+                len(normalized_props['metrics']) <= 3):
+                # If metrics-analytics has only bullet points, convert to bullet-points template
+                logger.info(f"Converting slide {slide_index + 1} from metrics-analytics to bullet-points (better fit)")
+                normalized_slide['templateId'] = 'bullet-points'
+                template_id = 'bullet-points'
+                normalized_props['bullets'] = normalized_props.pop('metrics')
+                # Add image prompt for bullet-points
+                if not normalized_props.get('imagePrompt'):
+                    title = normalized_props.get('title', 'concepts')
+                    normalized_props['imagePrompt'] = f"Professional diagram illustrating {title}, modern flat design"
+                    normalized_props['imageAlt'] = f"Diagram for {title}"
                 
             # Fix big-numbers template props
             if template_id == 'big-numbers':
@@ -1507,6 +1540,17 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     normalized_props['leftTitle'] = 'Left Column'
                 if 'rightTitle' not in normalized_props:
                     normalized_props['rightTitle'] = 'Right Column'
+                    
+                # Generate missing image prompts for two-column if content suggests visual elements
+                if not normalized_props.get('leftImagePrompt') and not normalized_props.get('rightImagePrompt'):
+                    title = normalized_props.get('title', 'comparison')
+                    left_title = normalized_props.get('leftTitle', 'concept')
+                    right_title = normalized_props.get('rightTitle', 'concept')
+                    
+                    # Generate appropriate image prompts based on titles
+                    if 'vs' in title.lower() or 'versus' in title.lower() or 'comparison' in title.lower():
+                        normalized_props['leftImagePrompt'] = f"Professional icon representing {left_title}, modern flat design"
+                        normalized_props['rightImagePrompt'] = f"Professional icon representing {right_title}, modern flat design"
                 
                 # Handle case where AI used leftContent/rightContent but missing titles
                 if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
@@ -9818,13 +9862,23 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Assign templateId based on the content structure of each slide:
             - If slide has large title + subtitle format → use "hero-title-slide" or "title-slide"
             - If slide has bullet points or lists → use "bullet-points" or "bullet-points-right"
-            - If slide has two distinct sections → use "two-column" or "two-column-diversity"
+            - If slide has two distinct sections → use "two-column"
             - If slide has numbered steps → use "process-steps"
             - If slide has 4 distinct points → use "four-box-grid"
-            - If slide has metrics/statistics → use "big-numbers"
+            - If slide has 2-3 numerical metrics/statistics with clear values → use "big-numbers"
             - If slide has hierarchical content → use "pyramid"
             - If slide has timeline content → use "timeline"
+            - If slide has event dates → use "event-list"
+            - If slide has 6 numbered ideas → use "six-ideas-list"
+            - If slide has challenges vs solutions → use "challenges-solutions"
+            - If slide has analytics metrics in bullet points → use "metrics-analytics"
             - For standard content → use "content-slide"
+            
+            **CRITICAL TEMPLATE SELECTION RULES:**
+            - NEVER use "big-numbers" unless content has exactly 2-3 clear numerical metrics with values, labels, and descriptions
+            - NEVER use "metrics-analytics" unless content specifically mentions analytics/performance metrics  
+            - If content has bullet points about concepts (not metrics), use "bullet-points" NOT "metrics-analytics"
+            - If content mentions "evaluation", "analysis", or has bullet points about tracking/measuring, consider "bullet-points" first
             
             **CRITICAL TABLE RULE:**
             - If ANY of these words appear in the prompt or slide content → MANDATORY USE `table-dark` or `table-light`:
@@ -9842,7 +9896,51 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For big-numbers: parse table format into "steps" array with value/label/description
             - For timeline: parse chronological content into "steps" array
             - For pyramid: parse hierarchical content into "steps" array
-
+            
+            **CRITICAL IMAGE PROMPT EXTRACTION:**
+            - ALWAYS extract image prompts from [IMAGE_PLACEHOLDER] sections
+            - Format: [IMAGE_PLACEHOLDER: SIZE | POSITION | DESCRIPTION]
+            - Map DESCRIPTION to "imagePrompt" and "imageAlt" fields
+            - If no IMAGE_PLACEHOLDER but template supports images, generate appropriate imagePrompt
+            - For big-image-left: use "title" as main heading, extract subtitle/content from slide text
+            - For big-image-top: use "title" as main heading, extract subtitle/content from slide text
+            - For two-column: extract leftImagePrompt and rightImagePrompt if mentioned
+                        - NEVER leave imagePrompt fields empty - always generate descriptive prompts for visual content
+            
+            **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
+            
+            For "big-image-left" and "big-image-top":
+            - "title": Main slide heading
+            - "subtitle": Descriptive content (NOT same as title)  
+            - "imagePrompt": Detailed description for AI image generation
+            - "imageAlt": Alt text for the image
+            
+            For "bullet-points" and "bullet-points-right":
+            - "title": Main heading
+            - "bullets": Array of bullet point strings
+            - "imagePrompt": Description for supporting image (REQUIRED)
+            - "imageAlt": Alt text for image
+            
+            For "two-column":
+            - "title": Main slide title
+            - "leftTitle": Left column heading  
+            - "rightTitle": Right column heading
+            - "leftContent": Left column text content
+            - "rightContent": Right column text content
+            - "leftImagePrompt": Image prompt for left column (if applicable)
+            - "rightImagePrompt": Image prompt for right column (if applicable)
+            
+            For "big-numbers":
+            - "title": Main heading
+            - "steps": Array with exactly 3 items, each having:
+              - "value": Numerical value or short metric (e.g., "25%", "3x", "$42")
+              - "label": Short descriptive label (e.g., "Performance Improvement") 
+              - "description": Detailed explanation of the metric
+            
+            For "metrics-analytics":
+            - "title": Main heading
+            - "metrics": Array of metric descriptions (strings)
+ 
             **Critical Parsing Rules:**
             - Parse ALL slides provided in the input text - do not skip any
             - Maintain the exact number of slides from input to output
@@ -9850,6 +9948,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Preserve all content exactly as provided in the input
             - Generate sequential slideNumber values (1, 2, 3, ...)
             - Create descriptive slideId values based on number and title
+            - NEVER create duplicate content for title and subtitle - extract different content
+            - ALWAYS generate imagePrompt for templates that support images
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
