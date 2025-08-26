@@ -1126,6 +1126,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           onGenerationCompleted={handleGenerationCompleted}
           onGenerationFailed={handleGenerationFailed}
           onAllGenerationsComplete={handleAllGenerationsComplete}
+          currentTheme={currentThemeData}
         />
       )}
 

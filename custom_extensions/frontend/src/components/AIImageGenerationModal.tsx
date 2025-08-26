@@ -22,6 +22,15 @@ interface AIImageGenerationModalProps {
   title?: string;
   preFilledPrompt?: string; // NEW: Pre-filled prompt from AI
   placeholderId?: string; // NEW: For debugging - placeholder identifier
+  currentTheme?: {
+    colors?: {
+      backgroundColor?: string;
+      titleColor?: string;
+      subtitleColor?: string;
+      contentColor?: string;
+      accentColor?: string;
+    };
+  }; // NEW: Current theme colors for styling
 }
 
 const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
@@ -32,7 +41,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   placeholderDimensions = { width: 1024, height: 1024 },
   title = "Generate AI Image",
   preFilledPrompt,
-  placeholderId
+  placeholderId,
+  currentTheme
 }) => {
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -40,6 +50,35 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [quality, setQuality] = useState<'standard' | 'hd'>('standard');
   const [style, setStyle] = useState<'vivid' | 'natural'>('vivid');
+
+  // Helper function to enhance prompt with theme colors
+  const enhancePromptWithTheme = (basePrompt: string): string => {
+    if (!currentTheme?.colors) return basePrompt;
+    
+    const colors = currentTheme.colors;
+    let enhancedPrompt = basePrompt;
+    
+    // Extract color information for the prompt
+    const colorPalette = [];
+    if (colors.backgroundColor) {
+      const bgType = colors.backgroundColor === '#ffffff' || colors.backgroundColor.includes('fff') ? 'light background' : 'dark background';
+      colorPalette.push(bgType);
+    }
+    if (colors.accentColor) {
+      colorPalette.push(`accent color ${colors.accentColor}`);
+    }
+    if (colors.titleColor) {
+      colorPalette.push(`title color ${colors.titleColor}`);
+    }
+    
+    // Add color harmony information
+    if (colorPalette.length > 0) {
+      enhancedPrompt += `, using a color palette with ${colorPalette.join(', ')}`;
+      enhancedPrompt += ', harmonious colors that complement the presentation theme';
+    }
+    
+    return enhancedPrompt;
+  };
 
   log('AIImageGenerationModal', 'render', { 
     isOpen, 
@@ -49,7 +88,9 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
     placeholderDimensions,
     placeholderId,
     hasPreFilledPrompt: !!preFilledPrompt,
-    preFilledPromptLength: preFilledPrompt?.length || 0
+    preFilledPromptLength: preFilledPrompt?.length || 0,
+    hasTheme: !!currentTheme,
+    themeColors: currentTheme?.colors
   });
 
   // Create portal container on client side
@@ -135,7 +176,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       }
 
       const request: AIImageGenerationRequest = {
-        prompt: prompt.trim(),
+        prompt: enhancePromptWithTheme(prompt.trim()),
         width,
         height,
         quality,
@@ -145,10 +186,13 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
 
       log('AIImageGenerationModal', 'generateImage_apiCall', { 
         placeholderId,
+        originalPrompt: prompt.trim(),
+        enhancedPrompt: enhancePromptWithTheme(prompt.trim()),
         request,
         originalDimensions: placeholderDimensions,
         adjustedDimensions: { width, height },
-        endpoint: '/api/custom/presentation/generate_image'
+        endpoint: '/api/custom/presentation/generate_image',
+        themeColors: currentTheme?.colors
       });
 
       const result = await generateAIImage(request);

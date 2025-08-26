@@ -1432,13 +1432,16 @@ export default function ProjectInstanceViewPage() {
               {t('interface.projectView.back', 'Back')}
             </button>
             
-            <Link
-                href="/projects"
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors"
+            <button
+                onClick={() => {
+                  console.log('Open Products button clicked - navigating to /projects');
+                  router.push('/projects');
+                }}
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
                 >
                 <FolderOpen size={16} className="mr-2" />
                 {t('interface.projectView.openProducts', 'Open Products')}
-            </Link>
+            </button>
           </div>
 
           <div className="flex items-center space-x-3">

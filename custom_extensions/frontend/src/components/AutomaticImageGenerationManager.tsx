@@ -35,6 +35,16 @@ export interface AutomaticImageGenerationManagerProps {
   onGenerationFailed?: (elementId: string, error: string) => void;
   /** Callback when all generations are complete */
   onAllGenerationsComplete?: (results: { elementId: string; success: boolean; imagePath?: string; error?: string }[]) => void;
+  /** Current theme for color palette integration */
+  currentTheme?: {
+    colors?: {
+      backgroundColor?: string;
+      titleColor?: string;
+      subtitleColor?: string;
+      contentColor?: string;
+      accentColor?: string;
+    };
+  };
 }
 
 export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationManagerProps> = ({
@@ -43,11 +53,41 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
   onGenerationStarted,
   onGenerationCompleted,
   onGenerationFailed,
-  onAllGenerationsComplete
+  onAllGenerationsComplete,
+  currentTheme
 }) => {
   const [placeholders, setPlaceholders] = useState<ImagePlaceholder[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [generationResults, setGenerationResults] = useState<{ elementId: string; success: boolean; imagePath?: string; error?: string }[]>([]);
+
+  // Helper function to enhance prompt with theme colors
+  const enhancePromptWithTheme = useCallback((basePrompt: string): string => {
+    if (!currentTheme?.colors) return basePrompt;
+    
+    const colors = currentTheme.colors;
+    let enhancedPrompt = basePrompt;
+    
+    // Extract color information for the prompt
+    const colorPalette = [];
+    if (colors.backgroundColor) {
+      const bgType = colors.backgroundColor === '#ffffff' || colors.backgroundColor.includes('fff') ? 'light background' : 'dark background';
+      colorPalette.push(bgType);
+    }
+    if (colors.accentColor) {
+      colorPalette.push(`accent color ${colors.accentColor}`);
+    }
+    if (colors.titleColor) {
+      colorPalette.push(`title color ${colors.titleColor}`);
+    }
+    
+    // Add color harmony information
+    if (colorPalette.length > 0) {
+      enhancedPrompt += `, using a color palette with ${colorPalette.join(', ')}`;
+      enhancedPrompt += ', harmonious colors that complement the presentation theme';
+    }
+    
+    return enhancedPrompt;
+  }, [currentTheme]);
 
   // Extract image placeholders from the deck
   const extractImagePlaceholders = useCallback((deckData: any): ImagePlaceholder[] => {
@@ -267,8 +307,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         // Notify parent that generation started
         onGenerationStarted?.(placeholder.elementId);
 
+        // Enhance prompt with theme colors
+        const enhancedPrompt = enhancePromptWithTheme(placeholder.imagePrompt || '');
+
         // Generate image
-        const result = await generateImageForPlaceholder(placeholder);
+        const result = await generateImageForPlaceholder({ ...placeholder, imagePrompt: enhancedPrompt });
         
         // Update results
         const resultEntry = {
@@ -328,7 +371,7 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
 
     // Notify parent that all generations are complete
     onAllGenerationsComplete?.(results);
-  }, [enabled, placeholders, generateImageForPlaceholder, onGenerationStarted, onGenerationCompleted, onGenerationFailed, onAllGenerationsComplete]);
+  }, [enabled, placeholders, generateImageForPlaceholder, onGenerationStarted, onGenerationCompleted, onGenerationFailed, onAllGenerationsComplete, enhancePromptWithTheme]);
 
   // Extract placeholders when deck changes
   useEffect(() => {
