@@ -60,7 +60,7 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
         {/* Header */}
         <div className="p-6 pb-3">
           <div className="flex justify-center items-center">
-            <h2 className="text-lg font-semibold">Generate video</h2>
+            <h2 className="text-lg font-semibold text-gray-700">Generate video</h2>
           </div>
         </div>
 
@@ -68,14 +68,14 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
         <div className="px-6 pb-6">
           {/* Title input */}
           <div className="mb-2">
-            <label className="block text-xs text-gray-500 mb-2">Title</label>
+            <label className="block text-xs text-gray-700 mb-2">Title</label>
             <input
               type="text"
               value={videoTitle}
               onChange={(e) => setVideoTitle(e.target.value)}
               onBlur={() => setIsEditingTitle(false)}
               onFocus={() => setIsEditingTitle(true)}
-              className="w-full text-sm bg-transparent border-none outline-none focus:ring-0 px-0 py-1"
+              className="w-full text-sm bg-transparent border-none outline-none focus:ring-0 px-0 py-1 text-gray-700 placeholder-gray-500"
               placeholder="Enter video title"
             />
           </div>
@@ -89,10 +89,10 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             <div className="relative" data-subtitle-dropdown>
               <button 
                 onClick={() => setIsSubtitleDropdownOpen(!isSubtitleDropdownOpen)}
-                className="text-sm text-gray-600 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
+                className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
               >
                 {selectedSubtitleOption}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -133,10 +133,10 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
             <div className="relative" data-resolution-dropdown>
               <button 
                 onClick={() => setIsResolutionDropdownOpen(!isResolutionDropdownOpen)}
-                className="text-sm text-gray-600 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
+                className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2"
               >
                 {selectedResolution}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -224,13 +224,13 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
           {/* Location */}
           <div className="flex justify-between items-center mb-6">
             <span className="text-sm text-gray-700">Location</span>
-            <button className="text-sm text-gray-600 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2">
+            <button className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-2">
               Library
               <div className="flex flex-col">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                 </svg>
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -239,24 +239,24 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
           
           {/* Summary section */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Summary</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Summary</h3>
             
             {/* Generation time */}
             <div className="flex justify-between items-center mb-2">
-              <span className="text-xs text-gray-500">Generation time</span>
-              <span className="text-sm text-gray-900">approx. 8 minutes</span>
+              <span className="text-xs text-gray-700">Generation time</span>
+              <span className="text-sm text-gray-700">approx. 8 minutes</span>
             </div>
             
             {/* Video size */}
             <div className="flex justify-between items-center mb-4">
-              <span className="text-xs text-gray-500">Video size (per video)</span>
-              <span className="text-sm text-gray-900">~ 20MB</span>
+              <span className="text-xs text-gray-700">Video size (per video)</span>
+              <span className="text-sm text-gray-700">~ 20MB</span>
             </div>
             
             {/* Generation with API */}
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Generation with API</span>
-              <button className="text-sm text-gray-600 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-1">
+              <span className="text-sm text-gray-700">Generation with API</span>
+              <button className="text-sm text-gray-700 hover:text-gray-800 px-3 py-1.5 border border-gray-300 rounded-md flex items-center gap-1">
                 <span>&lt;/&gt;</span>
                 Export to API
               </button>
