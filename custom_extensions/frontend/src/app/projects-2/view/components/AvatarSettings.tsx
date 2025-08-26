@@ -31,7 +31,7 @@ export default function AvatarSettings() {
   }, []);
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
       {/* Header with grey background */}
       <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
@@ -101,7 +101,7 @@ export default function AvatarSettings() {
       </div>
       
       {/* Content area */}
-      <div className="p-4">
+      <div className="p-4 overflow-y-auto flex-1">
         <div className="space-y-4">
           {/* View */}
           <div className="flex items-center justify-between">
@@ -234,10 +234,10 @@ export default function AvatarSettings() {
           </div>
 
           {/* Advanced Settings Toggle */}
-          <div className={`flex flex-col items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
+          <div className={`flex items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
             <button
               onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-              className="flex flex-col items-center space-y-1 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               <span className="text-xs text-gray-500">
                 {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
@@ -255,10 +255,10 @@ export default function AvatarSettings() {
 
           {/* Advanced Settings Content */}
           <div className={`transition-all duration-300 ease-in-out ${
-            showAdvancedSettings ? 'h-48' : 'h-0'
+            showAdvancedSettings ? 'max-h-48' : 'max-h-0'
           } overflow-hidden`}>
-            <div className={`px-4 transition-all duration-300 ease-in-out ${
-              showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'
+            <div className={`transition-all duration-300 ease-in-out ${
+              showAdvancedSettings ? 'pt-4 pb-2' : 'pt-0 pb-0'
             }`}>
               <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
                 <AdvancedSettings
@@ -287,7 +287,6 @@ export default function AvatarSettings() {
         title="Choose Avatar"
       />
     </div>
-    <div className="h-[5px]"></div>
     </>
   );
 }
