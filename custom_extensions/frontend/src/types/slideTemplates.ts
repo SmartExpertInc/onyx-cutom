@@ -478,6 +478,8 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
 export interface TwoColumnSlideProps extends BaseTemplateProps {
   title: string;
   content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
   rightImagePath?: string;
   rightImageAlt?: string;
   backgroundColor?: string;

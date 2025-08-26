@@ -321,8 +321,6 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             }}
           />
         </div>
-
-
       </div>
 
       {/* Right section with image */}

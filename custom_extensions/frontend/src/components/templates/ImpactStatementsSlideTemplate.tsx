@@ -237,12 +237,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               onCancel={handleTitleCancel}
               multiline={true}
               className="impact-title-editor"
-                             style={{
-                 fontSize: '32px',
-                 color: themeTitle,
-                 fontWeight: 'bold',
-                 lineHeight: '1.2'
-               }}
+              style={{
+                fontSize: '32px',
+                color: themeTitle,
+                fontWeight: 'bold',
+                lineHeight: '1.2'
+              }}
             />
           ) : (
             <div
@@ -318,11 +318,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   onSave={(value) => handleNumberSave(index, value)}
                   onCancel={handleNumberCancel}
                   className="number-editor"
-                                     style={{
-                     fontSize: '48px',
-                     color: themeBg,
-                     fontWeight: 'bold'
-                   }}
+                  style={{
+                    fontSize: '48px',
+                    color: themeBg,
+                    fontWeight: 'bold'
+                  }}
                 />
               ) : (
                 <div
@@ -350,11 +350,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   onCancel={handleStatementCancel}
                   multiline={true}
                   className="statement-editor"
-                                     style={{
-                     fontSize: '16px',
-                     color: themeBg,
-                     lineHeight: '1.4'
-                   }}
+                  style={{
+                    fontSize: '16px',
+                    color: themeBg,
+                    lineHeight: '1.4'
+                  }}
                 />
               ) : (
                 <div

@@ -127,6 +127,8 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   slideId,
   title = 'We expect you to meet or exceed these metrics',
   content = 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
+  profileImagePath = '',
+  profileImageAlt = 'Profile image',
   rightImagePath = '',
   rightImageAlt = 'Right side image',
   backgroundColor,
@@ -161,7 +163,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -169,7 +171,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
     }
   };
 
@@ -183,11 +185,15 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     setEditingContent(false);
   };
 
-
+  const handleProfileImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
 
   const handleRightImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
+      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
     }
   };
 
@@ -203,7 +209,29 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         flexDirection: 'column',
         justifyContent: 'space-between'
       }}>
-
+        {/* Profile image */}
+        <div style={{
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          marginBottom: '40px'
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
 
         {/* Content */}
         <div style={{
