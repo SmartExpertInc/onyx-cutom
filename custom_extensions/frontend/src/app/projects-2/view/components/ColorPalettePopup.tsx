@@ -53,6 +53,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [opacity, setOpacity] = useState(1); // 0-1 range for opacity
   const [isDragging, setIsDragging] = useState(false);
+  const [justSetByUser, setJustSetByUser] = useState(false);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -138,7 +139,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // Update all color formats when HSB changes (from slider/square)
   useEffect(() => {
-    if (!isUserTyping && !isDragging) {
+    if (!isUserTyping && !isDragging && !justSetByUser) {
       const newHex = hsbToHex(hsb);
       if (newHex !== hex) {
         setHex(newHex);
@@ -147,7 +148,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         onColorChange(newHex);
       }
     }
-  }, [hsb, onColorChange, hex, isUserTyping, isDragging]);
+    // Reset the flag after the effect runs
+    if (justSetByUser) {
+      setJustSetByUser(false);
+    }
+  }, [hsb, onColorChange, hex, isUserTyping, isDragging, justSetByUser]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +166,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (e.key === 'Enter') {
       e.preventDefault();
       setIsUserTyping(false);
+      setJustSetByUser(true); // Flag that hex was just set by user
       const value = e.currentTarget.value;
       // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
@@ -180,6 +186,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleHexBlur = () => {
     setIsUserTyping(false);
+    setJustSetByUser(true); // Flag that hex was just set by user
     // Update other formats if we have a complete valid HEX code
     if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
       const newHsb = hexToHsb(hex);
