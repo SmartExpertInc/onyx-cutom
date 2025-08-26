@@ -11,11 +11,8 @@ html2image
 imgkit
 weasyprint
 pdf2image
-opencv-python
-moviepy
-numpy
-asyncpg # For PostgreSQL
-python-dotenv # To load .env variables
+asyncpg
+python-dotenv
 python-multipart
 tiktoken
 openai
@@ -23,19 +20,16 @@ aiohttp
 ffmpeg-python
 playwright
 Pillow
-opencv-python
 asyncio-mqtt
-moviepy # For fallback video creation
-
-# File handling
 pathlib2
-# Logging and monitoring
 structlog
-# Development dependencies (optional)
 pytest
 pytest-asyncio
 black
 flake8
-# Production dependencies
 gunicorn
 
+# Video processing dependencies (cleaned up duplicates) - installed separately in Dockerfile
+opencv-python==4.8.0.76
+moviepy==1.0.3
+numpy==1.24.3

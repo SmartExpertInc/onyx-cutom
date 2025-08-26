@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies for Pyppeteer/Chromium and FFmpeg
+# Install system dependencies for MoviePy, OpenCV, FFmpeg, and Pyppeteer/Chromium
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     fonts-liberation \
@@ -56,13 +56,33 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libass-dev \
     libfreetype6-dev \
     libfontconfig1-dev \
-         # Note: wkhtmltopdf/wkhtmltoimage removed from Debian - using alternative methods
+    # CRITICAL: System dependencies for MoviePy and OpenCV
+    libsm6 \
+    libxrender1 \
+    libglib2.0-0 \
+    libgomp1 \
+    libgthread-2.0-0 \
+    libgtk-3-dev \
+    pkg-config \
+    # CRITICAL: Additional MoviePy system dependencies
+    imagemagick \
+    ghostscript \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy requirements first for better Docker layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Python dependencies with explicit MoviePy installation
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir numpy==1.24.3 && \
+    pip install --no-cache-dir opencv-python==4.8.0.76 && \
+    pip install --no-cache-dir moviepy==1.0.3 && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Verify MoviePy installation
+RUN python -c "import moviepy.editor; print('MoviePy installed successfully')"
 
 # Install Playwright browsers
 RUN playwright install chromium
@@ -70,7 +90,7 @@ RUN playwright install chromium
 COPY . .
 
 RUN mkdir -p /app/data /tmp/generated_pdfs /app/temp
-RUN chmod -R 777 /tmp/generated_pdfs /app/temp # Ensure directories are writable
+RUN chmod -R 777 /tmp/generated_pdfs /app/temp
 
 EXPOSE 8001
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
