@@ -11220,16 +11220,28 @@ async def stream_slide_deck_pdf_generation(
             mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
             unique_output_filename = f"slide_deck_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
             
-            # Generate PDF with progress callbacks
-            from app.services.pdf_generator import generate_slide_deck_pdf_with_progress
-             
-            async for progress_message in generate_slide_deck_pdf_with_progress(
+            # Generate PDF using the traditional method with manual progress updates
+            from app.services.pdf_generator import generate_slide_deck_pdf_with_dynamic_height
+            
+            # Send progress updates during generation
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Calculating slide dimensions...', 'current': 0, 'total': total_slides})}\n\n"
+            
+            # Simulate progress for each slide (this happens very quickly but gives user feedback)
+            for i in range(total_slides):
+                yield f"data: {json.dumps({'type': 'progress', 'message': f'Processing slide {i+1}...', 'current': i+1, 'total': total_slides})}\n\n"
+                await asyncio.sleep(0.1)  # Small delay to make progress visible
+            
+            # Generate the actual PDF
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Generating PDF file...', 'current': total_slides, 'total': total_slides})}\n\n"
+            
+            pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
                 slides_data=slide_deck_data['slides'],
                 theme=theme,
                 output_filename=unique_output_filename,
                 use_cache=True
-            ):
-                yield f"data: {json.dumps(progress_message)}\n\n"
+            )
+            
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'PDF generation completed!', 'current': total_slides, 'total': total_slides})}\n\n"
                 
             # Final success message with download info
             user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
@@ -11255,7 +11267,7 @@ async def stream_slide_deck_pdf_generation(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "Content-Type": "text/event-stream",
+            "X-Accel-Buffering": "no",
         }
     )
 

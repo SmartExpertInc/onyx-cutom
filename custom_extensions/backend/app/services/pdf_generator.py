@@ -2385,13 +2385,14 @@ async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> l
     return successful_paths
 
 @timeout_wrapper(120)  # 2 minute timeout to prevent 504 errors
+# DEPRECATED: This function is no longer used, replaced with direct streaming in main.py
+"""
 async def generate_slide_deck_pdf_with_progress(
     slides_data: list,
     theme: str,
     output_filename: str,
     use_cache: bool = True
 ) -> AsyncGenerator[dict, None]:
-    """
     Generate a PDF slide deck with progress updates yielded as async generator.
     
     Args:
@@ -2402,7 +2403,7 @@ async def generate_slide_deck_pdf_with_progress(
     
     Yields:
         dict: Progress update messages
-    """
+
     # Always yield a start message to ensure this is detected as an async generator
     yield {'type': 'progress', 'message': 'Initializing PDF generation...', 'current': 0, 'total': len(slides_data)}
     
