@@ -473,10 +473,10 @@ export default function TextSettings() {
             </div>
 
             {/* Advanced Settings Toggle */}
-            <div className={`flex flex-col items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
+            <div className={`flex items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
               <button
                 onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                className="flex flex-col items-center space-y-1 text-gray-600 hover:text-gray-800 transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 <span className="text-xs text-gray-500">
                   {showAdvancedSettings ? 'Collapse advanced settings' : 'Show advanced settings'}
