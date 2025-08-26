@@ -64,98 +64,54 @@ class HTMLToImageService:
 
     
     async def convert_html_to_png_html2image(self, html_content: str, output_path: str) -> bool:
-        """Convert HTML to PNG using html2image library."""
+        """Convert HTML to PNG using html2image library with optimized settings."""
         try:
             from html2image import Html2Image
             
-            # Configure html2image with proper Chrome flags for Docker environment
-            # CRITICAL FIX: Add viewport and disable default margins/padding
+            # Configure html2image with PDF-generator-inspired Chrome flags for perfect rendering
             hti = Html2Image(
                 size=(self.video_width, self.video_height),
                 output_path=os.path.dirname(output_path),
                 custom_flags=[
                     '--no-sandbox',
+                    '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
                     '--disable-gpu',
+                    '--no-zygote',
                     '--disable-web-security',
                     '--disable-features=VizDisplayCompositor',
                     '--force-device-scale-factor=1',  # Ensure 1:1 pixel mapping
-                    '--high-dpi-support=1',  # Better high DPI support
-                    '--disable-default-apps',
+                    '--high-dpi-support=1',
+                    '--single-process',
                     '--disable-extensions',
-                    '--disable-plugins',
-                    '--disable-images',  # Disable images to focus on layout
-                    '--disable-javascript',
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding',
-                    '--disable-field-trial-config',
-                    '--disable-ipc-flooding-protection',
-                    '--enable-logging',
-                    '--log-level=0',
-                    '--silent-launch',
-                    '--no-first-run',
-                    '--no-default-browser-check',
                     '--disable-default-apps',
                     '--disable-sync',
                     '--disable-translate',
                     '--hide-scrollbars',
+                    '--metrics-recording-only',
                     '--mute-audio',
-                    '--no-zygote',
-                    '--single-process',
-                    '--disable-background-networking',
+                    '--no-first-run',
+                    '--font-render-hinting=none',
+                    '--enable-font-antialiasing',
                     '--disable-background-timer-throttling',
-                    '--disable-client-side-phishing-detection',
-                    '--disable-component-extensions-with-background-pages',
-                    '--disable-extensions',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
                     '--disable-features=TranslateUI',
                     '--disable-ipc-flooding-protection',
-                    '--disable-renderer-backgrounding',
-                    '--disable-sync',
-                    '--force-color-profile=srgb',
-                    '--metrics-recording-only',
-                    '--no-first-run',
-                    '--safebrowsing-disable-auto-update',
-                    '--enable-automation',
-                    '--password-store=basic',
-                    '--use-mock-keychain',
-                    '--disable-blink-features=AutomationControlled'
+                    '--allow-running-insecure-content',
+                    # Critical: Force exact viewport dimensions
+                    f'--window-size={self.video_width},{self.video_height}',
+                    '--virtual-time-budget=5000'  # Allow time for rendering
                 ]
             )
             
             filename = os.path.basename(output_path)
             
-            # CRITICAL FIX: Wrap HTML content with proper viewport and ensure full coverage
-            # The issue is that html2image might not respect the exact dimensions
-            wrapped_html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width={self.video_width}, height={self.video_height}, initial-scale=1.0">
-                <style>
-                    html, body {{
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        width: {self.video_width}px !important;
-                        height: {self.video_height}px !important;
-                        overflow: hidden !important;
-                        background: transparent !important;
-                    }}
-                    * {{
-                        box-sizing: border-box !important;
-                    }}
-                </style>
-            </head>
-            <body>
-                {html_content}
-            </body>
-            </html>
-            """
+            logger.info(f"🎬 [HTML2IMAGE] Converting HTML to image with exact dimensions: {self.video_width}x{self.video_height}")
             
-            # Convert HTML to image
+            # Convert HTML to image with exact size enforcement
             hti.screenshot(
-                html_str=wrapped_html,
+                html_str=html_content,
                 save_as=filename,
                 size=(self.video_width, self.video_height)
             )
@@ -168,6 +124,29 @@ class HTMLToImageService:
                 if file_size == 0:
                     logger.error("html2image created empty file - falling back to simple method")
                     return False
+                
+                # Verify the image dimensions using PIL
+                try:
+                    from PIL import Image
+                    with Image.open(output_path) as img:
+                        actual_width, actual_height = img.size
+                        logger.info(f"🎬 [HTML2IMAGE] Generated image dimensions: {actual_width}x{actual_height}")
+                        
+                        # Check if dimensions match expected
+                        if actual_width != self.video_width or actual_height != self.video_height:
+                            logger.warning(f"🎬 [HTML2IMAGE] Dimension mismatch! Expected: {self.video_width}x{self.video_height}, Got: {actual_width}x{actual_height}")
+                            
+                            # Resize to exact dimensions if needed
+                            resized_img = img.resize((self.video_width, self.video_height), Image.Resampling.LANCZOS)
+                            resized_img.save(output_path, 'PNG')
+                            logger.info(f"🎬 [HTML2IMAGE] Resized image to exact dimensions: {self.video_width}x{self.video_height}")
+                        else:
+                            logger.info(f"🎬 [HTML2IMAGE] Perfect dimension match!")
+                            
+                except ImportError:
+                    logger.warning("PIL not available for dimension verification")
+                except Exception as e:
+                    logger.warning(f"Failed to verify image dimensions: {e}")
                     
                 return True
             else:
@@ -390,15 +369,6 @@ class HTMLToImageService:
             
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content generated")
             logger.info(f"🎬 [HTML_TO_IMAGE] HTML content length: {len(html_content)} characters")
-            
-            # DEBUG: Save HTML content to file for inspection
-            debug_html_path = output_path.replace('.png', '_debug.html')
-            try:
-                with open(debug_html_path, 'w', encoding='utf-8') as f:
-                    f.write(html_content)
-                logger.info(f"🎬 [HTML_TO_IMAGE] Debug HTML saved to: {debug_html_path}")
-            except Exception as e:
-                logger.warning(f"🎬 [HTML_TO_IMAGE] Failed to save debug HTML: {str(e)}")
             
             # Convert to PNG
             logger.info(f"🎬 [HTML_TO_IMAGE] Converting HTML to PNG...")
