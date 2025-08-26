@@ -421,9 +421,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         <div style={{
           width: '200px',
           height: '200px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: themeBg
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -435,8 +432,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             style={{
               width: '100%',
               height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
+              objectFit: 'contain'
             }}
           />
         </div>

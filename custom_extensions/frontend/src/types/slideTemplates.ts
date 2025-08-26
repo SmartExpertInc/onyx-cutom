@@ -475,6 +475,49 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+export interface TwoColumnSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
+  title: string;
+  definitions: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface ImpactStatementsSlideProps extends BaseTemplateProps {
+  title: string;
+  statements: Array<{
+    number: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -503,7 +546,10 @@ export type TemplateId =
   | 'hybrid-work-best-practices-slide'
   | 'benefits-tags-slide'
   | 'learning-topics-slide'
-  | 'soft-skills-assessment-slide';
+  | 'soft-skills-assessment-slide'
+  | 'two-column-slide'
+  | 'phishing-definition-slide'
+  | 'impact-statements-slide';
 
 export interface TemplatePreview {
   templateId: string;

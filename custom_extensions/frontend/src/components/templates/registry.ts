@@ -30,6 +30,9 @@ import { HybridWorkBestPracticesSlideTemplate } from './HybridWorkBestPracticesS
 import { BenefitsTagsSlideTemplate } from './BenefitsTagsSlideTemplate';
 import { LearningTopicsSlideTemplate } from './LearningTopicsSlideTemplate';
 import { SoftSkillsAssessmentSlideTemplate } from './SoftSkillsAssessmentSlideTemplate';
+import { TwoColumnSlideTemplate } from './TwoColumnSlideTemplate';
+import { PhishingDefinitionSlideTemplate } from './PhishingDefinitionSlideTemplate';
+import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1349,6 +1352,110 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    }
+  },
+
+  'two-column-slide': {
+    id: 'two-column-slide',
+    name: 'Two Column Slide',
+    description: 'Slide with avatar and text on left, image on right',
+    category: 'content',
+    icon: '📄',
+    component: TwoColumnSlideTemplate,
+    defaultProps: {
+      title: 'We expect you to meet or exceed these metrics',
+      content: 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      rightImagePath: '',
+      rightImageAlt: 'Right side image',
+      backgroundColor: '#f5f5f5',
+      titleColor: '#333333',
+      contentColor: '#666666',
+      accentColor: '#ff6b35'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      content: { type: 'text', label: 'Content', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      rightImagePath: { type: 'image', label: 'Right Side Image' },
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#f5f5f5' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+    }
+  },
+
+  'phishing-definition-slide': {
+    id: 'phishing-definition-slide',
+    name: 'Phishing Definition Slide',
+    description: 'Slide with phishing definitions and image',
+    category: 'content',
+    icon: '🛡️',
+    component: PhishingDefinitionSlideTemplate,
+    defaultProps: {
+      title: 'What is phishing?',
+      definitions: [
+        "Using data to access a victim's account and withdrawing money or making an online transaction, e.g. buying a product or service.",
+        "Using data to open fake bank accounts or credit cards in the name of the victim and using them to cash out illegal checks, etc.",
+        "Using the victim's computer systems to install viruses and worms and disseminating phishing emails further to their contacts.",
+        "Using data from some systems to gain access to high value organizational data such as banking information, employee credentials, social security numbers, etc."
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      rightImagePath: '',
+      rightImageAlt: 'Right side image',
+      backgroundColor: '#ffffff',
+      titleColor: '#333333',
+      contentColor: '#666666',
+      accentColor: '#ff6b35'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      definitions: { type: 'array', label: 'Definitions', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      rightImagePath: { type: 'image', label: 'Right Side Image' },
+      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#ffffff' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
+    }
+  },
+
+  'impact-statements-slide': {
+    id: 'impact-statements-slide',
+    name: 'Impact Statements Slide',
+    description: 'Slide with impact statements and statistics',
+    category: 'content',
+    icon: '📊',
+    component: ImpactStatementsSlideTemplate,
+    defaultProps: {
+      title: 'Here are some impact value statements backed by numbers:',
+      statements: [
+        { number: '50%', description: 'decrease in turnover rates.' },
+        { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
+        { number: '40%', description: 'increase in employee morale and engagement' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      backgroundColor: '#1a1a1a',
+      titleColor: '#ffffff',
+      contentColor: '#ffffff',
+      accentColor: '#ff6b35'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      statements: { type: 'array', label: 'Statements', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a1a' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      contentColor: { type: 'color', label: 'Content Color', default: '#ffffff' },
+      accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' }
     }
   }
 };
