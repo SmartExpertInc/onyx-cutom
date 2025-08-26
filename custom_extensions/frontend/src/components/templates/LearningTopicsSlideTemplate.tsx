@@ -232,7 +232,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     <div className="learning-topics-slide-template" style={slideStyles}>
       {/* Left section */}
       <div style={{
-        width: '65%',
+        width: '50%',
         height: '100%',
         backgroundColor: themeBg,
         padding: '40px 60px',
@@ -276,8 +276,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
           {/* Main title */}
           <div style={{
+            maxWidth: '275px',
             fontSize: '48px',
-            fontWeight: 'bold',
             color: themeTitle,
             lineHeight: '1.1',
             marginBottom: '60px'
@@ -289,8 +289,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 onCancel={handleTitleCancel}
                 className="learning-title-editor"
                 style={{
+                  maxWidth: '275px',
                   fontSize: '48px',
-                  fontWeight: 'bold',
                   color: themeTitle,
                   lineHeight: '1.1'
                 }}
@@ -319,8 +319,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 key={index}
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '20px'
+                  flexDirection: 'column-reverse',
+                  gap: '10px'
                 }}
               >
                 <div style={{
@@ -331,7 +331,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 }} />
                 <div style={{
                   fontSize: '24px',
-                  fontWeight: 'bold',
                   color: themeTitle,
                   minWidth: '120px'
                 }}>
@@ -343,7 +342,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                       className="topic-editor"
                       style={{
                         fontSize: '24px',
-                        fontWeight: 'bold',
                         color: themeTitle
                       }}
                     />
@@ -410,7 +408,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
       {/* Right section with profile image */}
       <div style={{
-        width: '35%',
+        width: '50%',
         height: '100%',
         backgroundColor: themeAccent,
         display: 'flex',
