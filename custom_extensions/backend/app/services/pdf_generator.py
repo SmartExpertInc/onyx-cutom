@@ -77,8 +77,38 @@ PDF_MAX_SLIDE_HEIGHT = 3000
 PDF_HEIGHT_SAFETY_MARGIN = 40
 PDF_GENERATION_TIMEOUT = 30000  # Reduced from 60s to 30s
 PDF_PAGE_TIMEOUT = 10000  # Reduced from 30s to 10s per page
-MAX_CONCURRENT_SLIDES = 2  # Reduced from 3 to 2 for stability
+MAX_CONCURRENT_SLIDES = 4  # Increased from 2 to 4 for better parallelization
 BROWSER_MEMORY_LIMIT = 512  # Reduced from 1024 to 512 MB
+
+# Dynamic parallelization based on system resources
+import multiprocessing
+import psutil
+
+def get_optimal_concurrent_slides():
+    """Determine optimal number of concurrent slides based on system resources"""
+    try:
+        # Get CPU count and available memory
+        cpu_count = multiprocessing.cpu_count()
+        memory_gb = psutil.virtual_memory().total / (1024**3)
+        
+        # Base calculation on CPU cores and available memory
+        # Each browser instance uses ~100-200MB RAM
+        max_by_cpu = cpu_count * 2  # 2 slides per CPU core
+        max_by_memory = int(memory_gb * 2)  # 2 slides per GB of RAM
+        
+        # Take the minimum to avoid overwhelming the system
+        optimal = min(max_by_cpu, max_by_memory, MAX_CONCURRENT_SLIDES)
+        
+        # Ensure minimum of 2 and maximum of 8
+        optimal = max(2, min(optimal, 8))
+        
+        logger.info(f"System resources: {cpu_count} CPUs, {memory_gb:.1f}GB RAM")
+        logger.info(f"Optimal concurrent slides: {optimal}")
+        
+        return optimal
+    except Exception as e:
+        logger.warning(f"Could not determine optimal concurrent slides: {e}, using default: {MAX_CONCURRENT_SLIDES}")
+        return MAX_CONCURRENT_SLIDES
 
 # --- Setup Jinja2 Environment ---
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -2422,21 +2452,35 @@ async def generate_slide_deck_pdf_with_progress(
     start_time = time.time()
     
     try:
-        # Step 1: Calculate heights for all slides
+        # Step 1: Calculate heights for all slides in parallel
         yield {'type': 'progress', 'message': 'Calculating slide dimensions...', 'current': 0, 'total': len(slides_data)}
         browser = await pyppeteer.launch(**get_browser_launch_options())
         
-        slide_heights = []
-        for i, slide_data in enumerate(slides_data):
+        # Create tasks for parallel height calculation
+        async def calculate_slide_height(slide_data, slide_index):
             template_id = slide_data.get('templateId', 'unknown')
-            yield {'type': 'progress', 'message': f'Calculating dimensions for slide {i + 1}: {template_id}', 'current': i, 'total': len(slides_data)}
-            
             try:
                 height = await calculate_slide_dimensions(slide_data, theme, browser)
-                slide_heights.append(height)
+                return height
             except Exception as e:
-                logger.error(f"Failed to calculate height for slide {i + 1}: {e}")
-                slide_heights.append(PDF_MIN_SLIDE_HEIGHT)
+                logger.error(f"Failed to calculate height for slide {slide_index + 1}: {e}")
+                return PDF_MIN_SLIDE_HEIGHT
+        
+        # Create tasks for all slides
+        height_tasks = []
+        for i, slide_data in enumerate(slides_data):
+            task = calculate_slide_height(slide_data, i)
+            height_tasks.append(task)
+        
+        # Execute height calculations in parallel
+        import asyncio
+        slide_heights = await asyncio.gather(*height_tasks, return_exceptions=True)
+        
+        # Convert exceptions to default height
+        for i, height in enumerate(slide_heights):
+            if isinstance(height, Exception):
+                logger.error(f"Height calculation failed for slide {i + 1}: {height}")
+                slide_heights[i] = PDF_MIN_SLIDE_HEIGHT
         
         await browser.close()
         browser = None
@@ -2450,8 +2494,8 @@ async def generate_slide_deck_pdf_with_progress(
             temp_pdf_path = f"/tmp/slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
             slide_tasks.append((slide_data, slide_height, temp_pdf_path, i, template_id))
         
-        # Process slides in batches
-        batch_size = MAX_CONCURRENT_SLIDES
+        # Process slides in batches with dynamic sizing
+        batch_size = get_optimal_concurrent_slides()
         successful_paths = []
         
         for batch_start in range(0, len(slide_tasks), batch_size):
@@ -2463,17 +2507,47 @@ async def generate_slide_deck_pdf_with_progress(
             batch_browser = await pyppeteer.launch(**get_browser_launch_options())
             
             try:
-                # Process each slide in the batch with individual progress updates
+                # Process slides in parallel within the batch
                 batch_results = []
+                
+                # Create async tasks for parallel processing
+                async def process_slide(slide_data, slide_height, temp_pdf_path, slide_index, template_id):
+                    try:
+                        success = await generate_single_slide_pdf(
+                            slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id
+                        )
+                        
+                        if success:
+                            return temp_pdf_path
+                        else:
+                            return None
+                    except Exception as e:
+                        logger.error(f"Error processing slide {slide_index + 1}: {e}")
+                        return None
+                
+                # Create tasks for all slides in the batch
+                tasks = []
                 for slide_data, slide_height, temp_pdf_path, slide_index, template_id in batch:
-                    yield {'type': 'progress', 'message': f'Generating slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
+                    task = process_slide(slide_data, slide_height, temp_pdf_path, slide_index, template_id)
+                    tasks.append(task)
+                
+                # Send progress message for batch start
+                yield {'type': 'progress', 'message': f'Generating {len(batch)} slides in parallel...', 'current': batch_start, 'total': len(slides_data)}
+                
+                # Execute all tasks in parallel
+                import asyncio
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                
+                # Process results and send individual progress updates
+                for i, result in enumerate(results):
+                    slide_index = batch_start + i
+                    template_id = batch[i][4]  # template_id is the 5th element
                     
-                    success = await generate_single_slide_pdf(
-                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id
-                    )
-                    
-                    if success:
-                        batch_results.append(temp_pdf_path)
+                    if isinstance(result, Exception):
+                        logger.error(f"Task failed with exception: {result}")
+                        yield {'type': 'error', 'message': f'Failed to generate slide {slide_index + 1}: {template_id}'}
+                    elif result is not None:
+                        batch_results.append(result)
                         yield {'type': 'progress', 'message': f'✓ Generated slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
                     else:
                         yield {'type': 'error', 'message': f'Failed to generate slide {slide_index + 1}: {template_id}'}
