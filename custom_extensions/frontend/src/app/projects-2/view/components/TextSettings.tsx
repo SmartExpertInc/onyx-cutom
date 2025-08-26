@@ -182,7 +182,7 @@ export default function TextSettings() {
       </div>
       
       {/* Content area */}
-      <div className={`p-4 overflow-y-auto flex-1`}>
+      <div className={`p-4 overflow-y-auto`} style={{ height: 'calc(100% - 112px)' }}>
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
