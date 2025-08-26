@@ -157,7 +157,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '596px',
+    height: '640px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -306,14 +306,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             <div style={{
               padding: '30px',
               backgroundColor: tip.isHighlighted ? themeAccent : themeTitle,
-              minHeight: '200px',
+              minHeight: '310px',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: '2'
+              paddingLeft: '10px',
+              zIndex: '2',
             }}>
               <div style={{
-                fontSize: '27px',
+                fontSize: '29px',
                 fontWeight: '500',
                 color: themeBg,
                 lineHeight: '1.4',
@@ -356,12 +355,12 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               padding: '20px',
               backgroundColor: themeAccent,
               minHeight: '80px',
-              height: '203px',
+              height: '304px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              top: '-203px',
+              top: '-303px',
               zIndex: '1',
               marginTop: '-10px', // Makes it overlap slightly
               marginLeft: '16px', // Makes it extend out to the right

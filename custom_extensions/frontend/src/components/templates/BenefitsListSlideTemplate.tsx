@@ -353,7 +353,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
-                  fontSize: '20px'
+                  fontSize: '22px'
                 }}
               >
                 {currentDescription}
@@ -395,8 +395,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           position: 'absolute',
           top: '40px',
           right: '60px',
-          width: '120px',
-          height: '120px',
+          width: '180px',
+          height: '180px',
           borderRadius: '50%',
           overflow: 'hidden',
         }}>

@@ -435,7 +435,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       {/* Footer */}
       <div style={{
         position: 'absolute',
-        bottom: '0px',
+        bottom: '25px',
         left: '80px',
         display: 'flex',
         alignItems: 'center',
