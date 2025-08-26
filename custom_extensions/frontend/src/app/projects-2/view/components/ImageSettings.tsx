@@ -204,7 +204,7 @@ export default function ImageSettings() {
             </div>
 
                           {/* Advanced Settings Toggle */}
-              <div className={`flex items-center justify-center py-2 ${!showAdvancedSettings ? '-mb-4 mb-[2px]' : ''}`}>
+              <div className="flex items-center justify-center py-2">
                 <button
                   onClick={() => {
                     const scrollTop = contentRef.current?.scrollTop || 0;
