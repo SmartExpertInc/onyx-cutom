@@ -167,7 +167,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '596px',
+    height: '600px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
