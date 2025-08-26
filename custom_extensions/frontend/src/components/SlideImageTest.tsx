@@ -1,6 +1,7 @@
 import React from 'react';
 import StandaloneSlideImageButton from './StandaloneSlideImageButton';
 import HtmlPreviewButton from './HtmlPreviewButton';
+import SlideVideoButton from './SlideVideoButton';
 
 const SlideImageTest: React.FC = () => {
   const handleSuccess = (message: string) => {
@@ -35,7 +36,8 @@ const SlideImageTest: React.FC = () => {
         <ul className="list-disc list-inside space-y-1">
           <li>🔍 HTML Preview - View static HTML before image generation</li>
           <li>📷 Slide Image - Generate PNG without video processing</li>
-          <li>🎬 Video Generation - Full video with AI avatar</li>
+          <li>🎬 Slide Video - Generate video from slide only (no AI avatar)</li>
+          <li>🎬 Full Video - Complete video with AI avatar</li>
         </ul>
       </div>
       
@@ -47,6 +49,12 @@ const SlideImageTest: React.FC = () => {
         />
         
         <StandaloneSlideImageButton
+          projectName="Test Project"
+          onSuccess={handleSuccess}
+          onError={handleError}
+        />
+        
+        <SlideVideoButton
           projectName="Test Project"
           onSuccess={handleSuccess}
           onError={handleError}

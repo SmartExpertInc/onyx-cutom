@@ -32,6 +32,7 @@ class PresentationRequest:
     slides_data: Optional[List[Dict[str, Any]]] = None  # Actual slide content with text, props, etc.
     theme: Optional[str] = "dark-purple"  # Theme for slide generation
     avatar_code: Optional[str] = None  # Will be dynamically selected if None
+    slide_only: bool = False  # Flag to generate slide-only video (no AI avatar)
     duration: float = 30.0
     layout: str = "side_by_side"  # side_by_side, picture_in_picture, split_screen
     quality: str = "high"  # high, medium, low
@@ -282,60 +283,77 @@ class ProfessionalPresentationService:
             
             job.progress = 30.0
             
-            # Step 2: Generate avatar video via Elai API
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
-            logger.info(f"  - Voiceover texts count: {len(request.voiceover_texts)}")
-            logger.info(f"  - Avatar code: {request.avatar_code}")
-            logger.info(f"  - Duration: {request.duration}")
-            
-            for i, text in enumerate(request.voiceover_texts):
-                logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
-            
-            job.progress = 40.0
-            
-            avatar_video_path = await self._generate_avatar_video(
-                request.voiceover_texts,
-                request.avatar_code,
-                request.duration
-            )
-            job.progress = 60.0
-            
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
-            
-            # Step 3: Compose final video
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
-            logger.info(f"  - Slide video path: {slide_video_path}")
-            logger.info(f"  - Avatar video path: {avatar_video_path}")
-            logger.info(f"  - Layout: {request.layout}")
-            logger.info(f"  - Resolution: {request.resolution}")
-            logger.info(f"  - Quality: {request.quality}")
-            
-            job.progress = 70.0
-            
-            output_filename = f"presentation_{job_id}.mp4"
-            output_path = self.output_dir / output_filename
-            
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
-            logger.info(f"  - Output filename: {output_filename}")
-            logger.info(f"  - Output path: {output_path}")
-            
-            composition_config = CompositionConfig(
-                output_path=str(output_path),
-                resolution=request.resolution,
-                quality=request.quality,
-                layout=request.layout
-            )
-            
-            final_video_path = await video_composer_service.compose_presentation(
-                slide_video_path,
-                avatar_video_path,
-                composition_config
-            )
-            job.progress = 90.0
-            
-            logger.info(f"Final video composed: {final_video_path}")
+            # Check if this is a slide-only video (no AI avatar)
+            if request.slide_only:
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] SLIDE-ONLY MODE: Skipping avatar generation")
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Using slide video directly as final video")
+                
+                # For slide-only mode, copy the slide video to the final output location
+                output_filename = f"presentation_{job_id}.mp4"
+                output_path = self.output_dir / output_filename
+                
+                import shutil
+                shutil.copy2(slide_video_path, output_path)
+                final_video_path = str(output_path)
+                job.progress = 90.0
+                
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Slide-only video copied to: {final_video_path}")
+                
+            else:
+                # Step 2: Generate avatar video via Elai API
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
+                logger.info(f"  - Voiceover texts count: {len(request.voiceover_texts)}")
+                logger.info(f"  - Avatar code: {request.avatar_code}")
+                logger.info(f"  - Duration: {request.duration}")
+                
+                for i, text in enumerate(request.voiceover_texts):
+                    logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
+                
+                job.progress = 40.0
+                
+                avatar_video_path = await self._generate_avatar_video(
+                    request.voiceover_texts,
+                    request.avatar_code,
+                    request.duration
+                )
+                job.progress = 60.0
+                
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
+                
+                # Step 3: Compose final video
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
+                logger.info(f"  - Slide video path: {slide_video_path}")
+                logger.info(f"  - Avatar video path: {avatar_video_path}")
+                logger.info(f"  - Layout: {request.layout}")
+                logger.info(f"  - Resolution: {request.resolution}")
+                logger.info(f"  - Quality: {request.quality}")
+                
+                job.progress = 70.0
+                
+                output_filename = f"presentation_{job_id}.mp4"
+                output_path = self.output_dir / output_filename
+                
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
+                logger.info(f"  - Output filename: {output_filename}")
+                logger.info(f"  - Output path: {output_path}")
+                
+                composition_config = CompositionConfig(
+                    output_path=str(output_path),
+                    resolution=request.resolution,
+                    quality=request.quality,
+                    layout=request.layout
+                )
+                
+                final_video_path = await video_composer_service.compose_presentation(
+                    slide_video_path,
+                    avatar_video_path,
+                    composition_config
+                )
+                job.progress = 90.0
+                
+                logger.info(f"Final video composed: {final_video_path}")
             
             # Step 4: Create thumbnail
             logger.info(f"Step 4: Creating thumbnail for job {job_id}")
@@ -348,7 +366,12 @@ class ProfessionalPresentationService:
             )
             
             # Step 5: Cleanup temporary files
-            await self._cleanup_temp_files([slide_video_path, avatar_video_path])
+            if request.slide_only:
+                # For slide-only mode, only cleanup the temporary slide video
+                await self._cleanup_temp_files([slide_video_path])
+            else:
+                # For full mode, cleanup both slide and avatar videos
+                await self._cleanup_temp_files([slide_video_path, avatar_video_path])
             
             # Update job status
             job.status = "completed"

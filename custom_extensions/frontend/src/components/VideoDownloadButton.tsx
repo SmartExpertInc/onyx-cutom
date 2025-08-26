@@ -5,6 +5,7 @@ import { Video, Loader, CheckCircle, AlertTriangle, Image } from 'lucide-react';
 import SlideImageDownloadButton from './SlideImageDownloadButton';
 import StandaloneSlideImageButton from './StandaloneSlideImageButton';
 import HtmlPreviewButton from './HtmlPreviewButton';
+import SlideVideoButton from './SlideVideoButton';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -568,6 +569,14 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       
       {/* Standalone Slide Image Button - Always available */}
       <StandaloneSlideImageButton
+        projectName={projectName}
+        onError={onError}
+        onSuccess={onSuccess}
+        className="text-xs py-1"
+      />
+      
+      {/* Slide-Only Video Button - Always available */}
+      <SlideVideoButton
         projectName={projectName}
         onError={onError}
         onSuccess={onSuccess}

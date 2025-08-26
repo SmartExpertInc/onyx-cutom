@@ -17489,6 +17489,64 @@ async def preview_slide_html(request: Request):
         logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
         return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
 
+@app.post("/api/custom/slide-video/generate")
+async def generate_slide_video(request: Request):
+    """Generate video from slide image only (no AI avatar)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Generating slide-only video")
+        logger.info(f"🎬 [SLIDE_VIDEO] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"🎬 [SLIDE_VIDEO] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("🎬 [SLIDE_VIDEO] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Import the presentation service
+        from app.services.presentation_service import presentation_service
+        
+        # Create a presentation request with slide-only flag
+        from app.services.presentation_service import PresentationRequest
+        
+        # Get the first slide
+        slide_props = slides_data[0]
+        template_id = slide_props.get("templateId")
+        
+        if not template_id:
+            logger.error("🎬 [SLIDE_VIDEO] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        
+        # Create presentation request
+        presentation_request = PresentationRequest(
+            slides_data=slides_data,
+            theme=theme,
+            slide_only=True  # Flag to indicate slide-only video
+        )
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Creating slide-only presentation...")
+        
+        # Start the presentation generation
+        job_id = await presentation_service.create_presentation(presentation_request)
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Slide-only video generation started with job ID: {job_id}")
+        
+        return {
+            "success": True,
+            "jobId": job_id,
+            "message": "Slide-only video generation started"
+        }
+        
+    except Exception as e:
+        logger.error(f"🎬 [SLIDE_VIDEO] Error generating slide-only video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate slide-only video: {str(e)}"}
+
 @app.get("/api/custom/presentations")
 async def list_presentations(limit: int = 50):
     """List recent presentation jobs."""
