@@ -54,9 +54,46 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [opacity, setOpacity] = useState(1); // 0-1 range for opacity
   const [isDragging, setIsDragging] = useState(false);
   const [justSetByUser, setJustSetByUser] = useState(false);
-
+  
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const [adjustedPosition, setAdjustedPosition] = React.useState(position);
+
+  // Viewport positioning logic (same as OptionPopup)
+  useEffect(() => {
+    if (isOpen && popupRef.current && position) {
+      const popup = popupRef.current;
+      const rect = popup.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      let newX = position.x;
+      let newY = position.y;
+      
+      // Check if popup goes beyond right edge
+      if (position.x + rect.width > viewportWidth) {
+        newX = viewportWidth - rect.width - 10; // 10px margin
+      }
+      
+      // Check if popup goes beyond bottom edge
+      if (position.y + rect.height > viewportHeight) {
+        newY = position.y - rect.height; // Show above the click point
+      }
+      
+      // Ensure popup doesn't go beyond left edge
+      if (newX < 10) {
+        newX = 10;
+      }
+      
+      // Ensure popup doesn't go beyond top edge
+      if (newY < 10) {
+        newY = 10;
+      }
+      
+      setAdjustedPosition({ x: newX, y: newY });
+    }
+  }, [isOpen, position]);
 
   // --- HEX ↔ HSB conversion ---
   function hexToHsb(hex: string): HSB {
@@ -409,10 +446,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       onClose={onClose}
       hideBackdrop={true}
       disablePortal={false}
+      ref={popupRef}
       slotProps={{
         paper: {
           sx: {
-            ...(position ? {
+            ...(adjustedPosition ? {
+              position: 'absolute',
+              left: adjustedPosition.x,
+              top: adjustedPosition.y,
+              margin: 0,
+            } : position ? {
               position: 'absolute',
               left: position.x,
               top: position.y,
