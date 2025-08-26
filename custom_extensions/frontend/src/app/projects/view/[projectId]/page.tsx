@@ -917,12 +917,15 @@ export default function ProjectInstanceViewPage() {
                         if (line.startsWith('data: ')) {
                             try {
                                 const data = JSON.parse(line.slice(6));
+                                console.log('Received stream data:', data);
                                 
                                 if (data.type === 'progress') {
                                     console.log(`PDF Progress: ${data.message} (${data.current}/${data.total})`);
                                     // TODO: Update progress UI here if you want to show detailed progress
                                 } else if (data.type === 'complete') {
                                     console.log('PDF generation completed:', data.message);
+                                    console.log('Download URL received:', data.download_url);
+                                    console.log('Filename received:', data.filename);
                                     downloadUrl = data.download_url;
                                     filename = data.filename;
                                 } else if (data.type === 'error') {
@@ -939,7 +942,9 @@ export default function ProjectInstanceViewPage() {
             }
 
             // Now download the actual PDF
+            console.log('Attempting to download PDF with URL:', downloadUrl);
             if (downloadUrl) {
+                console.log('Full download URL:', `${CUSTOM_BACKEND_URL}${downloadUrl}`);
                 const pdfResponse = await fetch(`${CUSTOM_BACKEND_URL}${downloadUrl}`, {
                     method: 'GET',
                     credentials: 'same-origin'
@@ -961,6 +966,8 @@ export default function ProjectInstanceViewPage() {
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
             } else {
+                console.error('No download URL received from server');
+                console.log('Variables state:', { downloadUrl, filename });
                 throw new Error('No download URL received from server');
             }
         } catch (error) {
