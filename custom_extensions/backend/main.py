@@ -10046,7 +10046,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             For "metrics-analytics":
             - "title": Main heading
             - "metrics": Array of metric descriptions (strings)
- 
+
             **Critical Parsing Rules:**
             - Parse ALL slides provided in the input text - do not skip any
             - Maintain the exact number of slides from input to output

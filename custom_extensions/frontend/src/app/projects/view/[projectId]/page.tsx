@@ -950,21 +950,50 @@ export default function ProjectInstanceViewPage() {
                     credentials: 'same-origin'
                 });
 
+                console.log('PDF fetch response status:', pdfResponse.status);
+                console.log('PDF fetch response headers:', Object.fromEntries(pdfResponse.headers.entries()));
+
                 if (!pdfResponse.ok) {
                     throw new Error(`PDF download failed: ${pdfResponse.status}`);
                 }
 
+                console.log('Creating blob from response...');
                 const blob = await pdfResponse.blob();
+                console.log('Blob created, size:', blob.size, 'type:', blob.type);
                 
                 // Create a download link
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                const finalFilename = filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+                a.download = finalFilename;
+                console.log('Download link created:', { href: a.href, download: a.download });
+                
                 document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                console.log('Clicking download link...');
+                
+                // Try different approaches for cross-browser compatibility
+                try {
+                    a.click();
+                    console.log('Download link clicked successfully');
+                } catch (clickError) {
+                    console.warn('Click failed, trying alternative approach:', clickError);
+                    // Alternative approach: dispatch click event
+                    a.dispatchEvent(new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    }));
+                }
+                
+                // Clean up after a short delay to ensure download starts
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    if (document.body.contains(a)) {
+                        document.body.removeChild(a);
+                    }
+                    console.log('Download cleanup completed');
+                }, 1000);
             } else {
                 console.error('No download URL received from server');
                 console.log('Variables state:', { downloadUrl, filename });
