@@ -543,7 +543,7 @@ class ElaiVideoGenerationService:
                     # Log additional error details if available
                     error_details = video_data.get("error", {})
                     if error_details:
-                    logger.warning(f"Video {video_id} error details: {error_details}")
+                        logger.warning(f"Video {video_id} error details: {error_details}")
                 
                 return {
                     "success": True,
