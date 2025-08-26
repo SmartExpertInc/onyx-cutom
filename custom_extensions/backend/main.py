@@ -1422,6 +1422,22 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
         normalized_props = props.copy()
         
         try:
+            # Fix template ID mappings first
+            if template_id == 'event-dates':
+                # Map event-dates (AI instruction) to event-list (frontend registry)
+                template_id = 'event-list'
+                normalized_slide['templateId'] = template_id
+                
+            # Ensure critical props are preserved for all templates
+            # Fix missing imagePrompt and other content issues
+            if 'imagePrompt' not in normalized_props and 'imageAlt' in normalized_props:
+                # If we have imageAlt but no imagePrompt, use imageAlt as the prompt
+                normalized_props['imagePrompt'] = normalized_props['imageAlt']
+            
+            # Ensure subtitle/content exists for templates that need it
+            if template_id in ['big-image-left', 'big-image-top'] and 'subtitle' not in normalized_props and 'content' in normalized_props:
+                normalized_props['subtitle'] = normalized_props['content']
+                
             # Fix big-numbers template props
             if template_id == 'big-numbers':
                 # Accept both 'items' (preferred) and 'numbers' (alternative) as the source array
@@ -1455,10 +1471,13 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                     if len(fixed_items) > 3:
                         fixed_items = fixed_items[:3]
 
-                normalized_props['items'] = fixed_items
-                # Drop legacy key to unify shape
+                # Frontend expects 'steps' not 'items' for big-numbers template
+                normalized_props['steps'] = fixed_items
+                # Drop legacy keys to unify shape
                 if 'numbers' in normalized_props:
                     normalized_props.pop('numbers', None)
+                if 'items' in normalized_props:
+                    normalized_props.pop('items', None)
                     
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
@@ -1573,9 +1592,9 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
             
             # Fix pyramid template props
             elif template_id == 'pyramid':
-                # Ensure 'items' array exists by parsing from common inputs
-                items = normalized_props.get('items', [])
-                if not (isinstance(items, list) and items):
+                # Ensure 'steps' array exists by parsing from common inputs
+                steps = normalized_props.get('steps', []) or normalized_props.get('items', [])
+                if not (isinstance(steps, list) and steps):
                     import re
                     text = (normalized_props.get('content') or '').strip()
                     parsed_items = []
@@ -1600,10 +1619,35 @@ def normalize_slide_props(slides: List[Dict]) -> List[Dict]:
                         idx = len(parsed_items) + 1
                         parsed_items.append({'heading': f'Level {idx}', 'description': 'No description available'})
                     items = parsed_items[:3]
-                    normalized_props['items'] = items
-                # Clean up: pyramid does not use a long 'content' blob when items are present
-                if normalized_props.get('items') and 'content' in normalized_props:
+                    # Frontend expects 'steps' not 'items' for pyramid template
+                    normalized_props['steps'] = items
+                # Clean up: pyramid does not use a long 'content' blob when steps are present
+                if normalized_props.get('steps') and 'content' in normalized_props:
                     pass  # keep content for now as optional; frontend ignores it
+                    
+            # Fix event-list template props
+            elif template_id == 'event-list':
+                # Ensure events array exists
+                events = normalized_props.get('events', [])
+                if not (isinstance(events, list) and events):
+                    # Create default events if none exist
+                    normalized_props['events'] = [
+                        {'date': 'Event 1', 'description': 'Event description'},
+                        {'date': 'Event 2', 'description': 'Event description'},
+                        {'date': 'Event 3', 'description': 'Event description'}
+                    ]
+                else:
+                    # Ensure each event has required fields
+                    fixed_events = []
+                    for event in events:
+                        if isinstance(event, dict):
+                            fixed_event = {
+                                'date': str(event.get('date') or event.get('title') or 'Event Date'),
+                                'description': str(event.get('description') or event.get('desc') or 'Event description')
+                            }
+                            fixed_events.append(fixed_event)
+                    if fixed_events:
+                        normalized_props['events'] = fixed_events
         
             # Fix bullet-points template props
             elif template_id in ['bullet-points', 'bullet-points-right']:
