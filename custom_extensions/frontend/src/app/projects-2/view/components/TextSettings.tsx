@@ -137,7 +137,7 @@ export default function TextSettings() {
 
   return (
     <>
-git       <div className={`bg-white rounded-lg border border-gray-200 h-fit flex flex-col`}>
+      <div className={`bg-white rounded-lg border border-gray-200 h-full flex flex-col`}>
       {/* Header with grey background */}
       <div className={`bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16 flex-shrink-0`}>
         <div className="flex items-center space-x-2">
@@ -182,7 +182,7 @@ git       <div className={`bg-white rounded-lg border border-gray-200 h-fit flex
       </div>
       
       {/* Content area */}
-      <div className={`p-4`}>
+      <div className={`p-4 overflow-y-auto flex-1`}>
         {activeTab === 'format' ? (
           <div className="space-y-4">
             {/* Font Family */}
@@ -494,10 +494,10 @@ git       <div className={`bg-white rounded-lg border border-gray-200 h-fit flex
 
             {/* Advanced Settings Content */}
             <div className={`transition-all duration-300 ease-in-out ${
-              showAdvancedSettings ? 'h-48' : 'h-0'
+              showAdvancedSettings ? 'max-h-48' : 'max-h-0'
             } overflow-hidden`}>
               <div className={`px-4 transition-all duration-300 ease-in-out ${
-                showAdvancedSettings ? 'pt-4 pb-4' : 'pt-0 pb-0'
+                showAdvancedSettings ? 'pt-4 pb-2' : 'pt-0 pb-0'
               }`}>
                 <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
                   <AdvancedSettings
