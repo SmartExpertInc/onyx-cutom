@@ -116,6 +116,52 @@ class HTMLToImageService:
                 size=(self.video_width, self.video_height)
             )
             
+            # Add a small delay to ensure rendering is complete
+            import time
+            time.sleep(0.5)
+            
+            # Post-process the image to ensure background fills completely
+            try:
+                from PIL import Image, ImageDraw
+                with Image.open(output_path) as img:
+                    # Check if there are any white pixels at the bottom
+                    width, height = img.size
+                    bottom_row = img.crop((0, height-10, width, height))
+                    
+                    # Convert to RGB if needed
+                    if bottom_row.mode != 'RGB':
+                        bottom_row = bottom_row.convert('RGB')
+                    
+                    # Check if bottom row has white pixels (indicating white line)
+                    white_pixels = 0
+                    total_pixels = bottom_row.width * bottom_row.height
+                    
+                    for x in range(bottom_row.width):
+                        for y in range(bottom_row.height):
+                            pixel = bottom_row.getpixel((x, y))
+                            if pixel == (255, 255, 255):  # White pixel
+                                white_pixels += 1
+                    
+                    white_percentage = (white_pixels / total_pixels) * 100
+                    
+                    if white_percentage > 50:  # If more than 50% white pixels at bottom
+                        logger.warning(f"🎬 [HTML2IMAGE] Detected white line at bottom ({white_percentage:.1f}% white pixels)")
+                        
+                        # Fill the bottom with background color
+                        draw = ImageDraw.Draw(img)
+                        # Get the background color from the top-left pixel
+                        bg_color = img.getpixel((0, 0))
+                        draw.rectangle([0, height-10, width, height], fill=bg_color)
+                        img.save(output_path, 'PNG')
+                        logger.info(f"🎬 [HTML2IMAGE] Fixed white line by filling bottom with background color")
+                    else:
+                        logger.info(f"🎬 [HTML2IMAGE] No white line detected at bottom ({white_percentage:.1f}% white pixels)")
+                        
+            except ImportError:
+                logger.warning("PIL not available for white line detection")
+            except Exception as e:
+                logger.warning(f"Failed to check for white line: {e}")
+            
             if os.path.exists(output_path):
                 file_size = os.path.getsize(output_path)
                 logger.info(f"html2image conversion successful: {file_size} bytes")
