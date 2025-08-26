@@ -143,8 +143,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTips, setEditingTips] = useState<number | null>(null);
+  const [editingAdditionalTips, setEditingAdditionalTips] = useState<number | null>(null);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTips, setCurrentTips] = useState(tips);
+  const [currentAdditionalTips, setCurrentAdditionalTips] = useState([
+    "Additional tip 1",
+    "Additional tip 2"
+  ]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -188,6 +193,24 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const handleTipCancel = () => {
     setCurrentTips(tips);
     setEditingTips(null);
+  };
+
+  const handleAdditionalTipSave = (index: number, newTip: string) => {
+    const newAdditionalTips = [...currentAdditionalTips];
+    newAdditionalTips[index] = newTip;
+    setCurrentAdditionalTips(newAdditionalTips);
+    setEditingAdditionalTips(null);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tips, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, additionalTips: newAdditionalTips });
+    }
+  };
+
+  const handleAdditionalTipCancel = () => {
+    setCurrentAdditionalTips([
+      "Additional tip 1",
+      "Additional tip 2"
+    ]);
+    setEditingAdditionalTips(null);
   };
 
   const handleProfileImageUploaded = (newImagePath: string) => {
@@ -351,11 +374,11 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                 lineHeight: '1.3',
                 textAlign: 'center'
               }}>
-                {isEditable && editingTips === index ? (
+                {isEditable && editingAdditionalTips === index ? (
                   <InlineEditor
-                    initialValue={`Additional tip ${index + 1}`}
-                    onSave={(value) => handleTipSave(index, value)}
-                    onCancel={handleTipCancel}
+                    initialValue={currentAdditionalTips[index]}
+                    onSave={(value) => handleAdditionalTipSave(index, value)}
+                    onCancel={handleAdditionalTipCancel}
                     multiline={true}
                     className="additional-tip-editor"
                     style={{
@@ -371,13 +394,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                   />
                 ) : (
                   <div
-                    onClick={() => isEditable && setEditingTips(index)}
+                    onClick={() => isEditable && setEditingAdditionalTips(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
                     }}
                   >
-                    Additional tip {index + 1}
+                    {currentAdditionalTips[index]}
                   </div>
                 )}
               </div>
