@@ -1747,7 +1747,46 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
             elif template_id == 'pyramid':
                 # Ensure 'steps' array exists by parsing from common inputs
                 steps = normalized_props.get('steps', []) or normalized_props.get('items', [])
-                if not (isinstance(steps, list) and steps):
+                levels = normalized_props.get('levels', [])
+                
+                # If we have levels data, use it to create proper steps
+                if levels and isinstance(levels, list) and len(levels) >= 3:
+                    parsed_items = []
+                    for i, level in enumerate(levels[:3], start=1):
+                        if isinstance(level, dict):
+                            heading = level.get('text', f'Level {i}')
+                            description = level.get('description', '')
+                            parsed_items.append({'heading': heading, 'description': description})
+                        else:
+                            parsed_items.append({'heading': f'Level {i}', 'description': str(level) if level else ''})
+                    
+                    # Ensure we have exactly 3 levels
+                    while len(parsed_items) < 3:
+                        idx = len(parsed_items) + 1
+                        parsed_items.append({'heading': f'Level {idx}', 'description': ''})
+                    
+                    normalized_props['steps'] = parsed_items[:3]
+                
+                # If no levels but we have steps, validate and fix them
+                elif steps and isinstance(steps, list):
+                    fixed_steps = []
+                    for i, step in enumerate(steps[:3], start=1):
+                        if isinstance(step, dict):
+                            heading = step.get('heading', f'Level {i}')
+                            description = step.get('description', '')
+                            fixed_steps.append({'heading': heading, 'description': description})
+                        else:
+                            fixed_steps.append({'heading': f'Level {i}', 'description': str(step) if step else ''})
+                    
+                    # Ensure we have exactly 3 levels
+                    while len(fixed_steps) < 3:
+                        idx = len(fixed_steps) + 1
+                        fixed_steps.append({'heading': f'Level {idx}', 'description': ''})
+                    
+                    normalized_props['steps'] = fixed_steps[:3]
+                
+                # If no structured data, try to parse from content
+                else:
                     import re
                     text = (normalized_props.get('content') or '').strip()
                     parsed_items = []
@@ -1759,6 +1798,7 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                             desc = m.group(2).strip().replace('\n', ' ')
                             if heading and desc:
                                 parsed_items.append({'heading': heading, 'description': desc})
+                    
                     if not parsed_items and text:
                         # Fallback: split into up to 3 sentence-like chunks
                         # First try double newlines, then periods.
@@ -1767,13 +1807,13 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                             chunks = [c.strip() for c in re.split(r"(?<=[.!?])\s+", text) if c.strip()]
                         for i, ch in enumerate(chunks[:3], start=1):
                             parsed_items.append({'heading': f'Level {i}', 'description': ch})
-                    # Pad to exactly 3 levels if needed
+                    
+                    # Ensure we have exactly 3 levels, but don't add "No description available"
                     while len(parsed_items) < 3:
                         idx = len(parsed_items) + 1
-                        parsed_items.append({'heading': f'Level {idx}', 'description': 'No description available'})
-                    items = parsed_items[:3]
-                    # Frontend expects 'steps' not 'items' for pyramid template
-                    normalized_props['steps'] = items
+                        parsed_items.append({'heading': f'Level {idx}', 'description': ''})
+                    
+                    normalized_props['steps'] = parsed_items[:3]
                 # Clean up: pyramid does not use a long 'content' blob when steps are present
                 if normalized_props.get('steps') and 'content' in normalized_props:
                     pass  # keep content for now as optional; frontend ignores it
@@ -10005,28 +10045,24 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - ALWAYS extract image prompts from [IMAGE_PLACEHOLDER] sections
             - Format: [IMAGE_PLACEHOLDER: SIZE | POSITION | DESCRIPTION]
             - Map DESCRIPTION to "imagePrompt" and "imageAlt" fields
-            - **CRITICAL: Generate detailed, presentation-focused illustration prompts**
+            - **CRITICAL: Generate clear, illustrative prompts for presentation slides**
             - **PRESENTATION ILLUSTRATION REQUIREMENTS:**
-              - Every image prompt must be designed for presentation slides, not generic images
-              - Focus on educational, professional, and visually engaging illustrations
-              - Include specific visual elements that enhance learning and comprehension
-              - Use presentation-appropriate styling: clean, modern, professional design
-              - Specify illustration style: "professional presentation illustration", "educational diagram", "modern infographic style"
-              - Include color schemes: "professional blue and white color scheme", "modern gradient background", "clean presentation style"
-              - Specify composition: "centered composition", "balanced layout", "professional presentation format"
-              - Add context: "suitable for business presentation", "educational slide illustration", "professional training material"
-            - **DETAILED PROMPT STRUCTURE:**
-              - Start with: "Professional presentation illustration of [main concept]"
-              - Include: "in modern infographic style with clean, professional design"
-              - Specify: "using [color scheme] with balanced composition"
-              - Add: "suitable for educational presentation slides"
-              - Include: "with clear visual hierarchy and professional typography"
+              - Create simple, clear descriptions that focus on the main visual concept
+              - Use everyday language that's easy to understand
+              - Focus on what the illustration should show, not technical details
+              - Keep prompts concise but descriptive enough for good image generation
+              - Specify the main subject and key visual elements
+            - **SIMPLE PROMPT STRUCTURE:**
+              - Start with: "Illustration of [main concept/subject]"
+              - Include: "showing [key visual elements]"
+              - Add: "in a clean, professional style"
+              - Specify: "suitable for a presentation slide"
             - **ILLUSTRATION TYPES BY TEMPLATE:**
-              - For big-image-left: "Professional presentation illustration of [concept] in modern infographic style, positioned on the left side of a presentation slide, with clean professional design using [color scheme], suitable for educational presentation slides"
-              - For big-image-top: "Professional presentation illustration of [concept] in modern infographic style, positioned at the top of a presentation slide, with clean professional design using [color scheme], suitable for educational presentation slides"
-              - For bullet-points: "Supporting professional illustration of [concept] in modern infographic style, positioned alongside bullet points, with clean professional design using [color scheme], suitable for educational presentation slides"
-              - For two-column: "Professional presentation illustration of [concept] in modern infographic style, positioned in [left/right] column, with clean professional design using [color scheme], suitable for educational presentation slides"
-            - **NEVER leave imagePrompt fields empty - always generate detailed, presentation-focused illustration prompts**
+              - For big-image-left: "Illustration of [concept] showing [key elements], positioned on the left side of a slide, in a clean professional style"
+              - For big-image-top: "Illustration of [concept] showing [key elements], positioned at the top of a slide, in a clean professional style"
+              - For bullet-points: "Supporting illustration of [concept] showing [key elements], positioned alongside text, in a clean professional style"
+              - For two-column: "Illustration of [concept] showing [key elements], positioned in [left/right] column, in a clean professional style"
+            - **NEVER leave imagePrompt fields empty - always generate clear, illustrative prompts**
             
             **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
             
