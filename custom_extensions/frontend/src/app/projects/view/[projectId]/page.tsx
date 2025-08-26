@@ -93,7 +93,10 @@ const slugify = (text: string | null | undefined): string => {
 const PdfExportLoadingModal: React.FC<{
   isOpen: boolean;
   projectName: string;
-}> = ({ isOpen, projectName }) => {
+  pdfDownloadReady: {url: string, filename: string} | null;
+  onDownload: () => void;
+  onClose: () => void;
+}> = ({ isOpen, projectName, pdfDownloadReady, onDownload, onClose }) => {
   const { t } = useLanguage();
   
   if (!isOpen) return null;
@@ -101,14 +104,44 @@ const PdfExportLoadingModal: React.FC<{
   return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
-        <p className="text-gray-600 text-center mb-4">
-          {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
-        </p>
-        <p className="text-sm text-gray-500 text-center">
-          {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
-        </p>
+        {!pdfDownloadReady ? (
+          <>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
+            <p className="text-gray-600 text-center mb-4">
+              {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
+            </p>
+            <p className="text-sm text-gray-500 text-center">
+              {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="text-green-600 mb-6">
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.pdfReady', 'PDF Ready!')}</h3>
+            <p className="text-gray-600 text-center mb-6">
+              {t('actions.pdfGenerationComplete', 'PDF generation completed successfully!')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={onDownload}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                {t('actions.downloadPdf', 'Download PDF')}
+              </button>
+              <button
+                onClick={onClose}
+                className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              >
+                {t('actions.close', 'Close')}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>,
     document.body
@@ -146,6 +179,7 @@ export default function ProjectInstanceViewPage() {
     qualityTier: false, // Hidden by default
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [pdfDownloadReady, setPdfDownloadReady] = useState<{url: string, filename: string} | null>(null);
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
@@ -870,6 +904,23 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
+  // PDF download handlers
+  const handleDownloadPdf = () => {
+    if (pdfDownloadReady) {
+      console.log('User clicked download button, opening:', pdfDownloadReady.url);
+      window.open(pdfDownloadReady.url, '_blank');
+      // Close the modal after initiating download
+      setIsExportingPdf(false);
+      setPdfDownloadReady(null);
+    }
+  };
+
+  const handleClosePdfModal = () => {
+    console.log('User closed PDF modal');
+    setIsExportingPdf(false);
+    setPdfDownloadReady(null);
+  };
+
   const handlePdfDownload = async () => {
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
@@ -941,48 +992,29 @@ export default function ProjectInstanceViewPage() {
                 reader.releaseLock();
             }
 
-            // Now download the actual PDF using blob approach (same as ProjectsTable)
-            console.log('Attempting to download PDF with URL:', downloadUrl);
+            // Set the download ready state instead of trying to open window immediately
+            console.log('PDF generation completed, setting download ready state');
             if (downloadUrl) {
                 const fullDownloadUrl = `${CUSTOM_BACKEND_URL}${downloadUrl}`;
-                console.log('Fetching PDF blob from:', fullDownloadUrl);
+                console.log('Download URL ready:', fullDownloadUrl);
+                console.log('Filename ready:', filename);
                 
-                // Fetch the PDF as blob and trigger download (same pattern as ProjectsTable)
-                const pdfResponse = await fetch(fullDownloadUrl, {
-                    method: 'GET',
-                    credentials: 'same-origin'
+                // Set the download ready state - this will update the modal to show download button
+                setPdfDownloadReady({
+                    url: fullDownloadUrl,
+                    filename: filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`
                 });
-
-                if (!pdfResponse.ok) {
-                    throw new Error(`PDF download failed: ${pdfResponse.status}`);
-                }
-
-                // Get the blob from the response
-                const blob = await pdfResponse.blob();
-                console.log('PDF blob received, size:', blob.size);
-
-                // Create a download link (same pattern as ProjectsTable)
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
-                console.log('Download link created:', { href: a.href, download: a.download });
-                
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                console.log('PDF download completed');
             } else {
                 console.error('No download URL received from server');
+                console.log('Variables state:', { downloadUrl, filename });
                 throw new Error('No download URL received from server');
             }
         } catch (error) {
             console.error('Error generating PDF:', error);
             alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
-        } finally {
-            // Hide loading modal
+            // Reset states on error
             setIsExportingPdf(false);
+            setPdfDownloadReady(null);
         }
         return;
     }
@@ -1543,6 +1575,9 @@ export default function ProjectInstanceViewPage() {
       <PdfExportLoadingModal 
         isOpen={isExportingPdf} 
         projectName={projectInstanceData?.name || 'Presentation'} 
+        pdfDownloadReady={pdfDownloadReady}
+        onDownload={handleDownloadPdf}
+        onClose={handleClosePdfModal}
       />
     </main>
   );
