@@ -312,7 +312,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4">
                   <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
                 </svg>
-                <span className="text-editor-resize-text text-sm font-normal">Resize</span>
+                <span className="text-gray-700 text-sm font-normal">Resize</span>
               </button>
 
               {/* Resize popup */}
@@ -362,7 +362,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                 ) : (
                   <EyeOff className="w-4 h-4" />
                 )}
-                <span className="text-editor-icon-text text-sm font-normal">Grid</span>
+                <span className="text-gray-700 text-sm font-normal">Grid</span>
               </button>
             </div>
 
@@ -393,12 +393,12 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                     setIsEditingTitle(false);
                   }
                 }}
-                className="text-editor-gray-text text-sm font-medium bg-transparent border-none outline-none focus:ring-0 px-2 py-1 rounded"
+                className="text-gray-700 text-sm font-medium bg-transparent border-none outline-none focus:ring-0 px-2 py-1 rounded"
                 autoFocus
               />
             ) : (
               <span 
-                className="text-editor-gray-text text-sm font-medium whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                className="text-gray-700 text-sm font-medium whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
                 onClick={() => setIsEditingTitle(true)}
               >
                 {videoTitle}
@@ -418,7 +418,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
           <div className="flex items-center gap-3 lg:gap-4">
             <button 
               onClick={handlePlayClick}
-              className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+              className="bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
             >
               <Play className="w-4 h-4" />
             </button>
@@ -430,7 +430,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
               <button
                 ref={shareButtonRef}
                 onClick={handleShareClick}
-                className="bg-editor-light-bg border-gray-300 text-editor-medium-text hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+                className="bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
               >
                 <span className="text-sm font-normal">Share</span>
               </button>
