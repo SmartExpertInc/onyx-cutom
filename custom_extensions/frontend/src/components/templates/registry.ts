@@ -805,7 +805,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: BigNumbersTemplate,
     defaultProps: {
       title: 'Add title',
-      items: [
+      steps: [
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
         { value: 'Add value', label: 'Add label', description: 'Add description' },
@@ -813,7 +813,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     },
     propSchema: {
       title: { type: 'text', label: 'Title' },
-      items: { type: 'array', label: 'Big Numbers' },
+      steps: { type: 'array', label: 'Big Numbers' },
     },
   },
   'pyramid': {
@@ -826,7 +826,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     defaultProps: {
       title: 'Add title',
       subtitle: 'Add subtitle',
-      items: [
+      steps: [  // Changed from 'items' to 'steps'
         { heading: 'Add heading 1', description: 'Add description' },
         { heading: 'Add heading 2', description: 'Add description' },
         { heading: 'Add heading 3', description: 'Add description' },
@@ -835,7 +835,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     propSchema: {
       title: { type: 'text', label: 'Title' },
       subtitle: { type: 'text', label: 'Subtitle' },
-      items: { type: 'array', label: 'Pyramid Items' },
+      steps: { type: 'array', label: 'Pyramid Steps' },  // Changed from 'items' to 'steps'
     },
   },
   'event-list': {

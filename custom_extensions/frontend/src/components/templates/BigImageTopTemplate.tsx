@@ -158,7 +158,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   widthPx,
   heightPx,
   imageScale,
-  imageOffset
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -320,6 +321,15 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
         updateData.heightPx = payload.imageSize.height;
       }
       
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+        log('BigImageTopTemplate', 'objectFit_update', { 
+          slideId, 
+          objectFit: payload.objectFit 
+        });
+      }
+      
       onUpdate(updateData);
     }
   };
@@ -360,7 +370,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode="contain"
+          cropMode={objectFit || 'contain'}
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}

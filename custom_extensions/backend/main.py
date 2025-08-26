@@ -8390,6 +8390,105 @@ async def upload_presentation_image(file: UploadFile = File(...)):
     web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
     return {"file_path": web_accessible_path}
 
+# NEW: AI Image Generation Endpoint
+class AIImageGenerationRequest(BaseModel):
+    prompt: str = Field(..., description="Text prompt for image generation")
+    width: int = Field(..., description="Image width in pixels", ge=256, le=1792)
+    height: int = Field(..., description="Image height in pixels", ge=256, le=1792)
+    quality: str = Field(default="standard", description="Image quality: standard or hd")
+    style: str = Field(default="vivid", description="Image style: vivid or natural")
+    model: str = Field(default="dall-e-3", description="DALL-E model to use")
+
+@app.post("/api/custom/presentation/generate_image", responses={
+    200: {"description": "Image generated successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/ai_generated_image.png"}}}},
+    400: {"description": "Invalid request parameters", "model": ErrorDetail},
+    500: {"description": "AI generation failed", "model": ErrorDetail}
+})
+async def generate_ai_image(request: AIImageGenerationRequest):
+    """Generate an image using DALL-E AI"""
+    try:
+        logger.info(f"[AI_IMAGE_GENERATION] Starting generation with prompt: '{request.prompt[:50]}...'")
+        logger.info(f"[AI_IMAGE_GENERATION] Dimensions: {request.width}x{request.height}, Quality: {request.quality}, Style: {request.style}")
+        
+        # Validate dimensions (DALL-E 3 requirements)
+        valid_sizes = [(1024, 1024), (1792, 1024), (1024, 1792)]
+        current_size = (request.width, request.height)
+        
+        if current_size not in valid_sizes:
+            # Find the closest valid size based on aspect ratio
+            aspect_ratio = request.width / request.height
+            
+            if aspect_ratio > 1.5:  # Landscape
+                request.width, request.height = 1792, 1024
+            elif aspect_ratio < 0.7:  # Portrait
+                request.width, request.height = 1024, 1792
+            else:  # Square-ish
+                request.width, request.height = 1024, 1024
+                
+            logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions from {current_size} to {request.width}x{request.height}")
+        
+        # Get OpenAI client
+        client = get_openai_client()
+        
+        # Generate image using DALL-E
+        response = await client.images.generate(
+            model=request.model,
+            prompt=request.prompt,
+            size=f"{request.width}x{request.height}",
+            quality=request.quality,
+            style=request.style,
+            n=1
+        )
+        
+        if not response.data or len(response.data) == 0:
+            raise Exception("No image data received from DALL-E")
+        
+        # Get the generated image URL
+        image_url = response.data[0].url
+        if not image_url:
+            raise Exception("No image URL received from DALL-E")
+        
+        logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, downloading from: {image_url[:50]}...")
+        
+        # Download the image
+        async with httpx.AsyncClient() as http_client:
+            image_response = await http_client.get(image_url)
+            image_response.raise_for_status()
+            image_data = image_response.content
+        
+        # Save the image to disk
+        safe_filename_base = str(uuid.uuid4())
+        unique_filename = f"ai_generated_{safe_filename_base}.png"
+        file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
+        
+        try:
+            with open(file_path_on_disk, "wb") as buffer:
+                buffer.write(image_data)
+            
+            web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
+            
+            logger.info(f"[AI_IMAGE_GENERATION] Image saved successfully: {web_accessible_path}")
+            
+            return {
+                "file_path": web_accessible_path,
+                "prompt": request.prompt,
+                "dimensions": {"width": request.width, "height": request.height},
+                "quality": request.quality,
+                "style": request.style
+            }
+            
+        except Exception as e:
+            logger.error(f"[AI_IMAGE_GENERATION] Error saving image to disk: {e}", exc_info=not IS_PRODUCTION)
+            detail_msg = "Could not save generated image." if IS_PRODUCTION else f"Could not save generated image: {str(e)}"
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[AI_IMAGE_GENERATION] Error generating image: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "AI image generation failed." if IS_PRODUCTION else f"AI image generation failed: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
 @app.post("/api/custom/design_templates/add", response_model=DesignTemplateResponse, status_code=status.HTTP_201_CREATED)
 async def add_design_template(template_data: DesignTemplateCreate, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "INSERT INTO design_templates (template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created;"
@@ -9608,9 +9707,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For two-column: split content into left and right sections
             - For process-steps: extract numbered or sequential items into "steps" array
             - For four-box-grid: parse "Box N:" format into "boxes" array
-            - For big-numbers: parse table format into "items" array with value/label/description
+            - For big-numbers: parse table format into "steps" array with value/label/description
             - For timeline: parse chronological content into "steps" array
-            - For pyramid: parse hierarchical content into "items" array
+            - For pyramid: parse hierarchical content into "steps" array
 
             **Critical Parsing Rules:**
             - Parse ALL slides provided in the input text - do not skip any
@@ -9798,18 +9897,9 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            7. **`comparison-slide`** - Before/after comparison:
-            ```json
-            "props": {
-              "title": "Comparison Analysis",
-              "beforeTitle": "Before",
-              "beforeContent": "- Key characteristic 1 of old/current state\\n- Key characteristic 2 of old/current state\\n- Key characteristic 3 of old/current state",
-              "afterTitle": "After",
-              "afterContent": "- Key characteristic 1 of new/improved state\\n- Key characteristic 2 of new/improved state\\n- Key characteristic 3 of new/improved state"
-            }
-            ```
+            
 
-            8. **`challenges-solutions`** - Problems vs solutions:
+            7. **`challenges-solutions`** - Problems vs solutions:
             ```json
             "props": {
               "title": "Challenges and Solutions",
@@ -9826,7 +9916,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            9. **`big-image-left`** - Large image on left:
+            8. **`big-image-left`** - Large image on left:
             ```json
             "props": {
               "title": "Slide Title",
@@ -9838,7 +9928,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            10. **`bullet-points-right`** - Title, subtitle, bullet points with image:
+            9. **`bullet-points-right`** - Title, subtitle, bullet points with image:
             ```json
             "props": {
               "title": "Key Points",
@@ -9857,7 +9947,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            11. **`big-image-top`** - Large image on top:
+            10. **`big-image-top`** - Large image on top:
             ```json
             "props": {
               "title": "Main Title",
@@ -9869,7 +9959,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            12. **`four-box-grid`** - Title and 4 boxes in 2x2 grid:
+            11. **`four-box-grid`** - Title and 4 boxes in 2x2 grid:
             ```json
             "props": {
               "title": "Main Title",
@@ -9882,7 +9972,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            13. **`timeline`** - Horizontal timeline with 4 steps:
+            12. **`timeline`** - Horizontal timeline with 4 steps:
             ```json
             "props": {
               "title": "History and Evolution",
@@ -9895,11 +9985,11 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            14. **`big-numbers`** - Three-column layout for metrics:
+            13. **`big-numbers`** - Three-column layout for metrics:
             ```json
             "props": {
               "title": "Key Metrics",
-              "items": [
+              "steps": [
                 { "value": "25%", "label": "Performance Improvement", "description": "System performance improved by 25% after optimization" },
                 { "value": "3x", "label": "Speed Increase", "description": "Processing speed increased 3 times faster than before" },
                 { "value": "50%", "label": "Cost Reduction", "description": "Operating costs reduced by 50% through efficient design" }
@@ -9907,12 +9997,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             }
             ```
 
-            15. **`pyramid`** - Pyramid diagram with 3 levels:
+            14. **`pyramid`** - Pyramid diagram with 3 levels:
             ```json
             "props": {
               "title": "Hierarchical Structure",
               "subtitle": "Explanation of the hierarchical relationship between elements",
-              "items": [
+              "steps": [
                 { "heading": "Top Level", "description": "Description of the highest level" },
                 { "heading": "Middle Level", "description": "Description of the intermediate level" },
                 { "heading": "Base Level", "description": "Description of the foundational level" }
@@ -9929,7 +10019,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - For four-box-grid: parse "Box N:" format into "boxes" array
             - For big-numbers: parse table format into "items" array with value/label/description
             - For timeline: parse chronological content into "steps" array
-            - For pyramid: parse hierarchical content into "items" array
+            - For pyramid: parse hierarchical content into "steps" array
 
             **Critical Parsing Rules:**
             - Parse ALL slides provided in the input text - do not skip any
@@ -10762,6 +10852,64 @@ async def download_slide_deck_pdf(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid slides structure.")
 
         logger.info(f"Slide Deck PDF Gen (Project {project_id}): Generating PDF with {len(slide_deck_data['slides'])} slides, theme: {theme}")
+
+        # ✅ NEW: Detailed logging for slide data before PDF generation
+        logger.info(f"=== SLIDE DATA ANALYSIS BEFORE PDF GENERATION ===")
+        logger.info(f"Project ID: {project_id}")
+        logger.info(f"Total slides: {len(slide_deck_data['slides'])}")
+        logger.info(f"Theme: {theme}")
+        
+        # Analyze each slide for big-image-left template
+        big_image_left_slides = []
+        for i, slide in enumerate(slide_deck_data['slides']):
+            if slide.get('templateId') == 'big-image-left':
+                big_image_left_slides.append((i, slide))
+                logger.info(f"Found big-image-left slide at index {i}")
+                
+                # Log slide structure
+                logger.info(f"  Slide {i} structure:")
+                logger.info(f"    templateId: {slide.get('templateId')}")
+                logger.info(f"    slideId: {slide.get('slideId')}")
+                logger.info(f"    props keys: {list(slide.get('props', {}).keys())}")
+                logger.info(f"    metadata keys: {list(slide.get('metadata', {}).keys()) if slide.get('metadata') else 'None'}")
+                
+                # Log text content
+                props = slide.get('props', {})
+                logger.info(f"    title: '{props.get('title', 'NOT SET')}'")
+                logger.info(f"    subtitle: '{props.get('subtitle', 'NOT SET')}'")
+                
+                # Log image info without base64 data
+                image_path = props.get('imagePath', '')
+                if image_path:
+                    if image_path.startswith('data:'):
+                        logger.info(f"    imagePath: [BASE64 DATA URL - {len(image_path)} characters]")
+                    else:
+                        logger.info(f"    imagePath: {image_path}")
+                else:
+                    logger.info(f"    imagePath: NOT SET")
+                
+                # Log positioning data
+                metadata = slide.get('metadata', {})
+                element_positions = metadata.get('elementPositions', {})
+                logger.info(f"    elementPositions exists: {bool(element_positions)}")
+                if element_positions:
+                    logger.info(f"    elementPositions keys: {list(element_positions.keys())}")
+                    
+                    # Check for title and subtitle positions
+                    slide_id = slide.get('slideId', 'unknown')
+                    title_id = f'draggable-{slide_id}-0'
+                    subtitle_id = f'draggable-{slide_id}-1'
+                    
+                    title_pos = element_positions.get(title_id)
+                    subtitle_pos = element_positions.get(subtitle_id)
+                    
+                    logger.info(f"    title element ID: {title_id}")
+                    logger.info(f"    title position: {title_pos}")
+                    logger.info(f"    subtitle element ID: {subtitle_id}")
+                    logger.info(f"    subtitle position: {subtitle_pos}")
+        
+        logger.info(f"Total big-image-left slides found: {len(big_image_left_slides)}")
+        logger.info(f"=== END SLIDE DATA ANALYSIS ===")
 
         # Prepare template context
         context_for_jinja = {

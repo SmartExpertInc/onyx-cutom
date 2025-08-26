@@ -156,7 +156,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   widthPx,
   heightPx,
   imageScale,
-  imageOffset
+  imageOffset,
+  objectFit,
+  getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -172,6 +174,51 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
+  
+  // ✅ NEW: Debug logging to see what props are received
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Received props', {
+      slideId,
+      objectFit,
+      imagePath,
+      widthPx,
+      heightPx,
+      imageScale,
+      imageOffset,
+      hasOnUpdate: !!onUpdate
+    });
+  }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate]);
+  
+  // ✅ NEW: Text positioning logging
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Text positioning analysis', {
+      slideId,
+      title: title || 'NOT SET',
+      subtitle: subtitle || 'NOT SET',
+      hasOnUpdate: !!onUpdate,
+      isEditable
+    });
+  }, [slideId, title, subtitle, onUpdate, isEditable]);
+  
+  // ✅ NEW: Log when text elements are rendered
+  useEffect(() => {
+    if (titleRef.current) {
+      console.log('🔍 BigImageLeftTemplate: Title element rendered', {
+        slideId,
+        elementId: `${slideId}-title`,
+        element: titleRef.current,
+        hasOnUpdate: !!onUpdate
+      });
+    }
+    if (subtitleRef.current) {
+      console.log('🔍 BigImageLeftTemplate: Subtitle element rendered', {
+        slideId,
+        elementId: `${slideId}-subtitle`,
+        element: subtitleRef.current,
+        hasOnUpdate: !!onUpdate
+      });
+    }
+  }, [slideId, onUpdate]);
   
   // Debounced update function to prevent infinite autosaves
   const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
@@ -282,6 +329,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
+    console.log('🔍 BigImageLeftTemplate: Title save triggered', {
+      slideId,
+      oldTitle: title,
+      newTitle,
+      hasOnUpdate: !!onUpdate
+    });
+    
     if (onUpdate) {
       onUpdate({ title: newTitle });
     }
@@ -289,11 +343,22 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const handleTitleCancel = () => {
+    console.log('🔍 BigImageLeftTemplate: Title edit cancelled', {
+      slideId,
+      currentTitle: title
+    });
     setEditingTitle(false);
   };
 
   // Handle subtitle editing
   const handleSubtitleSave = (newSubtitle: string) => {
+    console.log('🔍 BigImageLeftTemplate: Subtitle save triggered', {
+      slideId,
+      oldSubtitle: subtitle,
+      newSubtitle,
+      hasOnUpdate: !!onUpdate
+    });
+    
     if (onUpdate) {
       onUpdate({ subtitle: newSubtitle });
     }
@@ -301,6 +366,10 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const handleSubtitleCancel = () => {
+    console.log('🔍 BigImageLeftTemplate: Subtitle edit cancelled', {
+      slideId,
+      currentSubtitle: subtitle
+    });
     setEditingSubtitle(false);
   };
 
@@ -335,6 +404,15 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     if (payload.imageSize) {
       updateData.widthPx = payload.imageSize.width;
       updateData.heightPx = payload.imageSize.height;
+    }
+    
+    // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+    if (payload.objectFit) {
+      updateData.objectFit = payload.objectFit;
+      log('BigImageLeftTemplate', 'objectFit_update', { 
+        slideId, 
+        objectFit: payload.objectFit 
+      });
     }
     
     // Use debounced update for size/transform changes
@@ -377,11 +455,14 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           onSizeTransformChange={handleSizeTransformChange}
           elementId={`${slideId}-image`}
           elementRef={imageRef}
-          cropMode="contain"
+          cropMode={objectFit || 'contain'}
           onCropModeChange={handleCropModeChange}
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}
           savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          aiGeneratedPrompt={imagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
         />
       </div>
 
@@ -428,6 +509,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
                   return;
                 }
                 if (isEditable) {
+                  console.log('🔍 BigImageLeftTemplate: Title clicked for editing', {
+                    slideId,
+                    currentTitle: title,
+                    elementId: `${slideId}-title`
+                  });
                   setEditingTitle(true);
                 }
               }}
@@ -479,6 +565,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
                   return;
                 }
                 if (isEditable) {
+                  console.log('🔍 BigImageLeftTemplate: Subtitle clicked for editing', {
+                    slideId,
+                    currentSubtitle: subtitle,
+                    elementId: `${slideId}-subtitle`
+                  });
                   setEditingSubtitle(true);
                 }
               }}

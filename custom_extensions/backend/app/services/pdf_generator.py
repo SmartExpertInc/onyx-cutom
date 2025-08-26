@@ -31,6 +31,7 @@ except ImportError:
     generate_css_pie_chart = None
     logger.warning("CSS pie chart generator not available")
 import functools
+import re
 
 # Attempt to import settings (as before)
 try:
@@ -59,6 +60,10 @@ logger.setLevel(logging.INFO)
 # Create a separate logger for HTML content debugging
 html_logger = logging.getLogger('pdf_html_debug')
 html_logger.setLevel(logging.INFO)
+
+# Create a separate logger for image fit debugging
+image_fit_logger = logging.getLogger('pdf_image_fit_debug')
+image_fit_logger.setLevel(logging.INFO)
 
 PDF_CACHE_DIR = Path("/tmp/pdf_cache")
 PDF_CACHE_DIR.mkdir(exist_ok=True)
@@ -214,7 +219,7 @@ def timeout_wrapper(timeout_seconds: int):
 
 # Enhanced logging functions for debugging
 async def log_slide_data_structure(slide_data: dict, slide_index: int = None, template_id: str = None):
-    """Log detailed information about slide data structure with comprehensive image placeholder analysis."""
+    """Log detailed slide data structure for debugging."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
     template_info = f" ({template_id})" if template_id else ""
     
@@ -385,8 +390,228 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
         for key, value in props.items():
             if key not in image_path_props + size_props + fit_props + transform_props + prompt_props + ['title', 'subtitle', 'bullets']:
                 logger.info(f"PDF GEN: Additional prop '{key}': type={type(value)}, value={value}")
+        
+        # Log specific properties for big image templates
+        if template_id in ['big-image-left', 'big-image-top']:
+            logger.info("=== BIG IMAGE TEMPLATE ANALYSIS ===")
+            
+            # Log image-related properties
+            image_props = ['imagePath', 'imageUrl', 'imageAlt', 'imagePrompt']
+            size_props = ['widthPx', 'heightPx', 'objectFit', 'imageScale', 'imageOffset']
+            
+            for prop_name in image_props:
+                value = props.get(prop_name)
+                logger.info(f"Image prop '{prop_name}': type={type(value)}, value={value}")
+            
+            for prop_name in size_props:
+                value = props.get(prop_name)
+                logger.info(f"Size prop '{prop_name}': type={type(value)}, value={value}")
+            
+            # Log title and subtitle
+            logger.info(f"Title: {props.get('title', 'No title')}")
+            logger.info(f"Subtitle: {props.get('subtitle', 'No subtitle')}")
     
     logger.info(f"PDF GEN: === END COMPREHENSIVE SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
+
+async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log image fit properties specifically for debugging fit styles in PDF."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
+    
+    if isinstance(slide_data, dict):
+        template_id = slide_data.get('templateId', 'Unknown')
+        props = slide_data.get('props', {})
+        
+        # Check if this is a template with images
+        if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log image path without base64 data
+            image_path = props.get('imagePath')
+            if image_path:
+                if image_path.startswith('data:'):
+                    image_fit_logger.info(f"Image path: [BASE64 DATA URL - {len(image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Image path: {image_path}")
+            else:
+                image_fit_logger.info(f"Image path: NOT SET")
+            
+            # Log size and fit properties
+            width_px = props.get('widthPx')
+            height_px = props.get('heightPx')
+            object_fit = props.get('objectFit')
+            image_scale = props.get('imageScale')
+            image_offset = props.get('imageOffset')
+            
+            image_fit_logger.info(f"Width: {width_px}px")
+            image_fit_logger.info(f"Height: {height_px}px")
+            image_fit_logger.info(f"Object fit: {object_fit}")
+            image_fit_logger.info(f"Image scale: {image_scale}")
+            image_fit_logger.info(f"Image offset: {image_offset}")
+            
+            # Check if objectFit is missing
+            if object_fit is None:
+                image_fit_logger.warning(f"⚠️ OBJECT FIT IS MISSING for {slide_info}{template_info}")
+                image_fit_logger.warning(f"⚠️ This will cause PDF to use default 'cover' instead of user-selected fit style")
+            else:
+                image_fit_logger.info(f"✅ Object fit is present: {object_fit}")
+            
+            # Log what the PDF template will receive
+            pdf_object_fit = object_fit if object_fit else 'cover'
+            image_fit_logger.info(f"PDF template will use object-fit: {pdf_object_fit}")
+            
+        elif template_id == 'two-column':
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log left image properties without base64
+            left_image_path = props.get('leftImagePath')
+            left_object_fit = props.get('leftObjectFit')
+            left_width_px = props.get('leftWidthPx')
+            left_height_px = props.get('leftHeightPx')
+            
+            if left_image_path:
+                if left_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Left image path: [BASE64 DATA URL - {len(left_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Left image path: {left_image_path}")
+            else:
+                image_fit_logger.info(f"Left image path: NOT SET")
+                
+            image_fit_logger.info(f"Left object fit: {left_object_fit}")
+            image_fit_logger.info(f"Left width: {left_width_px}px")
+            image_fit_logger.info(f"Left height: {left_height_px}px")
+            
+            if left_object_fit is None:
+                image_fit_logger.warning(f"⚠️ LEFT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
+            
+            # Log right image properties without base64
+            right_image_path = props.get('rightImagePath')
+            right_object_fit = props.get('rightObjectFit')
+            right_width_px = props.get('rightWidthPx')
+            right_height_px = props.get('rightHeightPx')
+            
+            if right_image_path:
+                if right_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Right image path: [BASE64 DATA URL - {len(right_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Right image path: {right_image_path}")
+            else:
+                image_fit_logger.info(f"Right image path: NOT SET")
+                
+            image_fit_logger.info(f"Right object fit: {right_object_fit}")
+            image_fit_logger.info(f"Right width: {right_width_px}px")
+            image_fit_logger.info(f"Right height: {right_height_px}px")
+            
+            if right_object_fit is None:
+                image_fit_logger.warning(f"⚠️ RIGHT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Right object fit is present: {right_object_fit}")
+    
+    image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
+
+async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log image fit properties specifically for debugging fit styles in PDF."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
+    
+    if isinstance(slide_data, dict):
+        template_id = slide_data.get('templateId', 'Unknown')
+        props = slide_data.get('props', {})
+        
+        # Check if this is a template with images
+        if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log image path without base64 data
+            image_path = props.get('imagePath')
+            if image_path:
+                if image_path.startswith('data:'):
+                    image_fit_logger.info(f"Image path: [BASE64 DATA URL - {len(image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Image path: {image_path}")
+            else:
+                image_fit_logger.info(f"Image path: NOT SET")
+            
+            # Log size and fit properties
+            width_px = props.get('widthPx')
+            height_px = props.get('heightPx')
+            object_fit = props.get('objectFit')
+            image_scale = props.get('imageScale')
+            image_offset = props.get('imageOffset')
+            
+            image_fit_logger.info(f"Width: {width_px}px")
+            image_fit_logger.info(f"Height: {height_px}px")
+            image_fit_logger.info(f"Object fit: {object_fit}")
+            image_fit_logger.info(f"Image scale: {image_scale}")
+            image_fit_logger.info(f"Image offset: {image_offset}")
+            
+            # Check if objectFit is missing
+            if object_fit is None:
+                image_fit_logger.warning(f"⚠️ OBJECT FIT IS MISSING for {slide_info}{template_info}")
+                image_fit_logger.warning(f"⚠️ This will cause PDF to use default 'cover' instead of user-selected fit style")
+            else:
+                image_fit_logger.info(f"✅ Object fit is present: {object_fit}")
+            
+            # Log what the PDF template will receive
+            pdf_object_fit = object_fit if object_fit else 'cover'
+            image_fit_logger.info(f"PDF template will use object-fit: {pdf_object_fit}")
+            
+        elif template_id == 'two-column':
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log left image properties without base64
+            left_image_path = props.get('leftImagePath')
+            left_object_fit = props.get('leftObjectFit')
+            left_width_px = props.get('leftWidthPx')
+            left_height_px = props.get('leftHeightPx')
+            
+            if left_image_path:
+                if left_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Left image path: [BASE64 DATA URL - {len(left_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Left image path: {left_image_path}")
+            else:
+                image_fit_logger.info(f"Left image path: NOT SET")
+                
+            image_fit_logger.info(f"Left object fit: {left_object_fit}")
+            image_fit_logger.info(f"Left width: {left_width_px}px")
+            image_fit_logger.info(f"Left height: {left_height_px}px")
+            
+            if left_object_fit is None:
+                image_fit_logger.warning(f"⚠️ LEFT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
+            
+            # Log right image properties without base64
+            right_image_path = props.get('rightImagePath')
+            right_object_fit = props.get('rightObjectFit')
+            right_width_px = props.get('rightWidthPx')
+            right_height_px = props.get('rightHeightPx')
+            
+            if right_image_path:
+                if right_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Right image path: [BASE64 DATA URL - {len(right_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Right image path: {right_image_path}")
+            else:
+                image_fit_logger.info(f"Right image path: NOT SET")
+                
+            image_fit_logger.info(f"Right object fit: {right_object_fit}")
+            image_fit_logger.info(f"Right width: {right_width_px}px")
+            image_fit_logger.info(f"Right height: {right_height_px}px")
+            
+            if right_object_fit is None:
+                image_fit_logger.warning(f"⚠️ RIGHT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Right object fit is present: {right_object_fit}")
+    
+    image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
 
 async def log_html_content(html_content: str, slide_index: int = None, template_id: str = None):
     """Log detailed HTML content analysis for debugging."""
@@ -1399,6 +1624,11 @@ async def generate_pdf_from_html_template(
             await browser.close()
             logger.info("Browser for HTML PDF closed.")
 
+
+
+
+
+
 async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None) -> int:
     """
     Calculate the exact height needed for a single slide.
@@ -1472,9 +1702,20 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         # Render the single slide template
         try:
             # Debug logging to see the data structure
-            logger.info(f"DEBUG: Template data for {template_id}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
-            if safe_slide_data.get('props', {}).get('items'):
-                logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            logger.info(f"DEBUG: Template data for {template_id}: slide.props.steps type = {type(safe_slide_data.get('props', {}).get('steps'))}")
+            if safe_slide_data.get('props', {}).get('steps'):
+                logger.info(f"DEBUG: slide.props.steps content = {safe_slide_data['props']['steps']}")
+            
+            # Additional debug logging for big-numbers template
+            if template_id == 'big-numbers':
+                logger.info(f"=== BIG NUMBERS TEMPLATE DEBUG for {template_id} ===")
+                logger.info(f"Slide data: {safe_slide_data}")
+                logger.info(f"Props: {safe_slide_data.get('props', {})}")
+                logger.info(f"Steps: {safe_slide_data.get('props', {}).get('steps', [])}")
+                logger.info(f"Title: {safe_slide_data.get('props', {}).get('title', 'NO TITLE')}")
+                logger.info(f"Metadata: {safe_slide_data.get('metadata', {})}")
+                logger.info(f"Element positions: {safe_slide_data.get('metadata', {}).get('elementPositions', {})}")
+                logger.info(f"=== END BIG NUMBERS TEMPLATE DEBUG ===")
             
             template = jinja_env.get_template("single_slide_pdf_template.html")
             html_content = template.render(**context_data)
@@ -1900,10 +2141,33 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         
         # Render the single slide template
         try:
-            # Debug logging to see the data structure
-            logger.info(f"DEBUG: Template data for {slide_info}{template_info}: slide.props.items type = {type(safe_slide_data.get('props', {}).get('items'))}")
-            if safe_slide_data.get('props', {}).get('items'):
-                logger.info(f"DEBUG: slide.props.items content = {safe_slide_data['props']['items']}")
+            # ✅ NEW: Log image fit properties before template rendering
+            await log_image_fit_properties(safe_slide_data, slide_index, template_id)
+            
+            # ✅ NEW: Log text positioning properties for big-image-left template
+            await log_text_positioning_properties(safe_slide_data, slide_index, template_id)
+            
+            # Additional debug logging for specific templates
+            template_id = safe_slide_data.get('templateId', 'unknown')
+            logger.info(f"DEBUG: Processing template: {template_id}")
+            
+            if template_id == 'org-chart':
+                chart_data = safe_slide_data.get('props', {}).get('chartData', [])
+                logger.info(f"DEBUG: org-chart chartData length: {len(chart_data)}")
+                logger.info(f"DEBUG: org-chart chartData: {chart_data}")
+            
+            elif template_id == 'contraindications-indications':
+                contraindications = safe_slide_data.get('props', {}).get('contraindications', [])
+                indications = safe_slide_data.get('props', {}).get('indications', [])
+                logger.info(f"DEBUG: contraindications length: {len(contraindications)}")
+                logger.info(f"DEBUG: indications length: {len(indications)}")
+                logger.info(f"DEBUG: contraindications: {contraindications}")
+                logger.info(f"DEBUG: indications: {indications}")
+            
+            elif template_id == 'metrics-analytics':
+                metrics = safe_slide_data.get('props', {}).get('metrics', [])
+                logger.info(f"DEBUG: metrics-analytics metrics length: {len(metrics)}")
+                logger.info(f"DEBUG: metrics-analytics metrics: {metrics}")
             
             # Additional debug logging for specific templates
             template_id = safe_slide_data.get('templateId', 'unknown')
@@ -1931,8 +2195,8 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
             html_content = template.render(**context_data)
             logger.info("Template rendered successfully")
             
-            # Log HTML content for debugging
-            await log_html_content(html_content, slide_index, template_id)
+            # Log HTML content for debugging - DISABLED FOR PERFORMANCE
+            # await log_html_content(html_content, slide_index, template_id)
             
         except Exception as template_error:
             logger.error(f"PDF GEN: Template rendering error for {slide_info}{template_info}: {template_error}", exc_info=True)
@@ -2422,3 +2686,80 @@ async def test_all_slides_individually(slides_data: list, theme: str) -> dict:
             logger.error(f"    - Slide {failed['slide_index']} ({failed['template_id']}): {failed['error']}")
     
     return summary
+
+async def log_text_positioning_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log text positioning properties specifically for debugging text positioning in PDF."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    logger.info(f"=== TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+    
+    if isinstance(slide_data, dict):
+        template_id = slide_data.get('templateId', 'Unknown')
+        props = slide_data.get('props', {})
+        metadata = slide_data.get('metadata', {})
+        
+        # Check if this is a big-image-left template
+        if template_id == 'big-image-left':
+            logger.info(f"Template: {template_id}")
+            
+            # Log text content
+            title = props.get('title', 'NOT SET')
+            subtitle = props.get('subtitle', 'NOT SET')
+            logger.info(f"Title: '{title}'")
+            logger.info(f"Subtitle: '{subtitle}'")
+            
+            # Log metadata and element positions
+            element_positions = metadata.get('elementPositions', {})
+            logger.info(f"Metadata exists: {bool(metadata)}")
+            logger.info(f"Element positions exist: {bool(element_positions)}")
+            logger.info(f"Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
+            
+            # Log specific element positions for big-image-left template
+            slide_id = slide_data.get('slideId', 'unknown')
+            title_id = f'draggable-{slide_id}-0'
+            subtitle_id = f'draggable-{slide_id}-1'
+            
+            title_position = element_positions.get(title_id)
+            subtitle_position = element_positions.get(subtitle_id)
+            
+            logger.info(f"Title element ID: {title_id}")
+            logger.info(f"Title position: {title_position}")
+            logger.info(f"Subtitle element ID: {subtitle_id}")
+            logger.info(f"Subtitle position: {subtitle_position}")
+            
+            # Log what the template will receive
+            logger.info(f"Template will receive title position: {title_position}")
+            logger.info(f"Template will receive subtitle position: {subtitle_position}")
+            
+            # Log all props keys to see what's available
+            logger.info(f"All props keys: {list(props.keys())}")
+            logger.info(f"All metadata keys: {list(metadata.keys()) if metadata else 'None'}")
+            
+            # Check for any text-specific positioning properties
+            text_position = props.get('textPosition')
+            text_transform = props.get('textTransform')
+            text_align = props.get('textAlign')
+            
+            logger.info(f"Text position prop: {text_position}")
+            logger.info(f"Text transform prop: {text_transform}")
+            logger.info(f"Text align prop: {text_align}")
+            
+            # Log image info without base64 data
+            image_path = props.get('imagePath', '')
+            if image_path:
+                if image_path.startswith('data:'):
+                    logger.info(f"Image: [BASE64 DATA URL - {len(image_path)} characters]")
+                else:
+                    logger.info(f"Image: {image_path}")
+            else:
+                logger.info(f"Image: NOT SET")
+            
+            # Log the complete slide data structure for debugging (excluding base64)
+            logger.info(f"Complete slide data structure:")
+            logger.info(f"  templateId: {slide_data.get('templateId')}")
+            logger.info(f"  slideId: {slide_data.get('slideId')}")
+            logger.info(f"  props keys: {list(props.keys())}")
+            logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
+    
+    logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")

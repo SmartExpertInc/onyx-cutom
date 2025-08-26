@@ -11,6 +11,7 @@ export interface BaseTemplateProps {
   isEditable?: boolean;
   onUpdate?: (props: any) => void;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export interface TemplateComponentInfo {
@@ -177,6 +178,7 @@ export interface TwoColumnProps extends BaseTemplateProps {
   // Optional size/transform fields for left placeholder image
   leftWidthPx?: number;
   leftHeightPx?: number;
+  leftObjectFit?: 'contain' | 'cover' | 'fill';
   leftImageScale?: number;
   leftImageOffset?: { x: number; y: number };
   rightTitle: string;
@@ -188,6 +190,7 @@ export interface TwoColumnProps extends BaseTemplateProps {
   // Optional size/transform fields for right placeholder image
   rightWidthPx?: number;
   rightHeightPx?: number;
+  rightObjectFit?: 'contain' | 'cover' | 'fill';
   rightImageScale?: number;
   rightImageOffset?: { x: number; y: number };
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
@@ -332,7 +335,7 @@ export interface TimelineTemplateProps extends BaseTemplateProps {
 export interface PyramidTemplateProps extends BaseTemplateProps {
   title: string;
   subtitle: string;
-  items: { heading: string; description: string }[];
+  steps: { heading: string; description: string }[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
 }
 
@@ -344,7 +347,7 @@ export interface BigNumberItem {
 
 export interface BigNumbersTemplateProps extends BaseTemplateProps {
   title: string;
-  items: BigNumberItem[];
+  steps: BigNumberItem[];
   theme?: SlideTheme;
 }
 

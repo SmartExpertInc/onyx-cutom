@@ -143,6 +143,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const [editingStepDescriptions, setEditingStepDescriptions] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -301,7 +306,12 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   return (
     <div className="timeline-template" style={slideStyles}>
       {/* Title - wrapped */}
-      <div data-draggable="true" style={{ display: 'inline-block' }}>
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block' }}
+      >
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title || ''}
@@ -352,7 +362,12 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
           const isTop = index % 2 !== 0; // 1, 3 on top
           
           return (
-            <div key={index} style={stepWrapperStyles} data-draggable="true">
+            <div 
+              key={index} 
+              data-moveable-element={`${slideId}-step-${index}`}
+              data-draggable="true"
+              style={stepWrapperStyles}
+            >
               <div style={milestoneContentStyles(isTop)}>
                 <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
                   {/* Step Heading */}

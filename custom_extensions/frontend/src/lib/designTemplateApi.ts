@@ -81,6 +81,52 @@ export async function uploadPresentationImage(imageFile: File): Promise<ImageUpl
   return response.json();
 }
 
+// NEW: AI Image Generation Types
+export interface AIImageGenerationRequest {
+  prompt: string;
+  width: number;
+  height: number;
+  quality?: 'standard' | 'hd';
+  style?: 'vivid' | 'natural';
+  model?: string;
+}
+
+export interface AIImageGenerationResponse extends ImageUploadResponse {
+  prompt: string;
+  dimensions: {
+    width: number;
+    height: number;
+  };
+  quality: string;
+  style: string;
+}
+
+export async function generateAIImage(request: AIImageGenerationRequest): Promise<AIImageGenerationResponse> {
+  console.log('🔍 [API] generateAIImage request:', request);
+  
+  const response = await fetch(`${API_BASE_URL}/presentation/generate_image`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('🔍 [API] generateAIImage error:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorData
+    });
+    throw new Error(errorData.detail || 'Failed to generate AI image');
+  }
+
+  const result = await response.json();
+  console.log('🔍 [API] generateAIImage success:', result);
+  return result;
+}
+
 export async function addDesignTemplate(templateData: DesignTemplateFormData): Promise<DesignTemplate> {
   const response = await fetch(`${API_BASE_URL}/design_templates/add`, {
     method: 'POST',

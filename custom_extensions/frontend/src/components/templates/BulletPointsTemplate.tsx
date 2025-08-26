@@ -512,7 +512,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   widthPx,
   heightPx,
   imageScale,
-  imageOffset
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -615,6 +616,15 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         updateData.heightPx = payload.imageSize.height;
       }
       
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+        console.log('BulletPointsTemplate: objectFit update', { 
+          slideId, 
+          objectFit: payload.objectFit 
+        });
+      }
+      
       onUpdate(updateData);
     }
   };
@@ -691,6 +701,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             onSizeTransformChange={handleSizeTransformChange}
             elementId={`${slideId}-image`}
             elementRef={imageRef}
+            cropMode={objectFit || 'contain'}
             slideContainerRef={slideContainerRef}
             savedImagePosition={imageOffset}
             savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}

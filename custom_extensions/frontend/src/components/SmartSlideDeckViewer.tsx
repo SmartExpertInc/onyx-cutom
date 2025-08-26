@@ -1,7 +1,7 @@
 // components/SmartSlideDeckViewer.tsx
 // Component-based slide viewer with classic UX (sidebar, navigation, inline editing)
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideDeckRenderer } from './ComponentBasedSlideRenderer';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
@@ -9,7 +9,8 @@ import VoiceoverPanel from './VoiceoverPanel';
 import { ThemePicker } from './theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { getAllTemplates, getTemplate } from './templates/registry';
-import { Plus, ChevronDown, X, Volume2, Palette} from 'lucide-react';
+import { Plus, ChevronDown, X, Volume2, Palette } from 'lucide-react';
+import AutomaticImageGenerationManager from './AutomaticImageGenerationManager';
 
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
@@ -32,6 +33,15 @@ interface SmartSlideDeckViewerProps {
 
   /** Project ID for theme persistence */
   projectId?: string;
+
+  /** Whether to enable automatic image generation */
+  enableAutomaticImageGeneration?: boolean;
+
+  /** Callback when automatic generation starts */
+  onAutomaticGenerationStarted?: () => void;
+
+  /** Callback when automatic generation completes */
+  onAutomaticGenerationCompleted?: (results: { elementId: string; success: boolean; imagePath?: string; error?: string }[]) => void;
 }
 
 export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
@@ -41,7 +51,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   showFormatInfo = false,
   theme,
   hasVoiceover = false,
-  projectId
+  projectId,
+  enableAutomaticImageGeneration = true,
+  onAutomaticGenerationStarted,
+  onAutomaticGenerationCompleted
 }: SmartSlideDeckViewerProps) => {
   const [componentDeck, setComponentDeck] = useState<ComponentBasedSlideDeck | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +73,20 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Scroll synchronization state
   const [isScrollingSlidesFromPanel, setIsScrollingSlidesFromPanel] = useState(false);
   const [isScrollingPanelFromSlides, setIsScrollingPanelFromSlides] = useState(false);
+
+  // ✅ NEW: Automatic Image Generation State
+  const [generationStates, setGenerationStates] = useState<Map<string, { isGenerating: boolean; hasImage: boolean; error?: string }>>(new Map());
+  
+  // ✅ NEW: Track if auto-generation has been completed for this presentation
+  const [autoGenerationCompleted, setAutoGenerationCompleted] = useState(false);
+
+  // ✅ NEW: Debug logging utility
+  const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+  const log = (source: string, event: string, data: any) => {
+    if (DEBUG) {
+      console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+    }
+  };
 
   // Theme management for slide decks
   const { currentTheme, changeTheme, isChangingTheme } = useTheme({
@@ -90,6 +117,116 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
   // Get available templates
   const availableTemplates = getAllTemplates();
+
+  // ✅ NEW: Handle generation started for a specific placeholder
+  const handleGenerationStarted = useCallback((elementId: string) => {
+    log('SmartSlideDeckViewer', 'handleGenerationStarted', { elementId });
+    
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: true, 
+      hasImage: false 
+    }));
+    
+    // Notify parent
+    onAutomaticGenerationStarted?.();
+  }, [onAutomaticGenerationStarted]);
+
+  // ✅ NEW: Handle generation completed for a specific placeholder
+  const handleGenerationCompleted = useCallback((elementId: string, imagePath: string) => {
+    log('SmartSlideDeckViewer', 'handleGenerationCompleted', { elementId, imagePath });
+    
+    // Update generation state
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: false, 
+      hasImage: true 
+    }));
+
+    // Update the deck with the generated image
+    setComponentDeck(prevDeck => {
+      if (!prevDeck?.slides) return prevDeck;
+
+      const updatedDeck = { ...prevDeck };
+      const updatedSlides = [...updatedDeck.slides];
+
+      // Find the slide containing this placeholder
+      for (let slideIndex = 0; slideIndex < updatedSlides.length; slideIndex++) {
+        const slide = updatedSlides[slideIndex];
+        const slideId = slide.slideId || `slide-${slideIndex}`;
+        
+        // Check if this is the slide containing the placeholder
+        if (elementId.startsWith(slideId)) {
+          const updatedSlide = { ...slide };
+          
+          // Update the appropriate image property based on template and element ID
+          if (elementId === `${slideId}-image`) {
+            // Single image template - set imagePath and force crop mode
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              imagePath,
+              objectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+            };
+          } else if (elementId === `${slideId}-left-image`) {
+            // Two-column template - left image
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              leftImagePath: imagePath,
+              leftObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+            };
+          } else if (elementId === `${slideId}-right-image`) {
+            // Two-column template - right image
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              rightImagePath: imagePath,
+              rightObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+            };
+          }
+          
+          updatedSlides[slideIndex] = updatedSlide;
+          break;
+        }
+      }
+
+      updatedDeck.slides = updatedSlides;
+      
+      // Save the updated deck
+      onSave?.(updatedDeck);
+      
+      return updatedDeck;
+    });
+  }, [onSave]);
+
+  // ✅ NEW: Handle generation failed for a specific placeholder
+  const handleGenerationFailed = useCallback((elementId: string, error: string) => {
+    log('SmartSlideDeckViewer', 'handleGenerationFailed', { elementId, error });
+    
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: false, 
+      hasImage: false, 
+      error 
+    }));
+  }, []);
+
+  // ✅ NEW: Handle all generations completed
+  const handleAllGenerationsComplete = useCallback((results: { elementId: string; success: boolean; imagePath?: string; error?: string }[]) => {
+    log('SmartSlideDeckViewer', 'handleAllGenerationsComplete', { 
+      totalResults: results.length,
+      successfulResults: results.filter(r => r.success).length,
+      failedResults: results.filter(r => !r.success).length
+    });
+
+    // ✅ NEW: Mark auto-generation as completed permanently
+    setAutoGenerationCompleted(true);
+
+    // Notify parent
+    onAutomaticGenerationCompleted?.(results);
+  }, [onAutomaticGenerationCompleted]);
+
+  {/* Removed progress tracking and timeout cleanup - generation now runs silently */}
+
+  // ✅ NEW: Get generation state for a specific placeholder
+  const getPlaceholderGenerationState = useCallback((elementId: string) => {
+    return generationStates.get(elementId) || { isGenerating: false, hasImage: false };
+  }, [generationStates]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -157,8 +294,47 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
             slideId: slide.slideId,
             templateId: slide.templateId,
-            props: slide.props
+            props: slide.props,
+            metadata: slide.metadata
           });
+          
+          // Special logging for big-image-left template
+          if (slide.templateId === 'big-image-left') {
+            console.log(`🔍 BIG-IMAGE-LEFT SLIDE ${index + 1} DETAILED ANALYSIS:`);
+            console.log(`  Title: '${slide.props?.title || 'NOT SET'}'`);
+            console.log(`  Subtitle: '${slide.props?.subtitle || 'NOT SET'}'`);
+            
+            // Log image info without base64 data
+            const imagePath = slide.props?.imagePath || '';
+            if (imagePath) {
+              if (imagePath.startsWith('data:')) {
+                console.log(`  Image: [BASE64 DATA URL - ${imagePath.length} characters]`);
+              } else {
+                console.log(`  Image: ${imagePath}`);
+              }
+            } else {
+              console.log(`  Image: NOT SET`);
+            }
+            
+            console.log(`  Metadata exists: ${!!slide.metadata}`);
+            console.log(`  Element positions exist: ${!!slide.metadata?.elementPositions}`);
+            if (slide.metadata?.elementPositions) {
+              console.log(`  Element positions keys:`, Object.keys(slide.metadata.elementPositions));
+              
+              // Check for title and subtitle positions
+              const slideId = slide.slideId || 'unknown';
+              const titleId = `draggable-${slideId}-0`;
+              const subtitleId = `draggable-${slideId}-1`;
+              
+              const titlePos = slide.metadata.elementPositions[titleId];
+              const subtitlePos = slide.metadata.elementPositions[subtitleId];
+              
+              console.log(`  Title element ID: ${titleId}`);
+              console.log(`  Title position:`, titlePos);
+              console.log(`  Subtitle element ID: ${subtitleId}`);
+              console.log(`  Subtitle position:`, subtitlePos);
+            }
+          }
         });
 
         // Set theme on the deck
@@ -264,6 +440,45 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     };
 
     setComponentDeck(updatedDeck);
+    
+    // 🔍 LOGGING: Log what data is being sent to backend on slide update
+    console.log('🔍 SmartSlideDeckViewer: handleSlideUpdate - onSave called with updated deck:', {
+      slideCount: updatedDeck.slides.length,
+      theme: updatedDeck.theme,
+      updatedSlideId: updatedSlide.slideId,
+      updatedSlideTemplate: updatedSlide.templateId,
+      bigImageLeftSlides: updatedDeck.slides.filter(s => s.templateId === 'big-image-left').map(s => {
+        // Filter out base64 image data from logging
+        const imagePath = s.props?.imagePath || '';
+        const imageInfo = imagePath.startsWith('data:') 
+          ? `[BASE64 DATA URL - ${imagePath.length} characters]`
+          : imagePath || 'NOT SET';
+        
+        // Log text positioning data
+        const metadata = s.metadata || {};
+        const elementPositions = metadata.elementPositions || {};
+        const slideId = s.slideId;
+        const titleId = `draggable-${slideId}-0`;
+        const subtitleId = `draggable-${slideId}-1`;
+        
+        const titlePosition = elementPositions[titleId];
+        const subtitlePosition = elementPositions[subtitleId];
+        
+        return {
+          slideId: s.slideId,
+          title: s.props?.title || 'NOT SET',
+          subtitle: s.props?.subtitle || 'NOT SET',
+          imagePath: imageInfo,
+          objectFit: s.props?.objectFit || 'NOT SET',
+          // Text positioning data
+          titlePosition: titlePosition,
+          subtitlePosition: subtitlePosition,
+          elementPositionsKeys: Object.keys(elementPositions),
+          metadataKeys: Object.keys(metadata)
+        };
+      })
+    });
+    
     onSave?.(updatedDeck);
   };
 
@@ -476,7 +691,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             {componentDeck.slides.length} slide{componentDeck.slides.length !== 1 ? 's' : ''}
           </div>
         </div>
-        <h1>Hello3</h1>
+        <h1>Hello7</h1>
       </div>
       {/* Main Content Area - Static white container */}
       <div 
@@ -584,6 +799,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     onSlideUpdate={isEditable ? handleSlideUpdate : undefined}
                     onTemplateChange={isEditable ? handleTemplateChange : undefined}
                     theme={currentTheme}
+                    getPlaceholderGenerationState={getPlaceholderGenerationState}
                   />
                 </div>
               </div>
@@ -901,6 +1117,21 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         onThemeSelect={changeTheme}
         isChanging={isChangingTheme}
       />
+
+      {/* Automatic Image Generation Manager */}
+      {enableAutomaticImageGeneration && !autoGenerationCompleted && (
+        <AutomaticImageGenerationManager
+          deck={componentDeck}
+          enabled={enableAutomaticImageGeneration && !autoGenerationCompleted}
+          onGenerationStarted={handleGenerationStarted}
+          onGenerationCompleted={handleGenerationCompleted}
+          onGenerationFailed={handleGenerationFailed}
+          onAllGenerationsComplete={handleAllGenerationsComplete}
+        />
+      )}
+
+      {/* Generation Progress Indicator - REMOVED */}
+      {/* The generation process now runs silently in the background without showing a modal */}
     </div>
   );
 };
