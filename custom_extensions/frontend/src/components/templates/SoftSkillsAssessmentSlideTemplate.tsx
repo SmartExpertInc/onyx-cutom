@@ -290,7 +290,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       <div style={{
         display: 'flex',
         gap: '30px',
-        marginTop: '40px'
+        marginTop: '-3px'
       }}>
         {currentTips.map((tip, index) => (
           <div

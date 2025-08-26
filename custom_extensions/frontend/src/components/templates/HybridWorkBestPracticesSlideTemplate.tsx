@@ -184,6 +184,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     padding: '40px 60px',
+    paddingLeft: '0px'
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -330,13 +331,13 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
           {/* Profile image at bottom */}
           <div style={{
-            width: '120px',
-            height: '120px',
+            width: '155px',
+            height: '155px',
             borderRadius: '50%',
             overflow: 'hidden',
             alignSelf: 'flex-start',
             position: 'absolute',
-            bottom: '15px',
+            bottom: '25px',
           }}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
@@ -380,14 +381,14 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               >
                 {/* Number */}
                 <div style={{
-                  width: '30px',
-                  height: '30px',
+                  width: '20px',
+                  height: '20px',
                   backgroundColor: themeTitle,
                   color: themeBg,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '16px',
+                  fontSize: '12px',
                   fontWeight: 'bold',
                   flexShrink: 0
                 }}>

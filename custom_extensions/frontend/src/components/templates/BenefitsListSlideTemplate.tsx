@@ -441,7 +441,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                fontSize: '16px',
+                fontSize: '18px',
                 color: themeContent
               }}
             >
@@ -481,7 +481,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           backgroundColor: themeContent,
           opacity: 0.3,
           margin: '20px 0',
-          marginTop: '52px'
+          marginTop: '30px'
         }} />
 
         {/* Footer */}
