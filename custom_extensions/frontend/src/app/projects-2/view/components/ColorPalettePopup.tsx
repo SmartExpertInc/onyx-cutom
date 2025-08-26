@@ -270,6 +270,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     ].slice(0, 5); // Keep only 5 colors
     
     onRecentColorChange(updatedRecentColors);
+    
+    // Pass the most recent color (first in the array) to parent as selected color
+    const selectedColor = updatedRecentColors[0];
+    if (selectedColor) {
+      // Convert to RGBA format with current opacity for the parent
+      const rgbaColor = hexToRgba(selectedColor);
+      const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${opacity})`;
+      onColorChange(colorWithOpacity);
+    }
   };
 
   // Handle recent color click
@@ -310,9 +319,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // This is called when the user finishes dragging the hue slider
     setIsDragging(false);
     addToRecentColors(hex);
-    // Pass the final color to parent component
-    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-    onColorChange(colorWithOpacity);
   };
 
   // --- Opacity slider ---
@@ -339,9 +345,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // This is called when the user finishes dragging the opacity slider
     setIsDragging(false);
     addToRecentColors(hex);
-    // Pass the final color to parent component
-    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-    onColorChange(colorWithOpacity);
   };
 
   // --- Saturation/Brightness square ---
@@ -382,9 +385,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setIsDragging(false);
     // Add the current color to recent colors when dragging the saturation/brightness square ends
     addToRecentColors(hex);
-    // Pass the final color to parent component
-    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-    onColorChange(colorWithOpacity);
   };
 
   useEffect(() => {
