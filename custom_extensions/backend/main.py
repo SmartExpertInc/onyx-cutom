@@ -11253,7 +11253,7 @@ async def stream_slide_deck_pdf_generation(
             final_message = {
                 'type': 'complete',
                 'message': 'PDF generation completed successfully!',
-                'download_url': f'/api/custom/pdf/slide-deck/{project_id}?theme={theme}',
+                'download_url': f'/pdf/slide-deck/{project_id}?theme={theme}',
                 'filename': user_friendly_pdf_filename
             }
             yield f"data: {json.dumps(final_message)}\n\n"
