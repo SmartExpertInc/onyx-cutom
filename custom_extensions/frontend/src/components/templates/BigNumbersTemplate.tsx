@@ -510,8 +510,8 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
           ))
         ) : (
           // Fallback: Display available items or placeholder content
-          Array.isArray(items) && items.length > 0 ? (
-            items.slice(0, 3).map((item: BigNumberItem, idx: number) => {
+          Array.isArray(steps) && steps.length > 0 ? (
+            steps.slice(0, 3).map((item: BigNumberItem, idx: number) => {
               // Fill missing fields with defaults
               const safeItem = {
                 value: item.value || '0',
