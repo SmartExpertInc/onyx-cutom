@@ -204,12 +204,6 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
     }
   };
 
-  const handleProfileImageUploaded = (newImagePath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
   return (
     <div className="phishing-definition-slide-template" style={slideStyles}>
       {/* Left section with text */}
@@ -328,31 +322,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           />
         </div>
 
-        {/* Profile image at bottom left */}
-        <div style={{
-          width: '80px',
-          height: '80px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          position: 'absolute',
-          bottom: '40px',
-          left: '60px'
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="MEDIUM"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
+
       </div>
 
       {/* Right section with image */}
