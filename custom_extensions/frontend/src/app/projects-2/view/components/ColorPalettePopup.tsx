@@ -66,10 +66,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   onRecentColorChange,
 }) => {
   // Initialize once to avoid flickering
-  const [hsb, setHsb] = useState<HSB>(() => hexToHsb(selectedColor));
-  const [hex, setHex] = useState(selectedColor);
-  const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(selectedColor));
-  const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(selectedColor));
+  const validInitialColor = selectedColor && /^#[0-9A-Fa-f]{6}$/.test(selectedColor) ? selectedColor : "#ff0000";
+  const [hsb, setHsb] = useState<HSB>(() => hexToHsb(validInitialColor));
+  const [hex, setHex] = useState(validInitialColor);
+  const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(validInitialColor));
+  const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(validInitialColor));
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [opacity, setOpacity] = useState(1);
@@ -80,6 +81,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // --- Color conversion utilities ---
   function hexToHsb(hex: string): HSB {
+    // Handle invalid hex values
+    if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      console.log('Invalid hex color:', hex);
+      return { h: 0, s: 0, b: 0 };
+    }
+    
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -104,6 +111,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }
 
   function hsbToHex({ h, s, b }: HSB): string {
+    // Handle invalid HSB values
+    if (isNaN(h) || isNaN(s) || isNaN(b)) {
+      return "#000000";
+    }
+    
     const sDec = s / 100;
     const bDec = b / 100;
 
@@ -127,6 +139,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }
 
   function hexToRgba(hex: string): RGBA {
+    // Handle invalid hex values
+    if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      return { r: 0, g: 0, b: 0, a: 1 };
+    }
+    
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
@@ -134,9 +151,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }
 
   function rgbaToHex({ r, g, b, a }: RGBA): string {
-    const rHex = Math.round(r).toString(16).padStart(2, '0');
-    const gHex = Math.round(g).toString(16).padStart(2, '0');
-    const bHex = Math.round(b).toString(16).padStart(2, '0');
+    // Handle invalid RGBA values
+    if (isNaN(r) || isNaN(g) || isNaN(b)) {
+      return "#000000";
+    }
+    
+    const rHex = Math.round(Math.max(0, Math.min(255, r))).toString(16).padStart(2, '0');
+    const gHex = Math.round(Math.max(0, Math.min(255, g))).toString(16).padStart(2, '0');
+    const bHex = Math.round(Math.max(0, Math.min(255, b))).toString(16).padStart(2, '0');
     return `#${rHex}${gHex}${bHex}`;
   }
 
@@ -147,12 +169,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }
 
   function hslaToHex({ h, s, l, a }: HSLA): string {
+    // Handle invalid HSLA values
+    if (isNaN(h) || isNaN(s) || isNaN(l)) {
+      return "#000000";
+    }
+    
     const b = l * 2;
     return hsbToHex({ h, s, b });
   }
 
   // Centralized color update function
   const updateAllColorFormats = useCallback((newHex: string, newOpacity: number = opacity, shouldNotifyParent: boolean = true) => {
+    console.log('updateAllColorFormats called with:', { newHex, newOpacity, shouldNotifyParent });
+    
     setHex(newHex);
     setHsb(hexToHsb(newHex));
     setRgba({ ...hexToRgba(newHex), a: newOpacity });
@@ -162,6 +191,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (shouldNotifyParent) {
       const rgbaColor = hexToRgba(newHex);
       const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${newOpacity})`;
+      console.log('Notifying parent with color:', colorWithOpacity);
       onColorChange(colorWithOpacity);
     }
   }, [opacity, onColorChange]);
@@ -171,17 +201,24 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (!isUserTyping && !isDragging) {
       const newHex = hsbToHex(hsb);
       if (newHex !== hex) {
-        updateAllColorFormats(newHex);
+        updateAllColorFormats(newHex, opacity, false);
       }
     }
-  }, [hsb, hex, isUserTyping, isDragging, updateAllColorFormats]);
+  }, [hsb, isUserTyping, isDragging, updateAllColorFormats, opacity]);
 
   // Update component when selectedColor prop changes
   useEffect(() => {
-    if (selectedColor !== hex) {
-      updateAllColorFormats(selectedColor, opacity, false); // Don't notify parent when prop changes
+    // Ensure selectedColor is a valid hex color
+    const validColor = selectedColor && /^#[0-9A-Fa-f]{6}$/.test(selectedColor) ? selectedColor : "#ff0000";
+    if (validColor !== hex) {
+      updateAllColorFormats(validColor, opacity, false); // Don't notify parent when prop changes
     }
-  }, [selectedColor, updateAllColorFormats, opacity]);
+  }, [selectedColor, updateAllColorFormats, opacity, hex]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Current state:', { hex, hsb, rgba, hsla, opacity, isDragging, isUserTyping });
+  }, [hex, hsb, rgba, hsla, opacity, isDragging, isUserTyping]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
