@@ -52,6 +52,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [opacity, setOpacity] = useState(1); // 0-1 range for opacity
+  const [isDragging, setIsDragging] = useState(false);
 
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
@@ -137,17 +138,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // Update all color formats when HSB changes (from slider/square)
   useEffect(() => {
-    if (!isUserTyping) {
+    if (!isUserTyping && !isDragging) {
       const newHex = hsbToHex(hsb);
       if (newHex !== hex) {
         setHex(newHex);
         setRgba(hexToRgba(newHex));
         setHsla(hexToHsla(newHex));
         onColorChange(newHex);
-        addToRecentColors(newHex);
       }
     }
-  }, [hsb, onColorChange, hex, isUserTyping]);
+  }, [hsb, onColorChange, hex, isUserTyping, isDragging]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,6 +261,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const addToRecentColors = (color: string) => {
     if (!onRecentColorChange) return;
     
+    // Validate that we have a valid color
+    if (!color || color.length < 3) return;
+    
     const updatedRecentColors = [
       color,
       ...recentColors.filter(c => c !== color) // Remove if already exists
@@ -285,6 +288,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // --- Hue slider ---
   const handleHueChange = (e: Event, value: number | number[]) => {
+    // Set dragging state on first change
+    if (!isDragging) {
+      setIsDragging(true);
+    }
+    
     const newHsb = { ...hsb, h: value as number };
     setHsb(newHsb);
     const newHex = hsbToHex(newHsb);
@@ -300,6 +308,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleHueChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
     // This is called when the user finishes dragging the hue slider
+    setIsDragging(false);
     addToRecentColors(hex);
     // Pass the final color to parent component
     const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
@@ -308,6 +317,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // --- Opacity slider ---
   const handleOpacityChange = (e: Event, value: number | number[]) => {
+    // Set dragging state on first change
+    if (!isDragging) {
+      setIsDragging(true);
+    }
+    
     const newOpacity = value as number;
     setOpacity(newOpacity);
     // Update RGBA and HSLA with new opacity
@@ -323,6 +337,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleOpacityChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
     // This is called when the user finishes dragging the opacity slider
+    setIsDragging(false);
     addToRecentColors(hex);
     // Pass the final color to parent component
     const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
@@ -354,6 +369,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
+    setIsDragging(true);
     handleSBUpdate(e.clientX, e.clientY);
   };
 
@@ -363,6 +379,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleMouseUp = () => { 
     isDraggingRef.current = false; 
+    setIsDragging(false);
     // Add the current color to recent colors when dragging the saturation/brightness square ends
     addToRecentColors(hex);
     // Pass the final color to parent component

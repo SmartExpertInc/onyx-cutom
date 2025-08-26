@@ -36,7 +36,7 @@ export default function ImageSettings() {
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col">
+      <div className="bg-white rounded-lg border border-gray-200 h-fit flex flex-col">
       {/* Header with grey background */}
       <div className="bg-gray-100 px-4 py-3 rounded-t-lg flex items-center justify-between h-16">
         <div className="flex items-center space-x-3">
@@ -103,7 +103,7 @@ export default function ImageSettings() {
       </div>
       
       {/* Content area */}
-      <div ref={contentRef} className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 112px)' }}>
+      <div ref={contentRef} className="p-4">
         {activeTab === 'format' && (
           <div className="space-y-4">
             {/* Reset size */}
