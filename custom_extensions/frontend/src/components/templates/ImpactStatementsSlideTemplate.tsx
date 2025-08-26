@@ -224,9 +224,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '32px',
+          maxWidth: '390px',
+          fontSize: '40px',
           color: themeTitle,
-          fontWeight: 'bold',
           lineHeight: '1.2',
           marginBottom: '40px'
         }}>
@@ -238,9 +238,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               multiline={true}
               className="impact-title-editor"
               style={{
-                fontSize: '32px',
+                maxWidth: '390px',
+                fontSize: '40px',
                 color: themeTitle,
-                fontWeight: 'bold',
                 lineHeight: '1.2'
               }}
             />
@@ -276,9 +276,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover'
+              width: '43%',
+              height: '92%',
+              objectFit: 'cover',
+              position: 'relative',
+              bottom: '-21px',
             }}
           />
         </div>
@@ -286,90 +288,87 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
       {/* Right section with impact statements */}
       <div style={{
-        width: '50%',
-        height: '100%',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        gap: '20px'
+        gap: '20px',
+        width: '100%',
+        height: '100%'
       }}>
-        {currentStatements.map((statement, index) => (
-          <div
-            key={index}
-            style={{
-              backgroundColor: themeAccent,
-              borderRadius: '10px',
-              padding: '30px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              minHeight: index === 1 ? '120px' : '80px'
-            }}
-          >
-            {/* Number */}
-            <div style={{
-              fontSize: '48px',
-              color: themeBg,
-              fontWeight: 'bold'
-            }}>
-              {isEditable && editingNumbers === index ? (
-                <InlineEditor
-                  initialValue={statement.number}
-                  onSave={(value) => handleNumberSave(index, value)}
-                  onCancel={handleNumberCancel}
-                  className="number-editor"
-                  style={{
-                    fontSize: '48px',
-                    color: themeBg,
-                    fontWeight: 'bold'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingNumbers(index)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
-                  }}
-                >
-                  {statement.number}
-                </div>
-              )}
-            </div>
+        {/* Левая колонка (два блока) */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
+          {currentStatements.slice(0, 2).map((statement, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: themeAccent,
+                borderRadius: '10px',
+                padding: '30px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                minHeight: index === 1 ? '120px' : '80px'
+              }}
+            >
+              {/* Number */}
+              <div style={{
+                fontSize: '48px',
+                color: themeBg,
+                fontWeight: 'bold'
+              }}>
+                {statement.number}
+              </div>
 
-            {/* Description */}
-            <div style={{
-              fontSize: '16px',
-              color: themeBg,
-              lineHeight: '1.4'
-            }}>
-              {isEditable && editingStatements === index ? (
-                <InlineEditor
-                  initialValue={statement.description}
-                  onSave={(value) => handleStatementSave(index, value)}
-                  onCancel={handleStatementCancel}
-                  multiline={true}
-                  className="statement-editor"
-                  style={{
-                    fontSize: '16px',
-                    color: themeBg,
-                    lineHeight: '1.4'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingStatements(index)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
-                  }}
-                >
-                  {statement.description}
-                </div>
-              )}
+              {/* Description */}
+              <div style={{
+                fontSize: '16px',
+                color: themeBg,
+                lineHeight: '1.4'
+              }}>
+                {statement.description}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* Правая колонка (один блок) */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'stretch'
+        }}>
+          {currentStatements[2] && (
+            <div
+              style={{
+                backgroundColor: themeAccent,
+                borderRadius: '10px',
+                padding: '30px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                minHeight: '100%'
+              }}
+            >
+              <div style={{
+                fontSize: '48px',
+                color: themeBg,
+                fontWeight: 'bold'
+              }}>
+                {currentStatements[2].number}
+              </div>
+              <div style={{
+                fontSize: '16px',
+                color: themeBg,
+                lineHeight: '1.4'
+              }}>
+                {currentStatements[2].description}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

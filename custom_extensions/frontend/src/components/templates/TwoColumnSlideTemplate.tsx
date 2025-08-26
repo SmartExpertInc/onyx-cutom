@@ -151,9 +151,10 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '596px',
+    height: '600px',
     backgroundColor: themeBg,
     display: 'flex',
+    flexDirection: 'row-reverse',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -207,6 +208,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         padding: '60px',
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'end',
         justifyContent: 'space-between'
       }}>
         {/* Profile image */}
@@ -240,46 +242,14 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          {/* Title */}
-          <div style={{
-            fontSize: '32px',
-            color: themeTitle,
-            fontWeight: 'bold',
-            marginBottom: '30px',
-            lineHeight: '1.2'
-          }}>
-            {isEditable && editingTitle ? (
-              <InlineEditor
-                initialValue={currentTitle}
-                onSave={handleTitleSave}
-                onCancel={handleTitleCancel}
-                multiline={true}
-                className="two-column-title-editor"
-                style={{
-                  fontSize: '32px',
-                  color: themeTitle,
-                  fontWeight: 'bold',
-                  lineHeight: '1.2'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingTitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentTitle}
-              </div>
-            )}
-          </div>
 
           {/* Content text */}
           <div style={{
-            fontSize: '18px',
+            fontSize: '14px',
             color: themeContent,
-            lineHeight: '1.6'
+            lineHeight: '1.6',
+            position: 'relative',
+            bottom: '-100px'
           }}>
             {isEditable && editingContent ? (
               <InlineEditor
