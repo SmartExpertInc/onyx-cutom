@@ -58,40 +58,52 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const popupRef = useRef<HTMLDivElement>(null);
-  const [adjustedPosition, setAdjustedPosition] = React.useState(position);
+  const [adjustedPosition, setAdjustedPosition] = React.useState<{ x: number; y: number } | null>(null);
 
   // Viewport positioning logic (same as OptionPopup)
   useEffect(() => {
-    if (isOpen && popupRef.current && position) {
-      const popup = popupRef.current;
-      const rect = popup.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+    if (isOpen && position) {
+      // Set initial position immediately
+      setAdjustedPosition(position);
       
-      let newX = position.x;
-      let newY = position.y;
+      // Then refine position after popup is rendered
+      const timer = setTimeout(() => {
+        if (popupRef.current) {
+          const popup = popupRef.current;
+          const rect = popup.getBoundingClientRect();
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          
+          let newX = position.x;
+          let newY = position.y;
+          
+          // Check if popup goes beyond right edge
+          if (position.x + rect.width > viewportWidth) {
+            newX = viewportWidth - rect.width - 10; // 10px margin
+          }
+          
+          // Check if popup goes beyond bottom edge
+          if (position.y + rect.height > viewportHeight) {
+            newY = position.y - rect.height; // Show above the click point
+          }
+          
+          // Ensure popup doesn't go beyond left edge
+          if (newX < 10) {
+            newX = 10;
+          }
+          
+          // Ensure popup doesn't go beyond top edge
+          if (newY < 10) {
+            newY = 10;
+          }
+          
+          setAdjustedPosition({ x: newX, y: newY });
+        }
+      }, 0);
       
-      // Check if popup goes beyond right edge
-      if (position.x + rect.width > viewportWidth) {
-        newX = viewportWidth - rect.width - 10; // 10px margin
-      }
-      
-      // Check if popup goes beyond bottom edge
-      if (position.y + rect.height > viewportHeight) {
-        newY = position.y - rect.height; // Show above the click point
-      }
-      
-      // Ensure popup doesn't go beyond left edge
-      if (newX < 10) {
-        newX = 10;
-      }
-      
-      // Ensure popup doesn't go beyond top edge
-      if (newY < 10) {
-        newY = 10;
-      }
-      
-      setAdjustedPosition({ x: newX, y: newY });
+      return () => clearTimeout(timer);
+    } else {
+      setAdjustedPosition(null);
     }
   }, [isOpen, position]);
 
@@ -354,14 +366,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const newHsla = { ...hexToHsla(newHex), a: opacity };
     setRgba(newRgba);
     setHsla(newHsla);
-    // Pass the color with current opacity to the parent component
-    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
-    onColorChange(colorWithOpacity);
+    // Don't call onColorChange during dragging - only when dragging ends
   };
 
   const handleHueChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
     // This is called when the user finishes dragging the hue slider
     setIsDragging(false);
+    // Pass the color with current opacity to the parent component when dragging ends
+    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
+    onColorChange(colorWithOpacity);
     addToRecentColors(hex);
   };
 
@@ -379,15 +392,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const newHsla = { ...hsla, a: newOpacity };
     setRgba(newRgba);
     setHsla(newHsla);
-    // Pass the color with opacity to the parent component
-    // Use RGBA format since it supports opacity
-    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
-    onColorChange(colorWithOpacity);
+    // Don't call onColorChange during dragging - only when dragging ends
   };
 
   const handleOpacityChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
     // This is called when the user finishes dragging the opacity slider
     setIsDragging(false);
+    // Pass the color with current opacity to the parent component when dragging ends
+    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
+    onColorChange(colorWithOpacity);
     addToRecentColors(hex);
   };
 
@@ -409,10 +422,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const newHsla = { ...hexToHsla(newHex), a: opacity };
     setRgba(newRgba);
     setHsla(newHsla);
-    // Pass the color with current opacity to the parent component
-    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
-    onColorChange(colorWithOpacity);
-  }, [hsb, opacity, onColorChange]);
+    // Don't call onColorChange during dragging - only when dragging ends
+  }, [hsb, opacity]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
@@ -427,6 +438,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const handleMouseUp = () => { 
     isDraggingRef.current = false; 
     setIsDragging(false);
+    // Pass the color with current opacity to the parent component when dragging ends
+    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
+    onColorChange(colorWithOpacity);
     // Add the current color to recent colors when dragging the saturation/brightness square ends
     addToRecentColors(hex);
   };
@@ -454,11 +468,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               position: 'absolute',
               left: adjustedPosition.x,
               top: adjustedPosition.y,
-              margin: 0,
-            } : position ? {
-              position: 'absolute',
-              left: position.x,
-              top: position.y,
               margin: 0,
             } : {}),
             borderRadius: 3,
