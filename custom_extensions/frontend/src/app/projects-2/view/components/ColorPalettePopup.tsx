@@ -83,7 +83,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   function hexToHsb(hex: string): HSB {
     // Handle invalid hex values
     if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-      console.log('Invalid hex color:', hex);
       return { h: 0, s: 0, b: 0 };
     }
     
@@ -180,8 +179,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   // Centralized color update function
   const updateAllColorFormats = useCallback((newHex: string, newOpacity: number = opacity, shouldNotifyParent: boolean = true) => {
-    console.log('updateAllColorFormats called with:', { newHex, newOpacity, shouldNotifyParent });
-    
     setHex(newHex);
     setHsb(hexToHsb(newHex));
     setRgba({ ...hexToRgba(newHex), a: newOpacity });
@@ -191,20 +188,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (shouldNotifyParent) {
       const rgbaColor = hexToRgba(newHex);
       const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${newOpacity})`;
-      console.log('Notifying parent with color:', colorWithOpacity);
       onColorChange(colorWithOpacity);
     }
   }, [opacity, onColorChange]);
 
-  // Update all color formats when HSB changes
-  useEffect(() => {
-    if (!isUserTyping && !isDragging) {
-      const newHex = hsbToHex(hsb);
-      if (newHex !== hex) {
-        updateAllColorFormats(newHex, opacity, false);
-      }
-    }
-  }, [hsb, isUserTyping, isDragging, updateAllColorFormats, opacity]);
+  // Note: Removed the useEffect that was causing circular dependency
+  // Color updates are now handled directly in the event handlers
 
   // Update component when selectedColor prop changes
   useEffect(() => {
@@ -215,10 +204,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     }
   }, [selectedColor, updateAllColorFormats, opacity, hex]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Current state:', { hex, hsb, rgba, hsla, opacity, isDragging, isUserTyping });
-  }, [hex, hsb, rgba, hsla, opacity, isDragging, isUserTyping]);
+
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -312,8 +298,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     
     const newHsb = { ...hsb, h: value as number };
     setHsb(newHsb);
+    // Update hex directly without calling updateAllColorFormats to avoid circular dependency
     const newHex = hsbToHex(newHsb);
-    updateAllColorFormats(newHex, opacity, false); // Don't notify parent during dragging
+    setHex(newHex);
+    setRgba({ ...hexToRgba(newHex), a: opacity });
+    setHsla({ ...hexToHsla(newHex), a: opacity });
   };
 
   const handleHueChangeCommitted = () => {
@@ -330,7 +319,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (!isDragging) setIsDragging(true);
     
     const newOpacity = value as number;
-    updateAllColorFormats(hex, newOpacity, false); // Don't notify parent during dragging
+    setOpacity(newOpacity);
+    setRgba(prev => ({ ...prev, a: newOpacity }));
+    setHsla(prev => ({ ...prev, a: newOpacity }));
   };
 
   const handleOpacityChangeCommitted = () => {
@@ -348,15 +339,19 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const rect = sbRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    
     const newHsb = {
       ...hsb,
       s: Math.round(x * 100),
       b: Math.round((1 - y) * 100)
     };
     setHsb(newHsb);
+    // Update hex directly without calling updateAllColorFormats to avoid circular dependency
     const newHex = hsbToHex(newHsb);
-    updateAllColorFormats(newHex, opacity, false); // Don't notify parent during dragging
-  }, [hsb, updateAllColorFormats, opacity]);
+    setHex(newHex);
+    setRgba({ ...hexToRgba(newHex), a: opacity });
+    setHsla({ ...hexToHsla(newHex), a: opacity });
+  }, [hsb, opacity]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
@@ -365,7 +360,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDraggingRef.current) handleSBUpdate(e.clientX, e.clientY);
+    if (isDraggingRef.current) {
+      handleSBUpdate(e.clientX, e.clientY);
+    }
   }, [handleSBUpdate]);
 
   const handleMouseUp = () => { 
