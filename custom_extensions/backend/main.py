@@ -1535,22 +1535,61 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     
             # Fix two-column template props
             elif template_id == 'two-column':
-                # Ensure leftTitle and rightTitle exist
-                if 'leftTitle' not in normalized_props:
-                    normalized_props['leftTitle'] = 'Left Column'
-                if 'rightTitle' not in normalized_props:
-                    normalized_props['rightTitle'] = 'Right Column'
+                # Handle missing right column content by splitting existing content if it's substantial
+                if (not normalized_props.get('rightContent') or normalized_props.get('rightContent') == '') and normalized_props.get('leftContent'):
+                    left_content = normalized_props.get('leftContent', '')
                     
-                # Generate missing image prompts for two-column if content suggests visual elements
+                    # If left content is substantial and right is empty, try to split content intelligently
+                    if len(left_content) > 100:  # Only split if there's substantial content
+                        lines = left_content.split('\n')
+                        if len(lines) >= 2:
+                            # Split content roughly in half
+                            mid_point = len(lines) // 2
+                            left_part = '\n'.join(lines[:mid_point]).strip()
+                            right_part = '\n'.join(lines[mid_point:]).strip()
+                            
+                            if left_part and right_part:
+                                normalized_props['leftContent'] = left_part
+                                normalized_props['rightContent'] = right_part
+                                logger.info(f"Split two-column content for slide {slide_index + 1}")
+                
+                # Generate appropriate titles if missing
+                if not normalized_props.get('rightTitle') or normalized_props.get('rightTitle') == '':
+                    title = normalized_props.get('title', '')
+                    left_title = normalized_props.get('leftTitle', '')
+                    
+                    # Generate contextual right title based on slide content
+                    if 'advantages' in left_title.lower() or 'benefits' in left_title.lower():
+                        normalized_props['rightTitle'] = 'Disadvantages' if 'advantages' in left_title.lower() else 'Challenges'
+                    elif 'pros' in left_title.lower():
+                        normalized_props['rightTitle'] = 'Cons'
+                    elif 'before' in left_title.lower():
+                        normalized_props['rightTitle'] = 'After'
+                    elif 'strategies' in title.lower() or 'methods' in title.lower():
+                        normalized_props['rightTitle'] = 'Implementation' if left_title else 'Best Practices'
+                    else:
+                        # Generic fallback
+                        normalized_props['rightTitle'] = 'Additional Details'
+                
+                # Ensure leftTitle exists
+                if not normalized_props.get('leftTitle'):
+                    normalized_props['leftTitle'] = 'Key Points'
+                
+                # Generate missing image prompts for two-column templates
                 if not normalized_props.get('leftImagePrompt') and not normalized_props.get('rightImagePrompt'):
                     title = normalized_props.get('title', 'comparison')
                     left_title = normalized_props.get('leftTitle', 'concept')
                     right_title = normalized_props.get('rightTitle', 'concept')
                     
-                    # Generate appropriate image prompts based on titles
+                    # Generate appropriate image prompts based on titles and content
                     if 'vs' in title.lower() or 'versus' in title.lower() or 'comparison' in title.lower():
                         normalized_props['leftImagePrompt'] = f"Professional icon representing {left_title}, modern flat design"
                         normalized_props['rightImagePrompt'] = f"Professional icon representing {right_title}, modern flat design"
+                    elif normalized_props.get('leftContent'):
+                        # Generate based on content
+                        normalized_props['leftImagePrompt'] = f"Visual representation of {left_title.lower()}, professional illustration"
+                        if normalized_props.get('rightContent'):
+                            normalized_props['rightImagePrompt'] = f"Visual representation of {right_title.lower()}, professional illustration"
                 
                 # Handle case where AI used leftContent/rightContent but missing titles
                 if normalized_props.get('leftContent') and not normalized_props.get('leftTitle'):
@@ -9924,11 +9963,12 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             For "two-column":
             - "title": Main slide title
             - "leftTitle": Left column heading  
-            - "rightTitle": Right column heading
+            - "rightTitle": Right column heading (NEVER leave empty - always provide meaningful title)
             - "leftContent": Left column text content
-            - "rightContent": Right column text content
+            - "rightContent": Right column text content (NEVER leave empty - split slide content between columns)
             - "leftImagePrompt": Image prompt for left column (if applicable)
             - "rightImagePrompt": Image prompt for right column (if applicable)
+            - **CRITICAL**: Two-column slides MUST have content in BOTH columns. Split slide content intelligently between left and right sections.
             
             For "big-numbers":
             - "title": Main heading
@@ -9936,6 +9976,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               - "value": Numerical value or short metric (e.g., "25%", "3x", "$42")
               - "label": Short descriptive label (e.g., "Performance Improvement") 
               - "description": Detailed explanation of the metric
+            - **CRITICAL**: ALWAYS provide exactly 3 steps. If slide content has less, expand into 3 logical points. If more than 3, group into 3 main categories.
             
             For "metrics-analytics":
             - "title": Main heading
