@@ -11205,43 +11205,48 @@ async def stream_slide_deck_pdf_generation(
             total_slides = len(slide_deck_data['slides'])
             yield f"data: {json.dumps({'type': 'progress', 'message': f'Starting PDF generation for {total_slides} slides...', 'current': 0, 'total': total_slides})}\n\n"
 
-            # Create progress callback function
-            async def progress_callback(slide_index: int, template_id: str, message: str):
-                progress_data = {
-                    'type': 'progress',
-                    'message': message,
-                    'current': slide_index + 1,
-                    'total': total_slides,
-                    'slide_index': slide_index,
-                    'template_id': template_id
-                }
-                yield f"data: {json.dumps(progress_data)}\n\n"
-
             mp_name_for_pdf_context = target_row_dict.get('microproduct_name') or target_row_dict.get('project_name')
             unique_output_filename = f"slide_deck_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
             
-            # Generate PDF using the traditional method with manual progress updates
+            # Generate PDF with regular function and send progress updates
             from app.services.pdf_generator import generate_slide_deck_pdf_with_dynamic_height
             
-            # Send progress updates during generation
-            yield f"data: {json.dumps({'type': 'progress', 'message': 'Calculating slide dimensions...', 'current': 0, 'total': total_slides})}\n\n"
+            # Send intermediate progress messages
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'Calculating slide dimensions...', 'current': 1, 'total': total_slides})}\n\n"
             
-            # Simulate progress for each slide (this happens very quickly but gives user feedback)
-            for i in range(total_slides):
-                yield f"data: {json.dumps({'type': 'progress', 'message': f'Processing slide {i+1}...', 'current': i+1, 'total': total_slides})}\n\n"
-                await asyncio.sleep(0.1)  # Small delay to make progress visible
+            # Simulate progress for user feedback during long operation
+            import asyncio
             
-            # Generate the actual PDF
-            yield f"data: {json.dumps({'type': 'progress', 'message': 'Generating PDF file...', 'current': total_slides, 'total': total_slides})}\n\n"
-            
-            pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
+            # Start PDF generation in background and send periodic updates
+            pdf_task = asyncio.create_task(generate_slide_deck_pdf_with_dynamic_height(
                 slides_data=slide_deck_data['slides'],
                 theme=theme,
                 output_filename=unique_output_filename,
                 use_cache=True
-            )
+            ))
             
-            yield f"data: {json.dumps({'type': 'progress', 'message': 'PDF generation completed!', 'current': total_slides, 'total': total_slides})}\n\n"
+            # Send progress updates while PDF is generating
+            progress_step = 0
+            max_steps = total_slides * 2  # Simulate steps for dimension calc + generation
+            
+            while not pdf_task.done():
+                await asyncio.sleep(2)  # Update every 2 seconds
+                progress_step += 1
+                current_progress = min(progress_step, max_steps - 1)
+                
+                if progress_step <= total_slides:
+                    message = f"Calculating dimensions for slide {progress_step}..."
+                else:
+                    slide_num = progress_step - total_slides
+                    message = f"Generating slide {slide_num}..."
+                
+                yield f"data: {json.dumps({'type': 'progress', 'message': message, 'current': current_progress, 'total': max_steps})}\n\n"
+            
+            # Wait for PDF generation to complete
+            pdf_path = await pdf_task
+            
+            # Send final progress update
+            yield f"data: {json.dumps({'type': 'progress', 'message': 'PDF generation completed!', 'current': max_steps, 'total': max_steps})}\n\n"
                 
             # Final success message with download info
             user_friendly_pdf_filename = f"{create_slug(mp_name_for_pdf_context)}_{uuid.uuid4().hex[:8]}.pdf"
@@ -11267,7 +11272,7 @@ async def stream_slide_deck_pdf_generation(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
+            "Content-Type": "text/event-stream",
         }
     )
 
