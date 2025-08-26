@@ -290,7 +290,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       <div style={{
         display: 'flex',
         gap: '20px',
-        width: '100%',
+        width: '65%',
         height: '100%'
       }}>
         {/* Левая колонка (два блока) */}
@@ -298,7 +298,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          gap: '30px'
         }}>
           {currentStatements.slice(0, 2).map((statement, index) => (
             <div
@@ -310,7 +310,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                minHeight: index === 1 ? '120px' : '80px'
+                minHeight: index === 1 ? '47%' : '47%'
               }}
             >
               {/* Number */}
