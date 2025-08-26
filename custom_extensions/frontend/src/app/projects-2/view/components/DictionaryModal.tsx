@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Info, Search, Plus, Play, Trash2, ChevronDown } from 'lucide-react';
 
 interface DictionaryModalProps {
@@ -36,6 +37,8 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   const [phoneticSpelling, setPhoneticSpelling] = useState('');
   const [selectedVoice, setSelectedVoice] = useState('');
   const [isVoiceDropdownOpen, setIsVoiceDropdownOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{ x: number; y: number; width: number } | null>(null);
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null);
 
   const voices = [
     { name: 'Annette', type: 'Australian English', flag: <AustralianFlag size={16} /> },
@@ -52,6 +55,42 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
       onClose();
     }
   };
+
+  const handleDropdownToggle = () => {
+    if (!isVoiceDropdownOpen && dropdownButtonRef.current) {
+      const rect = dropdownButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        x: rect.left,
+        y: rect.top - 8, // Position above the button
+        width: rect.width
+      });
+    }
+    setIsVoiceDropdownOpen(!isVoiceDropdownOpen);
+  };
+
+  const handleVoiceSelect = (voiceName: string) => {
+    setSelectedVoice(voiceName);
+    setIsVoiceDropdownOpen(false);
+    setDropdownPosition(null);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownButtonRef.current && !dropdownButtonRef.current.contains(event.target as Node)) {
+        setIsVoiceDropdownOpen(false);
+        setDropdownPosition(null);
+      }
+    };
+
+    if (isVoiceDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isVoiceDropdownOpen]);
 
   if (!isOpen) return null;
 
@@ -98,7 +137,7 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     placeholder="written form"
                     value={writtenForm}
                     onChange={(e) => setWrittenForm(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
                   />
                 </div>
                 
@@ -109,14 +148,15 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     placeholder="new spelling"
                     value={phoneticSpelling}
                     onChange={(e) => setPhoneticSpelling(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
                   />
                 </div>
                 
                 {/* Voice dropdown */}
                 <div className="relative">
                   <button
-                    onClick={() => setIsVoiceDropdownOpen(!isVoiceDropdownOpen)}
+                    ref={dropdownButtonRef}
+                    onClick={handleDropdownToggle}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent flex items-center justify-between"
                   >
                     <span className={selectedVoice ? "text-gray-900" : "text-gray-400"}>
@@ -124,34 +164,6 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
                     </span>
                     <ChevronDown size={16} className="text-gray-400" />
                   </button>
-                  
-                  {/* Dropdown menu */}
-                  {isVoiceDropdownOpen && (
-                    <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
-                         style={{
-                           zIndex: 999999
-                         }}>
-                      <div className="p-2">
-                        <div className="px-2 py-1 text-xs text-gray-500 font-medium">All languages</div>
-                        {voices.map((voice, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              setSelectedVoice(voice.name);
-                              setIsVoiceDropdownOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-50 rounded text-left"
-                          >
-                            {voice.flag}
-                            <div className="flex flex-col">
-                              <span className="text-sm text-gray-900">{voice.name}</span>
-                              <span className="text-xs text-gray-500">{voice.type}</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -179,6 +191,37 @@ const AddNewWordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
           </div>
         </div>
       </div>
+
+      {/* Portal Dropdown Menu */}
+      {isVoiceDropdownOpen && dropdownPosition && typeof window !== 'undefined' && createPortal(
+        <div 
+          className="fixed z-[999999] bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+          style={{
+            left: dropdownPosition.x,
+            top: dropdownPosition.y,
+            width: dropdownPosition.width,
+            transform: 'translateY(-100%)'
+          }}
+        >
+          <div className="p-2">
+            <div className="px-2 py-1 text-xs text-gray-500 font-medium">All languages</div>
+            {voices.map((voice, index) => (
+              <button
+                key={index}
+                onClick={() => handleVoiceSelect(voice.name)}
+                className="w-full flex items-center gap-2 px-2 py-2 hover:bg-gray-50 rounded text-left"
+              >
+                {voice.flag}
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-900">{voice.name}</span>
+                  <span className="text-xs text-gray-500">{voice.type}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
@@ -227,7 +270,7 @@ export default function DictionaryModal({ isOpen, onClose }: DictionaryModalProp
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500"
+                className="w-full pl-9 pr-4 py-3.5 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-gray-900"
               />
             </div>
             
