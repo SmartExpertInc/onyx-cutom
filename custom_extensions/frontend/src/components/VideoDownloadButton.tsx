@@ -375,6 +375,11 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       
       // Step 3b: Create professional presentation with actual slide data
       console.log('🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...');
+      console.log('🎬 [VIDEO_DOWNLOAD] Request parameters:');
+      console.log('  - useAvatarMask: true');
+      console.log('  - slidesData count:', slideDataResult.slides?.length || 0);
+      console.log('  - voiceoverTexts count:', voiceoverTexts?.length || 0);
+      console.log('  - theme:', slideDataResult.theme);
       setProgress(30);
       
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {

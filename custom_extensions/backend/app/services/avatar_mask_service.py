@@ -51,13 +51,20 @@ class AvatarMaskService:
             Path to the final composite video, or None if failed
         """
         try:
-            logger.info(f"Creating avatar mask video with {len(voiceover_texts)} voiceover texts")
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Starting create_avatar_mask_video...")
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Parameters:")
+            logger.info(f"  - voiceover_texts_count: {len(voiceover_texts)}")
+            logger.info(f"  - avatar_code: {avatar_code}")
+            logger.info(f"  - output_path: {output_path}")
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Creating avatar mask video with {len(voiceover_texts)} voiceover texts")
             
             # Step 1: Create Elai API video with green background
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Step 1: Creating Elai green screen video...")
             elai_video_path = await self._create_elai_green_screen_video(voiceover_texts, avatar_code)
             if not elai_video_path:
-                logger.error("Failed to create Elai green screen video")
+                logger.error("🎬 [AVATAR_MASK_SERVICE] Failed to create Elai green screen video")
                 return None
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Elai green screen video created: {elai_video_path}")
             
             # Step 2: Create professional alpha mask
             mask_video_path = await self._create_professional_mask(elai_video_path)

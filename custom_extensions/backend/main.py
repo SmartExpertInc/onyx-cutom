@@ -17168,6 +17168,20 @@ async def create_presentation(request: Request):
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")
         
+        # Add detailed logging for debugging
+        logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
+        logger.info(f"  - slide_url: {slide_url}")
+        logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
+        logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"  - theme: {theme}")
+        logger.info(f"  - avatar_code: {avatar_code}")
+        logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
+        logger.info(f"  - duration: {duration}")
+        logger.info(f"  - layout: {layout}")
+        logger.info(f"  - quality: {quality}")
+        logger.info(f"  - resolution: {resolution}")
+        logger.info(f"  - project_name: {project_name}")
+        
         # Validate required parameters  
         # slideUrl is required only if no slidesData provided
         if not slide_url and not slides_data:
@@ -17182,6 +17196,7 @@ async def create_presentation(request: Request):
             return {"success": False, "error": f"layout must be one of {allowed_layouts}"}
         
         # Create presentation request
+        logger.info("🎬 [MAIN_ENDPOINT] Creating PresentationRequest object...")
         presentation_request = PresentationRequest(
             slide_url=slide_url or "",  # Provide empty string if None
             voiceover_texts=voiceover_texts,
@@ -17195,6 +17210,7 @@ async def create_presentation(request: Request):
             resolution=tuple(resolution),
             project_name=project_name
         )
+        logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)

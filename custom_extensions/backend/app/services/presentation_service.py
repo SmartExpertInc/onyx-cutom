@@ -314,6 +314,14 @@ class ProfessionalPresentationService:
                 
                 job.progress = 40.0
                 
+                # Add detailed logging for avatar generation
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Starting avatar video generation...")
+                logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
+                logger.info(f"  - use_avatar_mask: {request.use_avatar_mask}")
+                logger.info(f"  - avatar_code: {request.avatar_code}")
+                logger.info(f"  - voiceover_texts_count: {len(request.voiceover_texts)}")
+                logger.info(f"  - duration: {request.duration}")
+                
                 avatar_video_path = await self._generate_avatar_video(
                     request.voiceover_texts,
                     request.avatar_code,
@@ -495,30 +503,38 @@ class ProfessionalPresentationService:
             Path to generated avatar video
         """
         try:
-            logger.info(f"Generating avatar video with {len(voiceover_texts)} voiceover texts")
-            logger.info(f"Using avatar mask service: {use_avatar_mask}")
+            logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Starting avatar video generation...")
+            logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Parameters received:")
+            logger.info(f"  - voiceover_texts_count: {len(voiceover_texts)}")
+            logger.info(f"  - avatar_code: {avatar_code}")
+            logger.info(f"  - duration: {duration}")
+            logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
             
             # Get avatar code if not provided
             if not avatar_code:
                 avatar_code = await self._get_available_avatar()
-                logger.info(f"Auto-selected avatar: {avatar_code}")
+                logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Auto-selected avatar: {avatar_code}")
             else:
-                logger.info(f"Using specified avatar: {avatar_code}")
+                logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Using specified avatar: {avatar_code}")
+            
+            logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Decision point: use_avatar_mask = {use_avatar_mask}")
             
             if use_avatar_mask:
                 # Use new avatar mask service (OpenCV + MoviePy)
-                logger.info("🎬 Using new Avatar Mask Service (OpenCV + MoviePy)")
+                logger.info("🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using new Avatar Mask Service (OpenCV + MoviePy)")
                 try:
+                    logger.info("🎬 [_GENERATE_AVATAR_VIDEO] Calling _generate_with_avatar_mask_service...")
                     avatar_video_path = await self._generate_with_avatar_mask_service(voiceover_texts, avatar_code)
+                    logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Avatar mask service completed successfully: {avatar_video_path}")
                     return avatar_video_path
                 except Exception as mask_error:
-                    logger.warning(f"Avatar mask service failed: {mask_error}")
-                    logger.info("Falling back to traditional method...")
+                    logger.warning(f"🎬 [_GENERATE_AVATAR_VIDEO] Avatar mask service failed: {mask_error}")
+                    logger.info("🎬 [_GENERATE_AVATAR_VIDEO] Falling back to traditional method...")
                     # Fall back to traditional method
                     return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
             else:
                 # Use traditional method
-                logger.info("🎬 Using traditional avatar generation method")
+                logger.info("🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using traditional avatar generation method")
                 return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
             
         except Exception as e:
@@ -537,10 +553,12 @@ class ProfessionalPresentationService:
             Path to generated avatar video
         """
         try:
-            logger.info("🎬 Using Avatar Mask Service for professional avatar generation")
+            logger.info("🎬 [_GENERATE_WITH_AVATAR_MASK_SERVICE] Starting Avatar Mask Service...")
+            logger.info("🎬 [_GENERATE_WITH_AVATAR_MASK_SERVICE] Initializing AvatarMaskService...")
             
             # Initialize avatar mask service
             avatar_mask_service = AvatarMaskService()
+            logger.info("🎬 [_GENERATE_WITH_AVATAR_MASK_SERVICE] AvatarMaskService initialized successfully")
             
             try:
                 # Generate output path
@@ -580,11 +598,14 @@ class ProfessionalPresentationService:
             Path to generated avatar video
         """
         try:
-            logger.info("🎬 Using traditional avatar generation method")
+            logger.info("🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Starting traditional avatar generation method")
+            logger.info("🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Using Elai API + FFmpeg approach")
             
             # Try with the specified avatar first
             try:
+                logger.info("🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Calling _try_generate_with_avatar...")
                 avatar_video_path = await self._try_generate_with_avatar(voiceover_texts, avatar_code)
+                logger.info(f"🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Traditional method completed: {avatar_video_path}")
                 return avatar_video_path
             except Exception as first_error:
                 logger.warning(f"Failed to generate video with avatar '{avatar_code}': {first_error}")
