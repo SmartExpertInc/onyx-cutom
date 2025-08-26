@@ -540,7 +540,7 @@ export default function TextSettings() {
       isOpen={showFontColorPicker}
       onClose={() => setShowFontColorPicker(false)}
       onColorChange={setFontColor}
-      initialColor={fontColor}
+      selectedColor={fontColor}
       position={fontColorPickerPosition}
       recentColors={recentColors}
       onRecentColorChange={setRecentColors}
@@ -551,7 +551,7 @@ export default function TextSettings() {
       isOpen={showBackgroundColorPicker}
       onClose={() => setShowBackgroundColorPicker(false)}
       onColorChange={setBackgroundColor}
-      initialColor={backgroundColor}
+      selectedColor={backgroundColor}
       position={backgroundColorPickerPosition}
       recentColors={recentColors}
       onRecentColorChange={setRecentColors}

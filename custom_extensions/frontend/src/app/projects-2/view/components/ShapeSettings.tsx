@@ -386,7 +386,7 @@ export default function ShapeSettings() {
       isOpen={showFillColorPicker}
       onClose={() => setShowFillColorPicker(false)}
       onColorChange={setFillColor}
-      initialColor={fillColor}
+      selectedColor={fillColor}
       position={fillColorPickerPosition}
       recentColors={recentColors}
       onRecentColorChange={setRecentColors}
@@ -397,7 +397,7 @@ export default function ShapeSettings() {
       isOpen={showStrokeColorPicker}
       onClose={() => setShowStrokeColorPicker(false)}
       onColorChange={setStrokeColor}
-      initialColor={strokeColor}
+      selectedColor={strokeColor}
       position={strokeColorPickerPosition}
       recentColors={recentColors}
       onRecentColorChange={setRecentColors}
