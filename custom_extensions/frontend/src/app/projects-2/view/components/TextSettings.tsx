@@ -496,7 +496,7 @@ export default function TextSettings() {
             <div className={`transition-all duration-300 ease-in-out ${
               showAdvancedSettings ? 'max-h-48' : 'max-h-0'
             } overflow-hidden`}>
-              <div className={`px-4 transition-all duration-300 ease-in-out ${
+              <div className={`transition-all duration-300 ease-in-out ${
                 showAdvancedSettings ? 'pt-4 pb-2' : 'pt-0 pb-0'
               }`}>
                 <div className={`transition-all duration-300 ${showAdvancedSettings ? 'opacity-100' : 'opacity-0'}`}>
