@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
@@ -77,7 +78,7 @@ class ElaiVideoGenerationService:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, green_screen_mode: bool = False) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
         
@@ -94,6 +95,7 @@ class ElaiVideoGenerationService:
         logger.info(f"  - Project name: {project_name}")
         logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
         logger.info(f"  - Avatar code: {avatar_code}")
+        logger.info(f"  - Green screen mode: {green_screen_mode}")
         
         for i, text in enumerate(voiceover_texts):
             logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
@@ -215,10 +217,32 @@ class ElaiVideoGenerationService:
             for i, voiceover_text in enumerate(cleaned_texts):
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Creating slide {i+1} with text: {voiceover_text[:100]}...")
                 
-                elai_slide = {
-                    "id": i + 1,
-                    "status": "edited",
-                    "canvas": {
+                # Configure canvas based on green screen mode
+                if green_screen_mode:
+                    # Green screen mode: small avatar positioned like in test_elai_api.py
+                    canvas_config = {
+                        "objects": [{
+                            "type": "avatar",
+                            "left": 510,  # Position like in test_elai_api.py
+                            "top": 255,   # Position like in test_elai_api.py
+                            "fill": "#4868FF",
+                            "scaleX": 0.1,   # Small avatar like in test_elai_api.py
+                            "scaleY": 0.1,   # Small avatar like in test_elai_api.py
+                            "width": 1080,
+                            "height": 1080,
+                            "src": avatar.get("canvas"),
+                            "avatarType": "transparent",
+                            "animation": {
+                                "type": None,
+                                "exitType": None
+                            }
+                        }],
+                        "background": "#00FF00",  # Pure green background for chroma key
+                        "version": "4.4.0"
+                    }
+                else:
+                    # Normal mode: centered avatar with white background
+                    canvas_config = {
                         "objects": [{
                             "type": "avatar",
                             "left": 960,  # Center the avatar in 1920x1080 canvas
@@ -237,7 +261,12 @@ class ElaiVideoGenerationService:
                         }],
                         "background": "#ffffff",  # White background for compatibility
                         "version": "4.4.0"
-                    },
+                    }
+                
+                elai_slide = {
+                    "id": i + 1,
+                    "status": "edited",
+                    "canvas": canvas_config,
                     "avatar": {
                         "code": avatar.get("code"),
                         "name": avatar.get("name"),
@@ -615,6 +644,58 @@ class ElaiVideoGenerationService:
         
         logger.error(f"Video {video_id} generation timeout after {self.max_wait_time} seconds")
         return None
+    
+    async def download_video(self, download_url: str, output_path: str) -> bool:
+        """
+        Download the rendered video to local storage.
+        
+        Args:
+            download_url: The URL to download the video from
+            output_path: Path where to save the video
+            
+        Returns:
+            True if download successful, False otherwise
+        """
+        try:
+            logger.info(f"Downloading video from: {download_url}")
+            logger.info(f"Downloading to: {output_path}")
+            
+            # Use httpx to download the video
+            response = await self.client.get(download_url, timeout=300)
+            response.raise_for_status()
+            
+            # Get total size for progress tracking
+            total_size = int(response.headers.get('content-length', 0))
+            downloaded_size = 0
+            
+            # Create output directory if it doesn't exist
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            # Download the video
+            with open(output_path, 'wb') as f:
+                async for chunk in response.aiter_bytes(chunk_size=8192):
+                    f.write(chunk)
+                    downloaded_size += len(chunk)
+                    
+                    if total_size > 0:
+                        progress = (downloaded_size / total_size) * 100
+                        if downloaded_size % (1024 * 1024) == 0:  # Log every MB
+                            logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
+            
+            # Verify file was downloaded
+            if os.path.exists(output_path):
+                file_size_mb = os.path.getsize(output_path) / (1024 * 1024)
+                logger.info(f"Video downloaded successfully!")
+                logger.info(f"File: {output_path}")
+                logger.info(f"Size: {file_size_mb:.2f} MB")
+                return True
+            else:
+                logger.error("Download completed but file not found")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Download failed: {str(e)}")
+            return False
     
     async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """

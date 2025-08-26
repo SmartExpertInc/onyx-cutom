@@ -11,6 +11,9 @@ html2image
 imgkit
 weasyprint
 pdf2image
+opencv-python
+moviepy
+numpy
 asyncpg # For PostgreSQL
 python-dotenv # To load .env variables
 python-multipart
