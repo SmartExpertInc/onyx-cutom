@@ -392,15 +392,28 @@ export interface BarChartInfographicsTemplateProps extends BaseTemplateProps {
 
 export interface MarketShareTemplateProps extends BaseTemplateProps {
   title: string;
-  subtitle?: string;
-  chartData: Array<{
-    label: string;
-    description: string;
-    percentage: number;
-    color: string;
-    year?: string;
+  companies: Array<{
+    name: string;
+    percentage: string;
+    color?: string;
   }>;
-  bottomText?: string;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface ComparisonSlideTemplateProps extends BaseTemplateProps {
+  title: string;
+  tableData: {
+    headers: string[];
+    rows: string[][];
+  };
+  titleColor?: string;
+  headerColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  borderColor?: string;
   theme?: SlideTheme;
 }
 
@@ -454,7 +467,8 @@ export type TemplateId =
   | 'org-chart'
   | 'pie-chart-infographics'
   | 'bar-chart-infographics'
-  | 'market-share';
+  | 'market-share'
+  | 'comparison-slide';
 
 export interface TemplatePreview {
   templateId: string;

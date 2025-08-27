@@ -101,7 +101,8 @@ export class TemplateExtractor {
       'org-chart': this.extractOrgChart,
       'pie-chart-infographics': this.extractPieChartInfographics,
       'bar-chart-infographics': this.extractBarChartInfographics,
-      'market-share': this.extractMarketShare
+      'market-share': this.extractMarketShare,
+      'comparison-slide': null,
     };
 
     return extractors[templateId] || null;
@@ -1527,95 +1528,53 @@ export class TemplateExtractor {
     canvasConfig: CanvasConfig;
   } {
     const items: PositionableItem[] = [];
-
-    // Title
+    
     if (props.title) {
-      items.push(TemplateExtractor.createTextItem(
-        'title',
-        props.title,
-        { x: 60, y: 80, width: 1080, height: 60 },
-        'heading'
-      ));
-    }
-
-    // Subtitle
-    if (props.subtitle) {
-      items.push(TemplateExtractor.createTextItem(
-        'subtitle',
-        props.subtitle,
-        { x: 60, y: 160, width: 1080, height: 40 },
-        'text'
-      ));
-    }
-
-    // Market share chart (as a shape)
-    items.push(TemplateExtractor.createShapeItem(
-      'market-share-chart',
-      'market-share-chart',
-      { x: 60, y: 220, width: 600, height: 300 }
-    ));
-
-    // Chart data legend
-    if (props.chartData && props.chartData.length > 0) {
-      let currentY = 220;
-      props.chartData.forEach((item: any, index: number) => {
-        items.push(TemplateExtractor.createContainerItem(
-          `market-item-${index + 1}`,
-          {
-            type: 'market-share-item',
-            label: item.label,
-            description: item.description,
-            percentage: item.percentage,
-            color: item.color,
-            year: item.year
-          },
-          { x: 700, y: currentY, width: 440, height: 80 }
-        ));
-        currentY += 100;
+      items.push({
+        id: 'title',
+        type: 'text',
+        content: props.title,
+        x: 400,
+        y: 50,
+        width: 800,
+        height: 60,
+        fontSize: 32,
+        fontWeight: 'bold',
+        textAlign: 'center'
       });
     }
-
-    // Bottom text
-    if (props.bottomText) {
-      items.push(TemplateExtractor.createTextItem(
-        'bottom-text',
-        props.bottomText,
-        { x: 60, y: 540, width: 1080, height: 40 },
-        'text'
-      ));
-    }
-
+    
     return {
       items,
       canvasConfig: TemplateExtractor.DEFAULT_CANVAS
     };
   }
 
-  /**
-   * Create fallback items for unknown templates
-   */
-  private static createFallbackItems(slide: ComponentBasedSlide): PositionableItem[] {
+  private static extractComparisonSlide(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
     const items: PositionableItem[] = [];
-
-    // Try to extract basic content
-    if (slide.props.title) {
-      items.push(TemplateExtractor.createTextItem(
-        'title',
-        slide.props.title,
-        { x: 60, y: 80, width: 1080, height: 60 },
-        'heading'
-      ));
+    
+    if (props.title) {
+      items.push({
+        id: 'title',
+        type: 'text',
+        content: props.title,
+        x: 400,
+        y: 50,
+        width: 800,
+        height: 60,
+        fontSize: 32,
+        fontWeight: 'bold',
+        textAlign: 'center'
+      });
     }
-
-    if (slide.props.content) {
-      items.push(TemplateExtractor.createTextItem(
-        'content',
-        slide.props.content,
-        { x: 60, y: 180, width: 1080, height: 400 },
-        'text'
-      ));
-    }
-
-    return items;
+    
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
   }
+
 }

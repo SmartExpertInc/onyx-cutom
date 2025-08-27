@@ -1432,6 +1432,37 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 # Map event-dates (AI instruction) to event-list (frontend registry)
                 template_id = 'event-list'
                 normalized_slide['templateId'] = template_id
+            elif template_id == 'comparison-slide':
+                # Ensure comparison-slide has proper tableData structure
+                if 'tableData' not in normalized_props and ('leftData' in normalized_props or 'rightData' in normalized_props):
+                    # Convert leftData/rightData to tableData format
+                    left_data = normalized_props.get('leftData', [])
+                    right_data = normalized_props.get('rightData', [])
+                    
+                    # Create table format with headers and rows
+                    headers = ['Feature', 'Option A', 'Option B']
+                    rows = []
+                    
+                    # Combine left and right data into rows
+                    max_items = max(len(left_data), len(right_data))
+                    for i in range(max_items):
+                        left_item = left_data[i] if i < len(left_data) else {}
+                        right_item = right_data[i] if i < len(right_data) else {}
+                        
+                        feature = left_item.get('label') or right_item.get('label') or f"Feature {i+1}"
+                        left_value = left_item.get('value', left_item.get('description', ''))
+                        right_value = right_item.get('value', right_item.get('description', ''))
+                        
+                        rows.append([feature, left_value, right_value])
+                    
+                    normalized_props['tableData'] = {
+                        'headers': headers,
+                        'rows': rows
+                    }
+                    
+                    # Remove old props
+                    normalized_props.pop('leftData', None)
+                    normalized_props.pop('rightData', None)
                 
             # Ensure critical props are preserved for all templates
             # Fix missing imagePrompt and other content issues
