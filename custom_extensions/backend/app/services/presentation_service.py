@@ -519,23 +519,11 @@ class ProfessionalPresentationService:
             
             logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Decision point: use_avatar_mask = {use_avatar_mask}")
             
-            if use_avatar_mask:
-                # Use new avatar mask service (OpenCV + MoviePy)
-                logger.info("🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using new Avatar Mask Service (OpenCV + MoviePy)")
-                try:
-                    logger.info("🎬 [_GENERATE_AVATAR_VIDEO] Calling _generate_with_avatar_mask_service...")
-                    avatar_video_path = await self._generate_with_avatar_mask_service(voiceover_texts, avatar_code)
-                    logger.info(f"🎬 [_GENERATE_AVATAR_VIDEO] Avatar mask service completed successfully: {avatar_video_path}")
-                    return avatar_video_path
-                except Exception as mask_error:
-                    logger.warning(f"🎬 [_GENERATE_AVATAR_VIDEO] Avatar mask service failed: {mask_error}")
-                    logger.info("🎬 [_GENERATE_AVATAR_VIDEO] Falling back to traditional method...")
-                    # Fall back to traditional method
-                    return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
-            else:
-                # Use traditional method
-                logger.info("🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using traditional avatar generation method")
-                return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
+            # Use traditional Elai API method to generate avatar video
+            # Video composition will be handled by SimpleVideoComposer (not avatar mask service)
+            logger.info("🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using traditional Elai API generation")
+            logger.info("🎬 [_GENERATE_AVATAR_VIDEO] Video composition will use SimpleVideoComposer (OpenCV)")
+            return await self._generate_with_traditional_method(voiceover_texts, avatar_code)
             
         except Exception as e:
             logger.error(f"Avatar video generation failed: {e}")

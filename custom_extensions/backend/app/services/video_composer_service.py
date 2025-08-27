@@ -101,393 +101,42 @@ class ProfessionalVideoComposer:
             logger.info(f"  - Slide duration: {slide_duration}s, dimensions: {slide_dimensions}")
             logger.info(f"  - Avatar duration: {avatar_duration}s, dimensions: {avatar_dimensions}")
             
-            # Choose composition method based on layout
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Layout decision: {config.layout}")
+            # Use SimpleVideoComposer for reliable, single-method composition
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Using SimpleVideoComposer (OpenCV-based)")
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Eliminating dual-approach complexity")
             
-            if config.layout == 'side_by_side':
-                logger.info("🎬 [VIDEO_COMPOSITION] Using side-by-side composition")
-                return await self._compose_side_by_side(slide_video, avatar_video, config)
-            elif config.layout == 'picture_in_picture':
-                logger.info("🎬 [VIDEO_COMPOSITION] Using picture-in-picture composition")
-                return await self._compose_pip(slide_video, avatar_video, config)
-            elif config.layout == 'split_screen':
-                logger.info("🎬 [VIDEO_COMPOSITION] Using split-screen composition")
-                return await self._compose_split_screen(slide_video, avatar_video, config)
+            # Import and initialize SimpleVideoComposer
+            from .simple_video_composer import SimpleVideoComposer
+            simple_composer = SimpleVideoComposer()
+            
+            # Progress tracking
+            def progress_callback(progress):
+                logger.info(f"🎬 [VIDEO_COMPOSITION] Composition progress: {progress}%")
+            
+            # Compose videos using simple, reliable method
+            success = await simple_composer.compose_videos(
+                slide_video_path=slide_video,
+                avatar_video_path=avatar_video,
+                output_path=config.output_path,
+                progress_callback=progress_callback
+            )
+            
+            # Cleanup
+            simple_composer.cleanup()
+            
+            if success:
+                logger.info("🎬 [VIDEO_COMPOSITION] Simple composition completed successfully")
+                return config.output_path
             else:
-                logger.error(f"🎬 [VIDEO_COMPOSITION] Unsupported layout: {config.layout}")
-                raise ValueError(f"Unsupported layout: {config.layout}")
+                logger.error("🎬 [VIDEO_COMPOSITION] Simple composition failed")
+                raise Exception("Video composition failed")
                 
         except Exception as e:
             logger.error(f"Video composition failed: {e}")
             raise
     
-    async def _compose_side_by_side(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """Side-by-side composition with professional quality."""
-        try:
-            logger.info("Creating side-by-side composition")
-            
-            # Calculate dimensions for each half
-            half_width = config.resolution[0] // 2
-            full_height = config.resolution[1]
-            
-            # Build FFmpeg command for side-by-side composition
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', f'[0:v]scale={half_width}:{full_height}[slide];[1:v]scale={half_width}:{full_height}[avatar];[slide][avatar]hstack=inputs=2',
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            return await self._execute_ffmpeg_command(cmd, "Side-by-side composition")
-            
-        except Exception as e:
-            logger.error(f"Side-by-side composition failed: {e}")
-            raise
-    
-    async def _compose_pip(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """
-        Picture-in-picture composition optimized for avatar-service template.
-        Fixed version that properly scales and positions the avatar overlay.
-        """
-        try:
-            logger.info("Creating picture-in-picture composition")
-            
-            # Get video dimensions for proper scaling
-            slide_dimensions = await self._get_video_dimensions(slide_video)
-            avatar_dimensions = await self._get_video_dimensions(avatar_video)
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Input video dimensions:")
-            logger.info(f"  - Slide video: {slide_dimensions}")
-            logger.info(f"  - Avatar video: {avatar_dimensions}")
-            
-            # Template-specific dimensions for avatar placement
-            avatar_width = 935   # Target width for avatar
-            avatar_height = 843  # Target height for avatar
-            
-            # Calculate position for avatar (right side of slide)
-            # Position avatar in right area with margin from edges
-            avatar_x = 1920 - avatar_width - 60  # 60px margin from right edge = 925
-            avatar_y = (1080 - avatar_height) // 2  # Vertically centered = 118
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Avatar positioning:")
-            logger.info(f"  - Avatar dimensions: {avatar_width}x{avatar_height}")
-            logger.info(f"  - Avatar position: x={avatar_x}, y={avatar_y}")
-            logger.info(f"  - Template match: 935x843 design")
-            
-            # FIXED: Proper filter complex syntax based on FFmpeg documentation
-            # Separate scaling operations with proper labels, then overlay
-            filter_complex = (
-                # Step 1: Scale slide video to exact 1920x1080 and label it
-                f"[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,"
-                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[slide_scaled];"
-                
-                # Step 2: Scale avatar video to target size and label it
-                f"[1:v]scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease,"
-                f"pad={avatar_width}:{avatar_height}:(ow-iw)/2:(oh-ih)/2:color=transparent[avatar_scaled];"
-                
-                # Step 3: Overlay scaled avatar onto scaled slide background
-                f"[slide_scaled][avatar_scaled]overlay={avatar_x}:{avatar_y}:shortest=1"
-            )
-            
-            # Build FFmpeg command with fixed filter
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,   # Input 0: Background slide video
-                '-i', avatar_video,  # Input 1: Avatar video from Elai API
-                '-filter_complex', filter_complex,
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] FFmpeg command:")
-            logger.info(f"  {' '.join(cmd)}")
-            
-            return await self._execute_ffmpeg_command(cmd, "Picture-in-picture composition")
-            
-        except Exception as e:
-            logger.error(f"Picture-in-picture composition failed: {e}")
-            logger.info("Trying alternative composition method...")
-            
-            # Try alternative approach if the main method fails
-            try:
-                return await self._compose_pip_alternative(slide_video, avatar_video, config)
-            except Exception as alt_e:
-                logger.error(f"Alternative composition also failed: {alt_e}")
-                raise
-    
-    async def _compose_pip_alternative(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """
-        Alternative approach: Use chromakey or transparency to extract avatar from Elai video
-        """
-        try:
-            logger.info("Trying alternative picture-in-picture composition")
-            
-            # Template-specific dimensions
-            avatar_width = 935
-            avatar_height = 843
-            avatar_x = 925  # 1920 - 935 - 60
-            avatar_y = 118  # (1080 - 843) // 2
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Alternative method - Avatar positioning:")
-            logger.info(f"  - Avatar dimensions: {avatar_width}x{avatar_height}")
-            logger.info(f"  - Avatar position: x={avatar_x}, y={avatar_y}")
-            
-            # RECOMMENDED: Use scale2ref for proper aspect ratio and scaling
-            # This approach uses scale2ref filter for proper scaling based on research findings
-            filter_complex = (
-                # Step 1: Use scale2ref to properly scale avatar relative to slide video
-                f"[1:v][0:v]scale2ref=w={avatar_width}:h={avatar_height}[avatar][slide];"
-                
-                # Step 2: Scale the slide to full 1920x1080 
-                f"[slide]scale=1920:1080:force_original_aspect_ratio=decrease,"
-                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[background];"
-                
-                # Step 3: Overlay the properly scaled avatar
-                f"[background][avatar]overlay={avatar_x}:{avatar_y}:shortest=1"
-            )
-            
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', filter_complex,
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Alternative FFmpeg command:")
-            logger.info(f"  {' '.join(cmd)}")
-            
-            return await self._execute_ffmpeg_command(cmd, "Alternative picture-in-picture composition")
-            
-        except Exception as e:
-            logger.error(f"Alternative picture-in-picture composition failed: {e}")
-            logger.info("Trying transparent background composition method...")
-            
-            # Try transparent background version
-            try:
-                return await self._compose_pip_transparent_bg(slide_video, avatar_video, config)
-            except Exception as trans_e:
-                logger.error(f"Transparent background composition failed: {trans_e}")
-                logger.info("Trying debug composition method...")
-                
-                # Try debug version as last resort
-                try:
-                    return await self._debug_composition(slide_video, avatar_video, config)
-                except Exception as debug_e:
-                    logger.error(f"Debug composition also failed: {debug_e}")
-                    raise
-    
-    async def _compose_pip_transparent_bg(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """
-        Transparent background approach: Assumes Elai generates avatar with transparent background
-        """
-        try:
-            logger.info("Trying transparent background composition")
-            
-            # Template-specific dimensions
-            avatar_width = 935
-            avatar_height = 843
-            avatar_x = 925  # 1920 - 935 - 60
-            avatar_y = 118  # (1080 - 843) // 2
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Transparent BG method - Avatar positioning:")
-            logger.info(f"  - Avatar dimensions: {avatar_width}x{avatar_height}")
-            logger.info(f"  - Avatar position: x={avatar_x}, y={avatar_y}")
-            
-            # Simple approach: scale each video separately, then overlay
-            filter_complex = (
-                # Scale slide to full 1920x1080 background
-                f"[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,"
-                f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35[bg];"
-                
-                # Scale avatar video to template size (assumes transparent background)
-                f"[1:v]scale={avatar_width}:{avatar_height}:force_original_aspect_ratio=decrease[av];"
-                
-                # Overlay avatar onto background
-                f"[bg][av]overlay={avatar_x}:{avatar_y}:shortest=1"
-            )
-            
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', filter_complex,
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Transparent BG FFmpeg command:")
-            logger.info(f"  {' '.join(cmd)}")
-            
-            return await self._execute_ffmpeg_command(cmd, "Transparent background composition")
-            
-        except Exception as e:
-            logger.error(f"Transparent background composition failed: {e}")
-            raise
-    
-    async def _debug_composition(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """
-        Debug version that creates intermediate files to understand the issue
-        """
-        try:
-            import os
-            
-            logger.info("Creating debug composition with intermediate files")
-            
-            debug_dir = os.path.dirname(config.output_path)
-            slide_debug = os.path.join(debug_dir, "debug_slide.mp4")
-            avatar_debug = os.path.join(debug_dir, "debug_avatar.mp4")
-            
-            # Step 1: Process slide video and save intermediate result
-            cmd_slide = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-vf', 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35',
-                '-c:v', 'libx264',
-                '-y',
-                slide_debug
-            ]
-            
-            logger.info("Processing slide video for debug...")
-            result = await asyncio.create_subprocess_exec(
-                *cmd_slide,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await result.communicate()
-            
-            if result.returncode != 0:
-                logger.error(f"Slide processing error: {stderr.decode()}")
-                raise Exception(f"Slide processing failed: {stderr.decode()}")
-            
-            # Step 2: Process avatar video and save intermediate result
-            cmd_avatar = [
-                'ffmpeg',
-                '-i', avatar_video,
-                '-vf', f'scale=935:843:force_original_aspect_ratio=decrease,pad=935:843:(ow-iw)/2:(oh-ih)/2:color=transparent',
-                '-c:v', 'libx264',
-                '-y',
-                avatar_debug
-            ]
-            
-            logger.info("Processing avatar video for debug...")
-            result = await asyncio.create_subprocess_exec(
-                *cmd_avatar,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await result.communicate()
-            
-            if result.returncode != 0:
-                logger.error(f"Avatar processing error: {stderr.decode()}")
-                raise Exception(f"Avatar processing failed: {stderr.decode()}")
-            
-            # Step 3: Combine the processed videos using proper filter syntax
-            filter_complex = "[0:v][1:v]overlay=925:118:shortest=1"
-            cmd_final = [
-                'ffmpeg',
-                '-i', slide_debug,
-                '-i', avatar_debug,
-                '-filter_complex', filter_complex,
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-y',
-                config.output_path
-            ]
-            
-            logger.info("Combining videos for debug...")
-            logger.info(f"🎬 [VIDEO_COMPOSITION] Debug final command: {' '.join(cmd_final)}")
-            
-            result = await asyncio.create_subprocess_exec(
-                *cmd_final,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await result.communicate()
-            
-            if result.returncode != 0:
-                logger.error(f"Final combination error: {stderr.decode()}")
-                raise Exception(f"Final combination failed: {stderr.decode()}")
-            
-            # Cleanup debug files
-            try:
-                os.remove(slide_debug)
-                os.remove(avatar_debug)
-                logger.info("Debug files cleaned up")
-            except Exception as cleanup_e:
-                logger.warning(f"Could not cleanup debug files: {cleanup_e}")
-            
-            logger.info("Debug composition completed successfully")
-            return config.output_path
-            
-        except Exception as e:
-            logger.error(f"Error in debug composition: {str(e)}")
-            raise
-    
-    async def _compose_split_screen(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """Split screen composition with custom positioning."""
-        try:
-            logger.info("Creating split screen composition")
-            
-            # Create a more sophisticated split screen layout
-            # Slide takes 70% of width, avatar takes 30%
-            slide_width = int(config.resolution[0] * 0.7)
-            avatar_width = config.resolution[0] - slide_width
-            full_height = config.resolution[1]
-            
-            # Build FFmpeg command for split screen composition
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', f'[0:v]scale={slide_width}:{full_height}[slide];[1:v]scale={avatar_width}:{full_height}[avatar];[slide][avatar]hstack=inputs=2',
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            return await self._execute_ffmpeg_command(cmd, "Split screen composition")
-            
-        except Exception as e:
-            logger.error(f"Split screen composition failed: {e}")
-            raise
+    # NOTE: Old composition methods removed - replaced with SimpleVideoComposer
+    # This eliminates the dual-approach complexity and provides single, reliable method
     
     async def _execute_ffmpeg_command(self, cmd: List[str], operation_name: str) -> str:
         """
