@@ -127,7 +127,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
       
       {/* Thumb */}
       <div
-        className="absolute w-4 h-4 bg-white rounded-full shadow-md cursor-pointer z-20"
+        className="absolute w-3.5 h-3.5 bg-white rounded-full shadow-md cursor-pointer z-20"
         style={{
           left: `${getPercentage()}%`,
           top: '50%',
@@ -730,7 +730,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               onClick={() => setColorFormat(format)}
               className={`flex-1 px-3 py-1.5 border-none rounded-full text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
-                  ? 'bg-white text-black font-bold shadow-sm' 
+                  ? 'bg-white text-black font-normal shadow-sm' 
                   : 'bg-transparent text-gray-500 font-normal'
               }`}
             >
