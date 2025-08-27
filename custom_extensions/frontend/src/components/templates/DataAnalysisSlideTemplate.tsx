@@ -228,7 +228,10 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
           color: '#333333',
           fontWeight: 'bold',
           lineHeight: '1.2',
-          whiteSpace: 'pre-line'
+          whiteSpace: 'pre-line',
+          minHeight: '60px',
+          display: 'flex',
+          alignItems: 'flex-start'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -242,7 +245,8 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
                 color: '#333333',
                 fontWeight: 'bold',
                 lineHeight: '1.2',
-                whiteSpace: 'pre-line'
+                whiteSpace: 'pre-line',
+                width: '100%'
               }}
             />
           ) : (

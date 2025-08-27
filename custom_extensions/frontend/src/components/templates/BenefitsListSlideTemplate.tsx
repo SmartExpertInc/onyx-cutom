@@ -268,7 +268,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             fontSize: '14px',
             color: themeBg,
             marginBottom: '10px',
-            fontWeight: '300'
+            fontWeight: '300',
+            minHeight: '20px',
+            display: 'flex',
+            alignItems: 'center'
           }}>
             {isEditable && editingSubtitle ? (
               <InlineEditor
@@ -279,7 +282,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '25px',
                   color: themeBg,
-                  fontWeight: '300'
+                  fontWeight: '300',
+                  width: '100%'
                 }}
               />
             ) : (
@@ -300,7 +304,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             fontSize: '55px',
             color: themeBg,
             marginBottom: '20px',
-            lineHeight: '1.1'
+            lineHeight: '1.1',
+            minHeight: '65px',
+            display: 'flex',
+            alignItems: 'center'
           }}>
             {isEditable && editingTitle ? (
               <InlineEditor
@@ -311,7 +318,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '55px',
                   color: themeBg,
-                  lineHeight: '1.1'
+                  lineHeight: '1.1',
+                  width: '100%'
                 }}
               />
             ) : (
@@ -332,7 +340,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             fontSize: '22px',
             color: themeBg,
             lineHeight: '1.4',
-            maxWidth: '530px'
+            maxWidth: '530px',
+            minHeight: '30px',
+            display: 'flex',
+            alignItems: 'flex-start'
           }}>
             {isEditable && editingDescription ? (
               <InlineEditor
@@ -344,7 +355,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '18px',
                   color: themeBg,
-                  lineHeight: '1.4'
+                  lineHeight: '1.4',
+                  width: '100%'
                 }}
               />
             ) : (

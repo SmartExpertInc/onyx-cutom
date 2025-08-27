@@ -337,7 +337,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           fontWeight: 'bold',
           lineHeight: '1.2',
           marginBottom: '40px',
-          whiteSpace: 'pre-line'
+          whiteSpace: 'pre-line',
+          minHeight: '60px',
+          display: 'flex',
+          alignItems: 'flex-start'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -351,7 +354,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 color: themeTitle,
                 fontWeight: 'bold',
                 lineHeight: '1.2',
-                whiteSpace: 'pre-line'
+                whiteSpace: 'pre-line',
+                width: '100%'
               }}
             />
           ) : (
@@ -372,7 +376,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           fontSize: '24px',
           color: themeContent,
           lineHeight: '1.5',
-          maxWidth: '600px'
+          maxWidth: '600px',
+          minHeight: '40px',
+          display: 'flex',
+          alignItems: 'flex-start'
         }}>
           {isEditable && editingContent ? (
             <InlineEditor
@@ -385,7 +392,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 fontSize: '24px',
                 color: themeContent,
                 lineHeight: '1.5',
-                maxWidth: '600px'
+                maxWidth: '600px',
+                width: '100%'
               }}
             />
           ) : (

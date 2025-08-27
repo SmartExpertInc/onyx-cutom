@@ -338,7 +338,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               fontSize: '32px',
               color: themeTitle,
               fontWeight: 'bold',
-              textAlign: 'center'
+              textAlign: 'center',
+              minHeight: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               {isEditable && editingBars?.index === index && editingBars?.field === 'percentage' ? (
                 <InlineEditor
@@ -350,7 +354,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                     fontSize: '32px',
                     color: themeTitle,
                     fontWeight: 'bold',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    width: '100%'
                   }}
                 />
               ) : (
@@ -436,7 +441,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               color: themeContent,
               textAlign: 'center',
               maxWidth: '120px',
-              lineHeight: '1.3'
+              lineHeight: '1.3',
+              minHeight: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               {isEditable && editingBars?.index === index && editingBars?.field === 'description' ? (
                 <InlineEditor
@@ -450,7 +459,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                     color: themeContent,
                     textAlign: 'center',
                     maxWidth: '120px',
-                    lineHeight: '1.3'
+                    lineHeight: '1.3',
+                    width: '100%'
                   }}
                 />
               ) : (
@@ -487,7 +497,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   alignItems: 'center',
                   justifyContent: 'center',
                   opacity: 0,
-                  transition: 'opacity 0.2s ease-in-out'
+                  transition: 'opacity 0.2s ease-in-out',
+                  zIndex: 5
                 }}
               >
                 ×

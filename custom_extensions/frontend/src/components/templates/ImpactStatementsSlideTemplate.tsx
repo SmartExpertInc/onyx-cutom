@@ -228,7 +228,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           fontSize: '40px',
           color: themeTitle,
           lineHeight: '1.2',
-          marginBottom: '40px'
+          marginBottom: '40px',
+          minHeight: '50px',
+          display: 'flex',
+          alignItems: 'flex-start'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -241,7 +244,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 maxWidth: '390px',
                 fontSize: '40px',
                 color: themeTitle,
-                lineHeight: '1.2'
+                lineHeight: '1.2',
+                width: '100%'
               }}
             />
           ) : (
@@ -317,7 +321,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               <div style={{
                 fontSize: '48px',
                 color: themeBg,
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                minHeight: '60px',
+                display: 'flex',
+                alignItems: 'center'
               }}>
                 {isEditable && editingNumbers === index ? (
                   <InlineEditor
@@ -328,7 +335,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       fontSize: '48px',
                       color: themeBg,
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      width: '100%'
                     }}
                   />
                 ) : (
@@ -348,7 +356,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               <div style={{
                 fontSize: '16px',
                 color: themeBg,
-                lineHeight: '1.4'
+                lineHeight: '1.4',
+                minHeight: '25px',
+                display: 'flex',
+                alignItems: 'flex-start'
               }}>
                 {isEditable && editingStatements === index ? (
                   <InlineEditor
@@ -360,7 +371,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       fontSize: '16px',
                       color: themeBg,
-                      lineHeight: '1.4'
+                      lineHeight: '1.4',
+                      width: '100%'
                     }}
                   />
                 ) : (
