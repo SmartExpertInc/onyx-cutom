@@ -1443,15 +1443,26 @@ export default function ProjectInstanceViewPage() {
                     timeStamp: e.timeStamp
                   });
                   
+                  console.log('Current router state:', {
+                    pathname: window.location.pathname,
+                    href: window.location.href,
+                    origin: window.location.origin
+                  });
+                  
                   e.preventDefault();
                   e.stopPropagation();
                   
                   console.log('Attempting navigation to /projects...');
                   try {
-                    router.push('/projects');
-                    console.log('router.push executed successfully');
+                    // Try router.replace instead of router.push
+                    console.log('Method 1: router.replace(/projects)');
+                    router.replace('/projects');
+                    console.log('router.replace executed successfully');
+                    
                   } catch (error) {
                     console.error('Error during navigation:', error);
+                    // Emergency fallback
+                    window.location.href = '/projects';
                   }
                 }}
                 onMouseDown={(e) => {
@@ -1466,6 +1477,18 @@ export default function ProjectInstanceViewPage() {
                 <FolderOpen size={16} className="mr-2" />
                 {t('interface.projectView.openProducts', 'Open Products')}
             </button>
+            
+            {/* Alternative: Try as Link component */}
+            <Link 
+              href="/projects"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+              onClick={() => {
+                console.log('Link version - Open Products clicked');
+              }}
+            >
+              <FolderOpen size={16} className="mr-2" />
+              Link: {t('interface.projectView.openProducts', 'Open Products')}
+            </Link>
           </div>
 
           <div className="flex items-center space-x-3">
