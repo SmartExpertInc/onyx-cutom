@@ -576,7 +576,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       {/* Color picker popup */}
       <div
         ref={popupRef}
-        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[260px]"
+        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[270px]"
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,
@@ -695,7 +695,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         <div className="mt-4 min-h-[56px] relative z-[10002]">
           {colorFormat === 'HEX' && (
             <div>
-              <div className="relative w-[224px]">
+              <div className="relative w-[234px]">
                 <input
                   type="text"
                   value={hex}
@@ -733,7 +733,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   { label: 'B', value: Math.round(rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
                   { label: 'A', value: rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} className="relative w-[50px]">
+                  <div key={label} className={`relative ${label === 'A' ? 'w-[60px]' : 'w-[50px]'}`}>
                     <input
                       type="text"
                       value={value}
@@ -790,7 +790,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   { label: 'L', value: Math.round(hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
                   { label: 'A', value: hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} className="relative w-[50px]">
+                  <div key={label} className={`relative ${label === 'A' ? 'w-[60px]' : 'w-[50px]'}`}>
                     <input
                       type="text"
                       value={value}
