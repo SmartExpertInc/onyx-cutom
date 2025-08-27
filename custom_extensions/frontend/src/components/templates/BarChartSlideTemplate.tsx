@@ -523,7 +523,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
           +
         </button>
       )}
-      </div>
 
       {/* Footer */}
       <div style={{
