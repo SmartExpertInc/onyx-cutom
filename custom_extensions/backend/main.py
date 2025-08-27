@@ -10183,10 +10183,18 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               - NEVER use vague terms like "featuring visual representations" or "playful design"
               - REPLACE abstract descriptions with concrete, observable elements
             - **SIMPLICITY REQUIREMENTS:**
+              - LIMIT to 1-2 people maximum per illustration (never 3+ people)
               - SHOW 1-3 main visual elements only (avoid complex multi-panel setups)
               - FOCUS on clean, uncluttered compositions with plenty of white space
               - AVOID crowded scenes with multiple monitors, workstations, or complex layouts
               - PREFER single focal points rather than busy multi-element arrangements
+            - **VISUAL ILLUSTRATION REQUIREMENTS:**
+              - CREATE scenic illustrations NOT infographics or charts
+              - AVOID "featuring icons representing" or "with clear labels" language
+              - GENERATE actual scenes with objects, environments, and atmospheres
+              - PREFER realistic scenarios over abstract concept representations
+              - FOCUS on visual storytelling rather than information display
+              - REPLACE "infographic" prompts with "illustration of [actual scene/environment]"
             - **DETAILED SCENE EXAMPLES (SIMPLE COMPOSITIONS):**
               - TEAM COLLABORATION: "two professionals at a clean desk: a Black woman in a blue blazer presenting to an Asian man in glasses who is taking notes on a single laptop, with one simple whiteboard showing basic geometric shapes in the background"
               - TECHNOLOGY SETUP: "a single modern workstation with one large monitor displaying simple geometric charts, a wireless keyboard, and minimal desk accessories"
@@ -10216,6 +10224,13 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               - NEVER use "depicting [concept]" - describe the actual scene with people and objects
               - REPLACE abstract concepts with concrete scenes showing people engaged in specific activities
               - REPLACE "showing [topic]" with "scene features [specific people] doing [specific actions] in [specific setting]"
+            - **FORBIDDEN INFOGRAPHIC LANGUAGE:**
+              - NEVER use "infographic illustrating" - create actual scenic illustrations instead
+              - NEVER use "featuring icons representing" - describe real objects and environments
+              - NEVER use "with clear labels" or "arranged in a layout" - focus on natural scenes
+              - NEVER use "icons for [concepts]" - create realistic environments where concepts occur
+              - REPLACE "infographic of [topic]" with "illustration of [people doing topic-related activities in specific environment]"
+              - REPLACE "featuring icons" with "scene showing [specific objects, people, and activities]"
             
             **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
             
@@ -10228,7 +10243,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             For "bullet-points" and "bullet-points-right":
             - "title": Main heading
             - "bullets": Array of bullet point strings
-            - "imagePrompt": Description for supporting image (REQUIRED)
+            - "imagePrompt": Description for supporting image (REQUIRED) - MUST be scenic illustration showing people in real environments, NOT infographics or icons
             - "imageAlt": Alt text for image
             
             For "two-column":
