@@ -325,22 +325,16 @@ class ElaiVideoGenerationService:
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            "left": 540,        # Center in 1080px width
-                            "top": 960,         # Center in 1920px height
-                            "scaleX": 0.8,      # Reduce scale to ensure visibility
-                            "scaleY": 0.8,      # Reduce scale to ensure visibility
-                            "width": 1080,      
+                            "width": 1080,
                             "height": 1080,
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
                                 "type": None,
                                 "exitType": None
-                            },
-                            "visible": True,
-                            "opacity": 1
+                            }
                         }],
-                        "background": "#ffffff",
+                        "background": "#00FF00",
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -355,14 +349,7 @@ class ElaiVideoGenerationService:
                     "voiceType": "text",
                     "voiceProvider": "azure"
                 }],
-                "tags": ["api", "test"],
-                "public": False,
-                "data": {
-                    "skipEmails": False,
-                    "subtitlesEnabled": "false",
-                    "format": "9_16",
-                    "resolution": "FullHD"
-                }
+                "tags": ["api", "test"]
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
