@@ -55,7 +55,7 @@ export default function AdvancedSettings({
           <div className="flex space-x-3">
             {/* X input with label as border */}
             <div className="relative">
-              <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">X</label>
+              <label className="absolute -top-2 left-2 px-1 text-[10px] text-gray-500 bg-white">X</label>
               <input
                 type="number"
                 value={positionX}
@@ -67,7 +67,7 @@ export default function AdvancedSettings({
             
             {/* Y input with label as border */}
             <div className="relative">
-              <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Y</label>
+              <label className="absolute -top-2 left-2 px-1 text-[10px] text-gray-500 bg-white">Y</label>
               <input
                 type="number"
                 value={positionY}
@@ -82,7 +82,7 @@ export default function AdvancedSettings({
           <div className="flex space-x-3">
             {/* Width input with label as border */}
             <div className="relative">
-              <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Width</label>
+              <label className="absolute -top-2 left-2 px-1 text-[10px] text-gray-500 bg-white">Width</label>
               <input
                 type="number"
                 value={width}
@@ -94,7 +94,7 @@ export default function AdvancedSettings({
             
             {/* Height input with label as border */}
             <div className="relative">
-              <label className="absolute -top-2 left-2 px-1 text-xs text-gray-600 bg-white">Height</label>
+              <label className="absolute -top-2 left-2 px-1 text-[10px] text-gray-500 bg-white">Height</label>
               <input
                 type="number"
                 value={height}

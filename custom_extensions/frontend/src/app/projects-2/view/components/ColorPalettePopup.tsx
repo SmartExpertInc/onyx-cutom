@@ -611,57 +611,74 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-                {/* Saturation/Brightness Square and Sliders Layout */}
-        <div className="flex gap-4 mb-4">
-          {/* Custom Saturation/Brightness Square */}
-          <div className="flex-1">
+                {/* Custom Saturation/Brightness Square */}
+        <div className="mb-4">
+          <div
+            ref={sbRef}
+            onMouseDown={(e) => {
+              handleMouseDown(e);
+            }}
+            className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
+            style={{
+              background: `linear-gradient(to top, #000, transparent),
+                           linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = 'none';
+              // Stop dragging if mouse leaves the square
+              if (isDraggingRef.current) {
+                isDraggingRef.current = false;
+                setIsDragging(false);
+              }
+            }}
+          >
+            {/* Custom cursor indicator */}
             <div
-              ref={sbRef}
-              onMouseDown={(e) => {
-                handleMouseDown(e);
-              }}
-              className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
+              className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
-                background: `linear-gradient(to top, #000, transparent),
-                             linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
+                left: `${hsb.s}%`,
+                top: `${100 - hsb.b}%`,
+                transform: 'translate(-50%, -50%)'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            />
+            
+            {/* Current color preview at cursor position */}
+            <div
+              className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003]"
+              style={{
+                backgroundColor: hex,
+                left: `${hsb.s}%`,
+                top: `${100 - hsb.b}%`,
+                transform: 'translate(-50%, -50%)'
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-                // Stop dragging if mouse leaves the square
-                if (isDraggingRef.current) {
-                  isDraggingRef.current = false;
-                  setIsDragging(false);
-                }
-              }}
-            >
-              {/* Custom cursor indicator */}
-              <div
-                className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
-                style={{
-                  left: `${hsb.s}%`,
-                  top: `${100 - hsb.b}%`,
-                  transform: 'translate(-50%, -50%)'
-                }}
-              />
-              
-              {/* Current color preview at cursor position */}
-              <div
-                className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003]"
-                style={{
-                  backgroundColor: hex,
-                  left: `${hsb.s}%`,
-                  top: `${100 - hsb.b}%`,
-                  transform: 'translate(-50%, -50%)'
-                }}
-              />
-            </div>
+            />
+          </div>
+        </div>
+
+        {/* Preview Square and Sliders Layout */}
+        <div className="flex gap-4 mb-4">
+          {/* Color Preview Square */}
+          <div className="w-10 h-10 border border-gray-300 rounded-lg relative z-[10001]"
+            style={{
+              background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                           linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                           linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                           linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+              backgroundSize: '10px 10px',
+              backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
+            }}>
+            <div className="w-full h-full rounded-lg"
+              style={{
+                backgroundColor: hex,
+                opacity: opacity
+              }} />
           </div>
 
           {/* Sliders Column */}
-          <div className="flex flex-col gap-2 w-20">
+          <div className="flex flex-col gap-2 flex-1">
             {/* Hue Slider */}
             <div className="relative z-[10001]">
               <CustomSlider
@@ -745,11 +762,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                     e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
                   }}
                 />
-                <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-xs text-gray-500 z-[10004] pointer-events-none">
+                <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-[10px] text-gray-500 z-[10004] pointer-events-none">
                   HEX Color
                 </label>
               </div>
-              <div className="text-gray-500 text-xs mt-1 block text-center">
+              <div className="text-gray-500 text-[10px] mt-1 block text-center">
                 Press Enter to apply
               </div>
             </div>
@@ -800,7 +817,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         }
                       }}
                     />
-                    <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
+                    <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-[10px] text-gray-500 z-[10005] pointer-events-none">
                       {label}
                     </label>
                   </div>
@@ -857,7 +874,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         }
                       }}
                     />
-                    <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
+                    <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-[10px] text-gray-500 z-[10005] pointer-events-none">
                       {label}
                     </label>
                   </div>
