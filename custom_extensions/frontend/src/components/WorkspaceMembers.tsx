@@ -18,11 +18,16 @@ interface WorkspaceMember {
 
 const WorkspaceMembers: React.FC = () => {
   const { t } = useLanguage();
+  const formatDate = (dateInput: string): string => {
+    const date = new Date(dateInput);
+    if (Number.isNaN(date.getTime())) return dateInput;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
   const [members, setMembers] = useState<WorkspaceMember[]>([
-    { id: 1, name: "Marina Ivanova", email: "marina@company.com", role: "Admin", status: "Active", invitationDate: "2025-08-10" },
-    { id: 2, name: "Oleg Smirnov", email: "oleg@company.com", role: "Member", status: "Suspended", invitationDate: "2025-08-12" },
-    { id: 3, name: "Sergey Li", email: "sergey@company.com", role: "Viewer", status: "Blocked", invitationDate: "2025-08-09" },
-    { id: 4, name: "Viktoria Koval", email: "viktoria@company.com", role: "Member", status: "Active", invitationDate: "2025-08-05" }
+    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: "Admin", status: "Active", invitationDate: "2025-08-10" },
+    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: "Member", status: "Suspended", invitationDate: "2025-08-12" },
+    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: "Viewer", status: "Blocked", invitationDate: "2025-08-09" },
+    { id: 4, name: "James Whitaker", email: "james@company.com", role: "Member", status: "Active", invitationDate: "2025-08-05" }
   ]);
   const [showAddMember, setShowAddMember] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -34,7 +39,7 @@ const WorkspaceMembers: React.FC = () => {
   const filteredMembers = useMemo(() => {
     return members.filter(member => {
       const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          member.email.toLowerCase().includes(searchTerm.toLowerCase());
+        member.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === '' || member.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -57,19 +62,19 @@ const WorkspaceMembers: React.FC = () => {
   }, []);
 
   const handleSuspendMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member => 
+    setMembers(prev => prev.map(member =>
       member.id === memberId ? { ...member, status: 'Suspended' as const } : member
     ));
   }, []);
 
   const handleActivateMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member => 
+    setMembers(prev => prev.map(member =>
       member.id === memberId ? { ...member, status: 'Active' as const } : member
     ));
   }, []);
 
   const handleUnblockMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member => 
+    setMembers(prev => prev.map(member =>
       member.id === memberId ? { ...member, status: 'Active' as const } : member
     ));
   }, []);
@@ -83,7 +88,7 @@ const WorkspaceMembers: React.FC = () => {
         email: newMemberEmail.trim(),
         role: newMemberRole,
         status: 'Pending',
-        invitationDate: new Date().toISOString().split('T')[0]
+        invitationDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       };
       setMembers(prev => [...prev, newMember]);
       setNewMemberEmail('');
@@ -97,39 +102,39 @@ const WorkspaceMembers: React.FC = () => {
       {/* Header with Search, Filter, and Create Button */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-        {/* Search and Filter Row */}
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder={t('interface.searchPlaceholder', 'Search members...')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
-            />
+          {/* Search and Filter Row */}
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                placeholder={t('interface.searchPlaceholder', 'Search members...')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
+            >
+              <option value="" className="text-black">{t('interface.filters.allStatuses', 'All Statuses')}</option>
+              <option value="Active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
+              <option value="Suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
+              <option value="Blocked" className="text-black">{t('interface.statuses.blocked', 'Blocked')}</option>
+              <option value="Pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
+            </select>
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
+
+          {/* Create Button */}
+          <button
+            onClick={() => setShowAddMember(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
           >
-            <option value="" className="text-black">{t('interface.filters.allStatuses', 'All Statuses')}</option>
-            <option value="Active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
-            <option value="Suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
-            <option value="Blocked" className="text-black">{t('interface.statuses.blocked', 'Blocked')}</option>
-            <option value="Pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
-          </select>
-        </div>
-        
-        {/* Create Button */}
-        <button
-          onClick={() => setShowAddMember(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
-        >
-          <UserPlus size={16} />
-          {t('interface.addMember', 'Add Member')}
-        </button>
+            <UserPlus size={16} />
+            {t('interface.addMember', 'Add Member')}
+          </button>
         </div>
       </div>
 
@@ -185,11 +190,10 @@ const WorkspaceMembers: React.FC = () => {
                       {member.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        member.role === 'Admin' ? 'bg-purple-100 text-purple-800' :
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${member.role === 'Admin' ? 'bg-purple-100 text-purple-800' :
                         member.role === 'Member' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                          'bg-gray-100 text-gray-800'
+                        }`}>
                         {t(`interface.roles.${member.role.toLowerCase()}`, member.role)}
                       </span>
                     </td>
@@ -202,7 +206,7 @@ const WorkspaceMembers: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {member.invitationDate}
+                      {formatDate(member.invitationDate)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="relative group">
@@ -265,15 +269,15 @@ const WorkspaceMembers: React.FC = () => {
       {showAddMember && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowAddMember(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
               onClick={() => setShowAddMember(false)}
             >
               <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            
+
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {t('interface.addMemberModal.title', 'Add Member')}
@@ -282,7 +286,7 @@ const WorkspaceMembers: React.FC = () => {
                 {t('interface.addMemberModal.description', 'Invite a new member to the workspace')}
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -296,7 +300,7 @@ const WorkspaceMembers: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t('interface.addMemberModal.roleLabel', 'Role')}
@@ -312,7 +316,7 @@ const WorkspaceMembers: React.FC = () => {
                 </select>
               </div>
             </div>
-            
+
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowAddMember(false)}
