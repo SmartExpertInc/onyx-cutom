@@ -127,7 +127,7 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
       
       {/* Thumb */}
       <div
-        className="absolute w-3.5 h-3.5 bg-white border-2 border-gray-500 rounded-full shadow-md cursor-pointer z-20"
+        className="absolute w-4 h-4 bg-white rounded-full shadow-md cursor-pointer z-20"
         style={{
           left: `${getPercentage()}%`,
           top: '50%',
@@ -637,7 +637,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           >
             {/* Custom cursor indicator */}
             <div
-              className="absolute w-3 h-3 rounded-full bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
                 left: `${hsb.s}%`,
                 top: `${100 - hsb.b}%`,
@@ -733,7 +733,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   }}
                   onClick={handleInputClick}
                   maxLength={7}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10003] text-center"
+                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10003] text-center"
                   onFocus={(e) => {
                     e.target.style.borderColor = '#000';
                     e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
@@ -743,7 +743,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   HEX Color
                 </label>
               </div>
-              <div className="text-gray-500 text-xs mt-1 block">
+              <div className="text-gray-500 text-xs mt-1 block text-center">
                 Press Enter to apply
               </div>
             </div>
@@ -765,7 +765,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       onChange={handleRgbaChange(field)}
                       onKeyDown={handleRgbaKeyDown(field)}
                       onClick={handleInputClick}
-                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10004] appearance-none"
+                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10004] appearance-none text-center"
                       style={{
                         // Remove spinner buttons (up/down arrows)
                         WebkitAppearance: 'none',
@@ -800,7 +800,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   </div>
                 ))}
               </div>
-              <div className="text-gray-500 text-xs mt-1 block">
+              <div className="text-gray-500 text-xs mt-1 block text-center">
                 Press Enter in any field to apply
               </div>
             </div>
@@ -822,7 +822,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                       onChange={handleHslaChange(field)}
                       onKeyDown={handleHslaKeyDown(field)}
                       onClick={handleInputClick}
-                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10004] appearance-none"
+                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10004] appearance-none text-center"
                       style={{
                         // Remove spinner buttons (up/down arrows)
                         WebkitAppearance: 'none',
@@ -857,7 +857,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   </div>
                 ))}
               </div>
-              <div className="text-gray-500 text-xs mt-1 block">
+              <div className="text-gray-500 text-xs mt-1 block text-center">
                 Press Enter in any field to apply
               </div>
             </div>
