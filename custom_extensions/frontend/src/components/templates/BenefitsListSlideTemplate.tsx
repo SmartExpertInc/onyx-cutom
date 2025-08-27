@@ -270,8 +270,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             marginBottom: '10px',
             fontWeight: '300',
             minHeight: '20px',
+            maxHeight: '20px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            overflow: 'hidden'
           }}>
             {isEditable && editingSubtitle ? (
               <InlineEditor
@@ -283,7 +285,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   fontSize: '25px',
                   color: themeBg,
                   fontWeight: '300',
-                  width: '100%'
+                  width: '100%',
+                  height: '100%',
+                  minHeight: '20px',
+                  maxHeight: '20px'
                 }}
               />
             ) : (
@@ -291,7 +296,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onClick={() => isEditable && setEditingSubtitle(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
                 {currentSubtitle}
@@ -306,8 +315,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             marginBottom: '20px',
             lineHeight: '1.1',
             minHeight: '65px',
+            maxHeight: '65px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            overflow: 'hidden'
           }}>
             {isEditable && editingTitle ? (
               <InlineEditor
@@ -319,7 +330,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   fontSize: '55px',
                   color: themeBg,
                   lineHeight: '1.1',
-                  width: '100%'
+                  width: '100%',
+                  height: '100%',
+                  minHeight: '65px',
+                  maxHeight: '65px'
                 }}
               />
             ) : (
@@ -327,7 +341,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onClick={() => isEditable && setEditingTitle(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
                 {currentTitle}

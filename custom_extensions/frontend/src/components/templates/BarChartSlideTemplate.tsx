@@ -340,9 +340,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               fontWeight: 'bold',
               textAlign: 'center',
               minHeight: '40px',
+              maxHeight: '40px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              overflow: 'hidden'
             }}>
               {isEditable && editingBars?.index === index && editingBars?.field === 'percentage' ? (
                 <InlineEditor
@@ -355,7 +357,10 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                     color: themeTitle,
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    width: '100%'
+                    width: '100%',
+                    height: '100%',
+                    minHeight: '40px',
+                    maxHeight: '40px'
                   }}
                 />
               ) : (
@@ -363,7 +368,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   onClick={() => isEditable && setEditingBars({ index, field: 'percentage' })}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   {bar.percentage}
@@ -443,9 +453,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               maxWidth: '120px',
               lineHeight: '1.3',
               minHeight: '40px',
+              maxHeight: '60px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              overflow: 'hidden'
             }}>
               {isEditable && editingBars?.index === index && editingBars?.field === 'description' ? (
                 <InlineEditor
@@ -460,7 +472,10 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                     textAlign: 'center',
                     maxWidth: '120px',
                     lineHeight: '1.3',
-                    width: '100%'
+                    width: '100%',
+                    height: '100%',
+                    minHeight: '40px',
+                    maxHeight: '60px'
                   }}
                 />
               ) : (
@@ -468,7 +483,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   onClick={() => isEditable && setEditingBars({ index, field: 'description' })}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   {bar.description}

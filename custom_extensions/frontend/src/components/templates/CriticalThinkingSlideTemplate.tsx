@@ -339,8 +339,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           marginBottom: '40px',
           whiteSpace: 'pre-line',
           minHeight: '60px',
+          maxHeight: '120px',
           display: 'flex',
-          alignItems: 'flex-start'
+          alignItems: 'flex-start',
+          overflow: 'hidden'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -355,7 +357,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 fontWeight: 'bold',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
-                width: '100%'
+                width: '100%',
+                height: '100%',
+                minHeight: '60px',
+                maxHeight: '120px'
               }}
             />
           ) : (
@@ -363,7 +368,11 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                userSelect: 'none',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-start'
               }}
             >
               {currentTitle}
