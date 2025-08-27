@@ -319,48 +319,42 @@ class ElaiVideoGenerationService:
             # FIXED: Official Elai API structure for vertical full-size avatar
             # SIMPLIFIED ELAI API REQUEST - Focus on getting visible avatar
             video_request = {
-                "name": "Hello from API!",
-                "slides": [
-                    {
+                "name": project_name,
+                "slides": [{
                     "id": 1,
                     "canvas": {
-                        "objects": [
-                        {
+                        "objects": [{
                             "type": "avatar",
-                            "left": 151.5,
-                            "top": 36,
-                            "fill": "#4868FF",
-                            "scaleX": 0.3,
-                            "scaleY": 0.3,
-                            "width": 1080,
-                            "height": 1080,
-                            "src": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",
-                            "avatarType": "transparent",
+                            "left": 151.5,     # Exact from example
+                            "top": 36,         # Exact from example
+                            "fill": "#4868FF", # Exact from example
+                            "scaleX": 0.3,     # Exact from example
+                            "scaleY": 0.3,     # Exact from example
+                            "width": 1080,     # Exact from example
+                            "height": 1080,    # Exact from example
+                            "src": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",  # Exact from example
+                            "avatarType": "transparent",  # Exact from example
                             "animation": {
-                            "type": null,
-                            "exitType": null
+                                "type": None,      # Exact from example (null -> None)
+                                "exitType": None   # Exact from example (null -> None)
                             }
-                        }
-                        ],
-                        "background": "#ffffff",
-                        "version": "4.4.0"
+                        }],
+                        "background": "#ffffff",  # Exact from example
+                        "version": "4.4.0"        # Exact from example
                     },
                     "avatar": {
-                        "code": "gia.casual",
-                        "gender": "female",
-                        "canvas": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png"
+                        "code": "gia.casual",     # Exact from example
+                        "gender": "female",       # Exact from example
+                        "canvas": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png"  # Exact from example
                     },
-                    "animation": "fade_in",
-                    "language": "English",
-                    "speech": "Hi there! It's my first video created by Elai API.",
-                    "voice": "en-US-AriaNeural",
-                    "voiceType": "text",
-                    "voiceProvider": "azure"
-                    }
-                ],
-                "tags": [
-                    "test"
-                ]
+                    "animation": "fade_in",       # Exact from example
+                    "language": "English",        # Exact from example
+                    "speech": " ".join(cleaned_texts),
+                    "voice": "en-US-AriaNeural",  # Exact from example
+                    "voiceType": "text",          # Exact from example
+                    "voiceProvider": "azure"      # Exact from example
+                }],
+                "tags": ["test"]  # Simplified from example
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
