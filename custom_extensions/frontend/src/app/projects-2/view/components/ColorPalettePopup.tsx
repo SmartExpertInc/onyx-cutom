@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Dialog, DialogContent, Slider, Typography, Box, TextField } from "@mui/material";
+import { Slider, Typography, Box, TextField } from "@mui/material";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
@@ -576,37 +576,137 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           </Typography>
         </Box>
 
-        {/* Saturation/Brightness Square */}
-        <Box
+        {/* Custom Saturation/Brightness Square */}
+        <div
           ref={sbRef}
-          onMouseDown={handleMouseDown}
-          sx={{
+          onMouseDown={(e) => {
+            handleMouseDown(e);
+            e.currentTarget.style.border = '1px solid #666';
+            e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.2)';
+          }}
+          style={{
             width: '100%',
-            height: 128,
+            height: '128px',
             border: '1px solid #ccc',
-            borderRadius: 2,
+            borderRadius: '8px',
             cursor: 'crosshair',
             position: 'relative',
             zIndex: 10001,
+            overflow: 'hidden',
             background: `linear-gradient(to top, #000, transparent),
-                         linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
+                         linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`,
+            transition: 'border-color 0.2s, box-shadow 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.border = '1px solid #999';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.border = '1px solid #ccc';
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
-          <Box
-            sx={{
+          {/* Grid overlay for better visual reference */}
+          <div
+            style={{
               position: 'absolute',
-              width: 12,
-              height: 12,
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `
+                linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '16px 16px',
+              pointerEvents: 'none',
+              zIndex: 10001
+            }}
+          />
+          
+          {/* Corner indicators for Saturation and Brightness */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '4px',
+              left: '4px',
+              fontSize: '10px',
+              color: 'rgba(255,255,255,0.8)',
+              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+              pointerEvents: 'none',
+              zIndex: 10001,
+              fontWeight: 'bold'
+            }}
+          >
+            S
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '4px',
+              left: '4px',
+              fontSize: '10px',
+              color: 'rgba(255,255,255,0.8)',
+              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+              pointerEvents: 'none',
+              zIndex: 10001,
+              fontWeight: 'bold'
+            }}
+          >
+            B
+          </div>
+          
+          {/* Custom cursor indicator */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '18px',
+              height: '18px',
               borderRadius: '50%',
-              border: '2px solid #000',
-              backgroundColor: '#fff',
+              border: '2px solid #fff',
+              boxShadow: '0 0 0 1px #000, 0 2px 6px rgba(0,0,0,0.4)',
+              backgroundColor: 'transparent',
               left: `${hsb.s}%`,
               top: `${100 - hsb.b}%`,
               transform: 'translate(-50%, -50%)',
-              pointerEvents: 'none'
+              pointerEvents: 'none',
+              zIndex: 10002,
+              transition: 'all 0.1s ease-out'
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: '#fff',
+                transform: 'translate(-50%, -50%)',
+                boxShadow: '0 0 0 1px #000'
+              }}
+            />
+          </div>
+          
+          {/* Current color preview at cursor position */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: hex,
+              left: `${hsb.s}%`,
+              top: `${100 - hsb.b}%`,
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none',
+              zIndex: 10003,
+              border: '1px solid rgba(255,255,255,0.8)',
+              boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
             }}
           />
-        </Box>
+        </div>
 
         {/* Color Format Toggle Buttons */}
         <Box sx={{ 
