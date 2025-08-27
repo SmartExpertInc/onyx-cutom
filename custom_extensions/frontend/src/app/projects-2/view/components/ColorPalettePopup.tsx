@@ -670,11 +670,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               backgroundSize: '10px 10px',
               backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
             }}>
-            <div className="w-full h-full rounded-lg"
-              style={{
-                backgroundColor: hex,
-                opacity: opacity
-              }} />
+                      <div className="w-full h-full"
+            style={{
+              backgroundColor: hex,
+              opacity: opacity
+            }} />
           </div>
 
           {/* Sliders Column */}
@@ -887,22 +887,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           )}
         </div>
 
-        {/* Color Preview */}
-        <div className="mt-4 w-10 h-10 border border-gray-300 rounded-lg relative z-[10001]"
-          style={{
-            background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                         linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                         linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                         linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-            backgroundSize: '10px 10px',
-            backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
-          }}>
-          <div className="w-full h-full rounded-lg"
-            style={{
-              backgroundColor: hex,
-              opacity: opacity
-            }} />
-        </div>
+
 
         {/* Recent Colors */}
         {onRecentColorChange && (
