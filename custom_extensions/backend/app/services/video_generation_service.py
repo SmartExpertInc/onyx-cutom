@@ -309,19 +309,61 @@ class ElaiVideoGenerationService:
                 }
                 elai_slides.append(elai_slide)
             
-            # Prepare video request
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing VERTICAL video request with full-size avatar")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
             logger.info(f"  - Name: {project_name}")
-            logger.info(f"  - Slides count: {len(elai_slides)}")
-            logger.info(f"  - Format: 16_9")
-            logger.info(f"  - Resolution: FullHD")
+            logger.info(f"  - Format: VERTICAL (9:16)")
+            logger.info(f"  - Avatar: Full-size filling entire frame")
             logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
-            
+
+            # FIXED: Official Elai API structure for vertical full-size avatar
             video_request = {
                 "name": project_name,
-                "slides": elai_slides,
-                "tags": ["video_lesson", "generated", "presentation"]
+                "slides": [{
+                    "id": 1,
+                    "canvas": {
+                        "objects": [{
+                            "type": "avatar",
+                            # For VERTICAL format (9:16 aspect ratio, likely 1080x1920)
+                            # Position avatar to fill entire vertical frame
+                            "left": 540,      # Center horizontally for 1080px width
+                            "top": 960,       # Center vertically for 1920px height
+                            "scaleX": 1.2,    # Scale up to fill vertical frame completely
+                            "scaleY": 1.2,    # Scale up to fill vertical frame completely
+                            "width": 1080,    # Avatar source dimensions
+                            "height": 1080,
+                            "src": avatar.get("canvas"),
+                            "avatarType": "transparent",
+                            "animation": {
+                                "type": None,
+                                "exitType": None
+                            },
+                            "fill": "#4868FF"
+                        }],
+                        "background": "#00FF00" if green_screen_mode else "#ffffff",
+                        "version": "4.4.0"
+                    },
+                    "avatar": {
+                        "code": avatar.get("code"),
+                        "gender": avatar.get("gender"),
+                        "canvas": avatar.get("canvas")
+                    },
+                    "animation": "fade_in",
+                    "language": "English",
+                    "speech": " ".join(cleaned_texts),  # Combined speech
+                    "voice": "en-US-AriaNeural",
+                    "voiceType": "text",
+                    "voiceProvider": "azure"
+                }],
+                "tags": ["video_lesson", "generated", "presentation", "vertical"],
+                "public": False,
+                # CRITICAL: Add data object for vertical format
+                "data": {
+                    "skipEmails": False,
+                    "subtitlesEnabled": "false",
+                    "format": "9_16",      # VERTICAL format instead of "16_9"
+                    "resolution": "FullHD"  # This will be 1080x1920 for vertical
+                }
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
