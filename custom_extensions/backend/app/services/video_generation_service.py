@@ -235,7 +235,9 @@ class ElaiVideoGenerationService:
                             "animation": {
                                 "type": None,
                                 "exitType": None
-                            }
+                            },
+                            "visible": True,
+                            "opacity": 1
                         }],
                         "background": "#00FF00",  # Pure green background for chroma key
                         "version": "4.4.0"
@@ -253,19 +255,21 @@ class ElaiVideoGenerationService:
                     canvas_config = {
                         "objects": [{
                             "type": "avatar",
-                            "left": 960,     # Center horizontally in 1920px canvas
-                            "top": 540,      # Center vertically in 1080px canvas
+                            "left": 640,      # Center horizontally for 1920x1080
+                            "top": 540,       # Center vertically
                             "fill": "#4868FF",
-                            "scaleX": 0.8,   # Large scale for clear visibility
-                            "scaleY": 0.8,   # Large scale for clear visibility
-                            "width": 1920,   # Full canvas width
-                            "height": 1080,  # Full canvas height
+                            "scaleX": 0.3,    # Appropriate scale for visibility
+                            "scaleY": 0.3,    # Appropriate scale for visibility
+                            "width": 1080,    # Avatar source dimensions
+                            "height": 1080,   # Avatar source dimensions
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
                                 "type": None,
                                 "exitType": None
-                            }
+                            },
+                            "visible": True,
+                            "opacity": 1
                         }],
                         "background": "#ffffff",  # White background for compatibility
                         "version": "4.4.0"
@@ -292,22 +296,23 @@ class ElaiVideoGenerationService:
                 
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
                 
+                # Create slide structure matching official Elai API format
                 elai_slide = {
-                    "id": i + 1,
-                    "status": "edited",
-                    "canvas": canvas_config,
+                    "version": "4.4.0",
+                    "background": canvas_config["background"],
+                    "objects": canvas_config["objects"],
                     "avatar": {
                         "code": avatar.get("code"),
-                        "name": avatar.get("name"),
                         "gender": avatar.get("gender"),
-                        "canvas": avatar.get("canvas")  # This MUST match the canvas.objects[0].src
+                        "type": None,
+                        "limit": 300,
+                        "canvas": avatar.get("canvas"),
+                        "speech": voiceover_text  # Add speech text to avatar object
                     },
-                    "animation": "fade_in",
-                    "language": "English",
-                    "speech": voiceover_text,
-                    "voice": "en-US-AriaNeural",
-                    "voiceType": "text",
-                    "voiceProvider": "azure"
+                    "story": {
+                        "isTooComplex": False
+                    },
+                    "id": i + 1
                 }
                 elai_slides.append(elai_slide)
             
@@ -335,6 +340,11 @@ class ElaiVideoGenerationService:
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
             logger.info(f"  {json.dumps(video_request, indent=2)}")
+            
+            # Log the first slide structure for debugging
+            if elai_slides:
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] First slide structure:")
+                logger.info(f"  {json.dumps(elai_slides[0], indent=2)}")
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Making API call to Elai")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API endpoint: {self.api_base}/videos")
