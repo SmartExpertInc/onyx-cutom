@@ -65,37 +65,46 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       enhancedPrompt = `A minimalist and modern vector illustration for a presentation slide. ${basePrompt}`;
     }
     
-    // Build the color palette specification
-    const colorSpecs = [];
+    // Extract theme colors for element-specific descriptions
+    const bgColor = colors.backgroundColor || '#ffffff';
+    const accentColor = colors.accentColor || '#3b82f6';
+    const titleColor = colors.titleColor || '#1a1a1a';
+    const subtitleColor = colors.subtitleColor || '#6b7280';
     
-    if (colors.backgroundColor) {
-      const bgColor = colors.backgroundColor;
-      if (bgColor === '#ffffff' || bgColor.includes('fff')) {
-        colorSpecs.push('clean white background (#ffffff)');
-      } else {
-        colorSpecs.push(`background color (${bgColor})`);
-      }
+    // Determine if it's a light or dark theme
+    const isLightTheme = bgColor === '#ffffff' || bgColor.includes('fff') || bgColor.includes('f8f') || bgColor.includes('faf');
+    
+    // Add element-specific color descriptions
+    enhancedPrompt += ` The background is ${isLightTheme ? `clean white (${bgColor})` : `deep professional (${bgColor})`}.`;
+    
+    // Add detailed element coloring based on common illustration elements
+    enhancedPrompt += ` Primary visual elements like main shapes, icons, or focal objects use ${accentColor}.`;
+    enhancedPrompt += ` Secondary elements, borders, and outlines use ${titleColor}.`;
+    enhancedPrompt += ` Supporting details, text labels, and subtle elements use ${subtitleColor}.`;
+    
+    // Add specific element descriptions based on common illustration types
+    if (basePrompt.toLowerCase().includes('people') || basePrompt.toLowerCase().includes('person') || basePrompt.toLowerCase().includes('team')) {
+      enhancedPrompt += ` People's clothing is primarily ${accentColor}, with hair and skin in natural tones, and any accessories or props in ${titleColor}.`;
     }
     
-    if (colors.accentColor) {
-      colorSpecs.push(`primary accent color (${colors.accentColor})`);
+    if (basePrompt.toLowerCase().includes('chart') || basePrompt.toLowerCase().includes('graph') || basePrompt.toLowerCase().includes('data')) {
+      enhancedPrompt += ` Charts and graphs have ${accentColor} bars/lines, ${titleColor} axis lines, and ${subtitleColor} labels and grid lines.`;
     }
     
-    if (colors.titleColor && colors.titleColor !== colors.backgroundColor) {
-      colorSpecs.push(`secondary color (${colors.titleColor})`);
+    if (basePrompt.toLowerCase().includes('network') || basePrompt.toLowerCase().includes('connection') || basePrompt.toLowerCase().includes('flow')) {
+      enhancedPrompt += ` Network nodes are ${accentColor}, connecting lines are ${titleColor}, and data flow indicators use ${subtitleColor}.`;
     }
     
-    if (colors.subtitleColor && colors.subtitleColor !== colors.titleColor && colors.subtitleColor !== colors.backgroundColor) {
-      colorSpecs.push(`tertiary color (${colors.subtitleColor})`);
+    if (basePrompt.toLowerCase().includes('building') || basePrompt.toLowerCase().includes('office') || basePrompt.toLowerCase().includes('architecture')) {
+      enhancedPrompt += ` Buildings have ${accentColor} main structures, ${titleColor} windows and details, and ${subtitleColor} shadows and depth elements.`;
     }
     
-    // Add professional styling and color specifications
-    if (colorSpecs.length > 0) {
-      enhancedPrompt += ` The illustration uses a cohesive and professional color palette dominated by ${colorSpecs.join(', ')}, with complementary neutral tones.`;
+    if (basePrompt.toLowerCase().includes('technology') || basePrompt.toLowerCase().includes('computer') || basePrompt.toLowerCase().includes('device')) {
+      enhancedPrompt += ` Technology devices have ${accentColor} main bodies, ${titleColor} screens and interfaces, and ${subtitleColor} buttons and details.`;
     }
     
     // Add professional styling requirements
-    enhancedPrompt += ' The style is clean and modern, with flat colors, simple geometric shapes, and clear visual hierarchy, perfect for a corporate presentation. The design should be minimalist, professional, and easily readable when displayed on a presentation slide.';
+    enhancedPrompt += ` The illustration style is clean and modern vector art with flat colors, minimal shadows, and clear geometric shapes, perfect for a corporate presentation slide.`;
     
     return enhancedPrompt;
   };
