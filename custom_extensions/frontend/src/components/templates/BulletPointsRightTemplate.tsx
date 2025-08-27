@@ -523,10 +523,14 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   widthPx,
   heightPx,
   imageScale,
-  imageOffset
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  
+  // Add image ref for proper sizing
+  const imageRef = useRef<HTMLDivElement>(null);
   
   // Inline editing state for title and subtitle only
   const [editingTitle, setEditingTitle] = useState(false);
@@ -785,6 +789,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
               style={placeholderStyles}
               onSizeTransformChange={handleSizeTransformChange}
               elementId={`${slideId}-image`}
+              elementRef={imageRef}
+              cropMode={objectFit || 'contain'}
               slideContainerRef={slideContainerRef}
               savedImagePosition={imageOffset}
               savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
