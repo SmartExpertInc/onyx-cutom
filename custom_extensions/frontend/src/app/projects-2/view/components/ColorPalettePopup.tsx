@@ -621,8 +621,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               width: '12px',
               height: '12px',
               borderRadius: '50%',
-              border: '2px solid #fff',
-              boxShadow: '0 0 0 1px #000',
+              border: '2px solid #000',
               backgroundColor: 'transparent',
               left: `${hsb.s}%`,
               top: `${100 - hsb.b}%`,
@@ -689,9 +688,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </Box>
 
         {/* Conditional Input Fields */}
-        <Box sx={{ mt: 2, minHeight: 56, zIndex: 10002, position: 'relative' }}>
+        <div style={{ marginTop: '16px', minHeight: '56px', zIndex: 10002, position: 'relative' }}>
           {colorFormat === 'HEX' && (
-            <Box>
+            <div>
               <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="text"
@@ -740,14 +739,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   HEX Color
                 </label>
               </div>
-              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
+              <div style={{ color: '#666', marginTop: '4px', display: 'block', fontSize: '11px' }}>
                 Press Enter to apply
-              </Typography>
-            </Box>
+              </div>
+            </div>
           )}
 
           {colorFormat === 'RGBA' && (
-            <Box>
+            <div>
               <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                 {[
                   { label: 'R', value: Math.round(rgba.r), field: 'r' as keyof RGBA, min: 0, max: 255, step: 1 },
@@ -779,7 +778,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         transition: 'border-color 0.2s, box-shadow 0.2s',
                         boxSizing: 'border-box',
                         zIndex: 10004,
-                        position: 'relative'
+                        position: 'relative',
+                        // Remove spinner buttons (up/down arrows)
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'textfield'
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = '#000';
@@ -820,14 +822,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   </div>
                 ))}
               </div>
-              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
+              <div style={{ color: '#666', marginTop: '4px', display: 'block', fontSize: '11px' }}>
                 Press Enter in any field to apply
-              </Typography>
-            </Box>
+              </div>
+            </div>
           )}
 
           {colorFormat === 'HSLA' && (
-            <Box>
+            <div>
               <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                 {[
                   { label: 'H', value: Math.round(hsla.h), field: 'h' as keyof HSLA, min: 0, max: 360, step: 1 },
@@ -859,7 +861,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         transition: 'border-color 0.2s, box-shadow 0.2s',
                         boxSizing: 'border-box',
                         zIndex: 10004,
-                        position: 'relative'
+                        position: 'relative',
+                        // Remove spinner buttons (up/down arrows)
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'textfield'
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = '#000';
@@ -900,12 +905,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   </div>
                 ))}
               </div>
-              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
+              <div style={{ color: '#666', marginTop: '4px', display: 'block', fontSize: '11px' }}>
                 Press Enter in any field to apply
-              </Typography>
-            </Box>
+              </div>
+            </div>
           )}
-        </Box>
+        </div>
 
         {/* Color Preview */}
         <Box sx={{
