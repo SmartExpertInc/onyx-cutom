@@ -46,19 +46,19 @@ const WorkspaceMembers: React.FC = () => {
 
   // Mock data for custom roles
   const [customRoles, setCustomRoles] = useState<CustomRole[]>([
-    { id: 'admin', name: 'Admin', color: '#F3E8FF', textColor: '#7C3AED', permissions: ['Full Access', 'Manage Users', 'Manage Settings'] },
-    { id: 'member', name: 'Member', color: '#EFF6FF', textColor: '#1E40AF', permissions: ['View Projects', 'Edit Own Work'] },
-    { id: 'viewer', name: 'Viewer', color: '#F9FAFB', textColor: '#374151', permissions: ['View Only'] },
-    { id: 'manager', name: 'Manager', color: '#ECFDF5', textColor: '#047857', permissions: ['Manage Projects', 'Assign Tasks'] },
-    { id: 'editor', name: 'Editor', color: '#FFFBEB', textColor: '#D97706', permissions: ['Edit Content', 'Review Work'] },
+    { id: 'admin', name: t('interface.roles.admin', 'Admin'), color: '#F3E8FF', textColor: '#7C3AED', permissions: [t('interface.permissions.fullAccess', 'Full Access'), t('interface.permissions.manageUsers', 'Manage Users'), t('interface.permissions.manageSettings', 'Manage Settings')] },
+    { id: 'member', name: t('interface.roles.member', 'Member'), color: '#EFF6FF', textColor: '#1E40AF', permissions: [t('interface.permissions.viewProjects', 'View Projects'), t('interface.permissions.editOwnWork', 'Edit Own Work')] },
+    { id: 'viewer', name: t('interface.roles.viewer', 'Viewer'), color: '#F9FAFB', textColor: '#374151', permissions: [t('interface.permissions.viewOnly', 'View Only')] },
+    { id: 'manager', name: t('interface.roles.manager', 'Manager'), color: '#ECFDF5', textColor: '#047857', permissions: [t('interface.permissions.manageProjects', 'Manage Projects'), t('interface.permissions.assignTasks', 'Assign Tasks')] },
+    { id: 'editor', name: t('interface.roles.editor', 'Editor'), color: '#FFFBEB', textColor: '#D97706', permissions: [t('interface.permissions.editContent', 'Edit Content'), t('interface.permissions.reviewWork', 'Review Work')] },
   ]);
 
   const [members, setMembers] = useState<WorkspaceMember[]>([
-    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: "Admin", roleId: "admin", status: "Active", invitationDate: "2025-08-10" },
-    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: "Member", roleId: "member", status: "Suspended", invitationDate: "2025-08-12" },
-    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: "Viewer", roleId: "viewer", status: "Blocked", invitationDate: "2025-08-09" },
-    { id: 4, name: "James Whitaker", email: "james@company.com", role: "Manager", roleId: "manager", status: "Active", invitationDate: "2025-08-05" },
-    { id: 5, name: "Emma Davis", email: "emma@company.com", role: "Editor", roleId: "editor", status: "Active", invitationDate: "2025-08-08" },
+    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: t('interface.roles.admin', 'Admin'), roleId: "admin", status: "Active", invitationDate: "2025-08-10" },
+    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: t('interface.roles.member', 'Member'), roleId: "member", status: "Suspended", invitationDate: "2025-08-12" },
+    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: t('interface.roles.viewer', 'Viewer'), roleId: "viewer", status: "Blocked", invitationDate: "2025-08-09" },
+    { id: 4, name: "James Whitaker", email: "james@company.com", role: t('interface.roles.manager', 'Manager'), roleId: "manager", status: "Active", invitationDate: "2025-08-05" },
+    { id: 5, name: "Emma Davis", email: "emma@company.com", role: t('interface.roles.editor', 'Editor'), roleId: "editor", status: "Active", invitationDate: "2025-08-08" },
   ]);
 
   // UI State
@@ -501,24 +501,24 @@ const WorkspaceMembers: React.FC = () => {
 
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Manage Custom Roles
+                {t('interface.roleManager.title', 'Manage Custom Roles')}
               </h3>
               <p className="text-gray-600">
-                Create custom roles with specific permissions and colors
+                {t('interface.roleManager.description', 'Create custom roles with specific permissions and colors')}
               </p>
             </div>
 
             <div className="space-y-6">
               {/* Add New Role */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-lg font-medium text-gray-900 mb-3">Add New Role</h4>
+                <h4 className="text-lg font-medium text-gray-900 mb-3">{t('interface.roleManager.addNewRole', 'Add New Role')}</h4>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <input
                       type="text"
                       value={newRoleName}
                       onChange={(e) => setNewRoleName(e.target.value)}
-                      placeholder="Enter role name"
+                      placeholder={t('interface.roleManager.roleNamePlaceholder', 'Enter role name')}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                     />
                     <div className="relative">
@@ -551,9 +551,20 @@ const WorkspaceMembers: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.roleManager.permissions', 'Permissions')}</label>
                     <div className="grid grid-cols-2 gap-2">
-                      {['Full Access', 'Manage Users', 'Manage Settings', 'View Projects', 'Edit Own Work', 'View Only', 'Manage Projects', 'Assign Tasks', 'Edit Content', 'Review Work'].map((permission) => (
+                      {[
+                        t('interface.permissions.fullAccess', 'Full Access'),
+                        t('interface.permissions.manageUsers', 'Manage Users'),
+                        t('interface.permissions.manageSettings', 'Manage Settings'),
+                        t('interface.permissions.viewProjects', 'View Projects'),
+                        t('interface.permissions.editOwnWork', 'Edit Own Work'),
+                        t('interface.permissions.viewOnly', 'View Only'),
+                        t('interface.permissions.manageProjects', 'Manage Projects'),
+                        t('interface.permissions.assignTasks', 'Assign Tasks'),
+                        t('interface.permissions.editContent', 'Edit Content'),
+                        t('interface.permissions.reviewWork', 'Review Work')
+                      ].map((permission) => (
                         <label key={permission} className="flex items-center">
                           <input
                             type="checkbox"
@@ -573,14 +584,14 @@ const WorkspaceMembers: React.FC = () => {
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >
                     <Tag size={16} />
-                    Add Role
+                    {t('interface.roleManager.addRole', 'Add Role')}
                   </button>
                 </div>
               </div>
 
               {/* Existing Roles */}
               <div className="space-y-4">
-                <h4 className="text-lg font-medium text-gray-900">Existing Roles</h4>
+                <h4 className="text-lg font-medium text-gray-900">{t('interface.roleManager.existingRoles', 'Existing Roles')}</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {customRoles.map((role) => (
                     <div key={role.id} className="border border-gray-200 rounded-lg p-4">
@@ -622,7 +633,7 @@ const WorkspaceMembers: React.FC = () => {
                 onClick={() => setShowRoleManager(false)}
                 className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
               >
-                Close
+                {t('interface.roleManager.close', 'Close')}
               </button>
             </div>
           </div>
