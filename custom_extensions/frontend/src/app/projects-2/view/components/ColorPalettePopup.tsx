@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Slider, Typography, Box } from "@mui/material";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
@@ -34,6 +33,109 @@ interface HSLA {
 }
 
 type ColorFormat = 'HEX' | 'RGBA' | 'HSLA';
+
+// Custom Slider Component
+interface CustomSliderProps {
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+  onChangeCommitted: (value: number) => void;
+  background?: string;
+  height?: number;
+  width?: string;
+}
+
+const CustomSlider: React.FC<CustomSliderProps> = ({
+  value,
+  min,
+  max,
+  step = 1,
+  onChange,
+  onChangeCommitted,
+  background,
+  height = 6,
+  width = '100%'
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  const getPercentage = () => {
+    return ((value - min) / (max - min)) * 100;
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    handleMouseMove(e);
+  };
+
+  const handleMouseMove = (e: MouseEvent | React.MouseEvent) => {
+    if (!isDragging && !('clientX' in e)) return;
+    
+    if (sliderRef.current) {
+      const rect = sliderRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      const newValue = min + (percentage / 100) * (max - min);
+      const steppedValue = Math.round(newValue / step) * step;
+      const clampedValue = Math.max(min, Math.min(max, steppedValue));
+      
+      onChange(clampedValue);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      onChangeCommitted(value);
+    }
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, value]);
+
+  return (
+    <div
+      ref={sliderRef}
+      className="relative cursor-pointer overflow-hidden"
+      style={{
+        width: width,
+        height: height,
+        borderRadius: height / 2,
+        background: background || '#e0e0e0'
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Track */}
+      <div
+        className="absolute inset-0"
+        style={{
+          borderRadius: height / 2,
+          background: background || '#e0e0e0'
+        }}
+      />
+      
+      {/* Thumb */}
+      <div
+        className="absolute top-1/2 w-3.5 h-3.5 bg-white border-2 border-gray-500 rounded-full shadow-md cursor-pointer z-10"
+        style={{
+          left: `${getPercentage()}%`,
+          transform: 'translate(-50%, -50%)'
+        }}
+      />
+    </div>
+  );
+};
 
 const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   isOpen,
@@ -351,13 +453,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   };
 
   // --- Hue slider ---
-  const handleHueChange = (e: Event, value: number | number[]) => {
+  const handleHueChange = (value: number) => {
     // Set dragging state on first change
     if (!isDragging) {
       setIsDragging(true);
     }
     
-    const newHsb = { ...hsb, h: value as number };
+    const newHsb = { ...hsb, h: value };
     setHsb(newHsb);
     const newHex = hsbToHex(newHsb);
     setHex(newHex);
@@ -368,7 +470,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Don't call onColorChange during dragging - only when dragging ends
   };
 
-  const handleHueChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
+  const handleHueChangeCommitted = (value: number) => {
     // This is called when the user finishes dragging the hue slider
     setIsDragging(false);
     // Pass the color with current opacity to the parent component when dragging ends
@@ -377,13 +479,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   };
 
   // --- Opacity slider ---
-  const handleOpacityChange = (e: Event, value: number | number[]) => {
+  const handleOpacityChange = (value: number) => {
     // Set dragging state on first change
     if (!isDragging) {
       setIsDragging(true);
     }
     
-    const newOpacity = value as number;
+    const newOpacity = value;
     setOpacity(newOpacity);
     // Update RGBA and HSLA with new opacity
     const newRgba = { ...rgba, a: newOpacity };
@@ -393,7 +495,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Don't call onColorChange during dragging - only when dragging ends
   };
 
-  const handleOpacityChangeCommitted = (e: Event | React.SyntheticEvent, value: number | number[]) => {
+  const handleOpacityChangeCommitted = (value: number) => {
     // This is called when the user finishes dragging the opacity slider
     setIsDragging(false);
     // Pass the color with current opacity to the parent component when dragging ends
@@ -466,121 +568,47 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     <>
       {/* Custom backdrop */}
       <div 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 9998,
-          backgroundColor: 'transparent',
-          pointerEvents: 'auto'
-        }}
+        className="fixed inset-0 z-[9998] bg-transparent pointer-events-auto"
         onClick={onClose}
       />
       
       {/* Color picker popup */}
       <div
         ref={popupRef}
+        className="fixed z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[260px]"
         style={{
-          position: 'fixed',
           left: adjustedPosition.x,
           top: adjustedPosition.y,
-          zIndex: 9999,
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-          border: '1px solid #e5e7eb',
-          padding: '16px',
-          minWidth: '280px',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Hue Slider */}
-        <Box sx={{ position: 'relative', zIndex: 10001, py: 0.5 }}>
-          <Slider
+        <div className="relative z-[10001] py-1">
+          <CustomSlider
             value={hsb.h}
             min={0}
             max={360}
             onChange={handleHueChange}
             onChangeCommitted={handleHueChangeCommitted}
-            sx={{
-              height: 6,
-              position: 'relative',
-              "& .MuiSlider-rail": {
-                background: `linear-gradient(to right,
-                  hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%),
-                  hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%),
-                  hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%),
-                  hsl(360,100%,60%))`,
-                height: 6,
-                borderRadius: 4,
-                opacity: 1
-              },
-              "& .MuiSlider-track": {
-                background: 'transparent',
-                height: 6,
-                borderRadius: 4,
-                opacity: 1
-              },
-              "& .MuiSlider-thumb": {
-                width: 14, 
-                height: 14, 
-                backgroundColor: "#fff", 
-                border: "2px solid #888",
-                borderRadius: '50%',
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-              }
-            }}
+            background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
           />
-        </Box>
+        </div>
 
         {/* Opacity Slider */}
-        <Box sx={{ position: 'relative', zIndex: 10001, mt: 0.25, py: 0.5 }}>
-          <Slider
+        <div className="relative z-[10001] mt-0.5 py-1">
+          <CustomSlider
             value={opacity}
             min={0}
             max={1}
             step={0.01}
             onChange={handleOpacityChange}
             onChangeCommitted={handleOpacityChangeCommitted}
-            sx={{
-              height: 6,
-              position: 'relative',
-              "& .MuiSlider-rail": {
-                background: `linear-gradient(to right, 
-                  rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))`,
-                height: 6,
-                borderRadius: 4,
-                opacity: 1
-              },
-              "& .MuiSlider-track": {
-                background: 'transparent',
-                height: 6,
-                borderRadius: 4,
-                opacity: 1
-              },
-              "& .MuiSlider-thumb": {
-                width: 14, 
-                height: 14, 
-                backgroundColor: "#fff", 
-                border: "2px solid #888",
-                borderRadius: '50%',
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-              }
-            }}
+            background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
           />
-          <Typography variant="caption" sx={{ 
-            color: 'text.secondary', 
-            fontSize: '11px', 
-            mt: 0.25, 
-            mb: 1.5,
-            display: 'block',
-            textAlign: 'center'
-          }}>
+          <div className="text-gray-500 text-xs mt-0.5 mb-3 block text-center">
             Opacity: {Math.round(opacity * 100)}%
-          </Typography>
-        </Box>
+          </div>
+        </div>
 
         {/* Custom Saturation/Brightness Square */}
         <div
@@ -590,17 +618,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             e.currentTarget.style.border = '1px solid #666';
             e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.2)';
           }}
+          className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
           style={{
-            width: '100%',
-            height: '128px',
-            borderRadius: '8px',
-            cursor: 'crosshair',
-            position: 'relative',
-            zIndex: 10001,
-            overflow: 'hidden',
             background: `linear-gradient(to top, #000, transparent),
-                         linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`,
-            transition: 'box-shadow 0.2s'
+                         linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
@@ -616,82 +637,49 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         >
           {/* Custom cursor indicator */}
           <div
+            className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
             style={{
-              position: 'absolute',
-              width: '12px',
-              height: '12px',
-              borderRadius: '50%',
-              border: '2px solid #000',
-              backgroundColor: 'transparent',
               left: `${hsb.s}%`,
               top: `${100 - hsb.b}%`,
-              transform: 'translate(-50%, -50%)',
-              pointerEvents: 'none',
-              zIndex: 10002,
-              transition: 'all 0.1s ease-out'
+              transform: 'translate(-50%, -50%)'
             }}
           />
           
           {/* Current color preview at cursor position */}
           <div
+            className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003] border border-white/80"
             style={{
-              position: 'absolute',
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
               backgroundColor: hex,
               left: `${hsb.s}%`,
               top: `${100 - hsb.b}%`,
               transform: 'translate(-50%, -50%)',
-              pointerEvents: 'none',
-              zIndex: 10003,
-              border: '1px solid rgba(255,255,255,0.8)',
               boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
             }}
           />
         </div>
 
         {/* Color Format Toggle Buttons */}
-        <Box sx={{ 
-          mt: 2, 
-          p: 0.5, 
-          bgcolor: 'grey.200', 
-          borderRadius: '24px',
-          display: 'flex',
-          gap: 0.5,
-          zIndex: 10001,
-          position: 'relative'
-        }}>
+        <div className="mt-4 p-1 bg-gray-200 rounded-3xl flex gap-1 relative z-[10001]">
           {(['HEX', 'RGBA', 'HSLA'] as ColorFormat[]).map((format) => (
             <button
               key={format}
               onClick={() => setColorFormat(format)}
-              style={{
-                flex: 1,
-                padding: '6px 12px',
-                border: 'none',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: colorFormat === format ? 'bold' : 'normal',
-                backgroundColor: colorFormat === format ? '#fff' : 'transparent',
-                color: colorFormat === format ? '#000' : '#666',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: colorFormat === format ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                zIndex: 10002,
-                position: 'relative'
-              }}
+              className={`flex-1 px-3 py-1.5 border-none rounded-full text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
+                colorFormat === format 
+                  ? 'bg-white text-black font-bold shadow-sm' 
+                  : 'bg-transparent text-gray-500 font-normal'
+              }`}
             >
               {format}
             </button>
           ))}
-        </Box>
+        </div>
 
         {/* Conditional Input Fields */}
-        <div style={{ marginTop: '16px', minHeight: '56px', zIndex: 10002, position: 'relative' }}>
+        <div className="mt-4 min-h-[56px] relative z-[10002]">
           {colorFormat === 'HEX' && (
             <div>
-              <div style={{ position: 'relative', width: '224px' }}>
+              <div className="relative w-[224px]">
                 <input
                   type="text"
                   value={hex}
@@ -704,42 +692,17 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   }}
                   onClick={handleInputClick}
                   maxLength={7}
-                  style={{
-                    width: '100%',
-                    height: '40px',
-                    padding: '8px 12px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: '14px',
-                    fontFamily: 'inherit',
-                    backgroundColor: '#fff',
-                    color: '#333',
-                    outline: 'none',
-                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                    boxSizing: 'border-box',
-                    zIndex: 10003,
-                    position: 'relative'
-                  }}
+                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10003]"
                   onFocus={(e) => {
                     e.target.style.borderColor = '#000';
                     e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
                   }}
                 />
-                <label style={{
-                  position: 'absolute',
-                  top: '-8px',
-                  left: '8px',
-                  backgroundColor: '#fff',
-                  padding: '0 4px',
-                  fontSize: '12px',
-                  color: '#666',
-                  zIndex: 10004,
-                  pointerEvents: 'none'
-                }}>
+                <label className="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500 z-[10004] pointer-events-none">
                   HEX Color
                 </label>
               </div>
-              <div style={{ color: '#666', marginTop: '4px', display: 'block', fontSize: '11px' }}>
+              <div className="text-gray-500 text-xs mt-1 block">
                 Press Enter to apply
               </div>
             </div>
@@ -747,35 +710,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
           {colorFormat === 'RGBA' && (
             <div>
-              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+              <div className="flex gap-2 w-full">
                 {[
                   { label: 'R', value: Math.round(rgba.r), field: 'r' as keyof RGBA, min: 0, max: 255, step: 1 },
                   { label: 'G', value: Math.round(rgba.g), field: 'g' as keyof RGBA, min: 0, max: 255, step: 1 },
                   { label: 'B', value: Math.round(rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
                   { label: 'A', value: rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} style={{ position: 'relative', width: '50px' }}>
+                  <div key={label} className="relative w-[50px]">
                     <input
                       type="text"
                       value={value}
                       onChange={handleRgbaChange(field)}
                       onKeyDown={handleRgbaKeyDown(field)}
                       onClick={handleInputClick}
+                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10004] appearance-none"
                       style={{
-                        width: '100%',
-                        height: '40px',
-                        padding: '8px 12px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        fontFamily: 'inherit',
-                        backgroundColor: '#fff',
-                        color: '#333',
-                        outline: 'none',
-                        transition: 'border-color 0.2s, box-shadow 0.2s',
-                        boxSizing: 'border-box',
-                        zIndex: 10004,
-                        position: 'relative',
                         // Remove spinner buttons (up/down arrows)
                         WebkitAppearance: 'none',
                         MozAppearance: 'textfield'
@@ -803,23 +753,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         }
                       }}
                     />
-                    <label style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      left: '8px',
-                      backgroundColor: '#fff',
-                      padding: '0 4px',
-                      fontSize: '12px',
-                      color: '#666',
-                      zIndex: 10005,
-                      pointerEvents: 'none'
-                    }}>
+                    <label className="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
                       {label}
                     </label>
                   </div>
                 ))}
               </div>
-              <div style={{ color: '#666', marginTop: '4px', display: 'block', fontSize: '11px' }}>
+              <div className="text-gray-500 text-xs mt-1 block">
                 Press Enter in any field to apply
               </div>
             </div>
@@ -827,35 +767,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
           {colorFormat === 'HSLA' && (
             <div>
-              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+              <div className="flex gap-2 w-full">
                 {[
                   { label: 'H', value: Math.round(hsla.h), field: 'h' as keyof HSLA, min: 0, max: 360, step: 1 },
                   { label: 'S', value: Math.round(hsla.s), field: 's' as keyof HSLA, min: 0, max: 100, step: 1 },
                   { label: 'L', value: Math.round(hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
                   { label: 'A', value: hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} style={{ position: 'relative', width: '50px' }}>
+                  <div key={label} className="relative w-[50px]">
                     <input
                       type="text"
                       value={value}
                       onChange={handleHslaChange(field)}
                       onKeyDown={handleHslaKeyDown(field)}
                       onClick={handleInputClick}
+                      className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10004] appearance-none"
                       style={{
-                        width: '100%',
-                        height: '40px',
-                        padding: '8px 12px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        fontSize: '14px',
-                        fontFamily: 'inherit',
-                        backgroundColor: '#fff',
-                        color: '#333',
-                        outline: 'none',
-                        transition: 'border-color 0.2s, box-shadow 0.2s',
-                        boxSizing: 'border-box',
-                        zIndex: 10004,
-                        position: 'relative',
                         // Remove spinner buttons (up/down arrows)
                         WebkitAppearance: 'none',
                         MozAppearance: 'textfield'
@@ -883,23 +810,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         }
                       }}
                     />
-                    <label style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      left: '8px',
-                      backgroundColor: '#fff',
-                      padding: '0 4px',
-                      fontSize: '12px',
-                      color: '#666',
-                      zIndex: 10005,
-                      pointerEvents: 'none'
-                    }}>
+                    <label className="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
                       {label}
                     </label>
                   </div>
                 ))}
               </div>
-              <div style={{ color: '#666', marginTop: '4px', display: 'block', fontSize: '11px' }}>
+              <div className="text-gray-500 text-xs mt-1 block">
                 Press Enter in any field to apply
               </div>
             </div>
@@ -907,77 +824,61 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Color Preview */}
-        <Box sx={{
-          mt: 2, width: 40, height: 40, border: '1px solid #ccc',
-          borderRadius: 2, 
-          background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                       linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                       linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                       linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-          backgroundSize: '10px 10px',
-          backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px',
-          position: 'relative',
-          zIndex: 10001
-        }}>
-          <Box sx={{
-            width: '100%',
-            height: '100%',
-            backgroundColor: hex,
-            opacity: opacity,
-            borderRadius: 2,
-          }} />
-        </Box>
+        <div className="mt-4 w-10 h-10 border border-gray-300 rounded-lg relative z-[10001]"
+          style={{
+            background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                         linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                         linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                         linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+            backgroundSize: '10px 10px',
+            backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
+          }}>
+          <div className="w-full h-full rounded-lg"
+            style={{
+              backgroundColor: hex,
+              opacity: opacity
+            }} />
+        </div>
 
         {/* Recent Colors */}
         {onRecentColorChange && (
-          <Box sx={{ mt: 2, zIndex: 10001, position: 'relative' }}>
-            <Typography variant="caption" sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
+          <div className="mt-4 relative z-[10001]">
+            <div className="text-gray-500 mb-2 block text-xs">
               Recent Colors
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            </div>
+            <div className="flex gap-2">
               {Array.from({ length: 5 }, (_, index) => {
                 const color = recentColors[index];
                 return (
-                  <Box
+                  <div
                     key={index}
                     onClick={() => color && handleRecentColorClick(color)}
-                    sx={{
-                      width: 24,
-                      height: 24,
-                      border: '1px solid #ccc',
-                      borderRadius: 1,
-                      backgroundColor: color || '#f0f0f0',
-                      cursor: color ? 'pointer' : 'default',
-                      opacity: color ? 1 : 0.3,
-                      '&:hover': {
-                        border: color ? '2px solid #666' : '1px solid #ccc',
-                        transform: color ? 'scale(1.1)' : 'none',
-                      },
-                      transition: 'all 0.2s',
-                      position: 'relative',
-                      zIndex: 10002
+                    className={`w-6 h-6 border border-gray-300 rounded bg-gray-100 transition-all duration-200 relative z-[10002] ${
+                      color ? 'cursor-pointer opacity-100' : 'cursor-default opacity-30'
+                    }`}
+                    style={{
+                      backgroundColor: color || '#f0f0f0'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (color) {
+                        e.currentTarget.style.border = '2px solid #666';
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.border = '1px solid #ccc';
+                      e.currentTarget.style.transform = 'scale(1)';
                     }}
                     title={color || 'No recent color'}
                   >
                     {!color && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          width: 2,
-                          height: 2,
-                          backgroundColor: '#ccc',
-                          borderRadius: '50%'
-                        }}
-                      />
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-0.5 h-0.5 bg-gray-400 rounded-full" />
                     )}
-                  </Box>
+                  </div>
                 );
               })}
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
       </div>
     </>
