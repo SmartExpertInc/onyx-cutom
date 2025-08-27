@@ -350,190 +350,190 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                 }
               }}
           >
-            {/* Percentage */}
-            <div style={{
-              fontSize: '32px',
-              color: themeTitle,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              minHeight: '40px',
-              maxHeight: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}>
-              {isEditable && editingBars?.index === index && editingBars?.field === 'percentage' ? (
-                <InlineEditor
-                  initialValue={bar.percentage}
-                  onSave={(value) => handleBarSave(index, 'percentage', value)}
-                  onCancel={handleBarCancel}
-                  className="bar-percentage-editor"
-                  style={{
-                    fontSize: '32px',
-                    color: themeTitle,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    width: '100%',
-                    height: '100%',
-                    minHeight: '40px',
-                    maxHeight: '40px'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingBars({ index, field: 'percentage' })}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  {bar.percentage}
-                </div>
-              )}
-            </div>
-
-            {/* Bar */}
-            <div style={{
-              width: '80px',
-              height: `${bar.height}px`,
-              backgroundColor: themeAccent,
-              borderRadius: '4px 4px 0 0',
-              position: 'relative'
-            }}>
-                             {/* Height adjustment controls */}
-               {isEditable && (
-                 <div 
-                   className="bar-controls"
+                         {/* Percentage */}
+             <div style={{
+               fontSize: '32px',
+               color: themeTitle,
+               fontWeight: 'bold',
+               textAlign: 'center',
+               minHeight: '40px',
+               maxHeight: '40px',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center',
+               overflow: 'hidden'
+             }}>
+               {isEditable && editingBars?.index === index && editingBars?.field === 'percentage' ? (
+                 <InlineEditor
+                   initialValue={bar.percentage}
+                   onSave={(value) => handleBarSave(index, 'percentage', value)}
+                   onCancel={handleBarCancel}
+                   className="bar-percentage-editor"
                    style={{
-                     position: 'absolute',
-                     right: '-35px',
-                     top: '50%',
-                     transform: 'translateY(-50%)',
+                     fontSize: '32px',
+                     color: themeTitle,
+                     fontWeight: 'bold',
+                     textAlign: 'center',
+                     width: '100%',
+                     height: '100%',
+                     minHeight: '40px',
+                     maxHeight: '40px'
+                   }}
+                 />
+               ) : (
+                 <div
+                   onClick={() => isEditable && setEditingBars({ index, field: 'percentage' })}
+                   style={{
+                     cursor: isEditable ? 'pointer' : 'default',
+                     userSelect: 'none',
+                     width: '100%',
+                     height: '100%',
                      display: 'flex',
-                     flexDirection: 'column',
-                     gap: '8px',
-                     opacity: 0,
-                     transition: 'opacity 0.3s ease-in-out'
+                     alignItems: 'center',
+                     justifyContent: 'center'
                    }}
                  >
-                                       <div
-                      onClick={() => adjustBarHeight(index, bar.height + 10)}
-                      style={{
-                        width: '26px',
-                        height: '26px',
-                        backgroundColor: themeAccent,
-                        border: 'none',
-                        borderRadius: '50%',
-                        color: themeBg,
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                        transition: 'all 0.2s ease-in-out'
-                      }}
-                      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
-                      }}
-                      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-                      }}
-                    >
-                      +
-                    </div>
-                    <div
-                      onClick={() => adjustBarHeight(index, bar.height - 10)}
-                      style={{
-                        width: '26px',
-                        height: '26px',
-                        backgroundColor: themeAccent,
-                        border: 'none',
-                        borderRadius: '50%',
-                        color: themeBg,
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                        transition: 'all 0.2s ease-in-out'
-                      }}
-                      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
-                      }}
-                      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-                      }}
-                    >
-                      -
-                    </div>
+                   {bar.percentage}
                  </div>
                )}
-            </div>
+             </div>
 
-            {/* Description */}
-            <div style={{
-              fontSize: '14px',
-              color: themeContent,
-              textAlign: 'center',
-              maxWidth: '120px',
-              lineHeight: '1.3',
-              minHeight: '40px',
-              maxHeight: '60px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}>
-              {isEditable && editingBars?.index === index && editingBars?.field === 'description' ? (
-                <InlineEditor
-                  initialValue={bar.description}
-                  onSave={(value) => handleBarSave(index, 'description', value)}
-                  onCancel={handleBarCancel}
-                  multiline={true}
-                  className="bar-description-editor"
-                  style={{
-                    fontSize: '14px',
-                    color: themeContent,
-                    textAlign: 'center',
-                    maxWidth: '120px',
-                    lineHeight: '1.3',
-                    width: '100%',
-                    height: '100%',
-                    minHeight: '40px',
-                    maxHeight: '60px'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingBars({ index, field: 'description' })}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none',
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  {bar.description}
-                </div>
-              )}
-            </div>
+             {/* Description - moved above the bar */}
+             <div style={{
+               fontSize: '14px',
+               color: themeContent,
+               textAlign: 'center',
+               maxWidth: '120px',
+               lineHeight: '1.3',
+               minHeight: '40px',
+               maxHeight: '60px',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center',
+               overflow: 'hidden'
+             }}>
+               {isEditable && editingBars?.index === index && editingBars?.field === 'description' ? (
+                 <InlineEditor
+                   initialValue={bar.description}
+                   onSave={(value) => handleBarSave(index, 'description', value)}
+                   onCancel={handleBarCancel}
+                   multiline={true}
+                   className="bar-description-editor"
+                   style={{
+                     fontSize: '14px',
+                     color: themeContent,
+                     textAlign: 'center',
+                     maxWidth: '120px',
+                     lineHeight: '1.3',
+                     width: '100%',
+                     height: '100%',
+                     minHeight: '40px',
+                     maxHeight: '60px'
+                   }}
+                 />
+               ) : (
+                 <div
+                   onClick={() => isEditable && setEditingBars({ index, field: 'description' })}
+                   style={{
+                     cursor: isEditable ? 'pointer' : 'default',
+                     userSelect: 'none',
+                     width: '100%',
+                     height: '100%',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center'
+                   }}
+                 >
+                   {bar.description}
+                 </div>
+               )}
+             </div>
+
+             {/* Bar */}
+             <div style={{
+               width: '60px',
+               height: `${bar.height}px`,
+               backgroundColor: themeAccent,
+               borderRadius: '4px 4px 0 0',
+               position: 'relative'
+             }}>
+                              {/* Height adjustment controls */}
+                {isEditable && (
+                  <div 
+                    className="bar-controls"
+                    style={{
+                      position: 'absolute',
+                      right: '-35px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease-in-out'
+                    }}
+                  >
+                                        <div
+                       onClick={() => adjustBarHeight(index, bar.height + 10)}
+                       style={{
+                         width: '26px',
+                         height: '26px',
+                         backgroundColor: themeAccent,
+                         border: 'none',
+                         borderRadius: '50%',
+                         color: themeBg,
+                         cursor: 'pointer',
+                         fontSize: '14px',
+                         fontWeight: 'bold',
+                         display: 'flex',
+                         alignItems: 'center',
+                         justifyContent: 'center',
+                         boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                         transition: 'all 0.2s ease-in-out'
+                       }}
+                       onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                         e.currentTarget.style.transform = 'scale(1.1)';
+                         e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
+                       }}
+                       onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                         e.currentTarget.style.transform = 'scale(1)';
+                         e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+                       }}
+                     >
+                       +
+                     </div>
+                     <div
+                       onClick={() => adjustBarHeight(index, bar.height - 10)}
+                       style={{
+                         width: '26px',
+                         height: '26px',
+                         backgroundColor: themeAccent,
+                         border: 'none',
+                         borderRadius: '50%',
+                         color: themeBg,
+                         cursor: 'pointer',
+                         fontSize: '14px',
+                         fontWeight: 'bold',
+                         display: 'flex',
+                         alignItems: 'center',
+                         justifyContent: 'center',
+                         boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                         transition: 'all 0.2s ease-in-out'
+                       }}
+                       onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                         e.currentTarget.style.transform = 'scale(1.1)';
+                         e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
+                       }}
+                       onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                         e.currentTarget.style.transform = 'scale(1)';
+                         e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+                       }}
+                     >
+                       -
+                     </div>
+                  </div>
+                )}
+             </div>
 
             {/* Remove button */}
             {isEditable && currentBars.length > 1 && (
