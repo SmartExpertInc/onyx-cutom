@@ -88,19 +88,42 @@ export class VideoGenerationService {
         const voice = AvatarService.getDefaultVoice(selectedAvatar.avatar);
         const voiceProvider = AvatarService.getVoiceProvider(voice);
         
+        // COORDINATED MODE: Avatar positioned to match composition template expectations
+        // Template requirements: 935x843 at position (925, 118) on 1920x1080 canvas
+        const templateWidth = 935;
+        const templateHeight = 843;
+        const templateX = 925;
+        const templateY = 118;
+        const canvasWidth = 1920;
+        const canvasHeight = 1080;
+        
+        // Calculate scale factors to fill template area
+        const scaleX = templateWidth / canvasWidth;   // 935/1920 ≈ 0.487
+        const scaleY = templateHeight / canvasHeight; // 843/1080 ≈ 0.781
+        
+        // Calculate positioning (Elai uses center-point positioning)
+        const centerX = templateX + (templateWidth / 2);   // 925 + 467.5 = 1392.5
+        const centerY = templateY + (templateHeight / 2);  // 118 + 421.5 = 539.5
+        
+        console.log('🎬 [FRONTEND_ELAI] Coordinated avatar parameters:', {
+          templateArea: `${templateWidth}x${templateHeight} at (${templateX}, ${templateY})`,
+          scaleFactors: { scaleX: scaleX.toFixed(3), scaleY: scaleY.toFixed(3) },
+          centerPosition: { left: centerX.toFixed(1), top: centerY.toFixed(1) }
+        });
+        
         return {
           id: index + 1,
           status: "edited" as const,
           canvas: {
             objects: [{
               type: "avatar" as const,
-              left: 510,
-              top: 255,
+              left: centerX,    // Positions avatar center in template area
+              top: centerY,     // Positions avatar center in template area
               fill: "#4868FF",
-              scaleX: 0.1,
-              scaleY: 0.1,
-              width: 1080,
-              height: 1080,
+              scaleX: scaleX,   // Scales to fill template width
+              scaleY: scaleY,   // Scales to fill template height
+              width: canvasWidth,
+              height: canvasHeight,
               src: selectedAvatar.selectedVariant.canvas,
               avatarType: "transparent" as const,
               animation: {

@@ -183,6 +183,28 @@ class StandaloneVideoGenerator:
         """Create an AI avatar video using the Elai API."""
         logger.info("Creating AI avatar video...")
         
+        # COORDINATED MODE: Avatar positioned to match composition template expectations
+        # Template requirements: 935x843 at position (925, 118) on 1920x1080 canvas
+        template_width = 935
+        template_height = 843
+        template_x = 925
+        template_y = 118
+        canvas_width = 1920
+        canvas_height = 1080
+        
+        # Calculate scale factors to fill template area
+        scale_x = template_width / canvas_width   # 935/1920 ≈ 0.487
+        scale_y = template_height / canvas_height # 843/1080 ≈ 0.781
+        
+        # Calculate positioning (Elai uses center-point positioning)
+        center_x = template_x + (template_width / 2)   # 925 + 467.5 = 1392.5
+        center_y = template_y + (template_height / 2)  # 118 + 421.5 = 539.5
+        
+        logger.info(f"🎬 [STANDALONE_ELAI] Coordinated avatar parameters:")
+        logger.info(f"  - Template area: {template_width}x{template_height} at ({template_x}, {template_y})")
+        logger.info(f"  - Scale factors: scaleX={scale_x:.3f}, scaleY={scale_y:.3f}")
+        logger.info(f"  - Center position: left={center_x:.1f}, top={center_y:.1f}")
+        
         # Prepare the video creation request
         video_data = {
             "name": f"Avatar Video - {datetime.now().strftime('%Y%m%d_%H%M%S')}",
@@ -194,13 +216,13 @@ class StandaloneVideoGenerator:
                         "objects": [
                             {
                                 "type": "avatar",
-                                "left": 510,
-                                "top": 255,
+                                "left": center_x,    # Positions avatar center in template area
+                                "top": center_y,     # Positions avatar center in template area
                                 "fill": "#4868FF",
-                                "scaleX": 0.1,
-                                "scaleY": 0.1,
-                                "width": 1080,
-                                "height": 1080,
+                                "scaleX": scale_x,   # Scales to fill template width
+                                "scaleY": scale_y,   # Scales to fill template height
+                                "width": canvas_width,
+                                "height": canvas_height,
                                 "src": avatar.get("canvas", ""),
                                 "avatarType": "transparent",
                                 "animation": {

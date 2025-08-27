@@ -1,304 +1,2505 @@
 backend logs:
-custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
-custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
-custom_backend-1  | INFO:main:Video generation service imported successfully
-custom_backend-1  | INFO:app.services.video_composer_service:Professional Video Composer initialized
-custom_backend-1  | WARNING:main:Presentation service not available: No module named 'moviepy.editor'
-custom_backend-1  | INFO:     Started server process [1]
-custom_backend-1  | INFO:     Waiting for application startup.
-custom_backend-1  | INFO:main:Custom Backend starting...
-custom_backend-1  | INFO:main:'projects' table ensured and updated.
-custom_backend-1  | INFO:main:'microproduct_pipelines' table ensured.
-custom_backend-1  | INFO:main:'projects' table ensured and updated with 'source_chat_session_id'.
-custom_backend-1  | INFO:main:'design_templates' table ensured.
-custom_backend-1  | INFO:main:'trashed_projects' table ensured (soft-delete).
-custom_backend-1  | INFO:main:'user_credits' table ensured.
-custom_backend-1  | INFO:main:Attempting to connect to Onyx database: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
-custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
-custom_backend-1  | WARNING:main:Failed to connect to postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db: database "onyx_db" does not exist
-custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres
-custom_backend-1  | INFO:main:Found 3 Onyx users to migrate
-custom_backend-1  | INFO:main:Populated user_credits table with 3 existing Onyx users (100 credits each).
-custom_backend-1  | INFO:main:Added quality_tier column to project_folders table
-custom_backend-1  | INFO:main:Updated existing folders with default 'medium' tier
-custom_backend-1  | INFO:main:Created index for quality_tier column
-custom_backend-1  | INFO:main:Added custom_rate column to project_folders table
-custom_backend-1  | INFO:main:Updated existing folders with default custom_rate
-custom_backend-1  | INFO:main:Created index for custom_rate column
-custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to projects table
-custom_backend-1  | INFO:main:Created indexes for project-level custom_rate and quality_tier columns
-custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to trashed_projects table
-custom_backend-1  | INFO:main:Applying critical fix: Ensuring order and completion_time columns are TEXT type
-custom_backend-1  | INFO:main:Successfully set projects.order and projects.completion_time to TEXT type
-custom_backend-1  | INFO:main:Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type
-custom_backend-1  | INFO:main:Successfully set default values for empty order and completion_time fields
-custom_backend-1  | INFO:main:Projects table schema verification:
-custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
-custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
-custom_backend-1  | INFO:main:  order: text (nullable: YES)
-custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
-custom_backend-1  | INFO:main:Trashed_projects table schema verification:
-custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
-custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
-custom_backend-1  | INFO:main:  order: text (nullable: YES)
-custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
-custom_backend-1  | INFO:main:'request_analytics' table ensured.
-custom_backend-1  | INFO:main:AI parser tracking columns added to request_analytics table.
-custom_backend-1  | INFO:main:Added is_standalone column to projects table.
-custom_backend-1  | INFO:main:Added is_standalone column to trashed_projects table.
-custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NULL for existing products.
-custom_backend-1  | INFO:main:Database schema migration completed successfully.
-custom_backend-1  | INFO:     Application startup complete.
-custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Raw details_data type: <class 'dict'>, value: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1756200059325-fttq238ab",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-26T09:20:59.325Z",
-custom_backend-1  |         "updatedAt": "2025-08-26T09:21:09.310Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": ""
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - Already dict, after round_hours: {
-custom_backend-1  |   "theme": "dark-purple",
-custom_backend-1  |   "slides": [
-custom_backend-1  |     {
-custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "Welcome to the Course on AI Tools for Teachers",
-custom_backend-1  |         "content": "In this course, we will explore various AI tools that can enhance teaching and learning experiences in high school settings.",
-custom_backend-1  |         "subtitle": "",
-custom_backend-1  |         "avatarAlt": "Avatar",
-custom_backend-1  |         "avatarPath": "",
-custom_backend-1  |         "titleColor": "#e91e63",
-custom_backend-1  |         "contentColor": "#e91e63",
-custom_backend-1  |         "subtitleColor": "#000000",
-custom_backend-1  |         "voiceoverText": "",
-custom_backend-1  |         "backgroundColor": "#ffffff"
-custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1756200059325-fttq238ab",
-custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-26T09:20:59.325Z",
-custom_backend-1  |         "updatedAt": "2025-08-26T09:21:09.310Z"
-custom_backend-1  |       },
-custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
-custom_backend-1  |       "templateId": "avatar-service-slide",
-custom_backend-1  |       "slideNumber": 1,
-custom_backend-1  |       "voiceoverText": ""
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "lessonTitle": "AI Tools for Teachers",
-custom_backend-1  |   "hasVoiceover": true,
-custom_backend-1  |   "currentSlideId": "slide_1_intro",
-custom_backend-1  |   "detectedLanguage": "en"
-custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 63 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:48082 - "GET /api/custom/projects/view/63 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:48096 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:48098 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48108 - "POST /api/custom/presentations HTTP/1.1" 200 OK
-
-frontend:
-🎨 Font styles applied to Chudo and Forta themes
-page-72aaa99f7b2ec01f.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Video Lesson Presentation",\n  "slug":…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "AI Tools for Teachers",\n  "sli… "hasVoiceover": true,\n  "theme": "dark-purple"\n}', componentName: 'VideoLessonPresentationDisplay', …}
-page-72aaa99f7b2ec01f.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-72aaa99f7b2ec01f.js:1 📄 Slide 1 (avatar-service-slide): {slideId: 'slide-1756200059325-fttq238ab', templateId: 'avatar-service-slide', props: {…}}
-page-72aaa99f7b2ec01f.js:1 ✅ Component-based slides loaded with theme: {slideCount: 1, theme: 'dark-purple', themeColors: {…}, templates: Array(1)}
-page-72aaa99f7b2ec01f.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
-page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
-page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Response status: 200
-page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
-page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
-page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
-page-72aaa99f7b2ec01f.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
-page-72aaa99f7b2ec01f.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-72aaa99f7b2ec01f.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-72aaa99f7b2ec01f.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from slide data...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data for voiceover: {slides: Array(1), theme: 'dark-purple'}
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Slide 1 title: Welcome to the Course on AI Tools for Teachers
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: ['Welcome to the Course on AI Tools for Teachers']
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: ['Welcome to the Course on AI Tools for Teachers']
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/63
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data: {slides: Array(1), theme: 'dark-purple'}
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: {success: false, error: 'Presentation service not available. Please check backend configuration.'}
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed with error: Error: Presentation service not available. Please check backend configuration.
-    at g (page-72aaa99f7b2ec01f.js:1:230445)
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error type: object
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error constructor: Error
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error stack: Error: Presentation service not available. Please check backend configuration.
-    at g (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-72aaa99f7b2ec01f.js:1:230445)
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error message: Presentation service not available. Please check backend configuration.
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error name: Error
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-page-72aaa99f7b2ec01f.js:1 🎬 [VIDEO_DOWNLOAD] Calling onError with message: Presentation service not available. Please check backend configuration.
-684-061671409fcbce74.js:1 Video generation error: Presentation service not available. Please check backend configuration.
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-onError @ page-72aaa99f7b2ec01f.js:1
-g @ page-72aaa99f7b2ec01f.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
-63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-684-061671409fcbce74.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-push.3755.Object.entries.map.a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
-684-061671409fcbce74.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
-    at push.3755.Object.entries.map.a.onerror (layout-1e76a94cbd5c836b.js:1:738)
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-r @ layout-1e76a94cbd5c836b.js:1
-await in r
-(anonymous) @ layout-1e76a94cbd5c836b.js:1
-(anonymous) @ layout-1e76a94cbd5c836b.js:1
-oq @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-um @ 4bd1b696-4bfbcd47340ed67c.js:1
-uh @ 4bd1b696-4bfbcd47340ed67c.js:1
-iS @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-w @ 684-061671409fcbce74.js:1Understand this error
-layout-1e76a94cbd5c836b.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
-63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-684-061671409fcbce74.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-push.3755.Object.entries.map.a.onerror @ layout-1e76a94cbd5c836b.js:1Understand this error
-63:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
-63:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-684-061671409fcbce74.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+ | INFO:main:📋 [BACKEND VIEW] Project 62 - Raw details_data type: <class 'dict'>, value: {
+ |   "theme": "dark-purple",
+ |   "slides": [
+ |     {
+ |       "props": {
+ |         "title": "A Guide to Investing in Real Estate",
+ |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
+ |         "subtitle": "",
+ |         "avatarAlt": "Avatar",
+ |         "avatarPath": "",
+ |         "titleColor": "#e91e63",
+ |         "contentColor": "#e91e63",
+ |         "subtitleColor": "#000000",
+ |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+ |         "backgroundColor": "#ffffff"
+ |       },
+ |       "slideId": "slide-1755862791071-o2ake5voc",
+ |       "metadata": {
+ |         "createdAt": "2025-08-22T11:39:51.071Z",
+ |         "updatedAt": "2025-08-22T11:39:58.265Z"
+ |       },
+ |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+ |       "templateId": "avatar-service-slide",
+ |       "slideNumber": 1,
+ |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+ |     }
+ |   ],
+ |   "lessonTitle": "A Guide to Investing in Real Estate",
+ |   "hasVoiceover": true,
+ |   "currentSlideId": "slide_1_intro",
+ |   "detectedLanguage": "en"
+ | }
+ | INFO:main:📋 [BACKEND VIEW] Project 62 - Already dict, after round_hours: {
+ |   "theme": "dark-purple",
+ |   "slides": [
+ |     {
+ |       "props": {
+ |         "title": "A Guide to Investing in Real Estate",
+ |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
+ |         "subtitle": "",
+ |         "avatarAlt": "Avatar",
+ |         "avatarPath": "",
+ |         "titleColor": "#e91e63",
+ |         "contentColor": "#e91e63",
+ |         "subtitleColor": "#000000",
+ |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+ |         "backgroundColor": "#ffffff"
+ |       },
+ |       "slideId": "slide-1755862791071-o2ake5voc",
+ |       "metadata": {
+ |         "createdAt": "2025-08-22T11:39:51.071Z",
+ |         "updatedAt": "2025-08-22T11:39:58.265Z"
+ |       },
+ |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+ |       "templateId": "avatar-service-slide",
+ |       "slideNumber": 1,
+ |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+ |     }
+ |   ],
+ |   "lessonTitle": "A Guide to Investing in Real Estate",
+ |   "hasVoiceover": true,
+ |   "currentSlideId": "slide_1_intro",
+ |   "detectedLanguage": "en"
+ | }
+ | INFO:main:📋 [BACKEND VIEW] Project 62 - No contentBlocks in parsed_details or parsed_details is None
+ | INFO:     172.18.0.12:33378 - "GET /api/custom/projects HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:33386 - "GET /api/custom/projects/view/62 HTTP/1.1" 200 OK
+ | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+ | INFO:     172.18.0.12:33402 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+ | INFO:main:🎬 [MAIN_ENDPOINT] Received presentation request parameters:
+ | INFO:main:  - slide_url: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/62
+ | INFO:main:  - voiceover_texts_count: 1
+ | INFO:main:  - slides_data_count: 1
+ | INFO:main:  - theme: dark-purple
+ | INFO:main:  - avatar_code: None
+ | INFO:main:  - use_avatar_mask: True
+ | INFO:main:  - duration: 30
+ | INFO:main:  - layout: picture_in_picture
+ | INFO:main:  - quality: high
+ | INFO:main:  - resolution: [1920, 1080]
+ | INFO:main:  - project_name: Video Lesson Presentation
+ | INFO:main:🎬 [MAIN_ENDPOINT] Creating PresentationRequest object...
+ | INFO:main:🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: True
+ | INFO:app.services.presentation_service:Created presentation job: 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:main:Returning immediate response for job 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Starting presentation processing for job: 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Request details:
+ | INFO:app.services.presentation_service:  - Slide URL: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/62
+ | INFO:app.services.presentation_service:  - Theme: dark-purple
+ | INFO:app.services.presentation_service:  - Duration: 30s
+ | INFO:app.services.presentation_service:  - Quality: high
+ | INFO:app.services.presentation_service:  - Layout: picture_in_picture
+ | INFO:app.services.presentation_service:  - Resolution: (1920, 1080)
+ | INFO:app.services.presentation_service:  - Avatar Code: None
+ | INFO:app.services.presentation_service:  - Voiceover Texts Count: 1
+ | INFO:app.services.presentation_service:  - Slides Data Provided: True
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Slides data analysis:
+ | INFO:app.services.presentation_service:  Slide 1:
+ | INFO:app.services.presentation_service:    - Template ID: avatar-service-slide
+ | INFO:app.services.presentation_service:    - Slide ID: slide-1755862791071-o2ake5voc
+ | INFO:app.services.presentation_service:    - Props Keys: ['title', 'content', 'subtitle', 'avatarAlt', 'avatarPath', 'titleColor', 'contentColor', 'subtitleColor', 'voiceoverText', 'backgroundColor']
+ | INFO:app.services.presentation_service:    - Title: A Guide to Investing in Real Estate
+ | INFO:app.services.presentation_service:    - Subtitle:
+ | INFO:app.services.presentation_service:    - Content: Investing in real estate can be a lucrative opportunity for building wealth and securing financial f...
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Voiceover texts:
+ | INFO:app.services.presentation_service:  Text 1: Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real...
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Using provided slide data with 1 slides
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Detailed slide data analysis:
+ | INFO:app.services.presentation_service:  📄 Slide 1 Details:
+ | INFO:app.services.presentation_service:    - Template ID: avatar-service-slide
+ | INFO:app.services.presentation_service:    - Slide ID: slide-1755862791071-o2ake5voc
+ | INFO:app.services.presentation_service:    - Props Type: <class 'dict'>
+ | INFO:app.services.presentation_service:    - Props Keys: ['title', 'content', 'subtitle', 'avatarAlt', 'avatarPath', 'titleColor', 'contentColor', 'subtitleColor', 'voiceoverText', 'backgroundColor']
+ | INFO:app.services.presentation_service:    - Title: 'A Guide to Investing in Real Estate'
+ | INFO:app.services.presentation_service:    - Subtitle: ''
+ | INFO:app.services.presentation_service:    - Content: 'Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom....'
+ | INFO:app.services.presentation_service:    - Voiceover Text: 'Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let...'
+ | INFO:app.services.presentation_service:    - avatarAlt: Avatar
+ | INFO:app.services.presentation_service:    - avatarPath:
+ | INFO:app.services.presentation_service:    - titleColor: #e91e63
+ | INFO:app.services.presentation_service:    - contentColor: #e91e63
+ | INFO:app.services.presentation_service:    - subtitleColor: #000000
+ | INFO:app.services.presentation_service:    - backgroundColor: #ffffff
+ | INFO:app.services.clean_video_generation_service:Clean Video Generation Service initialized
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Calling clean video generation service:
+ | INFO:app.services.presentation_service:  - Slides count: 1
+ | INFO:app.services.presentation_service:  - Theme: dark-purple
+ | INFO:app.services.presentation_service:  - Duration: 30
+ | INFO:app.services.presentation_service:  - Quality: high
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Using single slide generation
+ | INFO:app.services.clean_video_generation_service:Generating video for avatar slide: avatar-service-slide
+ | INFO:     172.18.0.12:35486 - "POST /api/custom/presentations HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:35498 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:app.services.video_assembly_service:Found FFmpeg at: ffmpeg
+ | INFO:app.services.video_assembly_service:Video Assembly Service initialized. FFmpeg: ffmpeg
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Creating video from 1 slides
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Parameters:
+ | INFO:app.services.video_assembly_service:  - Theme: dark-purple
+ | INFO:app.services.video_assembly_service:  - Output path: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.video_assembly_service:  - Slide duration: 30
+ | INFO:app.services.video_assembly_service:  - Quality: high
+ | INFO:app.services.html_to_image_service:Using html2image library for HTML to PNG conversion
+ | INFO:app.services.html_to_image_service:HTML to Image Service initialized using: html2image
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Processing slide 1/1
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Slide 1 details:
+ | INFO:app.services.video_assembly_service:  - Template ID: avatar-service-slide
+ | INFO:app.services.video_assembly_service:  - Props keys: ['slideId', 'slideNumber', 'slideTitle', 'templateId', 'props', 'voiceoverText', 'metadata']
+ | INFO:app.services.video_assembly_service:  - slideId: 'slide-1755862791071-o2ake5voc...'
+ | INFO:app.services.video_assembly_service:  - slideNumber: 1
+ | INFO:app.services.video_assembly_service:  - slideTitle: 'Клиентский сервис - это основа успеха...'
+ | INFO:app.services.video_assembly_service:  - templateId: 'avatar-service-slide...'
+ | INFO:app.services.video_assembly_service:  - props: {'title': 'A Guide to Investing in Real Estate', 'content': 'Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.', 'subtitle': '', 'avatarAlt': 'Avatar', 'avatarPath': '', 'titleColor': '#e91e63', 'contentColor': '#e91e63', 'subtitleColor': '#000000', 'voiceoverText': "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!", 'backgroundColor': '#ffffff'}
+ | INFO:app.services.video_assembly_service:  - voiceoverText: 'Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let...'
+ | INFO:app.services.video_assembly_service:  - metadata: {'createdAt': '2025-08-22T11:39:51.071Z', 'updatedAt': '2025-08-22T11:39:58.265Z'}
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Converting slide 1 to PNG: /tmp/tmp_bj0prx6_slide_0.png
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Converting slide to PNG
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Parameters:
+ | INFO:app.services.html_to_image_service:  - Template ID: avatar-service-slide
+ | INFO:app.services.html_to_image_service:  - Theme: dark-purple
+ | INFO:app.services.html_to_image_service:  - Output path: /tmp/tmp_bj0prx6_slide_0.png
+ | INFO:app.services.html_to_image_service:  - Props keys: ['title', 'content', 'subtitle', 'avatarAlt', 'avatarPath', 'titleColor', 'contentColor', 'subtitleColor', 'voiceoverText', 'backgroundColor']
+ | INFO:app.services.html_to_image_service:  - title: 'A Guide to Investing in Real Estate...'
+ | INFO:app.services.html_to_image_service:  - content: 'Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom....'
+ | INFO:app.services.html_to_image_service:  - subtitle: '...'
+ | INFO:app.services.html_to_image_service:  - avatarAlt: 'Avatar...'
+ | INFO:app.services.html_to_image_service:  - avatarPath: '...'
+ | INFO:app.services.html_to_image_service:  - titleColor: '#e91e63...'
+ | INFO:app.services.html_to_image_service:  - contentColor: '#e91e63...'
+ | INFO:app.services.html_to_image_service:  - subtitleColor: '#000000...'
+ | INFO:app.services.html_to_image_service:  - voiceoverText: 'Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let...'
+ | INFO:app.services.html_to_image_service:  - backgroundColor: '#ffffff...'
+ | INFO:app.services.html_template_service:HTML Template Service initialized with template directory: /app/app/services/../../templates
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Generating HTML content...
+ | INFO:app.services.html_template_service:Validated props for avatar-service-slide: ['title', 'subtitle', 'content']
+ | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] Generating HTML for template: avatar-service-slide, theme: dark-purple
+ | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] Props received:
+ | INFO:app.services.html_template_service:  - Props type: <class 'dict'>
+ | INFO:app.services.html_template_service:  - Props keys: ['title', 'subtitle', 'content']
+ | INFO:app.services.html_template_service:  - title: 'A Guide to Investing in Real Estate...'
+ | INFO:app.services.html_template_service:  - subtitle: '...'
+ | INFO:app.services.html_template_service:  - content: 'Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom....'
+ | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] Context data prepared:
+ | INFO:app.services.html_template_service:  - Template ID: avatar-service-slide
+ | INFO:app.services.html_template_service:  - Theme: dark-purple
+ | INFO:app.services.html_template_service:  - Context keys: ['templateId', 'theme', 'title', 'subtitle', 'content']
+ | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] HTML content generated successfully
+ | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] HTML content length: 23914 characters
+ | INFO:app.services.html_template_service:🎬 [HTML_TEMPLATE] HTML snippet: <!DOCTYPE html>
+ | <html lang="en">
+ | <head>
+ |     <meta charset="UTF-8">
+ |     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ |     <title>Avatar Slide Template</title>
+ |
+ |     <link rel="preconnect" href="https://fonts.googleapis.com">
+ |     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ |     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;50...
+ | INFO:app.services.html_template_service:Generated clean HTML for video: avatar-service-slide
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] HTML content generated
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] HTML content length: 23914 characters
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] Converting HTML to PNG...
+ | INFO:app.services.html_to_image_service:Converting HTML to PNG for template: avatar-service-slide using html2image
+ | [23:51:0827/113254.490840:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:54:0827/113254.519870:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:54:0827/113254.520049:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:51:0827/113254.575330:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:51:0827/113254.575372:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:51:0827/113254.575382:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:51:0827/113254.575389:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:51:0827/113254.976956:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:51:0827/113255.119411:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:23:0827/113255.492040:ERROR:dbus/object_proxy.cc:590] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+ | [23:23:0827/113255.505799:ERROR:dbus/object_proxy.cc:590] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+ | [23:51:0827/113255.506184:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:51:0827/113255.506221:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+ | [23:23:0827/113255.506328:ERROR:dbus/object_proxy.cc:590] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+ | [23:114:0827/113255.523723:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:114:0827/113255.523790:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:114:0827/113255.523859:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:114:0827/113255.523892:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:114:0827/113255.523980:ERROR:dbus/bus.cc:408] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+ | [23:23:0827/113255.528545:ERROR:dbus/object_proxy.cc:590] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+ | [23:23:0827/113255.529422:ERROR:dbus/object_proxy.cc:590] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+ | 79477 bytes written to file /tmp/tmp_bj0prx6_slide_0.png
+ | INFO:app.services.html_to_image_service:html2image conversion successful: 79477 bytes
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] PNG conversion successful: /tmp/tmp_bj0prx6_slide_0.png
+ | INFO:app.services.html_to_image_service:🎬 [HTML_TO_IMAGE] PNG file size: 79477 bytes
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Generated PNG for slide 1: avatar-service-slide
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] PNG file size: 79477 bytes
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Saved debug slide image: output/presentations/slide_image_debug_1.png
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Successfully generated 1 PNG files
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] PNG files: ['/tmp/tmp_bj0prx6_slide_0.png']
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Creating video from PNGs...
+ | INFO:app.services.video_assembly_service:Creating video from 1 PNG images
+ | INFO:app.services.video_assembly_service:Running FFmpeg command: ffmpeg -y -f concat -safe 0 -i /tmp/tmpkeabrre3.txt -vf fps=25,scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=#110c35 -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:     172.18.0.12:57030 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:46376 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:35514 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:53418 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:53830 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:51036 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:46234 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:app.services.video_assembly_service:Video created successfully: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4 (306910 bytes)
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Video creation successful: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.video_assembly_service:🎬 [VIDEO_ASSEMBLY] Video file size: 306910 bytes
+ | INFO:app.services.clean_video_generation_service:Avatar slide video generated: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4 (306910 bytes)
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Clean video generation result:
+ | INFO:app.services.presentation_service:  - Success: True
+ | INFO:app.services.presentation_service:  - Video Path: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.presentation_service:  - File Size: 306910
+ | INFO:app.services.presentation_service:  - Duration: 30
+ | INFO:app.services.presentation_service:  - Slide Image Paths: ['/tmp/tmp_bj0prx6_slide_0.png']
+ | INFO:app.services.presentation_service:  - Error: None
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Clean video generation successful: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Stored slide image path for debugging: /tmp/tmp_bj0prx6_slide_0.png
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:
+ | INFO:app.services.presentation_service:  - Voiceover texts count: 1
+ | INFO:app.services.presentation_service:  - Avatar code: None
+ | INFO:app.services.presentation_service:  - Duration: 30
+ | INFO:app.services.presentation_service:  - Voiceover text 1: Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let...
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Starting avatar video generation...
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:
+ | INFO:app.services.presentation_service:  - use_avatar_mask: True
+ | INFO:app.services.presentation_service:  - avatar_code: None
+ | INFO:app.services.presentation_service:  - voiceover_texts_count: 1
+ | INFO:app.services.presentation_service:  - duration: 30
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_AVATAR_VIDEO] Starting avatar video generation...
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_AVATAR_VIDEO] Parameters received:
+ | INFO:app.services.presentation_service:  - voiceover_texts_count: 1
+ | INFO:app.services.presentation_service:  - avatar_code: None
+ | INFO:app.services.presentation_service:  - duration: 30
+ | INFO:app.services.presentation_service:  - use_avatar_mask: True
+ | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+ | INFO:app.services.presentation_service:Selected avatar: gia (Gia)
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_AVATAR_VIDEO] Auto-selected avatar: gia
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_AVATAR_VIDEO] Decision point: use_avatar_mask = True
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_AVATAR_VIDEO] DECISION: Using traditional Elai API generation
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_AVATAR_VIDEO] Video composition will use SimpleVideoComposer (OpenCV)
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Starting traditional avatar generation method
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Using Elai API + FFmpeg approach
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Calling _try_generate_with_avatar...
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Starting video creation from texts
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Parameters:
+ | INFO:app.services.video_generation_service:  - Project name: Avatar Video
+ | INFO:app.services.video_generation_service:  - Voiceover texts count: 1
+ | INFO:app.services.video_generation_service:  - Avatar code: gia
+ | INFO:app.services.video_generation_service:  - Green screen mode: False
+ | INFO:app.services.video_generation_service:  - Voiceover text 1: Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let...
+ | INFO:app.services.video_generation_service:Cleaned voiceover text 1: Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real...
+ | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: gia
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Available avatars count: 65
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Found avatar: Gia (code: gia)
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Avatar details:
+ | INFO:app.services.video_generation_service:  - Name: Gia
+ | INFO:app.services.video_generation_service:  - Code: gia
+ | INFO:app.services.video_generation_service:  - Canvas: None
+ | INFO:app.services.video_generation_service:  - Gender: female
+ | ERROR:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Avatar 'Gia' has empty canvas URL
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Looking for alternative avatar with valid canvas...
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Found alternative avatar: Mikhailo (code: mikhailo_test)
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Using alternative avatar: Mikhailo (code: mikhailo_test)
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Preparing 1 slides for Elai API
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Creating slide 1 with text: Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real...
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Preparing video request
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video request configuration:
+ | INFO:app.services.video_generation_service:  - Name: Avatar Video
+ | INFO:app.services.video_generation_service:  - Slides count: 1
+ | INFO:app.services.video_generation_service:  - Format: 16_9
+ | INFO:app.services.video_generation_service:  - Resolution: FullHD
+ | INFO:app.services.video_generation_service:  - Avatar canvas URL: https://d3u63mhbhkevz8.cloudfront.net/custom/mikhael/mikhailo.png...
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:
+ | INFO:app.services.video_generation_service:  {
+ |   "name": "Avatar Video",
+ |   "slides": [
+ |     {
+ |       "id": 1,
+ |       "status": "edited",
+ |       "canvas": {
+ |         "objects": [
+ |           {
+ |             "type": "avatar",
+ |             "left": 960,
+ |             "top": 540,
+ |             "fill": "#4868FF",
+ |             "scaleX": 0.6,
+ |             "scaleY": 0.6,
+ |             "width": 1920,
+ |             "height": 1080,
+ |             "src": "https://d3u63mhbhkevz8.cloudfront.net/custom/mikhael/mikhailo.png",
+ |             "avatarType": "transparent",
+ |             "animation": {
+ |               "type": null,
+ |               "exitType": null
+ |             }
+ |           }
+ |         ],
+ |         "background": "#ffffff",
+ |         "version": "4.4.0"
+ |       },
+ |       "avatar": {
+ |         "code": "mikhailo_test",
+ |         "name": "Mikhailo",
+ |         "gender": "male",
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/custom/mikhael/mikhailo.png"
+ |       },
+ |       "animation": "fade_in",
+ |       "language": "English",
+ |       "speech": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+ |       "voice": "en-US-AriaNeural",
+ |       "voiceType": "text",
+ |       "voiceProvider": "azure"
+ |     }
+ |   ],
+ |   "tags": [
+ |     "video_lesson",
+ |     "generated",
+ |     "presentation"
+ |   ],
+ |   "public": false,
+ |   "data": {
+ |     "skipEmails": false,
+ |     "subtitlesEnabled": "false",
+ |     "format": "16_9",
+ |     "resolution": "FullHD"
+ |   }
+ | }
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Making API call to Elai
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] API endpoint: https://apis.elai.io/api/v1/videos
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Headers: {'Authorization': 'Bearer 5774fLyEZuhr22LTmv6zwjZuk9M5rQ9e', 'Content-Type': 'application/json', 'Accept': 'application/json'}
+ | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] API response status: 200
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] API response headers: {'date': 'Wed, 27 Aug 2025 11:34:17 GMT', 'content-type': 'application/json; charset=utf-8', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'content-encoding': 'gzip', 'vary': 'Origin', 'access-control-allow-credentials': 'true', 'access-control-expose-headers': 'content-disposition', 'etag': 'W/"a748-Y0CLmU2EuaZoB/kiEF6KBXgEar8"', 'strict-transport-security': 'max-age=7776000; includeSubDomains', 'x-content-type-options': 'nosniff', 'cf-cache-status': 'DYNAMIC', 'server': 'cloudflare', 'cf-ray': '975b4248b9a2235b-SJC'}
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] API response successful
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video data received:
+ | INFO:app.services.video_generation_service:  - Video ID: 68aeed39cd85dff154d20e63
+ | INFO:app.services.video_generation_service:  - Full response: {
+ |   "name": "Avatar Video",
+ |   "data": {
+ |     "skipEmails": false,
+ |     "subtitlesEnabled": "false",
+ |     "format": "16_9",
+ |     "resolution": "FullHD"
+ |   },
+ |   "slides": [
+ |     {
+ |       "id": 1,
+ |       "status": "edited",
+ |       "canvas": {
+ |         "objects": [
+ |           {
+ |             "type": "avatar",
+ |             "left": 960,
+ |             "top": 540,
+ |             "fill": "#4868FF",
+ |             "scaleX": 0.6,
+ |             "scaleY": 0.6,
+ |             "width": 1920,
+ |             "height": 1080,
+ |             "src": "https://d3u63mhbhkevz8.cloudfront.net/custom/mikhael/mikhailo.png",
+ |             "avatarType": "transparent",
+ |             "animation": {
+ |               "type": null,
+ |               "exitType": null
+ |             }
+ |           }
+ |         ],
+ |         "background": "#ffffff",
+ |         "version": "4.4.0"
+ |       },
+ |       "avatar": {
+ |         "code": "mikhailo_test",
+ |         "name": "Mikhailo",
+ |         "gender": "male",
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/custom/mikhael/mikhailo.png"
+ |       },
+ |       "animation": "fade_in",
+ |       "language": "English",
+ |       "speech": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+ |       "voice": "en-US-AriaNeural",
+ |       "voiceType": "text",
+ |       "voiceProvider": "azure"
+ |     }
+ |   ],
+ |   "extraLayouts": [
+ |     {
+ |       "version": "5.3.0",
+ |       "objects": [
+ |         {
+ |           "type": "avatar",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 33.97,
+ |           "top": 128.84,
+ |           "width": 1080,
+ |           "height": 1080,
+ |           "fill": "#4868FF",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.22,
+ |           "scaleY": 0.22,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "crossOrigin": null,
+ |           "filters": [],
+ |           "avatarType": "transparent",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           }
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 57,
+ |           "top": 30,
+ |           "width": 285.1206,
+ |           "height": 87.8688,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Malayalam, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "bold",
+ |           "fontSize": "36",
+ |           "text": "Insert your\nheader here     ",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "left",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 1210387104895,
+ |           "meta": {
+ |             "splittedText": "Insert your\nheader here     "
+ |           }
+ |         },
+ |         {
+ |           "type": "image",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 365,
+ |           "top": 30,
+ |           "width": 804,
+ |           "height": 1080,
+ |           "fill": "rgb(0,0,0)",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.28,
+ |           "scaleY": 0.28,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "id": 1081352379493,
+ |           "src": "https://elai-media.s3.eu-west-2.amazonaws.com/production/uploads/62f1566eb5faf6fb70bd990a/img_1669029687806.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW6FMUIGA6NPIQQ5B%2F20241125%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Date=20241125T161201Z&X-Amz-Expires=604800&X-Amz-Signature=c414017d61d03fdbc149f13bf3c393498ddb3276dd86e94f91207dc014eda626&X-Amz-SignedHeaders=host&response-cache-control=public%2C%20max-age%3D31536000%2C%20immutable",
+ |           "crossOrigin": "anonymous",
+ |           "filters": []
+ |         }
+ |       ],
+ |       "background": "#ffffff",
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false,
+ |         "header": "",
+ |         "images": [
+ |           null
+ |         ]
+ |       },
+ |       "id": 1636708318710
+ |     },
+ |     {
+ |       "version": "5.3.0",
+ |       "objects": [
+ |         {
+ |           "type": "avatar",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 250.02,
+ |           "top": 208.94,
+ |           "width": 0,
+ |           "height": 0,
+ |           "fill": "#efefef",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.13,
+ |           "scaleY": 0.13,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "crossOrigin": null,
+ |           "filters": [],
+ |           "avatarType": "circle",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           },
+ |           "_exists": true
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 97.2,
+ |           "top": 34.49,
+ |           "width": 452.8392,
+ |           "height": 87.8688,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "bold",
+ |           "fontSize": "36",
+ |           "text": "Insert your header here\n",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "center",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 1210387104895,
+ |           "meta": {
+ |             "splittedText": "Insert your header here\n"
+ |           }
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 186.4183,
+ |           "top": 111.44666667,
+ |           "width": 274.0026,
+ |           "height": 48.816,
+ |           "fill": "#979797",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "normal",
+ |           "fontSize": "20",
+ |           "text": "Type your subheader there\nto add more information",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "center",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 788749939394,
+ |           "meta": {
+ |             "splittedText": "Type your subheader there\nto add more information"
+ |           }
+ |         }
+ |       ],
+ |       "background": "#ffffff",
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false,
+ |         "header": "",
+ |         "subHeader": ""
+ |       },
+ |       "id": 1554580744615
+ |     },
+ |     {
+ |       "version": "5.3.0",
+ |       "objects": [
+ |         {
+ |           "type": "avatar",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 7.97,
+ |           "top": 20.26,
+ |           "width": 0,
+ |           "height": 0,
+ |           "fill": "#4868FF",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.37,
+ |           "scaleY": 0.37,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": false,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "crossOrigin": null,
+ |           "filters": [],
+ |           "avatarType": "voiceover",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           },
+ |           "_exists": true
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 74,
+ |           "top": 65.49,
+ |           "width": 233.1108,
+ |           "height": 135.0576,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "bold",
+ |           "fontSize": "36",
+ |           "text": "Insert your\nheader here\n",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "left",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 1210387104895,
+ |           "meta": {
+ |             "splittedText": "Insert your\nheader here\n"
+ |           }
+ |         },
+ |         {
+ |           "type": "image",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 365,
+ |           "top": 30,
+ |           "width": 804,
+ |           "height": 1080,
+ |           "fill": "rgb(0,0,0)",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.28,
+ |           "scaleY": 0.28,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "id": 1081352379493,
+ |           "src": "https://elai-media.s3.eu-west-2.amazonaws.com/production/uploads/62f1566eb5faf6fb70bd990a/img_1669029687806.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAW6FMUIGA6NPIQQ5B%2F20241125%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Date=20241125T161201Z&X-Amz-Expires=604800&X-Amz-Signature=c414017d61d03fdbc149f13bf3c393498ddb3276dd86e94f91207dc014eda626&X-Amz-SignedHeaders=host&response-cache-control=public%2C%20max-age%3D31536000%2C%20immutable",
+ |           "crossOrigin": "anonymous",
+ |           "filters": [],
+ |           "_exists": true
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 74,
+ |           "top": 205.49333333,
+ |           "width": 214.0164,
+ |           "height": 101.248,
+ |           "fill": "#979797",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "normal",
+ |           "fontSize": "20",
+ |           "text": "Type your subheader\nthere to add more\ninformation\n",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "left",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 788749939394,
+ |           "meta": {
+ |             "splittedText": "Type your subheader\nthere to add more\ninformation\n"
+ |           }
+ |         }
+ |       ],
+ |       "background": "#ffffff",
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false,
+ |         "header": "",
+ |         "subHeader": "",
+ |         "images": [
+ |           null
+ |         ]
+ |       },
+ |       "id": 1432913455954
+ |     },
+ |     {
+ |       "version": "5.3.0",
+ |       "objects": [
+ |         {
+ |           "type": "rect",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 67.79244345,
+ |           "top": 95.68691524,
+ |           "width": 538.99845153,
+ |           "height": 166.49496951,
+ |           "fill": "#979797",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "rx": 0,
+ |           "ry": 0,
+ |           "id": 1410133400704
+ |         },
+ |         {
+ |           "type": "rect",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 57.79244345,
+ |           "top": 85.68691524,
+ |           "width": 538.99845153,
+ |           "height": 166.49496951,
+ |           "fill": "#ffffff",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "rx": 0,
+ |           "ry": 0,
+ |           "id": 1518284354600
+ |         },
+ |         {
+ |           "type": "avatar",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 283.16666667,
+ |           "top": 36,
+ |           "width": 0,
+ |           "height": 0,
+ |           "fill": "#4868FF",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.3,
+ |           "scaleY": 0.3,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": false,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "crossOrigin": null,
+ |           "filters": [],
+ |           "avatarType": "voiceover",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           },
+ |           "_exists": true
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 96.70833079,
+ |           "top": 125.31308476,
+ |           "width": 462.58333842,
+ |           "height": 87.8688,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "bold",
+ |           "fontSize": "36",
+ |           "text": "Insert your\nheader here",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "center",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 459319671224,
+ |           "meta": {
+ |             "splittedText": "Insert your\nheader here"
+ |           }
+ |         }
+ |       ],
+ |       "background": "#efefef",
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false,
+ |         "header": ""
+ |       },
+ |       "id": 1564433370544
+ |     },
+ |     {
+ |       "version": "5.3.0",
+ |       "objects": [
+ |         {
+ |           "type": "rect",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 45.91666667,
+ |           "top": 60.9166654,
+ |           "width": 550.66666667,
+ |           "height": 69.83333588,
+ |           "fill": "#efefef",
+ |           "stroke": "#d9d9d9",
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": true,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "rx": 0,
+ |           "ry": 0,
+ |           "id": 1228917213099
+ |         },
+ |         {
+ |           "type": "avatar",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 7.97,
+ |           "top": 20.26,
+ |           "width": 0,
+ |           "height": 0,
+ |           "fill": "#4868FF",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.37,
+ |           "scaleY": 0.37,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": false,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "crossOrigin": null,
+ |           "filters": [],
+ |           "avatarType": "voiceover",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           },
+ |           "_exists": true
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 78.08333334,
+ |           "top": 84.03333333,
+ |           "width": 485.33333333,
+ |           "height": 22.6,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "normal",
+ |           "fontSize": "20",
+ |           "text": "KEY POINT #1",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "center",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 788749939394,
+ |           "meta": {
+ |             "splittedText": "KEY POINT #1"
+ |           }
+ |         },
+ |         {
+ |           "type": "rect",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 44.41666667,
+ |           "top": 145.91666539,
+ |           "width": 550.66666667,
+ |           "height": 69.83333588,
+ |           "fill": "#efefef",
+ |           "stroke": "#d9d9d9",
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": true,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "rx": 0,
+ |           "ry": 0,
+ |           "id": 224471794316
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 76.58333333,
+ |           "top": 169.03333333,
+ |           "width": 485.33333333,
+ |           "height": 22.6,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "normal",
+ |           "fontSize": "20",
+ |           "text": "KEY POINT #2",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "center",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 415218659328,
+ |           "meta": {
+ |             "splittedText": "KEY POINT #2"
+ |           }
+ |         },
+ |         {
+ |           "type": "rect",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 43.41666667,
+ |           "top": 229.24999872,
+ |           "width": 550.66666667,
+ |           "height": 69.83333588,
+ |           "fill": "#efefef",
+ |           "stroke": "#d9d9d9",
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": true,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "rx": 0,
+ |           "ry": 0,
+ |           "id": 1515272279531
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 75.58333334,
+ |           "top": 252.36666666,
+ |           "width": 485.33333333,
+ |           "height": 22.6,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "normal",
+ |           "fontSize": "20",
+ |           "text": "KEY POINT #3",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "center",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 1235975354702,
+ |           "meta": {
+ |             "splittedText": "KEY POINT #3"
+ |           }
+ |         }
+ |       ],
+ |       "background": "#ffffff",
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false,
+ |         "list": [
+ |           "",
+ |           "",
+ |           ""
+ |         ]
+ |       },
+ |       "id": 902237310897
+ |     },
+ |     {
+ |       "version": "5.3.0",
+ |       "objects": [
+ |         {
+ |           "type": "avatar",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 309,
+ |           "top": 36.83333333,
+ |           "width": 0,
+ |           "height": 0,
+ |           "fill": "#4868FF",
+ |           "stroke": null,
+ |           "strokeWidth": 0,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 0.3,
+ |           "scaleY": 0.3,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "cropX": 0,
+ |           "cropY": 0,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "crossOrigin": null,
+ |           "filters": [],
+ |           "avatarType": "transparent",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           },
+ |           "_exists": true
+ |         },
+ |         {
+ |           "type": "textbox",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 63.16666667,
+ |           "top": 65.49,
+ |           "width": 233.1108,
+ |           "height": 135.0576,
+ |           "fill": "#000000",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "bold",
+ |           "fontSize": "36",
+ |           "text": "Insert your\nheader here\n",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "left",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.16,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": [],
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "id": 983236420722,
+ |           "meta": {
+ |             "splittedText": "Insert your\nheader here\n"
+ |           }
+ |         },
+ |         {
+ |           "type": "list",
+ |           "version": "5.3.0",
+ |           "originX": "left",
+ |           "originY": "top",
+ |           "left": 81.9836,
+ |           "top": 191.32666666,
+ |           "width": 214.0164,
+ |           "height": 83.168,
+ |           "fill": "#979797",
+ |           "stroke": null,
+ |           "strokeWidth": 1,
+ |           "strokeDashArray": null,
+ |           "strokeLineCap": "butt",
+ |           "strokeDashOffset": 0,
+ |           "strokeLineJoin": "miter",
+ |           "strokeUniform": false,
+ |           "strokeMiterLimit": 4,
+ |           "scaleX": 1,
+ |           "scaleY": 1,
+ |           "angle": 0,
+ |           "flipX": false,
+ |           "flipY": false,
+ |           "opacity": 1,
+ |           "shadow": null,
+ |           "visible": true,
+ |           "backgroundColor": "",
+ |           "fillRule": "nonzero",
+ |           "paintFirst": "fill",
+ |           "globalCompositeOperation": "source-over",
+ |           "skewX": 0,
+ |           "skewY": 0,
+ |           "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |           "fontWeight": "normal",
+ |           "fontSize": "20",
+ |           "text": "Type a list item here\nType a list item here\nType a list item here",
+ |           "underline": false,
+ |           "overline": false,
+ |           "linethrough": false,
+ |           "textAlign": "left",
+ |           "fontStyle": "normal",
+ |           "lineHeight": 1.34,
+ |           "textBackgroundColor": "",
+ |           "charSpacing": 0,
+ |           "styles": {
+ |             "1": {
+ |               "0": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "1": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "2": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "3": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "4": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "5": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "6": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "7": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "8": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "9": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "10": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "11": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "12": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "13": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "14": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "15": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "16": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "17": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "18": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "19": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "20": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               }
+ |             },
+ |             "2": {
+ |               "0": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "1": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "2": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "3": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "4": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "5": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "6": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "7": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "8": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "9": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "10": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "11": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "12": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "13": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "14": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "15": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "16": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "17": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "18": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "19": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "20": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               },
+ |               "21": {
+ |                 "stroke": null,
+ |                 "strokeWidth": 1,
+ |                 "fill": "#979797",
+ |                 "fontFamily": "Montserrat, Noto Sans Devanagari, Noto Sans Bengali, Noto Sans Arabic, Noto Sans JP, Noto Sans KR, Noto Sans TC, Noto Sans SC, Noto Serif Devanagari, Noto Serif Bengali",
+ |                 "fontSize": "20",
+ |                 "fontWeight": "normal",
+ |                 "fontStyle": "normal",
+ |                 "underline": false,
+ |                 "overline": false,
+ |                 "linethrough": false,
+ |                 "deltaY": 0,
+ |                 "textBackgroundColor": ""
+ |               }
+ |             }
+ |           },
+ |           "direction": "ltr",
+ |           "path": null,
+ |           "pathStartOffset": 0,
+ |           "pathSide": "left",
+ |           "pathAlign": "baseline",
+ |           "minWidth": 20,
+ |           "splitByGrapheme": false,
+ |           "meta": {
+ |             "splittedText": "Type a list item here\nType a list item here\nType a list item here"
+ |           },
+ |           "id": 615384357465,
+ |           "listType": "unordered",
+ |           "listBullet": "\u25cf"
+ |         }
+ |       ],
+ |       "background": "#ffffff",
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false,
+ |         "header": "",
+ |         "list": [
+ |           "",
+ |           "",
+ |           ""
+ |         ]
+ |       },
+ |       "id": 64290925076
+ |     },
+ |     {
+ |       "version": "4.4.0",
+ |       "background": "#ffffff",
+ |       "objects": [
+ |         {
+ |           "type": "avatar",
+ |           "left": 151.5,
+ |           "top": 36,
+ |           "fill": "#4868FF",
+ |           "scaleX": 0.3,
+ |           "scaleY": 0.3,
+ |           "src": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png",
+ |           "avatarType": "transparent",
+ |           "animation": {
+ |             "type": null,
+ |             "exitType": null
+ |           },
+ |           "width": 0,
+ |           "height": 0,
+ |           "_exists": true,
+ |           "visible": true
+ |         }
+ |       ],
+ |       "avatar": {
+ |         "code": "neyson.business",
+ |         "gender": "male",
+ |         "type": null,
+ |         "limit": 300,
+ |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
+ |       },
+ |       "story": {
+ |         "isTooComplex": false
+ |       },
+ |       "id": 559022230610
+ |     }
+ |   ],
+ |   "tags": [
+ |     "api",
+ |     "video_lesson",
+ |     "generated",
+ |     "presentation"
+ |   ],
+ |   "deleted": false,
+ |   "status": "draft",
+ |   "verified": false,
+ |   "public": false,
+ |   "parentFolderDeleted": false,
+ |   "version": 0,
+ |   "userId": "64c1c506675755202ee364c1",
+ |   "accountId": "64c1c506675755202ee364c2",
+ |   "_id": "68aeed39cd85dff154d20e63",
+ |   "comments": [],
+ |   "createdAt": "2025-08-27T11:34:17.835Z",
+ |   "updatedAt": "2025-08-27T11:34:17.835Z",
+ |   "__v": 0
+ | }
+ | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video created successfully: 68aeed39cd85dff154d20e63
+ | INFO:app.services.presentation_service:Avatar video created with ID: 68aeed39cd85dff154d20e63
+ | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos/render/68aeed39cd85dff154d20e63 "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:Video render started for 68aeed39cd85dff154d20e63
+ | INFO:app.services.presentation_service:Waiting for avatar video completion: 68aeed39cd85dff154d20e63
+ | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68aeed39cd85dff154d20e63 "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:Video 68aeed39cd85dff154d20e63 status: validating, progress: 80%
+ | INFO:app.services.presentation_service:Avatar video status: validating, Progress: 80%
+ | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68aeed39cd85dff154d20e63 "HTTP/1.1 200 OK"
+ | INFO:app.services.video_generation_service:Video 68aeed39cd85dff154d20e63 status: ready, progress: 100%
+ | INFO:app.services.presentation_service:Avatar video status: ready, Progress: 100%
+ | INFO:app.services.presentation_service:Downloading avatar video: https://apis.elai.io/public/video/68aeed39cd85dff154d20e63.mp4?s=2484dd7b76e8a0ea3019af2f39965a22acfe333456b546a4e9a6aa84fb8c60a7
+ | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.presentation_service:🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Traditional method completed: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Avatar video generated: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Video composition parameters:
+ | INFO:app.services.presentation_service:  - Slide video path: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.presentation_service:  - Avatar video path: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.presentation_service:  - Layout: picture_in_picture (should be picture_in_picture for proper overlay)
+ | INFO:app.services.presentation_service:  - Resolution: (1920, 1080)
+ | INFO:app.services.presentation_service:  - Quality: high
+ | INFO:app.services.presentation_service:🎬 [PRESENTATION_PROCESSING] Output configuration:
+ | INFO:app.services.presentation_service:  - Output filename: presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | INFO:app.services.presentation_service:  - Output path: output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Starting video composition: picture_in_picture
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Input files:
+ | INFO:app.services.video_composer_service:  - Slide video: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.video_composer_service:  - Avatar video: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.video_composer_service:  - Output path: output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | INFO:app.services.video_composer_service:  - Resolution: (1920, 1080)
+ | INFO:app.services.video_composer_service:  - Quality: high
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Video analysis:
+ | INFO:app.services.video_composer_service:  - Slide duration: 60.0s, dimensions: (1920, 1080)
+ | INFO:app.services.video_composer_service:  - Avatar duration: 13.896s, dimensions: (1920, 1080)
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Using SimpleVideoComposer (OpenCV-based)
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Eliminating dual-approach complexity
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] SimpleVideoComposer initialized
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Avatar template: {'width': 935, 'height': 843, 'x': 925, 'y': 118}
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Starting video composition
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Input files:
+ | INFO:app.services.simple_video_composer:  - Slide video: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.simple_video_composer:  - Avatar video: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.simple_video_composer:  - Output path: output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | WARNING:app.services.simple_video_composer:No video stream found in output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | WARNING:app.services.simple_video_composer:No video stream found in output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Video properties:
+ | INFO:app.services.simple_video_composer:  - Slide: {'width': 1920, 'height': 1080, 'fps': 25.0, 'duration': 10.0}
+ | INFO:app.services.simple_video_composer:  - Avatar: {'width': 1920, 'height': 1080, 'fps': 25.0, 'duration': 10.0}
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Starting frame-by-frame composition
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition setup:
+ | INFO:app.services.simple_video_composer:  - Output dimensions: 1920x1080
+ | INFO:app.services.simple_video_composer:  - Output FPS: 25.0
+ | INFO:app.services.simple_video_composer:  - Slide frames: 1500
+ | INFO:app.services.simple_video_composer:  - Avatar frames: 347
+ | INFO:app.services.simple_video_composer:  - Total frames to process: 1500
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Processing frames...
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 0%
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 0%
+ | INFO:     172.18.0.12:38880 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 95%
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 95%
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 100%
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 100%
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition completed: 1500 frames processed
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Output video created: 9551834 bytes
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Adding audio to composed video
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] FFmpeg audio command: ffmpeg -i temp/simple_compositions/temp_composition_1756294523.mp4 -i output/presentations/avatar_68aeed39cd85dff154d20e63.mp4 -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest -y output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Audio merge completed successfully
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Final video created: 2.44 MB
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Video composition completed successfully: output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Temporary directory cleaned up
+ | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Simple composition completed successfully
+ | INFO:app.services.presentation_service:Final video composed: output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4
+ | INFO:app.services.presentation_service:Step 4: Creating thumbnail for job 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d
+ | INFO:app.services.video_composer_service:Creating thumbnail from video
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Executing FFmpeg command for: Thumbnail creation
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Command: ffmpeg -i output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4 -ss 5.0 -vframes 1 -q:v 2 -y output/presentations/thumbnail_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.jpg
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Process completed with return code: 0
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Stderr: ffmpeg version 7.1.1-1+b1 Copyright (c) 2000-2025 the FFmpeg developers
+ |   built with gcc 14 (Debian 14.2.0-19)
+ |   configuration: --prefix=/usr --extra-version=1+b1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-libmfx --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libcaca --enable-libdvdnav --enable-libdvdread --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+ |   libavutil      59. 39.100 / 59. 39.100
+ |   libavcodec     61. 19.101 / 61. 19.101
+ |   libavformat    61.  7.100 / 61.  7.100
+ |   libavdevice    61.  3.100 / 61.  3.100
+ |   libavfilter    10.  4.100 / 10.  4.100
+ |   libswscale      8.  3.100 /  8.  3.100
+ |   libswresample   5.  3.100 /  5.  3.100
+ |   libpostproc    58.  3.100 / 58.  3.100
+ | Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'output/presentations/presentation_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.mp4':
+ |   Metadata:
+ |     major_brand     : isom
+ |     minor_version   : 512
+ |     compatible_brands: isomiso2mp41
+ |     encoder         : Lavf61.7.100
+ |   Duration: 00:00:13.91, start: 0.000000, bitrate: 1470 kb/s
+ |   Stream #0:0[0x1](und): Video: mpeg4 (Simple Profile) (mp4v / 0x7634706D), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 1397 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+ |       Metadata:
+ |         handler_name    : VideoHandler
+ |         vendor_id       : [0][0][0][0]
+ |   Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 24000 Hz, mono, fltp, 71 kb/s (default)
+ |       Metadata:
+ |         handler_name    : SoundHandler
+ |         vendor_id       : [0][0][0][0]
+ | Stream mapping:
+ |   Stream #0:0 -> #0:0 (mpeg4 (native) -> mjpeg (native))
+ | Press [q] to stop, [?] for help
+ | Output #0, image2, to 'output/presentations/thumbnail_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.jpg':
+ |   Metadata:
+ |     major_brand     : isom
+ |     minor_version   : 512
+ |     compatible_brands: isomiso2mp41
+ |     encoder         : Lavf61.7.100
+ |   Stream #0:0(und): Video: mjpeg, yuv420p(pc, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+ |       Metadata:
+ |         handler_name    : VideoHandler
+ |         vendor_id       : [0][0][0][0]
+ |         encoder         : Lavc61.19.101 mjpeg
+ |       Side data:
+ |         cpb: bitrate max/min/avg: 0/0/200000 buffer size: 0 vbv_delay: N/A
+ | [image2 @ 0x5dc869af0ac0] The specified filename 'output/presentations/thumbnail_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.jpg' does not contain an image sequence pattern or a pattern is invalid.
+ | [image2 @ 0x5dc869af0ac0] Use a pattern such as %03d for an image sequence or use the -update option (with -frames:v 1 if needed) to write a single image.
+ | [out#0/image2 @ 0x5dc869b19640] video:60KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+ | frame=    1 fps=0.5 q=2.0 Lsize=N/A time=00:00:00.04 bitrate=N/A speed=0.0219x
+ |
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Thumbnail creation completed successfully
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file: output/presentations/thumbnail_36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d.jpg
+ | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file size: 61015 bytes
+ | INFO:app.services.presentation_service:Cleaned up temporary file: output/clean_videos/avatar_slide_avatar-service-slide_20250827_113253.mp4
+ | INFO:app.services.presentation_service:Cleaned up temporary file: output/presentations/avatar_68aeed39cd85dff154d20e63.mp4
+ | INFO:app.services.presentation_service:Presentation 36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d completed successfully
+ | INFO:     172.18.0.12:44412 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d HTTP/1.1" 200 OK
+ | INFO:     172.18.0.12:44414 - "GET /api/custom/presentations/36a3c507-dc3b-4b09-b9b8-11a0e3bfce4d/video HTTP/1.1" 200 OK
