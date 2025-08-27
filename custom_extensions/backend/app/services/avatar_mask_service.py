@@ -107,23 +107,33 @@ class AvatarMaskService:
         Based on test_elai_api.py logic.
         """
         try:
-            logger.info("Creating Elai green screen video...")
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Creating Elai green screen video...")
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Importing ElaiVideoGenerationService...")
             
             # Import here to avoid circular imports
-            from .video_generation_service import VideoGenerationService
+            from .video_generation_service import ElaiVideoGenerationService
             
             # Create video generation service
-            video_service = VideoGenerationService()
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Creating ElaiVideoGenerationService instance...")
+            video_service = ElaiVideoGenerationService()
+            logger.info("🎬 [AVATAR_MASK_SERVICE] ElaiVideoGenerationService created successfully")
             
             # Create video with green background configuration
             # This will use the same logic as test_elai_api.py
             project_name = f"Green Screen Avatar - {datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Calling create_video_from_texts with green_screen_mode=True")
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Project name: {project_name}")
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Avatar code: {avatar_code}")
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Voiceover texts count: {len(voiceover_texts)}")
+            
             result = await video_service.create_video_from_texts(
                 project_name=project_name,
                 voiceover_texts=voiceover_texts,
                 avatar_code=avatar_code,
                 green_screen_mode=True  # New parameter to enable green screen mode
             )
+            
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] create_video_from_texts result: {result}")
             
             if result.get("success") and result.get("videoId"):
                 # Wait for video completion and get download URL
