@@ -348,7 +348,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Pass the color with current opacity to the parent component
     const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
     onColorChange(colorWithOpacity);
-    addToRecentColors(color); // Add to recent colors when explicitly selecting
   };
 
   // --- Hue slider ---
@@ -375,7 +374,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Pass the color with current opacity to the parent component when dragging ends
     const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
     onColorChange(colorWithOpacity);
-    addToRecentColors(hex);
   };
 
   // --- Opacity slider ---
@@ -401,7 +399,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // Pass the color with current opacity to the parent component when dragging ends
     const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
     onColorChange(colorWithOpacity);
-    addToRecentColors(hex);
   };
 
   // --- Saturation/Brightness square ---
@@ -426,23 +423,32 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   }, [hsb, opacity]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    isDraggingRef.current = true;
-    setIsDragging(true);
-    handleSBUpdate(e.clientX, e.clientY);
+    // Only start dragging if clicking on the saturation square
+    if (sbRef.current && sbRef.current.contains(e.target as Node)) {
+      isDraggingRef.current = true;
+      setIsDragging(true);
+      handleSBUpdate(e.clientX, e.clientY);
+    }
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDraggingRef.current) handleSBUpdate(e.clientX, e.clientY);
+    // Only update if we're actually dragging
+    if (isDraggingRef.current) {
+      handleSBUpdate(e.clientX, e.clientY);
+    }
   }, [handleSBUpdate]);
 
   const handleMouseUp = () => { 
-    isDraggingRef.current = false; 
-    setIsDragging(false);
-    // Pass the color with current opacity to the parent component when dragging ends
-    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-    onColorChange(colorWithOpacity);
-    // Add the current color to recent colors when dragging the saturation/brightness square ends
-    addToRecentColors(hex);
+    // Only process if we were actually dragging
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false; 
+      setIsDragging(false);
+      // Pass the color with current opacity to the parent component when dragging ends
+      const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
+      onColorChange(colorWithOpacity);
+      // Add the current color to recent colors when dragging the saturation/brightness square ends
+      addToRecentColors(hex);
+    }
   };
 
   useEffect(() => {
@@ -604,67 +610,22 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           onMouseLeave={(e) => {
             e.currentTarget.style.border = '1px solid #ccc';
             e.currentTarget.style.boxShadow = 'none';
+            // Stop dragging if mouse leaves the square
+            if (isDraggingRef.current) {
+              isDraggingRef.current = false;
+              setIsDragging(false);
+            }
           }}
         >
-          {/* Grid overlay for better visual reference */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: `
-                linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
-              `,
-              backgroundSize: '16px 16px',
-              pointerEvents: 'none',
-              zIndex: 10001
-            }}
-          />
-          
-          {/* Corner indicators for Saturation and Brightness */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '4px',
-              left: '4px',
-              fontSize: '10px',
-              color: 'rgba(255,255,255,0.8)',
-              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
-              pointerEvents: 'none',
-              zIndex: 10001,
-              fontWeight: 'bold'
-            }}
-          >
-            S
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '4px',
-              left: '4px',
-              fontSize: '10px',
-              color: 'rgba(255,255,255,0.8)',
-              textShadow: '0 1px 2px rgba(0,0,0,0.8)',
-              pointerEvents: 'none',
-              zIndex: 10001,
-              fontWeight: 'bold'
-            }}
-          >
-            B
-          </div>
-          
           {/* Custom cursor indicator */}
           <div
             style={{
               position: 'absolute',
-              width: '18px',
-              height: '18px',
+              width: '12px',
+              height: '12px',
               borderRadius: '50%',
               border: '2px solid #fff',
-              boxShadow: '0 0 0 1px #000, 0 2px 6px rgba(0,0,0,0.4)',
+              boxShadow: '0 0 0 1px #000',
               backgroundColor: 'transparent',
               left: `${hsb.s}%`,
               top: `${100 - hsb.b}%`,
@@ -673,21 +634,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               zIndex: 10002,
               transition: 'all 0.1s ease-out'
             }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                backgroundColor: '#fff',
-                transform: 'translate(-50%, -50%)',
-                boxShadow: '0 0 0 1px #000'
-              }}
-            />
-          </div>
+          />
           
           {/* Current color preview at cursor position */}
           <div
