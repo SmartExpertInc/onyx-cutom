@@ -166,7 +166,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '40px 60px',
+    padding: '40px 0px',
   };
 
   const handleBarSave = (index: number, field: 'percentage' | 'description', value: string) => {
@@ -314,7 +314,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               gap: '15px',
               position: 'relative'
             }}
@@ -402,7 +402,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              <div style={{
                fontSize: '14px',
                color: themeContent,
-               textAlign: 'center',
                maxWidth: '120px',
                lineHeight: '1.3',
                minHeight: '40px',
@@ -454,7 +453,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                width: '155px',
                height: `${bar.height}px`,
                backgroundColor: themeAccent,
-               borderRadius: '4px 4px 0 0',
                position: 'relative'
              }}>
                               {/* Height adjustment controls */}
@@ -624,7 +622,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              {/* Footer */}
        <div style={{
          position: 'absolute',
-         bottom: '20px',
+         bottom: '30px',
          left: '60px',
          right: '60px',
          display: 'flex',
