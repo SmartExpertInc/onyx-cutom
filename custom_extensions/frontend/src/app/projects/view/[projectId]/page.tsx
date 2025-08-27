@@ -1433,11 +1433,35 @@ export default function ProjectInstanceViewPage() {
             </button>
             
             <button
-                onClick={() => {
-                  console.log('Open Products button clicked - navigating to /projects');
-                  router.push('/projects');
+                onClick={(e) => {
+                  console.log('Open Products button clicked - event details:', {
+                    type: e.type,
+                    target: e.target,
+                    currentTarget: e.currentTarget,
+                    defaultPrevented: e.defaultPrevented,
+                    propagationStopped: e.isPropagationStopped?.(),
+                    timeStamp: e.timeStamp
+                  });
+                  
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  console.log('Attempting navigation to /projects...');
+                  try {
+                    router.push('/projects');
+                    console.log('router.push executed successfully');
+                  } catch (error) {
+                    console.error('Error during navigation:', error);
+                  }
+                }}
+                onMouseDown={(e) => {
+                  console.log('Open Products button - mousedown event');
+                }}
+                onMouseUp={(e) => {
+                  console.log('Open Products button - mouseup event');
                 }}
                 className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+                style={{ zIndex: 9999, position: 'relative' }}
                 >
                 <FolderOpen size={16} className="mr-2" />
                 {t('interface.projectView.openProducts', 'Open Products')}
