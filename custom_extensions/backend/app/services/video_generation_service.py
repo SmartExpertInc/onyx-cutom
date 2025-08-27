@@ -319,41 +319,48 @@ class ElaiVideoGenerationService:
             # FIXED: Official Elai API structure for vertical full-size avatar
             # SIMPLIFIED ELAI API REQUEST - Focus on getting visible avatar
             video_request = {
-                "name": project_name,
-                "slides": [{
+                "name": "Hello from API!",
+                "slides": [
+                    {
                     "id": 1,
                     "canvas": {
-                        "objects": [{
+                        "objects": [
+                        {
                             "type": "avatar",
-                            "left": 420,        # Center horizontally: (1920-240)/2 = 840, but adjusted for avatar centering
-                            "top": 0,           # Top of frame 
-                            "scaleX": 0.8,      # Scale down to 864x864 to fit in 1080 height
-                            "scaleY": 0.8,      # Scale down to fit
+                            "left": 151.5,
+                            "top": 36,
+                            "fill": "#4868FF",
+                            "scaleX": 0.3,
+                            "scaleY": 0.3,
                             "width": 1080,
                             "height": 1080,
-                            "src": avatar.get("canvas"),
+                            "src": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",
                             "avatarType": "transparent",
                             "animation": {
-                                "type": None,
-                                "exitType": None
+                            "type": null,
+                            "exitType": null
                             }
-                        }],
-                        "background": "#00FF00",
+                        }
+                        ],
+                        "background": "#ffffff",
                         "version": "4.4.0"
                     },
                     "avatar": {
-                        "code": avatar.get("code"),
-                        "gender": avatar.get("gender"),
-                        "canvas": avatar.get("canvas")
+                        "code": "gia.casual",
+                        "gender": "female",
+                        "canvas": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png"
                     },
                     "animation": "fade_in",
-                    "language": "English", 
-                    "speech": " ".join(cleaned_texts),
+                    "language": "English",
+                    "speech": "Hi there! It's my first video created by Elai API.",
                     "voice": "en-US-AriaNeural",
                     "voiceType": "text",
                     "voiceProvider": "azure"
-                }],
-                "tags": ["api", "test"]
+                    }
+                ],
+                "tags": [
+                    "test"
+                ]
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
