@@ -72,16 +72,13 @@ PDF_CACHE_DIR.mkdir(exist_ok=True)
 CHROME_EXEC_PATH = '/usr/bin/chromium'
 
 # Configuration constants for PDF generation - PERFORMANCE OPTIMIZED
-PDF_MIN_SLIDE_HEIGHT = 1080
+PDF_MIN_SLIDE_HEIGHT = 600
 PDF_MAX_SLIDE_HEIGHT = 3000
 PDF_HEIGHT_SAFETY_MARGIN = 40
 PDF_GENERATION_TIMEOUT = 30000  # Reduced from 60s to 30s
-PDF_PAGE_TIMEOUT = 30  # seconds
-MAX_CONCURRENT_SLIDES = 5  # Increased from 2 to 5 for faster generation
+PDF_PAGE_TIMEOUT = 10000  # Reduced from 30s to 10s per page
+MAX_CONCURRENT_SLIDES = 2  # Reduced from 3 to 2 for stability
 BROWSER_MEMORY_LIMIT = 512  # Reduced from 1024 to 512 MB
-
-# OPTIMIZED: Maximum concurrent browsers to prevent memory issues
-MAX_CONCURRENT_BROWSERS = 3  # New limit for browser instances
 
 # --- Setup Jinja2 Environment ---
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -416,6 +413,106 @@ async def log_slide_data_structure(slide_data: dict, slide_index: int = None, te
             logger.info(f"Subtitle: {props.get('subtitle', 'No subtitle')}")
     
     logger.info(f"PDF GEN: === END COMPREHENSIVE SLIDE DATA ANALYSIS for {slide_info}{template_info} ===")
+
+async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
+    """Log image fit properties specifically for debugging fit styles in PDF."""
+    slide_info = f"slide {slide_index}" if slide_index else "slide"
+    template_info = f" ({template_id})" if template_id else ""
+    
+    image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
+    
+    if isinstance(slide_data, dict):
+        template_id = slide_data.get('templateId', 'Unknown')
+        props = slide_data.get('props', {})
+        
+        # Check if this is a template with images
+        if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log image path without base64 data
+            image_path = props.get('imagePath')
+            if image_path:
+                if image_path.startswith('data:'):
+                    image_fit_logger.info(f"Image path: [BASE64 DATA URL - {len(image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Image path: {image_path}")
+            else:
+                image_fit_logger.info(f"Image path: NOT SET")
+            
+            # Log size and fit properties
+            width_px = props.get('widthPx')
+            height_px = props.get('heightPx')
+            object_fit = props.get('objectFit')
+            image_scale = props.get('imageScale')
+            image_offset = props.get('imageOffset')
+            
+            image_fit_logger.info(f"Width: {width_px}px")
+            image_fit_logger.info(f"Height: {height_px}px")
+            image_fit_logger.info(f"Object fit: {object_fit}")
+            image_fit_logger.info(f"Image scale: {image_scale}")
+            image_fit_logger.info(f"Image offset: {image_offset}")
+            
+            # Check if objectFit is missing
+            if object_fit is None:
+                image_fit_logger.warning(f"⚠️ OBJECT FIT IS MISSING for {slide_info}{template_info}")
+                image_fit_logger.warning(f"⚠️ This will cause PDF to use default 'cover' instead of user-selected fit style")
+            else:
+                image_fit_logger.info(f"✅ Object fit is present: {object_fit}")
+            
+            # Log what the PDF template will receive
+            pdf_object_fit = object_fit if object_fit else 'cover'
+            image_fit_logger.info(f"PDF template will use object-fit: {pdf_object_fit}")
+            
+        elif template_id == 'two-column':
+            image_fit_logger.info(f"Template: {template_id}")
+            
+            # Log left image properties without base64
+            left_image_path = props.get('leftImagePath')
+            left_object_fit = props.get('leftObjectFit')
+            left_width_px = props.get('leftWidthPx')
+            left_height_px = props.get('leftHeightPx')
+            
+            if left_image_path:
+                if left_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Left image path: [BASE64 DATA URL - {len(left_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Left image path: {left_image_path}")
+            else:
+                image_fit_logger.info(f"Left image path: NOT SET")
+                
+            image_fit_logger.info(f"Left object fit: {left_object_fit}")
+            image_fit_logger.info(f"Left width: {left_width_px}px")
+            image_fit_logger.info(f"Left height: {left_height_px}px")
+            
+            if left_object_fit is None:
+                image_fit_logger.warning(f"⚠️ LEFT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
+            
+            # Log right image properties without base64
+            right_image_path = props.get('rightImagePath')
+            right_object_fit = props.get('rightObjectFit')
+            right_width_px = props.get('rightWidthPx')
+            right_height_px = props.get('rightHeightPx')
+            
+            if right_image_path:
+                if right_image_path.startswith('data:'):
+                    image_fit_logger.info(f"Right image path: [BASE64 DATA URL - {len(right_image_path)} characters]")
+                else:
+                    image_fit_logger.info(f"Right image path: {right_image_path}")
+            else:
+                image_fit_logger.info(f"Right image path: NOT SET")
+                
+            image_fit_logger.info(f"Right object fit: {right_object_fit}")
+            image_fit_logger.info(f"Right width: {right_width_px}px")
+            image_fit_logger.info(f"Right height: {right_height_px}px")
+            
+            if right_object_fit is None:
+                image_fit_logger.warning(f"⚠️ RIGHT OBJECT FIT IS MISSING for {slide_info}{template_info}")
+            else:
+                image_fit_logger.info(f"✅ Right object fit is present: {right_object_fit}")
+    
+    image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
 
 async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
     """Log image fit properties specifically for debugging fit styles in PDF."""
@@ -2256,54 +2353,6 @@ async def generate_single_slide_pdf(slide_data: dict, theme: str, slide_height: 
         if should_close_browser and browser:
             await browser.close()
 
-async def process_slide_batch_optimized(slides_batch: list, theme: str, semaphore: asyncio.Semaphore) -> list:
-    """
-    Process a batch of slides with optimized parallel processing using semaphore.
-    
-    Args:
-        slides_batch: List of (slide_data, slide_height, output_path, slide_index, template_id) tuples
-        theme: The theme name
-        semaphore: Semaphore to control concurrent browser instances
-    
-    Returns:
-        list: List of successful output paths
-    """
-    async def process_single_slide(slide_data, slide_height, output_path, slide_index, template_id):
-        async with semaphore:  # Control concurrent browser instances
-            try:
-                # Each slide gets its own browser instance for true parallelism
-                browser = await pyppeteer.launch(**get_browser_launch_options())
-                try:
-                    success = await generate_single_slide_pdf(
-                        slide_data, theme, slide_height, output_path, browser, slide_index, template_id
-                    )
-                    return (success, output_path, slide_index, template_id)
-                finally:
-                    await browser.close()
-            except Exception as e:
-                logger.error(f"Error processing slide {slide_index + 1} ({template_id}): {e}")
-                return (False, output_path, slide_index, template_id)
-    
-    # Process all slides in the batch concurrently
-    tasks = [
-        process_single_slide(slide_data, slide_height, output_path, slide_index, template_id)
-        for slide_data, slide_height, output_path, slide_index, template_id in slides_batch
-    ]
-    
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    
-    successful_paths = []
-    for result in results:
-        if isinstance(result, Exception):
-            logger.error(f"Exception in slide processing: {result}")
-        elif result[0]:  # success
-            successful_paths.append(result[1])  # output_path
-            logger.info(f"✓ Successfully generated slide {result[2] + 1} ({result[3]})")
-        else:
-            logger.error(f"✗ Failed to generate slide {result[2] + 1} ({result[3]})")
-    
-    return successful_paths
-
 async def process_slide_batch(slides_batch: list, theme: str, browser=None) -> list:
     """
     Process a batch of slides in parallel for better performance.
@@ -2394,47 +2443,51 @@ async def generate_slide_deck_pdf_with_progress(
         
         yield {'type': 'progress', 'message': 'Starting individual slide generation...', 'current': 0, 'total': len(slides_data)}
         
-        # Step 2: Generate individual PDFs with optimized parallel processing
-        logger.info("Generating individual slide PDFs with optimized parallel processing...")
-        
-        # Create temporary paths for all slides
+        # Step 2: Generate individual PDFs
         slide_tasks = []
         for i, (slide_data, slide_height) in enumerate(zip(slides_data, slide_heights)):
             template_id = slide_data.get('templateId', 'unknown')
             temp_pdf_path = f"/tmp/slide_{i}_{uuid.uuid4().hex[:8]}.pdf"
             slide_tasks.append((slide_data, slide_height, temp_pdf_path, i, template_id))
         
-        # OPTIMIZED: Use semaphore to control concurrent browser instances
-        semaphore = asyncio.Semaphore(MAX_CONCURRENT_BROWSERS)
-        successful_paths = []
-        
-        # Process slides in optimized batches
+        # Process slides in batches
         batch_size = MAX_CONCURRENT_SLIDES
+        successful_paths = []
         
         for batch_start in range(0, len(slide_tasks), batch_size):
             batch_end = min(batch_start + batch_size, len(slide_tasks))
             batch = slide_tasks[batch_start:batch_end]
             
-            logger.info(f"Processing optimized batch {batch_start//batch_size + 1}/{(len(slide_tasks) + batch_size - 1)//batch_size} ({len(batch)} slides)")
+            yield {'type': 'progress', 'message': f'Processing batch {batch_start//batch_size + 1}/{(len(slide_tasks) + batch_size - 1)//batch_size}...', 'current': batch_start, 'total': len(slides_data)}
+            
+            batch_browser = await pyppeteer.launch(**get_browser_launch_options())
             
             try:
-                # Use optimized batch processing without shared browser
-                batch_results = await process_slide_batch_optimized(batch, theme, semaphore)
+                # Process each slide in the batch with individual progress updates
+                batch_results = []
+                for slide_data, slide_height, temp_pdf_path, slide_index, template_id in batch:
+                    yield {'type': 'progress', 'message': f'Generating slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
+                    
+                    success = await generate_single_slide_pdf(
+                        slide_data, theme, slide_height, temp_pdf_path, batch_browser, slide_index, template_id
+                    )
+                    
+                    if success:
+                        batch_results.append(temp_pdf_path)
+                        yield {'type': 'progress', 'message': f'✓ Generated slide {slide_index + 1}: {template_id}', 'current': slide_index + 1, 'total': len(slides_data), 'slide_index': slide_index, 'template_id': template_id}
+                    else:
+                        yield {'type': 'error', 'message': f'Failed to generate slide {slide_index + 1}: {template_id}'}
+                
                 successful_paths.extend(batch_results)
                 temp_pdf_paths.extend(batch_results)
+                
             except Exception as e:
-                logger.error(f"Failed to process optimized batch: {e}", exc_info=True)
-                # Clean up any generated PDFs in this batch
-                for _, _, path, slide_index, template_id in batch:
-                    try:
-                        if os.path.exists(path):
-                            os.remove(path)
-                    except:
-                        pass
-                raise HTTPException(status_code=500, detail=f"Failed to process slide batch: {str(e)[:200]}")
-            
-            # Force garbage collection after each batch
-            gc.collect()
+                logger.error(f"Failed to process batch: {e}")
+                yield {'type': 'error', 'message': f'Failed to process slide batch: {str(e)[:200]}'}
+                return
+            finally:
+                await batch_browser.close()
+                gc.collect()
         
         if len(successful_paths) != len(slides_data):
             yield {'type': 'error', 'message': f'Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully'}
@@ -2558,14 +2611,15 @@ async def generate_slide_deck_pdf_with_dynamic_height(
             for slide_data, slide_height, temp_pdf_path, slide_index, template_id in batch:
                 logger.info(f"  - Slide {slide_index + 1} ({template_id}): height={slide_height}px, output={temp_pdf_path}")
             
+            # Launch a new browser for each batch to prevent memory accumulation
+            batch_browser = await pyppeteer.launch(**get_browser_launch_options())
+            
             try:
-                # Use optimized batch processing with semaphore
-                semaphore = asyncio.Semaphore(MAX_CONCURRENT_BROWSERS)
-                batch_results = await process_slide_batch_optimized(batch, theme, semaphore)
+                batch_results = await process_slide_batch(batch, theme, batch_browser)
                 successful_paths.extend(batch_results)
                 temp_pdf_paths.extend(batch_results)
             except Exception as e:
-                logger.error(f"Failed to process optimized batch: {e}", exc_info=True)
+                logger.error(f"Failed to process batch: {e}", exc_info=True)
                 # Clean up any generated PDFs in this batch
                 for _, _, path, slide_index, template_id in batch:
                     try:
@@ -2574,9 +2628,10 @@ async def generate_slide_deck_pdf_with_dynamic_height(
                     except:
                         pass
                 raise HTTPException(status_code=500, detail=f"Failed to process slide batch: {str(e)[:200]}")
-            
-            # Force garbage collection after each batch
-            gc.collect()
+            finally:
+                await batch_browser.close()
+                # Force garbage collection after each batch
+                gc.collect()
         
         if len(successful_paths) != len(slides_data):
             logger.error(f"Only {len(successful_paths)}/{len(slides_data)} slides were generated successfully")
