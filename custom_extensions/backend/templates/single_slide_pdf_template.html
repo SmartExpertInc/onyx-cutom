@@ -2037,8 +2037,8 @@
                             <img src="{{ slide.props.imagePath }}" 
                                  alt="Uploaded image" 
                                  style="
-                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
+                                    width: 100%;
+                                    height: 100%;
                                     object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
                                     {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
                                         transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
@@ -2083,8 +2083,8 @@
                             <img src="{{ slide.props.imagePath }}" 
                                  alt="Uploaded image" 
                                  style="
-                                    width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                    height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '240px' }};
+                                    width: 100%;
+                                    height: 240px;
                                     object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
                                     {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
                                         transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
@@ -2148,8 +2148,8 @@
                                 <img src="{{ slide.props.imagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '100%' }};
-                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '100%' }};
+                                        width: 100%;
+                                        height: 100%;
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
                                         {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
                                             transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
