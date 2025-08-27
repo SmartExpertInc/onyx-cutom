@@ -280,7 +280,7 @@ export default function Projects2ViewPage() {
       {/* Calculate available height: 100vh - header (68px) - toolbar (72px) = calc(100vh - 140px) */}
       <div className="flex gap-4 mt-[5px] mx-4 mb-[5px]" style={{ height: 'calc(100vh - 145px)' }}>
         {/* Sidebar - 30% width, full height of available space */}
-        <div className="w-[30%] h-full overflow-y-auto">
+        <div className="w-[30%] h-full overflow-y-auto overflow-x-hidden">
           {renderSidebarComponent()}
         </div>
 
