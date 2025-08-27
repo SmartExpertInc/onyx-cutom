@@ -258,6 +258,25 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
   return (
     <div className="bar-chart-slide-template" style={slideStyles}>
+      {/* Instructions for editing */}
+      {isEditable && (
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          color: 'white',
+          padding: '8px 16px',
+          borderRadius: '20px',
+          fontSize: '12px',
+          zIndex: 20,
+          textAlign: 'center'
+        }}>
+          💡 Наведите на столбик для редактирования • Кликните на текст для изменения • Красный крестик для удаления
+        </div>
+      )}
+
       {/* Profile Image - Top Left */}
       <div style={{
         position: 'absolute',
@@ -524,36 +543,37 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                 onClick={() => removeBar(index)}
                 style={{
                   position: 'absolute',
-                  top: '-15px',
-                  right: '-15px',
-                  width: '28px',
-                  height: '28px',
+                  top: '-20px',
+                  right: '-20px',
+                  width: '32px',
+                  height: '32px',
                   backgroundColor: '#ff4444',
-                  border: '2px solid white',
+                  border: '3px solid white',
                   borderRadius: '50%',
                   color: 'white',
                   cursor: 'pointer',
-                  fontSize: '16px',
+                  fontSize: '18px',
                   fontWeight: 'bold',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   opacity: 0,
                   transition: 'all 0.3s ease-in-out',
-                  zIndex: 10,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  zIndex: 15,
+                  boxShadow: '0 3px 10px rgba(0,0,0,0.4)'
                 }}
                 className="bar-controls"
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.backgroundColor = '#ff0000';
-                  e.currentTarget.style.transform = 'scale(1.2)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
+                  e.currentTarget.style.transform = 'scale(1.3)';
+                  e.currentTarget.style.boxShadow = '0 5px 15px rgba(0,0,0,0.5)';
                 }}
                 onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.backgroundColor = '#ff4444';
                   e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.4)';
                 }}
+                title="Удалить столбик"
               >
                 ×
               </div>
