@@ -312,7 +312,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '30px'
+            gap: '13px'
           }}>
             {currentTopics.map((topic, index) => (
               <div

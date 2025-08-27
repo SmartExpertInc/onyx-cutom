@@ -299,8 +299,6 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         width: '120px',
         height: '120px',
         borderRadius: '50%',
-        overflow: 'hidden',
-        backgroundColor: themeAccent,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -428,46 +426,67 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         alignItems: 'center',
         gap: '10px'
       }}>
-        <div style={{
-          width: '24px',
-          height: '24px',
-          borderRadius: '50%',
-          backgroundColor: themeContent,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: themeBg,
-          fontSize: '16px',
-          fontWeight: 'bold'
-        }}>
-          +
-        </div>
-        <div style={{
-          fontSize: '14px',
-          color: themeContent,
-          fontWeight: '300'
-        }}>
-          Your Logo
-        </div>
-        {companyLogoPath && (
+        {companyLogoPath ? (
+          <ClickableImagePlaceholder
+            imagePath={companyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              width: '60px',
+              height: '30px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
           <div style={{
-            width: '60px',
-            height: '30px',
-            marginLeft: '10px'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer'
+          }} onClick={() => {
+            // Trigger file upload dialog
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+              const file = (e.target as HTMLInputElement).files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const result = e.target?.result as string;
+                  if (result) {
+                    handleCompanyLogoUploaded(result);
+                  }
+                };
+                reader.readAsDataURL(file);
+              }
+            };
+            input.click();
           }}>
-            <ClickableImagePlaceholder
-              imagePath={companyLogoPath}
-              onImageUploaded={handleCompanyLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain'
-              }}
-            />
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              backgroundColor: themeContent,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: themeBg,
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
+              +
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: themeContent,
+              fontWeight: '300'
+            }}>
+              Your Logo
+            </div>
           </div>
         )}
       </div>

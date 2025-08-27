@@ -213,8 +213,6 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
           width: '80px',
           height: '80px',
           borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: themeBg,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'

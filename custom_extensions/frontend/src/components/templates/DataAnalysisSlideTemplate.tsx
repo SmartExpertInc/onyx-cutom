@@ -204,7 +204,7 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
           style={{
             width: '200px',
             height: '200px',
-            borderRadius: '20px',
+            borderRadius: '50%',
             objectFit: 'cover'
           }}
         />
