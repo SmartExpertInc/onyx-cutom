@@ -259,8 +259,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
         {/* Profile image */}
         <div style={{
-          width: '140px',
-          height: '140px',
+          width: '155px',
+          height: '155px',
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'absolute',
@@ -306,14 +306,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '30px',
+                fontSize: '34px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                width: index === 0 ? '370px' : '150px'
+                width: index === 0 ? '370px' : '180px'
               }}
               onClick={() => isEditable && setEditingTags(index)}
             >
@@ -324,7 +324,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '34px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -352,14 +352,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '30px',
+                fontSize: '34px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                width: index === 0 ? '200px' : index === 1 ? '150px' : '150px'
+                width: index === 0 ? '200px' : index === 1 ? '180px' : '180px'
               }}
               onClick={() => isEditable && setEditingTags(index + 2)}
             >
@@ -370,7 +370,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '34px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -416,7 +416,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '34px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',

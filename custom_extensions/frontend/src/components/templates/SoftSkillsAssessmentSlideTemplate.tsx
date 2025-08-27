@@ -230,7 +230,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '55px',
+          fontSize: '61px',
           color: themeTitle,
           lineHeight: '1.2',
           maxWidth: '60%'
@@ -264,8 +264,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
         {/* Profile image */}
         <div style={{
-          width: '120px',
-          height: '120px',
+          width: '145px',
+          height: '145px',
           borderRadius: '50%',
           overflow: 'hidden',
         }}>
@@ -290,7 +290,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       <div style={{
         display: 'flex',
         gap: '30px',
-        marginTop: '-3px'
+        marginTop: '-17px'
       }}>
         {currentTips.map((tip, index) => (
           <div
