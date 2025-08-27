@@ -241,39 +241,25 @@ class ElaiVideoGenerationService:
                         "version": "4.4.0"
                     }
                 else:
-                    # COORDINATED MODE: Avatar positioned to match composition template expectations
-                    # Template requirements: 935x843 at position (925, 118) on 1920x1080 canvas
-                    # Calculate scale factors to fill template area
-                    template_width = 935
-                    template_height = 843
-                    template_x = 925
-                    template_y = 118
-                    canvas_width = 1920
-                    canvas_height = 1080
+                    # CRITICAL BUG FIX: Use larger, centered avatar for visibility
+                    # The coordinated positioning was placing avatar outside visible area
+                    # Revert to larger, centered avatar that's guaranteed to be visible
                     
-                    # Calculate scale factors to fill template area
-                    scale_x = template_width / canvas_width   # 935/1920 ≈ 0.487
-                    scale_y = template_height / canvas_height # 843/1080 ≈ 0.781
-                    
-                    # Calculate positioning (Elai uses center-point positioning)
-                    center_x = template_x + (template_width / 2)   # 925 + 467.5 = 1392.5
-                    center_y = template_y + (template_height / 2)  # 118 + 421.5 = 539.5
-                    
-                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Coordinated avatar parameters:")
-                    logger.info(f"  - Template area: {template_width}x{template_height} at ({template_x}, {template_y})")
-                    logger.info(f"  - Scale factors: scaleX={scale_x:.3f}, scaleY={scale_y:.3f}")
-                    logger.info(f"  - Center position: left={center_x:.1f}, top={center_y:.1f}")
+                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL BUG FIX: Using visible avatar configuration")
+                    logger.info(f"  - Position: Centered for maximum visibility")
+                    logger.info(f"  - Scale: Large enough to be clearly visible")
+                    logger.info(f"  - Canvas: Full 1920x1080 for proper rendering")
                     
                     canvas_config = {
                         "objects": [{
                             "type": "avatar",
-                            "left": center_x,    # Positions avatar center in template area
-                            "top": center_y,     # Positions avatar center in template area
+                            "left": 960,     # Center horizontally in 1920px canvas
+                            "top": 540,      # Center vertically in 1080px canvas
                             "fill": "#4868FF",
-                            "scaleX": scale_x,   # Scales to fill template width
-                            "scaleY": scale_y,   # Scales to fill template height
-                            "width": canvas_width,
-                            "height": canvas_height,
+                            "scaleX": 0.8,   # Large scale for clear visibility
+                            "scaleY": 0.8,   # Large scale for clear visibility
+                            "width": 1920,   # Full canvas width
+                            "height": 1080,  # Full canvas height
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
@@ -285,6 +271,27 @@ class ElaiVideoGenerationService:
                         "version": "4.4.0"
                     }
                 
+                # CRITICAL FIX: Ensure avatar object matches canvas object and validate URLs
+                avatar_canvas_url = avatar.get('canvas')
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL DEBUG - Avatar object consistency:")
+                logger.info(f"  - Canvas src URL: {avatar_canvas_url}")
+                logger.info(f"  - Avatar code: {avatar.get('code')}")
+                logger.info(f"  - Avatar canvas URL: {avatar_canvas_url}")
+                
+                # Validate canvas URL format
+                if not avatar_canvas_url or not avatar_canvas_url.startswith('https://'):
+                    logger.error(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL ERROR: Invalid canvas URL format: {avatar_canvas_url}")
+                    return {
+                        "success": False,
+                        "error": f"Invalid avatar canvas URL format: {avatar_canvas_url}"
+                    }
+                
+                # Additional validation: Check URL contains expected patterns
+                if 'cloudfront.net' not in avatar_canvas_url and 'elai.io' not in avatar_canvas_url:
+                    logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] WARNING: Unusual canvas URL domain: {avatar_canvas_url}")
+                
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
+                
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
@@ -293,7 +300,7 @@ class ElaiVideoGenerationService:
                         "code": avatar.get("code"),
                         "name": avatar.get("name"),
                         "gender": avatar.get("gender"),
-                        "canvas": avatar.get("canvas")
+                        "canvas": avatar.get("canvas")  # This MUST match the canvas.objects[0].src
                     },
                     "animation": "fade_in",
                     "language": "English",
@@ -704,15 +711,31 @@ class ElaiVideoGenerationService:
                         if downloaded_size % (1024 * 1024) == 0:  # Log every MB
                             logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
             
+            # CRITICAL DEBUG: Comprehensive avatar video analysis
+            logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Download completed")
+            logger.info(f"  - Total size downloaded: {downloaded_size} bytes ({downloaded_size / (1024*1024):.2f} MB)")
+            logger.info(f"  - Expected size: {total_size} bytes ({total_size / (1024*1024):.2f} MB)")
+            
             # Verify file was downloaded
             if os.path.exists(output_path):
-                file_size_mb = os.path.getsize(output_path) / (1024 * 1024)
-                logger.info(f"Video downloaded successfully!")
-                logger.info(f"File: {output_path}")
-                logger.info(f"Size: {file_size_mb:.2f} MB")
+                file_size_bytes = os.path.getsize(output_path)
+                file_size_mb = file_size_bytes / (1024 * 1024)
+                logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Video downloaded successfully!")
+                logger.info(f"  - File path: {output_path}")
+                logger.info(f"  - File size: {file_size_mb:.2f} MB ({file_size_bytes} bytes)")
                 
-                # DEBUG FEATURE: Create a debug copy for visual inspection
-                await self._create_debug_avatar_video_copy(output_path)
+                # CRITICAL DEBUG: Check if file is suspiciously small (might be blank/error)
+                if file_size_bytes < 100000:  # Less than 100KB is suspicious for a video
+                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is very small ({file_size_bytes} bytes)")
+                    logger.warning(f"  - This might indicate a blank or error video")
+                elif file_size_bytes < 1000000:  # Less than 1MB is concerning
+                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is small ({file_size_mb:.2f} MB)")
+                    logger.warning(f"  - Avatar might not be visible or video might be very short")
+                else:
+                    logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] File size looks normal for video content")
+                
+                # CRITICAL DEBUG: Analyze video properties to detect blank videos
+                await self._analyze_downloaded_video(output_path)
                 
                 return True
             else:
@@ -723,73 +746,81 @@ class ElaiVideoGenerationService:
             logger.error(f"Download failed: {str(e)}")
             return False
     
-    async def _create_debug_avatar_video_copy(self, original_path: str) -> None:
+    async def _analyze_downloaded_video(self, video_path: str):
         """
-        Create a debug copy of the avatar video for visual inspection.
-        This helps diagnose whether the avatar is visible in the raw video.
+        Analyze downloaded video to detect potential issues.
         
         Args:
-            original_path: Path to the original downloaded avatar video
+            video_path: Path to the downloaded video file
         """
         try:
-            import shutil
-            from datetime import datetime
-            from pathlib import Path
+            logger.info(f"🎬 [VIDEO_ANALYSIS] Analyzing downloaded video: {video_path}")
             
-            # Extract video ID from filename if possible
-            filename = os.path.basename(original_path)
-            video_id = "unknown"
-            if "_" in filename:
-                # Try to extract video ID from filename like "avatar_68af01cf9afe0738c8ead999.mp4"
-                parts = filename.replace(".mp4", "").split("_")
-                if len(parts) > 1:
-                    video_id = parts[1]  # Get the ID part
+            # Use FFprobe to get video information
+            cmd = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-print_format', 'json',
+                '-show_format',
+                '-show_streams',
+                video_path
+            ]
             
-            # Create debug directory
-            debug_dir = Path("debug/avatar_videos")
-            debug_dir.mkdir(parents=True, exist_ok=True)
+            import subprocess
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             
-            # Create debug filename with timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            debug_filename = f"DEBUG_elai_avatar_{video_id}_{timestamp}.mp4"
-            debug_path = debug_dir / debug_filename
-            
-            # Copy the video file
-            shutil.copy2(original_path, debug_path)
-            
-            # Get file size for logging
-            file_size_mb = os.path.getsize(debug_path) / (1024 * 1024)
-            
-            logger.info("🔍 [DEBUG] Elai avatar video debug copy created for inspection:")
-            logger.info(f"  - Original: {original_path}")
-            logger.info(f"  - Debug copy: {debug_path}")
-            logger.info(f"  - File size: {file_size_mb:.2f} MB")
-            logger.info(f"  - Video ID: {video_id}")
-            logger.info(f"  - Timestamp: {timestamp}")
-            logger.info("🔍 [DEBUG] You can now play this video to verify avatar visibility")
-            
-            # Also create a metadata file with generation details
-            metadata_path = debug_dir / f"DEBUG_elai_avatar_{video_id}_{timestamp}_metadata.txt"
-            with open(metadata_path, 'w') as f:
-                f.write(f"Elai Avatar Video Debug Information\n")
-                f.write(f"====================================\n")
-                f.write(f"Video ID: {video_id}\n")
-                f.write(f"Generated: {datetime.now().isoformat()}\n")
-                f.write(f"Original Path: {original_path}\n")
-                f.write(f"Debug Copy Path: {debug_path}\n")
-                f.write(f"File Size: {file_size_mb:.2f} MB\n")
-                f.write(f"\nInstructions:\n")
-                f.write(f"1. Open the .mp4 file to check if the avatar is visible\n")
-                f.write(f"2. If avatar is visible, the issue is in video composition\n")
-                f.write(f"3. If avatar is not visible, the issue is in Elai generation\n")
-                f.write(f"4. Check the coordinated parameters in the logs\n")
-                f.write(f"5. Compare with the final composed video\n")
-            
-            logger.info(f"🔍 [DEBUG] Metadata file created: {metadata_path}")
-            
+            if result.returncode == 0:
+                import json
+                data = json.loads(result.stdout)
+                
+                # Analyze format information
+                format_info = data.get('format', {})
+                duration = float(format_info.get('duration', 0))
+                bitrate = int(format_info.get('bit_rate', 0))
+                
+                logger.info(f"🎬 [VIDEO_ANALYSIS] Video properties:")
+                logger.info(f"  - Duration: {duration:.2f} seconds")
+                logger.info(f"  - Bitrate: {bitrate} bps ({bitrate / 1000:.1f} kbps)")
+                
+                # Analyze video streams
+                video_streams = [s for s in data.get('streams', []) if s.get('codec_type') == 'video']
+                if video_streams:
+                    video_stream = video_streams[0]
+                    width = video_stream.get('width', 0)
+                    height = video_stream.get('height', 0)
+                    fps = video_stream.get('r_frame_rate', '0/1')
+                    
+                    logger.info(f"  - Resolution: {width}x{height}")
+                    logger.info(f"  - Frame rate: {fps}")
+                    
+                    # Detect potential issues
+                    if duration < 5.0:
+                        logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: Video is very short ({duration:.2f}s)")
+                    
+                    if bitrate < 500000:  # Less than 500 kbps
+                        logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: Video bitrate is very low ({bitrate / 1000:.1f} kbps)")
+                        logger.warning(f"  - This might indicate a mostly static/blank video")
+                    
+                    if width != 1920 or height != 1080:
+                        logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: Unexpected resolution {width}x{height} (expected 1920x1080)")
+                else:
+                    logger.error(f"🎬 [VIDEO_ANALYSIS] ERROR: No video streams found in file")
+                
+                # Analyze audio streams
+                audio_streams = [s for s in data.get('streams', []) if s.get('codec_type') == 'audio']
+                if audio_streams:
+                    audio_stream = audio_streams[0]
+                    sample_rate = audio_stream.get('sample_rate', 0)
+                    logger.info(f"  - Audio sample rate: {sample_rate} Hz")
+                else:
+                    logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: No audio streams found")
+                    
+            else:
+                logger.error(f"🎬 [VIDEO_ANALYSIS] ERROR: FFprobe failed: {result.stderr}")
+                
         except Exception as e:
-            logger.warning(f"Failed to create debug avatar video copy: {e}")
-            # Don't raise exception - this is just a debug feature
+            logger.warning(f"🎬 [VIDEO_ANALYSIS] Could not analyze video: {str(e)}")
+            # Don't fail the whole process if analysis fails
     
     async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """

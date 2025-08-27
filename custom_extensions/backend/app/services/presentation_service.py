@@ -224,8 +224,8 @@ class ProfessionalPresentationService:
                                     logger.info(f"    - {key}: {value}")
                 else:
                     logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                    # Try to extract slide props from URL or use fallback
-                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
+                # Try to extract slide props from URL or use fallback
+                slide_props = await self._extract_slide_props_from_url(request.slide_url)
                     slides_data = [slide_props]  # Convert single slide to list
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
@@ -242,7 +242,7 @@ class ProfessionalPresentationService:
                 if len(slides_data) == 1:
                     # Single slide generation
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Using single slide generation")
-                    result = await clean_video_generation_service.generate_avatar_slide_video(
+                result = await clean_video_generation_service.generate_avatar_slide_video(
                         slide_props=slides_data[0],
                         theme=request.theme or "dark-purple",
                         slide_duration=request.duration,
@@ -254,9 +254,9 @@ class ProfessionalPresentationService:
                     result = await clean_video_generation_service.generate_presentation_video(
                         slides_props=slides_data,
                         theme=request.theme or "dark-purple", 
-                        slide_duration=request.duration,
-                        quality=request.quality
-                    )
+                    slide_duration=request.duration,
+                    quality=request.quality
+                )
                 
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation result:")
                 logger.info(f"  - Success: {result.get('success', False)}")
@@ -302,7 +302,7 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Slide-only video copied to: {final_video_path}")
                 
             else:
-                # Step 2: Generate avatar video via Elai API
+            # Step 2: Generate avatar video via Elai API
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
                 logger.info(f"  - Voiceover texts count: {len(request.voiceover_texts)}")
@@ -312,7 +312,7 @@ class ProfessionalPresentationService:
                 for i, text in enumerate(request.voiceover_texts):
                     logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
                 
-                job.progress = 40.0
+            job.progress = 40.0
                 
                 # Add detailed logging for avatar generation
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Starting avatar video generation...")
@@ -321,18 +321,18 @@ class ProfessionalPresentationService:
                 logger.info(f"  - avatar_code: {request.avatar_code}")
                 logger.info(f"  - voiceover_texts_count: {len(request.voiceover_texts)}")
                 logger.info(f"  - duration: {request.duration}")
-                
-                avatar_video_path = await self._generate_avatar_video(
-                    request.voiceover_texts,
-                    request.avatar_code,
+            
+            avatar_video_path = await self._generate_avatar_video(
+                request.voiceover_texts,
+                request.avatar_code,
                     request.duration,
                     request.use_avatar_mask
-                )
-                job.progress = 60.0
-                
+            )
+            job.progress = 60.0
+            
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
-                
-                # Step 3: Compose final video
+            
+            # Step 3: Compose final video
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
                 logger.info(f"  - Slide video path: {slide_video_path}")
@@ -341,30 +341,30 @@ class ProfessionalPresentationService:
                 logger.info(f"  - Resolution: {request.resolution}")
                 logger.info(f"  - Quality: {request.quality}")
                 
-                job.progress = 70.0
-                
-                output_filename = f"presentation_{job_id}.mp4"
-                output_path = self.output_dir / output_filename
+            job.progress = 70.0
+            
+            output_filename = f"presentation_{job_id}.mp4"
+            output_path = self.output_dir / output_filename
                 
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
                 logger.info(f"  - Output filename: {output_filename}")
                 logger.info(f"  - Output path: {output_path}")
-                
-                composition_config = CompositionConfig(
-                    output_path=str(output_path),
-                    resolution=request.resolution,
-                    quality=request.quality,
-                    layout=request.layout
-                )
-                
-                final_video_path = await video_composer_service.compose_presentation(
-                    slide_video_path,
-                    avatar_video_path,
-                    composition_config
-                )
-                job.progress = 90.0
-                
-                logger.info(f"Final video composed: {final_video_path}")
+            
+            composition_config = CompositionConfig(
+                output_path=str(output_path),
+                resolution=request.resolution,
+                quality=request.quality,
+                layout=request.layout
+            )
+            
+            final_video_path = await video_composer_service.compose_presentation(
+                slide_video_path,
+                avatar_video_path,
+                composition_config
+            )
+            job.progress = 90.0
+            
+            logger.info(f"Final video composed: {final_video_path}")
             
             # Step 4: Create thumbnail
             logger.info(f"Step 4: Creating thumbnail for job {job_id}")
@@ -382,7 +382,7 @@ class ProfessionalPresentationService:
                 await self._cleanup_temp_files([slide_video_path])
             else:
                 # For full mode, cleanup both slide and avatar videos
-                await self._cleanup_temp_files([slide_video_path, avatar_video_path])
+            await self._cleanup_temp_files([slide_video_path, avatar_video_path])
             
             # Update job status
             job.status = "completed"
@@ -625,28 +625,28 @@ class ProfessionalPresentationService:
         Returns:
             Path to generated avatar video
         """
-        # Create video with Elai API
-        result = await video_generation_service.create_video_from_texts(
-            project_name="Avatar Video",
-            voiceover_texts=voiceover_texts,
-            avatar_code=avatar_code
-        )
-        
-        if not result["success"]:
-            raise Exception(f"Failed to create avatar video: {result['error']}")
-        
-        video_id = result["videoId"]
-        logger.info(f"Avatar video created with ID: {video_id}")
-        
-        # Start rendering
-        render_result = await video_generation_service.render_video(video_id)
-        if not render_result["success"]:
-            raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
-        
-        # Wait for completion
-        avatar_video_path = await self._wait_for_avatar_completion(video_id)
-        
-        return avatar_video_path
+            # Create video with Elai API
+            result = await video_generation_service.create_video_from_texts(
+                project_name="Avatar Video",
+                voiceover_texts=voiceover_texts,
+                avatar_code=avatar_code
+            )
+            
+            if not result["success"]:
+                raise Exception(f"Failed to create avatar video: {result['error']}")
+            
+            video_id = result["videoId"]
+            logger.info(f"Avatar video created with ID: {video_id}")
+            
+            # Start rendering
+            render_result = await video_generation_service.render_video(video_id)
+            if not render_result["success"]:
+                raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
+            
+            # Wait for completion
+            avatar_video_path = await self._wait_for_avatar_completion(video_id)
+            
+            return avatar_video_path
     
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """
@@ -744,74 +744,11 @@ class ProfessionalPresentationService:
                             f.write(chunk)
             
             logger.info(f"Avatar video downloaded: {output_path}")
-            
-            # DEBUG FEATURE: Create a debug copy for visual inspection
-            await self._create_debug_avatar_video_copy(output_path, video_id)
-            
             return str(output_path)
             
         except Exception as e:
             logger.error(f"Avatar video download failed: {e}")
             raise
-    
-    async def _create_debug_avatar_video_copy(self, original_path: str, video_id: str) -> None:
-        """
-        Create a debug copy of the avatar video for visual inspection.
-        This helps diagnose whether the avatar is visible in the raw video.
-        
-        Args:
-            original_path: Path to the original downloaded avatar video
-            video_id: Video ID for filename
-        """
-        try:
-            import shutil
-            from datetime import datetime
-            
-            # Create debug directory
-            debug_dir = Path("debug/avatar_videos")
-            debug_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Create debug filename with timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            debug_filename = f"DEBUG_avatar_{video_id}_{timestamp}.mp4"
-            debug_path = debug_dir / debug_filename
-            
-            # Copy the video file
-            shutil.copy2(original_path, debug_path)
-            
-            # Get file size for logging
-            file_size_mb = os.path.getsize(debug_path) / (1024 * 1024)
-            
-            logger.info("🔍 [DEBUG] Avatar video debug copy created for inspection:")
-            logger.info(f"  - Original: {original_path}")
-            logger.info(f"  - Debug copy: {debug_path}")
-            logger.info(f"  - File size: {file_size_mb:.2f} MB")
-            logger.info(f"  - Video ID: {video_id}")
-            logger.info(f"  - Timestamp: {timestamp}")
-            logger.info("🔍 [DEBUG] You can now play this video to verify avatar visibility")
-            
-            # Also create a metadata file with generation details
-            metadata_path = debug_dir / f"DEBUG_avatar_{video_id}_{timestamp}_metadata.txt"
-            with open(metadata_path, 'w') as f:
-                f.write(f"Avatar Video Debug Information\n")
-                f.write(f"==============================\n")
-                f.write(f"Video ID: {video_id}\n")
-                f.write(f"Generated: {datetime.now().isoformat()}\n")
-                f.write(f"Original Path: {original_path}\n")
-                f.write(f"Debug Copy Path: {debug_path}\n")
-                f.write(f"File Size: {file_size_mb:.2f} MB\n")
-                f.write(f"\nInstructions:\n")
-                f.write(f"1. Open the .mp4 file to check if the avatar is visible\n")
-                f.write(f"2. If avatar is visible, the issue is in video composition\n")
-                f.write(f"3. If avatar is not visible, the issue is in Elai generation\n")
-                f.write(f"4. Check the coordinated parameters in the logs\n")
-                f.write(f"5. Compare with the final composed video\n")
-            
-            logger.info(f"🔍 [DEBUG] Metadata file created: {metadata_path}")
-            
-        except Exception as e:
-            logger.warning(f"Failed to create debug avatar video copy: {e}")
-            # Don't raise exception - this is just a debug feature
     
     async def _cleanup_temp_files(self, file_paths: List[str]):
         """
