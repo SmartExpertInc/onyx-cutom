@@ -158,15 +158,30 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
       let width = 1024;
       let height = 1024;
       
-      // Template-specific dimension overrides
+      // Template-specific dimension preferences with fallback to placeholder aspect ratio
       if (templateId === 'big-image-left') {
-        // Force portrait for big-image-left template
-        width = 1024;
-        height = 1792;
+        // Prefer portrait, but respect actual placeholder aspect ratio
+        const placeholderAspect = placeholderDimensions.width / placeholderDimensions.height;
+        if (placeholderAspect < 1.2) { // If placeholder is roughly square or portrait
+          width = 1024;
+          height = 1792;
+        } else { // If placeholder is actually landscape, use landscape
+          width = 1792;
+          height = 1024;
+        }
       } else if (templateId === 'bullet-points' || templateId === 'bullet-points-right') {
-        // Force square for bullet-points templates
-        width = 1024;
-        height = 1024;
+        // Prefer square, but adjust if placeholder is very different
+        const placeholderAspect = placeholderDimensions.width / placeholderDimensions.height;
+        if (placeholderAspect > 1.5) { // If placeholder is very wide, use landscape
+          width = 1792;
+          height = 1024;
+        } else if (placeholderAspect < 0.7) { // If placeholder is very tall, use portrait
+          width = 1024;
+          height = 1792;
+        } else { // Use square for roughly square placeholders
+          width = 1024;
+          height = 1024;
+        }
       } else {
         // Use original logic for other templates
         if (placeholderDimensions.width > placeholderDimensions.height) {
@@ -339,11 +354,21 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
               <ImageIcon className="w-4 h-4" />
               <span>
                 Image will be generated at {
-                  templateId === 'big-image-left' ? '1024×1792 (Portrait)' :
-                  templateId === 'bullet-points' || templateId === 'bullet-points-right' ? '1024×1024 (Square)' :
-                  placeholderDimensions.width > placeholderDimensions.height ? '1792×1024 (Landscape)' : 
-                  placeholderDimensions.height > placeholderDimensions.width ? '1024×1792 (Portrait)' : 
-                  '1024×1024 (Square)'
+                  (() => {
+                    if (templateId === 'big-image-left') {
+                      const aspect = placeholderDimensions.width / placeholderDimensions.height;
+                      return aspect < 1.2 ? '1024×1792 (Portrait, optimized for template)' : '1792×1024 (Landscape, based on placeholder)';
+                    } else if (templateId === 'bullet-points' || templateId === 'bullet-points-right') {
+                      const aspect = placeholderDimensions.width / placeholderDimensions.height;
+                      if (aspect > 1.5) return '1792×1024 (Landscape, based on placeholder)';
+                      if (aspect < 0.7) return '1024×1792 (Portrait, based on placeholder)';
+                      return '1024×1024 (Square, optimized for template)';
+                    } else {
+                      return placeholderDimensions.width > placeholderDimensions.height ? '1792×1024 (Landscape)' : 
+                             placeholderDimensions.height > placeholderDimensions.width ? '1024×1792 (Portrait)' : 
+                             '1024×1024 (Square)';
+                    }
+                  })()
                 } pixels
               </span>
             </div>

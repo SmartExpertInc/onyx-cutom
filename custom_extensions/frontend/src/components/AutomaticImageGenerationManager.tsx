@@ -210,15 +210,30 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       let width = 1024;
       let height = 1024;
       
-      // Template-specific dimension overrides
+      // Template-specific dimension preferences with fallback to placeholder aspect ratio
       if (placeholder.templateId === 'big-image-left') {
-        // Force portrait for big-image-left template
-        width = 1024;
-        height = 1792;
+        // Prefer portrait, but respect actual placeholder aspect ratio
+        const placeholderAspect = placeholder.placeholderDimensions.width / placeholder.placeholderDimensions.height;
+        if (placeholderAspect < 1.2) { // If placeholder is roughly square or portrait
+          width = 1024;
+          height = 1792;
+        } else { // If placeholder is actually landscape, use landscape
+          width = 1792;
+          height = 1024;
+        }
       } else if (placeholder.templateId === 'bullet-points' || placeholder.templateId === 'bullet-points-right') {
-        // Force square for bullet-points templates
-        width = 1024;
-        height = 1024;
+        // Prefer square, but adjust if placeholder is very different
+        const placeholderAspect = placeholder.placeholderDimensions.width / placeholder.placeholderDimensions.height;
+        if (placeholderAspect > 1.5) { // If placeholder is very wide, use landscape
+          width = 1792;
+          height = 1024;
+        } else if (placeholderAspect < 0.7) { // If placeholder is very tall, use portrait
+          width = 1024;
+          height = 1792;
+        } else { // Use square for roughly square placeholders
+          width = 1024;
+          height = 1024;
+        }
       } else {
         // Use original logic for other templates
         if (placeholder.placeholderDimensions.width > placeholder.placeholderDimensions.height) {
