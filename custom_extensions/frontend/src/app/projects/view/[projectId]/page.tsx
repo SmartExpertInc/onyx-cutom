@@ -100,6 +100,7 @@ const PdfExportLoadingModal: React.FC<{
 }> = ({ isOpen, projectName, pdfDownloadReady, pdfProgress, onDownload, onClose }) => {
   const { t } = useLanguage();
   const [animatedProgress, setAnimatedProgress] = useState(0);
+  const animatedProgressRef = useRef(0);
   
   if (!isOpen) return null;
 
@@ -108,27 +109,29 @@ const PdfExportLoadingModal: React.FC<{
 
   // Animate progress bar smoothly
   useEffect(() => {
-    if (targetProgressPercentage > animatedProgress) {
-      const increment = Math.max(1, Math.ceil((targetProgressPercentage - animatedProgress) / 10));
+    if (targetProgressPercentage > animatedProgressRef.current) {
+      const increment = Math.max(1, Math.ceil((targetProgressPercentage - animatedProgressRef.current) / 10));
       const interval = setInterval(() => {
-        setAnimatedProgress(prev => {
-          const newProgress = Math.min(prev + increment, targetProgressPercentage);
-          if (newProgress >= targetProgressPercentage) {
-            clearInterval(interval);
-            return targetProgressPercentage;
-          }
-          return newProgress;
-        });
+        const currentProgress = animatedProgressRef.current;
+        const newProgress = Math.min(currentProgress + increment, targetProgressPercentage);
+        
+        animatedProgressRef.current = newProgress;
+        setAnimatedProgress(newProgress);
+        
+        if (newProgress >= targetProgressPercentage) {
+          clearInterval(interval);
+        }
       }, 50); // Update every 50ms for smooth animation
 
       return () => clearInterval(interval);
     }
-  }, [targetProgressPercentage, animatedProgress]);
+  }, [targetProgressPercentage]); // Removed animatedProgress from dependencies
 
   // Reset animated progress when modal opens
   useEffect(() => {
     if (isOpen) {
       setAnimatedProgress(0);
+      animatedProgressRef.current = 0;
     }
   }, [isOpen]);
 
