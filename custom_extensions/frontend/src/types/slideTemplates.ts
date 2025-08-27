@@ -392,14 +392,15 @@ export interface BarChartInfographicsTemplateProps extends BaseTemplateProps {
 
 export interface MarketShareTemplateProps extends BaseTemplateProps {
   title: string;
-  companies: Array<{
-    name: string;
-    percentage: string;
-    color?: string;
+  subtitle?: string;
+  chartData: Array<{
+    label: string;
+    description: string;
+    percentage: number;
+    color: string;
+    year?: string;
   }>;
-  titleColor?: string;
-  textColor?: string;
-  backgroundColor?: string;
+  bottomText?: string;
   theme?: SlideTheme;
 }
 
