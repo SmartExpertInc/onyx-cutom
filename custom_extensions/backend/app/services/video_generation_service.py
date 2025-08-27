@@ -217,19 +217,19 @@ class ElaiVideoGenerationService:
             for i, voiceover_text in enumerate(cleaned_texts):
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Creating slide {i+1} with text: {voiceover_text[:100]}...")
                 
-                # Configure canvas based on green screen mode - EXACT COPY FROM WORKING TEST FILE
+                # Configure canvas for FULL-FRAME avatar video generation
                 if green_screen_mode:
-                    # Green screen mode: exact copy from test_elai_api.py
+                    # Green screen mode: avatar fills entire frame for chroma key
                     canvas_config = {
                         "objects": [{
                             "type": "avatar",
-                            "left": 510,
-                            "top": 255,
+                            "left": 960,      # Center horizontally in 1920px canvas
+                            "top": 540,       # Center vertically in 1080px canvas
                             "fill": "#4868FF",
-                            "scaleX": 0.1,
-                            "scaleY": 0.1,
-                            "width": 1080,
-                            "height": 1080,
+                            "scaleX": 1.0,    # Full size avatar
+                            "scaleY": 1.0,    # Full size avatar
+                            "width": 1920,    # Full canvas width
+                            "height": 1080,   # Full canvas height
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
@@ -241,17 +241,17 @@ class ElaiVideoGenerationService:
                         "version": "4.4.0"
                     }
                 else:
-                    # EXACT COPY FROM WORKING TEST FILE - Simple structure that works
+                    # Normal mode: avatar fills entire frame
                     canvas_config = {
                         "objects": [{
                             "type": "avatar",
-                            "left": 510,
-                            "top": 255,
+                            "left": 960,      # Center horizontally in 1920px canvas
+                            "top": 540,       # Center vertically in 1080px canvas
                             "fill": "#4868FF",
-                            "scaleX": 0.1,
-                            "scaleY": 0.1,
-                            "width": 1080,
-                            "height": 1080,
+                            "scaleX": 1.0,    # Full size avatar
+                            "scaleY": 1.0,    # Full size avatar
+                            "width": 1920,    # Full canvas width
+                            "height": 1080,   # Full canvas height
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
                             "animation": {
@@ -283,6 +283,12 @@ class ElaiVideoGenerationService:
                     logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] WARNING: Unusual canvas URL domain: {avatar_canvas_url}")
                 
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] FULL-FRAME AVATAR CONFIGURATION:")
+                logger.info(f"  - Position: Centered at ({canvas_config['objects'][0]['left']}, {canvas_config['objects'][0]['top']})")
+                logger.info(f"  - Scale: {canvas_config['objects'][0]['scaleX']}x{canvas_config['objects'][0]['scaleY']} (Full size)")
+                logger.info(f"  - Dimensions: {canvas_config['objects'][0]['width']}x{canvas_config['objects'][0]['height']}")
+                logger.info(f"  - Background: {canvas_config['background']}")
+                logger.info(f"  - Mode: {'Green Screen' if green_screen_mode else 'Normal'}")
                 
                 elai_slide = {
                     "id": i + 1,
