@@ -277,7 +277,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           {/* Main title */}
           <div style={{
             maxWidth: '275px',
-            fontSize: '48px',
+            fontSize: '51px',
             color: themeTitle,
             lineHeight: '1.1',
             marginBottom: '60px'
@@ -290,7 +290,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 className="learning-title-editor"
                 style={{
                   maxWidth: '275px',
-                  fontSize: '48px',
+                  fontSize: '51px',
                   color: themeTitle,
                   lineHeight: '1.1'
                 }}
@@ -320,7 +320,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 style={{
                   display: 'flex',
                   flexDirection: 'column-reverse',
-                  gap: '10px'
+                  gap: '13px'
                 }}
               >
                 <div style={{

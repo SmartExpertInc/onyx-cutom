@@ -262,7 +262,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             <div
               key={index}
               style={{
-                fontSize: '16px',
+                fontSize: '10px',
                 color: themeContent,
                 lineHeight: '1.5'
               }}
@@ -275,7 +275,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
                   multiline={true}
                   className="definition-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '10px',
                     color: themeContent,
                     lineHeight: '1.5'
                   }}

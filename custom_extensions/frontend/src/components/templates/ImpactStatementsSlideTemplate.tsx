@@ -216,7 +216,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     <div className="impact-statements-slide-template" style={slideStyles}>
       {/* Left section with title and profile image */}
       <div style={{
-        width: '50%',
+        width: '75%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -310,7 +310,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                minHeight: index === 1 ? '47%' : '47%'
+                minHeight: index === 1 ? '66%' : '50%'
               }}
             >
               {/* Number */}
@@ -427,7 +427,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 )}
               </div>
               <div style={{
-                fontSize: '16px',
+                fontSize: '14px',
                 color: themeBg,
                 lineHeight: '1.4'
               }}>
@@ -439,7 +439,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     multiline={true}
                     className="statement-description-editor"
                     style={{
-                      fontSize: '16px',
+                      fontSize: '14px',
                       color: themeBg,
                       lineHeight: '1.4'
                     }}

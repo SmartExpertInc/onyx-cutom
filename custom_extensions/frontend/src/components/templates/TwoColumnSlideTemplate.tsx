@@ -262,7 +262,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 multiline={true}
                 className="two-column-content-editor"
                 style={{
-                  fontSize: '18px',
+                  fontSize: '14px',
                   color: themeContent,
                   lineHeight: '1.6'
                 }}
