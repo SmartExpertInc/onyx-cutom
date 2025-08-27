@@ -394,6 +394,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
         updateColorFromHex(value);
         onColorChange(value);
+        // Add the new color to recent colors
+        addToRecentColors(value);
       }
     }
   };
@@ -405,6 +407,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (/^#[0-9A-Fa-f]{6}$/.test(colorState.hex)) {
       updateColorFromHex(colorState.hex);
       onColorChange(colorState.hex);
+      // Add the new color to recent colors
+      addToRecentColors(colorState.hex);
     }
   };
 
@@ -441,6 +445,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         const newRgba = { ...colorState.rgba, [field]: value };
         updateColorFromRgba(newRgba);
         onColorChange(colorState.hex);
+        // Add the new color to recent colors
+        addToRecentColors(colorState.hex);
       }
     }
   };
@@ -478,6 +484,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         const newHsla = { ...colorState.hsla, [field]: value };
         updateColorFromHsla(newHsla);
         onColorChange(colorState.hex);
+        // Add the new color to recent colors
+        addToRecentColors(colorState.hex);
       }
     }
   };
@@ -823,6 +831,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                           const newRgba = { ...colorState.rgba, [field]: value };
                           updateColorFromRgba(newRgba);
                           onColorChange(colorState.hex);
+                          // Add the new color to recent colors
+                          addToRecentColors(colorState.hex);
                         }
                       }}
                     />
@@ -874,6 +884,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                           const newHsla = { ...colorState.hsla, [field]: value };
                           updateColorFromHsla(newHsla);
                           onColorChange(colorState.hex);
+                          // Add the new color to recent colors
+                          addToRecentColors(colorState.hex);
                         }
                       }}
                     />
