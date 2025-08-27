@@ -1577,4 +1577,30 @@ export class TemplateExtractor {
     };
   }
 
+  /**
+   * Create fallback items for unknown templates
+   */
+  private static createFallbackItems(slide: ComponentBasedSlide): PositionableItem[] {
+    const items: PositionableItem[] = [];
+
+    // Try to extract basic content
+    if (slide.props.title) {
+      items.push({
+        id: 'title',
+        type: 'text',
+        content: slide.props.title
+      } as any);
+    }
+
+    if (slide.props.content) {
+      items.push({
+        id: 'content',
+        type: 'text',
+        content: slide.props.content
+      } as any);
+    }
+
+    return items;
+  }
+
 }
