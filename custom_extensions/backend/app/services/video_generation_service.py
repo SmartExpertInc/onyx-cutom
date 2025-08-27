@@ -334,19 +334,12 @@ class ElaiVideoGenerationService:
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
-                    "version": "4.4.0",
-                    "background": canvas_config["background"],
-                    "objects": canvas_config["objects"],
+                    "canvas": canvas_config,
                     "avatar": {
                         "code": avatar.get("code"),
                         "name": avatar.get("name"),
                         "gender": avatar.get("gender"),
-                        "type": None,
-                        "limit": 300,
                         "canvas": avatar.get("canvas")  # This MUST match the canvas.objects[0].src
-                    },
-                    "story": {
-                        "isTooComplex": False
                     },
                     "animation": "fade_in",
                     "language": "English",
