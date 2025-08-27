@@ -454,62 +454,42 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     };
   }, [handleMouseMove]);
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog 
-      open={isOpen} 
-      onClose={onClose}
-      hideBackdrop={true}
-      disablePortal={false}
-      ref={popupRef}
-      slotProps={{
-        paper: {
-                      sx: {
-              ...(adjustedPosition ? {
-                position: 'fixed',
-                left: adjustedPosition.x,
-                top: adjustedPosition.y,
-                margin: 0,
-              } : {}),
-            borderRadius: 3,
-            zIndex: 9999,
-            '& .MuiDialogContent-root': {
-              zIndex: 10000,
-              position: 'relative',
-            },
-            '& .MuiTextField-root': {
-              zIndex: 10001,
-              position: 'relative',
-            },
-            '& .MuiInputBase-root': {
-              zIndex: 10002,
-              position: 'relative',
-            },
-            '& .MuiInputBase-input': {
-              zIndex: 10003,
-              position: 'relative',
-              pointerEvents: 'auto',
-            }
-          }
-        }
-      }}
-    >
-      {/* Custom backdrop that doesn't interfere with input fields */}
-      {isOpen && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9998,
-            backgroundColor: 'transparent',
-            pointerEvents: 'none'
-          }}
-          onClick={onClose}
-        />
-      )}
-      <DialogContent sx={{ zIndex: 10000, position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+    <>
+      {/* Custom backdrop */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9998,
+          backgroundColor: 'transparent',
+          pointerEvents: 'auto'
+        }}
+        onClick={onClose}
+      />
+      
+      {/* Color picker popup */}
+      <div
+        ref={popupRef}
+        style={{
+          position: 'fixed',
+          left: adjustedPosition?.x || 0,
+          top: adjustedPosition?.y || 0,
+          zIndex: 9999,
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          border: '1px solid #e5e7eb',
+          padding: '16px',
+          minWidth: '280px',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Hue Slider */}
         <Box sx={{ position: 'relative', zIndex: 10001, py: 0.5 }}>
           <Slider
@@ -1166,8 +1146,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             </Box>
           </Box>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 };
 
