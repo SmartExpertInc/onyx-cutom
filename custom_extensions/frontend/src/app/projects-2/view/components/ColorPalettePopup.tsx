@@ -452,7 +452,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [handleMouseMove]);
+  }, [handleMouseMove, handleMouseUp]);
 
   if (!isOpen || !adjustedPosition) return null;
 
