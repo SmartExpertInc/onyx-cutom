@@ -330,25 +330,25 @@ class ProfessionalPresentationService:
             )
             job.progress = 60.0
             
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
             
             # Step 3: Compose final video
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
-                logger.info(f"  - Slide video path: {slide_video_path}")
-                logger.info(f"  - Avatar video path: {avatar_video_path}")
-                logger.info(f"  - Layout: {request.layout} (should be picture_in_picture for proper overlay)")
-                logger.info(f"  - Resolution: {request.resolution}")
-                logger.info(f"  - Quality: {request.quality}")
-                
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
+            logger.info(f"  - Slide video path: {slide_video_path}")
+            logger.info(f"  - Avatar video path: {avatar_video_path}")
+            logger.info(f"  - Layout: {request.layout} (should be picture_in_picture for proper overlay)")
+            logger.info(f"  - Resolution: {request.resolution}")
+            logger.info(f"  - Quality: {request.quality}")
+            
             job.progress = 70.0
             
             output_filename = f"presentation_{job_id}.mp4"
             output_path = self.output_dir / output_filename
-                
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
-                logger.info(f"  - Output filename: {output_filename}")
-                logger.info(f"  - Output path: {output_path}")
+            
+            logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
+            logger.info(f"  - Output filename: {output_filename}")
+            logger.info(f"  - Output path: {output_path}")
             
             composition_config = CompositionConfig(
                 output_path=str(output_path),
@@ -382,7 +382,7 @@ class ProfessionalPresentationService:
                 await self._cleanup_temp_files([slide_video_path])
             else:
                 # For full mode, cleanup both slide and avatar videos
-            await self._cleanup_temp_files([slide_video_path, avatar_video_path])
+                await self._cleanup_temp_files([slide_video_path, avatar_video_path])
             
             # Update job status
             job.status = "completed"
@@ -625,28 +625,28 @@ class ProfessionalPresentationService:
         Returns:
             Path to generated avatar video
         """
-            # Create video with Elai API
-            result = await video_generation_service.create_video_from_texts(
-                project_name="Avatar Video",
-                voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code
-            )
+        # Create video with Elai API
+        result = await video_generation_service.create_video_from_texts(
+            project_name="Avatar Video",
+            voiceover_texts=voiceover_texts,
+            avatar_code=avatar_code
+        )
             
-            if not result["success"]:
-                raise Exception(f"Failed to create avatar video: {result['error']}")
+        if not result["success"]:
+            raise Exception(f"Failed to create avatar video: {result['error']}")
             
-            video_id = result["videoId"]
-            logger.info(f"Avatar video created with ID: {video_id}")
-            
-            # Start rendering
-            render_result = await video_generation_service.render_video(video_id)
-            if not render_result["success"]:
-                raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
-            
-            # Wait for completion
-            avatar_video_path = await self._wait_for_avatar_completion(video_id)
-            
-            return avatar_video_path
+        video_id = result["videoId"]
+        logger.info(f"Avatar video created with ID: {video_id}")
+        
+        # Start rendering
+        render_result = await video_generation_service.render_video(video_id)
+        if not render_result["success"]:
+            raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
+        
+        # Wait for completion
+        avatar_video_path = await self._wait_for_avatar_completion(video_id)
+        
+        return avatar_video_path
     
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """
