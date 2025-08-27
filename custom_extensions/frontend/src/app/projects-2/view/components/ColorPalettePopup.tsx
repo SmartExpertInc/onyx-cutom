@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Slider, Typography, Box, TextField } from "@mui/material";
+import { Slider, Typography, Box } from "@mui/material";
 
 interface ColorPalettePopupProps {
   isOpen: boolean;
@@ -593,7 +593,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           style={{
             width: '100%',
             height: '128px',
-            border: '1px solid #ccc',
             borderRadius: '8px',
             cursor: 'crosshair',
             position: 'relative',
@@ -601,14 +600,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             overflow: 'hidden',
             background: `linear-gradient(to top, #000, transparent),
                          linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`,
-            transition: 'border-color 0.2s, box-shadow 0.2s'
+            transition: 'box-shadow 0.2s'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.border = '1px solid #999';
             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.border = '1px solid #ccc';
             e.currentTarget.style.boxShadow = 'none';
             // Stop dragging if mouse leaves the square
             if (isDraggingRef.current) {
@@ -695,36 +692,54 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         <Box sx={{ mt: 2, minHeight: 56, zIndex: 10002, position: 'relative' }}>
           {colorFormat === 'HEX' && (
             <Box>
-              <TextField
-                label="HEX Color"
-                value={hex}
-                onChange={handleHexChange}
-                onKeyDown={handleHexKeyDown}
-                onBlur={handleHexBlur}
-                fullWidth
-                variant="outlined"
-                inputProps={{ maxLength: 7 }}
-                onClick={handleInputClick}
-                sx={{
-                  zIndex: 10003,
-                  position: 'relative',
-                  '& .MuiInputBase-root': {
-                    zIndex: 10004,
-                    position: 'relative',
-                  },
-                  '& .MuiInputBase-input': {
-                    zIndex: 10005,
-                    position: 'relative',
-                    pointerEvents: 'auto',
-                  },
-                  '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#000',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: '#000',
-                  }
-                }}
-              />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <input
+                  type="text"
+                  value={hex}
+                  onChange={handleHexChange}
+                  onKeyDown={handleHexKeyDown}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#ccc';
+                    e.target.style.boxShadow = 'none';
+                    handleHexBlur();
+                  }}
+                  onClick={handleInputClick}
+                  maxLength={7}
+                  style={{
+                    width: '100%',
+                    height: '40px',
+                    padding: '8px 12px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    fontFamily: 'inherit',
+                    backgroundColor: '#fff',
+                    color: '#333',
+                    outline: 'none',
+                    transition: 'border-color 0.2s, box-shadow 0.2s',
+                    boxSizing: 'border-box',
+                    zIndex: 10003,
+                    position: 'relative'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#000';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
+                  }}
+                />
+                <label style={{
+                  position: 'absolute',
+                  top: '-8px',
+                  left: '8px',
+                  backgroundColor: '#fff',
+                  padding: '0 4px',
+                  fontSize: '12px',
+                  color: '#666',
+                  zIndex: 10004,
+                  pointerEvents: 'none'
+                }}>
+                  HEX Color
+                </label>
+              </div>
               <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
                 Press Enter to apply
               </Typography>
@@ -733,192 +748,78 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
           {colorFormat === 'RGBA' && (
             <Box>
-              <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
-                <TextField
-                  label="R"
-                  type="number"
-                  value={Math.round(rgba.r)}
-                  onChange={handleRgbaChange('r')}
-                  onKeyDown={handleRgbaKeyDown('r')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when RGBA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newRgba = { ...rgba, r: value };
-                      const newHex = rgbaToHex(newRgba);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setRgba(newRgba);
-                      setHsla(hexToHsla(newHex));
-                      setOpacity(newRgba.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 255 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                {[
+                  { label: 'R', value: Math.round(rgba.r), field: 'r' as keyof RGBA, min: 0, max: 255, step: 1 },
+                  { label: 'G', value: Math.round(rgba.g), field: 'g' as keyof RGBA, min: 0, max: 255, step: 1 },
+                  { label: 'B', value: Math.round(rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
+                  { label: 'A', value: rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
+                ].map(({ label, value, field, min, max, step }) => (
+                  <div key={label} style={{ position: 'relative', flex: 1 }}>
+                    <input
+                      type="number"
+                      value={value}
+                      onChange={handleRgbaChange(field)}
+                      onKeyDown={handleRgbaKeyDown(field)}
+                      onClick={handleInputClick}
+                      min={min}
+                      max={max}
+                      step={step}
+                      style={{
+                        width: '100%',
+                        height: '40px',
+                        padding: '8px 12px',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        fontFamily: 'inherit',
+                        backgroundColor: '#fff',
+                        color: '#333',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        boxSizing: 'border-box',
+                        zIndex: 10004,
+                        position: 'relative'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#000';
+                        e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#ccc';
+                        e.target.style.boxShadow = 'none';
+                        setIsUserTyping(false);
+                        // Update HSB when RGBA changes
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                          const newRgba = { ...rgba, [field]: value };
+                          const newHex = rgbaToHex(newRgba);
+                          const newHsb = hexToHsb(newHex);
+                          setHsb(newHsb); // Update HSB to reflect in square and slider
+                          setHex(newHex);
+                          setRgba(newRgba);
+                          setHsla(hexToHsla(newHex));
+                          setOpacity(newRgba.a); // Update opacity slider
+                          onColorChange(newHex);
+                        }
+                      }}
+                    />
+                    <label style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      left: '8px',
+                      backgroundColor: '#fff',
+                      padding: '0 4px',
+                      fontSize: '12px',
+                      color: '#666',
                       zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-                <TextField
-                  label="G"
-                  type="number"
-                  value={Math.round(rgba.g)}
-                  onChange={handleRgbaChange('g')}
-                  onKeyDown={handleRgbaKeyDown('g')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when RGBA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newRgba = { ...rgba, g: value };
-                      const newHex = rgbaToHex(newRgba);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setRgba(newRgba);
-                      setHsla(hexToHsla(newHex));
-                      setOpacity(newRgba.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 255 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
-                      zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-                <TextField
-                  label="B"
-                  type="number"
-                  value={Math.round(rgba.b)}
-                  onChange={handleRgbaChange('b')}
-                  onKeyDown={handleRgbaKeyDown('b')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when RGBA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newRgba = { ...rgba, b: value };
-                      const newHex = rgbaToHex(newRgba);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setRgba(newRgba);
-                      setHsla(hexToHsla(newHex));
-                      setOpacity(newRgba.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 255 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
-                      zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-                <TextField
-                  label="A"
-                  type="number"
-                  value={rgba.a}
-                  onChange={handleRgbaChange('a')}
-                  onKeyDown={handleRgbaKeyDown('a')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when RGBA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newRgba = { ...rgba, a: value };
-                      const newHex = rgbaToHex(newRgba);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setRgba(newRgba);
-                      setHsla(hexToHsla(newHex));
-                      setOpacity(newRgba.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 1, step: 0.1 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
-                      zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-              </Box>
+                      pointerEvents: 'none'
+                    }}>
+                      {label}
+                    </label>
+                  </div>
+                ))}
+              </div>
               <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
                 Press Enter in any field to apply
               </Typography>
@@ -927,192 +828,78 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
           {colorFormat === 'HSLA' && (
             <Box>
-              <Box sx={{ display: 'flex', gap: 1, zIndex: 10003, position: 'relative' }}>
-                <TextField
-                  label="H"
-                  type="number"
-                  value={Math.round(hsla.h)}
-                  onChange={handleHslaChange('h')}
-                  onKeyDown={handleHslaKeyDown('h')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when HSLA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newHsla = { ...hsla, h: value };
-                      const newHex = hslaToHex(newHsla);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setHsla(newHsla);
-                      setRgba(hexToRgba(newHex));
-                      setOpacity(newHsla.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 360 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                {[
+                  { label: 'H', value: Math.round(hsla.h), field: 'h' as keyof HSLA, min: 0, max: 360, step: 1 },
+                  { label: 'S', value: Math.round(hsla.s), field: 's' as keyof HSLA, min: 0, max: 100, step: 1 },
+                  { label: 'L', value: Math.round(hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
+                  { label: 'A', value: hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
+                ].map(({ label, value, field, min, max, step }) => (
+                  <div key={label} style={{ position: 'relative', flex: 1 }}>
+                    <input
+                      type="number"
+                      value={value}
+                      onChange={handleHslaChange(field)}
+                      onKeyDown={handleHslaKeyDown(field)}
+                      onClick={handleInputClick}
+                      min={min}
+                      max={max}
+                      step={step}
+                      style={{
+                        width: '100%',
+                        height: '40px',
+                        padding: '8px 12px',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        fontFamily: 'inherit',
+                        backgroundColor: '#fff',
+                        color: '#333',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        boxSizing: 'border-box',
+                        zIndex: 10004,
+                        position: 'relative'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#000';
+                        e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#ccc';
+                        e.target.style.boxShadow = 'none';
+                        setIsUserTyping(false);
+                        // Update HSB when HSLA changes
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                          const newHsla = { ...hsla, [field]: value };
+                          const newHex = hslaToHex(newHsla);
+                          const newHsb = hexToHsb(newHex);
+                          setHsb(newHsb); // Update HSB to reflect in square and slider
+                          setHex(newHex);
+                          setHsla(newHsla);
+                          setRgba(hexToRgba(newHex));
+                          setOpacity(newHsla.a); // Update opacity slider
+                          onColorChange(newHex);
+                        }
+                      }}
+                    />
+                    <label style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      left: '8px',
+                      backgroundColor: '#fff',
+                      padding: '0 4px',
+                      fontSize: '12px',
+                      color: '#666',
                       zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-                <TextField
-                  label="S"
-                  type="number"
-                  value={Math.round(hsla.s)}
-                  onChange={handleHslaChange('s')}
-                  onKeyDown={handleHslaKeyDown('s')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when HSLA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newHsla = { ...hsla, s: value };
-                      const newHex = hslaToHex(newHsla);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setHsla(newHsla);
-                      setRgba(hexToRgba(newHex));
-                      setOpacity(newHsla.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 100 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
-                      zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-                <TextField
-                  label="L"
-                  type="number"
-                  value={Math.round(hsla.l)}
-                  onChange={handleHslaChange('l')}
-                  onKeyDown={handleHslaKeyDown('l')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when HSLA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newHsla = { ...hsla, l: value };
-                      const newHex = hslaToHex(newHsla);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setHsla(newHsla);
-                      setRgba(hexToRgba(newHex));
-                      setOpacity(newHsla.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 100 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
-                      zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-                <TextField
-                  label="A"
-                  type="number"
-                  value={hsla.a}
-                  onChange={handleHslaChange('a')}
-                  onKeyDown={handleHslaKeyDown('a')}
-                  onBlur={(e) => {
-                    setIsUserTyping(false);
-                    // Update HSB when HSLA changes
-                    const value = parseFloat(e.target.value);
-                    if (!isNaN(value)) {
-                      const newHsla = { ...hsla, a: value };
-                      const newHex = hslaToHex(newHsla);
-                      const newHsb = hexToHsb(newHex);
-                      setHsb(newHsb); // Update HSB to reflect in square and slider
-                      setHex(newHex);
-                      setHsla(newHsla);
-                      setRgba(hexToRgba(newHex));
-                      setOpacity(newHsla.a); // Update opacity slider
-                      onColorChange(newHex);
-                    }
-                  }}
-                  inputProps={{ min: 0, max: 1, step: 0.1 }}
-                  onClick={handleInputClick}
-                  sx={{ 
-                    flex: 1,
-                    zIndex: 10004,
-                    position: 'relative',
-                    '& .MuiInputBase-root': {
-                      zIndex: 10005,
-                      position: 'relative',
-                    },
-                    '& .MuiInputBase-input': {
-                      zIndex: 10006,
-                      position: 'relative',
-                      pointerEvents: 'auto',
-                    },
-                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#000',
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#000',
-                    }
-                  }}
-                  variant="outlined"
-                />
-              </Box>
+                      pointerEvents: 'none'
+                    }}>
+                      {label}
+                    </label>
+                  </div>
+                ))}
+              </div>
               <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5, display: 'block', fontSize: '11px' }}>
                 Press Enter in any field to apply
               </Typography>
