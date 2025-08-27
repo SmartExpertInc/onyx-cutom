@@ -427,8 +427,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       {/* ContentBuilder Banner */}
       <div className="mb-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center">
-          <span className="font-bold text-black text-lg">ContentBuilder</span>
-          <div className="w-2 h-2 bg-green-500 rounded-full ml-1"></div>
+          <span className="font-bold text-black text-3xl">ContentBuilder</span>
         </div>
       </div>
       <nav className="flex flex-col gap-1">
