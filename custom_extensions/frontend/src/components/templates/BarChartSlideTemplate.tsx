@@ -258,25 +258,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
   return (
     <div className="bar-chart-slide-template" style={slideStyles}>
-      {/* Instructions for editing */}
-      {isEditable && (
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          padding: '8px 16px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          zIndex: 20,
-          textAlign: 'center'
-        }}>
-          💡 Наведите на столбик для редактирования • Кликните на текст для изменения • Красный крестик для удаления
-        </div>
-      )}
-
       {/* Profile Image - Top Left */}
       <div style={{
         position: 'absolute',
@@ -424,64 +405,64 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      transition: 'opacity 0.3s ease-in-out'
                    }}
                  >
-                   <div
-                     onClick={() => adjustBarHeight(index, bar.height + 10)}
-                     style={{
-                       width: '26px',
-                       height: '26px',
-                       backgroundColor: themeAccent,
-                       border: '2px solid white',
-                       borderRadius: '50%',
-                       color: themeBg,
-                       cursor: 'pointer',
-                       fontSize: '14px',
-                       fontWeight: 'bold',
-                       display: 'flex',
-                       alignItems: 'center',
-                       justifyContent: 'center',
-                       boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                       transition: 'all 0.2s ease-in-out'
-                     }}
-                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                       e.currentTarget.style.transform = 'scale(1.1)';
-                       e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
-                     }}
-                     onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                       e.currentTarget.style.transform = 'scale(1)';
-                       e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-                     }}
-                   >
-                     +
-                   </div>
-                   <div
-                     onClick={() => adjustBarHeight(index, bar.height - 10)}
-                     style={{
-                       width: '26px',
-                       height: '26px',
-                       backgroundColor: themeAccent,
-                       border: '2px solid white',
-                       borderRadius: '50%',
-                       color: themeBg,
-                       cursor: 'pointer',
-                       fontSize: '14px',
-                       fontWeight: 'bold',
-                       display: 'flex',
-                       alignItems: 'center',
-                       justifyContent: 'center',
-                       boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                       transition: 'all 0.2s ease-in-out'
-                     }}
-                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                       e.currentTarget.style.transform = 'scale(1.1)';
-                       e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
-                     }}
-                     onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                       e.currentTarget.style.transform = 'scale(1)';
-                       e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-                     }}
-                   >
-                     -
-                   </div>
+                                       <div
+                      onClick={() => adjustBarHeight(index, bar.height + 10)}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                        backgroundColor: themeAccent,
+                        border: 'none',
+                        borderRadius: '50%',
+                        color: themeBg,
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                        transition: 'all 0.2s ease-in-out'
+                      }}
+                      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
+                      }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+                      }}
+                    >
+                      +
+                    </div>
+                    <div
+                      onClick={() => adjustBarHeight(index, bar.height - 10)}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                        backgroundColor: themeAccent,
+                        border: 'none',
+                        borderRadius: '50%',
+                        color: themeBg,
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                        transition: 'all 0.2s ease-in-out'
+                      }}
+                      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
+                      }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+                      }}
+                    >
+                      -
+                    </div>
                  </div>
                )}
             </div>
@@ -548,7 +529,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   width: '32px',
                   height: '32px',
                   backgroundColor: '#ff4444',
-                  border: '3px solid white',
+                  border: 'none',
                   borderRadius: '50%',
                   color: 'white',
                   cursor: 'pointer',
@@ -557,12 +538,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: 0,
+                  opacity: 1,
                   transition: 'all 0.3s ease-in-out',
                   zIndex: 15,
                   boxShadow: '0 3px 10px rgba(0,0,0,0.4)'
                 }}
-                className="bar-controls"
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.backgroundColor = '#ff0000';
                   e.currentTarget.style.transform = 'scale(1.3)';
@@ -582,43 +562,43 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
         ))}
       </div>
 
-      {/* Add bar button - positioned outside the chart area */}
-      {isEditable && (
-        <div
-          onClick={addBar}
-          style={{
-            position: 'absolute',
-            right: '30px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '50px',
-            height: '50px',
-            backgroundColor: themeAccent,
-            border: '3px solid white',
-            borderRadius: '50%',
-            color: themeBg,
-            cursor: 'pointer',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 10,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease-in-out'
-          }}
-          onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
-          }}
-          onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-            e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-          }}
-        >
-          +
-        </div>
-      )}
+             {/* Add bar button - positioned outside the chart area */}
+       {isEditable && (
+         <div
+           onClick={addBar}
+           style={{
+             position: 'absolute',
+             right: '30px',
+             top: '50%',
+             transform: 'translateY(-50%)',
+             width: '50px',
+             height: '50px',
+             backgroundColor: themeAccent,
+             border: 'none',
+             borderRadius: '50%',
+             color: themeBg,
+             cursor: 'pointer',
+             fontSize: '24px',
+             fontWeight: 'bold',
+             display: 'flex',
+             alignItems: 'center',
+             justifyContent: 'center',
+             zIndex: 10,
+             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+             transition: 'all 0.3s ease-in-out'
+           }}
+           onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+             e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+             e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
+           }}
+           onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+             e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+           }}
+         >
+           +
+         </div>
+       )}
 
       {/* Footer */}
       <div style={{
