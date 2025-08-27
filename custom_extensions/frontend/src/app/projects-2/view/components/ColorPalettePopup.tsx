@@ -463,13 +463,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       ref={popupRef}
       slotProps={{
         paper: {
-          sx: {
-            ...(adjustedPosition ? {
-              position: 'absolute',
-              left: adjustedPosition.x,
-              top: adjustedPosition.y,
-              margin: 0,
-            } : {}),
+                      sx: {
+              ...(adjustedPosition ? {
+                position: 'fixed',
+                left: adjustedPosition.x,
+                top: adjustedPosition.y,
+                margin: 0,
+              } : {}),
             borderRadius: 3,
             zIndex: 9999,
             '& .MuiDialogContent-root': {
