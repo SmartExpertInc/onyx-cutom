@@ -611,91 +611,97 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Custom Saturation/Brightness Square */}
-        <div className="mb-4">
-          <div
-            ref={sbRef}
-            onMouseDown={(e) => {
-              handleMouseDown(e);
-            }}
-            className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
-            style={{
-              background: `linear-gradient(to top, #000, transparent),
-                          linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'none';
-              // Stop dragging if mouse leaves the square
-              if (isDraggingRef.current) {
-                isDraggingRef.current = false;
-                setIsDragging(false);
-              }
-            }}
-          >
-            {/* Custom cursor indicator */}
+                {/* Saturation/Brightness Square and Sliders Layout */}
+        <div className="flex gap-4 mb-4">
+          {/* Custom Saturation/Brightness Square */}
+          <div className="flex-1">
             <div
-              className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
-              style={{
-                left: `${hsb.s}%`,
-                top: `${100 - hsb.b}%`,
-                transform: 'translate(-50%, -50%)'
+              ref={sbRef}
+              onMouseDown={(e) => {
+                handleMouseDown(e);
               }}
-            />
-            
-            {/* Current color preview at cursor position */}
-            <div
-              className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003]"
+              className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
               style={{
-                backgroundColor: hex,
-                left: `${hsb.s}%`,
-                top: `${100 - hsb.b}%`,
-                transform: 'translate(-50%, -50%)'
+                background: `linear-gradient(to top, #000, transparent),
+                             linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
               }}
-            />
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'none';
+                // Stop dragging if mouse leaves the square
+                if (isDraggingRef.current) {
+                  isDraggingRef.current = false;
+                  setIsDragging(false);
+                }
+              }}
+            >
+              {/* Custom cursor indicator */}
+              <div
+                className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+                style={{
+                  left: `${hsb.s}%`,
+                  top: `${100 - hsb.b}%`,
+                  transform: 'translate(-50%, -50%)'
+                }}
+              />
+              
+              {/* Current color preview at cursor position */}
+              <div
+                className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003]"
+                style={{
+                  backgroundColor: hex,
+                  left: `${hsb.s}%`,
+                  top: `${100 - hsb.b}%`,
+                  transform: 'translate(-50%, -50%)'
+                }}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Hue Slider */}
-        <div className="relative z-[10001] py-1">
-          <CustomSlider
-            value={hsb.h}
-            min={0}
-            max={360}
-            onChange={handleHueChange}
-            onChangeCommitted={handleHueChangeCommitted}
-            background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
-            height={12}
-          />
-        </div>
+          {/* Sliders Column */}
+          <div className="flex flex-col gap-2 w-20">
+            {/* Hue Slider */}
+            <div className="relative z-[10001]">
+              <CustomSlider
+                value={hsb.h}
+                min={0}
+                max={360}
+                onChange={handleHueChange}
+                onChangeCommitted={handleHueChangeCommitted}
+                background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
+                height={12}
+              />
+            </div>
 
-        {/* Opacity Slider */}
-        <div className="relative z-[10001] mt-0.5 py-1">
-          <div className="relative">
-            {/* Squared background for opacity slider */}
-            <div 
-              className="absolute inset-0 rounded-lg"
-              style={{
-                background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                             linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                             linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                             linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-                backgroundSize: '8px 8px',
-                backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
-              }}
-            />
-            <CustomSlider
-              value={opacity}
-              min={0}
-              max={1}
-              step={0.01}
-              onChange={handleOpacityChange}
-              onChangeCommitted={handleOpacityChangeCommitted}
-              background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
-              height={12}
-            />
+            {/* Opacity Slider */}
+            <div className="relative z-[10001]">
+              <div className="relative">
+                {/* Squared background for opacity slider */}
+                <div 
+                  className="absolute inset-0 rounded-lg"
+                  style={{
+                    background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                                 linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                                 linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                                 linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+                    backgroundSize: '8px 8px',
+                    backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                  }}
+                />
+                <CustomSlider
+                  value={opacity}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={handleOpacityChange}
+                  onChangeCommitted={handleOpacityChangeCommitted}
+                  background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
+                  height={12}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
