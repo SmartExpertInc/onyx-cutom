@@ -313,13 +313,14 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
            onImageUploaded={handleProfileImageUploaded}
            size="LARGE"
            position="CENTER"
-           description="Profile photo"
+           description="Profile"
            isEditable={isEditable}
            style={{
              width: '100%',
              height: '100%',
              borderRadius: '50%',
-             objectFit: 'cover'
+             objectFit: 'cover',
+             overflow: 'hidden'
            }}
          />
        </div>
