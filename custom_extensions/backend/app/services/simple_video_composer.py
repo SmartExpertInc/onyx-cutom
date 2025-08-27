@@ -238,7 +238,7 @@ class SimpleVideoComposer:
             frame_count = 0
             last_progress = -1
             
-            logger.info("🎬 [SIMPLE_COMPOSER] Processing frames...")
+            logger.info("🎬 [SIMPLE_COMPOSER] Processing frames with CROPPING (not resizing) to maintain avatar aspect ratio...")
             
             while True:
                 # Read slide frame (background)
@@ -261,9 +261,8 @@ class SimpleVideoComposer:
                 
                 # Process avatar frame if available
                 if avatar_ret:
-                    # Scale avatar to template dimensions
-                    avatar_resized = cv2.resize(avatar_frame, 
-                                              (self.avatar_template['width'], self.avatar_template['height']))
+                    # CRITICAL FIX: Crop avatar instead of resizing to maintain aspect ratio
+                    avatar_cropped = self._crop_avatar_to_template(avatar_frame)
                     
                     # Get position coordinates
                     x = self.avatar_template['x']
@@ -273,7 +272,7 @@ class SimpleVideoComposer:
                     if x + self.avatar_template['width'] <= output_width and y + self.avatar_template['height'] <= output_height:
                         # Simple overlay (replace method - could be enhanced with alpha blending)
                         background[y:y + self.avatar_template['height'], 
-                                 x:x + self.avatar_template['width']] = avatar_resized
+                                 x:x + self.avatar_template['width']] = avatar_cropped
                     else:
                         logger.warning(f"🎬 [SIMPLE_COMPOSER] Avatar position out of bounds: ({x}, {y})")
                 
@@ -368,6 +367,82 @@ class SimpleVideoComposer:
         except Exception as e:
             logger.error(f"🎬 [SIMPLE_COMPOSER] Audio merge error: {str(e)}")
             return False
+    
+    def _crop_avatar_to_template(self, avatar_frame: np.ndarray) -> np.ndarray:
+        """
+        Crop avatar frame to template dimensions while maintaining aspect ratio.
+        
+        This method ensures the avatar maintains its correct height and aspect ratio
+        by cropping excess width from the sides instead of stretching the image.
+        
+        Args:
+            avatar_frame: Input avatar frame (numpy array)
+            
+        Returns:
+            Cropped avatar frame matching template dimensions (935x843)
+        """
+        try:
+            # Get input frame dimensions
+            input_height, input_width = avatar_frame.shape[:2]
+            
+            # Target template dimensions
+            target_width = self.avatar_template['width']   # 935
+            target_height = self.avatar_template['height'] # 843
+            
+            logger.debug(f"🎬 [SIMPLE_COMPOSER] Cropping avatar frame:")
+            logger.debug(f"  - Input dimensions: {input_width}x{input_height}")
+            logger.debug(f"  - Target dimensions: {target_width}x{target_height}")
+            
+            # Step 1: Scale the frame to match the target height while maintaining aspect ratio
+            scale_factor = target_height / input_height
+            scaled_width = int(input_width * scale_factor)
+            scaled_height = target_height
+            
+            # Resize to target height
+            avatar_scaled = cv2.resize(avatar_frame, (scaled_width, scaled_height))
+            
+            logger.debug(f"  - Scaled dimensions: {scaled_width}x{scaled_height}")
+            
+            # Step 2: Crop from center if scaled width is larger than target width
+            if scaled_width > target_width:
+                # Calculate crop start position (center crop)
+                crop_start_x = (scaled_width - target_width) // 2
+                crop_end_x = crop_start_x + target_width
+                
+                # Crop the frame
+                avatar_cropped = avatar_scaled[:, crop_start_x:crop_end_x]
+                
+                logger.debug(f"  - Cropped from center: x={crop_start_x} to x={crop_end_x}")
+            else:
+                # If scaled width is smaller than target width, pad with background
+                # This should rarely happen with proper aspect ratios
+                logger.warning(f"🎬 [SIMPLE_COMPOSER] Scaled width ({scaled_width}) < target width ({target_width}), padding required")
+                
+                # Create background (dark purple to match theme)
+                background = np.full((target_height, target_width, 3), (17, 12, 53), dtype=np.uint8)
+                
+                # Calculate padding to center the scaled frame
+                pad_start_x = (target_width - scaled_width) // 2
+                pad_end_x = pad_start_x + scaled_width
+                
+                # Place scaled frame in center of background
+                background[:, pad_start_x:pad_end_x] = avatar_scaled
+                avatar_cropped = background
+            
+            # Verify final dimensions
+            final_height, final_width = avatar_cropped.shape[:2]
+            if final_width != target_width or final_height != target_height:
+                logger.error(f"🎬 [SIMPLE_COMPOSER] Cropping failed: got {final_width}x{final_height}, expected {target_width}x{target_height}")
+                # Fallback to resize if cropping fails
+                avatar_cropped = cv2.resize(avatar_frame, (target_width, target_height))
+            
+            logger.debug(f"  - Final dimensions: {final_width}x{final_height}")
+            return avatar_cropped
+            
+        except Exception as e:
+            logger.error(f"🎬 [SIMPLE_COMPOSER] Avatar cropping error: {str(e)}")
+            # Fallback to resize if cropping fails
+            return cv2.resize(avatar_frame, (self.avatar_template['width'], self.avatar_template['height']))
     
     def cleanup(self):
         """Cleanup temporary files and resources."""
