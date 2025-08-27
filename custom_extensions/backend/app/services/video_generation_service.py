@@ -388,14 +388,7 @@ class ElaiVideoGenerationService:
             video_request = {
                 "name": f"Video Lesson - {datetime.now().isoformat()}",
                 "slides": elai_slides,
-                "tags": ["video_lesson", "generated", "presentation"],
-                "public": False,
-                "data": {
-                    "skipEmails": False,
-                    "subtitlesEnabled": "false",
-                    "format": "16_9",
-                    "resolution": "FullHD"
-                }
+                "tags": ["video_lesson", "generated", "presentation"],                
             }
             
             # Create video
