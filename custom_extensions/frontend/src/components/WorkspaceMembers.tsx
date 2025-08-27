@@ -13,6 +13,7 @@ interface CustomRole {
   id: string;
   name: string;
   color: string;
+  textColor: string;
   permissions: string[];
 }
 
@@ -26,18 +27,18 @@ interface WorkspaceMember {
   invitationDate: string;
 }
 
-// Predefined color options for roles
+// Predefined color options for roles (pale backgrounds with darker text)
 const ROLE_COLORS = [
-  '#3B82F6', // Blue
-  '#10B981', // Green
-  '#F59E0B', // Yellow
-  '#EF4444', // Red
-  '#8B5CF6', // Purple
-  '#06B6D4', // Cyan
-  '#F97316', // Orange
-  '#EC4899', // Pink
-  '#6B7280', // Gray
-  '#84CC16', // Lime
+  { bg: '#EFF6FF', text: '#1E40AF' }, // Pale Blue
+  { bg: '#ECFDF5', text: '#047857' }, // Pale Green
+  { bg: '#FFFBEB', text: '#D97706' }, // Pale Yellow
+  { bg: '#FEF2F2', text: '#DC2626' }, // Pale Red
+  { bg: '#F3E8FF', text: '#7C3AED' }, // Pale Purple
+  { bg: '#ECFEFF', text: '#0891B2' }, // Pale Cyan
+  { bg: '#FFF7ED', text: '#EA580C' }, // Pale Orange
+  { bg: '#FDF2F8', text: '#DB2777' }, // Pale Pink
+  { bg: '#F9FAFB', text: '#374151' }, // Pale Gray
+  { bg: '#F7FEE7', text: '#65A30D' }, // Pale Lime
 ];
 
 const WorkspaceMembers: React.FC = () => {
@@ -45,11 +46,11 @@ const WorkspaceMembers: React.FC = () => {
 
   // Mock data for custom roles
   const [customRoles, setCustomRoles] = useState<CustomRole[]>([
-    { id: 'admin', name: 'Admin', color: '#8B5CF6', permissions: ['Full Access', 'Manage Users', 'Manage Settings'] },
-    { id: 'member', name: 'Member', color: '#3B82F6', permissions: ['View Projects', 'Edit Own Work'] },
-    { id: 'viewer', name: 'Viewer', color: '#6B7280', permissions: ['View Only'] },
-    { id: 'manager', name: 'Manager', color: '#10B981', permissions: ['Manage Projects', 'Assign Tasks'] },
-    { id: 'editor', name: 'Editor', color: '#F59E0B', permissions: ['Edit Content', 'Review Work'] },
+    { id: 'admin', name: 'Admin', color: '#F3E8FF', textColor: '#7C3AED', permissions: ['Full Access', 'Manage Users', 'Manage Settings'] },
+    { id: 'member', name: 'Member', color: '#EFF6FF', textColor: '#1E40AF', permissions: ['View Projects', 'Edit Own Work'] },
+    { id: 'viewer', name: 'Viewer', color: '#F9FAFB', textColor: '#374151', permissions: ['View Only'] },
+    { id: 'manager', name: 'Manager', color: '#ECFDF5', textColor: '#047857', permissions: ['Manage Projects', 'Assign Tasks'] },
+    { id: 'editor', name: 'Editor', color: '#FFFBEB', textColor: '#D97706', permissions: ['Edit Content', 'Review Work'] },
   ]);
 
   const [members, setMembers] = useState<WorkspaceMember[]>([
@@ -71,8 +72,10 @@ const WorkspaceMembers: React.FC = () => {
 
   // Role management state
   const [newRoleName, setNewRoleName] = useState('');
-  const [newRoleColor, setNewRoleColor] = useState(ROLE_COLORS[0]);
+  const [newRoleColor, setNewRoleColor] = useState(ROLE_COLORS[0].bg);
+  const [newRoleTextColor, setNewRoleTextColor] = useState(ROLE_COLORS[0].text);
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
+  const [showColorPalette, setShowColorPalette] = useState(false);
 
   const formatDate = (dateInput: string): string => {
     const date = new Date(dateInput);
@@ -94,10 +97,26 @@ const WorkspaceMembers: React.FC = () => {
 
     // Fallback to hardcoded colors for backward compatibility
     switch (role) {
-      case 'Admin': return '#8B5CF6';
-      case 'Member': return '#3B82F6';
-      case 'Viewer': return '#6B7280';
-      default: return '#6B7280';
+      case 'Admin': return '#F3E8FF';
+      case 'Member': return '#EFF6FF';
+      case 'Viewer': return '#F9FAFB';
+      default: return '#F9FAFB';
+    }
+  }, [getRoleById]);
+
+  // Get role text color
+  const getRoleTextColor = useCallback((role: string, roleId?: string) => {
+    if (roleId) {
+      const foundRole = getRoleById(roleId);
+      if (foundRole) return foundRole.textColor;
+    }
+
+    // Fallback to hardcoded colors for backward compatibility
+    switch (role) {
+      case 'Admin': return '#7C3AED';
+      case 'Member': return '#1E40AF';
+      case 'Viewer': return '#374151';
+      default: return '#374151';
     }
   }, [getRoleById]);
 
@@ -173,14 +192,16 @@ const WorkspaceMembers: React.FC = () => {
         id: `role-${Date.now()}`,
         name: newRoleName.trim(),
         color: newRoleColor,
+        textColor: newRoleTextColor,
         permissions: newRolePermissions
       };
       setCustomRoles(prev => [...prev, newRole]);
       setNewRoleName('');
-      setNewRoleColor(ROLE_COLORS[0]);
+      setNewRoleColor(ROLE_COLORS[0].bg);
+      setNewRoleTextColor(ROLE_COLORS[0].text);
       setNewRolePermissions([]);
     }
-  }, [newRoleName, newRoleColor, newRolePermissions]);
+  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions]);
 
   const handleDeleteRole = useCallback((roleId: string) => {
     if (roleId !== 'admin' && roleId !== 'member' && roleId !== 'viewer') {
@@ -299,8 +320,11 @@ const WorkspaceMembers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
-                        style={{ backgroundColor: getRoleColor(member.role, member.roleId) }}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: getRoleColor(member.role, member.roleId),
+                          color: getRoleTextColor(member.role, member.roleId)
+                        }}
                       >
                         {member.role}
                       </span>
@@ -499,22 +523,30 @@ const WorkspaceMembers: React.FC = () => {
                     />
                     <div className="relative">
                       <button
-                        onClick={() => setNewRoleColor(newRoleColor === ROLE_COLORS[0] ? ROLE_COLORS[1] : ROLE_COLORS[0])}
+                        onClick={() => setShowColorPalette(!showColorPalette)}
                         className="w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center"
                         style={{ backgroundColor: newRoleColor }}
                       >
-                        <Palette size={16} className="text-white" />
+                        <Palette size={16} className="text-gray-600" />
                       </button>
-                      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20 grid grid-cols-5 gap-1 w-48">
-                        {ROLE_COLORS.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => setNewRoleColor(color)}
-                            className="w-8 h-8 rounded border border-gray-300 hover:scale-110 transition-transform"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
+                      {showColorPalette && (
+                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20 grid grid-cols-5 gap-1 w-48">
+                          {ROLE_COLORS.map((colorOption) => (
+                            <button
+                              key={colorOption.bg}
+                              onClick={() => {
+                                setNewRoleColor(colorOption.bg);
+                                setNewRoleTextColor(colorOption.text);
+                                setShowColorPalette(false);
+                              }}
+                              className="w-8 h-8 rounded border border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
+                              style={{ backgroundColor: colorOption.bg }}
+                            >
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorOption.text }}></div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -554,8 +586,11 @@ const WorkspaceMembers: React.FC = () => {
                     <div key={role.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
-                          style={{ backgroundColor: role.color }}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          style={{
+                            backgroundColor: role.color,
+                            color: role.textColor
+                          }}
                         >
                           {role.name}
                         </span>
