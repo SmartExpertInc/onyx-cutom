@@ -237,7 +237,7 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       }
 
       const request: AIImageGenerationRequest = {
-        prompt: placeholder.imagePrompt.trim(),
+        prompt: enhancePromptWithTheme(placeholder.imagePrompt.trim()),
         width,
         height,
         quality: 'standard',
