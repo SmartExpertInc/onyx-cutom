@@ -424,14 +424,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
 
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
-      <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          placeholder={t('interface.jumpTo', 'Jump to')}
-          className="w-full bg-gray-100 rounded-md pl-8 pr-8 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs border border-gray-300 rounded-sm px-1">{t('interface.keyboardShortcut', '⌘+K')}</div>
+      {/* ContentBuilder Banner */}
+      <div className="mb-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center">
+          <span className="font-bold text-black text-lg">ContentBuilder</span>
+          <div className="w-2 h-2 bg-green-500 rounded-full ml-1"></div>
+        </div>
       </div>
       <nav className="flex flex-col gap-1">
         <Link 
@@ -461,7 +459,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             placeholder={t('interface.searchFolders', 'Search folders...')}
             value={folderSearch}
             onChange={(e) => setFolderSearch(e.target.value)}
-            className="w-full bg-gray-50 rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200"
+            className="w-full bg-gray-50 rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200 text-gray-700 placeholder-gray-500"
           />
         </div>
 
@@ -491,16 +489,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 allFolders={folders}
               />
             ))}
-            {!isSearching && folders.length > 5 && (
-              <div className="text-center pt-2">
-                <button
-                  onClick={() => setFolderSearch(' ')} // Trigger search mode to show all folders
-                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  {t('interface.viewAllFolders', 'View all folders')} ({folders.length})
-                </button>
-              </div>
-            )}
+
           </div>
         )}
       </div>
