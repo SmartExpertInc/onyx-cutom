@@ -99,41 +99,11 @@ const PdfExportLoadingModal: React.FC<{
   onClose: () => void;
 }> = ({ isOpen, projectName, pdfDownloadReady, pdfProgress, onDownload, onClose }) => {
   const { t } = useLanguage();
-  const [animatedProgress, setAnimatedProgress] = useState(0);
-  const animatedProgressRef = useRef(0);
   
   if (!isOpen) return null;
 
-  // Calculate target progress percentage
-  const targetProgressPercentage = pdfProgress ? Math.round((pdfProgress.current / pdfProgress.total) * 100) : 0;
-
-  // Animate progress bar smoothly
-  useEffect(() => {
-    if (targetProgressPercentage > animatedProgressRef.current) {
-      const increment = Math.max(1, Math.ceil((targetProgressPercentage - animatedProgressRef.current) / 10));
-      const interval = setInterval(() => {
-        const currentProgress = animatedProgressRef.current;
-        const newProgress = Math.min(currentProgress + increment, targetProgressPercentage);
-        
-        animatedProgressRef.current = newProgress;
-        setAnimatedProgress(newProgress);
-        
-        if (newProgress >= targetProgressPercentage) {
-          clearInterval(interval);
-        }
-      }, 50); // Update every 50ms for smooth animation
-
-      return () => clearInterval(interval);
-    }
-  }, [targetProgressPercentage]); // Removed animatedProgress from dependencies
-
-  // Reset animated progress when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setAnimatedProgress(0);
-      animatedProgressRef.current = 0;
-    }
-  }, [isOpen]);
+  // Calculate progress percentage
+  const progressPercentage = pdfProgress ? Math.round((pdfProgress.current / pdfProgress.total) * 100) : 0;
 
   return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
@@ -150,12 +120,12 @@ const PdfExportLoadingModal: React.FC<{
             {pdfProgress && (
               <div className="w-full mb-4">
                 <div className="flex justify-end text-sm text-gray-600 mb-2">
-                  <span>{animatedProgress}%</span>
+                  <span>{progressPercentage}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div 
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${animatedProgress}%` }}
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
                   ></div>
                 </div>
               </div>
