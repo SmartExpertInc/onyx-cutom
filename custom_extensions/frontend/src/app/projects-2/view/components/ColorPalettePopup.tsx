@@ -756,14 +756,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 ].map(({ label, value, field, min, max, step }) => (
                   <div key={label} style={{ position: 'relative', flex: 1 }}>
                     <input
-                      type="number"
+                      type="text"
                       value={value}
                       onChange={handleRgbaChange(field)}
                       onKeyDown={handleRgbaKeyDown(field)}
                       onClick={handleInputClick}
-                      min={min}
-                      max={max}
-                      step={step}
                       style={{
                         width: '100%',
                         height: '40px',
@@ -839,14 +836,11 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 ].map(({ label, value, field, min, max, step }) => (
                   <div key={label} style={{ position: 'relative', flex: 1 }}>
                     <input
-                      type="number"
+                      type="text"
                       value={value}
                       onChange={handleHslaChange(field)}
                       onKeyDown={handleHslaKeyDown(field)}
                       onClick={handleInputClick}
-                      min={min}
-                      max={max}
-                      step={step}
                       style={{
                         width: '100%',
                         height: '40px',
