@@ -320,18 +320,37 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               gap: '15px',
               position: 'relative'
             }}
-            onMouseEnter={(e) => {
-              if (isEditable) {
-                const controls = e.currentTarget.querySelector('.bar-controls') as HTMLElement;
-                if (controls) controls.style.opacity = '1';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (isEditable) {
-                const controls = e.currentTarget.querySelector('.bar-controls') as HTMLElement;
-                if (controls) controls.style.opacity = '0';
-              }
-            }}
+                                                   onMouseEnter={(e) => {
+                if (isEditable) {
+                  const controls = e.currentTarget.querySelectorAll('.bar-controls') as NodeListOf<HTMLElement>;
+                  controls.forEach(control => {
+                    control.style.opacity = '1';
+                  });
+                  
+                  const deleteButton = e.currentTarget.querySelector('.delete-button') as HTMLElement;
+                  if (deleteButton) {
+                    deleteButton.style.opacity = '1';
+                  }
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isEditable) {
+                  // Проверяем, не находится ли мышь над крестиком удаления
+                  const deleteButton = e.currentTarget.querySelector('.delete-button') as HTMLElement;
+                  if (deleteButton && deleteButton.matches(':hover')) {
+                    return; // Не скрываем, если мышь над крестиком
+                  }
+                  
+                  const controls = e.currentTarget.querySelectorAll('.bar-controls') as NodeListOf<HTMLElement>;
+                  controls.forEach(control => {
+                    control.style.opacity = '0';
+                  });
+                  
+                  if (deleteButton) {
+                    deleteButton.style.opacity = '0';
+                  }
+                }
+              }}
           >
             {/* Percentage */}
             <div style={{
@@ -543,7 +562,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   zIndex: 15,
                   boxShadow: '0 3px 10px rgba(0,0,0,0.4)'
                 }}
-                className="bar-controls"
+                className="delete-button"
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.backgroundColor = '#ff0000';
                   e.currentTarget.style.transform = 'scale(1.3)';
@@ -553,6 +572,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   e.currentTarget.style.backgroundColor = '#ff4444';
                   e.currentTarget.style.transform = 'scale(1)';
                   e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.4)';
+                  
+                  // Скрываем крестик при уходе мыши с него
+                  e.currentTarget.style.opacity = '0';
                 }}
                 title="Удалить столбик"
               >
