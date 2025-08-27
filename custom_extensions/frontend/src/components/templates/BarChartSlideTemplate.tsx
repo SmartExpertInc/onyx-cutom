@@ -263,45 +263,27 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          position: 'absolute',
          top: '40px',
          left: '60px',
+         width: '120px',
+         height: '120px',
+         borderRadius: '50%',
          display: 'flex',
-         flexDirection: 'column',
          alignItems: 'center',
-         gap: '10px'
+         justifyContent: 'center'
        }}>
-         <div style={{
-           width: '120px',
-           height: '120px',
-           borderRadius: '50%',
-           overflow: 'hidden',
-           display: 'flex',
-           alignItems: 'center',
-           justifyContent: 'center'
-         }}>
-           <ClickableImagePlaceholder
-             imagePath={profileImagePath}
-             onImageUploaded={handleProfileImageUploaded}
-             size="LARGE"
-             position="CENTER"
-             description="Profile photo"
-             isEditable={isEditable}
-             style={{
-               width: '100%',
-               height: '100%',
-               borderRadius: '50%',
-               objectFit: 'cover'
-             }}
-           />
-         </div>
-         {isEditable && (
-           <div style={{
-             fontSize: '12px',
-             color: themeContent,
-             textAlign: 'center',
-             opacity: 0.7
-           }}>
-             Click to upload
-           </div>
-         )}
+         <ClickableImagePlaceholder
+           imagePath={profileImagePath}
+           onImageUploaded={handleProfileImageUploaded}
+           size="LARGE"
+           position="CENTER"
+           description="Profile photo"
+           isEditable={isEditable}
+           style={{
+             width: '100%',
+             height: '100%',
+             borderRadius: '50%',
+             objectFit: 'cover'
+           }}
+         />
        </div>
 
       {/* Bar Chart Section */}
