@@ -3042,7 +3042,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: 13,
     estCreationTime: 13.5,
     estCompletionTime: 13.5,
-    type: 7.5,
+    type: 5,
   });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
