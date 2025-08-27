@@ -36,7 +36,7 @@ class PresentationRequest:
     slide_only: bool = False  # Flag to generate slide-only video (no AI avatar)
     use_avatar_mask: bool = True  # Flag to use new avatar mask service (OpenCV + MoviePy)
     duration: float = 30.0
-    layout: str = "side_by_side"  # side_by_side, picture_in_picture, split_screen
+    layout: str = "picture_in_picture"  # side_by_side, picture_in_picture, split_screen
     quality: str = "high"  # high, medium, low
     resolution: tuple = (1920, 1080)
     project_name: str = "Generated Presentation"
@@ -337,7 +337,7 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
                 logger.info(f"  - Slide video path: {slide_video_path}")
                 logger.info(f"  - Avatar video path: {avatar_video_path}")
-                logger.info(f"  - Layout: {request.layout}")
+                logger.info(f"  - Layout: {request.layout} (should be picture_in_picture for proper overlay)")
                 logger.info(f"  - Resolution: {request.resolution}")
                 logger.info(f"  - Quality: {request.quality}")
                 

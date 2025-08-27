@@ -17163,7 +17163,7 @@ async def create_presentation(request: Request):
         avatar_code = body.get("avatarCode")  # None will trigger auto-selection
         use_avatar_mask = body.get("useAvatarMask", True)  # NEW: Use avatar mask service by default
         duration = body.get("duration", 30.0)
-        layout = body.get("layout", "side_by_side")
+        layout = body.get("layout", "picture_in_picture")
         quality = body.get("quality", "high")
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")

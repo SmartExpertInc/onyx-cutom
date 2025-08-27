@@ -294,7 +294,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
           // avatarCode removed - will auto-select available avatar
           useAvatarMask: true,  // NEW: Enable avatar mask service (OpenCV + MoviePy)
           duration: 30.0,
-          layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen
+          layout: 'picture_in_picture', // side_by_side, picture_in_picture, split_screen
           quality: 'high',
           resolution: [1920, 1080],
           projectName: projectName

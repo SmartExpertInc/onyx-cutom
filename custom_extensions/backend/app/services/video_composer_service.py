@@ -38,7 +38,7 @@ class CompositionConfig:
     video_codec: str = 'libx264'
     audio_codec: str = 'aac'
     quality: str = 'high'  # 'high', 'medium', 'low'
-    layout: str = 'side_by_side'  # 'side_by_side', 'picture_in_picture', 'split_screen'
+    layout: str = 'picture_in_picture'  # 'side_by_side', 'picture_in_picture', 'split_screen'
 
 class ProfessionalVideoComposer:
     """Professional video composition service using FFmpeg."""
@@ -102,13 +102,19 @@ class ProfessionalVideoComposer:
             logger.info(f"  - Avatar duration: {avatar_duration}s, dimensions: {avatar_dimensions}")
             
             # Choose composition method based on layout
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Layout decision: {config.layout}")
+            
             if config.layout == 'side_by_side':
+                logger.info("🎬 [VIDEO_COMPOSITION] Using side-by-side composition")
                 return await self._compose_side_by_side(slide_video, avatar_video, config)
             elif config.layout == 'picture_in_picture':
+                logger.info("🎬 [VIDEO_COMPOSITION] Using picture-in-picture composition")
                 return await self._compose_pip(slide_video, avatar_video, config)
             elif config.layout == 'split_screen':
+                logger.info("🎬 [VIDEO_COMPOSITION] Using split-screen composition")
                 return await self._compose_split_screen(slide_video, avatar_video, config)
             else:
+                logger.error(f"🎬 [VIDEO_COMPOSITION] Unsupported layout: {config.layout}")
                 raise ValueError(f"Unsupported layout: {config.layout}")
                 
         except Exception as e:
