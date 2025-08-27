@@ -310,7 +310,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                minHeight: index === 1 ? '66%' : '50%'
+                minHeight: index === 1 ? '42%' : '51%'
               }}
             >
               {/* Number */}
