@@ -18,8 +18,9 @@ The debug feature automatically creates a copy of the raw avatar video immediate
 
 ### Files Modified
 
-1. **`presentation_service.py`** - Backend avatar video processing
-2. **`standalone_video_generator.py`** - Standalone video generation
+1. **`video_generation_service.py`** - Elai API video download processing
+2. **`presentation_service.py`** - Backend avatar video processing
+3. **`standalone_video_generator.py`** - Standalone video generation
 
 ### Debug Process
 

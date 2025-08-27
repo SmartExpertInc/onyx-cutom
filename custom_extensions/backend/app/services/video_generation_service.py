@@ -710,6 +710,10 @@ class ElaiVideoGenerationService:
                 logger.info(f"Video downloaded successfully!")
                 logger.info(f"File: {output_path}")
                 logger.info(f"Size: {file_size_mb:.2f} MB")
+                
+                # DEBUG FEATURE: Create a debug copy for visual inspection
+                await self._create_debug_avatar_video_copy(output_path)
+                
                 return True
             else:
                 logger.error("Download completed but file not found")
@@ -718,6 +722,74 @@ class ElaiVideoGenerationService:
         except Exception as e:
             logger.error(f"Download failed: {str(e)}")
             return False
+    
+    async def _create_debug_avatar_video_copy(self, original_path: str) -> None:
+        """
+        Create a debug copy of the avatar video for visual inspection.
+        This helps diagnose whether the avatar is visible in the raw video.
+        
+        Args:
+            original_path: Path to the original downloaded avatar video
+        """
+        try:
+            import shutil
+            from datetime import datetime
+            from pathlib import Path
+            
+            # Extract video ID from filename if possible
+            filename = os.path.basename(original_path)
+            video_id = "unknown"
+            if "_" in filename:
+                # Try to extract video ID from filename like "avatar_68af01cf9afe0738c8ead999.mp4"
+                parts = filename.replace(".mp4", "").split("_")
+                if len(parts) > 1:
+                    video_id = parts[1]  # Get the ID part
+            
+            # Create debug directory
+            debug_dir = Path("debug/avatar_videos")
+            debug_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Create debug filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            debug_filename = f"DEBUG_elai_avatar_{video_id}_{timestamp}.mp4"
+            debug_path = debug_dir / debug_filename
+            
+            # Copy the video file
+            shutil.copy2(original_path, debug_path)
+            
+            # Get file size for logging
+            file_size_mb = os.path.getsize(debug_path) / (1024 * 1024)
+            
+            logger.info("🔍 [DEBUG] Elai avatar video debug copy created for inspection:")
+            logger.info(f"  - Original: {original_path}")
+            logger.info(f"  - Debug copy: {debug_path}")
+            logger.info(f"  - File size: {file_size_mb:.2f} MB")
+            logger.info(f"  - Video ID: {video_id}")
+            logger.info(f"  - Timestamp: {timestamp}")
+            logger.info("🔍 [DEBUG] You can now play this video to verify avatar visibility")
+            
+            # Also create a metadata file with generation details
+            metadata_path = debug_dir / f"DEBUG_elai_avatar_{video_id}_{timestamp}_metadata.txt"
+            with open(metadata_path, 'w') as f:
+                f.write(f"Elai Avatar Video Debug Information\n")
+                f.write(f"====================================\n")
+                f.write(f"Video ID: {video_id}\n")
+                f.write(f"Generated: {datetime.now().isoformat()}\n")
+                f.write(f"Original Path: {original_path}\n")
+                f.write(f"Debug Copy Path: {debug_path}\n")
+                f.write(f"File Size: {file_size_mb:.2f} MB\n")
+                f.write(f"\nInstructions:\n")
+                f.write(f"1. Open the .mp4 file to check if the avatar is visible\n")
+                f.write(f"2. If avatar is visible, the issue is in video composition\n")
+                f.write(f"3. If avatar is not visible, the issue is in Elai generation\n")
+                f.write(f"4. Check the coordinated parameters in the logs\n")
+                f.write(f"5. Compare with the final composed video\n")
+            
+            logger.info(f"🔍 [DEBUG] Metadata file created: {metadata_path}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to create debug avatar video copy: {e}")
+            # Don't raise exception - this is just a debug feature
     
     async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """
