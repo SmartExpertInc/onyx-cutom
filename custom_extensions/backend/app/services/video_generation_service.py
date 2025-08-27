@@ -232,7 +232,8 @@ class ElaiVideoGenerationService:
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request with CORRECT 1080x1080 dimensions")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
             logger.info(f"  - Name: {project_name}")
-            logger.info(f"  - Dimensions: 1080x1080 (CORRECT)")
+            logger.info(f"  - Format: 1:1 aspect ratio (CORRECT)")
+            logger.info(f"  - Resolution: 1080p (CORRECT)")
             logger.info(f"  - Avatar scale: 0.3x0.3 (appropriate for 1080x1080)")
             logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
 
@@ -274,7 +275,9 @@ class ElaiVideoGenerationService:
                     "voiceType": "text",
                     "voiceProvider": "azure"
                 }],
-                "tags": ["video_lesson", "generated", "presentation"]
+                "tags": ["video_lesson", "generated", "presentation"],
+                "format": "1_1",  # CRITICAL FIX: Specify 1:1 aspect ratio for 1080x1080
+                "resolution": "1080p"  # CRITICAL FIX: Specify 1080p resolution
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
@@ -388,7 +391,9 @@ class ElaiVideoGenerationService:
             video_request = {
                 "name": f"Video Lesson - {datetime.now().isoformat()}",
                 "slides": elai_slides,
-                "tags": ["video_lesson", "generated", "presentation"],                
+                "tags": ["video_lesson", "generated", "presentation"],
+                "format": "1_1",  # CRITICAL FIX: Specify 1:1 aspect ratio for 1080x1080
+                "resolution": "1080p"  # CRITICAL FIX: Specify 1080p resolution
             }
             
             # Create video
