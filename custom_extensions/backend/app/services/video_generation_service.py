@@ -317,6 +317,7 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
 
             # FIXED: Official Elai API structure for vertical full-size avatar
+            # SIMPLIFIED ELAI API REQUEST - Focus on getting visible avatar
             video_request = {
                 "name": project_name,
                 "slides": [{
@@ -324,13 +325,11 @@ class ElaiVideoGenerationService:
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            # For VERTICAL format (9:16 aspect ratio, likely 1080x1920)
-                            # Position avatar to fill entire vertical frame
-                            "left": 540,      # Center horizontally for 1080px width
-                            "top": 960,       # Center vertically for 1920px height
-                            "scaleX": 1.2,    # Scale up to fill vertical frame completely
-                            "scaleY": 1.2,    # Scale up to fill vertical frame completely
-                            "width": 1080,    # Avatar source dimensions
+                            "left": 540,        # Center in 1080px width
+                            "top": 960,         # Center in 1920px height
+                            "scaleX": 0.8,      # Reduce scale to ensure visibility
+                            "scaleY": 0.8,      # Reduce scale to ensure visibility
+                            "width": 1080,      
                             "height": 1080,
                             "src": avatar.get("canvas"),
                             "avatarType": "transparent",
@@ -338,9 +337,10 @@ class ElaiVideoGenerationService:
                                 "type": None,
                                 "exitType": None
                             },
-                            "fill": "#4868FF"
+                            "visible": True,
+                            "opacity": 1
                         }],
-                        "background": "#00FF00" if green_screen_mode else "#ffffff",
+                        "background": "#ffffff",
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -349,20 +349,19 @@ class ElaiVideoGenerationService:
                         "canvas": avatar.get("canvas")
                     },
                     "animation": "fade_in",
-                    "language": "English",
-                    "speech": " ".join(cleaned_texts),  # Combined speech
+                    "language": "English", 
+                    "speech": " ".join(cleaned_texts),
                     "voice": "en-US-AriaNeural",
                     "voiceType": "text",
                     "voiceProvider": "azure"
                 }],
-                "tags": ["video_lesson", "generated", "presentation", "vertical"],
+                "tags": ["api", "test"],
                 "public": False,
-                # CRITICAL: Add data object for vertical format
                 "data": {
                     "skipEmails": False,
                     "subtitlesEnabled": "false",
-                    "format": "9_16",      # VERTICAL format instead of "16_9"
-                    "resolution": "FullHD"  # This will be 1080x1920 for vertical
+                    "format": "9_16",
+                    "resolution": "FullHD"
                 }
             }
             
