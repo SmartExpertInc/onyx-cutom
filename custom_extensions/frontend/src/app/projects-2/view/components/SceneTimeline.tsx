@@ -122,35 +122,15 @@ export default function SceneTimeline({
                 </div>
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 flex items-center gap-2 min-w-[120px] justify-center">
                   {editingSceneId === scene.id ? (
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onKeyDown={handleKeyPress}
-                        onBlur={handleRenameSave}
-                        className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[80px]"
-                        autoFocus
-                      />
-                      <button
-                        onClick={handleRenameSave}
-                        className="w-4 h-4 text-green-600 hover:text-green-700 cursor-pointer"
-                        title="Save"
-                      >
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={handleRenameCancel}
-                        className="w-4 h-4 text-red-600 hover:text-red-700 cursor-pointer"
-                        title="Cancel"
-                      >
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
+                    <input
+                      type="text"
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyDown={handleKeyPress}
+                      onBlur={handleRenameSave}
+                      className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none focus:outline-none focus:ring-0 min-w-[80px] text-center"
+                      autoFocus
+                    />
                   ) : (
                     <>
                       <span className="text-sm font-medium text-gray-700">{scene.name}</span>
