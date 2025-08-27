@@ -498,31 +498,39 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
             {/* Remove button */}
             {isEditable && currentBars.length > 1 && (
-              <button
-                className="bar-controls"
+              <div
                 onClick={() => removeBar(index)}
                 style={{
                   position: 'absolute',
                   top: '-10px',
                   right: '-10px',
-                  width: '20px',
-                  height: '20px',
+                  width: '24px',
+                  height: '24px',
                   backgroundColor: '#ff4444',
                   border: 'none',
                   borderRadius: '50%',
                   color: 'white',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   opacity: 0,
-                  transition: 'opacity 0.2s ease-in-out',
+                  transition: 'all 0.2s ease-in-out',
                   zIndex: 5
+                }}
+                className="bar-controls"
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  e.currentTarget.style.backgroundColor = '#ff0000';
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                  e.currentTarget.style.backgroundColor = '#ff4444';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
                 ×
-              </button>
+              </div>
             )}
           </div>
         ))}
