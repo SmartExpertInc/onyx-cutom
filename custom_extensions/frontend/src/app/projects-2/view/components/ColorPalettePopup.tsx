@@ -670,7 +670,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               backgroundSize: '10px 10px',
               backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
             }}>
-                      <div className="w-full h-full"
+                      <div className="w-full h-full rounded-lg"
             style={{
               backgroundColor: hex,
               opacity: opacity
@@ -681,15 +681,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           <div className="flex flex-col gap-2 flex-1">
             {/* Hue Slider */}
             <div className="relative z-[10001]">
-              <CustomSlider
-                value={hsb.h}
-                min={0}
-                max={360}
-                onChange={handleHueChange}
-                onChangeCommitted={handleHueChangeCommitted}
-                background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
-                height={12}
-              />
+                          <CustomSlider
+              value={hsb.h}
+              min={0}
+              max={360}
+              onChange={handleHueChange}
+              onChangeCommitted={handleHueChangeCommitted}
+              background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
+              height={14}
+            />
             </div>
 
             {/* Opacity Slider */}
@@ -715,7 +715,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   onChange={handleOpacityChange}
                   onChangeCommitted={handleOpacityChangeCommitted}
                   background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
-                  height={12}
+                  height={14}
                 />
               </div>
             </div>
