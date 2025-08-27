@@ -100,29 +100,48 @@ export default function Script({ onAiButtonClick }: ScriptProps) {
   // Function to insert move/animation marker at cursor position
   const insertMoveMarker = () => {
     if (textAreaRef.current) {
-      const selection = window.getSelection();
-      const range = selection?.getRangeAt(0);
+      // Focus the textarea first to ensure cursor is positioned within it
+      textAreaRef.current.focus();
       
-      if (range) {
-        // Create the SVG icon element
-        const iconElement = document.createElement('span');
-        iconElement.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" style="display: inline; vertical-align: middle; margin: 0 2px;"><circle cx="18" cy="12" r="4" stroke="currentColor" stroke-width="2"/><line x1="3" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="18" x2="9" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
-        iconElement.setAttribute('contenteditable', 'false');
-        iconElement.style.backgroundColor = '#f3f4f6';
-        iconElement.style.borderRadius = '4px';
-        iconElement.style.padding = '2px 4px';
-        iconElement.style.color = '#666';
+      const selection = window.getSelection();
+      let range: Range;
+      
+      // Check if there's a valid selection within the textarea
+      if (selection && selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
         
-        // Insert at cursor position
-        range.deleteContents();
-        range.insertNode(iconElement);
-        
-        // Move cursor after the icon
-        range.setStartAfter(iconElement);
-        range.setEndAfter(iconElement);
-        selection?.removeAllRanges();
-        selection?.addRange(range);
+        // Verify the range is within the textarea
+        if (!textAreaRef.current.contains(range.commonAncestorContainer)) {
+          // If not within textarea, create a new range at the end of textarea
+          range = document.createRange();
+          range.selectNodeContents(textAreaRef.current);
+          range.collapse(false); // Collapse to end
+        }
+      } else {
+        // No selection, create range at the end of textarea
+        range = document.createRange();
+        range.selectNodeContents(textAreaRef.current);
+        range.collapse(false); // Collapse to end
       }
+      
+      // Create the SVG icon element
+      const iconElement = document.createElement('span');
+      iconElement.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" style="display: inline; vertical-align: middle; margin: 0 2px;"><circle cx="18" cy="12" r="4" stroke="currentColor" stroke-width="2"/><line x1="3" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="18" x2="9" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+      iconElement.setAttribute('contenteditable', 'false');
+      iconElement.style.backgroundColor = '#f3f4f6';
+      iconElement.style.borderRadius = '4px';
+      iconElement.style.padding = '2px 4px';
+      iconElement.style.color = '#666';
+      
+      // Insert at cursor position
+      range.deleteContents();
+      range.insertNode(iconElement);
+      
+      // Move cursor after the icon
+      range.setStartAfter(iconElement);
+      range.setEndAfter(iconElement);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
     }
   };
   return (
