@@ -343,9 +343,29 @@ const FolderItem: React.FC<{
 const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
   const router = useRouter();
   const { t } = useLanguage();
+  const [folderSearch, setFolderSearch] = useState('');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
+
+  // Get the 5 newest folders
+  const getNewestFolders = (folders: any[]) => {
+    return folders
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 5);
+  };
+
+  // Filter folders based on search
+  const getFilteredFolders = (folders: any[]) => {
+    if (!folderSearch.trim()) {
+      return getNewestFolders(folders);
+    }
+    
+    const searchTerm = folderSearch.toLowerCase();
+    return folders.filter(folder => 
+      folder.name.toLowerCase().includes(searchTerm)
+    );
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     if (isModalOpen) {
@@ -399,6 +419,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
     }
   };
 
+  const filteredFolders = getFilteredFolders(folders);
+  const isSearching = folderSearch.trim().length > 0;
+
   return (
     <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
       <div className="relative mb-4">
@@ -426,17 +449,34 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
-          <span>{t('interface.folders', 'Folders')}</span>
+          <span>{isSearching ? t('interface.searchResults', 'Search Results') : t('interface.recentFolders', 'Recent Folders')}</span>
           <FolderPlus size={18} className="cursor-pointer hover:text-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))} />
         </div>
+        
+        {/* Folder Search Bar */}
+        <div className="relative mb-3">
+          <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder={t('interface.searchFolders', 'Search folders...')}
+            value={folderSearch}
+            onChange={(e) => setFolderSearch(e.target.value)}
+            className="w-full bg-gray-50 rounded-md pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200"
+          />
+        </div>
+
         {folders.length === 0 ? (
           <div className="bg-gray-100 p-4 rounded-lg text-center">
             <p className="mb-2 text-gray-700">{t('interface.organizeProducts', 'Organize your products by topic and share them with your team')}</p>
             <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>{t('interface.createOrJoinFolder', 'Create or join a folder')}</button>
           </div>
+        ) : filteredFolders.length === 0 ? (
+          <div className="bg-gray-50 p-3 rounded-lg text-center">
+            <p className="text-gray-500 text-xs">{t('interface.noFoldersFound', 'No folders found')}</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-1">
-            {buildFolderTree(folders).map((folder) => (
+            {filteredFolders.map((folder) => (
               <FolderItem
                 key={folder.id}
                 folder={folder}
@@ -451,6 +491,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
                 allFolders={folders}
               />
             ))}
+            {!isSearching && folders.length > 5 && (
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => setFolderSearch(' ')} // Trigger search mode to show all folders
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  {t('interface.viewAllFolders', 'View all folders')} ({folders.length})
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
