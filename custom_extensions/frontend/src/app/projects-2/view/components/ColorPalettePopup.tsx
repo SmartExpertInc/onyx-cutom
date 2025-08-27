@@ -127,11 +127,11 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
       
       {/* Thumb */}
       <div
-        className="absolute w-3.5 h-3.5 bg-white border-2 border-gray-500 rounded-full shadow-md cursor-pointer z-10"
+        className="absolute w-3.5 h-3.5 bg-white border-2 border-gray-500 rounded-full shadow-md cursor-pointer z-20"
         style={{
           left: `${getPercentage()}%`,
-          top: '-8px',
-          transform: 'translateX(-50%)'
+          top: '50%',
+          transform: 'translate(-50%, -50%)'
         }}
       />
     </div>
@@ -355,11 +355,25 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleRgbaChange = (field: keyof RGBA) => (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setIsUserTyping(true);
-      const newRgba = { ...rgba, [field]: value };
-      setRgba(newRgba);
+    const inputValue = e.target.value;
+    
+    // For alpha field, allow decimal input
+    if (field === 'a') {
+      // Allow empty string, numbers, and decimal points
+      if (inputValue === '' || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+        setIsUserTyping(true);
+        const value = parseFloat(inputValue);
+        const newRgba = { ...rgba, [field]: isNaN(value) ? 0 : value };
+        setRgba(newRgba);
+      }
+    } else {
+      // For RGB fields, only allow integers
+      const value = parseFloat(inputValue);
+      if (!isNaN(value)) {
+        setIsUserTyping(true);
+        const newRgba = { ...rgba, [field]: value };
+        setRgba(newRgba);
+      }
     }
   };
 
@@ -384,11 +398,25 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
 
   const handleHslaChange = (field: keyof HSLA) => (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setIsUserTyping(true);
-      const newHsla = { ...hsla, [field]: value };
-      setHsla(newHsla);
+    const inputValue = e.target.value;
+    
+    // For alpha field, allow decimal input
+    if (field === 'a') {
+      // Allow empty string, numbers, and decimal points
+      if (inputValue === '' || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+        setIsUserTyping(true);
+        const value = parseFloat(inputValue);
+        const newHsla = { ...hsla, [field]: isNaN(value) ? 0 : value };
+        setHsla(newHsla);
+      }
+    } else {
+      // For HSL fields, only allow integers
+      const value = parseFloat(inputValue);
+      if (!isNaN(value)) {
+        setIsUserTyping(true);
+        const newHsla = { ...hsla, [field]: value };
+        setHsla(newHsla);
+      }
     }
   };
 
@@ -589,8 +617,6 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             ref={sbRef}
             onMouseDown={(e) => {
               handleMouseDown(e);
-              e.currentTarget.style.border = '1px solid #666';
-              e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.2)';
             }}
             className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
             style={{
@@ -611,7 +637,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           >
             {/* Custom cursor indicator */}
             <div
-              className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              className="absolute w-3 h-3 rounded-full bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
                 left: `${hsb.s}%`,
                 top: `${100 - hsb.b}%`,
@@ -621,13 +647,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             
             {/* Current color preview at cursor position */}
             <div
-              className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003] border border-white/80"
+              className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003]"
               style={{
                 backgroundColor: hex,
                 left: `${hsb.s}%`,
                 top: `${100 - hsb.b}%`,
-                transform: 'translate(-50%, -50%)',
-                boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
+                transform: 'translate(-50%, -50%)'
               }}
             />
           </div>
@@ -708,7 +733,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   }}
                   onClick={handleInputClick}
                   maxLength={7}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10003]"
+                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded text-sm bg-white text-gray-800 outline-none transition-all duration-200 box-border relative z-[10003] text-center"
                   onFocus={(e) => {
                     e.target.style.borderColor = '#000';
                     e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
