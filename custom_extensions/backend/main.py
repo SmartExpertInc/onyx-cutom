@@ -10156,10 +10156,20 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               - [BACKGROUND]: Background color for the entire illustration
             - **ENHANCED PROMPT STRUCTURE:**
               - "Minimalist flat design illustration of [comprehensive scene description with 3-5 specific visual elements]. The scene features [detailed character/object descriptions with exact positioning]. [Additional environmental and compositional details]. [Specific color assignments for each visual element using placeholders]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+            - **MANDATORY SCENE STRUCTURING:**
+              - ALWAYS describe WHO is in the scene (specific people with demographics, clothing, poses)
+              - ALWAYS describe WHERE they are positioned (left, center, right, foreground, background)
+              - ALWAYS describe WHAT they are doing (specific actions, interactions, activities)
+              - ALWAYS describe the SETTING details (furniture, equipment, environment specifics)
+              - ALWAYS describe the LAYOUT (how elements are arranged spatially)
+              - NEVER use vague terms like "featuring visual representations" or "playful design"
+              - REPLACE abstract descriptions with concrete, observable elements
             - **DETAILED SCENE EXAMPLES:**
               - TEAM COLLABORATION: "three professionals around a conference table: a Black woman in a blue blazer presenting at a whiteboard on the left, an Asian man in glasses taking notes on a laptop in the center, and a Caucasian woman with shoulder-length hair reviewing documents on the right"
               - TECHNOLOGY SETUP: "a modern workstation featuring a large curved monitor displaying simple geometric charts, a wireless keyboard positioned below, a smartphone to the right with basic interface elements, and a coffee cup on the upper left corner of the desk"
               - DATA FLOW: "an interconnected network diagram with five circular nodes arranged in a pentagon formation, connected by flowing arrow lines, with data packets represented as small moving dots along the connections"
+              - EDUCATIONAL SCENE: "a Spanish language classroom with a Hispanic female teacher standing at the front left pointing to a wall chart showing simple pictographic vocabulary cards, five diverse students sitting at individual desks in rows facing forward, and a large interactive board on the front wall displaying colorful geometric symbols representing different Spanish words"
+              - LANGUAGE LEARNING: "a modern language learning center with three study stations arranged in an L-shape: a conversation area on the left with two students practicing dialogue, a digital learning station in the center with a student using language learning software, and a reading corner on the right with a student reviewing illustrated vocabulary books"
             - **TEXT AND LABELING RESTRICTIONS:**
               - MINIMIZE text elements in illustrations - use symbols, icons, and visual indicators instead
               - AVOID readable text, labels, signs, or written content on screens, documents, or displays
@@ -10176,6 +10186,13 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
               - ALWAYS assign colors to specific elements using placeholders
               - MINIMIZE or eliminate text elements - focus on visual symbols and icons
               - NEVER leave imagePrompt fields empty - generate comprehensive, detailed prompts
+            - **FORBIDDEN VAGUE LANGUAGE:**
+              - NEVER use "featuring visual representations" - describe specific objects instead
+              - NEVER use "playful design" - describe specific arrangement and visual elements
+              - NEVER use "colorful illustration" - specify who, what, where, and how they're positioned
+              - NEVER use "depicting [concept]" - describe the actual scene with people and objects
+              - REPLACE abstract concepts with concrete scenes showing people engaged in specific activities
+              - REPLACE "showing [topic]" with "scene features [specific people] doing [specific actions] in [specific setting]"
             
             **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
             
