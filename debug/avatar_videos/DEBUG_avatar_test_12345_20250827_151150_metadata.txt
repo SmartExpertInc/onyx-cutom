@@ -1,0 +1,14 @@
+Avatar Video Debug Information
+==============================
+Video ID: test_12345
+Generated: 2025-08-27T15:11:50.752226
+Original Path: /path/to/original/avatar_video.mp4
+Debug Copy Path: debug\avatar_videos\DEBUG_avatar_test_12345_20250827_151150.mp4
+File Size: 31 bytes
+
+Instructions:
+1. Open the .mp4 file to check if the avatar is visible
+2. If avatar is visible, the issue is in video composition
+3. If avatar is not visible, the issue is in Elai generation
+4. Check the coordinated parameters in the logs
+5. Compare with the final composed video

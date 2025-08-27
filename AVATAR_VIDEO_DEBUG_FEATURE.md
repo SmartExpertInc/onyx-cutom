@@ -34,6 +34,8 @@ The debug feature automatically creates a copy of the raw avatar video immediate
 ```
 debug/
 └── avatar_videos/
+    ├── DEBUG_elai_avatar_{video_id}_{timestamp}.mp4
+    ├── DEBUG_elai_avatar_{video_id}_{timestamp}_metadata.txt
     ├── DEBUG_avatar_{video_id}_{timestamp}.mp4
     ├── DEBUG_avatar_{video_id}_{timestamp}_metadata.txt
     ├── DEBUG_standalone_avatar_{video_id}_{timestamp}.mp4
@@ -42,6 +44,7 @@ debug/
 
 ### File Naming Convention
 
+- **Elai API**: `DEBUG_elai_avatar_{video_id}_{timestamp}.mp4`
 - **Backend**: `DEBUG_avatar_{video_id}_{timestamp}.mp4`
 - **Standalone**: `DEBUG_standalone_avatar_{video_id}_{timestamp}.mp4`
 - **Metadata**: Same name with `.txt` extension
