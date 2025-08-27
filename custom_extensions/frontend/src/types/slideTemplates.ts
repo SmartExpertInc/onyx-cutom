@@ -518,6 +518,65 @@ export interface ImpactStatementsSlideProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+export interface BarChartSlideProps extends BaseTemplateProps {
+  title?: string;
+  bars: Array<{
+    percentage: string;
+    description: string;
+    height: number; // Height in pixels or percentage
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  website?: string;
+  date?: string;
+  pageNumber?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface CriticalThinkingSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  highlightedPhrases: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  companyLogoAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface PsychologicalSafetySlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface DataAnalysisSlideProps extends BaseTemplateProps {
+  title: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  excelIconPath?: string;
+  excelIconAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
 
 
 export type TemplateId = 
@@ -551,7 +610,11 @@ export type TemplateId =
   | 'soft-skills-assessment-slide'
   | 'two-column-slide'
   | 'phishing-definition-slide'
-  | 'impact-statements-slide';
+  | 'impact-statements-slide'
+  | 'bar-chart-slide'
+  | 'critical-thinking-slide'
+  | 'psychological-safety-slide'
+  | 'data-analysis-slide';
 
 export interface TemplatePreview {
   templateId: string;

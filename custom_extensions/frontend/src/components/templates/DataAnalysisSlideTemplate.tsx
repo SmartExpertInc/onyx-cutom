@@ -1,0 +1,333 @@
+// custom_extensions/frontend/src/components/templates/DataAnalysisSlideTemplate.tsx
+
+import React, { useState, useRef, useEffect } from 'react';
+import { DataAnalysisSlideProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block',
+      }}
+    />
+  );
+}
+
+export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
+  theme?: SlideTheme | string;
+}> = ({
+  slideId,
+  title = 'Introduction to Data Analysis',
+  profileImagePath = '',
+  profileImageAlt = 'Profile image',
+  excelIconPath = '',
+  excelIconAlt = 'Excel icon',
+  backgroundColor,
+  titleColor,
+  contentColor,
+  accentColor,
+  isEditable = false,
+  onUpdate,
+  theme,
+  voiceoverText
+}) => {
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(title);
+
+  // Use theme colors instead of props
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '600px',
+    backgroundColor: themeBg,
+    display: 'flex',
+    position: 'relative',
+    overflow: 'hidden',
+    fontFamily: currentTheme.fonts.titleFont,
+  };
+
+  const handleTitleSave = (newTitle: string) => {
+    setCurrentTitle(newTitle);
+    setEditingTitle(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, profileImagePath, profileImageAlt, excelIconPath, excelIconAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+    }
+  };
+
+  const handleTitleCancel = () => {
+    setCurrentTitle(title);
+    setEditingTitle(false);
+  };
+
+  const handleProfileImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, profileImagePath, profileImageAlt, excelIconPath, excelIconAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleExcelIconUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, profileImagePath, profileImageAlt, excelIconPath, excelIconAlt, backgroundColor, titleColor, contentColor, accentColor }, excelIconPath: newImagePath });
+    }
+  };
+
+  return (
+    <div className="data-analysis-slide-template" style={slideStyles}>
+      {/* Left Section - Profile Image */}
+      <div style={{
+        width: '50%',
+        height: '100%',
+        backgroundColor: themeAccent,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative'
+      }}>
+        <div style={{
+          width: '200px',
+          height: '200px',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          backgroundColor: themeBg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '20px',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Right Section - Title and Excel Icon */}
+      <div style={{
+        width: '50%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '60px 40px'
+      }}>
+        {/* Title */}
+        <div style={{
+          fontSize: '48px',
+          color: themeTitle,
+          fontWeight: 'bold',
+          lineHeight: '1.2',
+          whiteSpace: 'pre-line'
+        }}>
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={currentTitle}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              className="data-analysis-title-editor"
+              style={{
+                fontSize: '48px',
+                color: themeTitle,
+                fontWeight: 'bold',
+                lineHeight: '1.2',
+                whiteSpace: 'pre-line'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingTitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentTitle}
+            </div>
+          )}
+        </div>
+
+        {/* Excel Icon Section */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '20px'
+        }}>
+          {/* Excel Icon */}
+          <div style={{
+            width: '120px',
+            height: '120px',
+            backgroundColor: themeAccent,
+            borderRadius: '15px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative'
+          }}>
+            {excelIconPath ? (
+              <ClickableImagePlaceholder
+                imagePath={excelIconPath}
+                onImageUploaded={handleExcelIconUploaded}
+                size="MEDIUM"
+                position="CENTER"
+                description="Excel icon"
+                isEditable={isEditable}
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  objectFit: 'contain'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '80px',
+                height: '80px',
+                backgroundColor: themeBg,
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: themeAccent,
+                fontSize: '48px',
+                fontWeight: 'bold'
+              }}>
+                X
+              </div>
+            )}
+          </div>
+
+          {/* Download Arrow */}
+          <div style={{
+            width: '0',
+            height: '0',
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderTop: `12px solid ${themeContent}`,
+            marginTop: '10px'
+          }} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DataAnalysisSlideTemplate; 

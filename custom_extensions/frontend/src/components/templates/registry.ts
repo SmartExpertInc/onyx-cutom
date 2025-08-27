@@ -33,6 +33,10 @@ import { SoftSkillsAssessmentSlideTemplate } from './SoftSkillsAssessmentSlideTe
 import { TwoColumnSlideTemplate } from './TwoColumnSlideTemplate';
 import { PhishingDefinitionSlideTemplate } from './PhishingDefinitionSlideTemplate';
 import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
+import { BarChartSlideTemplate } from './BarChartSlideTemplate';
+import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
+import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
+import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1437,6 +1441,105 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
+  'bar-chart-slide': {
+    id: 'bar-chart-slide',
+    name: 'Bar Chart Slide',
+    description: 'Slide with interactive bar chart and data visualization',
+    category: 'content',
+    icon: '📊',
+    component: BarChartSlideTemplate,
+    defaultProps: {
+      bars: [
+        { percentage: '20%', description: 'Decrease in insurance costs', height: 60 },
+        { percentage: '30%', description: 'Increase in employee morale and satisfaction', height: 90 },
+        { percentage: '52%', description: 'Decrease in insurance costs', height: 156 }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      website: 'www.company.com',
+      date: 'Date Goes Here',
+      pageNumber: 'Page Number'
+    },
+    propSchema: {
+      bars: { type: 'array', label: 'Chart Bars', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      website: { type: 'text', label: 'Website', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 20 }
+    }
+  },
+
+  'critical-thinking-slide': {
+    id: 'critical-thinking-slide',
+    name: 'Critical Thinking Slide',
+    description: 'Slide with highlighted phrases and key concepts',
+    category: 'content',
+    icon: '🧠',
+    component: CriticalThinkingSlideTemplate,
+    defaultProps: {
+      title: 'Critical Thinking\nand Problem Solving',
+      content: 'Critical thinking and problem solving are essential skills that empower individuals to analyze information, make informed decisions, and overcome challenges.',
+      highlightedPhrases: ['analyze information,', 'make informed decisions,', 'overcome challenges.'],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: '',
+      companyLogoAlt: 'Company logo'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      content: { type: 'text', label: 'Content', required: true, maxLength: 500 },
+      highlightedPhrases: { type: 'array', label: 'Highlighted Phrases', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' },
+      companyLogoAlt: { type: 'text', label: 'Company Logo Alt Text' }
+    }
+  },
+
+  'psychological-safety-slide': {
+    id: 'psychological-safety-slide',
+    name: 'Psychological Safety Slide',
+    description: 'Slide with centered card design and key message',
+    category: 'content',
+    icon: '🛡️',
+    component: PsychologicalSafetySlideTemplate,
+    defaultProps: {
+      title: 'Fostering Psychological Safety',
+      content: 'Studies indicate that teams with a high level of psychological safety have a 21% higher chance of delivering high-quality results.',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      content: { type: 'text', label: 'Content', required: true, maxLength: 300 },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'data-analysis-slide': {
+    id: 'data-analysis-slide',
+    name: 'Data Analysis Slide',
+    description: 'Slide with profile image and Excel icon for data analysis topics',
+    category: 'content',
+    icon: '📈',
+    component: DataAnalysisSlideTemplate,
+    defaultProps: {
+      title: 'Introduction to Data Analysis',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      excelIconPath: '',
+      excelIconAlt: 'Excel icon'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      excelIconPath: { type: 'image', label: 'Excel Icon' },
+      excelIconAlt: { type: 'text', label: 'Excel Icon Alt Text' }
+    }
+  }
 
 };
 
