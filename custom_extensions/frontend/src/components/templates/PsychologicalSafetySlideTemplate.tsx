@@ -196,9 +196,9 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
       {/* Main Card */}
       <div style={{
         width: '600px',
-        height: '400px',
+        height: '336px',
         backgroundColor: themeAccent,
-        borderRadius: '20px',
+        borderRadius: '30px',
         padding: '40px',
         display: 'flex',
         flexDirection: 'column',
@@ -213,7 +213,6 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
            width: '80px',
            height: '80px',
            borderRadius: '50%',
-           overflow: 'hidden',
            display: 'flex',
            alignItems: 'center',
            justifyContent: 'center'
@@ -237,12 +236,11 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
 
         {/* Title */}
         <div style={{
-          fontSize: '36px',
+          fontSize: '30px',
           color: themeBg,
           fontWeight: 'bold',
           lineHeight: '1.2',
-          marginTop: '20px',
-          marginLeft: '100px'
+          marginTop: '106px',
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -276,8 +274,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
           fontSize: '18px',
           color: themeBg,
           lineHeight: '1.5',
-          marginLeft: '100px',
-          marginBottom: '40px'
+          marginBottom: '5px'
         }}>
           {isEditable && editingContent ? (
             <InlineEditor

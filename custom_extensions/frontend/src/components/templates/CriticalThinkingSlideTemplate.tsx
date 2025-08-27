@@ -244,9 +244,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           <span
             key={`highlight-${index}`}
             style={{
-              backgroundColor: themeAccent,
-              opacity: 0.3,
-              padding: '2px 4px',
+              backgroundColor: '#E8CCC6',
+              color: '#DA8372',
+              opacity: 1,
+              padding: '1px 10px',
               borderRadius: '3px'
             }}
           >
@@ -303,7 +304,6 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
          width: '120px',
          height: '120px',
          borderRadius: '50%',
-         overflow: 'hidden',
          display: 'flex',
          alignItems: 'center',
          justifyContent: 'center'
@@ -336,9 +336,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '48px',
+          fontSize: '34px',
           color: themeTitle,
-          fontWeight: 'bold',
           lineHeight: '1.2',
           marginBottom: '40px',
           whiteSpace: 'pre-line',
@@ -346,7 +345,9 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           maxHeight: '120px',
           display: 'flex',
           alignItems: 'flex-start',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          position: 'absolute',
+          top: '50px',
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -356,15 +357,17 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-title-editor"
               style={{
-                fontSize: '48px',
+                fontSize: '34px',
                 color: themeTitle,
-                fontWeight: 'bold',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 width: '100%',
                 height: '100%',
                 minHeight: '60px',
-                maxHeight: '120px'
+                maxHeight: '120px',
+                overflow: 'hidden',
+                position: 'absolute',
+                top: '50px',
               }}
             />
           ) : (
@@ -386,13 +389,14 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
         {/* Content */}
         <div style={{
-          fontSize: '24px',
+          fontSize: '34px',
           color: themeContent,
-          lineHeight: '1.5',
+          lineHeight: '1.7',
           maxWidth: '600px',
           minHeight: '40px',
           display: 'flex',
-          alignItems: 'flex-start'
+          alignItems: 'flex-start',
+          marginTop: '30px'
         }}>
           {isEditable && editingContent ? (
             <InlineEditor
@@ -402,11 +406,12 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-content-editor"
               style={{
-                fontSize: '24px',
+                fontSize: '34px',
                 color: themeContent,
                 lineHeight: '1.5',
                 maxWidth: '600px',
-                width: '100%'
+                width: '100%',
+                marginTop: '30px'
               }}
             />
           ) : (
