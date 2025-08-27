@@ -31,6 +31,7 @@ interface AIImageGenerationModalProps {
       accentColor?: string;
     };
   }; // NEW: Current theme colors for styling
+  templateId?: string; // NEW: Template ID for dimension optimization
 }
 
 const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
@@ -42,7 +43,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   title = "Generate AI Image",
   preFilledPrompt,
   placeholderId,
-  currentTheme
+  currentTheme,
+  templateId
 }) => {
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -152,23 +154,34 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
 
     // ✅ NEW: Continue generation in background
     try {
-      // ✅ FIX: Ensure we send valid DALL-E 3 dimensions
+      // ✅ FIX: Ensure we send valid DALL-E 3 dimensions with template-specific overrides
       let width = 1024;
       let height = 1024;
       
-      // Convert placeholder dimensions to valid DALL-E 3 sizes
-      if (placeholderDimensions.width > placeholderDimensions.height) {
-        // Landscape orientation
-        width = 1792;
-        height = 1024;
-      } else if (placeholderDimensions.height > placeholderDimensions.width) {
-        // Portrait orientation
+      // Template-specific dimension overrides
+      if (templateId === 'big-image-left') {
+        // Force portrait for big-image-left template
         width = 1024;
         height = 1792;
-      } else {
-        // Square orientation (default)
+      } else if (templateId === 'bullet-points' || templateId === 'bullet-points-right') {
+        // Force square for bullet-points templates
         width = 1024;
         height = 1024;
+      } else {
+        // Use original logic for other templates
+        if (placeholderDimensions.width > placeholderDimensions.height) {
+          // Landscape orientation
+          width = 1792;
+          height = 1024;
+        } else if (placeholderDimensions.height > placeholderDimensions.width) {
+          // Portrait orientation
+          width = 1024;
+          height = 1792;
+        } else {
+          // Square orientation (default)
+          width = 1024;
+          height = 1024;
+        }
       }
 
       const request: AIImageGenerationRequest = {
@@ -325,7 +338,13 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <ImageIcon className="w-4 h-4" />
               <span>
-                Image will be generated at {placeholderDimensions.width > placeholderDimensions.height ? '1792×1024' : placeholderDimensions.height > placeholderDimensions.width ? '1024×1792' : '1024×1024'} pixels
+                Image will be generated at {
+                  templateId === 'big-image-left' ? '1024×1792 (Portrait)' :
+                  templateId === 'bullet-points' || templateId === 'bullet-points-right' ? '1024×1024 (Square)' :
+                  placeholderDimensions.width > placeholderDimensions.height ? '1792×1024 (Landscape)' : 
+                  placeholderDimensions.height > placeholderDimensions.width ? '1024×1792 (Portrait)' : 
+                  '1024×1024 (Square)'
+                } pixels
               </span>
             </div>
             <div className="text-xs text-gray-500 mt-1">

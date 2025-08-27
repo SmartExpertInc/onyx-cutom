@@ -705,6 +705,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             slideContainerRef={slideContainerRef}
             savedImagePosition={imageOffset}
             savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+            templateId="bullet-points"
           />
         </div>
         

@@ -206,22 +206,34 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         dimensions: placeholder.placeholderDimensions
       });
 
-      // Convert placeholder dimensions to valid DALL-E 3 sizes
+      // Convert placeholder dimensions to valid DALL-E 3 sizes with template-specific overrides
       let width = 1024;
       let height = 1024;
       
-      if (placeholder.placeholderDimensions.width > placeholder.placeholderDimensions.height) {
-        // Landscape orientation
-        width = 1792;
-        height = 1024;
-      } else if (placeholder.placeholderDimensions.height > placeholder.placeholderDimensions.width) {
-        // Portrait orientation
+      // Template-specific dimension overrides
+      if (placeholder.templateId === 'big-image-left') {
+        // Force portrait for big-image-left template
         width = 1024;
         height = 1792;
-      } else {
-        // Square orientation (default)
+      } else if (placeholder.templateId === 'bullet-points' || placeholder.templateId === 'bullet-points-right') {
+        // Force square for bullet-points templates
         width = 1024;
         height = 1024;
+      } else {
+        // Use original logic for other templates
+        if (placeholder.placeholderDimensions.width > placeholder.placeholderDimensions.height) {
+          // Landscape orientation
+          width = 1792;
+          height = 1024;
+        } else if (placeholder.placeholderDimensions.height > placeholder.placeholderDimensions.width) {
+          // Portrait orientation
+          width = 1024;
+          height = 1792;
+        } else {
+          // Square orientation (default)
+          width = 1024;
+          height = 1024;
+        }
       }
 
       const request: AIImageGenerationRequest = {

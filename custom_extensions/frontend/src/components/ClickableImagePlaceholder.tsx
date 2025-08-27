@@ -43,6 +43,8 @@ export interface ClickableImagePlaceholderProps {
   // Saved position and size for persistence
   savedImagePosition?: { x: number; y: number };
   savedImageSize?: { width: number; height: number };
+  // Template information for dimension optimization
+  templateId?: string;
   // ✅ NEW: AI generation props
   aiGeneratedPrompt?: string; // Pre-filled prompt from AI
   isGenerating?: boolean; // Loading state for AI generation
@@ -69,6 +71,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   slideContainerRef,
   savedImagePosition,
   savedImageSize,
+  templateId,
   aiGeneratedPrompt, // New prop
   isGenerating, // New prop
   onGenerationStarted // New prop
@@ -753,6 +756,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           placeholderId={elementId}
           title="Generate AI Image"
           preFilledPrompt={aiGeneratedPrompt}
+          templateId={templateId}
         />
 
                  {/* ✅ REMOVED: ContextMenu - replaced with inline buttons! */}

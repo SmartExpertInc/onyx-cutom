@@ -460,6 +460,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}
           savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          templateId="big-image-left"
           aiGeneratedPrompt={imagePrompt}
           isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
           onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}

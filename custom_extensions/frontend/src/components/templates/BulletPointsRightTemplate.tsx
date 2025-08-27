@@ -794,6 +794,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
               slideContainerRef={slideContainerRef}
               savedImagePosition={imageOffset}
               savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+              templateId="bullet-points-right"
             />
         </div>
       </div>
