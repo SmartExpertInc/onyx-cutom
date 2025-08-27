@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { DataAnalysisSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -141,6 +142,8 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentExcelIconPath, setCurrentExcelIconPath] = useState(excelIconPath);
+  const [showExcelIconUploadModal, setShowExcelIconUploadModal] = useState(false);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -176,6 +179,7 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
   };
 
   const handleExcelIconUploaded = (newImagePath: string) => {
+    setCurrentExcelIconPath(newImagePath);
     if (onUpdate) {
       onUpdate({ ...{ title, profileImagePath, profileImageAlt, excelIconPath, excelIconAlt, backgroundColor, titleColor, contentColor, accentColor }, excelIconPath: newImagePath });
     }
@@ -194,31 +198,20 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
          alignItems: 'center',
          justifyContent: 'center'
        }}>
-         <div style={{
-           width: '200px',
-           height: '200px',
-           borderRadius: '50%',
-           overflow: 'hidden',
-           display: 'flex',
-           alignItems: 'center',
-           justifyContent: 'center'
-         }}>
-           <ClickableImagePlaceholder
-             imagePath={profileImagePath}
-             onImageUploaded={handleProfileImageUploaded}
-             size="LARGE"
-             position="CENTER"
-             description="Profile"
-             isEditable={isEditable}
-             style={{
-               width: '100%',
-               height: '100%',
-               borderRadius: '50%',
-               objectFit: 'cover',
-               overflow: 'hidden'
-             }}
-           />
-         </div>
+         <ClickableImagePlaceholder
+           imagePath={profileImagePath}
+           onImageUploaded={handleProfileImageUploaded}
+           size="LARGE"
+           position="CENTER"
+           description="Profile"
+           isEditable={isEditable}
+           style={{
+             width: '200px',
+             height: '200px',
+             borderRadius: '0',
+             objectFit: 'cover'
+           }}
+         />
        </div>
 
       {/* Right Section - Title and Excel Icon */}
@@ -282,52 +275,89 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
           )}
         </div>
 
-        {/* Excel Icon Section */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '20px'
-        }}>
-          {/* Excel Icon */}
-          <div style={{
-            width: '120px',
-            height: '120px',
-            backgroundColor: themeAccent,
-            borderRadius: '15px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-          }}>
-            <ClickableImagePlaceholder
-              imagePath={excelIconPath}
-              onImageUploaded={handleExcelIconUploaded}
-              size="MEDIUM"
-              position="CENTER"
-              description="Excel icon"
-              isEditable={isEditable}
-              style={{
-                width: '80px',
-                height: '80px',
-                objectFit: 'contain'
-              }}
-            />
-          </div>
+                 {/* Excel Icon Section */}
+         <div style={{
+           display: 'flex',
+           flexDirection: 'column',
+           alignItems: 'center',
+           gap: '20px'
+         }}>
+           {/* Excel Icon */}
+           <div style={{
+             width: '120px',
+             height: '120px',
+             backgroundColor: themeAccent,
+             borderRadius: '15px',
+             display: 'flex',
+             alignItems: 'center',
+             justifyContent: 'center',
+             position: 'relative'
+           }}>
+                           {currentExcelIconPath ? (
+               <ClickableImagePlaceholder
+                 imagePath={currentExcelIconPath}
+                 onImageUploaded={handleExcelIconUploaded}
+                 size="MEDIUM"
+                 position="CENTER"
+                 description="Excel icon"
+                 isEditable={isEditable}
+                 style={{
+                   width: '80px',
+                   height: '80px',
+                   objectFit: 'contain'
+                 }}
+               />
+             ) : (
+               <div style={{
+                 display: 'flex',
+                 flexDirection: 'column',
+                 alignItems: 'center',
+                 gap: '8px',
+                 cursor: isEditable ? 'pointer' : 'default'
+               }} onClick={() => isEditable && setShowExcelIconUploadModal(true)}>
+                 {/* Excel X */}
+                 <div style={{
+                   width: '60px',
+                   height: '60px',
+                   backgroundColor: '#217346',
+                   borderRadius: '8px',
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center',
+                   color: 'white',
+                   fontSize: '32px',
+                   fontWeight: 'bold'
+                 }}>
+                   X
+                 </div>
+                 {/* Download Arrow */}
+                 <div style={{
+                   width: '0',
+                   height: '0',
+                   borderLeft: '8px solid transparent',
+                   borderRight: '8px solid transparent',
+                   borderTop: '12px solid #333333'
+                 }} />
+               </div>
+             )}
+           </div>
+                  </div>
+       </div>
 
-          {/* Download Arrow */}
-          <div style={{
-            width: '0',
-            height: '0',
-            borderLeft: '8px solid transparent',
-            borderRight: '8px solid transparent',
-            borderTop: `12px solid #333333`,
-            marginTop: '10px'
-          }} />
-        </div>
-      </div>
-    </div>
-  );
-};
+       {/* Excel Icon Upload Modal */}
+       {showExcelIconUploadModal && (
+         <PresentationImageUpload
+           isOpen={showExcelIconUploadModal}
+           onClose={() => setShowExcelIconUploadModal(false)}
+           onImageUploaded={(newIconPath) => {
+             handleExcelIconUploaded(newIconPath);
+             setShowExcelIconUploadModal(false);
+           }}
+           title="Upload Excel Icon"
+         />
+       )}
+     </div>
+   );
+ };
 
 export default DataAnalysisSlideTemplate; 

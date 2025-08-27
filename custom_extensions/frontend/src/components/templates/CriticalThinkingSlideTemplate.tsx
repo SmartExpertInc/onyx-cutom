@@ -247,7 +247,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               backgroundColor: '#E8CCC6',
               color: '#DA8372',
               opacity: 1,
-              padding: '1px 10px',
+              padding: '0px 10px',
               borderRadius: '3px'
             }}
           >
@@ -391,7 +391,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         <div style={{
           fontSize: '34px',
           color: themeContent,
-          lineHeight: '1.7',
+          lineHeight: '1.6',
           maxWidth: '600px',
           minHeight: '40px',
           display: 'flex',
