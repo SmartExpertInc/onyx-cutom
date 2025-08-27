@@ -58,13 +58,13 @@ class AvatarMaskService:
             logger.info(f"  - output_path: {output_path}")
             logger.info(f"🎬 [AVATAR_MASK_SERVICE] Creating avatar mask video with {len(voiceover_texts)} voiceover texts")
             
-            # Step 1: Create Elai API video with green background
-            logger.info("🎬 [AVATAR_MASK_SERVICE] Step 1: Creating Elai green screen video...")
-            elai_video_path = await self._create_elai_green_screen_video(voiceover_texts, avatar_code)
+            # Step 1: Create Elai API video
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Step 1: Creating Elai avatar video...")
+            elai_video_path = await self._create_elai_avatar_video(voiceover_texts, avatar_code)
             if not elai_video_path:
-                logger.error("🎬 [AVATAR_MASK_SERVICE] Failed to create Elai green screen video")
+                logger.error("🎬 [AVATAR_MASK_SERVICE] Failed to create Elai avatar video")
                 return None
-            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Elai green screen video created: {elai_video_path}")
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Elai avatar video created: {elai_video_path}")
             
             # Step 2: Create professional alpha mask
             mask_video_path = await self._create_professional_mask(elai_video_path)
@@ -101,13 +101,13 @@ class AvatarMaskService:
             logger.error(f"Error in create_avatar_mask_video: {str(e)}")
             return None
     
-    async def _create_elai_green_screen_video(self, voiceover_texts: list[str], avatar_code: str) -> Optional[str]:
+    async def _create_elai_avatar_video(self, voiceover_texts: list[str], avatar_code: str) -> Optional[str]:
         """
-        Create Elai API video with green background and positioned avatar.
+        Create Elai API video with positioned avatar.
         Based on test_elai_api.py logic.
         """
         try:
-            logger.info("🎬 [AVATAR_MASK_SERVICE] Creating Elai green screen video...")
+            logger.info("🎬 [AVATAR_MASK_SERVICE] Creating Elai avatar video...")
             logger.info("🎬 [AVATAR_MASK_SERVICE] Importing ElaiVideoGenerationService...")
             
             # Import here to avoid circular imports
@@ -118,10 +118,9 @@ class AvatarMaskService:
             video_service = ElaiVideoGenerationService()
             logger.info("🎬 [AVATAR_MASK_SERVICE] ElaiVideoGenerationService created successfully")
             
-            # Create video with green background configuration
-            # This will use the same logic as test_elai_api.py
-            project_name = f"Green Screen Avatar - {datetime.now().strftime('%Y%m%d_%H%M%S')}"
-            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Calling create_video_from_texts with green_screen_mode=True")
+            # Create video with standard configuration
+            project_name = f"Avatar Video - {datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            logger.info(f"🎬 [AVATAR_MASK_SERVICE] Calling create_video_from_texts")
             logger.info(f"🎬 [AVATAR_MASK_SERVICE] Project name: {project_name}")
             logger.info(f"🎬 [AVATAR_MASK_SERVICE] Avatar code: {avatar_code}")
             logger.info(f"🎬 [AVATAR_MASK_SERVICE] Voiceover texts count: {len(voiceover_texts)}")
@@ -129,8 +128,7 @@ class AvatarMaskService:
             result = await video_service.create_video_from_texts(
                 project_name=project_name,
                 voiceover_texts=voiceover_texts,
-                avatar_code=avatar_code,
-                green_screen_mode=True  # New parameter to enable green screen mode
+                avatar_code=avatar_code
             )
             
             logger.info(f"🎬 [AVATAR_MASK_SERVICE] create_video_from_texts result: {result}")
@@ -144,7 +142,7 @@ class AvatarMaskService:
                 return None
                 
         except Exception as e:
-            logger.error(f"Error creating Elai green screen video: {str(e)}")
+            logger.error(f"Error creating Elai avatar video: {str(e)}")
             return None
     
     async def _wait_for_video_completion(self, video_service, video_id: str) -> Optional[str]:
@@ -167,7 +165,7 @@ class AvatarMaskService:
                 return None
             
             # Download the video
-            video_path = os.path.join(self.temp_dir, f"elai_green_screen_{video_id}.mp4")
+            video_path = os.path.join(self.temp_dir, f"elai_avatar_{video_id}.mp4")
             download_result = await video_service.download_video(download_url, video_path)
             
             if download_result and os.path.exists(video_path):

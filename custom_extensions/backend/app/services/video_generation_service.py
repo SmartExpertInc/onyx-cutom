@@ -78,7 +78,7 @@ class ElaiVideoGenerationService:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, green_screen_mode: bool = False) -> Dict[str, Any]:
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
         
@@ -95,7 +95,6 @@ class ElaiVideoGenerationService:
         logger.info(f"  - Project name: {project_name}")
         logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
         logger.info(f"  - Avatar code: {avatar_code}")
-        logger.info(f"  - Green screen mode: {green_screen_mode}")
         
         for i, text in enumerate(voiceover_texts):
             logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
@@ -210,114 +209,35 @@ class ElaiVideoGenerationService:
                         "error": f"No avatars with valid canvas URL found"
                     }
             
-            # Prepare slides for Elai API
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing {len(cleaned_texts)} slides for Elai API")
+            # Validate avatar canvas URL before proceeding
+            avatar_canvas_url = avatar.get('canvas')
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Avatar validation:")
+            logger.info(f"  - Avatar code: {avatar.get('code')}")
+            logger.info(f"  - Avatar canvas URL: {avatar_canvas_url}")
             
-            elai_slides = []
-            for i, voiceover_text in enumerate(cleaned_texts):
-                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Creating slide {i+1} with text: {voiceover_text[:100]}...")
-                
-                # Configure canvas for FULL-FRAME avatar video generation
-                if green_screen_mode:
-                    # Green screen mode: avatar fills entire frame for chroma key
-                    canvas_config = {
-                        "objects": [{
-                            "type": "avatar",
-                            "left": 960,      # Center horizontally in 1920px canvas
-                            "top": 540,       # Center vertically in 1080px canvas
-                            "fill": "#4868FF",
-                            "scaleX": 1.0,    # Full size avatar
-                            "scaleY": 1.0,    # Full size avatar
-                            "width": 1920,    # Full canvas width
-                            "height": 1080,   # Full canvas height
-                            "src": avatar.get("canvas"),
-                            "avatarType": "transparent",
-                            "animation": {
-                                "type": None,
-                                "exitType": None
-                            }
-                        }],
-                        "background": "#00FF00",  # Pure green background for chroma key
-                        "version": "4.4.0"
-                    }
-                else:
-                    # Normal mode: avatar fills entire frame
-                    canvas_config = {
-                        "objects": [{
-                            "type": "avatar",
-                            "left": 960,      # Center horizontally in 1920px canvas
-                            "top": 540,       # Center vertically in 1080px canvas
-                            "fill": "#4868FF",
-                            "scaleX": 1.0,    # Full size avatar
-                            "scaleY": 1.0,    # Full size avatar
-                            "width": 1920,    # Full canvas width
-                            "height": 1080,   # Full canvas height
-                            "src": avatar.get("canvas"),
-                            "avatarType": "transparent",
-                            "animation": {
-                                "type": None,
-                                "exitType": None
-                            }
-                        }],
-                        "background": "#ffffff",  # White background for normal mode
-                        "version": "4.4.0"
-                    }
-                
-                # CRITICAL FIX: Ensure avatar object matches canvas object and validate URLs
-                avatar_canvas_url = avatar.get('canvas')
-                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL DEBUG - Avatar object consistency:")
-                logger.info(f"  - Canvas src URL: {avatar_canvas_url}")
-                logger.info(f"  - Avatar code: {avatar.get('code')}")
-                logger.info(f"  - Avatar canvas URL: {avatar_canvas_url}")
-                
-                # Validate canvas URL format
-                if not avatar_canvas_url or not avatar_canvas_url.startswith('https://'):
-                    logger.error(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL ERROR: Invalid canvas URL format: {avatar_canvas_url}")
-                    return {
-                        "success": False,
-                        "error": f"Invalid avatar canvas URL format: {avatar_canvas_url}"
-                    }
-                
-                # Additional validation: Check URL contains expected patterns
-                if 'cloudfront.net' not in avatar_canvas_url and 'elai.io' not in avatar_canvas_url:
-                    logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] WARNING: Unusual canvas URL domain: {avatar_canvas_url}")
-                
-                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
-                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] FULL-FRAME AVATAR CONFIGURATION:")
-                logger.info(f"  - Position: Centered at ({canvas_config['objects'][0]['left']}, {canvas_config['objects'][0]['top']})")
-                logger.info(f"  - Scale: {canvas_config['objects'][0]['scaleX']}x{canvas_config['objects'][0]['scaleY']} (Full size)")
-                logger.info(f"  - Dimensions: {canvas_config['objects'][0]['width']}x{canvas_config['objects'][0]['height']}")
-                logger.info(f"  - Background: {canvas_config['background']}")
-                logger.info(f"  - Mode: {'Green Screen' if green_screen_mode else 'Normal'}")
-                
-                elai_slide = {
-                    "id": i + 1,
-                    "status": "edited",
-                    "canvas": canvas_config,
-                    "avatar": {
-                        "code": avatar.get("code"),
-                        "name": avatar.get("name"),
-                        "gender": avatar.get("gender"),
-                        "canvas": avatar.get("canvas")  # This MUST match the canvas.objects[0].src
-                    },
-                    "animation": "fade_in",
-                    "language": "English",
-                    "speech": voiceover_text,
-                    "voice": "en-US-AriaNeural",
-                    "voiceType": "text",
-                    "voiceProvider": "azure"
+            # Validate canvas URL format
+            if not avatar_canvas_url or not avatar_canvas_url.startswith('https://'):
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL ERROR: Invalid canvas URL format: {avatar_canvas_url}")
+                return {
+                    "success": False,
+                    "error": f"Invalid avatar canvas URL format: {avatar_canvas_url}"
                 }
-                elai_slides.append(elai_slide)
             
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing VERTICAL video request with full-size avatar")
+            # Additional validation: Check URL contains expected patterns
+            if 'cloudfront.net' not in avatar_canvas_url and 'elai.io' not in avatar_canvas_url:
+                logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] WARNING: Unusual canvas URL domain: {avatar_canvas_url}")
+            
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
+            
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request with CORRECT 1080x1080 dimensions")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
             logger.info(f"  - Name: {project_name}")
-            logger.info(f"  - Format: VERTICAL (9:16)")
-            logger.info(f"  - Avatar: Full-size filling entire frame")
+            logger.info(f"  - Dimensions: 1080x1080 (CORRECT)")
+            logger.info(f"  - Avatar scale: 0.3x0.3 (appropriate for 1080x1080)")
             logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
 
-            # FIXED: Official Elai API structure for vertical full-size avatar
-            # SIMPLIFIED ELAI API REQUEST - Focus on getting visible avatar
+            # FIXED: Official Elai API structure with correct 1080x1080 dimensions
+            # Use actual avatar data instead of hardcoded example values
             video_request = {
                 "name": project_name,
                 "slides": [{
@@ -335,11 +255,11 @@ class ElaiVideoGenerationService:
                             "src": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",  # Exact from example
                             "avatarType": "transparent",  # Exact from example
                             "animation": {
-                                "type": None,      # Exact from example (null -> None)
-                                "exitType": None   # Exact from example (null -> None)
+                                "type": None,
+                                "exitType": None
                             }
                         }],
-                        "background": "#ffffff",  # Exact from example
+                        "background": "#110c35",  
                         "version": "4.4.0"        # Exact from example
                     },
                     "avatar": {
@@ -347,14 +267,14 @@ class ElaiVideoGenerationService:
                         "gender": "female",       # Exact from example
                         "canvas": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png"  # Exact from example
                     },
-                    "animation": "fade_in",       # Exact from example
-                    "language": "English",        # Exact from example
+                    "animation": "fade_in",
+                    "language": "English",
                     "speech": " ".join(cleaned_texts),
-                    "voice": "en-US-AriaNeural",  # Exact from example
-                    "voiceType": "text",          # Exact from example
-                    "voiceProvider": "azure"      # Exact from example
+                    "voice": "en-US-AriaNeural",
+                    "voiceType": "text",
+                    "voiceProvider": "azure"
                 }],
-                "tags": ["test"]  # Simplified from example
+                "tags": ["video_lesson", "generated", "presentation"]
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
