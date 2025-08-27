@@ -224,8 +224,8 @@ class ProfessionalPresentationService:
                                     logger.info(f"    - {key}: {value}")
                 else:
                     logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                # Try to extract slide props from URL or use fallback
-                slide_props = await self._extract_slide_props_from_url(request.slide_url)
+                    # Try to extract slide props from URL or use fallback
+                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
                     slides_data = [slide_props]  # Convert single slide to list
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
@@ -242,7 +242,7 @@ class ProfessionalPresentationService:
                 if len(slides_data) == 1:
                     # Single slide generation
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Using single slide generation")
-                result = await clean_video_generation_service.generate_avatar_slide_video(
+                    result = await clean_video_generation_service.generate_avatar_slide_video(
                         slide_props=slides_data[0],
                         theme=request.theme or "dark-purple",
                         slide_duration=request.duration,
@@ -254,9 +254,9 @@ class ProfessionalPresentationService:
                     result = await clean_video_generation_service.generate_presentation_video(
                         slides_props=slides_data,
                         theme=request.theme or "dark-purple", 
-                    slide_duration=request.duration,
-                    quality=request.quality
-                )
+                        slide_duration=request.duration,
+                        quality=request.quality
+                    )
                 
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation result:")
                 logger.info(f"  - Success: {result.get('success', False)}")
@@ -302,7 +302,7 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Slide-only video copied to: {final_video_path}")
                 
             else:
-            # Step 2: Generate avatar video via Elai API
+                # Step 2: Generate avatar video via Elai API
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
                 logger.info(f"  - Voiceover texts count: {len(request.voiceover_texts)}")
@@ -312,7 +312,7 @@ class ProfessionalPresentationService:
                 for i, text in enumerate(request.voiceover_texts):
                     logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
                 
-            job.progress = 40.0
+                job.progress = 40.0
                 
                 # Add detailed logging for avatar generation
                 logger.info(f"🎬 [PRESENTATION_PROCESSING] Starting avatar video generation...")
