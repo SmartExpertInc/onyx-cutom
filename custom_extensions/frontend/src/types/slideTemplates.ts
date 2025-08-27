@@ -406,15 +406,11 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
 
 export interface ComparisonSlideTemplateProps extends BaseTemplateProps {
   title: string;
+  subtitle?: string;
   tableData: {
     headers: string[];
     rows: string[][];
   };
-  titleColor?: string;
-  headerColor?: string;
-  textColor?: string;
-  backgroundColor?: string;
-  borderColor?: string;
   theme?: SlideTheme;
 }
 

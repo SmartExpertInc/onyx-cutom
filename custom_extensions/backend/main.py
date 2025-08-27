@@ -1432,37 +1432,6 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 # Map event-dates (AI instruction) to event-list (frontend registry)
                 template_id = 'event-list'
                 normalized_slide['templateId'] = template_id
-            elif template_id == 'comparison-slide':
-                # Ensure comparison-slide has proper tableData structure
-                if 'tableData' not in normalized_props and ('leftData' in normalized_props or 'rightData' in normalized_props):
-                    # Convert leftData/rightData to tableData format
-                    left_data = normalized_props.get('leftData', [])
-                    right_data = normalized_props.get('rightData', [])
-                    
-                    # Create table format with headers and rows
-                    headers = ['Feature', 'Option A', 'Option B']
-                    rows = []
-                    
-                    # Combine left and right data into rows
-                    max_items = max(len(left_data), len(right_data))
-                    for i in range(max_items):
-                        left_item = left_data[i] if i < len(left_data) else {}
-                        right_item = right_data[i] if i < len(right_data) else {}
-                        
-                        feature = left_item.get('label') or right_item.get('label') or f"Feature {i+1}"
-                        left_value = left_item.get('value', left_item.get('description', ''))
-                        right_value = right_item.get('value', right_item.get('description', ''))
-                        
-                        rows.append([feature, left_value, right_value])
-                    
-                    normalized_props['tableData'] = {
-                        'headers': headers,
-                        'rows': rows
-                    }
-                    
-                    # Remove old props
-                    normalized_props.pop('leftData', None)
-                    normalized_props.pop('rightData', None)
                 
             # Ensure critical props are preserved for all templates
             # Fix missing imagePrompt and other content issues
@@ -1887,6 +1856,55 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 else:
                     logger.warning(f"Coercing slide {slide_index + 1} with template '{template_id}': Invalid or missing bullets array, adding placeholder")
                     normalized_props['bullets'] = ['No content available']
+            
+            # Fix comparison-slide template props
+            elif template_id == 'comparison-slide':
+                table_data = normalized_props.get('tableData', {})
+                if isinstance(table_data, dict):
+                    # Ensure headers exist
+                    if 'headers' not in table_data or not isinstance(table_data['headers'], list):
+                        logger.warning(f"Coercing slide {slide_index + 1} with template '{template_id}': Missing or invalid headers")
+                        table_data['headers'] = ['Feature', 'Option A', 'Option B']
+                    
+                    # Ensure rows exist
+                    if 'rows' not in table_data or not isinstance(table_data['rows'], list):
+                        logger.warning(f"Coercing slide {slide_index + 1} with template '{template_id}': Missing or invalid rows")
+                        table_data['rows'] = [
+                            ['Characteristic 1', 'Value A1', 'Value B1'],
+                            ['Characteristic 2', 'Value A2', 'Value B2']
+                        ]
+                    
+                    # Ensure all rows have the correct number of columns
+                    expected_cols = len(table_data['headers'])
+                    fixed_rows = []
+                    for row_idx, row in enumerate(table_data['rows']):
+                        if isinstance(row, list):
+                            # Pad or trim row to match header count
+                            if len(row) < expected_cols:
+                                # Pad with empty strings
+                                row = row + [''] * (expected_cols - len(row))
+                            elif len(row) > expected_cols:
+                                # Trim to match headers
+                                row = row[:expected_cols]
+                            fixed_rows.append([str(cell) for cell in row])
+                        else:
+                            logger.warning(f"Coercing slide {slide_index + 1}: Invalid row format at index {row_idx}")
+                            # Create a placeholder row
+                            fixed_rows.append([f'Row {row_idx + 1} Col {i + 1}' for i in range(expected_cols)])
+                    
+                    table_data['rows'] = fixed_rows
+                    normalized_props['tableData'] = table_data
+                    
+                    logger.info(f"Fixed comparison table data for slide {slide_index + 1}: {len(table_data['headers'])} columns, {len(table_data['rows'])} rows")
+                else:
+                    logger.warning(f"Coercing slide {slide_index + 1} with template '{template_id}': Invalid tableData, adding default comparison")
+                    normalized_props['tableData'] = {
+                        'headers': ['Feature', 'Option A', 'Option B'],
+                        'rows': [
+                            ['Characteristic 1', 'Value A1', 'Value B1'],
+                            ['Characteristic 2', 'Value A2', 'Value B2']
+                        ]
+                    }
         
             normalized_slide['props'] = normalized_props
             

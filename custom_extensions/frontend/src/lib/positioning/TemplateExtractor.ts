@@ -102,7 +102,7 @@ export class TemplateExtractor {
       'pie-chart-infographics': this.extractPieChartInfographics,
       'bar-chart-infographics': this.extractBarChartInfographics,
       'market-share': this.extractMarketShare,
-      'comparison-slide': null,
+      'comparison-slide': this.extractComparisonSlide
     };
 
     return extractors[templateId] || null;
@@ -1528,49 +1528,64 @@ export class TemplateExtractor {
     canvasConfig: CanvasConfig;
   } {
     const items: PositionableItem[] = [];
-    
-    if (props.title) {
-      items.push({
-        id: 'title',
-        type: 'text',
-        content: props.title,
-        x: 400,
-        y: 50,
-        width: 800,
-        height: 60,
-        fontSize: 32,
-        fontWeight: 'bold',
-        textAlign: 'center'
-      });
-    }
-    
-    return {
-      items,
-      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
-    };
-  }
 
-  private static extractComparisonSlide(props: any): {
-    items: PositionableItem[];
-    canvasConfig: CanvasConfig;
-  } {
-    const items: PositionableItem[] = [];
-    
+    // Title
     if (props.title) {
-      items.push({
-        id: 'title',
-        type: 'text',
-        content: props.title,
-        x: 400,
-        y: 50,
-        width: 800,
-        height: 60,
-        fontSize: 32,
-        fontWeight: 'bold',
-        textAlign: 'center'
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
+    }
+
+    // Subtitle
+    if (props.subtitle) {
+      items.push(TemplateExtractor.createTextItem(
+        'subtitle',
+        props.subtitle,
+        { x: 60, y: 160, width: 1080, height: 40 },
+        'text'
+      ));
+    }
+
+    // Market share chart (as a shape)
+    items.push(TemplateExtractor.createShapeItem(
+      'market-share-chart',
+      'market-share-chart',
+      { x: 60, y: 220, width: 600, height: 300 }
+    ));
+
+    // Chart data legend
+    if (props.chartData && props.chartData.length > 0) {
+      let currentY = 220;
+      props.chartData.forEach((item: any, index: number) => {
+        items.push(TemplateExtractor.createContainerItem(
+          `market-item-${index + 1}`,
+          {
+            type: 'market-share-item',
+            label: item.label,
+            description: item.description,
+            percentage: item.percentage,
+            color: item.color,
+            year: item.year
+          },
+          { x: 700, y: currentY, width: 440, height: 80 }
+        ));
+        currentY += 100;
       });
     }
-    
+
+    // Bottom text
+    if (props.bottomText) {
+      items.push(TemplateExtractor.createTextItem(
+        'bottom-text',
+        props.bottomText,
+        { x: 60, y: 540, width: 1080, height: 40 },
+        'text'
+      ));
+    }
+
     return {
       items,
       canvasConfig: TemplateExtractor.DEFAULT_CANVAS
@@ -1585,22 +1600,68 @@ export class TemplateExtractor {
 
     // Try to extract basic content
     if (slide.props.title) {
-      items.push({
-        id: 'title',
-        type: 'text',
-        content: slide.props.title
-      } as any);
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        slide.props.title,
+        { x: 60, y: 80, width: 1080, height: 60 },
+        'heading'
+      ));
     }
 
     if (slide.props.content) {
-      items.push({
-        id: 'content',
-        type: 'text',
-        content: slide.props.content
-      } as any);
+      items.push(TemplateExtractor.createTextItem(
+        'content',
+        slide.props.content,
+        { x: 60, y: 180, width: 1080, height: 400 },
+        'text'
+      ));
     }
 
     return items;
   }
 
+  private static extractComparisonSlide(props: any): {
+    items: PositionableItem[];
+    canvasConfig: CanvasConfig;
+  } {
+    const items: PositionableItem[] = [];
+
+    // Title
+    if (props.title) {
+      items.push(TemplateExtractor.createTextItem(
+        'title',
+        props.title,
+        { x: 60, y: 60, width: 1800, height: 80 },
+        'heading'
+      ));
+    }
+
+    // Subtitle
+    if (props.subtitle) {
+      items.push(TemplateExtractor.createTextItem(
+        'subtitle',
+        props.subtitle,
+        { x: 60, y: 160, width: 1800, height: 60 },
+        'text'
+      ));
+    }
+
+    // Comparison table
+    if (props.tableData && props.tableData.headers && props.tableData.rows) {
+      const tableStartY = props.subtitle ? 240 : 160;
+      const tableHeight = Math.min(600, props.tableData.rows.length * 60 + 80);
+      
+      items.push(TemplateExtractor.createTextItem(
+        'comparison-table',
+        JSON.stringify(props.tableData),
+        { x: 60, y: tableStartY, width: 1800, height: tableHeight },
+        'text'
+      ));
+    }
+
+    return {
+      items,
+      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
+    };
+  }
 }
