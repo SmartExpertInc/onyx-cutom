@@ -185,45 +185,38 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
     <div className="data-analysis-slide-template" style={slideStyles}>
       {/* Left Section - Profile Image */}
       <div style={{
-        width: '50%',
+        width: '33%',
         height: '100%',
         backgroundColor: themeAccent,
+        borderRadius: '20px',
+        margin: '40px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative'
+        justifyContent: 'center'
       }}>
-        <div style={{
-          width: '200px',
-          height: '200px',
-          borderRadius: '20px',
-          overflow: 'hidden',
-          backgroundColor: themeBg,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '20px',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
+        <ClickableImagePlaceholder
+          imagePath={profileImagePath}
+          onImageUploaded={handleProfileImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Profile photo"
+          isEditable={isEditable}
+          style={{
+            width: '200px',
+            height: '200px',
+            borderRadius: '20px',
+            objectFit: 'cover'
+          }}
+        />
       </div>
 
       {/* Right Section - Title and Excel Icon */}
       <div style={{
-        width: '50%',
+        width: '67%',
         height: '100%',
+        backgroundColor: '#ffffff',
+        borderRadius: '20px',
+        margin: '40px 40px 40px 0',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -232,7 +225,7 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
         {/* Title */}
         <div style={{
           fontSize: '48px',
-          color: themeTitle,
+          color: '#333333',
           fontWeight: 'bold',
           lineHeight: '1.2',
           whiteSpace: 'pre-line'
@@ -246,7 +239,7 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
               className="data-analysis-title-editor"
               style={{
                 fontSize: '48px',
-                color: themeTitle,
+                color: '#333333',
                 fontWeight: 'bold',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line'
@@ -283,36 +276,19 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
             justifyContent: 'center',
             position: 'relative'
           }}>
-            {excelIconPath ? (
-              <ClickableImagePlaceholder
-                imagePath={excelIconPath}
-                onImageUploaded={handleExcelIconUploaded}
-                size="MEDIUM"
-                position="CENTER"
-                description="Excel icon"
-                isEditable={isEditable}
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  objectFit: 'contain'
-                }}
-              />
-            ) : (
-              <div style={{
+            <ClickableImagePlaceholder
+              imagePath={excelIconPath}
+              onImageUploaded={handleExcelIconUploaded}
+              size="MEDIUM"
+              position="CENTER"
+              description="Excel icon"
+              isEditable={isEditable}
+              style={{
                 width: '80px',
                 height: '80px',
-                backgroundColor: themeBg,
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: themeAccent,
-                fontSize: '48px',
-                fontWeight: 'bold'
-              }}>
-                X
-              </div>
-            )}
+                objectFit: 'contain'
+              }}
+            />
           </div>
 
           {/* Download Arrow */}
@@ -321,7 +297,7 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
             height: '0',
             borderLeft: '8px solid transparent',
             borderRight: '8px solid transparent',
-            borderTop: `12px solid ${themeContent}`,
+            borderTop: `12px solid #333333`,
             marginTop: '10px'
           }} />
         </div>

@@ -320,6 +320,18 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               gap: '15px',
               position: 'relative'
             }}
+            onMouseEnter={(e) => {
+              if (isEditable) {
+                const controls = e.currentTarget.querySelector('.bar-controls') as HTMLElement;
+                if (controls) controls.style.opacity = '1';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (isEditable) {
+                const controls = e.currentTarget.querySelector('.bar-controls') as HTMLElement;
+                if (controls) controls.style.opacity = '0';
+              }
+            }}
           >
             {/* Percentage */}
             <div style={{
@@ -364,15 +376,20 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             }}>
               {/* Height adjustment controls */}
               {isEditable && (
-                <div style={{
-                  position: 'absolute',
-                  right: '-30px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '5px'
-                }}>
+                <div 
+                  className="bar-controls"
+                  style={{
+                    position: 'absolute',
+                    right: '-30px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '5px',
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease-in-out'
+                  }}
+                >
                   <button
                     onClick={() => adjustBarHeight(index, bar.height + 10)}
                     style={{
@@ -452,6 +469,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             {/* Remove button */}
             {isEditable && currentBars.length > 1 && (
               <button
+                className="bar-controls"
                 onClick={() => removeBar(index)}
                 style={{
                   position: 'absolute',
@@ -467,7 +485,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   fontSize: '12px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out'
                 }}
               >
                 ×
@@ -475,32 +495,34 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             )}
           </div>
         ))}
+      </div>
 
-        {/* Add bar button */}
-        {isEditable && (
-          <button
-            onClick={addBar}
-            style={{
-              position: 'absolute',
-              right: '-80px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '40px',
-              height: '40px',
-              backgroundColor: themeAccent,
-              border: 'none',
-              borderRadius: '50%',
-              color: themeBg,
-              cursor: 'pointer',
-              fontSize: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            +
-          </button>
-        )}
+      {/* Add bar button - positioned outside the chart area */}
+      {isEditable && (
+        <button
+          onClick={addBar}
+          style={{
+            position: 'absolute',
+            right: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: '40px',
+            height: '40px',
+            backgroundColor: themeAccent,
+            border: 'none',
+            borderRadius: '50%',
+            color: themeBg,
+            cursor: 'pointer',
+            fontSize: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10
+          }}
+        >
+          +
+        </button>
+      )}
       </div>
 
       {/* Footer */}
