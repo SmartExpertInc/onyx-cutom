@@ -538,11 +538,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: 1,
+                  opacity: 0,
                   transition: 'all 0.3s ease-in-out',
                   zIndex: 15,
                   boxShadow: '0 3px 10px rgba(0,0,0,0.4)'
                 }}
+                className="bar-controls"
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.backgroundColor = '#ff0000';
                   e.currentTarget.style.transform = 'scale(1.3)';
