@@ -23,8 +23,6 @@ interface ToolbarProps {
   onTextButtonClick?: (position: { x: number; y: number }) => void;
   onShapesButtonClick?: (position: { x: number; y: number }) => void;
   onInteractionButtonClick?: (position: { x: number; y: number }) => void;
-  onMusicButtonClick?: () => void;
-  onTransitionButtonClick?: () => void;
   onLanguageVariantModalOpen?: () => void;
 }
 
@@ -35,7 +33,7 @@ interface Tool {
   chevron?: LucideIcon;
 }
 
-export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onMusicButtonClick, onTransitionButtonClick, onLanguageVariantModalOpen }: ToolbarProps) {
+export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShapesButtonClick, onInteractionButtonClick, onLanguageVariantModalOpen }: ToolbarProps) {
   const [activeToolId, setActiveToolId] = useState<string>('script');
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState<boolean>(false);
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState<boolean>(false);
@@ -170,15 +168,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
       return;
     }
     
-    if (toolId === 'music' && onMusicButtonClick) {
-      onMusicButtonClick();
-      return;
-    }
-    
-    if (toolId === 'transition' && onTransitionButtonClick) {
-      onTransitionButtonClick();
-      return;
-    }
+
     
     if (toolId === 'avatar' && avatarButtonRef.current) {
       const rect = avatarButtonRef.current.getBoundingClientRect();
