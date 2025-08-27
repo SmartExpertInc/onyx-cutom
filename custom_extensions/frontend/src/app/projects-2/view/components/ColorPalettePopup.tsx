@@ -637,7 +637,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
           >
             {/* Custom cursor indicator */}
             <div
-              className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              className="absolute w-3 h-3 rounded-full border-2 border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
                 left: `${hsb.s}%`,
                 top: `${100 - hsb.b}%`,
@@ -659,9 +659,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Preview Square and Sliders Layout */}
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-4 mb-4 items-center">
           {/* Color Preview Square */}
-          <div className="w-10 h-10 border border-gray-300 rounded-lg relative z-[10001]"
+          <div className="w-10 h-10 rounded-lg relative z-[10001] flex-shrink-0"
             style={{
               background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
                            linear-gradient(-45deg, #ccc 25%, transparent 25%), 
@@ -670,7 +670,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               backgroundSize: '10px 10px',
               backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
             }}>
-                      <div className="w-full h-full rounded-lg"
+                      <div className="w-full h-full border border-gray-300 rounded-lg"
             style={{
               backgroundColor: hex,
               opacity: opacity
@@ -731,7 +731,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               className={`flex-1 px-3 py-1.5 border-none rounded-full text-xs cursor-pointer transition-all duration-200 relative z-[10002] ${
                 colorFormat === format 
                   ? 'bg-white text-black font-normal shadow-sm' 
-                  : 'bg-transparent text-gray-500 font-normal'
+                  : 'bg-transparent text-black font-normal'
               }`}
             >
               {format}
