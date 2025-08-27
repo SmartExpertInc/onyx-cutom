@@ -58,7 +58,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const sbRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const popupRef = useRef<HTMLDivElement>(null);
-  const [adjustedPosition, setAdjustedPosition] = React.useState<{ x: number; y: number } | null>(null);
+  const [adjustedPosition, setAdjustedPosition] = React.useState<{ x: number; y: number } | null>(position || null);
 
   // Viewport positioning logic (same as OptionPopup)
   useEffect(() => {
@@ -454,7 +454,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     };
   }, [handleMouseMove]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !adjustedPosition) return null;
 
   return (
     <>
@@ -478,8 +478,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         ref={popupRef}
         style={{
           position: 'fixed',
-          left: adjustedPosition?.x || 0,
-          top: adjustedPosition?.y || 0,
+          left: adjustedPosition.x,
+          top: adjustedPosition.y,
           zIndex: 9999,
           backgroundColor: 'white',
           borderRadius: '12px',
