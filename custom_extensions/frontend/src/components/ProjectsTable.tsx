@@ -73,6 +73,20 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
   }
 };
 
+// Helper function to get display name for product types
+const getProductTypeDisplayName = (type: string): string => {
+  switch (type) {
+    case "Training Plan":
+      return "Course Outline";
+    case "Slide Deck":
+      return "Presentation";
+    case "Text Presentation":
+      return "Onepager";
+    default:
+      return type;
+  }
+};
+
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (
   columnWidthPercent: number,
@@ -1179,8 +1193,8 @@ const FolderRow: React.FC<{
             {columnVisibility.type && (
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
-                  <span className="text-gray-900 font-medium">
-                    {p.designMicroproductType}
+                  <span className="text-gray-500 font-medium">
+                    {getProductTypeDisplayName(p.designMicroproductType)}
                   </span>
                 ) : (
                   "-"
@@ -3019,7 +3033,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: true,
     estCreationTime: true,
     estCompletionTime: true,
-    type: true,
+    type: false,
   });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 48,
@@ -3028,7 +3042,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: 13,
     estCreationTime: 13.5,
     estCompletionTime: 13.5,
-    type: 15,
+    type: 7.5,
   });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -4734,8 +4748,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       {columnVisibility.type && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
-                            <span className="text-gray-900 font-medium">
-                              {p.designMicroproductType}
+                            <span className="text-gray-500 font-medium">
+                              {getProductTypeDisplayName(p.designMicroproductType)}
                             </span>
                           ) : (
                             "-"
@@ -4896,8 +4910,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       {columnVisibility.type && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
-                            <span className="text-gray-900 font-medium">
-                              {p.designMicroproductType}
+                            <span className="text-gray-500 font-medium">
+                              {getProductTypeDisplayName(p.designMicroproductType)}
                             </span>
                           ) : (
                             "-"
