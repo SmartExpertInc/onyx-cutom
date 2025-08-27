@@ -178,8 +178,13 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             htmlElement.removeAttribute('data-just-dragged');
           }, 400);
           suppressClicksUntilRef.current = Date.now() + 400;
+          
+          // Create a more targeted click suppression that only affects draggable elements
           const suppressNextClick = (ev: MouseEvent) => {
-            if (Date.now() < suppressClicksUntilRef.current) {
+            const target = ev.target as HTMLElement;
+            // Only suppress clicks on draggable elements or their children
+            const isDraggableElement = target.closest('[data-draggable="true"]');
+            if (isDraggableElement && Date.now() < suppressClicksUntilRef.current) {
               ev.stopImmediatePropagation();
               ev.stopPropagation();
               ev.preventDefault();
