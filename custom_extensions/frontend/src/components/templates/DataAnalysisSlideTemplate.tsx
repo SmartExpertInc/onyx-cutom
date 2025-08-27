@@ -15,6 +15,149 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
+interface BarChartData {
+  id: string;
+  label: string;
+  value: number;
+  color: string;
+}
+
+interface BarChartProps {
+  data: BarChartData[];
+  onDelete: (id: string) => void;
+  isEditable?: boolean;
+  theme: SlideTheme;
+}
+
+function BarChart({ data, onDelete, isEditable = false, theme }: BarChartProps) {
+  const [hoveredBar, setHoveredBar] = useState<string | null>(null);
+  
+  const maxValue = Math.max(...data.map(item => item.value));
+  
+  return (
+    <div style={{
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      padding: '40px'
+    }}>
+      <div style={{
+        fontSize: '24px',
+        color: '#333333',
+        fontWeight: 'bold',
+        marginBottom: '20px'
+      }}>
+        Data Analytics Overview
+      </div>
+      
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+        justifyContent: 'space-between'
+      }}>
+        {data.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '15px'
+            }}
+            onMouseEnter={() => setHoveredBar(item.id)}
+            onMouseLeave={() => setHoveredBar(null)}
+          >
+            {/* Label */}
+            <div style={{
+              width: '100px',
+              fontSize: '16px',
+              color: '#333333',
+              fontWeight: '500',
+              textAlign: 'right'
+            }}>
+              {item.label}
+            </div>
+            
+            {/* Bar container */}
+            <div style={{
+              flex: 1,
+              height: '35px',
+              backgroundColor: 'rgba(0, 0, 0, 0.1)',
+              borderRadius: '17px',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Bar */}
+              <div style={{
+                height: '100%',
+                width: `${(item.value / maxValue) * 100}%`,
+                backgroundColor: item.color,
+                borderRadius: '17px',
+                transition: 'width 0.3s ease',
+                position: 'relative'
+              }} />
+              
+              {/* Value label on bar */}
+              <div style={{
+                position: 'absolute',
+                left: '15px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '14px',
+                color: '#ffffff',
+                fontWeight: 'bold',
+                zIndex: 2
+              }}>
+                {item.value}%
+              </div>
+            </div>
+            
+            {/* Delete button */}
+            {isEditable && hoveredBar === item.id && (
+              <div
+                onClick={() => onDelete(item.id)}
+                style={{
+                  position: 'absolute',
+                  right: '-30px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '24px',
+                  height: '24px',
+                  backgroundColor: '#ff4444',
+                  border: 'none',
+                  borderRadius: '50%',
+                  color: 'white',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 3,
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  e.currentTarget.style.backgroundColor = '#ff0000';
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                  e.currentTarget.style.backgroundColor = '#ff4444';
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                }}
+              >
+                ×
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -141,6 +284,15 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
+  
+  // Bar chart data
+  const [chartData, setChartData] = useState<BarChartData[]>([
+    { id: '1', label: 'Sales Growth', value: 75, color: '#FF6B35' },
+    { id: '2', label: 'Market Share', value: 60, color: '#4ECDC4' },
+    { id: '3', label: 'Revenue', value: 85, color: '#45B7D1' },
+    { id: '4', label: 'Profit Margin', value: 45, color: '#96CEB4' },
+    { id: '5', label: 'Customer Satisfaction', value: 90, color: '#FFE66D' }
+  ]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -181,6 +333,10 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
     }
   };
 
+  const handleChartDelete = (id: string) => {
+    setChartData(prevData => prevData.filter(item => item.id !== id));
+  };
+
   return (
     <div className="data-analysis-slide-template" style={slideStyles}>
       {/* Left Section - Profile Image */}
@@ -210,7 +366,7 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
         />
       </div>
 
-      {/* Right Section - Title and Excel Icon */}
+      {/* Right Section - Title and Bar Chart */}
       <div style={{
         width: '67%',
         height: '100%',
@@ -271,48 +427,19 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
           )}
         </div>
 
-        {/* Excel Icon Section */}
+        {/* Bar Chart Section */}
         <div style={{
+          flex: 1,
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '20px'
+          alignItems: 'stretch',
+          marginTop: '40px'
         }}>
-          {/* Excel Icon */}
-          <div style={{
-            width: '120px',
-            height: '120px',
-            backgroundColor: themeAccent,
-            borderRadius: '15px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-          }}>
-            <ClickableImagePlaceholder
-              imagePath={excelIconPath}
-              onImageUploaded={handleExcelIconUploaded}
-              size="MEDIUM"
-              position="CENTER"
-              description="Excel icon"
-              isEditable={isEditable}
-              style={{
-                width: '80px',
-                height: '80px',
-                objectFit: 'contain'
-              }}
-            />
-          </div>
-
-          {/* Download Arrow */}
-          <div style={{
-            width: '0',
-            height: '0',
-            borderLeft: '8px solid transparent',
-            borderRight: '8px solid transparent',
-            borderTop: `12px solid #333333`,
-            marginTop: '10px'
-          }} />
+          <BarChart
+            data={chartData}
+            onDelete={handleChartDelete}
+            isEditable={isEditable}
+            theme={currentTheme}
+          />
         </div>
       </div>
     </div>

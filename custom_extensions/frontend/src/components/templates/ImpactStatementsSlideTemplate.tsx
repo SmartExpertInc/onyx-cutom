@@ -15,149 +15,6 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
-interface BarChartData {
-  id: string;
-  label: string;
-  value: number;
-  color: string;
-}
-
-interface BarChartProps {
-  data: BarChartData[];
-  onDelete: (id: string) => void;
-  isEditable?: boolean;
-  theme: SlideTheme;
-}
-
-function BarChart({ data, onDelete, isEditable = false, theme }: BarChartProps) {
-  const [hoveredBar, setHoveredBar] = useState<string | null>(null);
-  
-  const maxValue = Math.max(...data.map(item => item.value));
-  
-  return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px',
-      padding: '20px'
-    }}>
-      <div style={{
-        fontSize: '18px',
-        color: theme.colors.titleColor,
-        fontWeight: 'bold',
-        marginBottom: '10px'
-      }}>
-        Performance Metrics
-      </div>
-      
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        justifyContent: 'space-between'
-      }}>
-        {data.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
-            onMouseEnter={() => setHoveredBar(item.id)}
-            onMouseLeave={() => setHoveredBar(null)}
-          >
-            {/* Label */}
-            <div style={{
-              width: '80px',
-              fontSize: '12px',
-              color: theme.colors.contentColor,
-              fontWeight: '500',
-              textAlign: 'right'
-            }}>
-              {item.label}
-            </div>
-            
-            {/* Bar container */}
-            <div style={{
-              flex: 1,
-              height: '25px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              {/* Bar */}
-              <div style={{
-                height: '100%',
-                width: `${(item.value / maxValue) * 100}%`,
-                backgroundColor: item.color,
-                borderRadius: '12px',
-                transition: 'width 0.3s ease',
-                position: 'relative'
-              }} />
-              
-              {/* Value label on bar */}
-              <div style={{
-                position: 'absolute',
-                left: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                fontSize: '11px',
-                color: theme.colors.backgroundColor,
-                fontWeight: 'bold',
-                zIndex: 2
-              }}>
-                {item.value}%
-              </div>
-            </div>
-            
-            {/* Delete button */}
-            {isEditable && hoveredBar === item.id && (
-              <div
-                onClick={() => onDelete(item.id)}
-                style={{
-                  position: 'absolute',
-                  right: '-25px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: '20px',
-                  height: '20px',
-                  backgroundColor: '#ff4444',
-                  border: 'none',
-                  borderRadius: '50%',
-                  color: 'white',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 3,
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                  e.currentTarget.style.backgroundColor = '#ff0000';
-                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                  e.currentTarget.style.backgroundColor = '#ff4444';
-                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
-                }}
-              >
-                ×
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -290,14 +147,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const [editingNumbers, setEditingNumbers] = useState<number | null>(null);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentStatements, setCurrentStatements] = useState(statements);
-  
-  // Bar chart data
-  const [chartData, setChartData] = useState<BarChartData[]>([
-    { id: '1', label: 'Sales', value: 75, color: '#FF6B35' },
-    { id: '2', label: 'Growth', value: 60, color: '#4ECDC4' },
-    { id: '3', label: 'Revenue', value: 85, color: '#45B7D1' },
-    { id: '4', label: 'Profit', value: 45, color: '#96CEB4' }
-  ]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -361,10 +210,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     if (onUpdate) {
       onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
-  };
-
-  const handleChartDelete = (id: string) => {
-    setChartData(prevData => prevData.filter(item => item.id !== id));
   };
 
   return (
@@ -454,7 +299,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         </div>
       </div>
 
-      {/* Right section with impact statements and bar chart */}
+      {/* Right section with impact statements */}
       <div style={{
         display: 'flex',
         gap: '20px',
@@ -564,26 +409,85 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           ))}
         </div>
 
-        {/* Правая колонка (bar chart) */}
+        {/* Правая колонка (один блок) */}
         <div style={{
           flex: 1,
           display: 'flex',
           alignItems: 'stretch'
         }}>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            width: '100%',
-            height: '100%',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}>
-            <BarChart
-              data={chartData}
-              onDelete={handleChartDelete}
-              isEditable={isEditable}
-              theme={currentTheme}
-            />
-          </div>
+          {currentStatements[2] && (
+            <div
+              style={{
+                backgroundColor: themeAccent,
+                borderRadius: '10px',
+                padding: '30px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                minHeight: '100%'
+              }}
+            >
+              <div style={{
+                fontSize: '48px',
+                color: themeBg,
+                fontWeight: 'bold'
+              }}>
+                {isEditable && editingNumbers === 2 ? (
+                  <InlineEditor
+                    initialValue={currentStatements[2].number}
+                    onSave={(value) => handleNumberSave(2, value)}
+                    onCancel={handleNumberCancel}
+                    className="statement-number-editor"
+                    style={{
+                      fontSize: '48px',
+                      color: themeBg,
+                      fontWeight: 'bold'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingNumbers(2)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {currentStatements[2].number}
+                  </div>
+                )}
+              </div>
+              <div style={{
+                fontSize: '14px',
+                color: themeBg,
+                lineHeight: '1.4'
+              }}>
+                {isEditable && editingStatements === 2 ? (
+                  <InlineEditor
+                    initialValue={currentStatements[2].description}
+                    onSave={(value) => handleStatementSave(2, value)}
+                    onCancel={handleStatementCancel}
+                    multiline={true}
+                    className="statement-description-editor"
+                    style={{
+                      fontSize: '14px',
+                      color: themeBg,
+                      lineHeight: '1.4'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingStatements(2)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {currentStatements[2].description}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
