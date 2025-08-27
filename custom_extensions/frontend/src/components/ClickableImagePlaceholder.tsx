@@ -25,7 +25,7 @@ const log = (source: string, event: string, data: any) => {
 export interface ClickableImagePlaceholderProps {
   imagePath?: string;
   onImageUploaded: (imagePath: string) => void;
-  size?: 'SMALL' | 'MEDIUM' | 'LARGE';
+  size?: 'SMALL' | 'MEDIUM' | 'LARGE' | 'XLARGE';
   position?: 'LEFT' | 'RIGHT' | 'CENTER' | 'BACKGROUND';
   description?: string;
   prompt?: string;
@@ -140,6 +140,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   }, [isGenerating, elementId, instanceId]);
 
   const sizeClasses = {
+    'XLARGE': 'h-64 md:h-80',
     'LARGE': 'h-48 md:h-64',
     'MEDIUM': 'h-32 md:h-40', 
     'SMALL': 'h-24 md:h-32'
@@ -513,6 +514,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     if (!containerRef.current) {
       // Fallback dimensions based on size prop
       const fallbackDimensions = {
+        'XLARGE': { width: 500, height: 400 },
         'LARGE': { width: 400, height: 300 },
         'MEDIUM': { width: 300, height: 200 },
         'SMALL': { width: 200, height: 150 }

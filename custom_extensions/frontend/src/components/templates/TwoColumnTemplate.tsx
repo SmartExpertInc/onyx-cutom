@@ -323,14 +323,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
 
   const leftPlaceholderStyles: React.CSSProperties = {
     // Only apply default dimensions if no saved size exists
-    ...(leftWidthPx && leftHeightPx ? {} : { width: '100%', maxWidth: '320px', maxHeight: '200px' }),
+    ...(leftWidthPx && leftHeightPx ? {} : { width: '100%', maxWidth: '400px', maxHeight: '280px' }),
     margin: '0',
     marginBottom: '24px'
   };
 
   const rightPlaceholderStyles: React.CSSProperties = {
     // Only apply default dimensions if no saved size exists
-    ...(rightWidthPx && rightHeightPx ? {} : { width: '100%', maxWidth: '320px', maxHeight: '200px' }),
+    ...(rightWidthPx && rightHeightPx ? {} : { width: '100%', maxWidth: '400px', maxHeight: '280px' }),
     margin: '0',
     marginBottom: '24px'
   };
@@ -431,7 +431,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             <ClickableImagePlaceholder
               imagePath={leftImagePath}
               onImageUploaded={handleLeftImageUploaded}
-              size="LARGE"
+              size="XLARGE"
               position="CENTER"
               description="Click to upload image"
               prompt={leftDisplayPrompt}
@@ -550,7 +550,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             <ClickableImagePlaceholder
               imagePath={rightImagePath}
               onImageUploaded={handleRightImageUploaded}
-              size="LARGE"
+              size="XLARGE"
               position="CENTER"
               description="Click to upload image"
               prompt={rightDisplayPrompt}
