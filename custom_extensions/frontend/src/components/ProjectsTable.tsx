@@ -1024,6 +1024,11 @@ const FolderRow: React.FC<{
             </span>
           </td>
         )}
+        {columnVisibility.type && (
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            -
+          </td>
+        )}
         {columnVisibility.created && (
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {formatDate(folder.created_at)}
@@ -1037,11 +1042,6 @@ const FolderRow: React.FC<{
               </span>
               You
             </span>
-          </td>
-        )}
-        {columnVisibility.type && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            -
           </td>
         )}
         {columnVisibility.numberOfLessons && (
@@ -1176,6 +1176,17 @@ const FolderRow: React.FC<{
                 </span>
               </td>
             )}
+            {columnVisibility.type && (
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {p.designMicroproductType ? (
+                  <span className="text-gray-900 font-medium">
+                    {p.designMicroproductType}
+                  </span>
+                ) : (
+                  "-"
+                )}
+              </td>
+            )}
             {columnVisibility.created && (
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatDate(p.createdAt)}
@@ -1217,17 +1228,6 @@ const FolderRow: React.FC<{
                     ? formatCompletionTimeLocalized(lessonData.completionTime)
                     : "-";
                 })()}
-              </td>
-            )}
-            {columnVisibility.type && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {p.designMicroproductType ? (
-                  <div className="w-4 h-4 flex items-center justify-center">
-                    {getDesignMicroproductIcon(p.designMicroproductType)}
-                  </div>
-                ) : (
-                  "-"
-                )}
               </td>
             )}
             <td
@@ -3028,7 +3028,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     numberOfLessons: 13,
     estCreationTime: 13.5,
     estCompletionTime: 13.5,
-    type: 8,
+    type: 15,
   });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
@@ -4532,18 +4532,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       />
                     </th>
                   )}
-                  {columnVisibility.creator && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.creator}%` }}
-                    >
-                      {t("interface.creator", "Creator")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "creator")}
-                      />
-                    </th>
-                  )}
                   {columnVisibility.type && (
                     <th
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
@@ -4553,6 +4541,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       <div
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "type")}
+                      />
+                    </th>
+                  )}
+                  {columnVisibility.creator && (
+                    <th
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                      style={{ width: `${columnWidths.creator}%` }}
+                    >
+                      {t("interface.creator", "Creator")}
+                      <div
+                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                        onMouseDown={(e) => handleResizeStart(e, "creator")}
                       />
                     </th>
                   )}
@@ -4731,6 +4731,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </td>
                       )}
+                      {columnVisibility.type && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {p.designMicroproductType ? (
+                            <span className="text-gray-900 font-medium">
+                              {p.designMicroproductType}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      )}
                       {columnVisibility.created && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
@@ -4746,19 +4757,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <div className="w-4 h-4 flex items-center justify-center">
-                              {getDesignMicroproductIcon(
-                                p.designMicroproductType
-                              )}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
                         </td>
                       )}
                       {columnVisibility.numberOfLessons && (
@@ -4895,6 +4893,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </td>
                       )}
+                      {columnVisibility.type && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {p.designMicroproductType ? (
+                            <span className="text-gray-900 font-medium">
+                              {p.designMicroproductType}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      )}
                       {columnVisibility.created && (
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
@@ -4910,19 +4919,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <div className="w-4 h-4 flex items-center justify-center">
-                              {getDesignMicroproductIcon(
-                                p.designMicroproductType
-                              )}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
                         </td>
                       )}
                       {columnVisibility.numberOfLessons && (
