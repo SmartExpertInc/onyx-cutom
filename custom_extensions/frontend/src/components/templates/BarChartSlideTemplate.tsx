@@ -451,7 +451,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
              {/* Bar */}
              <div style={{
-               width: '60px',
+               width: '155px',
                height: `${bar.height}px`,
                backgroundColor: themeAccent,
                borderRadius: '4px 4px 0 0',
@@ -621,96 +621,103 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          </div>
        )}
 
-      {/* Footer */}
-      <div style={{
-        position: 'absolute',
-        bottom: '20px',
-        left: '60px',
-        right: '60px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: '12px',
-        color: themeContent
-      }}>
-        {/* Website */}
-        <div>
-          {isEditable && editingWebsite ? (
-            <InlineEditor
-              initialValue={currentWebsite}
-              onSave={handleWebsiteSave}
-              onCancel={handleWebsiteCancel}
-              className="footer-website-editor"
-              style={{
-                fontSize: '12px',
-                color: themeContent
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingWebsite(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentWebsite}
-            </div>
-          )}
-        </div>
+             {/* Footer */}
+       <div style={{
+         position: 'absolute',
+         bottom: '20px',
+         left: '60px',
+         right: '60px',
+         display: 'flex',
+         justifyContent: 'space-between',
+         alignItems: 'center',
+         fontSize: '12px',
+         color: themeContent
+       }}>
+         {/* Website - left aligned */}
+         <div>
+           {isEditable && editingWebsite ? (
+             <InlineEditor
+               initialValue={currentWebsite}
+               onSave={handleWebsiteSave}
+               onCancel={handleWebsiteCancel}
+               className="footer-website-editor"
+               style={{
+                 fontSize: '12px',
+                 color: themeContent
+               }}
+             />
+           ) : (
+             <div
+               onClick={() => isEditable && setEditingWebsite(true)}
+               style={{
+                 cursor: isEditable ? 'pointer' : 'default',
+                 userSelect: 'none'
+               }}
+             >
+               {currentWebsite}
+             </div>
+           )}
+         </div>
 
-        {/* Date */}
-        <div>
-          {isEditable && editingDate ? (
-            <InlineEditor
-              initialValue={currentDate}
-              onSave={handleDateSave}
-              onCancel={handleDateCancel}
-              className="footer-date-editor"
-              style={{
-                fontSize: '12px',
-                color: themeContent
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingDate(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentDate}
-            </div>
-          )}
-        </div>
+         {/* Date and Page Number - right aligned together */}
+         <div style={{
+           display: 'flex',
+           gap: '20px',
+           alignItems: 'center'
+         }}>
+           {/* Date */}
+           <div>
+             {isEditable && editingDate ? (
+               <InlineEditor
+                 initialValue={currentDate}
+                 onSave={handleDateSave}
+                 onCancel={handleDateCancel}
+                 className="footer-date-editor"
+                 style={{
+                   fontSize: '12px',
+                   color: themeContent
+                 }}
+               />
+             ) : (
+               <div
+                 onClick={() => isEditable && setEditingDate(true)}
+                 style={{
+                   cursor: isEditable ? 'pointer' : 'default',
+                   userSelect: 'none'
+                 }}
+               >
+                 {currentDate}
+               </div>
+             )}
+           </div>
 
-        {/* Page Number */}
-        <div>
-          {isEditable && editingPageNumber ? (
-            <InlineEditor
-              initialValue={currentPageNumber}
-              onSave={handlePageNumberSave}
-              onCancel={handlePageNumberCancel}
-              className="footer-page-number-editor"
-              style={{
-                fontSize: '12px',
-                color: themeContent
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingPageNumber(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentPageNumber}
-            </div>
-          )}
-        </div>
-      </div>
+           {/* Page Number */}
+           <div>
+             {isEditable && editingPageNumber ? (
+               <InlineEditor
+                 initialValue={currentPageNumber}
+                 onSave={handlePageNumberSave}
+                 onCancel={handlePageNumberCancel}
+                 className="footer-page-number-editor"
+                 style={{
+                   fontSize: '12px',
+                   color: themeContent
+                 }}
+               />
+             ) : (
+               <div
+                 onClick={() => isEditable && setEditingPageNumber(true)}
+                 style={{
+                   cursor: isEditable ? 'pointer' : 'default',
+                   userSelect: 'none'
+                 }}
+               >
+                 {currentPageNumber}
+               </div>
+             )}
+           </div>
+         </div>
+       </div>
     </div>
   );
 };
