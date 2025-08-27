@@ -275,18 +275,18 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
         {/* Left section - Logo and tools */}
         <div className="flex items-center gap-4 lg:gap-6">
           {/* Home button */}
-          <button className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-[7px] px-3 py-1.5 flex items-center h-8 cursor-pointer ml-2">
+          <button className="bg-white border border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 flex items-center h-8 cursor-pointer ml-2">
             <span className="text-sm font-normal">Home</span>
           </button>
 
           {/* Tool icons - hidden on mobile, visible on tablet+ */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3">
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
-              <Undo2 className="w-4 h-4 text-gray-500" />
+              <Undo2 className="w-4 h-4 text-gray-700" />
             </button>
 
             <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
-              <Redo2 className="w-4 h-4 text-gray-500" />
+              <Redo2 className="w-4 h-4 text-gray-700" />
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -294,7 +294,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
             {/* New button with document SVG - hidden on smaller screens */}
             <div className="hidden lg:flex items-center">
               <button className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 28 28" className="w-4 h-4 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 28 28" className="w-4 h-4 text-gray-700">
                   <path fill="currentColor" d="M6.25 4.5A1.75 1.75 0 0 0 4.5 6.25v15.5A1.75 1.75 0 0 0 6 23.482V16.25A2.25 2.25 0 0 1 8.25 14h11.5A2.25 2.25 0 0 1 22 16.25v7.232a1.75 1.75 0 0 0 1.5-1.732V8.786c0-.465-.184-.91-.513-1.238l-2.535-2.535a1.75 1.75 0 0 0-1.238-.513H19v4.25A2.25 2.25 0 0 1 16.75 11h-6.5A2.25 2.25 0 0 1 8 8.75V4.5H6.25Zm3.25 0v4.25c0 .414.336.75.75.75h6.5a.75.75 0 0 0 .75-.75V4.5h-8Zm11 19v-7.25a.75.75 0 0 0-.75-.75H8.25a.75.75 0 0 0-.75.75v7.25h13ZM3 6.25A3.25 3.25 0 0 1 6.25 3h12.965a3.25 3.25 0 0 1 2.298.952l2.535 2.535c.61.61.952 1.437.952 2.299V21.75A3.25 3.25 0 0 1 21.75 25H6.25A3.25 3.25 0 0 1 3 21.75V6.25Z"/>
                 </svg>
               </button>
@@ -309,10 +309,10 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                 onClick={handleResizeClick}
                 className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
                   <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12c0-4.243 0-6.364 1.318-7.682C5.636 3 7.758 3 12 3c4.243 0 6.364 0 7.682 1.318C21 5.636 21 7.758 21 12c0 4.243 0 6.364-1.318 7.682C18.364 21 16.242 21 12 21c-4.243 0-6.364 0-7.682-1.318C3 18.364 3 16.242 3 12Z"/>
                 </svg>
-                <span className="text-gray-700 text-sm font-normal">Resize</span>
+                <span className="text-black text-sm font-normal">Resize</span>
               </button>
 
               {/* Resize popup */}
@@ -358,11 +358,11 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                 className="p-1 hover:bg-gray-100 rounded transition-colors flex items-center justify-center cursor-pointer gap-2"
               >
                 {isEyeVisible ? (
-                  <Eye className="w-4 h-4 text-gray-500" />
+                  <Eye className="w-4 h-4 text-gray-700" />
                 ) : (
-                  <EyeOff className="w-4 h-4 text-gray-500" />
+                  <EyeOff className="w-4 h-4 text-gray-700" />
                 )}
-                <span className="text-gray-700 text-sm font-normal">Grid</span>
+                <span className="text-black text-sm font-normal">Grid</span>
               </button>
             </div>
 
@@ -398,13 +398,13 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
               />
             ) : (
               <span 
-                className="text-gray-700 text-sm font-medium whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                className="text-black text-sm font-medium whitespace-nowrap cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
                 onClick={() => setIsEditingTitle(true)}
               >
                 {videoTitle}
               </span>
             )}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="w-4 h-4 text-gray-700">
               <g fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path strokeLinecap="round" d="M4 22h16"/>
                 <path d="m13.888 3.663l.742-.742a3.146 3.146 0 1 1 4.449 4.45l-.742.74m-4.449-4.448s.093 1.576 1.483 2.966c1.39 1.39 2.966 1.483 2.966 1.483m-4.449-4.45L7.071 10.48c-.462.462-.693.692-.891.947a5.24 5.24 0 0 0-.599.969c-.139.291-.242.601-.449 1.22l-.875 2.626m14.08-8.13l-6.817 6.817c-.462.462-.692.692-.947.891c-.3.234-.625.435-.969.599c-.291.139-.601.242-1.22.448l-2.626.876m0 0l-.641.213a.848.848 0 0 1-1.073-1.073l.213-.641m1.501 1.5l-1.5-1.5"/>
@@ -418,9 +418,9 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
           <div className="flex items-center gap-3 lg:gap-4">
             <button 
               onClick={handlePlayClick}
-              className="bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+              className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
             >
-              <Play className="w-4 h-4 text-gray-500" />
+              <Play className="w-4 h-4 text-gray-700" />
             </button>
 
             <div className="w-0.5 h-[18px] bg-gray-300"></div>
@@ -430,7 +430,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
               <button
                 ref={shareButtonRef}
                 onClick={handleShareClick}
-                className="bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
+                className="bg-gray-50 border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 border flex items-center h-8 cursor-pointer"
               >
                 <span className="text-sm font-normal">Share</span>
               </button>
@@ -442,7 +442,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                   className="fixed top-[76px] right-4 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-[480px] p-4"
                 >
                   {/* Title */}
-                  <h3 className="text-sm font-medium text-gray-700 mb-4">Invite team members</h3>
+                  <h3 className="text-sm font-medium text-black mb-4">Invite team members</h3>
                   
                   {/* Content wrapper with grey rounded borders */}
                   <div className="border border-gray-200 rounded-lg p-4">
@@ -471,7 +471,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                             onClick={() => handleDropdownToggle(emailInput.id)}
                             className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-3 pr-2 text-sm focus:outline-none focus:border-black focus:border-[2px] cursor-pointer w-24 text-left flex items-center justify-between"
                           >
-                            <span className="capitalize text-gray-700">{emailInput.role}</span>
+                            <span className="capitalize text-black">{emailInput.role}</span>
                             <DropdownIcon />
                           </button>
                           
@@ -484,7 +484,7 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
                                   type="button"
                                   onClick={() => handleRoleSelect(emailInput.id, role)}
                                   className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors capitalize cursor-pointer ${
-                                    emailInput.role === role ? 'bg-gray-50 text-black' : 'text-gray-700'
+                                    emailInput.role === role ? 'bg-gray-50 text-black' : 'text-black'
                                   } ${role === 'viewer' ? 'rounded-t-md' : role === 'admin' ? 'rounded-b-md' : ''}`}
                                 >
                                   {role}
