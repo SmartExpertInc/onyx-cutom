@@ -1120,7 +1120,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 Welcome to this comprehensive course on Artificial Intelligence and Machine Learning. In this presentation, you'll discover how AI technologies are transforming industries across the globe, from healthcare and finance to manufacturing and retail. We'll explore the fundamental concepts that power modern AI systems, examine real-world implementation strategies, and provide you with practical frameworks for applying these technologies in your organization. By the end of this course, you'll have a solid understanding of AI fundamentals, machine learning algorithms, and the strategic considerations for successful AI adoption.
 
-[IMAGE_PLACEHOLDER: LARGE | LEFT | Illustration of futuristic AI neural network showing interconnected nodes and data flows, positioned on the left side of a slide, in a clean professional style]
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Minimalist flat design illustration of a futuristic AI neural network. The scene shows interconnected circular nodes with flowing data connections between them, arranged in a dynamic web pattern. The neural network nodes are [COLOR1], the connecting lines are [COLOR2], and data flow particles are [COLOR3]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** Welcome to our comprehensive exploration of Artificial Intelligence and Machine Learning. Today's digital landscape demands a deep understanding of these transformative technologies that are reshaping how we work, communicate, and solve complex problems across every industry.
 
@@ -1137,7 +1137,7 @@ The strategic integration of AI technologies into business processes has created
 
 Understanding these foundational concepts, underlying technologies, implementation strategies, and strategic considerations is absolutely essential for anyone looking to leverage AI technologies effectively in their professional environment and drive meaningful business transformation through intelligent automation.
 
-[IMAGE_PLACEHOLDER: LARGE | TOP | Illustration of AI system architecture diagram showing data processing workflow with input sources, machine learning algorithms, and output visualization components, positioned at the top of a slide, in a clean professional style]
+[IMAGE_PLACEHOLDER: LARGE | TOP | Minimalist flat design illustration of an AI system architecture diagram. The scene shows a layered workflow with data input sources on the left (databases, cloud storage), machine learning algorithms in the center (neural networks, decision trees), and output visualizations on the right (charts, dashboards). Data flows are represented as [COLOR1] arrows, system components are [COLOR2], and result displays are [COLOR3]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** To truly understand AI's transformative power, we need to examine the foundational technologies that make intelligent systems possible. These aren't just theoretical concepts, but practical tools that are already reshaping industries and creating new possibilities for innovation and growth.
 
@@ -1156,7 +1156,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 - **Ensemble Methods**: These approaches combine multiple algorithms to create more robust and accurate predictions. Random forests, gradient boosting, and voting classifiers leverage the strengths of different models while minimizing individual weaknesses, resulting in superior performance across diverse applications.
 
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting illustration of machine learning algorithm comparison showing different neural network architectures, decision trees, and data flow patterns, positioned alongside text, in a clean professional style]
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Minimalist flat design illustration comparing different machine learning algorithms. The scene shows four distinct algorithm representations: a neural network with connected nodes on the left, a decision tree structure in the center-left, a clustering diagram in the center-right, and a data flow chart on the right. Neural networks are [COLOR1], decision trees are [COLOR2], clusters are [COLOR3], and connecting elements are [COLOR2]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** The power of AI comes from its diverse toolkit of machine learning algorithms, each designed to solve specific types of problems. Understanding when and how to apply these different approaches is crucial for building effective AI solutions.
 
@@ -1169,7 +1169,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 **Infrastructure and Implementation Planning**: The technical infrastructure supporting AI initiatives requires careful planning and substantial investment in both hardware and software systems. Cloud-based solutions offer scalability and flexibility, while on-premises systems provide greater control and security. Organizations must also consider data storage requirements, processing capabilities, and integration with existing business systems to ensure seamless AI deployment.
 
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Illustration of data pipeline and infrastructure architecture showing connected systems, positioned in center, in a clean professional style]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Minimalist flat design illustration of a data pipeline and infrastructure architecture. The scene shows data flowing from left to right through connected system components: databases on the left in [COLOR1], processing servers in the center in [COLOR2], and cloud storage on the right in [COLOR3]. Connection lines are [COLOR2] and data flow indicators are [COLOR1]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** Before diving into complex algorithms, we must establish solid foundations. The quality of your data and the robustness of your infrastructure will ultimately determine the success of your AI initiatives.
 
@@ -1186,7 +1186,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 **Retail and E-commerce**: Recommendation engines personalize shopping experiences, while demand forecasting optimizes inventory management. Price optimization algorithms maximize revenue, and chatbots provide 24/7 customer support with natural language understanding capabilities.
 
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Illustration of different industries showing AI applications in healthcare, finance, manufacturing, and retail, positioned in center, in a clean professional style]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Minimalist flat design illustration of four industry sectors showing AI applications. The scene is divided into four quadrants: healthcare (top-left) with medical charts and stethoscope in [COLOR1], finance (top-right) with graphs and coins in [COLOR2], manufacturing (bottom-left) with factory and robots in [COLOR3], and retail (bottom-right) with shopping cart and mobile device in [COLOR1]. Dividing lines are [COLOR2]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** AI isn't just a theoretical concept – it's actively transforming every major industry. Let's explore how these technologies are creating real value and solving complex challenges across different sectors.
 
@@ -1201,9 +1201,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 **3x**: Faster time-to-market for new products and services when AI is integrated into development and testing processes, enabling rapid prototyping and automated quality assurance.
 
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Illustration of dashboard showing key performance indicators and metrics, positioned in center, in a clean professional style]
-
-**VOICEOVER:** Success in AI implementation isn't just about having the technology – it's about measuring and demonstrating tangible business value. These metrics represent typical outcomes from well-executed AI initiatives.
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Minimalist flat design illustration of a performance dashboard with key metrics. The scene shows three large metric displays arranged horizontally: a percentage circle (85%) in [COLOR1], a cost reduction arrow (40%) in [COLOR2], and a speed multiplier (3x) in [COLOR3]. Background charts and grid lines are [COLOR2]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 ---
 **Slide 7: Implementation Challenges and Solutions** `challenges-solutions`
@@ -1310,7 +1308,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 **Level 3 - Operational Foundation**: Data engineers, infrastructure specialists, and domain experts who build data pipelines, maintain systems, and ensure AI solutions address real business problems with reliable, scalable operations.
 
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Illustration of organizational pyramid showing team hierarchy and collaboration patterns, positioned in center, in a clean professional style]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Minimalist flat design illustration of an organizational pyramid showing team hierarchy. The scene shows three levels: executives at the top in [COLOR1], managers in the middle in [COLOR2], and team members at the base in [COLOR3]. Connecting lines and organizational structure elements are [COLOR2]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** Successful AI projects require diverse teams with complementary skills. This structure ensures technical excellence while maintaining business focus and regulatory compliance.
 
@@ -2709,7 +2707,7 @@ Slide Separator: Each slide should be clearly delineated using --- (a horizontal
 
 Welcome to this comprehensive course on Artificial Intelligence and Machine Learning. In this presentation, you'll discover how AI technologies are transforming industries across the globe, from healthcare and finance to manufacturing and retail. We'll explore the fundamental concepts that power modern AI systems, examine real-world implementation strategies, and provide you with practical frameworks for applying these technologies in your organization. By the end of this course, you'll have a solid understanding of AI fundamentals, machine learning algorithms, and the strategic considerations for successful AI adoption.
 
-[IMAGE_PLACEHOLDER: LARGE | LEFT | Illustration of futuristic AI neural network showing interconnected nodes and data flows, positioned on the left side of a slide, in a clean professional style]
+[IMAGE_PLACEHOLDER: LARGE | LEFT | Minimalist flat design illustration of a futuristic AI neural network. The scene shows interconnected circular nodes with flowing data connections between them, arranged in a dynamic web pattern. The neural network nodes are [COLOR1], the connecting lines are [COLOR2], and data flow particles are [COLOR3]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** Welcome to our comprehensive exploration of Artificial Intelligence and Machine Learning. Today's digital landscape demands a deep understanding of these transformative technologies that are reshaping how we work, communicate, and solve complex problems across every industry.
 
@@ -2726,7 +2724,7 @@ The strategic integration of AI technologies into business processes has created
 
 Understanding these foundational concepts, underlying technologies, implementation strategies, and strategic considerations is absolutely essential for anyone looking to leverage AI technologies effectively in their professional environment and drive meaningful business transformation through intelligent automation.
 
-[IMAGE_PLACEHOLDER: LARGE | TOP | Illustration of AI system architecture diagram showing data processing workflow with input sources, machine learning algorithms, and output visualization components, positioned at the top of a slide, in a clean professional style]
+[IMAGE_PLACEHOLDER: LARGE | TOP | Minimalist flat design illustration of an AI system architecture diagram. The scene shows a layered workflow with data input sources on the left (databases, cloud storage), machine learning algorithms in the center (neural networks, decision trees), and output visualizations on the right (charts, dashboards). Data flows are represented as [COLOR1] arrows, system components are [COLOR2], and result displays are [COLOR3]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** To truly understand AI's transformative power, we need to examine the foundational technologies that make intelligent systems possible. These aren't just theoretical concepts, but practical tools that are already reshaping industries and creating new possibilities for innovation and growth.
 
@@ -2745,7 +2743,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 - **Ensemble Methods**: These approaches combine multiple algorithms to create more robust and accurate predictions. Random forests, gradient boosting, and voting classifiers leverage the strengths of different models while minimizing individual weaknesses, resulting in superior performance across diverse applications.
 
-[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Supporting illustration of machine learning algorithm comparison showing different neural network architectures, decision trees, and data flow patterns, positioned alongside text, in a clean professional style]
+[IMAGE_PLACEHOLDER: MEDIUM | RIGHT | Minimalist flat design illustration comparing different machine learning algorithms. The scene shows four distinct algorithm representations: a neural network with connected nodes on the left, a decision tree structure in the center-left, a clustering diagram in the center-right, and a data flow chart on the right. Neural networks are [COLOR1], decision trees are [COLOR2], clusters are [COLOR3], and connecting elements are [COLOR2]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** The power of AI comes from its diverse toolkit of machine learning algorithms, each designed to solve specific types of problems. Understanding when and how to apply these different approaches is crucial for building effective AI solutions.
 
@@ -2899,7 +2897,7 @@ Understanding these foundational concepts, underlying technologies, implementati
 
 **Level 3 - Operational Foundation**: Data engineers, infrastructure specialists, and domain experts who build data pipelines, maintain systems, and ensure AI solutions address real business problems with reliable, scalable operations.
 
-[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Illustration of organizational pyramid showing team hierarchy and collaboration patterns, positioned in center, in a clean professional style]
+[IMAGE_PLACEHOLDER: MEDIUM | CENTER | Minimalist flat design illustration of an organizational pyramid showing team hierarchy. The scene shows three levels: executives at the top in [COLOR1], managers in the middle in [COLOR2], and team members at the base in [COLOR3]. Connecting lines and organizational structure elements are [COLOR2]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated.]
 
 **VOICEOVER:** Successful AI projects require diverse teams with complementary skills. This structure ensures technical excellence while maintaining business focus and regulatory compliance.
 

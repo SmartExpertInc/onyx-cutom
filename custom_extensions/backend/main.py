@@ -10045,24 +10045,29 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - ALWAYS extract image prompts from [IMAGE_PLACEHOLDER] sections
             - Format: [IMAGE_PLACEHOLDER: SIZE | POSITION | DESCRIPTION]
             - Map DESCRIPTION to "imagePrompt" and "imageAlt" fields
-            - **CRITICAL: Generate clear, illustrative prompts for presentation slides**
-            - **PRESENTATION ILLUSTRATION REQUIREMENTS:**
-              - Create simple, clear descriptions that focus on the main visual concept
-              - Use everyday language that's easy to understand
-              - Focus on what the illustration should show, not technical details
-              - Keep prompts concise but descriptive enough for good image generation
-              - Specify the main subject and key visual elements
-            - **SIMPLE PROMPT STRUCTURE:**
-              - Start with: "Illustration of [main concept/subject]"
-              - Include: "showing [key visual elements]"
-              - Add: "in a clean, professional style"
-              - Specify: "suitable for a presentation slide"
-            - **ILLUSTRATION TYPES BY TEMPLATE:**
-              - For big-image-left: "Illustration of [concept] showing [key elements], positioned on the left side of a slide, in a clean professional style"
-              - For big-image-top: "Illustration of [concept] showing [key elements], positioned at the top of a slide, in a clean professional style"
-              - For bullet-points: "Supporting illustration of [concept] showing [key elements], positioned alongside text, in a clean professional style"
-              - For two-column: "Illustration of [concept] showing [key elements], positioned in [left/right] column, in a clean professional style"
-            - **NEVER leave imagePrompt fields empty - always generate clear, illustrative prompts**
+            - **CRITICAL: Generate detailed, minimalist flat design prompts with color placeholders**
+            - **NEW PROMPT FORMAT REQUIREMENTS:**
+              - Start with "Minimalist flat design illustration of [subject/scene]"
+              - Describe the scene and elements in detail (people, objects, layout)
+              - Include specific positioning and composition details
+              - Use color placeholders: [COLOR1], [COLOR2], [COLOR3], [BACKGROUND]
+              - End with background and style specifications
+              - NO separate color descriptions or presentation context
+            - **COLOR PLACEHOLDER USAGE:**
+              - [COLOR1] or [PRIMARY]: Main accent color for primary elements
+              - [COLOR2] or [SECONDARY]: Secondary color for borders, outlines, text
+              - [COLOR3] or [TERTIARY]: Supporting color for details and accents
+              - [BACKGROUND]: Background color
+            - **EXAMPLE PROMPT STRUCTURE:**
+              - "Minimalist flat design illustration of [detailed scene description]. [Specific layout and positioning]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated."
+            - **DETAILED SCENE DESCRIPTIONS:**
+              - Include specific people descriptions (gender, position, clothing, actions)
+              - Describe objects and their arrangement precisely
+              - Specify positioning (left, right, center, around, behind, etc.)
+              - Include setting details (desk, office, outdoor, etc.)
+            - **NEVER include "presentation slide" or "for presentations" in the prompt**
+            - **NEVER add separate color descriptions after the main prompt**
+            - **NEVER leave imagePrompt fields empty - always generate detailed, illustrative prompts with color placeholders**
             
             **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
             
