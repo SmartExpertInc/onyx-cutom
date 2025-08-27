@@ -439,14 +439,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>{t('interface.products', 'Products')}</span>
         </Link>
         <Link
-          href="/workspace"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
-        >
-          <Users size={18} />
-          <span>{t('interface.workspace', 'Workspace')}</span>
-        </Link>
-        <Link
           href="/projects?tab=smart-drive"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
@@ -461,6 +453,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         >
           <FileText size={18} />
           <span>{t('interface.offers', 'Offers')}</span>
+        </Link>
+        <Link
+          href="/projects?tab=workspace"
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
+        >
+          <Users size={18} />
+          <span>{t('interface.workspace', 'Workspace')}</span>
         </Link>
       </nav>
       <nav className="flex flex-col gap-1 mt-auto">
