@@ -130,8 +130,8 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         className="absolute w-3.5 h-3.5 bg-white border-2 border-gray-500 rounded-full shadow-md cursor-pointer z-10"
         style={{
           left: `${getPercentage()}%`,
-          top: '50%',
-          transform: 'translate(-50%, -50%)'
+          top: '-8px',
+          transform: 'translateX(-50%)'
         }}
       />
     </div>
@@ -583,49 +583,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Hue Slider */}
-        <div className="relative z-[10001] py-1">
-          <CustomSlider
-            value={hsb.h}
-            min={0}
-            max={360}
-            onChange={handleHueChange}
-            onChangeCommitted={handleHueChangeCommitted}
-            background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
-            height={12}
-          />
-        </div>
-
-        {/* Opacity Slider */}
-        <div className="relative z-[10001] mt-0.5 py-1">
-          <div className="relative">
-            {/* Squared background for opacity slider */}
-            <div 
-              className="absolute inset-0 rounded-lg"
-              style={{
-                background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                             linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                             linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                             linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
-                backgroundSize: '8px 8px',
-                backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
-              }}
-            />
-            <CustomSlider
-              value={opacity}
-              min={0}
-              max={1}
-              step={0.01}
-              onChange={handleOpacityChange}
-              onChangeCommitted={handleOpacityChangeCommitted}
-              background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
-              height={12}
-            />
-          </div>
-        </div>
-
         {/* Custom Saturation/Brightness Square */}
-        <div className="mt-4">
+        <div className="mb-4">
           <div
             ref={sbRef}
             onMouseDown={(e) => {
@@ -670,6 +629,47 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                 transform: 'translate(-50%, -50%)',
                 boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
               }}
+            />
+          </div>
+        </div>
+
+        {/* Hue Slider */}
+        <div className="relative z-[10001] py-1">
+          <CustomSlider
+            value={hsb.h}
+            min={0}
+            max={360}
+            onChange={handleHueChange}
+            onChangeCommitted={handleHueChangeCommitted}
+            background="linear-gradient(to right, hsl(0,100%,60%), hsl(30,100%,60%), hsl(60,100%,60%), hsl(90,100%,60%), hsl(120,100%,60%), hsl(150,100%,60%), hsl(180,100%,60%), hsl(210,100%,60%), hsl(240,100%,60%), hsl(270,100%,60%), hsl(300,100%,60%), hsl(330,100%,60%), hsl(360,100%,60%))"
+            height={12}
+          />
+        </div>
+
+        {/* Opacity Slider */}
+        <div className="relative z-[10001] mt-0.5 py-1">
+          <div className="relative">
+            {/* Squared background for opacity slider */}
+            <div 
+              className="absolute inset-0 rounded-lg"
+              style={{
+                background: `linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                             linear-gradient(-45deg, #ccc 25%, transparent 25%), 
+                             linear-gradient(45deg, transparent 75%, #ccc 75%), 
+                             linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+                backgroundSize: '8px 8px',
+                backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+              }}
+            />
+            <CustomSlider
+              value={opacity}
+              min={0}
+              max={1}
+              step={0.01}
+              onChange={handleOpacityChange}
+              onChangeCommitted={handleOpacityChangeCommitted}
+              background="linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5), rgba(0,0,0,1))"
+              height={12}
             />
           </div>
         </div>
