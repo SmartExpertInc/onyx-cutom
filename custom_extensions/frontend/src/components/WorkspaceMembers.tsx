@@ -530,7 +530,7 @@ const WorkspaceMembers: React.FC = () => {
                         <Palette size={16} className="text-gray-600" />
                       </button>
                       {showColorPalette && (
-                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-20 grid grid-cols-5 gap-1 w-48">
+                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-[9999] grid grid-cols-5 gap-1 w-48">
                           {ROLE_COLORS.map((colorOption) => (
                             <button
                               key={colorOption.bg}
