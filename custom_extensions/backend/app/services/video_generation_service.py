@@ -325,10 +325,10 @@ class ElaiVideoGenerationService:
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            "left": 0,          # Top-left corner
-                            "top": 0,           # Top-left corner
-                            "scaleX": 1.0,      # Full size
-                            "scaleY": 1.0,      # Full size
+                            "left": 420,        # Center horizontally: (1920-240)/2 = 840, but adjusted for avatar centering
+                            "top": 0,           # Top of frame 
+                            "scaleX": 0.8,      # Scale down to 864x864 to fit in 1080 height
+                            "scaleY": 0.8,      # Scale down to fit
                             "width": 1080,
                             "height": 1080,
                             "src": avatar.get("canvas"),
