@@ -79,7 +79,7 @@ export function ComparisonSlideTemplate({
   const [editingCell, setEditingCell] = useState<{row: number, col: number} | null>(null);
   
   // Get the resolved theme
-  const theme = getSlideTheme(themeProp) || DEFAULT_SLIDE_THEME;
+  const theme = themeProp || getSlideTheme(DEFAULT_SLIDE_THEME);
 
   const updateTitle = (newTitle: string) => {
     if (onUpdate) {
@@ -155,11 +155,11 @@ export function ComparisonSlideTemplate({
     <div 
       className="comparison-slide-template"
       style={{
-        background: theme.background,
-        color: theme.textColor,
+        background: theme.colors.backgroundColor,
+        color: theme.colors.contentColor,
         minHeight: '100vh',
         padding: '4rem 3rem',
-        fontFamily: theme.fontFamily
+        fontFamily: theme.fonts.contentFont
       }}
     >
       {/* Title */}
@@ -171,14 +171,14 @@ export function ComparisonSlideTemplate({
               const newTitle = prompt('Edit title:', title);
               if (newTitle !== null) updateTitle(newTitle);
             }}
-            style={{ color: theme.titleColor }}
+            style={{ color: theme.colors.titleColor }}
           >
             {title}
           </h1>
         ) : (
           <h1 
             className="text-5xl font-bold mb-4"
-            style={{ color: theme.titleColor }}
+            style={{ color: theme.colors.titleColor }}
           >
             {title}
           </h1>
@@ -192,14 +192,14 @@ export function ComparisonSlideTemplate({
                 const newSubtitle = prompt('Edit subtitle:', subtitle);
                 if (newSubtitle !== null) updateSubtitle(newSubtitle);
               }}
-              style={{ color: theme.subtitleColor }}
+              style={{ color: theme.colors.subtitleColor }}
             >
               {subtitle}
             </p>
           ) : (
             <p 
               className="text-2xl opacity-80"
-              style={{ color: theme.subtitleColor }}
+              style={{ color: theme.colors.subtitleColor }}
             >
               {subtitle}
             </p>
@@ -213,15 +213,15 @@ export function ComparisonSlideTemplate({
           <table className="w-full border-collapse shadow-2xl rounded-lg overflow-hidden">
             {/* Headers */}
             <thead>
-              <tr style={{ backgroundColor: theme.primaryColor }}>
+                                <tr style={{ backgroundColor: theme.colors.accentColor }}>
                 {tableData.headers.map((header, index) => (
                   <th
                     key={index}
                     className={`text-xl font-semibold py-4 px-6 text-center ${isEditable ? 'cursor-pointer hover:bg-opacity-80' : ''}`}
                     style={{ 
                       color: '#ffffff',
-                      backgroundColor: theme.primaryColor,
-                      borderBottom: `2px solid ${theme.accentColor}`
+                      backgroundColor: theme.colors.accentColor,
+                      borderBottom: `2px solid ${theme.colors.borderColor || theme.colors.accentColor}`
                     }}
                     onClick={() => handleHeaderClick(index)}
                   >
@@ -246,7 +246,7 @@ export function ComparisonSlideTemplate({
                 <tr
                   key={rowIndex}
                   style={{
-                    backgroundColor: rowIndex % 2 === 0 ? theme.cardBackground : theme.background,
+                    backgroundColor: rowIndex % 2 === 0 ? theme.colors.backgroundColor : 'transparent',
                   }}
                   className="hover:bg-opacity-50 transition-colors"
                 >
@@ -255,8 +255,8 @@ export function ComparisonSlideTemplate({
                       key={colIndex}
                       className={`text-lg py-4 px-6 text-center border-b ${isEditable ? 'cursor-pointer hover:bg-opacity-20 hover:bg-white' : ''}`}
                       style={{ 
-                        color: theme.textColor,
-                        borderBottomColor: theme.borderColor || theme.accentColor + '40'
+                        color: theme.colors.contentColor,
+                        borderBottomColor: theme.colors.borderColor || theme.colors.accentColor + '40'
                       }}
                       onClick={() => handleCellClick(rowIndex, colIndex)}
                     >
@@ -265,7 +265,7 @@ export function ComparisonSlideTemplate({
                           initialValue={cell}
                           onSave={saveEdit}
                           onCancel={cancelEdit}
-                          style={{ color: theme.textColor }}
+                          style={{ color: theme.colors.contentColor }}
                         />
                       ) : (
                         cell
