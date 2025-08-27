@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Scene {
   id: string;
@@ -11,14 +11,18 @@ interface SceneTimelineProps {
   aspectRatio: string;
   onAddScene: () => void;
   onMenuClick: (sceneId: string, event: React.MouseEvent) => void;
+  onSceneRename?: (sceneId: string, newName: string) => void;
 }
 
 export default function SceneTimeline({ 
   scenes, 
   aspectRatio, 
   onAddScene, 
-  onMenuClick 
+  onMenuClick,
+  onSceneRename 
 }: SceneTimelineProps) {
+  const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState<string>('');
 
   // Function to get scene rectangle dimensions based on aspect ratio
   const getSceneRectangleStyles = () => {
@@ -45,6 +49,32 @@ export default function SceneTimeline({
           width: `${Math.round(baseHeight * 16 / 9)}px`,
           height: `${baseHeight}px`,
         };
+    }
+  };
+
+  const handleRenameClick = (scene: Scene) => {
+    setEditingSceneId(scene.id);
+    setEditingName(scene.name);
+  };
+
+  const handleRenameSave = () => {
+    if (editingSceneId && editingName.trim() && onSceneRename) {
+      onSceneRename(editingSceneId, editingName.trim());
+    }
+    setEditingSceneId(null);
+    setEditingName('');
+  };
+
+  const handleRenameCancel = () => {
+    setEditingSceneId(null);
+    setEditingName('');
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleRenameSave();
+    } else if (e.key === 'Escape') {
+      handleRenameCancel();
     }
   };
 
@@ -91,20 +121,55 @@ export default function SceneTimeline({
                   </div>
                 </div>
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 flex items-center gap-2 min-w-[120px] justify-center">
-                  <span className="text-sm font-medium text-gray-700">{scene.name}</span>
-                  <svg 
-                    className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
-                    />
-                  </svg>
+                  {editingSceneId === scene.id ? (
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onKeyDown={handleKeyPress}
+                        onBlur={handleRenameSave}
+                        className="text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[80px]"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleRenameSave}
+                        className="w-4 h-4 text-green-600 hover:text-green-700 cursor-pointer"
+                        title="Save"
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={handleRenameCancel}
+                        className="w-4 h-4 text-red-600 hover:text-red-700 cursor-pointer"
+                        title="Cancel"
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-sm font-medium text-gray-700">{scene.name}</span>
+                      <svg 
+                        className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        onClick={() => handleRenameClick(scene)}
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" 
+                        />
+                      </svg>
+                    </>
+                  )}
                 </div>
               </div>
 
