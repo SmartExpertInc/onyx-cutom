@@ -130,8 +130,8 @@ const CustomSlider: React.FC<CustomSliderProps> = ({
         className="absolute w-3.5 h-3.5 bg-white border-2 border-gray-500 rounded-full shadow-md cursor-pointer z-10"
         style={{
           left: `${getPercentage()}%`,
-          top: '-6px',
-          transform: 'translateX(-50%)'
+          top: '50%',
+          transform: 'translate(-50%, -50%)'
         }}
       />
     </div>
@@ -625,51 +625,53 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         </div>
 
         {/* Custom Saturation/Brightness Square */}
-        <div
-          ref={sbRef}
-          onMouseDown={(e) => {
-            handleMouseDown(e);
-            e.currentTarget.style.border = '1px solid #666';
-            e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.2)';
-          }}
-          className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
-          style={{
-            background: `linear-gradient(to top, #000, transparent),
-                         linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = 'none';
-            // Stop dragging if mouse leaves the square
-            if (isDraggingRef.current) {
-              isDraggingRef.current = false;
-              setIsDragging(false);
-            }
-          }}
-        >
-          {/* Custom cursor indicator */}
+        <div className="mt-4">
           <div
-            className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
-            style={{
-              left: `${hsb.s}%`,
-              top: `${100 - hsb.b}%`,
-              transform: 'translate(-50%, -50%)'
+            ref={sbRef}
+            onMouseDown={(e) => {
+              handleMouseDown(e);
+              e.currentTarget.style.border = '1px solid #666';
+              e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.2)';
             }}
-          />
-          
-          {/* Current color preview at cursor position */}
-          <div
-            className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003] border border-white/80"
+            className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
             style={{
-              backgroundColor: hex,
-              left: `${hsb.s}%`,
-              top: `${100 - hsb.b}%`,
-              transform: 'translate(-50%, -50%)',
-              boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
+              background: `linear-gradient(to top, #000, transparent),
+                          linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
             }}
-          />
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = 'none';
+              // Stop dragging if mouse leaves the square
+              if (isDraggingRef.current) {
+                isDraggingRef.current = false;
+                setIsDragging(false);
+              }
+            }}
+          >
+            {/* Custom cursor indicator */}
+            <div
+              className="absolute w-3 h-3 rounded-full border-2 border-black bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
+              style={{
+                left: `${hsb.s}%`,
+                top: `${100 - hsb.b}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+            />
+            
+            {/* Current color preview at cursor position */}
+            <div
+              className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003] border border-white/80"
+              style={{
+                backgroundColor: hex,
+                left: `${hsb.s}%`,
+                top: `${100 - hsb.b}%`,
+                transform: 'translate(-50%, -50%)',
+                boxShadow: '0 0 0 1px rgba(0,0,0,0.3)'
+              }}
+            />
+          </div>
         </div>
 
         {/* Color Format Toggle Buttons */}
@@ -712,7 +714,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                     e.target.style.boxShadow = '0 0 0 2px rgba(0,0,0,0.1)';
                   }}
                 />
-                <label className="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500 z-[10004] pointer-events-none">
+                <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-xs text-gray-500 z-[10004] pointer-events-none">
                   HEX Color
                 </label>
               </div>
@@ -767,7 +769,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         }
                       }}
                     />
-                    <label className="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
+                    <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
                       {label}
                     </label>
                   </div>
@@ -824,7 +826,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         }
                       }}
                     />
-                    <label className="absolute -top-2 left-2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
+                    <label className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-white px-1 text-xs text-gray-500 z-[10005] pointer-events-none">
                       {label}
                     </label>
                   </div>
