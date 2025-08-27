@@ -34,6 +34,132 @@ interface HSLA {
 
 type ColorFormat = 'HEX' | 'RGBA' | 'HSLA';
 
+// Color conversion utility functions
+function hexToHsb(hex: string): HSB {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const diff = max - min;
+
+  let h = 0;
+  if (diff !== 0) {
+    if (max === r) h = ((g - b) / diff) % 6;
+    else if (max === g) h = (b - r) / diff + 2;
+    else h = (r - g) / diff + 4;
+  }
+  h = Math.round(h * 60);
+  if (h < 0) h += 360;
+
+  const s = max === 0 ? 0 : Math.round((diff / max) * 100);
+  const brightness = Math.round(max * 100);
+
+  return { h, s, b: brightness };
+}
+
+function hsbToHex({ h, s, b }: HSB): string {
+  const sDec = s / 100;
+  const bDec = b / 100;
+
+  const c = bDec * sDec;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = bDec - c;
+
+  let r = 0, g = 0, bl = 0;
+  if (h >= 0 && h < 60) { r = c; g = x; }
+  else if (h >= 60 && h < 120) { r = x; g = c; }
+  else if (h >= 120 && h < 180) { g = c; bl = x; }
+  else if (h >= 180 && h < 240) { g = x; bl = c; }
+  else if (h >= 240 && h < 300) { r = x; bl = c; }
+  else { r = c; bl = x; }
+
+  const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+  const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+  const bHex = Math.round((bl + m) * 255).toString(16).padStart(2, '0');
+
+  return `#${rHex}${gHex}${bHex}`;
+}
+
+function hexToRgba(hex: string): RGBA {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return { r, g, b, a: 1 };
+}
+
+function rgbaToHex({ r, g, b, a }: RGBA): string {
+  const rHex = Math.round(r).toString(16).padStart(2, '0');
+  const gHex = Math.round(g).toString(16).padStart(2, '0');
+  const bHex = Math.round(b).toString(16).padStart(2, '0');
+  return `#${rHex}${gHex}${bHex}`;
+}
+
+function hexToHsla(hex: string): HSLA {
+  const { h, s, b } = hexToHsb(hex);
+  // Convert brightness to lightness
+  const l = b * 0.5; // Simplified conversion
+  return { h, s, l, a: 1 };
+}
+
+function hslaToHex({ h, s, l, a }: HSLA): string {
+  // Convert lightness back to brightness for HSB
+  const b = l * 2; // Simplified conversion
+  return hsbToHex({ h, s, b });
+}
+
+// Consolidated color state interface
+interface ColorState {
+  hsb: HSB;
+  hex: string;
+  rgba: RGBA;
+  hsla: HSLA;
+  opacity: number;
+}
+
+// Color utility functions
+const colorUtils = {
+  hexToHsb,
+  hsbToHex,
+  hexToRgba,
+  rgbaToHex,
+  hexToHsla,
+  hslaToHex,
+  
+  // New utility to update all formats from HSB
+  updateFromHsb: (hsb: HSB, opacity: number): ColorState => {
+    const hex = hsbToHex(hsb);
+    const rgba = { ...hexToRgba(hex), a: opacity };
+    const hsla = { ...hexToHsla(hex), a: opacity };
+    return { hsb, hex, rgba, hsla, opacity };
+  },
+  
+  // New utility to update all formats from HEX
+  updateFromHex: (hex: string, opacity: number): ColorState => {
+    const hsb = hexToHsb(hex);
+    const rgba = { ...hexToRgba(hex), a: opacity };
+    const hsla = { ...hexToHsla(hex), a: opacity };
+    return { hsb, hex, rgba, hsla, opacity };
+  },
+  
+  // New utility to update all formats from RGBA
+  updateFromRgba: (rgba: RGBA): ColorState => {
+    const hex = rgbaToHex(rgba);
+    const hsb = hexToHsb(hex);
+    const hsla = { ...hexToHsla(hex), a: rgba.a };
+    return { hsb, hex, rgba, hsla, opacity: rgba.a };
+  },
+  
+  // New utility to update all formats from HSLA
+  updateFromHsla: (hsla: HSLA): ColorState => {
+    const hex = hslaToHex(hsla);
+    const hsb = hexToHsb(hex);
+    const rgba = { ...hexToRgba(hex), a: hsla.a };
+    return { hsb, hex, rgba, hsla, opacity: hsla.a };
+  }
+};
+
 // Custom Slider Component
 interface CustomSliderProps {
   value: number;
@@ -147,14 +273,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   recentColors = [],
   onRecentColorChange,
 }) => {
-  // Initialize once to avoid flickering
-  const [hsb, setHsb] = useState<HSB>(() => hexToHsb(selectedColor));
-  const [hex, setHex] = useState(selectedColor);
-  const [rgba, setRgba] = useState<RGBA>(() => hexToRgba(selectedColor));
-  const [hsla, setHsla] = useState<HSLA>(() => hexToHsla(selectedColor));
+  // Single consolidated color state
+  const [colorState, setColorState] = useState<ColorState>(() => 
+    colorUtils.updateFromHex(selectedColor, 1)
+  );
+  
   const [colorFormat, setColorFormat] = useState<ColorFormat>('HEX');
   const [isUserTyping, setIsUserTyping] = useState(false);
-  const [opacity, setOpacity] = useState(1); // 0-1 range for opacity
   const [isDragging, setIsDragging] = useState(false);
   const [justSetByUser, setJustSetByUser] = useState(false);
   
@@ -162,6 +287,32 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
   const isDraggingRef = useRef(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const [adjustedPosition, setAdjustedPosition] = React.useState<{ x: number; y: number } | null>(position || null);
+
+  // Simplified update functions
+  const updateColorFromHsb = useCallback((newHsb: HSB) => {
+    setColorState(prev => colorUtils.updateFromHsb(newHsb, prev.opacity));
+  }, []);
+
+  const updateColorFromHex = useCallback((newHex: string) => {
+    setColorState(prev => colorUtils.updateFromHex(newHex, prev.opacity));
+  }, []);
+
+  const updateColorFromRgba = useCallback((newRgba: RGBA) => {
+    setColorState(colorUtils.updateFromRgba(newRgba));
+  }, []);
+
+  const updateColorFromHsla = useCallback((newHsla: HSLA) => {
+    setColorState(colorUtils.updateFromHsla(newHsla));
+  }, []);
+
+  const updateOpacity = useCallback((newOpacity: number) => {
+    setColorState(prev => ({
+      ...prev,
+      opacity: newOpacity,
+      rgba: { ...prev.rgba, a: newOpacity },
+      hsla: { ...prev.hsla, a: newOpacity }
+    }));
+  }, []);
 
   // Viewport positioning logic (same as OptionPopup)
   useEffect(() => {
@@ -210,93 +361,12 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     }
   }, [isOpen, position]);
 
-  // --- HEX ↔ HSB conversion ---
-  function hexToHsb(hex: string): HSB {
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const diff = max - min;
-
-    let h = 0;
-    if (diff !== 0) {
-      if (max === r) h = ((g - b) / diff) % 6;
-      else if (max === g) h = (b - r) / diff + 2;
-      else h = (r - g) / diff + 4;
-    }
-    h = Math.round(h * 60);
-    if (h < 0) h += 360;
-
-    const s = max === 0 ? 0 : Math.round((diff / max) * 100);
-    const brightness = Math.round(max * 100);
-
-    return { h, s, b: brightness };
-  }
-
-  function hsbToHex({ h, s, b }: HSB): string {
-    const sDec = s / 100;
-    const bDec = b / 100;
-
-    const c = bDec * sDec;
-    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
-    const m = bDec - c;
-
-    let r = 0, g = 0, bl = 0;
-    if (h >= 0 && h < 60) { r = c; g = x; }
-    else if (h >= 60 && h < 120) { r = x; g = c; }
-    else if (h >= 120 && h < 180) { g = c; bl = x; }
-    else if (h >= 180 && h < 240) { g = x; bl = c; }
-    else if (h >= 240 && h < 300) { r = x; bl = c; }
-    else { r = c; bl = x; }
-
-    const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0');
-    const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0');
-    const bHex = Math.round((bl + m) * 255).toString(16).padStart(2, '0');
-
-    return `#${rHex}${gHex}${bHex}`;
-  }
-
-  // HEX to RGBA conversion
-  function hexToRgba(hex: string): RGBA {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return { r, g, b, a: 1 };
-  }
-
-  // RGBA to HEX conversion
-  function rgbaToHex({ r, g, b, a }: RGBA): string {
-    const rHex = Math.round(r).toString(16).padStart(2, '0');
-    const gHex = Math.round(g).toString(16).padStart(2, '0');
-    const bHex = Math.round(b).toString(16).padStart(2, '0');
-    return `#${rHex}${gHex}${bHex}`;
-  }
-
-  // HEX to HSLA conversion
-  function hexToHsla(hex: string): HSLA {
-    const { h, s, b } = hexToHsb(hex);
-    // Convert brightness to lightness
-    const l = b * 0.5; // Simplified conversion
-    return { h, s, l, a: 1 };
-  }
-
-  // HSLA to HEX conversion
-  function hslaToHex({ h, s, l, a }: HSLA): string {
-    // Convert lightness back to brightness for HSB
-    const b = l * 2; // Simplified conversion
-    return hsbToHex({ h, s, b });
-  }
-
   // Update all color formats when HSB changes (from slider/square)
   useEffect(() => {
     if (!isUserTyping && !isDragging && !justSetByUser) {
-      const newHex = hsbToHex(hsb);
-      if (newHex !== hex) {
-        setHex(newHex);
-        setRgba(hexToRgba(newHex));
-        setHsla(hexToHsla(newHex));
+      const newHex = hsbToHex(colorState.hsb);
+      if (newHex !== colorState.hex) {
+        updateColorFromHex(newHex);
         onColorChange(newHex);
       }
     }
@@ -304,14 +374,14 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (justSetByUser) {
       setJustSetByUser(false);
     }
-  }, [hsb, onColorChange, hex, isUserTyping, isDragging, justSetByUser]);
+  }, [colorState.hsb, onColorChange, colorState.hex, isUserTyping, isDragging, justSetByUser, updateColorFromHex]);
 
   // --- Input handlers ---
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     const value = e.target.value;
     setIsUserTyping(true);
-    setHex(value);
+    setColorState(prev => ({ ...prev, hex: value }));
   };
 
   const handleHexKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -322,16 +392,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       const value = e.currentTarget.value;
       // Only update other formats if we have a complete valid HEX code
       if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-        const newHsb = hexToHsb(value);
-        setHsb(newHsb); // Update HSB to reflect in square and slider
-        setHex(value);
-        const newRgba = { ...hexToRgba(value), a: opacity };
-        const newHsla = { ...hexToHsla(value), a: opacity };
-        setRgba(newRgba);
-        setHsla(newHsla);
-        // Pass the color with current opacity to the parent component
-        const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
-        onColorChange(colorWithOpacity);
+        updateColorFromHex(value);
+        onColorChange(value);
       }
     }
   };
@@ -340,16 +402,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     setIsUserTyping(false);
     setJustSetByUser(true); // Flag that hex was just set by user
     // Update other formats if we have a complete valid HEX code
-    if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-      const newHsb = hexToHsb(hex);
-      setHsb(newHsb); // Update HSB to reflect in square and slider
-      const newRgba = { ...hexToRgba(hex), a: opacity };
-      const newHsla = { ...hexToHsla(hex), a: opacity };
-      setRgba(newRgba);
-      setHsla(newHsla);
-      // Pass the color with current opacity to the parent component
-      const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
-      onColorChange(colorWithOpacity);
+    if (/^#[0-9A-Fa-f]{6}$/.test(colorState.hex)) {
+      updateColorFromHex(colorState.hex);
+      onColorChange(colorState.hex);
     }
   };
 
@@ -363,16 +418,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       if (inputValue === '' || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
         setIsUserTyping(true);
         const value = parseFloat(inputValue);
-        const newRgba = { ...rgba, [field]: isNaN(value) ? 0 : value };
-        setRgba(newRgba);
+        const newRgba = { ...colorState.rgba, [field]: isNaN(value) ? 0 : value };
+        setColorState(prev => ({ ...prev, rgba: newRgba }));
       }
     } else {
       // For RGB fields, only allow integers
       const value = parseFloat(inputValue);
       if (!isNaN(value)) {
         setIsUserTyping(true);
-        const newRgba = { ...rgba, [field]: value };
-        setRgba(newRgba);
+        const newRgba = { ...colorState.rgba, [field]: value };
+        setColorState(prev => ({ ...prev, rgba: newRgba }));
       }
     }
   };
@@ -383,15 +438,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       setIsUserTyping(false);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
-        const newRgba = { ...rgba, [field]: value };
-        setRgba(newRgba);
-        const newHex = rgbaToHex(newRgba);
-        const newHsb = hexToHsb(newHex);
-        setHsb(newHsb); // Update HSB to reflect in square and slider
-        setHex(newHex);
-        setHsla(hexToHsla(newHex));
-        setOpacity(newRgba.a); // Update opacity slider
-        onColorChange(newHex);
+        const newRgba = { ...colorState.rgba, [field]: value };
+        updateColorFromRgba(newRgba);
+        onColorChange(colorState.hex);
       }
     }
   };
@@ -406,16 +455,16 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       if (inputValue === '' || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
         setIsUserTyping(true);
         const value = parseFloat(inputValue);
-        const newHsla = { ...hsla, [field]: isNaN(value) ? 0 : value };
-        setHsla(newHsla);
+        const newHsla = { ...colorState.hsla, [field]: isNaN(value) ? 0 : value };
+        setColorState(prev => ({ ...prev, hsla: newHsla }));
       }
     } else {
       // For HSL fields, only allow integers
       const value = parseFloat(inputValue);
       if (!isNaN(value)) {
         setIsUserTyping(true);
-        const newHsla = { ...hsla, [field]: value };
-        setHsla(newHsla);
+        const newHsla = { ...colorState.hsla, [field]: value };
+        setColorState(prev => ({ ...prev, hsla: newHsla }));
       }
     }
   };
@@ -426,15 +475,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       setIsUserTyping(false);
       const value = parseFloat(e.currentTarget.value);
       if (!isNaN(value)) {
-        const newHsla = { ...hsla, [field]: value };
-        setHsla(newHsla);
-        const newHex = hslaToHex(newHsla);
-        const newHsb = hexToHsb(newHex);
-        setHsb(newHsb); // Update HSB to reflect in square and slider
-        setHex(newHex);
-        setRgba(hexToRgba(newHex));
-        setOpacity(newHsla.a); // Update opacity slider
-        onColorChange(newHex);
+        const newHsla = { ...colorState.hsla, [field]: value };
+        updateColorFromHsla(newHsla);
+        onColorChange(colorState.hex);
       }
     }
   };
@@ -463,22 +506,15 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     if (selectedColor) {
       // Convert to RGBA format with current opacity for the parent
       const rgbaColor = hexToRgba(selectedColor);
-      const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${opacity})`;
+      const colorWithOpacity = `rgba(${Math.round(rgbaColor.r)}, ${Math.round(rgbaColor.g)}, ${Math.round(rgbaColor.b)}, ${colorState.opacity})`;
       onColorChange(colorWithOpacity);
     }
   };
 
   // Handle recent color click
   const handleRecentColorClick = (color: string) => {
-    setHex(color);
-    setHsb(hexToHsb(color));
-    const newRgba = { ...hexToRgba(color), a: opacity };
-    const newHsla = { ...hexToHsla(color), a: opacity };
-    setRgba(newRgba);
-    setHsla(newHsla);
-    // Pass the color with current opacity to the parent component
-    const colorWithOpacity = `rgba(${Math.round(newRgba.r)}, ${Math.round(newRgba.g)}, ${Math.round(newRgba.b)}, ${newRgba.a})`;
-    onColorChange(colorWithOpacity);
+    updateColorFromHex(color);
+    onColorChange(color);
   };
 
   // --- Hue slider ---
@@ -488,14 +524,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       setIsDragging(true);
     }
     
-    const newHsb = { ...hsb, h: value };
-    setHsb(newHsb);
-    const newHex = hsbToHex(newHsb);
-    setHex(newHex);
-    const newRgba = { ...hexToRgba(newHex), a: opacity };
-    const newHsla = { ...hexToHsla(newHex), a: opacity };
-    setRgba(newRgba);
-    setHsla(newHsla);
+    const newHsb = { ...colorState.hsb, h: value };
+    updateColorFromHsb(newHsb);
     // Don't call onColorChange during dragging - only when dragging ends
   };
 
@@ -503,8 +533,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // This is called when the user finishes dragging the hue slider
     setIsDragging(false);
     // Pass the color with current opacity to the parent component when dragging ends
-    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-    onColorChange(colorWithOpacity);
+    onColorChange(colorState.hex);
   };
 
   // --- Opacity slider ---
@@ -514,13 +543,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       setIsDragging(true);
     }
     
-    const newOpacity = value;
-    setOpacity(newOpacity);
-    // Update RGBA and HSLA with new opacity
-    const newRgba = { ...rgba, a: newOpacity };
-    const newHsla = { ...hsla, a: newOpacity };
-    setRgba(newRgba);
-    setHsla(newHsla);
+    updateOpacity(value);
     // Don't call onColorChange during dragging - only when dragging ends
   };
 
@@ -528,8 +551,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     // This is called when the user finishes dragging the opacity slider
     setIsDragging(false);
     // Pass the color with current opacity to the parent component when dragging ends
-    const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-    onColorChange(colorWithOpacity);
+    onColorChange(colorState.hex);
   };
 
   // --- Saturation/Brightness square ---
@@ -539,19 +561,13 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
     const newHsb = {
-      ...hsb,
+      ...colorState.hsb,
       s: Math.round(x * 100),
       b: Math.round((1 - y) * 100)
     };
-    setHsb(newHsb);
-    const newHex = hsbToHex(newHsb);
-    setHex(newHex);
-    const newRgba = { ...hexToRgba(newHex), a: opacity };
-    const newHsla = { ...hexToHsla(newHex), a: opacity };
-    setRgba(newRgba);
-    setHsla(newHsla);
+    updateColorFromHsb(newHsb);
     // Don't call onColorChange during dragging - only when dragging ends
-  }, [hsb, opacity]);
+  }, [colorState.hsb, updateColorFromHsb]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only start dragging if clicking on the saturation square
@@ -575,10 +591,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
       isDraggingRef.current = false; 
       setIsDragging(false);
       // Pass the color with current opacity to the parent component when dragging ends
-      const colorWithOpacity = `rgba(${Math.round(rgba.r)}, ${Math.round(rgba.g)}, ${Math.round(rgba.b)}, ${rgba.a})`;
-      onColorChange(colorWithOpacity);
+      onColorChange(colorState.hex);
       // Add the current color to recent colors when dragging the saturation/brightness square ends
-      addToRecentColors(hex);
+      addToRecentColors(colorState.hex);
     }
   };
 
@@ -621,7 +636,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             className="w-full h-32 rounded-lg cursor-crosshair relative z-[10001] overflow-hidden transition-shadow duration-200"
             style={{
               background: `linear-gradient(to top, #000, transparent),
-                           linear-gradient(to right, #fff, hsl(${hsb.h}, 100%, 50%))`
+                           linear-gradient(to right, #fff, hsl(${colorState.hsb.h}, 100%, 50%))`
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
@@ -639,8 +654,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             <div
               className="absolute w-3 h-3 rounded-full border-2 border-white bg-transparent pointer-events-none z-[10002] transition-all duration-100 ease-out"
               style={{
-                left: `${hsb.s}%`,
-                top: `${100 - hsb.b}%`,
+                left: `${colorState.hsb.s}%`,
+                top: `${100 - colorState.hsb.b}%`,
                 transform: 'translate(-50%, -50%)'
               }}
             />
@@ -649,9 +664,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             <div
               className="absolute w-2 h-2 rounded-full pointer-events-none z-[10003]"
               style={{
-                backgroundColor: hex,
-                left: `${hsb.s}%`,
-                top: `${100 - hsb.b}%`,
+                backgroundColor: colorState.hex,
+                left: `${colorState.hsb.s}%`,
+                top: `${100 - colorState.hsb.b}%`,
                 transform: 'translate(-50%, -50%)'
               }}
             />
@@ -672,8 +687,8 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             }}>
                       <div className="w-full h-full border border-gray-300 rounded-lg"
             style={{
-              backgroundColor: hex,
-              opacity: opacity
+              backgroundColor: colorState.hex,
+              opacity: colorState.opacity
             }} />
           </div>
 
@@ -682,7 +697,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             {/* Hue Slider */}
             <div className="relative z-[10001]">
                           <CustomSlider
-              value={hsb.h}
+              value={colorState.hsb.h}
               min={0}
               max={360}
               onChange={handleHueChange}
@@ -708,7 +723,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   }}
                 />
                 <CustomSlider
-                  value={opacity}
+                  value={colorState.opacity}
                   min={0}
                   max={1}
                   step={0.01}
@@ -746,7 +761,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
               <div className="relative w-[234px]">
                 <input
                   type="text"
-                  value={hex}
+                  value={colorState.hex}
                   onChange={handleHexChange}
                   onKeyDown={handleHexKeyDown}
                   onBlur={(e) => {
@@ -776,10 +791,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             <div>
               <div className="flex gap-2 w-full">
                 {[
-                  { label: 'R', value: Math.round(rgba.r), field: 'r' as keyof RGBA, min: 0, max: 255, step: 1 },
-                  { label: 'G', value: Math.round(rgba.g), field: 'g' as keyof RGBA, min: 0, max: 255, step: 1 },
-                  { label: 'B', value: Math.round(rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
-                  { label: 'A', value: rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
+                  { label: 'R', value: Math.round(colorState.rgba.r), field: 'r' as keyof RGBA, min: 0, max: 255, step: 1 },
+                  { label: 'G', value: Math.round(colorState.rgba.g), field: 'g' as keyof RGBA, min: 0, max: 255, step: 1 },
+                  { label: 'B', value: Math.round(colorState.rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
+                  { label: 'A', value: colorState.rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
                   <div key={label} className={`relative ${label === 'A' ? 'w-[60px]' : 'w-[50px]'}`}>
                     <input
@@ -805,15 +820,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         // Update HSB when RGBA changes
                         const value = parseFloat(e.target.value);
                         if (!isNaN(value)) {
-                          const newRgba = { ...rgba, [field]: value };
-                          const newHex = rgbaToHex(newRgba);
-                          const newHsb = hexToHsb(newHex);
-                          setHsb(newHsb); // Update HSB to reflect in square and slider
-                          setHex(newHex);
-                          setRgba(newRgba);
-                          setHsla(hexToHsla(newHex));
-                          setOpacity(newRgba.a); // Update opacity slider
-                          onColorChange(newHex);
+                          const newRgba = { ...colorState.rgba, [field]: value };
+                          updateColorFromRgba(newRgba);
+                          onColorChange(colorState.hex);
                         }
                       }}
                     />
@@ -833,10 +842,10 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
             <div>
               <div className="flex gap-2 w-full">
                 {[
-                  { label: 'H', value: Math.round(hsla.h), field: 'h' as keyof HSLA, min: 0, max: 360, step: 1 },
-                  { label: 'S', value: Math.round(hsla.s), field: 's' as keyof HSLA, min: 0, max: 100, step: 1 },
-                  { label: 'L', value: Math.round(hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
-                  { label: 'A', value: hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
+                  { label: 'H', value: Math.round(colorState.hsla.h), field: 'h' as keyof HSLA, min: 0, max: 360, step: 1 },
+                  { label: 'S', value: Math.round(colorState.hsla.s), field: 's' as keyof HSLA, min: 0, max: 100, step: 1 },
+                  { label: 'L', value: Math.round(colorState.hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
+                  { label: 'A', value: colorState.hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
                   <div key={label} className={`relative ${label === 'A' ? 'w-[60px]' : 'w-[50px]'}`}>
                     <input
@@ -862,15 +871,9 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                         // Update HSB when HSLA changes
                         const value = parseFloat(e.target.value);
                         if (!isNaN(value)) {
-                          const newHsla = { ...hsla, [field]: value };
-                          const newHex = hslaToHex(newHsla);
-                          const newHsb = hexToHsb(newHex);
-                          setHsb(newHsb); // Update HSB to reflect in square and slider
-                          setHex(newHex);
-                          setHsla(newHsla);
-                          setRgba(hexToRgba(newHex));
-                          setOpacity(newHsla.a); // Update opacity slider
-                          onColorChange(newHex);
+                          const newHsla = { ...colorState.hsla, [field]: value };
+                          updateColorFromHsla(newHsla);
+                          onColorChange(colorState.hex);
                         }
                       }}
                     />
