@@ -217,97 +217,50 @@ class ElaiVideoGenerationService:
             for i, voiceover_text in enumerate(cleaned_texts):
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Creating slide {i+1} with text: {voiceover_text[:100]}...")
                 
-                # Configure canvas based on green screen mode
+                # Configure canvas based on green screen mode - EXACT COPY FROM WORKING TEST FILE
                 if green_screen_mode:
-                    # Green screen mode: small avatar positioned like in test_elai_api.py
+                    # Green screen mode: exact copy from test_elai_api.py
                     canvas_config = {
-                        "version": "4.4.0",
-                        "background": "#00FF00",  # Pure green background for chroma key
                         "objects": [{
                             "type": "avatar",
-                            "version": "4.4.0",
-                            "originX": "left",
-                            "originY": "top",
-                            "left": 510,  # Position like in test_elai_api.py
-                            "top": 255,   # Position like in test_elai_api.py
+                            "left": 510,
+                            "top": 255,
+                            "fill": "#4868FF",
+                            "scaleX": 0.1,
+                            "scaleY": 0.1,
                             "width": 1080,
                             "height": 1080,
-                            "fill": "#4868FF",
-                            "stroke": None,
-                            "strokeWidth": 0,
-                            "scaleX": 0.1,   # Small avatar like in test_elai_api.py
-                            "scaleY": 0.1,   # Small avatar like in test_elai_api.py
-                            "angle": 0,
-                            "flipX": False,
-                            "flipY": False,
-                            "opacity": 1,
-                            "visible": True,
                             "src": avatar.get("canvas"),
-                            "crossOrigin": None,
-                            "filters": [],
                             "avatarType": "transparent",
                             "animation": {
                                 "type": None,
                                 "exitType": None
                             }
-                        }]
+                        }],
+                        "background": "#00FF00",  # Pure green background for chroma key
+                        "version": "4.4.0"
                     }
                 else:
-                    # CRITICAL BUG FIX: Use properly positioned avatar based on official API format
-                    # Position avatar centered for visibility with proper API structure
-                    
-                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using official API format for avatar configuration")
-                    logger.info(f"  - Position: Centered at (640, 540) for 1920x1080 canvas")
-                    logger.info(f"  - Scale: 0.3x for good visibility")
-                    logger.info(f"  - Format: Following official Elai API structure")
-                    
+                    # EXACT COPY FROM WORKING TEST FILE - Simple structure that works
                     canvas_config = {
-                        "version": "4.4.0",
-                        "background": "#ffffff",  # White background for compatibility
                         "objects": [{
                             "type": "avatar",
-                            "version": "4.4.0",
-                            "originX": "left",
-                            "originY": "top",
-                            "left": 640,     # Centered horizontally for 1920px canvas
-                            "top": 540,      # Centered vertically for 1080px canvas
-                            "width": 0,      # Let Elai determine dimensions
-                            "height": 0,     # Let Elai determine dimensions
+                            "left": 510,
+                            "top": 255,
                             "fill": "#4868FF",
-                            "stroke": None,
-                            "strokeWidth": 0,
-                            "strokeDashArray": None,
-                            "strokeLineCap": "butt",
-                            "strokeDashOffset": 0,
-                            "strokeLineJoin": "miter",
-                            "strokeUniform": False,
-                            "strokeMiterLimit": 4,
-                            "scaleX": 0.3,   # Good scale for visibility
-                            "scaleY": 0.3,   # Good scale for visibility
-                            "angle": 0,
-                            "flipX": False,
-                            "flipY": False,
-                            "opacity": 1,
-                            "shadow": None,
-                            "visible": True,
-                            "backgroundColor": "",
-                            "fillRule": "nonzero",
-                            "paintFirst": "fill",
-                            "globalCompositeOperation": "source-over",
-                            "skewX": 0,
-                            "skewY": 0,
-                            "cropX": 0,
-                            "cropY": 0,
+                            "scaleX": 0.1,
+                            "scaleY": 0.1,
+                            "width": 1080,
+                            "height": 1080,
                             "src": avatar.get("canvas"),
-                            "crossOrigin": None,
-                            "filters": [],
                             "avatarType": "transparent",
                             "animation": {
                                 "type": None,
                                 "exitType": None
-                            },
-                            "_exists": True
-                        }]
+                            }
+                        }],
+                        "background": "#ffffff",  # White background for normal mode
+                        "version": "4.4.0"
                     }
                 
                 # CRITICAL FIX: Ensure avatar object matches canvas object and validate URLs
@@ -362,14 +315,7 @@ class ElaiVideoGenerationService:
             video_request = {
                 "name": project_name,
                 "slides": elai_slides,
-                "tags": ["video_lesson", "generated", "presentation"],
-                "public": False,
-                "data": {
-                    "skipEmails": False,
-                    "subtitlesEnabled": "false",
-                    "format": "16_9",  # Standard widescreen format for compatibility
-                    "resolution": "FullHD"  # High resolution for quality
-                }
+                "tags": ["video_lesson", "generated", "presentation"]
             }
             
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
