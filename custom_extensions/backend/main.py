@@ -10094,29 +10094,48 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - ALWAYS extract image prompts from [IMAGE_PLACEHOLDER] sections
             - Format: [IMAGE_PLACEHOLDER: SIZE | POSITION | DESCRIPTION]
             - Map DESCRIPTION to "imagePrompt" and "imageAlt" fields
-            - **CRITICAL: Generate detailed, minimalist flat design prompts with color placeholders**
-            - **NEW PROMPT FORMAT REQUIREMENTS:**
-              - Start with "Minimalist flat design illustration of [subject/scene]"
-              - Describe the scene and elements in detail (people, objects, layout)
-              - Include specific positioning and composition details
+            - **CRITICAL: Generate extremely detailed, descriptive prompts with specific visual elements**
+            - **DETAILED PROMPT FORMAT REQUIREMENTS:**
+              - Start with "Minimalist flat design illustration of [detailed subject/scene description]"
+              - Include SPECIFIC visual elements: exact objects, people, layouts, arrangements
+              - Describe COMPOSITION: positioning, spatial relationships, perspective
+              - Detail CHARACTER descriptions: gender, age, clothing, poses, actions
+              - Specify OBJECT details: shapes, sizes, orientations, interactions
+              - Include ENVIRONMENTAL elements: setting, context, atmosphere
               - Use color placeholders: [COLOR1], [COLOR2], [COLOR3], [BACKGROUND]
-              - End with background and style specifications
+              - End with style and background specifications
               - NO separate color descriptions or presentation context
+            - **VISUAL ELEMENT REQUIREMENTS:**
+              - **People**: Describe gender, ethnicity, age range, specific clothing, poses, facial expressions, interactions
+              - **Objects**: Detail size, shape, orientation, material appearance, positioning relative to other elements
+              - **Technology**: Specify device types, screen content, interface elements, connection indicators
+              - **Architecture**: Describe building styles, structural elements, spatial relationships, interior/exterior details
+              - **Data/Charts**: Detail chart types, data representation methods, axis labels, trend indicators
+              - **Nature/Abstract**: Specify shapes, patterns, flow directions, organic vs geometric elements
+            - **COMPOSITION REQUIREMENTS:**
+              - Describe exact positioning: "person sitting on the left side", "laptop positioned at center-right"
+              - Include spatial relationships: "behind", "in front of", "surrounding", "connected by"
+              - Specify viewing angles: "front view", "three-quarter perspective", "top-down view"
+              - Detail background/foreground layering: "foreground elements", "middle ground", "background context"
             - **COLOR PLACEHOLDER USAGE:**
-              - [COLOR1] or [PRIMARY]: Main accent color for primary elements
-              - [COLOR2] or [SECONDARY]: Secondary color for borders, outlines, text
-              - [COLOR3] or [TERTIARY]: Supporting color for details and accents
-              - [BACKGROUND]: Background color
-            - **EXAMPLE PROMPT STRUCTURE:**
-              - "Minimalist flat design illustration of [detailed scene description]. [Specific layout and positioning]. The style is modern corporate vector art with a limited color palette of [COLOR1], [COLOR2], and white. The background is [BACKGROUND], clean and isolated."
-            - **DETAILED SCENE DESCRIPTIONS:**
-              - Include specific people descriptions (gender, position, clothing, actions)
-              - Describe objects and their arrangement precisely
-              - Specify positioning (left, right, center, around, behind, etc.)
-              - Include setting details (desk, office, outdoor, etc.)
-            - **NEVER include "presentation slide" or "for presentations" in the prompt**
-            - **NEVER add separate color descriptions after the main prompt**
-            - **NEVER leave imagePrompt fields empty - always generate detailed, illustrative prompts with color placeholders**
+              - [COLOR1] or [PRIMARY]: Main accent color for primary focal elements
+              - [COLOR2] or [SECONDARY]: Secondary color for supporting elements, borders, text
+              - [COLOR3] or [TERTIARY]: Accent color for details, highlights, subtle elements
+              - [BACKGROUND]: Background color for the entire illustration
+            - **ENHANCED PROMPT STRUCTURE:**
+              - "Minimalist flat design illustration of [comprehensive scene description with 3-5 specific visual elements]. The scene features [detailed character/object descriptions with exact positioning]. [Additional environmental and compositional details]. [Specific color assignments for each visual element using placeholders]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+            - **DETAILED SCENE EXAMPLES:**
+              - TEAM COLLABORATION: "three professionals around a conference table: a Black woman in a blue blazer presenting at a whiteboard on the left, an Asian man in glasses taking notes on a laptop in the center, and a Caucasian woman with shoulder-length hair reviewing documents on the right"
+              - TECHNOLOGY SETUP: "a modern workstation featuring a large curved monitor displaying data charts, a wireless keyboard positioned below, a smartphone to the right showing notifications, and a coffee cup on the upper left corner of the desk"
+              - DATA FLOW: "an interconnected network diagram with five circular nodes arranged in a pentagon formation, connected by flowing arrow lines, with data packets represented as small moving dots along the connections"
+            - **MANDATORY REQUIREMENTS:**
+              - NEVER include "presentation slide" or "for presentations" in the prompt
+              - NEVER add separate color descriptions after the main scene description
+              - ALWAYS describe at least 3-5 specific visual elements in detail
+              - ALWAYS specify exact positioning and spatial relationships
+              - ALWAYS include character demographics and specific object details
+              - ALWAYS assign colors to specific elements using placeholders
+              - NEVER leave imagePrompt fields empty - generate comprehensive, detailed prompts
             
             **TEMPLATE-SPECIFIC PROPS REQUIREMENTS:**
             
