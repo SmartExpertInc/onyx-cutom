@@ -1491,8 +1491,18 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 # Add image prompt for bullet-points
                 if not normalized_props.get('imagePrompt'):
                     title = normalized_props.get('title', 'concepts')
-                    normalized_props['imagePrompt'] = f"Professional diagram illustrating {title}, modern flat design"
-                    normalized_props['imageAlt'] = f"Diagram for {title}"
+                    title_lower = title.lower()
+                    
+                    # Generate contextual, detailed image prompts for metrics/analytics content
+                    if 'metric' in title_lower or 'analytic' in title_lower or 'performance' in title_lower:
+                        normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern data analytics workspace. The scene features a professional data analyst sitting at a clean desk with a laptop displaying simple geometric charts and performance dashboards (no readable text). A large monitor shows flowing data visualizations with abstract patterns and trends. The workspace includes notebooks, a coffee cup, and modern office accessories. Natural light streams through large windows. The laptop charts and data visualizations are [COLOR1], the monitor and office equipment are [COLOR2], and the workspace environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    elif 'tracking' in title_lower or 'monitoring' in title_lower:
+                        normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern monitoring and tracking center. The scene features a professional analyst standing next to a large wall display showing flowing geometric patterns representing tracking systems and monitoring data. A clean workstation with a tablet displaying simple interface elements sits nearby. The environment is bright and contemporary with floor-to-ceiling windows. The wall display and tracking patterns are [COLOR1], the analyst's attire and tablet are [COLOR2], and the monitoring center environment are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    else:
+                        # General professional data/analytics fallback
+                        normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern professional workspace focused on {title.lower()}. The scene features a diverse professional in business attire working at a contemporary desk with a laptop displaying simple data interface elements and geometric visualizations (no readable text). Professional tools like a tablet, notebooks, and a coffee cup are positioned around the clean workspace. Large windows provide natural light to the modern office environment. The laptop interface and data displays are [COLOR1], the professional's attire and desk accessories are [COLOR2], and the office environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    
+                    normalized_props['imageAlt'] = f"Professional illustration for {title}"
                     
             # This big-numbers conversion logic is moved to after big-numbers normalization below
                 
@@ -1594,8 +1604,20 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     # Add image prompt for bullet-points
                     if not normalized_props.get('imagePrompt'):
                         slide_title = normalized_props.get('title', 'concepts')
-                        normalized_props['imagePrompt'] = f"Professional diagram illustrating {slide_title}, modern educational design"
-                        normalized_props['imageAlt'] = f"Diagram for {slide_title}"
+                        title_lower = slide_title.lower()
+                        
+                        # Generate contextual, detailed image prompts based on content
+                        if 'assessment' in title_lower or 'evaluation' in title_lower:
+                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern educational assessment environment. The scene features a young female teacher sitting at a clean desk in a bright classroom, reviewing student assessments on a tablet displaying simple geometric grade analytics (no readable text). Behind her, students work quietly at individual desks taking a digital assessment on laptops. The classroom has large windows with natural light and a whiteboard showing basic geometric patterns. The tablet interface and assessment analytics are [COLOR1], the teacher's clothing and desk items are [COLOR2], and the classroom environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        elif 'future' in title_lower or 'trends' in title_lower:
+                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a futuristic educational technology center. The scene features a Hispanic male educator standing next to a large interactive holographic display showing flowing geometric patterns representing future learning concepts. A modern curved desk with a sleek laptop and digital stylus sits in the foreground. Through floor-to-ceiling windows, a futuristic cityscape is visible. The holographic display and future tech patterns are [COLOR1], the educator's attire and laptop are [COLOR2], and the modern facility and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        elif 'technology' in title_lower or 'tech' in title_lower:
+                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern educational technology lab. The scene features a young Asian female student sitting at a sleek workstation using a tablet for interactive learning, with a single large monitor displaying simple educational interface elements and geometric learning modules (no readable text). Modern educational equipment and a coffee cup are positioned on the clean desk. Natural light streams through large windows. The tablet interface and learning modules are [COLOR1], the monitor and educational technology are [COLOR2], and the lab environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        else:
+                            # General educational fallback
+                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern educational environment related to {slide_title.lower()}. The scene features a diverse educator in professional attire working at a contemporary desk with a laptop displaying simple interface elements related to the topic (no readable text). Educational materials like notebooks and a tablet are positioned around the workspace. Large windows provide natural light to the clean, professional space. The laptop interface and educational displays are [COLOR1], the educator's attire and desk accessories are [COLOR2], and the educational environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                        
+                        normalized_props['imageAlt'] = f"Professional educational illustration for {slide_title}"
                     
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
@@ -10243,7 +10265,7 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             For "bullet-points" and "bullet-points-right":
             - "title": Main heading
             - "bullets": Array of bullet point strings
-            - "imagePrompt": Description for supporting image (REQUIRED) - MUST be scenic illustration showing people in real environments, NOT infographics or icons
+            - "imagePrompt": Description for supporting image (REQUIRED) - MUST be scenic illustration showing people in real environments, NOT infographics or icons. NEVER leave this field empty or the slide will use generic fallback prompts.
             - "imageAlt": Alt text for image
             
             For "two-column":
@@ -10276,7 +10298,8 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             - Generate sequential slideNumber values (1, 2, 3, ...)
             - Create descriptive slideId values based on number and title
             - NEVER create duplicate content for title and subtitle - extract different content
-            - ALWAYS generate imagePrompt for templates that support images
+            - ALWAYS generate imagePrompt for templates that support images - NEVER leave imagePrompt fields empty
+            - CRITICAL: bullet-points and bullet-points-right templates MUST include detailed imagePrompt fields
 
             Important Localization Rule: All auxiliary headings or keywords must be in the same language as the surrounding content.
 
