@@ -691,7 +691,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
         <div style={{ marginTop: '16px', minHeight: '56px', zIndex: 10002, position: 'relative' }}>
           {colorFormat === 'HEX' && (
             <div>
-              <div style={{ position: 'relative', width: '264px' }}>
+              <div style={{ position: 'relative', width: '224px' }}>
                 <input
                   type="text"
                   value={hex}
@@ -754,7 +754,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   { label: 'B', value: Math.round(rgba.b), field: 'b' as keyof RGBA, min: 0, max: 255, step: 1 },
                   { label: 'A', value: rgba.a, field: 'a' as keyof RGBA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} style={{ position: 'relative', width: '60px' }}>
+                  <div key={label} style={{ position: 'relative', width: '50px' }}>
                     <input
                       type="text"
                       value={value}
@@ -834,7 +834,7 @@ const ColorPalettePopup: React.FC<ColorPalettePopupProps> = ({
                   { label: 'L', value: Math.round(hsla.l), field: 'l' as keyof HSLA, min: 0, max: 100, step: 1 },
                   { label: 'A', value: hsla.a, field: 'a' as keyof HSLA, min: 0, max: 1, step: 0.1 }
                 ].map(({ label, value, field, min, max, step }) => (
-                  <div key={label} style={{ position: 'relative', width: '60px' }}>
+                  <div key={label} style={{ position: 'relative', width: '50px' }}>
                     <input
                       type="text"
                       value={value}
