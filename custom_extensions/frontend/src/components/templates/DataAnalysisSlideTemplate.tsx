@@ -183,32 +183,42 @@ export const DataAnalysisSlideTemplate: React.FC<DataAnalysisSlideProps & {
 
   return (
     <div className="data-analysis-slide-template" style={slideStyles}>
-      {/* Left Section - Profile Image */}
-      <div style={{
-        width: '33%',
-        height: '100%',
-        backgroundColor: themeAccent,
-        borderRadius: '20px',
-        margin: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={handleProfileImageUploaded}
-          size="LARGE"
-          position="CENTER"
-          description="Profile photo"
-          isEditable={isEditable}
-          style={{
-            width: '200px',
-            height: '200px',
-            borderRadius: '50%',
-            objectFit: 'cover'
-          }}
-        />
-      </div>
+             {/* Left Section - Profile Image */}
+       <div style={{
+         width: '33%',
+         height: '100%',
+         backgroundColor: themeAccent,
+         borderRadius: '20px',
+         margin: '40px',
+         display: 'flex',
+         alignItems: 'center',
+         justifyContent: 'center'
+       }}>
+         <div style={{
+           width: '200px',
+           height: '200px',
+           borderRadius: '50%',
+           overflow: 'hidden',
+           display: 'flex',
+           alignItems: 'center',
+           justifyContent: 'center'
+         }}>
+           <ClickableImagePlaceholder
+             imagePath={profileImagePath}
+             onImageUploaded={handleProfileImageUploaded}
+             size="LARGE"
+             position="CENTER"
+             description="Profile photo"
+             isEditable={isEditable}
+             style={{
+               width: '100%',
+               height: '100%',
+               borderRadius: '50%',
+               objectFit: 'cover'
+             }}
+           />
+         </div>
+       </div>
 
       {/* Right Section - Title and Excel Icon */}
       <div style={{

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CriticalThinkingSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -147,6 +148,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
   const [currentHighlightedPhrases, setCurrentHighlightedPhrases] = useState(highlightedPhrases);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -211,9 +214,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     }
   };
 
-  const handleCompanyLogoUploaded = (newImagePath: string) => {
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, highlightedPhrases, profileImagePath, profileImageAlt, companyLogoPath, companyLogoAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newImagePath });
+      onUpdate({ ...{ title, content, highlightedPhrases, profileImagePath, profileImageAlt, companyLogoPath, companyLogoAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
@@ -291,33 +295,34 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
   return (
     <div className="critical-thinking-slide-template" style={slideStyles}>
-      {/* Profile Image - Top Left */}
-      <div style={{
-        position: 'absolute',
-        top: '40px',
-        left: '60px',
-        width: '120px',
-        height: '120px',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={handleProfileImageUploaded}
-          size="LARGE"
-          position="CENTER"
-          description="Profile photo"
-          isEditable={isEditable}
-          style={{
-            width: '100%',
-            height: '100%',
-            borderRadius: '50%',
-            objectFit: 'cover'
-          }}
-        />
-      </div>
+             {/* Profile Image - Top Left */}
+       <div style={{
+         position: 'absolute',
+         top: '40px',
+         left: '60px',
+         width: '120px',
+         height: '120px',
+         borderRadius: '50%',
+         overflow: 'hidden',
+         display: 'flex',
+         alignItems: 'center',
+         justifyContent: 'center'
+       }}>
+         <ClickableImagePlaceholder
+           imagePath={profileImagePath}
+           onImageUploaded={handleProfileImageUploaded}
+           size="LARGE"
+           position="CENTER"
+           description="Profile photo"
+           isEditable={isEditable}
+           style={{
+             width: '100%',
+             height: '100%',
+             borderRadius: '50%',
+             objectFit: 'cover'
+           }}
+         />
+       </div>
 
       {/* Main Content */}
       <div style={{
@@ -417,79 +422,81 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         </div>
       </div>
 
-      {/* Company Logo - Bottom Left */}
-      <div style={{
-        position: 'absolute',
-        bottom: '40px',
-        left: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px'
-      }}>
-        {companyLogoPath ? (
-          <ClickableImagePlaceholder
-            imagePath={companyLogoPath}
-            onImageUploaded={handleCompanyLogoUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              width: '60px',
-              height: '30px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            cursor: 'pointer'
-          }} onClick={() => {
-            // Trigger file upload dialog
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = (e) => {
-              const file = (e.target as HTMLInputElement).files?.[0];
-              if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const result = e.target?.result as string;
-                  if (result) {
-                    handleCompanyLogoUploaded(result);
-                  }
-                };
-                reader.readAsDataURL(file);
-              }
-            };
-            input.click();
-          }}>
-            <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              backgroundColor: themeContent,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: themeBg,
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }}>
-              +
-            </div>
-            <div style={{
-              fontSize: '14px',
-              color: themeContent,
-              fontWeight: '300'
-            }}>
-              Your Logo
-            </div>
-          </div>
-        )}
-      </div>
+             {/* Company Logo - Bottom Left */}
+       <div style={{
+         position: 'absolute',
+         bottom: '40px',
+         left: '60px',
+         display: 'flex',
+         alignItems: 'center',
+         gap: '10px'
+       }}>
+         {currentCompanyLogoPath ? (
+           <ClickableImagePlaceholder
+             imagePath={currentCompanyLogoPath}
+             onImageUploaded={handleCompanyLogoUploaded}
+             size="SMALL"
+             position="CENTER"
+             description="Company logo"
+             isEditable={isEditable}
+             style={{
+               width: '60px',
+               height: '30px',
+               objectFit: 'contain'
+             }}
+           />
+         ) : (
+           <div style={{
+             display: 'flex',
+             alignItems: 'center',
+             gap: '10px',
+             cursor: isEditable ? 'pointer' : 'default'
+           }}
+           onClick={() => isEditable && setShowLogoUploadModal(true)}
+           >
+             <div style={{
+               width: '30px',
+               height: '30px',
+               border: `2px solid ${themeContent}`,
+               borderRadius: '50%',
+               position: 'relative',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center'
+             }}>
+               <div style={{
+                 width: '12px',
+                 height: '2px',
+                 backgroundColor: themeContent,
+                 position: 'absolute'
+               }} />
+               <div style={{
+                 width: '2px',
+                 height: '12px',
+                 backgroundColor: themeContent,
+                 position: 'absolute',
+                 left: '50%',
+                 top: '50%',
+                 transform: 'translate(-50%, -50%)'
+               }} />
+             </div>
+             <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Your Logo</span>
+           </div>
+         )}
+       </div>
+
+       {/* Logo Upload Modal */}
+       {showLogoUploadModal && (
+         <PresentationImageUpload
+           isOpen={showLogoUploadModal}
+           onClose={() => setShowLogoUploadModal(false)}
+           onImageUploaded={(newLogoPath) => {
+             handleCompanyLogoUploaded(newLogoPath);
+             setShowLogoUploadModal(false);
+           }}
+           title="Upload Company Logo"
+         />
+       )}
     </div>
   );
 };

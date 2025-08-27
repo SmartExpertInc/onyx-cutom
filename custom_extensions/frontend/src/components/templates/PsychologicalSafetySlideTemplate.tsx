@@ -205,33 +205,34 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         justifyContent: 'space-between',
         position: 'relative'
       }}>
-        {/* Profile Image - Top Left */}
-        <div style={{
-          position: 'absolute',
-          top: '40px',
-          left: '40px',
-          width: '80px',
-          height: '80px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="MEDIUM"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
+                 {/* Profile Image - Top Left */}
+         <div style={{
+           position: 'absolute',
+           top: '40px',
+           left: '40px',
+           width: '80px',
+           height: '80px',
+           borderRadius: '50%',
+           overflow: 'hidden',
+           display: 'flex',
+           alignItems: 'center',
+           justifyContent: 'center'
+         }}>
+           <ClickableImagePlaceholder
+             imagePath={profileImagePath}
+             onImageUploaded={handleProfileImageUploaded}
+             size="MEDIUM"
+             position="CENTER"
+             description="Profile photo"
+             isEditable={isEditable}
+             style={{
+               width: '100%',
+               height: '100%',
+               borderRadius: '50%',
+               objectFit: 'cover'
+             }}
+           />
+         </div>
 
         {/* Title */}
         <div style={{
