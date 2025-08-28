@@ -370,7 +370,6 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        overflow: 'hidden',
         position: 'absolute',
         top: '80px',
         right: '80px',

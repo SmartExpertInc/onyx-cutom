@@ -310,7 +310,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Main title */}
           <div style={{
-            fontSize: '55px',
+            fontSize: '65px',
             color: themeBg,
             marginBottom: '20px',
             lineHeight: '1.1',
@@ -327,7 +327,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleTitleCancel}
                 className="benefits-title-editor"
                 style={{
-                  fontSize: '55px',
+                  fontSize: '65px',
                   color: themeBg,
                   lineHeight: '1.1',
                   width: '100%',
@@ -355,10 +355,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '22px',
+            fontSize: '25px',
             color: themeBg,
             lineHeight: '1.4',
-            maxWidth: '530px',
+            maxWidth: '590px',
             minHeight: '30px',
             display: 'flex',
             alignItems: 'flex-start'
@@ -371,7 +371,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 multiline={true}
                 className="benefits-description-editor"
                 style={{
-                  fontSize: '18px',
+                  fontSize: '25px',
                   color: themeBg,
                   lineHeight: '1.4',
                   width: '100%'
@@ -383,7 +383,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
-                  fontSize: '22px'
+                  fontSize: '25px'
                 }}
               >
                 {currentDescription}

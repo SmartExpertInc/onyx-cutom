@@ -69,7 +69,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     padding: '40px 60px',
-    paddingLeft: '0px'
+    paddingLeft: '0px',
+    paddingBottom: '0px'
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -134,7 +135,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         backgroundColor: themeBg,
         display: 'flex',
         padding: '40px 60px',
-        paddingRight: '0px'
+        paddingRight: '0px',
+        paddingBottom: '0px'
       }}>
         {/* Left column */}
         <div style={{
@@ -220,8 +222,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
           {/* Profile image at bottom */}
           <div style={{
-            width: '155px',
-            height: '155px',
+            width: '165px',
+            height: '165px',
             borderRadius: '50%',
             overflow: 'hidden',
             alignSelf: 'flex-start',
@@ -247,7 +249,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
         {/* Right column */}
         <div style={{
-          width: '50%',
+          width: '71%',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between'
@@ -265,7 +267,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '15px',
-                  alignItems: 'flex-start'
+                  alignItems: 'flex-start',
+                  marginBottom: '30px'
                 }}
               >
                 {/* Number */}
@@ -364,8 +367,9 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           {/* Team image at bottom */}
           <div style={{
             width: '100%',
-            height: '265px',
-            borderRadius: '10px',
+            height: '100%',
+            marginBottom: '25px',
+            borderRadius: '3px',
           }}>
             <ClickableImagePlaceholder
               imagePath={teamImagePath}

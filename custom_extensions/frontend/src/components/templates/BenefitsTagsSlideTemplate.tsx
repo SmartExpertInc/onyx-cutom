@@ -114,7 +114,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           color: themeTitle,
           lineHeight: '1.1',
           marginTop: '40px',
-          marginLeft: '-332%'
+          position: 'absolute',
+          left: '80px',
+          top: '100px',
+          width: '400px'
         }}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
@@ -127,7 +130,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 fontWeight: 'bold',
                 color: themeTitle,
                 lineHeight: '1.1',
-                width: '100%',
+                width: '400px',
                 height: 'auto'
               }}
             />
