@@ -596,8 +596,11 @@ export const en = {
       changesApplyInRealTime: "Changes apply in real-time",
       documentPreview: "Document Preview",
       livePreviewDescription: "This shows how your image will appear in the document. Changes are applied in real-time as you adjust the settings.",
-      resetToDefault: "Reset to Default",
-      // Border options
+              resetToDefault: "Reset to Default",
+        // Additional layout messages
+        unavailableForInline: "unavailable for inline",
+        alignmentUnavailableForInlineModes: "Alignment unavailable for inline modes",
+        // Border options
       solid: "Solid",
       dashed: "Dashed",
       dotted: "Dotted",

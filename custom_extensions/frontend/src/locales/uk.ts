@@ -553,6 +553,9 @@ export const uk = {
       documentPreview: "Перегляд документа",
       livePreviewDescription: "Це показує, як ваше зображення з'явиться в документі. Зміни застосовуються в реальному часі під час налаштування параметрів.",
       resetToDefault: "Скинути до за замовчуванням",
+      // Additional layout messages
+      unavailableForInline: "недоступно для inline",
+      alignmentUnavailableForInlineModes: "Вирівнювання недоступне для inline режимів",
       // Border options
       solid: "Суцільна",
       dashed: "Пунктирна",

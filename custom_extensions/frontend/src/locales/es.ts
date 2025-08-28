@@ -568,6 +568,9 @@ export const es = {
       documentPreview: "Vista previa del documento",
       livePreviewDescription: "Esto muestra cómo aparecerá tu imagen en el documento. Los cambios se aplican en tiempo real mientras ajustas la configuración.",
       resetToDefault: "Restablecer a predeterminado",
+      // Additional layout messages
+      unavailableForInline: "no disponible para inline",
+      alignmentUnavailableForInlineModes: "Alineación no disponible para modos inline",
       // Border options
       solid: "Sólido",
       dashed: "Discontinuo",

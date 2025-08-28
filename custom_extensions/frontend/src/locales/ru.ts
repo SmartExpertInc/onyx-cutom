@@ -553,6 +553,9 @@ export const ru = {
       documentPreview: "Предпросмотр документа",
       livePreviewDescription: "Это показывает, как ваше изображение появится в документе. Изменения применяются в реальном времени при настройке параметров.",
       resetToDefault: "Сбросить к значению по умолчанию",
+      // Additional layout messages
+      unavailableForInline: "недоступно для inline",
+      alignmentUnavailableForInlineModes: "Выравнивание недоступно для inline режимов",
       // Border options
       solid: "Сплошная",
       dashed: "Пунктирная",

@@ -61,17 +61,17 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
     {
       value: 'standalone',
       icon: ImageIcon,
-      label: 'Окремо'
+      label: t('interface.imageSettings.standalone', 'Standalone')
     },
     {
       value: 'inline-left',
       icon: Layout,
-      label: 'Зліва від тексту'
+      label: t('interface.imageSettings.inlineLeft', 'Left from text')
     },
     {
       value: 'inline-right',
       icon: Layout,
-      label: 'Справа від тексту'
+      label: t('interface.imageSettings.inlineRight', 'Right from text')
     },
     // {
     //   value: 'side-by-side-left',
@@ -262,7 +262,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                 <Move className="w-3 h-3" />
                 {t('interface.imageSettings.alignment')}
                 {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
-                  <span className="text-xs text-gray-600 ml-1">(недоступно для inline)</span>
+                  <span className="text-xs text-gray-600 ml-1">({t('interface.imageSettings.unavailableForInline', 'unavailable for inline')})</span>
                 )}
               </div>
               <div className="flex gap-1">
@@ -283,7 +283,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                         ? 'bg-blue-100 text-blue-700' 
                         : 'hover:bg-blue-50 text-gray-700'
                     } ${imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-                    title={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'Вирівнювання недоступне для inline режимів' : option.label}
+                    title={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? t('interface.imageSettings.alignmentUnavailableForInlineModes', 'Alignment unavailable for inline modes') : option.label}
                     disabled={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone'}
                   >
                     <option.icon className="w-3 h-3" />
