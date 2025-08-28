@@ -26,9 +26,9 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
   const currentSlide = videoLessonData?.slides.find(s => s.slideId === currentSlideId);
   
   // Use voiceover text from current slide or fallback to placeholder
-  const [scriptContent, setScriptContent] = useState(
-    currentSlide?.voiceoverText || `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`
-  );
+  const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
+  
+  const [scriptContent, setScriptContent] = useState(defaultPlaceholder);
   const [cursorPosition, setCursorPosition] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const aiButtonRef = useRef<HTMLDivElement>(null);
@@ -79,14 +79,26 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
   useEffect(() => {
     if (currentSlide?.voiceoverText) {
       setScriptContent(currentSlide.voiceoverText);
+    } else {
+      setScriptContent(defaultPlaceholder);
     }
-  }, [currentSlide?.voiceoverText]);
+  }, [currentSlide?.voiceoverText, defaultPlaceholder]);
+
+  // Update script content when video lesson data or current slide ID changes
+  useEffect(() => {
+    if (currentSlide?.voiceoverText) {
+      setScriptContent(currentSlide.voiceoverText);
+    } else {
+      setScriptContent(defaultPlaceholder);
+    }
+  }, [videoLessonData, currentSlideId, currentSlide, defaultPlaceholder]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
   console.log('Script - currentSlideId:', currentSlideId);
   console.log('Script - currentSlide:', currentSlide);
   console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
+  console.log('Script - scriptContent:', scriptContent);
 
   // Play handler
   const handlePlay = () => {
