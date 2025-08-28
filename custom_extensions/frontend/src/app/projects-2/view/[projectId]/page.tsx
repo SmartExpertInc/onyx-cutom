@@ -158,8 +158,8 @@ export default function Projects2ViewPage() {
       console.log('Loading Video Lesson data for projectId:', projectId);
       
       try {
-        console.log('Making fetch request to:', `${CUSTOM_BACKEND_URL}/projects/${projectId}`);
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${projectId}`, {
+        console.log('Making fetch request to:', `${CUSTOM_BACKEND_URL}/projects/view/${projectId}`);
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${projectId}`, {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin'
         });
@@ -167,39 +167,39 @@ export default function Projects2ViewPage() {
         console.log('Fetch response status:', response.status);
         
         if (response.ok) {
-          const projectData = await response.json();
-          console.log('Project data loaded:', projectData);
-          console.log('Project type:', projectData.design_microproduct_type);
+          const instanceData = await response.json();
+          console.log('Project data loaded:', instanceData);
+          console.log('Project component name:', instanceData.component_name);
           
-          // Check if this is a Video Lesson project (try multiple possible types)
-          const isVideoLesson = projectData.design_microproduct_type === 'VideoLessonPresentationDisplay' ||
-                               projectData.design_microproduct_type === 'VideoLesson' ||
-                               projectData.design_microproduct_type === 'video_lesson_presentation';
+          // Check if this is a Video Lesson project
+          const isVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay' ||
+                               instanceData.component_name === 'VideoLesson' ||
+                               instanceData.component_name === 'video_lesson_presentation';
           
           if (isVideoLesson) {
             console.log('Detected Video Lesson project');
             setIsVideoLessonMode(true);
             
-            // Load Video Lesson data from microProductContent
-            if (projectData.microProductContent) {
-              console.log('Found microProductContent:', projectData.microProductContent);
-              const videoData = projectData.microProductContent as VideoLessonData;
+            // Load Video Lesson data from details
+            if (instanceData.details) {
+              console.log('Found details:', instanceData.details);
+              const videoData = instanceData.details as VideoLessonData;
               setVideoLessonData(videoData);
               setCurrentSlideId(videoData.currentSlideId || videoData.slides[0]?.slideId);
               console.log('Set Video Lesson data:', videoData);
               console.log('Current slide ID:', videoData.currentSlideId || videoData.slides[0]?.slideId);
             } else {
-              console.log('No microProductContent found, creating empty Video Lesson data');
+              console.log('No details found, creating empty Video Lesson data');
               // Create empty Video Lesson data if none exists
               const emptyVideoData: VideoLessonData = {
-                mainPresentationTitle: projectData.title || 'Untitled Video Lesson',
+                mainPresentationTitle: instanceData.name || 'Untitled Video Lesson',
                 slides: [],
-                detectedLanguage: 'en'
+                detectedLanguage: instanceData.detectedLanguage || 'en'
               };
               setVideoLessonData(emptyVideoData);
             }
           } else {
-            console.log('Not a Video Lesson project, type:', projectData.design_microproduct_type);
+            console.log('Not a Video Lesson project, component_name:', instanceData.component_name);
             // TEMPORARY: Force Video Lesson mode for testing
             console.log('TEMPORARY: Forcing Video Lesson mode for testing');
             setIsVideoLessonMode(true);
