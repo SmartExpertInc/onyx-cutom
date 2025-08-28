@@ -489,7 +489,7 @@ const WorkspaceMembers: React.FC = () => {
       {/* Role Manager Modal */}
       {showRoleManager && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowRoleManager(false)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
               onClick={() => setShowRoleManager(false)}
