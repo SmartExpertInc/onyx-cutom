@@ -109,8 +109,15 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
 
   return (
     <div 
-      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}
+      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} w-full h-full`}
       data-theme={theme || DEFAULT_SLIDE_THEME}
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <TemplateComponent {...templateProps} />
     </div>
@@ -145,13 +152,15 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   }
 
   return (
-    <div className="component-based-slide-deck">
+    <div className="component-based-slide-deck w-full h-full">
       {slides.map((slide) => (
         <div 
           key={slide.slideId}
           className={`slide-container ${selectedSlideId === slide.slideId ? 'active' : ''}`}
           style={{
             display: selectedSlideId ? (selectedSlideId === slide.slideId ? 'block' : 'none') : 'block',
+            width: '100%',
+            height: '100%',
             marginBottom: selectedSlideId ? 0 : '40px'
           }}
         >

@@ -602,34 +602,50 @@ export default function Projects2ViewPage() {
 
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
-          {/* Top Container - Takes 70% of main container height */}
-          {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
-            <ComponentBasedSlideDeckRenderer
-              slides={componentBasedSlideDeck.slides}
-              selectedSlideId={currentSlideId}
-              isEditable={true}
-              onSlideUpdate={(updatedSlide) => {
-                // Handle slide updates for component-based slides
-                if (componentBasedSlideDeck) {
-                  const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
-                    slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-                  );
-                  const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
-                  setComponentBasedSlideDeck(updatedDeck);
-                  // Save to backend
-                  saveVideoLessonData(updatedDeck);
-                }
-              }}
-              theme="default"
-            />
-          ) : (
-            <VideoLessonDisplay 
-              dataToDisplay={videoLessonData || null}
-              isEditing={true}
-              className="h-full"
-              onTextChange={handleTextChange}
-            />
-          )}
+          {/* Top Container - Takes 75% of main container height (matching VideoPresentation) */}
+          <div className="h-[75%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center">
+            {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
+              <div 
+                className="bg-white rounded-md shadow-lg relative overflow-hidden"
+                style={{
+                  width: '80%',
+                  height: '80%',
+                  maxWidth: aspectRatio === '16:9' 
+                    ? 'calc((100vh - 145px) * 0.8 * 0.8 * 16 / 9)'
+                    : aspectRatio === '9:16'
+                    ? 'calc((100vh - 145px) * 0.8 * 0.8 * 9 / 16)'
+                    : 'calc((100vh - 145px) * 0.8 * 0.8)',
+                  maxHeight: 'calc((100vh - 145px) * 0.8 * 0.8)'
+                }}
+              >
+                <ComponentBasedSlideDeckRenderer
+                  slides={componentBasedSlideDeck.slides}
+                  selectedSlideId={currentSlideId}
+                  isEditable={true}
+                  onSlideUpdate={(updatedSlide) => {
+                    // Handle slide updates for component-based slides
+                    if (componentBasedSlideDeck) {
+                      const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                        slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                      );
+                      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                      setComponentBasedSlideDeck(updatedDeck);
+                      // Save to backend
+                      saveVideoLessonData(updatedDeck);
+                    }
+                  }}
+                  theme="default"
+                />
+              </div>
+            ) : (
+              <VideoLessonDisplay 
+                dataToDisplay={videoLessonData || null}
+                isEditing={true}
+                className="h-full"
+                onTextChange={handleTextChange}
+              />
+            )}
+          </div>
 
           {/* Bottom Container - Takes 30% of main container height */}
           <SceneTimeline 
