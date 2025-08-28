@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 // NEW: Import types and template registry
-import { ComponentBasedSlide } from '@/types/slideTemplates';
+import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import { SlideAddButton } from '@/components/SlideAddButton';
 
@@ -18,6 +18,7 @@ interface SceneTimelineProps {
   onSceneRename?: (sceneId: string, newName: string) => void;
   // NEW: Video Lesson specific props
   videoLessonData?: VideoLessonData;
+  componentBasedSlideDeck?: ComponentBasedSlideDeck;
   onSlideSelect?: (slideId: string) => void;
   currentSlideId?: string;
   onAddSlide?: (newSlide: ComponentBasedSlide) => void;
@@ -30,6 +31,7 @@ export default function SceneTimeline({
   onMenuClick,
   onSceneRename,
   videoLessonData,
+  componentBasedSlideDeck,
   onSlideSelect,
   currentSlideId,
   onAddSlide
@@ -92,17 +94,30 @@ export default function SceneTimeline({
   };
 
   // Convert Video Lesson slides to scenes if provided
-  const displayScenes = videoLessonData ? 
-    videoLessonData.slides.map((slide, index) => ({
-      id: slide.slideId,
-      name: slide.slideTitle || `Slide ${slide.slideNumber}`,
-      order: slide.slideNumber,
-      slideData: slide
-    })) : 
-    []; // Commented out regular scenes for now
+  const displayScenes = (() => {
+    if (componentBasedSlideDeck) {
+      // Handle component-based slide deck
+      return componentBasedSlideDeck.slides.map((slide, index) => ({
+        id: slide.slideId,
+        name: slide.props?.title || slide.slideId || `Slide ${slide.slideNumber}`,
+        order: slide.slideNumber,
+        slideData: slide
+      }));
+    } else if (videoLessonData) {
+      // Handle old video lesson data
+      return videoLessonData.slides.map((slide, index) => ({
+        id: slide.slideId,
+        name: slide.slideTitle || `Slide ${slide.slideNumber}`,
+        order: slide.slideNumber,
+        slideData: slide
+      }));
+    }
+    return []; // Commented out regular scenes for now
+  })();
     
   // Debug logging
   console.log('SceneTimeline - videoLessonData:', videoLessonData);
+  console.log('SceneTimeline - componentBasedSlideDeck:', componentBasedSlideDeck);
   console.log('SceneTimeline - displayScenes:', displayScenes);
   console.log('SceneTimeline - currentSlideId:', currentSlideId);
   console.log('SceneTimeline - onAddSlide function:', !!onAddSlide);
@@ -134,9 +149,17 @@ export default function SceneTimeline({
                   {/* Video Lesson specific content preview */}
                   {scene.slideData ? (
                     <div className="text-xs text-gray-600 text-center p-1">
-                      <div className="font-medium truncate">{scene.slideData.slideTitle}</div>
-                      {scene.slideData.displayedText && (
+                      <div className="font-medium truncate">
+                        {'slideTitle' in scene.slideData 
+                          ? scene.slideData.slideTitle 
+                          : scene.slideData.props?.title || scene.slideData.slideId
+                        }
+                      </div>
+                      {'displayedText' in scene.slideData && scene.slideData.displayedText && (
                         <div className="text-gray-500 truncate">{scene.slideData.displayedText}</div>
+                      )}
+                      {'props' in scene.slideData && scene.slideData.props?.subtitle && (
+                        <div className="text-gray-500 truncate">{scene.slideData.props.subtitle}</div>
                       )}
                     </div>
                   ) : (
@@ -223,10 +246,10 @@ export default function SceneTimeline({
           ))}
 
           {/* Add Slide Button - positioned at the end */}
-          {videoLessonData && onAddSlide ? (
+          {(videoLessonData || componentBasedSlideDeck) && onAddSlide ? (
             <div className="relative flex-shrink-0">
               <SlideAddButton
-                currentSlideCount={videoLessonData.slides.length}
+                currentSlideCount={(componentBasedSlideDeck?.slides.length || videoLessonData?.slides.length || 0)}
                 onAddSlide={onAddSlide}
                 isVisible={true}
                 position="relative"
@@ -248,7 +271,7 @@ export default function SceneTimeline({
               <div 
                 className="bg-red-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-red-400 transition-colors"
                 style={getSceneRectangleStyles()}
-                onClick={() => console.log('Debug: videoLessonData:', !!videoLessonData, 'onAddSlide:', !!onAddSlide)}
+                onClick={() => console.log('Debug: videoLessonData:', !!videoLessonData, 'componentBasedSlideDeck:', !!componentBasedSlideDeck, 'onAddSlide:', !!onAddSlide)}
               >
                 <svg 
                   className="w-8 h-8 text-red-600" 

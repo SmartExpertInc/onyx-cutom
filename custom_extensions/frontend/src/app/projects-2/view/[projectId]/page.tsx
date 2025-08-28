@@ -18,6 +18,8 @@ import InteractionModal from '../components/InteractionModal';
 import AiPopup from '../components/AiPopup';
 import LanguageVariantModal from '../components/LanguageVariantModal';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
+import { ComponentBasedSlideDeckRenderer } from '@/components/ComponentBasedSlideRenderer';
+import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import SceneTimeline from '../components/SceneTimeline';
 import TextSettings from '../components/TextSettings';
 import ImageSettings from '../components/ImageSettings';
@@ -72,8 +74,10 @@ export default function Projects2ViewPage() {
 
   // NEW: Video Lesson slide management state
   const [videoLessonData, setVideoLessonData] = useState<VideoLessonData | undefined>(undefined);
+  const [componentBasedSlideDeck, setComponentBasedSlideDeck] = useState<ComponentBasedSlideDeck | undefined>(undefined);
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   const [isVideoLessonMode, setIsVideoLessonMode] = useState<boolean>(false);
+  const [isComponentBasedVideoLesson, setIsComponentBasedVideoLesson] = useState<boolean>(false);
 
   // Function to add a new scene (commented out for now - focusing on Video Lessons)
   // const handleAddScene = () => {
@@ -116,7 +120,7 @@ export default function Projects2ViewPage() {
   };
 
   // NEW: Function to save Video Lesson data
-  const saveVideoLessonData = async (data: VideoLessonData) => {
+  const saveVideoLessonData = async (data: VideoLessonData | ComponentBasedSlideDeck) => {
     try {
       if (!projectId) {
         console.error('No project ID available');
@@ -147,44 +151,62 @@ export default function Projects2ViewPage() {
 
   // NEW: Function to handle text changes (for Script component)
   const handleTextChange = (path: (string | number)[], newValue: string | number | boolean) => {
-    if (!videoLessonData) return;
-
-    const updatedData = { ...videoLessonData };
-    
-    // Handle specific cases for VideoLessonData structure
-    if (path.length === 1 && path[0] === 'mainPresentationTitle') {
-      updatedData.mainPresentationTitle = newValue as string;
-    } else if (path.length === 1 && path[0] === 'currentSlideId') {
-      updatedData.currentSlideId = newValue as string;
-    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'voiceoverText') {
-      const slideIndex = path[1];
-      if (updatedData.slides[slideIndex]) {
-        updatedData.slides[slideIndex].voiceoverText = newValue as string;
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // Handle component-based slide deck updates
+      const updatedDeck = { ...componentBasedSlideDeck };
+      
+      if (path.length === 1 && path[0] === 'lessonTitle') {
+        updatedDeck.lessonTitle = newValue as string;
+      } else if (path.length === 1 && path[0] === 'currentSlideId') {
+        updatedDeck.currentSlideId = newValue as string;
+      } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'voiceoverText') {
+        const slideIndex = path[1];
+        if (updatedDeck.slides[slideIndex]) {
+          updatedDeck.slides[slideIndex].voiceoverText = newValue as string;
+        }
       }
-    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'slideTitle') {
-      const slideIndex = path[1];
-      if (updatedData.slides[slideIndex]) {
-        updatedData.slides[slideIndex].slideTitle = newValue as string;
+      
+      setComponentBasedSlideDeck(updatedDeck);
+      saveVideoLessonData(updatedDeck);
+    } else if (videoLessonData) {
+      // Handle old video lesson data updates
+      const updatedData = { ...videoLessonData };
+      
+      // Handle specific cases for VideoLessonData structure
+      if (path.length === 1 && path[0] === 'mainPresentationTitle') {
+        updatedData.mainPresentationTitle = newValue as string;
+      } else if (path.length === 1 && path[0] === 'currentSlideId') {
+        updatedData.currentSlideId = newValue as string;
+      } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'voiceoverText') {
+        const slideIndex = path[1];
+        if (updatedData.slides[slideIndex]) {
+          updatedData.slides[slideIndex].voiceoverText = newValue as string;
+        }
+      } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'slideTitle') {
+        const slideIndex = path[1];
+        if (updatedData.slides[slideIndex]) {
+          updatedData.slides[slideIndex].slideTitle = newValue as string;
+        }
+      } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedText') {
+        const slideIndex = path[1];
+        if (updatedData.slides[slideIndex]) {
+          updatedData.slides[slideIndex].displayedText = newValue as string;
+        }
+      } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedPictureDescription') {
+        const slideIndex = path[1];
+        if (updatedData.slides[slideIndex]) {
+          updatedData.slides[slideIndex].displayedPictureDescription = newValue as string;
+        }
+      } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedVideoDescription') {
+        const slideIndex = path[1];
+        if (updatedData.slides[slideIndex]) {
+          updatedData.slides[slideIndex].displayedVideoDescription = newValue as string;
+        }
       }
-    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedText') {
-      const slideIndex = path[1];
-      if (updatedData.slides[slideIndex]) {
-        updatedData.slides[slideIndex].displayedText = newValue as string;
-      }
-    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedPictureDescription') {
-      const slideIndex = path[1];
-      if (updatedData.slides[slideIndex]) {
-        updatedData.slides[slideIndex].displayedPictureDescription = newValue as string;
-      }
-    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedVideoDescription') {
-      const slideIndex = path[1];
-      if (updatedData.slides[slideIndex]) {
-        updatedData.slides[slideIndex].displayedVideoDescription = newValue as string;
-      }
+      
+      setVideoLessonData(updatedData);
+      saveVideoLessonData(updatedData);
     }
-    
-    setVideoLessonData(updatedData);
-    saveVideoLessonData(updatedData);
   };
 
   // NEW: Function to delete slide (following old interface pattern)
@@ -258,49 +280,77 @@ export default function Projects2ViewPage() {
                                instanceData.component_name === 'VideoLesson' ||
                                instanceData.component_name === 'video_lesson_presentation';
           
+          const isComponentBasedVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay';
+          
           if (isVideoLesson) {
             console.log('Detected Video Lesson project');
             setIsVideoLessonMode(true);
+            setIsComponentBasedVideoLesson(isComponentBasedVideoLesson);
             
             // Load Video Lesson data from details
             if (instanceData.details) {
               console.log('Found details:', instanceData.details);
-              const videoData = instanceData.details as VideoLessonData;
-              setVideoLessonData(videoData);
-              setCurrentSlideId(videoData.currentSlideId || videoData.slides[0]?.slideId);
-              console.log('Set Video Lesson data:', videoData);
-              console.log('Current slide ID:', videoData.currentSlideId || videoData.slides[0]?.slideId);
+              
+              if (isComponentBasedVideoLesson) {
+                // Handle component-based video lesson structure
+                const componentData = instanceData.details as ComponentBasedSlideDeck;
+                setComponentBasedSlideDeck(componentData);
+                setCurrentSlideId(componentData.currentSlideId || componentData.slides[0]?.slideId);
+                console.log('Set Component-Based Video Lesson data:', componentData);
+                console.log('Current slide ID:', componentData.currentSlideId || componentData.slides[0]?.slideId);
+              } else {
+                // Handle old video lesson structure
+                const videoData = instanceData.details as VideoLessonData;
+                setVideoLessonData(videoData);
+                setCurrentSlideId(videoData.currentSlideId || videoData.slides[0]?.slideId);
+                console.log('Set Video Lesson data:', videoData);
+                console.log('Current slide ID:', videoData.currentSlideId || videoData.slides[0]?.slideId);
+              }
             } else {
               console.log('No details found, creating empty Video Lesson data');
-              // Create empty Video Lesson data if none exists
-              const emptyVideoData: VideoLessonData = {
-                mainPresentationTitle: instanceData.name || 'Untitled Video Lesson',
-                slides: [],
-                detectedLanguage: instanceData.detectedLanguage || 'en'
-              };
-              setVideoLessonData(emptyVideoData);
+              if (isComponentBasedVideoLesson) {
+                // Create empty component-based Video Lesson data
+                const emptyComponentData: ComponentBasedSlideDeck = {
+                  lessonTitle: instanceData.name || 'Untitled Video Lesson',
+                  slides: [],
+                  detectedLanguage: instanceData.detectedLanguage || 'en',
+                  hasVoiceover: true
+                };
+                setComponentBasedSlideDeck(emptyComponentData);
+              } else {
+                // Create empty old Video Lesson data
+                const emptyVideoData: VideoLessonData = {
+                  mainPresentationTitle: instanceData.name || 'Untitled Video Lesson',
+                  slides: [],
+                  detectedLanguage: instanceData.detectedLanguage || 'en'
+                };
+                setVideoLessonData(emptyVideoData);
+              }
             }
           } else {
             console.log('Not a Video Lesson project, component_name:', instanceData.component_name);
             // TEMPORARY: Force Video Lesson mode for testing
             console.log('TEMPORARY: Forcing Video Lesson mode for testing');
             setIsVideoLessonMode(true);
-            const testVideoData: VideoLessonData = {
-              mainPresentationTitle: 'Test Video Lesson',
+            setIsComponentBasedVideoLesson(true);
+            const testComponentData: ComponentBasedSlideDeck = {
+              lessonTitle: 'Test Video Lesson',
               slides: [
                 {
                   slideId: 'slide-1',
                   slideNumber: 1,
-                  slideTitle: 'Introduction',
-                  displayedText: 'Welcome to this video lesson!',
-                  displayedPictureDescription: '',
-                  displayedVideoDescription: '',
+                  templateId: 'title-slide',
+                  props: {
+                    title: 'Introduction',
+                    subtitle: 'Welcome to this video lesson!'
+                  },
                   voiceoverText: 'Welcome to this video lesson!'
                 }
               ],
-              detectedLanguage: 'en'
+              detectedLanguage: 'en',
+              hasVoiceover: true
             };
-            setVideoLessonData(testVideoData);
+            setComponentBasedSlideDeck(testComponentData);
             setCurrentSlideId('slide-1');
           }
         } else {
@@ -484,8 +534,10 @@ export default function Projects2ViewPage() {
         default:
           return <Script 
             onAiButtonClick={handleAiButtonClick} 
-            videoLessonData={videoLessonData}
+            videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+            componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             currentSlideId={currentSlideId}
+            onTextChange={handleTextChange}
           />;
       }
     }
@@ -495,7 +547,8 @@ export default function Projects2ViewPage() {
       case 'script':
         return <Script 
           onAiButtonClick={handleAiButtonClick} 
-          videoLessonData={videoLessonData}
+          videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+          componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
         />;
@@ -510,7 +563,8 @@ export default function Projects2ViewPage() {
       default:
         return <Script 
           onAiButtonClick={handleAiButtonClick} 
-          videoLessonData={videoLessonData}
+          videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+          componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
           currentSlideId={currentSlideId}
           onTextChange={handleTextChange}
         />;
@@ -549,12 +603,33 @@ export default function Projects2ViewPage() {
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 70% of main container height */}
-          <VideoLessonDisplay 
-            dataToDisplay={videoLessonData || null}
-            isEditing={true}
-            className="h-full"
-            onTextChange={handleTextChange}
-          />
+          {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
+            <ComponentBasedSlideDeckRenderer
+              slides={componentBasedSlideDeck.slides}
+              selectedSlideId={currentSlideId}
+              isEditable={true}
+              onSlideUpdate={(updatedSlide) => {
+                // Handle slide updates for component-based slides
+                if (componentBasedSlideDeck) {
+                  const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                    slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                  );
+                  const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                  setComponentBasedSlideDeck(updatedDeck);
+                  // Save to backend
+                  saveVideoLessonData(updatedDeck);
+                }
+              }}
+              theme="default"
+            />
+          ) : (
+            <VideoLessonDisplay 
+              dataToDisplay={videoLessonData || null}
+              isEditing={true}
+              className="h-full"
+              onTextChange={handleTextChange}
+            />
+          )}
 
           {/* Bottom Container - Takes 30% of main container height */}
           <SceneTimeline 
@@ -562,7 +637,8 @@ export default function Projects2ViewPage() {
             aspectRatio={aspectRatio}
             onAddScene={() => console.log('Regular scene add - disabled for now')} // Commented out for now
             onMenuClick={handleMenuClick}
-            videoLessonData={videoLessonData}
+            videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+            componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
             onSlideSelect={handleSlideSelect}
             currentSlideId={currentSlideId}
             onAddSlide={handleAddSlide}

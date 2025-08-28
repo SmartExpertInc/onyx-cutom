@@ -6,16 +6,18 @@ import VoicePicker from './VoicePicker';
 import DictionaryModal from './DictionaryModal';
 // NEW: Import Video Lesson types
 import { VideoLessonData } from '@/types/videoLessonTypes';
+import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 
 interface ScriptProps {
   onAiButtonClick: (position: { x: number; y: number }) => void;
   // NEW: Video Lesson specific props
   videoLessonData?: VideoLessonData;
+  componentBasedSlideDeck?: ComponentBasedSlideDeck;
   currentSlideId?: string;
   onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
 }
 
-export default function Script({ onAiButtonClick, videoLessonData, currentSlideId, onTextChange }: ScriptProps) {
+export default function Script({ onAiButtonClick, videoLessonData, componentBasedSlideDeck, currentSlideId, onTextChange }: ScriptProps) {
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
 
@@ -23,8 +25,10 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playTime, setPlayTime] = useState(0);
-  // Get current slide data
-  const currentSlide = videoLessonData?.slides.find(s => s.slideId === currentSlideId);
+  // Get current slide data from either structure
+  const currentSlide = componentBasedSlideDeck 
+    ? componentBasedSlideDeck.slides.find(s => s.slideId === currentSlideId)
+    : videoLessonData?.slides.find(s => s.slideId === currentSlideId);
   
   // Use voiceover text from current slide or fallback to placeholder
   const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
@@ -36,10 +40,19 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
     setScriptContent(newContent);
     
     // Save changes back to video lesson data if we have the necessary props
-    if (onTextChange && currentSlide && videoLessonData) {
-      const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === currentSlide.slideId);
-      if (slideIndex !== -1) {
-        onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
+    if (onTextChange && currentSlide) {
+      if (componentBasedSlideDeck) {
+        // Handle component-based slide deck
+        const slideIndex = componentBasedSlideDeck.slides.findIndex(s => s.slideId === currentSlide.slideId);
+        if (slideIndex !== -1) {
+          onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
+        }
+      } else if (videoLessonData) {
+        // Handle old video lesson data
+        const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === currentSlide.slideId);
+        if (slideIndex !== -1) {
+          onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
+        }
       }
     }
   };
@@ -105,10 +118,11 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
     } else {
       setScriptContent(defaultPlaceholder);
     }
-  }, [videoLessonData, currentSlideId, currentSlide, defaultPlaceholder]);
+  }, [videoLessonData, componentBasedSlideDeck, currentSlideId, currentSlide, defaultPlaceholder]);
 
   // Debug logging
   console.log('Script - videoLessonData:', videoLessonData);
+  console.log('Script - componentBasedSlideDeck:', componentBasedSlideDeck);
   console.log('Script - currentSlideId:', currentSlideId);
   console.log('Script - currentSlide:', currentSlide);
   console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
