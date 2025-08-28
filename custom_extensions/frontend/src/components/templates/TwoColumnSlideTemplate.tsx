@@ -152,7 +152,9 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                   lineHeight: '1.6',
                   width: '100%',
                   height: 'auto',
-                  minHeight: '100px'
+                  minHeight: '100px',
+                  alignSelf: 'flex-end',
+                  textAlign: 'right'
                 }}
               />
             ) : (

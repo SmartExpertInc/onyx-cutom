@@ -85,11 +85,9 @@ export function ImprovedInlineEditor({
     boxSizing: 'border-box',
     margin: '0',
     padding: '0',
+    display: 'block',
     // Сохраняем все важные стили из исходного элемента
     ...style,
-    // Обязательные стили для корректной работы
-    display: 'block',
-    width: style.width || '100%',
   };
 
   if (multiline) {

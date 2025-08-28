@@ -200,7 +200,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'flex-start',
+              alignItems: 'center',
               gap: '15px',
               position: 'relative'
             }}

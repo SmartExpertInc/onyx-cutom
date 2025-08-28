@@ -127,9 +127,11 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 fontWeight: 'bold',
                 color: themeTitle,
                 lineHeight: '1.1',
-                marginLeft: '-332%',
                 width: '100%',
-                height: 'auto'
+                height: 'auto',
+                position: 'relative',
+                left: '0',
+                transform: 'translateX(-332%)'
               }}
             />
           ) : (
