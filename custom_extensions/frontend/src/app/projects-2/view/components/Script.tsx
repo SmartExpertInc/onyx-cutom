@@ -4,12 +4,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, User, UserMinus, UserPlus } from 'lucide-react';
 import VoicePicker from './VoicePicker';
 import DictionaryModal from './DictionaryModal';
+// NEW: Import Video Lesson types
+import { VideoLessonData } from '@/types/videoLessonTypes';
 
 interface ScriptProps {
   onAiButtonClick: (position: { x: number; y: number }) => void;
+  // NEW: Video Lesson specific props
+  videoLessonData?: VideoLessonData;
+  currentSlideId?: string;
 }
 
-export default function Script({ onAiButtonClick }: ScriptProps) {
+export default function Script({ onAiButtonClick, videoLessonData, currentSlideId }: ScriptProps) {
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
 
@@ -17,8 +22,12 @@ export default function Script({ onAiButtonClick }: ScriptProps) {
   const [isDictionaryModalOpen, setIsDictionaryModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playTime, setPlayTime] = useState(0);
+  // Get current slide data
+  const currentSlide = videoLessonData?.slides.find(s => s.slideId === currentSlideId);
+  
+  // Use voiceover text from current slide or fallback to placeholder
   const [scriptContent, setScriptContent] = useState(
-    `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`
+    currentSlide?.voiceoverText || `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`
   );
   const [cursorPosition, setCursorPosition] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,6 +74,19 @@ export default function Script({ onAiButtonClick }: ScriptProps) {
       }
     };
   }, [isPlaying]);
+
+  // Update script content when current slide changes
+  useEffect(() => {
+    if (currentSlide?.voiceoverText) {
+      setScriptContent(currentSlide.voiceoverText);
+    }
+  }, [currentSlide?.voiceoverText]);
+
+  // Debug logging
+  console.log('Script - videoLessonData:', videoLessonData);
+  console.log('Script - currentSlideId:', currentSlideId);
+  console.log('Script - currentSlide:', currentSlide);
+  console.log('Script - voiceoverText:', currentSlide?.voiceoverText);
 
   // Play handler
   const handlePlay = () => {

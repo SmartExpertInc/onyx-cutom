@@ -131,13 +131,6 @@ export default function VideoPresentation({
                 <strong>Video:</strong> {currentSlide.displayedVideoDescription}
               </div>
             )}
-            
-            {/* Voiceover Text */}
-            {currentSlide.voiceoverText && (
-              <div className="text-sm text-gray-500 mt-auto p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                <strong>Voiceover:</strong> {currentSlide.voiceoverText}
-              </div>
-            )}
           </div>
         ) : (
           /* Default placeholder content */

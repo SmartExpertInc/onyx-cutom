@@ -250,6 +250,8 @@ export default function SceneTimeline({
                 style={getSceneRectangleStyles()}
                 onClick={() => {
                   console.log('Add slide button clicked');
+                  console.log('Current showTemplateDropdown:', showTemplateDropdown);
+                  console.log('Available templates count:', availableTemplates.length);
                   setShowTemplateDropdown(!showTemplateDropdown);
                 }}
               >
@@ -273,7 +275,8 @@ export default function SceneTimeline({
               
               {/* Template Dropdown */}
               {showTemplateDropdown && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[280px] z-50">
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[280px] z-50" style={{ zIndex: 9999 }}>
+                  {(() => { console.log('Rendering dropdown with templates:', availableTemplates.length); return null; })()}
                   <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-100">
                     <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
                     <button
