@@ -147,16 +147,24 @@ export default function Projects2ViewPage() {
 
   // NEW: Load Video Lesson data on component mount
   useEffect(() => {
+    console.log('useEffect triggered with projectId:', projectId);
+    
     const loadVideoLessonData = async () => {
-      if (!projectId) return;
+      if (!projectId) {
+        console.log('No projectId available, returning');
+        return;
+      }
       
       console.log('Loading Video Lesson data for projectId:', projectId);
       
       try {
+        console.log('Making fetch request to:', `${CUSTOM_BACKEND_URL}/projects/${projectId}`);
         const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${projectId}`, {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin'
         });
+        
+        console.log('Fetch response status:', response.status);
         
         if (response.ok) {
           const projectData = await response.json();
@@ -218,10 +226,13 @@ export default function Projects2ViewPage() {
         }
       } catch (error) {
         console.error('Error loading Video Lesson data:', error);
+        console.error('Error details:', error);
       }
     };
 
+    console.log('Calling loadVideoLessonData...');
     loadVideoLessonData();
+    console.log('loadVideoLessonData called');
   }, [projectId]);
 
 
