@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
@@ -273,59 +274,68 @@ export default function SceneTimeline({
                 <span className="text-sm font-medium text-gray-700">Add Slide</span>
               </div>
               
-              {/* Template Dropdown */}
-              {showTemplateDropdown && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[280px] z-50" style={{ zIndex: 9999 }}>
-                  {(() => { console.log('Rendering dropdown with templates:', availableTemplates.length); return null; })()}
-                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-100">
-                    <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
-                    <button
-                      onClick={() => setShowTemplateDropdown(false)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto">
-                    {availableTemplates.map((template) => (
+              {/* Template Dropdown Portal */}
+              {showTemplateDropdown && createPortal(
+                <div className="fixed inset-0 z-50">
+                  {/* Backdrop */}
+                  <div 
+                    className="absolute inset-0 bg-black bg-opacity-25"
+                    onClick={() => setShowTemplateDropdown(false)}
+                  />
+                  {/* Dropdown */}
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[280px] max-h-[80vh] overflow-hidden">
+                    {(() => { console.log('Rendering dropdown with templates:', availableTemplates.length); return null; })()}
+                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-100">
+                      <h3 className="text-sm font-semibold text-gray-700">Choose Template</h3>
                       <button
-                        key={template.id}
-                        onClick={() => {
-                          const newSlide: ComponentBasedSlide = {
-                            slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                            slideNumber: videoLessonData.slides.length + 1,
-                            templateId: template.id,
-                            props: {
-                              ...template.defaultProps,
-                              title: template.defaultProps.title || `Slide ${videoLessonData.slides.length + 1}`,
-                              content: template.defaultProps.content || 'Add your content here...'
-                            },
-                            metadata: {
-                              createdAt: new Date().toISOString(),
-                              version: '1.0'
-                            }
-                          };
-                          onAddSlide(newSlide);
-                          setShowTemplateDropdown(false);
-                        }}
-                        className="w-full text-left p-2 hover:bg-gray-50 rounded flex items-center gap-2"
+                        onClick={() => setShowTemplateDropdown(false)}
+                        className="text-gray-400 hover:text-gray-600"
                       >
-                        <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">{template.name}</div>
-                          <div className="text-xs text-gray-500">{template.description}</div>
-                        </div>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                       </button>
-                    ))}
+                    </div>
+                    <div className="max-h-60 overflow-y-auto">
+                      {availableTemplates.map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => {
+                            const newSlide: ComponentBasedSlide = {
+                              slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                              slideNumber: videoLessonData.slides.length + 1,
+                              templateId: template.id,
+                              props: {
+                                ...template.defaultProps,
+                                title: template.defaultProps.title || `Slide ${videoLessonData.slides.length + 1}`,
+                                content: template.defaultProps.content || 'Add your content here...'
+                              },
+                              metadata: {
+                                createdAt: new Date().toISOString(),
+                                version: '1.0'
+                              }
+                            };
+                            onAddSlide(newSlide);
+                            setShowTemplateDropdown(false);
+                          }}
+                          className="w-full text-left p-2 hover:bg-gray-50 rounded flex items-center gap-2"
+                        >
+                          <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-700">{template.name}</div>
+                            <div className="text-xs text-gray-500">{template.description}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </div>,
+                document.body
               )}
             </div>
           ) : (
