@@ -247,7 +247,7 @@
             padding-bottom: 50px;
             height: 100%;
             width: 100%;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .big-image-top .image-container {
@@ -633,18 +633,17 @@
             display: flex;
             align-items: stretch;
             padding: 0;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .big-image-left .image-container {
-            /* REMOVED flex constraint to allow images to break out of 40% width when resized */
+            flex: 0 0 40%; /* Exact frontend match */
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Align to left side */
+            justify-content: center;
             background-color: var(--bg-color);
             position: relative;
             min-width: 0;
-            padding-right: 20px; /* Space between image and content */
         }
         
         .big-image-left .image-placeholder {
@@ -704,7 +703,7 @@
             padding: 80px; /* Exact frontend match */
             position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .bullet-points .slide-title {
@@ -2192,7 +2191,7 @@
                     <div class="content-row">
                         <div class="placeholder-container">
                             {% if slide.props.imagePath %}
-                                <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
+                                <!-- FRONTEND EXACT MATCH: Container with dimensions (like big-image-left) -->
                                 <div style="
                                     position: relative;
                                     overflow: hidden;
@@ -2201,7 +2200,8 @@
                                     align-items: center;
                                     justify-content: center;
                                     width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 320 }}px;
-                                    height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 200 }}px;
+                                    height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 320 }}px;
+                                    margin: 0 auto;
                                 ">
                                     <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
                                     <img src="{{ slide.props.imagePath }}" 
