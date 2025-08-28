@@ -123,7 +123,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                     className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                       activeTab === tab.id
                         ? 'border-blue-600 text-blue-600 bg-blue-50'
-                        : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                        : 'border-transparent text-gray-700 hover:text-gray-800 hover:bg-gray-50'
                     }`}
                   >
                     <tab.icon className="w-4 h-4 mx-auto mb-1" />
@@ -468,7 +468,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                         }}
                       />
                       {localImageBlock.caption && (
-                        <p className="text-sm text-gray-600 mt-2 italic text-center">
+                        <p className="text-sm text-gray-700 mt-2 italic text-center">
                           {localImageBlock.caption}
                         </p>
                       )}
@@ -500,10 +500,10 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
         {/* Footer - Modern UI */}
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between rounded-b-xl">
           <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-700">
               <span className="font-medium">{t('interface.imageSettings.size')}:</span> {typeof localImageBlock.width === 'number' ? localImageBlock.width : parseInt(localImageBlock.width || '300')}px × {localImageBlock.height || 'auto'}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-700">
               <span className="font-medium">{t('interface.imageSettings.alignment')}:</span> {localImageBlock.alignment || 'center'}
             </div>
           </div>
