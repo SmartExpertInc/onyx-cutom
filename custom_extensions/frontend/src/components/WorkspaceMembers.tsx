@@ -44,22 +44,85 @@ const ROLE_COLORS = [
 const WorkspaceMembers: React.FC = () => {
   const { t } = useLanguage();
 
-  // Mock data for custom roles
-  const [customRoles, setCustomRoles] = useState<CustomRole[]>([
-    { id: 'admin', name: t('interface.roles.admin', 'Admin'), color: '#F3E8FF', textColor: '#7C3AED', permissions: [t('interface.permissions.fullAccess', 'Full Access'), t('interface.permissions.manageUsers', 'Manage Users'), t('interface.permissions.manageSettings', 'Manage Settings')] },
-    { id: 'member', name: t('interface.roles.member', 'Member'), color: '#EFF6FF', textColor: '#1E40AF', permissions: [t('interface.permissions.viewProjects', 'View Projects'), t('interface.permissions.editOwnWork', 'Edit Own Work')] },
-    { id: 'viewer', name: t('interface.roles.viewer', 'Viewer'), color: '#F9FAFB', textColor: '#374151', permissions: [t('interface.permissions.viewOnly', 'View Only')] },
-    { id: 'manager', name: t('interface.roles.manager', 'Manager'), color: '#ECFDF5', textColor: '#047857', permissions: [t('interface.permissions.manageProjects', 'Manage Projects'), t('interface.permissions.assignTasks', 'Assign Tasks')] },
-    { id: 'editor', name: t('interface.roles.editor', 'Editor'), color: '#FFFBEB', textColor: '#D97706', permissions: [t('interface.permissions.editContent', 'Edit Content'), t('interface.permissions.reviewWork', 'Review Work')] },
+  // Use useMemo to recalculate custom roles whenever language changes
+  const customRoles = useMemo<CustomRole[]>(() => [
+    {
+      id: 'admin',
+      name: t('interface.roles.admin', 'Admin'),
+      color: '#F3E8FF',
+      textColor: '#7C3AED',
+      permissions: [
+        t('interface.permissions.fullAccess', 'Full Access'),
+        t('interface.permissions.manageUsers', 'Manage Users'),
+        t('interface.permissions.manageSettings', 'Manage Settings')
+      ]
+    },
+    {
+      id: 'member',
+      name: t('interface.roles.member', 'Member'),
+      color: '#EFF6FF',
+      textColor: '#1E40AF',
+      permissions: [
+        t('interface.permissions.viewProjects', 'View Projects'),
+        t('interface.permissions.editOwnWork', 'Edit Own Work')
+      ]
+    },
+    {
+      id: 'viewer',
+      name: t('interface.roles.viewer', 'Viewer'),
+      color: '#F9FAFB',
+      textColor: '#374151',
+      permissions: [
+        t('interface.permissions.viewOnly', 'View Only')
+      ]
+    },
+    {
+      id: 'manager',
+      name: t('interface.roles.manager', 'Manager'),
+      color: '#ECFDF5',
+      textColor: '#047857',
+      permissions: [
+        t('interface.permissions.manageProjects', 'Manage Projects'),
+        t('interface.permissions.assignTasks', 'Assign Tasks')
+      ]
+    },
+    {
+      id: 'editor',
+      name: t('interface.roles.editor', 'Editor'),
+      color: '#FFFBEB',
+      textColor: '#D97706',
+      permissions: [
+        t('interface.permissions.editContent', 'Edit Content'),
+        t('interface.permissions.reviewWork', 'Review Work')
+      ]
+    },
+  ], [t]);
+
+  // State for custom roles that can be added by users
+  const [userCustomRoles, setUserCustomRoles] = useState<CustomRole[]>([]);
+
+  // Combine predefined roles with user custom roles
+  const allCustomRoles = useMemo(() => [...customRoles, ...userCustomRoles], [customRoles, userCustomRoles]);
+
+  // Initialize members with translated role names
+  const [members, setMembers] = useState<WorkspaceMember[]>([
+    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: "Admin", roleId: "admin", status: "Active", invitationDate: "2025-08-10" },
+    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: "Member", roleId: "member", status: "Suspended", invitationDate: "2025-08-12" },
+    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: "Viewer", roleId: "viewer", status: "Blocked", invitationDate: "2025-08-09" },
+    { id: 4, name: "James Whitaker", email: "james@company.com", role: "Manager", roleId: "manager", status: "Active", invitationDate: "2025-08-05" },
+    { id: 5, name: "Emma Davis", email: "emma@company.com", role: "Editor", roleId: "editor", status: "Active", invitationDate: "2025-08-08" },
   ]);
 
-  const [members, setMembers] = useState<WorkspaceMember[]>([
-    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: t('interface.roles.admin', 'Admin'), roleId: "admin", status: "Active", invitationDate: "2025-08-10" },
-    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: t('interface.roles.member', 'Member'), roleId: "member", status: "Suspended", invitationDate: "2025-08-12" },
-    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: t('interface.roles.viewer', 'Viewer'), roleId: "viewer", status: "Blocked", invitationDate: "2025-08-09" },
-    { id: 4, name: "James Whitaker", email: "james@company.com", role: t('interface.roles.manager', 'Manager'), roleId: "manager", status: "Active", invitationDate: "2025-08-05" },
-    { id: 5, name: "Emma Davis", email: "emma@company.com", role: t('interface.roles.editor', 'Editor'), roleId: "editor", status: "Active", invitationDate: "2025-08-08" },
-  ]);
+  // Update member role names when language changes
+  const membersWithTranslatedRoles = useMemo(() => {
+    return members.map((member: WorkspaceMember) => {
+      const role = allCustomRoles.find((r: CustomRole) => r.id === member.roleId);
+      return {
+        ...member,
+        role: role?.name || member.role
+      };
+    });
+  }, [members, allCustomRoles]);
 
   // UI State
   const [showAddMember, setShowAddMember] = useState(false);
@@ -85,8 +148,8 @@ const WorkspaceMembers: React.FC = () => {
 
   // Get role by ID
   const getRoleById = useCallback((roleId: string) => {
-    return customRoles.find(role => role.id === roleId);
-  }, [customRoles]);
+    return allCustomRoles.find((role: CustomRole) => role.id === roleId);
+  }, [allCustomRoles]);
 
   // Get role color
   const getRoleColor = useCallback((role: string, roleId?: string) => {
@@ -133,13 +196,13 @@ const WorkspaceMembers: React.FC = () => {
 
   // Filter members based on search term and status filter
   const filteredMembers = useMemo(() => {
-    return members.filter(member => {
+    return membersWithTranslatedRoles.filter((member: WorkspaceMember) => {
       const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === '' || member.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [members, searchTerm, statusFilter]);
+  }, [membersWithTranslatedRoles, searchTerm, statusFilter]);
 
   // Handle member actions
   const handleDeleteMember = useCallback((memberId: number) => {
@@ -195,7 +258,7 @@ const WorkspaceMembers: React.FC = () => {
         textColor: newRoleTextColor,
         permissions: newRolePermissions
       };
-      setCustomRoles(prev => [...prev, newRole]);
+      setUserCustomRoles(prev => [...prev, newRole]);
       setNewRoleName('');
       setNewRoleColor(ROLE_COLORS[0].bg);
       setNewRoleTextColor(ROLE_COLORS[0].text);
@@ -205,7 +268,7 @@ const WorkspaceMembers: React.FC = () => {
 
   const handleDeleteRole = useCallback((roleId: string) => {
     if (roleId !== 'admin' && roleId !== 'member' && roleId !== 'viewer') {
-      setCustomRoles(prev => prev.filter(role => role.id !== roleId));
+      setUserCustomRoles(prev => prev.filter(role => role.id !== roleId));
     }
   }, []);
 
@@ -342,10 +405,10 @@ const WorkspaceMembers: React.FC = () => {
                         <select
                           value={member.roleId}
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                          className="px-4 py-2 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
+                          className="px-2 py-2 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
                           required
                         >
-                          {customRoles.map((role) => (
+                          {allCustomRoles.map((role) => (
                             <option key={role.id} value={role.id} style={{ color: role.textColor }}>
                               {role.name}
                             </option>
@@ -466,7 +529,7 @@ const WorkspaceMembers: React.FC = () => {
                   onChange={(e) => setNewMemberRole(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
-                  {customRoles.map(role => (
+                  {allCustomRoles.map(role => (
                     <option key={role.id} value={role.id}>
                       {role.name}
                     </option>
@@ -617,7 +680,7 @@ const WorkspaceMembers: React.FC = () => {
               <div className="space-y-4">
                 <h4 className="text-lg font-medium text-gray-900">{t('interface.roleManager.existingRoles', 'Existing Roles')}</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {customRoles.map((role) => (
+                  {allCustomRoles.map((role) => (
                     <div key={role.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <span
