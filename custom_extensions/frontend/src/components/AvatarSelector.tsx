@@ -101,7 +101,7 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     if (avatar.canvas) {
       return avatar.canvas;
     }
-    return null;
+    return undefined;
   };
 
   const getSelectedDisplay = () => {
