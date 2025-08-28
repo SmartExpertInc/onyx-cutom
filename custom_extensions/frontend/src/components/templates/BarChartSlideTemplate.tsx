@@ -86,6 +86,7 @@ function InlineEditor({
           resize: 'none',
           overflow: 'hidden',
           width: '100%',
+          height: '119px',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
