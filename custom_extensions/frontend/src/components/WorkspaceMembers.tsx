@@ -327,7 +327,7 @@ const WorkspaceMembers: React.FC = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowRoleManager(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors whitespace-nowrap"
+              className="flex items-center gap-2 px-4 py-2bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors whitespace-nowrap"
             >
               <Settings size={16} />
               {t('interface.manageRoles', 'Manage Roles')}
@@ -718,7 +718,7 @@ const WorkspaceMembers: React.FC = () => {
             <div className="flex justify-end mt-6">
               <button
                 onClick={() => setShowRoleManager(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                className="px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors"
               >
                 {t('interface.roleManager.close', 'Close')}
               </button>
