@@ -47,6 +47,54 @@ export default function TextPresentationClient() {
   );
   const [prompt, setPrompt] = useState(params?.get("prompt") || "");
 
+  // Dynamic loading messages for presentation generation
+  const makePresentationThoughts = () => {
+    const list: string[] = [];
+    list.push(`Analyzing presentation request for "${prompt.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Detected language: ${language.toUpperCase()}`);
+    list.push(`Planning ${length} presentation with ${selectedStyles.length > 0 ? selectedStyles.join(", ") : "default"} style...`);
+    list.push("Consulting presentation best practices...");
+
+    const extra = [
+      "Structuring content flow...",
+      "Designing engaging slides...",
+      "Incorporating visual elements...",
+      "Balancing information density...",
+      "Creating compelling narratives...",
+      "Optimizing slide transitions...",
+      "Ensuring audience engagement...",
+      "Adding supporting visuals...",
+      "Crafting memorable takeaways...",
+      "Integrating storytelling elements...",
+      "Designing effective layouts...",
+      "Incorporating interactive elements...",
+      "Ensuring accessibility standards...",
+      "Optimizing for presentation flow...",
+      "Adding professional polish...",
+      "Creating visual hierarchy...",
+      "Incorporating brand elements...",
+      "Ensuring content clarity...",
+      "Adding supporting data...",
+      "Finalizing presentation structure...",
+    ];
+    list.push(...extra);
+    return list;
+  };
+
+  const [presentationThoughts, setPresentationThoughts] = useState<string[]>(makePresentationThoughts());
+  const [thoughtIdx, setThoughtIdx] = useState(0);
+  const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+  const delayForThought = (text: string): number => {
+    if (text.startsWith("Analyzing")) return rand(2500, 5000);
+    if (text.startsWith("Detected language")) return rand(1200, 2000);
+    if (text.startsWith("Planning")) return rand(4000, 7000);
+    if (text.startsWith("Consulting")) return rand(3500, 6000);
+    return rand(2000, 4000);
+  };
+
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -144,6 +192,43 @@ export default function TextPresentationClient() {
   const [originalContent, setOriginalContent] = useState<string>("");
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
+
+  // Cycle through thoughts whenever loading=true
+  useEffect(() => {
+    if (loading) {
+      setPresentationThoughts(makePresentationThoughts());
+      setThoughtIdx(0);
+
+      const scheduleNext = (index: number) => {
+        const txt = presentationThoughts[index];
+        const delay = delayForThought(txt);
+        if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+        if (txt.startsWith("Finalizing")) return; // keep until loading finishes
+        thoughtTimerRef.current = setTimeout(() => {
+          setThoughtIdx((prev) => {
+            const next = prev + 1;
+            if (next < presentationThoughts.length) {
+              scheduleNext(next);
+              return next;
+            }
+            // reached end, stay on last (finalizing)
+            return prev;
+          });
+        }, delay);
+      };
+
+      scheduleNext(0);
+    } else {
+      if (thoughtTimerRef.current) {
+        clearTimeout(thoughtTimerRef.current);
+        thoughtTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, length, selectedStyles, prompt, language]);
 
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
@@ -1347,7 +1432,7 @@ export default function TextPresentationClient() {
               </span>
             )}
           </div>
-          {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
+          {loading && <LoadingAnimation message={presentationThoughts[thoughtIdx]} />}
           {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
           
           {/* Main content display - Custom slide titles display matching course outline format */}

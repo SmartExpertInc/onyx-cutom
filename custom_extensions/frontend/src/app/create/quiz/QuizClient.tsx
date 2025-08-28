@@ -121,6 +121,43 @@ export default function QuizClient() {
   const [hasUserEdits, setHasUserEdits] = useState(false);
   const [originalQuizData, setOriginalQuizData] = useState<string>("");
   
+  // Cycle through thoughts whenever loading=true
+  useEffect(() => {
+    if (loading) {
+      setQuizThoughts(makeQuizThoughts());
+      setThoughtIdx(0);
+
+      const scheduleNext = (index: number) => {
+        const txt = quizThoughts[index];
+        const delay = delayForThought(txt);
+        if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+        if (txt.startsWith("Finalizing")) return; // keep until loading finishes
+        thoughtTimerRef.current = setTimeout(() => {
+          setThoughtIdx((prev) => {
+            const next = prev + 1;
+            if (next < quizThoughts.length) {
+              scheduleNext(next);
+              return next;
+            }
+            // reached end, stay on last (finalizing)
+            return prev;
+          });
+        }, delay);
+      };
+
+      scheduleNext(0);
+    } else {
+      if (thoughtTimerRef.current) {
+        clearTimeout(thoughtTimerRef.current);
+        thoughtTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, searchParams]);
+  
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -877,6 +914,56 @@ export default function QuizClient() {
     }
   };
 
+  // Dynamic loading messages for quiz generation
+  const makeQuizThoughts = () => {
+    const prompt = searchParams?.get("prompt") || "";
+    const language = searchParams?.get("lang") || "en";
+    const list: string[] = [];
+    list.push(`Analyzing quiz request for "${prompt.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Detected language: ${language.toUpperCase()}`);
+    list.push(`Planning quiz structure...`);
+    list.push("Consulting assessment best practices...");
+
+    const extra = [
+      "Structuring questions...",
+      "Designing answer options...",
+      "Incorporating learning objectives...",
+      "Balancing difficulty levels...",
+      "Creating engaging content...",
+      "Optimizing question flow...",
+      "Ensuring clarity...",
+      "Adding distractors...",
+      "Crafting explanations...",
+      "Integrating feedback elements...",
+      "Designing effective layouts...",
+      "Incorporating multimedia content...",
+      "Ensuring accessibility standards...",
+      "Optimizing for learning flow...",
+      "Adding educational polish...",
+      "Creating visual hierarchy...",
+      "Incorporating pedagogical elements...",
+      "Ensuring content clarity...",
+      "Adding supporting examples...",
+      "Finalizing quiz structure...",
+    ];
+    list.push(...extra);
+    return list;
+  };
+
+  const [quizThoughts, setQuizThoughts] = useState<string[]>(makeQuizThoughts());
+  const [thoughtIdx, setThoughtIdx] = useState(0);
+  const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+  const delayForThought = (text: string): number => {
+    if (text.startsWith("Analyzing")) return rand(2500, 5000);
+    if (text.startsWith("Detected language")) return rand(1200, 2000);
+    if (text.startsWith("Planning")) return rand(4000, 7000);
+    if (text.startsWith("Consulting")) return rand(3500, 6000);
+    return rand(2000, 4000);
+  };
+
   return (
     <>
     <main
@@ -1169,7 +1256,7 @@ export default function QuizClient() {
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.quiz', 'Quiz')} {t('interface.generate.content', 'Content')}</h2>
           {loading && (
-            <LoadingAnimation message={t('interface.generate.generatingQuiz', 'Generating Quiz...')} />
+            <LoadingAnimation message={quizThoughts[thoughtIdx]} />
           )}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
