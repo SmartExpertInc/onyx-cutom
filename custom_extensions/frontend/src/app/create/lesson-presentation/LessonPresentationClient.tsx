@@ -159,57 +159,6 @@ const calculateLessonPresentationCredits = (slideCount: number): number => {
 
 export default function LessonPresentationClient() {
   const { t } = useLanguage();
-
-  // Dynamic loading messages for lesson presentation generation
-  const makeLessonThoughts = () => {
-    const prompt = params?.get("prompt") || "";
-    const language = params?.get("lang") || "en";
-    const length = params?.get("length") || "600-800 words";
-    const list: string[] = [];
-    list.push(`Analyzing lesson request for "${prompt.slice(0, 40) || "Untitled"}"...`);
-    list.push(`Detected language: ${language.toUpperCase()}`);
-    list.push(`Planning ${length} lesson presentation...`);
-    list.push("Consulting educational best practices...");
-
-    const extra = [
-      "Structuring lesson flow...",
-      "Designing engaging slides...",
-      "Incorporating learning objectives...",
-      "Balancing content complexity...",
-      "Creating interactive elements...",
-      "Optimizing slide transitions...",
-      "Ensuring student engagement...",
-      "Adding visual aids...",
-      "Crafting key takeaways...",
-      "Integrating assessment elements...",
-      "Designing effective layouts...",
-      "Incorporating multimedia content...",
-      "Ensuring accessibility standards...",
-      "Optimizing for learning flow...",
-      "Adding educational polish...",
-      "Creating visual hierarchy...",
-      "Incorporating pedagogical elements...",
-      "Ensuring content clarity...",
-      "Adding supporting examples...",
-      "Finalizing lesson structure...",
-    ];
-    list.push(...extra);
-    return list;
-  };
-
-  const [lessonThoughts, setLessonThoughts] = useState<string[]>(makeLessonThoughts());
-  const [thoughtIdx, setThoughtIdx] = useState(0);
-  const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const rand = (min: number, max: number) => Math.random() * (max - min) + min;
-
-  const delayForThought = (text: string): number => {
-    if (text.startsWith("Analyzing")) return rand(2500, 5000);
-    if (text.startsWith("Detected language")) return rand(1200, 2000);
-    if (text.startsWith("Planning")) return rand(4000, 7000);
-    if (text.startsWith("Consulting")) return rand(3500, 6000);
-    return rand(2000, 4000);
-  };
   const params = useSearchParams();
   const router = useRouter();
   
@@ -267,43 +216,6 @@ export default function LessonPresentationClient() {
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
   const [chatId, setChatId] = useState<string | null>(params?.get("chatId") || null);
-
-  // Cycle through thoughts whenever loading=true
-  useEffect(() => {
-    if (loading) {
-      setLessonThoughts(makeLessonThoughts());
-      setThoughtIdx(0);
-
-      const scheduleNext = (index: number) => {
-        const txt = lessonThoughts[index];
-        const delay = delayForThought(txt);
-        if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
-        if (txt.startsWith("Finalizing")) return; // keep until loading finishes
-        thoughtTimerRef.current = setTimeout(() => {
-          setThoughtIdx((prev) => {
-            const next = prev + 1;
-            if (next < lessonThoughts.length) {
-              scheduleNext(next);
-              return next;
-            }
-            // reached end, stay on last (finalizing)
-            return prev;
-          });
-        }, delay);
-      };
-
-      scheduleNext(0);
-    } else {
-      if (thoughtTimerRef.current) {
-        clearTimeout(thoughtTimerRef.current);
-        thoughtTimerRef.current = null;
-      }
-    }
-    return () => {
-      if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, params]);
   
 
 
@@ -1351,13 +1263,11 @@ export default function LessonPresentationClient() {
           {/* Loading state */}
           {loading && (
             <div className="flex flex-col items-center gap-4 py-8">
-              <LoadingAnimation message={lessonThoughts[thoughtIdx]} />
-              <p className="text-gray-600 text-center max-w-md text-sm">
-                {formatRetryCounter > 0 
+              <LoadingAnimation message={
+                formatRetryCounter > 0 
                   ? `Retrying generation due to formatting issues... (Attempt ${formatRetryCounter}/2)`
-                  : lessonThoughts[thoughtIdx]
-                }
-              </p>
+                  : t('interface.lesson.generatingPreview', 'Generating lesson presentation preview...')
+              } />
               {formatRetryCounter > 0 && debugInfo && (
                 <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
                   <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
