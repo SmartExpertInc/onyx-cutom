@@ -1263,11 +1263,13 @@ export default function LessonPresentationClient() {
           {/* Loading state */}
           {loading && (
             <div className="flex flex-col items-center gap-4 py-8">
-              <LoadingAnimation message={
-                formatRetryCounter > 0 
+              <LoadingAnimation />
+              <p className="text-gray-600 text-center max-w-md text-sm">
+                {formatRetryCounter > 0 
                   ? `Retrying generation due to formatting issues... (Attempt ${formatRetryCounter}/2)`
                   : t('interface.lesson.generatingPreview', 'Generating lesson presentation preview...')
-              } />
+                }
+              </p>
               {formatRetryCounter > 0 && debugInfo && (
                 <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
                   <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
