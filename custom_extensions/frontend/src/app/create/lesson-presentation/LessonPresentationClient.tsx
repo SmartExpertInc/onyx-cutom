@@ -313,12 +313,6 @@ export default function LessonPresentationClient() {
 
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
 
-
-
-
-
-
-
   const toggleExample = (ex: typeof lessonExamples[number]) => {
     setSelectedExamples((prev) => {
       if (prev.includes(ex.short)) {
@@ -351,6 +345,93 @@ export default function LessonPresentationClient() {
     };
     fetchOutlines();
   }, [useExistingOutline]);
+
+
+  const makeThoughts = () => {
+    const list: string[] = [];
+    list.push(`Analyzing lesson request for "${params?.get("prompt")?.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Detected language: ${language.toUpperCase()}`);
+    list.push(`Planning ${slidesCount} slides with ${lengthOption} content...`);
+    // shuffle little filler line
+    list.push("Consulting lesson knowledge base...");
+
+    // Add a diverse set of informative yet playful status lines for quiz generation
+    const extra = [
+      "Crafting engaging content...",
+      "Balancing information density...",
+      "Selecting visual elements...",
+      "Integrating learning objectives...",
+      "Cross-checking content accuracy...",
+      "Curating slide variety...",
+      "Weaving narrative flow...",
+      "Injecting practical examples...",
+      "Sequencing learning logic...",
+      "Optimizing engagement...",
+      "Aligning with learning outcomes...",
+      "Ensuring clear structure...",
+      "Connecting concepts...",
+      "Drafting comprehensive content...",
+      "Incorporating real-world examples...",
+      "Adding contextual scenarios...",
+      "Scanning content relevance...",
+      "Validating slide clarity...",
+      "Polishing presentation flow...",
+      "Finalizing lesson structure...",
+    ];
+    list.push(...extra);
+    return list;
+  };
+
+  const [thoughts, setThoughts] = useState<string[]>(makeThoughts());
+  const [thoughtIdx, setThoughtIdx] = useState(0);
+  const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+  const delayForThought = (text: string): number => {
+    if (text.startsWith("Analyzing")) return rand(2500, 5000);
+    if (text.startsWith("Detected language")) return rand(1200, 2000);
+    if (text.startsWith("Planning")) return rand(4000, 7000);
+    if (text.startsWith("Consulting")) return rand(3500, 6000);
+    if (text.startsWith("Finalizing")) return rand(3000, 5000);
+    return rand(2000, 4000);
+  };
+
+  useEffect(() => {
+    if (loading) {
+      setThoughts(makeThoughts());
+      setThoughtIdx(0);
+
+      const scheduleNext = (index: number) => {
+        const txt = thoughts[index];
+        const delay = delayForThought(txt);
+        if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+        if (txt.startsWith("Finalizing lesson")) return; // keep until loading finishes
+        thoughtTimerRef.current = setTimeout(() => {
+          setThoughtIdx((prev) => {
+            const next = prev + 1;
+            if (next < thoughts.length) {
+              scheduleNext(next);
+              return next;
+            }
+            // reached end, stay on last (finalizing)
+            return prev;
+          });
+        }, delay);
+      };
+
+      scheduleNext(0);
+    } else {
+      if (thoughtTimerRef.current) {
+        clearTimeout(thoughtTimerRef.current);
+        thoughtTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, slidesCount, lengthOption, params, language]);
 
   // Fetch lessons when a course outline is selected
   useEffect(() => {
@@ -570,12 +651,10 @@ export default function LessonPresentationClient() {
             setError(e.message);
           }
         } finally {
-          if (!abortController.signal.aborted) {
-            // If the stream ended but we never displayed content, remove spinner anyway
-            if (loading) setLoading(false);
-            if (!gotFirstChunk && attempt >= 3) {
-              setError("Failed to generate lesson – please try again later.");
-            }
+          // Always set loading to false when stream completes or is aborted
+          setLoading(false);
+          if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
+            setError("Failed to generate lesson – please try again later.");
           }
         }
       };
