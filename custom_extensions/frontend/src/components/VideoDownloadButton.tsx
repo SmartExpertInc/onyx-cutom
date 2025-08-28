@@ -6,6 +6,7 @@ import SlideImageDownloadButton from './SlideImageDownloadButton';
 import StandaloneSlideImageButton from './StandaloneSlideImageButton';
 import HtmlPreviewButton from './HtmlPreviewButton';
 import SlideVideoButton from './SlideVideoButton';
+import AvatarSelector, { Avatar, AvatarVariant } from './AvatarSelector';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -23,511 +24,182 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [status, setStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
+  const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
-  // Function to extract actual slide data from current project
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
-    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
-    
-    try {
-      // Try to get slide data from the global window object (if SmartSlideDeckViewer exposed it)
-      const slideViewerData = (window as any).currentSlideData;
-      if (slideViewerData?.deck?.slides) {
-        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
-        return {
-          slides: slideViewerData.deck.slides,
-          theme: slideViewerData.deck.theme || 'dark-purple'
-        };
-      }
-
-      // Fallback: Try to extract from the URL by getting project ID and fetching data
-      const currentUrl = window.location.href;
-      const projectIdMatch = currentUrl.match(/\/projects\/view\/(\d+)/);
-      
-      if (projectIdMatch) {
-        const projectId = projectIdMatch[1];
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted project ID from URL:', projectId);
-        
-        // Fetch project data from API
-        const response = await fetch(`/api/custom/projects/${projectId}`);
-        if (response.ok) {
-          const projectData = await response.json();
-          console.log('🎬 [VIDEO_DOWNLOAD] Fetched project data:', projectData);
-          
-          if (projectData.details?.slides) {
-            return {
-              slides: projectData.details.slides,
-              theme: projectData.details.theme || 'dark-purple'
-            };
-          }
-        }
-      }
-
-      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data, will use URL fallback');
-      return { slides: [], theme: 'dark-purple' };
-      
-    } catch (error) {
-      console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple' };
-    }
-  };
-
-  // Function to extract voiceover text from slides
-  const extractVoiceoverTexts = async (): Promise<string[]> => {
-    console.log('🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from slide data...');
-    
-    const voiceoverTexts: string[] = [];
-    
-    // Method 1: Extract from actual slide data (most accurate)
-    try {
-      const slideData = await extractSlideData();
-      console.log('🎬 [VIDEO_DOWNLOAD] Extracted slide data for voiceover:', slideData);
-      
-      if (slideData && slideData.slides && slideData.slides.length > 0) {
-        slideData.slides.forEach((slide: any, index: number) => {
-          const props = slide.props || {};
-          
-          // Priority 1: Use dedicated voiceover text if available
-          if (props.voiceoverText && props.voiceoverText.trim().length > 10) {
-            const cleanText = props.voiceoverText.trim();
-            voiceoverTexts.push(cleanText);
-            console.log(`🎬 [VIDEO_DOWNLOAD] Slide ${index + 1} voiceover text:`, cleanText.substring(0, 100) + '...');
-            return;
-          }
-          
-          // Priority 2: Use title if available
-          if (props.title && props.title.trim().length > 5) {
-            const cleanTitle = props.title.trim();
-            voiceoverTexts.push(cleanTitle);
-            console.log(`🎬 [VIDEO_DOWNLOAD] Slide ${index + 1} title:`, cleanTitle);
-            return;
-          }
-          
-          // Priority 3: Use content if available
-          if (props.content && props.content.trim().length > 20) {
-            const cleanContent = props.content.trim();
-            voiceoverTexts.push(cleanContent);
-            console.log(`🎬 [VIDEO_DOWNLOAD] Slide ${index + 1} content:`, cleanContent.substring(0, 100) + '...');
-            return;
-          }
-          
-          // Priority 4: Use subtitle if available
-          if (props.subtitle && props.subtitle.trim().length > 5) {
-            const cleanSubtitle = props.subtitle.trim();
-            voiceoverTexts.push(cleanSubtitle);
-            console.log(`🎬 [VIDEO_DOWNLOAD] Slide ${index + 1} subtitle:`, cleanSubtitle);
-            return;
-          }
-        });
-      }
-    } catch (error) {
-      console.warn('🎬 [VIDEO_DOWNLOAD] Failed to extract from slide data:', error);
-    }
-
-    // Method 2: Fallback to DOM extraction if no slide data available
-    if (voiceoverTexts.length === 0) {
-      console.log('🎬 [VIDEO_DOWNLOAD] No slide data available, falling back to DOM extraction...');
-      
-      // Look for specific voiceover text attributes
-      const voiceoverElements = document.querySelectorAll('[data-voiceover-text], .voiceover-text, .slide-voiceover');
-      console.log('🎬 [VIDEO_DOWNLOAD] Found voiceover elements:', voiceoverElements.length);
-      
-      voiceoverElements.forEach((element, index) => {
-        const text = element.textContent?.trim();
-        if (text && text.length > 0 && text.length < 1000) {
-          const cleanText = text.replace(/\s+/g, ' ').trim();
-          if (cleanText.length > 10) {
-            voiceoverTexts.push(cleanText);
-            console.log(`🎬 [VIDEO_DOWNLOAD] Voiceover ${index + 1}:`, cleanText.substring(0, 100) + '...');
-          }
-        }
-      });
-
-      // Extract from slide titles and content
-      if (voiceoverTexts.length === 0) {
-        const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [data-slide-title]');
-        const slideContent = document.querySelectorAll('.slide-content, .real-slide, [data-slide-id]');
-        
-        slideTitles.forEach((titleElement, index) => {
-          const titleText = titleElement.textContent?.trim();
-          if (titleText && titleText.length > 5 && titleText.length < 200) {
-            const cleanTitle = titleText.replace(/\s+/g, ' ').trim();
-            
-            // Filter out problematic titles
-            const lowerTitle = cleanTitle.toLowerCase();
-            if (lowerTitle === 'voiceover' || 
-                lowerTitle === 'presentation themes' ||
-                lowerTitle === 'themes' ||
-                lowerTitle === 'slide' ||
-                lowerTitle === 'title') {
-              console.log(`🎬 [VIDEO_DOWNLOAD] Skipping problematic title: ${cleanTitle}`);
-              return;
-            }
-            
-            voiceoverTexts.push(cleanTitle);
-            console.log(`🎬 [VIDEO_DOWNLOAD] Slide title ${index + 1}:`, cleanTitle);
-          }
-        });
-        
-        if (voiceoverTexts.length < 2) {
-          slideContent.forEach((contentElement, index) => {
-            const contentText = contentElement.textContent?.trim();
-            if (contentText && contentText.length > 20 && contentText.length < 500) {
-              const cleanContent = contentText
-                .replace(/\s+/g, ' ')
-                .replace(/[^\w\s.,!?-]/g, '')
-                .trim();
-              
-              if (cleanContent.length > 20) {
-                voiceoverTexts.push(cleanContent);
-                console.log(`🎬 [VIDEO_DOWNLOAD] Slide content ${index + 1}:`, cleanContent.substring(0, 100) + '...');
-              }
-            }
-          });
-        }
-      }
-    }
-
-    // Method 3: Fallback - create a simple default voiceover if nothing found
-    if (voiceoverTexts.length === 0) {
-      console.log('🎬 [VIDEO_DOWNLOAD] No content found, creating default voiceover...');
-      voiceoverTexts.push("Welcome to this presentation. Today we will explore important topics and share valuable insights with you.");
-    }
-
-    // Final validation and cleaning
-    const finalTexts = voiceoverTexts
-      .filter(text => text && text.length > 5 && text.length < 1000)
-      .map(text => text.replace(/\s+/g, ' ').trim())
-      .slice(0, 5); // Limit to 5 slides maximum
-
-    console.log('🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts:', finalTexts);
-    return finalTexts;
-  };
-
-  // Function to monitor professional presentation progress (includes slide capture, avatar generation, and video merging)
-  const monitorProfessionalPresentationProgress = async (jobId: string, onProgressUpdate: (progress: number) => void): Promise<string> => {
-    console.log('🎬 [VIDEO_DOWNLOAD] Starting to monitor professional presentation progress for job:', jobId);
-    
-    const maxWaitTime = 30 * 60 * 1000; // 30 minutes for professional processing
-    const checkInterval = 10000; // Check every 10 seconds
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < maxWaitTime) {
-      try {
-        const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          credentials: 'same-origin',
-        });
-
-        if (!statusResponse.ok) {
-          throw new Error(`Status check failed: ${statusResponse.status}`);
-        }
-
-        const statusData = await statusResponse.json();
-        console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation status check response:', statusData);
-
-        if (!statusData.success) {
-          throw new Error(statusData.error || 'Status check failed');
-        }
-
-        const jobStatus = statusData.status;
-        const jobProgress = statusData.progress || 0;
-        const videoUrl = statusData.videoUrl;
-
-        console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation status:', jobStatus, 'Progress:', jobProgress + '%');
-        
-        // Update progress
-        onProgressUpdate(jobProgress);
-
-        if (jobStatus === 'completed' && videoUrl) {
-          console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation generation completed!');
-          return videoUrl;
-        }
-
-        if (jobStatus === 'failed') {
-          throw new Error(statusData.error || 'Professional presentation generation failed');
-        }
-
-        // Wait before next check
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-        
-      } catch (error) {
-        console.error('🎬 [VIDEO_DOWNLOAD] Error checking professional presentation status:', error);
-        throw error;
-      }
-    }
-
-    throw new Error('Professional presentation generation timeout after 30 minutes');
-  };
-
-  // Function to monitor rendering progress (legacy - kept for backward compatibility)
-  const monitorRenderingProgress = async (videoId: string, onProgressUpdate: (progress: number) => void): Promise<string> => {
-    console.log('🎬 [VIDEO_DOWNLOAD] Starting to monitor rendering progress for video:', videoId);
-    
-    const maxWaitTime = 15 * 60 * 1000; // 15 minutes
-    const checkInterval = 5000; // Check every 5 seconds
-    const startTime = Date.now();
-    let consecutiveErrors = 0;
-    const maxConsecutiveErrors = 3;
-    
-    while (Date.now() - startTime < maxWaitTime) {
-      try {
-        const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/video/status/${videoId}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          credentials: 'same-origin',
-        });
-
-        if (!statusResponse.ok) {
-          throw new Error(`Status check failed: ${statusResponse.status}`);
-        }
-
-        const statusData = await statusResponse.json();
-        console.log('🎬 [VIDEO_DOWNLOAD] Status check response:', statusData);
-
-        if (!statusData.success) {
-          throw new Error(statusData.error || 'Status check failed');
-        }
-
-        // Extract status and progress from the nested status object
-        const videoStatus = statusData.status;
-        const status = videoStatus.status || videoStatus;
-        const progress = videoStatus.progress || statusData.progress || 0;
-        const downloadUrl = videoStatus.downloadUrl || videoStatus.videoUrl || statusData.downloadUrl || statusData.videoUrl;
-
-        console.log('🎬 [VIDEO_DOWNLOAD] Video status:', status, 'Progress:', progress + '%');
-        
-        // Use the actual progress value from the backend
-        onProgressUpdate(progress);
-
-        if (status === 'rendered' || status === 'ready') {
-          console.log('🎬 [VIDEO_DOWNLOAD] Video rendering completed!');
-          return downloadUrl || '';
-        }
-
-        if (status === 'failed' || status === 'error') {
-          consecutiveErrors++;
-          console.warn(`🎬 [VIDEO_DOWNLOAD] Video status is '${status}' (attempt ${consecutiveErrors}/${maxConsecutiveErrors})`);
-          
-          if (consecutiveErrors >= maxConsecutiveErrors) {
-            throw new Error(`Video rendering failed after ${maxConsecutiveErrors} consecutive error statuses`);
-          }
-          
-          // Continue monitoring even on error status (Elai sometimes reports error temporarily)
-          await new Promise(resolve => setTimeout(resolve, checkInterval));
-          continue;
-        }
-
-        // Reset error counter on successful status
-        consecutiveErrors = 0;
-
-        // Wait before next check
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-        
-      } catch (error) {
-        console.error('🎬 [VIDEO_DOWNLOAD] Error checking video status:', error);
-        throw error;
-      }
-    }
-
-    throw new Error('Video rendering timeout after 15 minutes');
+  const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
+    setSelectedAvatar(avatar);
+    setSelectedVariant(variant || undefined);
+    console.log('🎬 [VIDEO_DOWNLOAD] Avatar selected:', {
+      avatar: avatar.name,
+      variant: variant?.name,
+      code: variant ? `${avatar.code}.${variant.code}` : avatar.code
+    });
   };
 
   const handleDownloadVideo = async () => {
+    if (!selectedAvatar) {
+      onError?.('Please select an avatar first');
+      return;
+    }
+
     try {
-      console.log('🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...');
-      console.log('🎬 [VIDEO_DOWNLOAD] Environment check:');
-      console.log('  - CUSTOM_BACKEND_URL:', CUSTOM_BACKEND_URL);
-      console.log('  - NEXT_PUBLIC_CUSTOM_BACKEND_URL:', process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL);
-      console.log('  - Window location:', window.location.href);
-      
       setStatus('generating');
       setProgress(0);
 
-      // Step 1: Extract voiceover text from slides
-      console.log('🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...');
-      setProgress(10);
-      
-      const voiceoverTexts = await extractVoiceoverTexts();
-      console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
-      
-      if (!voiceoverTexts || voiceoverTexts.length === 0) {
-        throw new Error('No voiceover text found in slides');
-      }
+      console.log('🎬 [VIDEO_DOWNLOAD] Starting video generation with selected avatar:', {
+        avatar: selectedAvatar.name,
+        variant: selectedVariant?.name,
+        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code
+      });
 
-      // Step 2: Get current slide URL for capture
-      console.log('🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...');
-      setProgress(20);
-      
-      const slideUrl = window.location.href;
-      console.log('🎬 [VIDEO_DOWNLOAD] Slide URL for capture:', slideUrl);
+      // Create the request payload
+      const requestPayload = {
+        projectName: projectName || 'Generated Video',
+        voiceoverTexts: [
+          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better.",
+          "Let's dive into the main content. This presentation covers important topics that are essential for your learning journey.",
+          "As we conclude, remember these key points. They will serve as a foundation for your continued growth and development."
+        ],
+        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
+        useAvatarMask: true,
+        layout: 'picture_in_picture',
+        theme: 'dark-purple',
+        duration: 30.0,
+        quality: 'high',
+        resolution: [1920, 1080]
+      };
 
-      // Step 3: Extract slide data for accurate rendering
-      console.log('🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...');
-      const slideDataResult = await extractSlideData();
-      console.log('🎬 [VIDEO_DOWNLOAD] Extracted slide data:', slideDataResult);
-      
-      // Step 3b: Create professional presentation with actual slide data
-      console.log('🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...');
-      console.log('🎬 [VIDEO_DOWNLOAD] Request parameters:');
-      console.log('  - useAvatarMask: true');
-      console.log('  - slidesData count:', slideDataResult.slides?.length || 0);
-      console.log('  - voiceoverTexts count:', voiceoverTexts?.length || 0);
-      console.log('  - theme:', slideDataResult.theme);
-      setProgress(30);
-      
+      console.log('🎬 [VIDEO_DOWNLOAD] Request payload:', requestPayload);
+
+      // Create presentation
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-                 signal: AbortSignal.timeout(180000), // 3 minute timeout for initial request
-        body: JSON.stringify({
-          slideUrl: slideUrl,
-          voiceoverTexts: voiceoverTexts,
-          // NEW: Include actual slide data for accurate text and styling rendering
-          slidesData: slideDataResult.slides,
-          theme: slideDataResult.theme,
-          // Remove hardcoded avatarCode to enable dynamic avatar selection
-          useAvatarMask: true,  // NEW: Enable avatar mask service (OpenCV + MoviePy)
-          duration: 30.0,
-          layout: 'picture_in_picture', // side_by_side, picture_in_picture, split_screen
-          quality: 'high',
-          resolution: [1920, 1080],
-          projectName: projectName || 'Professional Video Presentation'
-        })
+        body: JSON.stringify(requestPayload)
       });
 
       if (!createResponse.ok) {
         const errorText = await createResponse.text();
-        throw new Error(`Failed to create professional presentation: ${createResponse.status} - ${errorText}`);
+        throw new Error(`Failed to create presentation: ${createResponse.status} - ${errorText}`);
       }
 
       const createData = await createResponse.json();
-      console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation creation response:', createData);
-
+      
       if (!createData.success) {
-        throw new Error(createData.error || 'Failed to create professional presentation');
+        throw new Error(createData.error || 'Failed to create presentation');
       }
 
-      const presentationJobId = createData.jobId;
-      setJobId(presentationJobId); // Store job ID for slide image download
-      console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation job created with ID:', presentationJobId);
+      const newJobId = createData.jobId;
+      setJobId(newJobId);
+      console.log('🎬 [VIDEO_DOWNLOAD] Presentation job created:', newJobId);
 
-      // Step 4: Monitor professional presentation progress (includes slide capture, avatar generation, and video merging)
-      console.log('🎬 [VIDEO_DOWNLOAD] Step 4: Monitoring professional presentation progress...');
-      console.log('🎬 [VIDEO_DOWNLOAD] This includes: slide capture → avatar generation → video merging');
-      setProgress(40);
-      
-      const videoUrl = await monitorProfessionalPresentationProgress(presentationJobId, (progressPercent) => {
-        // Update progress from 40% to 90% based on processing progress
-        const newProgress = 40 + (progressPercent * 0.5); // 40% to 90%
-        setProgress(newProgress);
-        console.log('🎬 [VIDEO_DOWNLOAD] Professional presentation progress:', progressPercent + '%');
-      });
+      // Poll for completion
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
+            method: 'GET',
+            credentials: 'same-origin',
+          });
 
-             // Step 5: Complete and Download
-       console.log('🎬 [VIDEO_DOWNLOAD] Step 5: Professional video generation completed!');
-       console.log('🎬 [VIDEO_DOWNLOAD] Final video includes: slide content + AI avatar + merged output');
-       setProgress(95);
-       console.log('🎬 [VIDEO_DOWNLOAD] Final video URL:', videoUrl);
-       
-       // Step 6: Automatically download the video to user's computer
-       console.log('🎬 [VIDEO_DOWNLOAD] Step 6: Starting automatic download...');
-       await downloadVideoToPC(videoUrl);
-       
-       setProgress(100);
-       setStatus('completed');
-       onSuccess?.(videoUrl);
+          if (!statusResponse.ok) {
+            throw new Error(`Status check failed: ${statusResponse.status}`);
+          }
+
+          const statusData = await statusResponse.json();
+          
+          if (statusData.success) {
+            const currentProgress = statusData.progress || 0;
+            setProgress(currentProgress);
+            
+            console.log('🎬 [VIDEO_DOWNLOAD] Job progress:', currentProgress);
+
+            if (statusData.status === 'completed') {
+              clearInterval(pollInterval);
+              setStatus('completed');
+              setProgress(100);
+              console.log('🎬 [VIDEO_DOWNLOAD] Video generation completed');
+              
+              // Auto-download the video
+              await downloadVideo(newJobId);
+            } else if (statusData.status === 'failed') {
+              clearInterval(pollInterval);
+              setStatus('error');
+              throw new Error(statusData.error || 'Video generation failed');
+            }
+          } else {
+            throw new Error(statusData.error || 'Status check failed');
+          }
+        } catch (error) {
+          console.error('🎬 [VIDEO_DOWNLOAD] Status check error:', error);
+          clearInterval(pollInterval);
+          setStatus('error');
+          onError?.(error instanceof Error ? error.message : 'Status check failed');
+        }
+      }, 2000);
+
+      // Set a timeout to stop polling after 5 minutes
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if (status === 'generating') {
+          setStatus('error');
+          onError?.('Video generation timed out. Please check the status manually.');
+        }
+      }, 300000);
 
     } catch (error) {
-      console.error('🎬 [VIDEO_DOWNLOAD] Video generation failed with error:', error);
-      console.error('🎬 [VIDEO_DOWNLOAD] Error type:', typeof error);
-      console.error('🎬 [VIDEO_DOWNLOAD] Error constructor:', error?.constructor?.name);
-      console.error('🎬 [VIDEO_DOWNLOAD] Error stack:', (error as Error)?.stack);
-      
-      if (error instanceof Error) {
-        console.error('🎬 [VIDEO_DOWNLOAD] Error message:', error.message);
-        console.error('🎬 [VIDEO_DOWNLOAD] Error name:', error.name);
-      }
-      
+      console.error('🎬 [VIDEO_DOWNLOAD] Video generation failed:', error);
       setStatus('error');
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.log('🎬 [VIDEO_DOWNLOAD] Calling onError with message:', errorMessage);
-      onError?.(errorMessage);
-         }
-   };
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      onError?.(errorMsg);
+    }
+  };
 
-   const downloadVideoToPC = async (videoUrl: string) => {
-     try {
-       console.log('💾 [DOWNLOAD] Starting download from URL:', videoUrl);
-       
-       // Construct the full download URL
-       // Use direct construction like ProfessionalVideoPresentationButton
-       const fullUrl = videoUrl.startsWith('http') 
-         ? videoUrl 
-         : `${CUSTOM_BACKEND_URL}${videoUrl}`;
-       console.log('💾 [DOWNLOAD] Full download URL:', fullUrl);
-       
-       // Fetch the video file
-       console.log('💾 [DOWNLOAD] Fetching video file...');
-       const response = await fetch(fullUrl, {
-         method: 'GET',
-         credentials: 'same-origin',
-       });
-       
-       if (!response.ok) {
-         throw new Error(`Download failed: ${response.status} ${response.statusText}`);
-       }
-       
-       // Get the video blob
-       console.log('💾 [DOWNLOAD] Converting to blob...');
-       const blob = await response.blob();
-       console.log('💾 [DOWNLOAD] Blob size:', blob.size, 'bytes');
-       
-       // Create download link
-       const downloadUrl = window.URL.createObjectURL(blob);
-       const link = document.createElement('a');
-       link.href = downloadUrl;
-       
-       // Generate filename with timestamp
-       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-       const filename = `professional-video-${projectName || 'presentation'}-${timestamp}.mp4`;
-       link.download = filename;
-       
-       // Trigger download
-       console.log('💾 [DOWNLOAD] Triggering download:', filename);
-       document.body.appendChild(link);
-       link.click();
-       document.body.removeChild(link);
-       
-       // Clean up
-       window.URL.revokeObjectURL(downloadUrl);
-       
-       console.log('💾 [DOWNLOAD] Download initiated successfully!');
-       console.log('💾 [DOWNLOAD] File saved as:', filename);
-       
-     } catch (error) {
-       console.error('💾 [DOWNLOAD] Download failed:', error);
-       // Don't throw - let the video generation success still show
-       console.log('💾 [DOWNLOAD] Video is still available at:', videoUrl);
-     }
-   };
+  const downloadVideo = async (jobId: string) => {
+    try {
+      console.log('🎬 [VIDEO_DOWNLOAD] Downloading video for job:', jobId);
+      
+      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'video/mp4',
+        },
+        credentials: 'same-origin',
+      });
 
-   const getButtonText = () => {
+      if (!downloadResponse.ok) {
+        throw new Error(`Download failed: ${downloadResponse.status}`);
+      }
+
+      // Create blob and download
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `professional_presentation_${jobId}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('🎬 [VIDEO_DOWNLOAD] Video downloaded successfully');
+      onSuccess?.(url);
+      
+    } catch (error) {
+      console.error('🎬 [VIDEO_DOWNLOAD] Download failed:', error);
+      onError?.(error instanceof Error ? error.message : 'Download failed');
+    }
+  };
+
+  const getButtonText = () => {
     switch (status) {
       case 'generating':
         return `Creating Professional Video... ${progress}%`;
-             case 'completed':
-         return 'Video Generated & Downloaded!';
+      case 'completed':
+        return 'Professional Video Ready';
       case 'error':
         return 'Generation Failed - Try Again';
       default:
@@ -564,44 +236,79 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      {/* HTML Preview Button - Always available for debugging */}
-      <HtmlPreviewButton
-        projectName={projectName}
-        onError={onError}
-        onSuccess={onSuccess}
-        className="text-xs py-1"
-      />
-      
-      {/* Standalone Slide Image Button - Always available */}
-      <StandaloneSlideImageButton
-        projectName={projectName}
-        onError={onError}
-        onSuccess={onSuccess}
-        className="text-xs py-1"
-      />
-      
-      {/* Slide-Only Video Button - Always available */}
-      <SlideVideoButton
-        projectName={projectName}
-        onError={onError}
-        onSuccess={onSuccess}
-        className="text-xs py-1"
-      />
-      
+    <div className="flex flex-col gap-4">
+      {/* Avatar Selection */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Select AI Avatar
+        </label>
+        <AvatarSelector
+          onAvatarSelect={handleAvatarSelect}
+          selectedAvatar={selectedAvatar}
+          selectedVariant={selectedVariant}
+          className="w-full"
+        />
+        {selectedAvatar && (
+          <p className="text-xs text-gray-500">
+            Selected: {selectedAvatar.name}
+            {selectedVariant && ` - ${selectedVariant.name}`}
+          </p>
+        )}
+      </div>
+
+      {/* Debug Buttons */}
+      <div className="flex flex-col gap-2">
+        {/* HTML Preview Button - Always available for debugging */}
+        <HtmlPreviewButton
+          projectName={projectName}
+          onError={onError}
+          onSuccess={onSuccess}
+          className="text-xs py-1"
+        />
+        
+        {/* Standalone Slide Image Button - Always available */}
+        <StandaloneSlideImageButton
+          projectName={projectName}
+          onError={onError}
+          onSuccess={onSuccess}
+          className="text-xs py-1"
+        />
+        
+        {/* Slide-Only Video Button - Always available */}
+        <SlideVideoButton
+          projectName={projectName}
+          onError={onError}
+          onSuccess={onSuccess}
+          className="text-xs py-1"
+        />
+      </div>
+
+      {/* Main Video Generation Button */}
       <button
         onClick={handleDownloadVideo}
-        disabled={status === 'generating'}
+        disabled={status === 'generating' || !selectedAvatar}
         className={getButtonClassName()}
         title={
-          status === 'generating' 
-            ? 'Professional video generation in progress...' 
-            : 'Create professional video with slide capture and AI avatar'
+          !selectedAvatar 
+            ? 'Please select an avatar first'
+            : status === 'generating' 
+              ? 'Professional video generation in progress...' 
+              : 'Create professional video with slide capture and AI avatar'
         }
       >
         {getButtonIcon()}
         {getButtonText()}
       </button>
+      
+      {/* Progress Bar */}
+      {status === 'generating' && (
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
       
       {/* Slide Image Download Button - Only show when job is completed */}
       {status === 'completed' && jobId && (

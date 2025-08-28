@@ -160,16 +160,37 @@ class ElaiVideoGenerationService:
                     "error": f"Failed to get avatars: {avatars_response['error']}"
                 }
             
-            # Find the specified avatar
+            # Find the specified avatar (handle variant codes like "gia.casual")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: {avatar_code}")
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatars count: {len(avatars_response['avatars'])}")
             
             avatar = None
-            for av in avatars_response["avatars"]:
-                if av.get("code") == avatar_code:
-                    avatar = av
-                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
-                    break
+            selected_variant = None
+            
+            # Check if avatar_code contains a variant (e.g., "gia.casual")
+            if '.' in avatar_code:
+                base_code, variant_code = avatar_code.split('.', 1)
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for avatar '{base_code}' with variant '{variant_code}'")
+                
+                for av in avatars_response["avatars"]:
+                    if av.get("code") == base_code:
+                        # Check if this avatar has the specified variant
+                        if av.get("variants"):
+                            for variant in av["variants"]:
+                                if variant.get("code") == variant_code:
+                                    avatar = av
+                                    selected_variant = variant
+                                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} with variant: {variant.get('name', 'Unknown')}")
+                                    break
+                            if avatar:
+                                break
+            else:
+                # No variant specified, look for exact match
+                for av in avatars_response["avatars"]:
+                    if av.get("code") == avatar_code:
+                        avatar = av
+                        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
+                        break
             
             if not avatar:
                 logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar with code '{avatar_code}' not found")
@@ -210,9 +231,11 @@ class ElaiVideoGenerationService:
                     }
             
             # Validate avatar canvas URL before proceeding
-            avatar_canvas_url = avatar.get('canvas')
+            # Use variant canvas URL if available, otherwise use avatar canvas URL
+            avatar_canvas_url = selected_variant.get('canvas') if selected_variant else avatar.get('canvas')
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Avatar validation:")
             logger.info(f"  - Avatar code: {avatar.get('code')}")
+            logger.info(f"  - Selected variant: {selected_variant.get('name') if selected_variant else 'None'}")
             logger.info(f"  - Avatar canvas URL: {avatar_canvas_url}")
             
             # Validate canvas URL format
@@ -253,7 +276,7 @@ class ElaiVideoGenerationService:
                             "scaleY": 0.3,     # Exact from example
                             "width": 1080,     # Exact from example
                             "height": 1080,    # Exact from example
-                            "src": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png",  # Exact from example
+                            "src": avatar_canvas_url,  # Use selected avatar/variant canvas URL
                             "avatarType": "transparent",  # Exact from example
                             "animation": {
                                 "type": None,
@@ -264,9 +287,9 @@ class ElaiVideoGenerationService:
                         "version": "4.4.0"        # Exact from example
                     },
                     "avatar": {
-                        "code": "gia.casual",     # Exact from example
-                        "gender": "female",       # Exact from example
-                        "canvas": "https://elai-avatars.s3.us-east-2.amazonaws.com/common/gia/casual/gia_casual.png"  # Exact from example
+                        "code": avatar_code,     # Use the original avatar_code (may include variant)
+                        "gender": avatar.get("gender", "female"),       # Use actual avatar gender
+                        "canvas": avatar_canvas_url  # Use selected avatar/variant canvas URL
                     },
                     "animation": "fade_in",
                     "language": "English",
