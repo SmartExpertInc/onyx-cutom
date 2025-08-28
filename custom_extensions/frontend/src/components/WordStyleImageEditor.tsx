@@ -163,7 +163,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                           }`}
                         >
                           <div className="text-sm font-medium text-gray-900">{preset.name}</div>
-                          <div className="text-xs text-gray-500">{preset.width}px</div>
+                          <div className="text-xs text-gray-600">{preset.width}px</div>
                         </button>
                       ))}
                     </div>
@@ -377,7 +377,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                             MozUserSelect: 'none'
                           }}
                         />
-                        <div className="text-xs text-gray-500 text-center">
+                        <div className="text-xs text-gray-600 text-center">
                           {localImageBlock.opacity ? Math.round(parseFloat(localImageBlock.opacity.toString()) * 100) : 100}%
                         </div>
                       </div>
@@ -401,7 +401,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
                             MozUserSelect: 'none'
                           }}
                         />
-                        <div className="text-xs text-gray-500 text-center">
+                        <div className="text-xs text-gray-600 text-center">
                           {localImageBlock.transform ? parseInt(localImageBlock.transform.replace(/rotate\((\d+)deg\)/, '$1')) || 0 : 0}°
                         </div>
                       </div>
@@ -418,7 +418,7 @@ const WordStyleImageEditor: React.FC<WordStyleImageEditorProps> = ({
             <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-900">{t('interface.imageSettings.livePreview')}</h3>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-600">
                   {t('interface.imageSettings.changesApplyInRealTime')}
                 </div>
               </div>

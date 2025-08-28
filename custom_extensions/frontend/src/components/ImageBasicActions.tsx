@@ -131,7 +131,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
           <div className="py-1">
             {/* Header with Advanced Settings button */}
             <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('interface.imageSettings.quickSettings', 'Settings')}</div>
+              <div className="text-xs font-medium text-gray-700 uppercase tracking-wide">{t('interface.imageSettings.quickSettings', 'Settings')}</div>
               {/* <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -229,7 +229,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
 
             {/* Quick Size Actions */}
             <div className="px-3 py-2 border-b border-gray-100">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+              <div className="text-xs font-medium text-gray-700 uppercase tracking-wide mb-2 flex items-center gap-1">
                 <ZoomIn className="w-3 h-3" />
                 {t('interface.imageSettings.scale', 'Scale')}
               </div>
@@ -258,11 +258,11 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
 
             {/* Alignment Actions */}
             <div className={`px-3 py-2 border-b border-gray-100 ${imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'opacity-50' : ''}`}>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+              <div className="text-xs font-medium text-gray-700 uppercase tracking-wide mb-2 flex items-center gap-1">
                 <Move className="w-3 h-3" />
                 {t('interface.imageSettings.alignment')}
                 {imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' && (
-                  <span className="text-xs text-gray-400 ml-1">(недоступно для inline)</span>
+                  <span className="text-xs text-gray-600 ml-1">(недоступно для inline)</span>
                 )}
               </div>
               <div className="flex gap-1">
@@ -294,7 +294,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
 
             {/* Border Radius Actions */}
             <div className="px-3 py-2 border-b border-gray-100">
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+              <div className="text-xs font-medium text-gray-700 uppercase tracking-wide mb-2 flex items-center gap-1">
                 <Palette className="w-3 h-3" />
                 {t('interface.imageSettings.cornerRounding')}
               </div>

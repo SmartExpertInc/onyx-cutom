@@ -650,7 +650,7 @@ const BlockSettingsModal = ({
       case 'numbered_list': return renderListSettings();
       case 'alert': return renderAlertSettings();
       case 'image': return renderImageSettings();
-      default: return <p className="text-gray-500">No settings available for this block type.</p>;
+      default: return <p className="text-gray-700">No settings available for this block type.</p>;
     }
   };
 
