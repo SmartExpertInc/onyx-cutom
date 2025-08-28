@@ -153,7 +153,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                   e.stopPropagation();
                   setShowLayoutOptions(!showLayoutOptions);
                 }}
-                className="w-full px-3 py-2 text-left text-xs hover:bg-blue-50 transition-colors flex items-center justify-between"
+                className="w-full px-3 py-2 text-left text-xs text-gray-700 hover:bg-blue-50 transition-colors flex items-center justify-between"
               >
                 <div className="flex items-center gap-2">
                   <Layout className="w-3 h-3" />
@@ -184,7 +184,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                           className={`w-full px-2 py-1.5 text-left text-xs rounded transition-colors flex items-center gap-2 ${
                             imageBlock.layoutMode === option.value 
                               ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                              : 'hover:bg-blue-50'
+                              : 'hover:bg-blue-50 text-gray-700'
                           }`}
                           title={option.label}
                         >
@@ -248,7 +248,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                       onImageChange(updatedBlock);
                       // Don't close menu automatically - let user make multiple changes
                     }}
-                    className="w-full px-2 py-1 text-left text-xs hover:bg-blue-50 rounded flex items-center justify-between"
+                    className="w-full px-2 py-1 text-left text-xs text-gray-700 hover:bg-blue-50 rounded flex items-center justify-between"
                   >
                     <span>{preset.name}</span>
                   </button>
@@ -281,7 +281,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     className={`flex-1 px-2 py-1 text-xs rounded text-center transition-colors flex items-center justify-center gap-1 ${
                       imageBlock.alignment === option.value 
                         ? 'bg-blue-100 text-blue-700' 
-                        : 'hover:bg-blue-50'
+                        : 'hover:bg-blue-50 text-gray-700'
                     } ${imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                     title={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone' ? 'Вирівнювання недоступне для inline режимів' : option.label}
                     disabled={imageBlock.layoutMode && imageBlock.layoutMode !== 'standalone'}
@@ -315,7 +315,7 @@ const ImageBasicActions: React.FC<ImageBasicActionsProps> = ({
                     className={`w-full px-2 py-1 text-left text-xs rounded transition-colors ${
                       imageBlock.borderRadius === option.value 
                         ? 'bg-blue-100 text-blue-700' 
-                        : 'hover:bg-blue-50'
+                        : 'hover:bg-blue-50 text-gray-700'
                     }`}
                   >
                     {option.label}
