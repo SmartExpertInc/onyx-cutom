@@ -125,10 +125,10 @@
         /* Chudo Theme */
         .theme-chudo-theme {
             --bg-color: #ffffff;
-            --title-color: #d01510;
+            --title-color: #ed6c00;
             --subtitle-color: #3a3a3a;
             --content-color: #3a3a3a;
-            --accent-color: #ed6c00;
+            --accent-color: #d01510;
             --border-color: #d01510;
             --title-font: 'Mont Bold', sans-serif;
             --content-font: 'Mont Regular', sans-serif;
@@ -138,12 +138,12 @@
         
         /* Chudo 2 Theme */
         .theme-chudo-2 {
-            --bg-color: #ed6c00;
-            --title-color: #ffffff;
+            --bg-color: #e8e9e3;
+            --title-color: #ed6c00;
             --subtitle-color: #3a3a3a;
-            --content-color: #ffffff;
+            --content-color: #3a3a3a;
             --accent-color: #d01510;
-            --border-color: #3a3a3a;
+            --border-color: #d01510;
             --title-font: 'Mont Bold', sans-serif;
             --content-font: 'Mont Regular', sans-serif;
             --title-size: 40px;
@@ -152,12 +152,12 @@
         
         /* Forta Theme */
         .theme-forta {
-            --bg-color: rgb(225, 211, 196);
-            --title-color: rgb(238, 118, 35);
-            --subtitle-color: rgb(0, 102, 79);
-            --content-color: rgb(65, 67, 73);
-            --accent-color: rgb(0, 102, 79);
-            --border-color: rgb(0, 102, 79);
+            --bg-color: #ffffff;
+            --title-color: #00664f;
+            --subtitle-color: #414349;
+            --content-color: #414349;
+            --accent-color: #ee7623;
+            --border-color: #ee7623;
             --title-font: 'Montserrat', sans-serif;
             --content-font: 'Montserrat', sans-serif;
             --title-size: 40px;
@@ -166,12 +166,12 @@
         
         /* Forta 2 Theme */
         .theme-forta-2 {
-            --bg-color: rgb(0, 102, 79);
-            --title-color: rgb(238, 118, 35);
-            --subtitle-color: #ffffff;
-            --content-color: #ffffff;
-            --accent-color: rgb(225, 211, 196);
-            --border-color: rgb(238, 118, 35);
+            --bg-color: #e1d3c4;
+            --title-color: #00664f;
+            --subtitle-color: #414349;
+            --content-color: #414349;
+            --accent-color: #ee7623;
+            --border-color: #ee7623;
             --title-font: 'Montserrat', sans-serif;
             --content-font: 'Montserrat', sans-serif;
             --title-size: 40px;
@@ -2034,19 +2034,48 @@
                 <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: 100%;
-                                    height: 100%;
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center;
+                            <!-- FRONTEND EXACT MATCH: Container with dimensions + element positioning -->
+                            <div style="
+                                position: relative;
+                                overflow: hidden;
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 500 }}px;
+                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 350 }}px;
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set imageId = slide.slideId + '-image' %}
+                                    {% if slide.metadata.elementPositions[imageId] %}
+                                        transform: translate({{ slide.metadata.elementPositions[imageId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[imageId].y|float|round(2) }}px);
                                     {% endif %}
-                                    border-radius: 8px; margin: 0 auto; max-width: none; max-height: none;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                {% endif %}
+                                transform-origin: top left;
+                            ">
+                                <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset or slide.props.imageScale %}
+                                            transform: 
+                                            {% if slide.props.imageOffset %}
+                                                translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
+                                            {% endif %}
+                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
+                                            {% endif %};
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px;
+                                        margin: 0;
+                                        padding: 0;
+                                        display: block;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            </div>
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
@@ -2080,19 +2109,50 @@
                 <div class="big-image-top">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="
-                                    width: 100%;
-                                    height: 240px;
-                                    object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                    {% if slide.props.imageOffset and (slide.props.imageOffset.x is defined or slide.props.imageOffset.y is defined) and slide.props.imageScale and slide.props.imageScale != 1 %}
-                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
-                                        transform-origin: center center;
+                            <!-- FRONTEND EXACT MATCH: Container with dimensions + element positioning -->
+                            <div style="
+                                position: relative;
+                                overflow: hidden;
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 800 }}px;
+                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 240 }}px;
+                                margin: 0 auto;
+                                margin-bottom: 24px !important;
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set imageId = slide.slideId + '-image' %}
+                                    {% if slide.metadata.elementPositions[imageId] %}
+                                        transform: translate({{ slide.metadata.elementPositions[imageId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[imageId].y|float|round(2) }}px);
                                     {% endif %}
-                                    margin: 0 auto; margin-bottom: 24px !important; border-radius: 8px; max-width: none; max-height: none;
-                                 "
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                {% endif %}
+                                transform-origin: top left;
+                            ">
+                                <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset or slide.props.imageScale %}
+                                            transform: 
+                                            {% if slide.props.imageOffset %}
+                                                translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
+                                            {% endif %}
+                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
+                                            {% endif %};
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px;
+                                        margin: 0;
+                                        padding: 0;
+                                        display: block;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            </div>
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
