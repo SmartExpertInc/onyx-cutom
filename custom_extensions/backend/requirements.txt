@@ -12,4 +12,22 @@ python-dotenv # To load .env variables
 python-multipart
 tiktoken
 openai
+aiohttp
+ffmpeg-python
+playwright
+Pillow
+opencv-python
+asyncio-mqtt
+
+# File handling
+pathlib2
+# Logging and monitoring
+structlog
+# Development dependencies (optional)
+pytest
+pytest-asyncio
+black
+flake8
+# Production dependencies
+gunicorn
 

@@ -282,6 +282,303 @@ export interface SlideEditor {
 
 // --- Utility Types ---
 
+// Avatar-based slide templates
+export interface AvatarSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  content?: string;
+  avatarPath?: string; // Path to uploaded avatar image
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  contentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithButtonsProps extends BaseTemplateProps {
+  title: string;
+  buttons: Array<{
+    text: string;
+    color?: string;
+  }>;
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  buttonColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithChecklistProps extends BaseTemplateProps {
+  title: string;
+  items: Array<{
+    text: string;
+    isPositive: boolean; // true for checkmark, false for X
+  }>;
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  itemColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithStepsProps extends BaseTemplateProps {
+  title: string;
+  steps: string[];
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  stepColor?: string;
+  voiceoverText?: string;
+}
+
+export interface AvatarWithQuoteProps extends BaseTemplateProps {
+  title: string;
+  quote: string;
+  author?: string;
+  avatarPath?: string;
+  avatarAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  quoteColor?: string;
+  authorColor?: string;
+  voiceoverText?: string;
+}
+
+// New slide templates based on provided images
+export interface CourseOverviewSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  imagePath?: string;
+  imageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  imagePath?: string;
+  imageAlt?: string;
+  logoPath?: string;
+  logoAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface ThankYouSlideProps extends BaseTemplateProps {
+  title: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  companyName: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  textColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+// New slide templates based on images
+export interface BenefitsListSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  description: string;
+  benefits: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  currentStep?: number;
+  totalSteps?: number;
+  companyName?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  mainStatement: string;
+  practices: Array<{
+    number: number;
+    title: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  teamImagePath?: string;
+  teamImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface BenefitsTagsSlideProps extends BaseTemplateProps {
+  title: string;
+  tags: Array<{
+    text: string;
+    isHighlighted?: boolean;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  companyLogoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface LearningTopicsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  topics: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
+  title: string;
+  tips: Array<{
+    text: string;
+    isHighlighted?: boolean;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface TwoColumnSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
+  title: string;
+  definitions: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface ImpactStatementsSlideProps extends BaseTemplateProps {
+  title: string;
+  statements: Array<{
+    number: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface BarChartSlideProps extends BaseTemplateProps {
+  title?: string;
+  bars: Array<{
+    percentage: string;
+    description: string;
+    height: number; // Height in pixels or percentage
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  website?: string;
+  date?: string;
+  pageNumber?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface CriticalThinkingSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  highlightedPhrases: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  companyLogoAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface PsychologicalSafetySlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface DataAnalysisSlideProps extends BaseTemplateProps {
+  title: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  excelIconPath?: string;
+  excelIconAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -297,7 +594,27 @@ export type TemplateId =
   | 'four-box-grid'
   | 'timeline'
   | 'big-numbers'
-  | 'pyramid';
+  | 'pyramid'
+  | 'avatar-service-slide'
+  | 'avatar-with-buttons'
+  | 'avatar-checklist'
+  | 'avatar-steps'
+  | 'avatar-crm'
+  | 'course-overview-slide'
+  | 'work-life-balance-slide'
+  | 'thank-you-slide'
+  | 'benefits-list-slide'
+  | 'hybrid-work-best-practices-slide'
+  | 'benefits-tags-slide'
+  | 'learning-topics-slide'
+  | 'soft-skills-assessment-slide'
+  | 'two-column-slide'
+  | 'phishing-definition-slide'
+  | 'impact-statements-slide'
+  | 'bar-chart-slide'
+  | 'critical-thinking-slide'
+  | 'psychological-safety-slide'
+  | 'data-analysis-slide';
 
 export interface TemplatePreview {
   templateId: string;
