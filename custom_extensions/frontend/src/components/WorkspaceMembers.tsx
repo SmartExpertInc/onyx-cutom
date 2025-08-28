@@ -342,12 +342,12 @@ const WorkspaceMembers: React.FC = () => {
                         <select
                           value={member.roleId}
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                          className="w-full px-2 py-3 border border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-transparent"
+                          className="px-4 py-2 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
                           required
                         >
                           {customRoles.map((role) => (
-                            <option key={role.id} value={role.id}>
-                              <span style={{ color: role.textColor }}>{role.name}</span>
+                            <option key={role.id} value={role.id} style={{ color: role.textColor }}>
+                              {role.name}
                             </option>
                           ))}
                         </select>
@@ -554,7 +554,7 @@ const WorkspaceMembers: React.FC = () => {
                         <Palette size={16} className="text-gray-600" />
                       </button>
                       {showColorPalette && (
-                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-5 gap-1 w-48">
+                        <div className="absolute top-0 right-full mr-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-5 gap-1 w-48 z-50">
                           {ROLE_COLORS.map((colorOption) => (
                             <button
                               key={colorOption.bg}
