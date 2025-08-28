@@ -185,18 +185,21 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                       selectedAvatar?.id === avatar.id && !selectedVariant ? 'bg-blue-50 text-blue-700' : ''
                     }`}
                   >
-                    {getDisplayImage(avatar) ? (
-                      <img 
-                        src={getDisplayImage(avatar)} 
-                        alt={avatar.name}
-                        className="w-6 h-6 rounded-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <User size={16} className="text-gray-500" />
-                    )}
+                    {(() => {
+                      const displayImage = getDisplayImage(avatar);
+                      return displayImage ? (
+                        <img 
+                          src={displayImage} 
+                          alt={avatar.name}
+                          className="w-6 h-6 rounded-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <User size={16} className="text-gray-500" />
+                      );
+                    })()}
                     <span className="text-sm">{avatar.name}</span>
                     {avatar.gender && (
                       <span className="text-xs text-gray-400">({avatar.gender})</span>
@@ -214,18 +217,21 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                             selectedAvatar?.id === avatar.id && selectedVariant?.id === variant.id ? 'bg-blue-50 text-blue-700' : ''
                           }`}
                         >
-                          {getDisplayImage(avatar, variant) ? (
-                            <img 
-                              src={getDisplayImage(avatar, variant)} 
-                              alt={getDisplayName(avatar, variant)}
-                              className="w-4 h-4 rounded-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <User size={12} className="text-gray-400" />
-                          )}
+                          {(() => {
+                            const displayImage = getDisplayImage(avatar, variant);
+                            return displayImage ? (
+                              <img 
+                                src={displayImage} 
+                                alt={getDisplayName(avatar, variant)}
+                                className="w-4 h-4 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <User size={12} className="text-gray-400" />
+                            );
+                          })()}
                           <span>• {variant.name}</span>
                         </button>
                       ))}
