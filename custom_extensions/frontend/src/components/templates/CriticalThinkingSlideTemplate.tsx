@@ -5,122 +5,7 @@ import { CriticalThinkingSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps & {
   theme?: SlideTheme | string;
@@ -252,16 +137,16 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
             }}
           >
             {isEditable && editingHighlightedPhrases === index ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={phrase}
                 onSave={(value) => handleHighlightedPhraseSave(index, value)}
                 onCancel={handleHighlightedPhraseCancel}
                 className="highlighted-phrase-editor"
                 style={{
                   backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: themeContent
+                  color: '#DA8372',
+                  width: '100%',
+                  height: 'auto'
                 }}
               />
             ) : (
@@ -350,7 +235,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           top: '50px',
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
@@ -362,12 +247,9 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 width: '100%',
-                height: '100%',
+                height: 'auto',
                 minHeight: '60px',
-                maxHeight: '120px',
-                overflow: 'hidden',
-                position: 'absolute',
-                top: '50px',
+                maxHeight: '120px'
               }}
             />
           ) : (
@@ -399,7 +281,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           marginTop: '30px'
         }}>
           {isEditable && editingContent ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={currentContent}
               onSave={handleContentSave}
               onCancel={handleContentCancel}
@@ -408,10 +290,11 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               style={{
                 fontSize: '34px',
                 color: themeContent,
-                lineHeight: '1.5',
+                lineHeight: '1.6',
                 maxWidth: '600px',
                 width: '100%',
-                marginTop: '30px'
+                height: 'auto',
+                minHeight: '40px'
               }}
             />
           ) : (

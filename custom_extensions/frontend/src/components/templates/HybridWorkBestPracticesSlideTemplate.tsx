@@ -4,122 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
@@ -269,7 +154,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               fontWeight: '300'
             }}>
               {isEditable && editingTitle ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentTitle}
                   onSave={handleTitleSave}
                   onCancel={handleTitleCancel}
@@ -277,7 +162,9 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   style={{
                     fontSize: '14px',
                     color: themeContent,
-                    fontWeight: '300'
+                    fontWeight: '300',
+                    width: '100%',
+                    height: 'auto'
                   }}
                 />
               ) : (
@@ -302,7 +189,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               marginBottom: '40px'
             }}>
               {isEditable && editingMainStatement ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentMainStatement}
                   onSave={handleMainStatementSave}
                   onCancel={handleMainStatementCancel}
@@ -312,7 +199,9 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     fontSize: '24px',
                     maxWidth: '335px',
                     color: themeTitle,
-                    lineHeight: '1.3'
+                    lineHeight: '1.3',
+                    width: '100%',
+                    height: 'auto'
                   }}
                 />
               ) : (
@@ -407,16 +296,17 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     lineHeight: '1.2'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
-                      <InlineEditor
+                      <ImprovedInlineEditor
                         initialValue={practice.title}
                         onSave={(value) => handlePracticeSave(index, 'title', value)}
                         onCancel={handlePracticeCancel}
                         className="practice-title-editor"
                         style={{
-                          fontSize: '18px',
-                          fontWeight: 'bold',
+                          fontSize: '13px',
                           color: themeTitle,
-                          lineHeight: '1.2'
+                          lineHeight: '1.2',
+                          width: '100%',
+                          height: 'auto'
                         }}
                       />
                     ) : (
@@ -439,16 +329,19 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     lineHeight: '1.4'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
-                      <InlineEditor
+                      <ImprovedInlineEditor
                         initialValue={practice.description}
                         onSave={(value) => handlePracticeSave(index, 'description', value)}
                         onCancel={handlePracticeCancel}
                         multiline={true}
                         className="practice-description-editor"
                         style={{
-                          fontSize: '14px',
+                          fontSize: '11px',
                           color: themeContent,
-                          lineHeight: '1.4'
+                          lineHeight: '1.4',
+                          width: '100%',
+                          height: 'auto',
+                          minHeight: '40px'
                         }}
                       />
                     ) : (

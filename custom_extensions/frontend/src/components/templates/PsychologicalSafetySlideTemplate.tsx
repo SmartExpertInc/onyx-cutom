@@ -250,7 +250,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               multiline={true}
               className="psychological-safety-title-editor"
               style={{
-                fontSize: '36px',
+                fontSize: '30px',
                 color: themeBg,
                 fontWeight: 'bold',
                 lineHeight: '1.2'

@@ -4,122 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { LearningTopicsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   theme?: SlideTheme | string;
@@ -250,7 +135,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             fontWeight: '300'
           }}>
             {isEditable && editingSubtitle ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={currentSubtitle}
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
@@ -258,7 +143,9 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 style={{
                   fontSize: '14px',
                   color: themeContent,
-                  fontWeight: '300'
+                  fontWeight: '300',
+                  width: '100%',
+                  height: 'auto'
                 }}
               />
             ) : (
@@ -283,16 +170,20 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             marginBottom: '60px'
           }}>
             {isEditable && editingTitle ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={currentTitle}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
+                multiline={true}
                 className="learning-title-editor"
                 style={{
-                  maxWidth: '275px',
+                  maxWidth: '321px',
                   fontSize: '51px',
                   color: themeTitle,
-                  lineHeight: '1.1'
+                  lineHeight: '1.1',
+                  width: '100%',
+                  height: 'auto',
+                  minHeight: '60px'
                 }}
               />
             ) : (
@@ -335,14 +226,17 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                   minWidth: '120px'
                 }}>
                   {isEditable && editingTopics === index ? (
-                    <InlineEditor
+                    <ImprovedInlineEditor
                       initialValue={topic}
                       onSave={(value) => handleTopicSave(index, value)}
                       onCancel={handleTopicCancel}
                       className="topic-editor"
                       style={{
                         fontSize: '24px',
-                        color: themeTitle
+                        color: themeTitle,
+                        width: '100%',
+                        height: 'auto',
+                        minWidth: '120px'
                       }}
                     />
                   ) : (
@@ -381,15 +275,17 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             fontWeight: '300'
           }}>
             {isEditable && editingCompanyName ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={currentCompanyName}
                 onSave={handleCompanyNameSave}
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
                 style={{
-                  fontSize: '10px',
+                  fontSize: '14px',
                   color: themeContent,
-                  fontWeight: '300'
+                  fontWeight: '300',
+                  width: '100%',
+                  height: 'auto'
                 }}
               />
             ) : (

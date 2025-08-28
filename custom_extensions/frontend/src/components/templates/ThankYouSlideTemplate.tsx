@@ -4,122 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   theme?: SlideTheme | string;
@@ -265,23 +150,20 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
-          <InlineEditor
+          <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
             style={{
-              fontSize: '74px',
+              fontSize: '80px',
+              fontWeight: 'bold',
               color: themeTitle,
               lineHeight: '1.1',
               fontFamily: currentTheme.fonts.titleFont,
-              position: 'absolute',
-              top: '0',
-              left: '0',
               width: '100%',
-              height: '100%',
-              margin: '0',
-              padding: '0'
+              height: 'auto',
+              minHeight: '60px'
             }}
           />
         ) : (
@@ -338,7 +220,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             
             <div style={{ marginBottom: '15px', position: 'relative' }}>
               {isEditable && editingEmail ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentEmail}
                   onSave={handleEmailSave}
                   onCancel={handleEmailCancel}
@@ -347,13 +229,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     fontSize: '18px',
                     color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
                     width: '100%',
-                    height: '100%',
-                    margin: '0',
-                    padding: '0'
+                    height: 'auto'
                   }}
                 />
               ) : (
@@ -375,7 +252,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
             <div style={{ position: 'relative' }}>
               {isEditable && editingPhone ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentPhone}
                   onSave={handlePhoneSave}
                   onCancel={handlePhoneCancel}
@@ -384,13 +261,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     fontSize: '18px',
                     color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
                     width: '100%',
-                    height: '100%',
-                    margin: '0',
-                    padding: '0'
+                    height: 'auto'
                   }}
                 />
               ) : (
@@ -424,7 +296,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             
             <div style={{ marginBottom: '15px', position: 'relative' }}>
               {isEditable && editingAddress ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentAddress}
                   onSave={handleAddressSave}
                   onCancel={handleAddressCancel}
@@ -433,13 +305,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     fontSize: '22px',
                     color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
                     width: '100%',
-                    height: '100%',
-                    margin: '0',
-                    padding: '0'
+                    height: 'auto'
                   }}
                 />
               ) : (
@@ -461,7 +328,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
             <div style={{ position: 'relative' }}>
               {isEditable && editingPostalCode ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentPostalCode}
                   onSave={handlePostalCodeSave}
                   onCancel={handlePostalCodeCancel}
@@ -470,13 +337,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     fontSize: '22px',
                     color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
                     width: '100%',
-                    height: '100%',
-                    margin: '0',
-                    padding: '0'
+                    height: 'auto'
                   }}
                 />
               ) : (
@@ -557,7 +419,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         }} />
         <div style={{ position: 'relative' }}>
           {isEditable && editingCompanyName ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={currentCompanyName}
               onSave={handleCompanyNameSave}
               onCancel={handleCompanyNameCancel}
@@ -566,13 +428,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 fontSize: '14px',
                 color: themeSubtitle,
                 fontFamily: currentTheme.fonts.contentFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
                 width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                height: 'auto'
               }}
             />
           ) : (

@@ -243,7 +243,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               multiline={true}
               className="soft-skills-title-editor"
               style={{
-                fontSize: '36px',
+                fontSize: '61px',
                 fontWeight: 'bold',
                 color: themeTitle,
                 lineHeight: '1.2'
@@ -326,7 +326,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     multiline={true}
                     className="tip-editor"
                     style={{
-                      fontSize: '27px',
+                      fontSize: '29px',
                       fontWeight: '500',
                       color: themeBg,
                       lineHeight: '1.4',
