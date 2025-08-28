@@ -145,6 +145,46 @@ export default function Projects2ViewPage() {
     }
   };
 
+  // NEW: Function to delete slide (following old interface pattern)
+  const handleDeleteSlide = (slideId: string) => {
+    if (!videoLessonData || videoLessonData.slides.length <= 1) {
+      console.log('Cannot delete slide: no data or only one slide remaining');
+      return;
+    }
+
+    console.log('Deleting slide:', slideId);
+    
+    // Filter out the deleted slide and renumber remaining slides
+    const updatedSlides = videoLessonData.slides
+      .filter(slide => slide.slideId !== slideId)
+      .map((slide, index) => ({
+        ...slide,
+        slideNumber: index + 1
+      }));
+
+    const updatedData = {
+      ...videoLessonData,
+      slides: updatedSlides
+    };
+
+    // Handle current slide selection after deletion
+    let newCurrentSlideId = currentSlideId;
+    if (currentSlideId === slideId) {
+      // If we deleted the current slide, select the next one or previous one
+      const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
+      const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
+      newCurrentSlideId = nextSlide?.slideId;
+    }
+
+    setVideoLessonData(updatedData);
+    setCurrentSlideId(newCurrentSlideId);
+    
+    // Save to backend
+    saveVideoLessonData(updatedData);
+    
+    console.log('Slide deleted successfully. New current slide:', newCurrentSlideId);
+  };
+
   // NEW: Load Video Lesson data on component mount
   useEffect(() => {
     console.log('useEffect triggered with projectId:', projectId);
@@ -260,10 +300,35 @@ export default function Projects2ViewPage() {
     setMenuPosition(null);
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openMenuSceneId && menuPosition) {
+        const target = event.target as HTMLElement;
+        // Check if click is outside the menu popup
+        if (!target.closest('[data-menu-popup]')) {
+          closeMenu();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuSceneId, menuPosition]);
+
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
     console.log(`${action} for ${sceneId}`);
-    // TODO: Implement actual actions
+    
+    if (action === 'delete' && isVideoLessonMode) {
+      handleDeleteSlide(sceneId);
+    } else {
+      // TODO: Implement other actions for regular scenes
+      console.log(`Action ${action} not implemented yet`);
+    }
+    
     closeMenu();
   };
 
@@ -505,6 +570,7 @@ export default function Projects2ViewPage() {
       {/* Portal Popup Menu */}
       {openMenuSceneId && menuPosition && typeof window !== 'undefined' && createPortal(
         <div 
+          data-menu-popup
           className="fixed z-[9999] bg-white rounded-md shadow-lg border border-gray-200 min-w-[180px] py-1"
           style={{
             left: menuPosition.x,
@@ -544,17 +610,21 @@ export default function Projects2ViewPage() {
           <div className="border-t border-gray-200 my-1"></div>
           <button 
             className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center gap-2 ${
-              openMenuSceneId === 'scene-1' 
+              (isVideoLessonMode && videoLessonData && videoLessonData.slides.length <= 1) || 
+              (!isVideoLessonMode && openMenuSceneId === 'scene-1')
                 ? 'text-gray-400 cursor-not-allowed' 
                 : 'text-gray-700 hover:bg-gray-50'
             }`}
-            onClick={() => console.log('Delete scene - disabled for now')} // handleDeleteScene(openMenuSceneId) - commented out for now
-            disabled={openMenuSceneId === 'scene-1'}
+            onClick={() => handleMenuAction('delete', openMenuSceneId)}
+            disabled={
+              (isVideoLessonMode && videoLessonData && videoLessonData.slides.length <= 1) || 
+              (!isVideoLessonMode && openMenuSceneId === 'scene-1')
+            }
           >
             <svg className="w-4 h-4" fill="currentColor" fillRule="evenodd" viewBox="0 0 16 16">
               <path d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clipRule="evenodd"/>
             </svg>
-            Delete Scene
+            {isVideoLessonMode ? 'Delete Slide' : 'Delete Scene'}
           </button>
         </div>,
         document.body
