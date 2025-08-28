@@ -1,4 +1,4 @@
-// custom_extensions/frontend/src/components/templates/BarChartSlideTemplate.tsx
+// custom_extensions/frontend/src/components/templates/BarChartSlideTemplate.tsx!
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BarChartSlideProps } from '@/types/slideTemplates';
