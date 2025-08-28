@@ -645,6 +645,7 @@ export default function TextPresentationClient() {
         setError(null);
         setContent(""); // Clear previous content
         setTextareaVisible(true);
+        setLoading(false);
         let gotFirstChunk = false;
 
         try {
@@ -750,7 +751,7 @@ export default function TextPresentationClient() {
 
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
-              setLoading(false); // Hide spinner & show textarea
+
             }
 
             // Force state update to ensure UI reflects content changes
@@ -1499,8 +1500,8 @@ export default function TextPresentationClient() {
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
                           className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${isSelected
-                              ? 'bg-[#cee2fd]'
-                              : ''
+                            ? 'bg-[#cee2fd]'
+                            : ''
                             }`}
                         >
                           <div className="w-[214px] h-[116px] flex items-center justify-center">

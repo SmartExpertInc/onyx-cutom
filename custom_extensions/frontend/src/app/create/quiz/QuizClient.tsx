@@ -507,6 +507,7 @@ export default function QuizClient() {
         setError(null);
         setQuizData(""); // Clear previous content
         setTextareaVisible(true);
+        setLoading(false);
         let gotFirstChunk = false;
 
         try {
@@ -604,7 +605,6 @@ export default function QuizClient() {
 
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
-              setLoading(false); // Hide spinner & show textarea
             }
           }
         } catch (error: any) {

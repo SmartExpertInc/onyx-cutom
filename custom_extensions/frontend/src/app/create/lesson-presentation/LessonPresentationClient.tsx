@@ -433,6 +433,7 @@ export default function LessonPresentationClient() {
         setError(null);
         setContent("");
         setTextareaVisible(true);
+        setLoading(false); // Clear previous content
         let gotFirstChunk = false;
 
         try {
@@ -545,7 +546,6 @@ export default function LessonPresentationClient() {
             if (hasMeaningfulText && !textareaVisible) {
               // console.log("hasMeaningfulText",);
               setTextareaVisible(true);
-              setLoading(false); // Hide spinner & show textarea
             }
 
             // Force state update to ensure UI reflects content changes
@@ -1447,8 +1447,8 @@ export default function LessonPresentationClient() {
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
                           className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${isSelected
-                              ? 'bg-[#cee2fd]'
-                              : ''
+                            ? 'bg-[#cee2fd]'
+                            : ''
                             }`}
                         >
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
