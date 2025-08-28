@@ -225,16 +225,19 @@ export default function SceneTimeline({
           {/* Add Slide Button - positioned at the end */}
           {videoLessonData && onAddSlide ? (
             <div className="relative flex-shrink-0">
-              <div 
-                className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                style={getSceneRectangleStyles()}
-              >
-                <SlideAddButton
-                  currentSlideCount={videoLessonData.slides.length}
-                  onAddSlide={onAddSlide}
-                  isVisible={true}
-                />
-              </div>
+              <SlideAddButton
+                currentSlideCount={videoLessonData.slides.length}
+                onAddSlide={onAddSlide}
+                isVisible={true}
+                position="relative"
+                left="auto"
+                top="auto"
+                transform="none"
+                containerStyle={{
+                  width: '64px',
+                  height: '64px'
+                }}
+              />
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2">
                 <span className="text-sm font-medium text-gray-700">Add Slide</span>
               </div>

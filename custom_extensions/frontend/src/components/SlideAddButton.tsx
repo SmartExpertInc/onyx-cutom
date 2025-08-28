@@ -12,12 +12,24 @@ interface SlideAddButtonProps {
   onAddSlide: (newSlide: ComponentBasedSlide) => void;
   /** Whether the button should be visible */
   isVisible?: boolean;
+  /** Positioning props - if not provided, uses default fixed positioning */
+  position?: 'fixed' | 'absolute' | 'relative';
+  left?: string | number;
+  top?: string | number;
+  transform?: string;
+  /** Custom container styles */
+  containerStyle?: React.CSSProperties;
 }
 
 export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
   currentSlideCount,
   onAddSlide,
-  isVisible = true
+  isVisible = true,
+  position = 'fixed',
+  left = '20px',
+  top = '50%',
+  transform = 'translateY(-50%)',
+  containerStyle = {}
 }) => {
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -80,14 +92,15 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
     <div 
       ref={dropdownRef}
       style={{
-        position: 'fixed',
-        left: '20px',
-        top: '50%',
-        transform: 'translateY(-50%)',
+        position,
+        left,
+        top,
+        transform,
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        ...containerStyle
       }}
     >
       {/* Main Add Button */}
