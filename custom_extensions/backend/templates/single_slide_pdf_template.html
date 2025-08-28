@@ -2175,8 +2175,8 @@
                                 <img src="{{ slide.props.imagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '320px' }};
-                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '320px' }};
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '480px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '480px' }};
                                         margin: 0; margin-bottom: 24px !important; 
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
                                         transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
@@ -2188,7 +2188,7 @@
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
                                     <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
                                     <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">50% × 50%</div>
+                                    <div style="font-size: 12px; color: #868e96;">480px × 480px</div>
                                 </div>
                             {% else %}
                                 <div class="placeholder" style="width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; aspect-ratio: 1 / 1;">
