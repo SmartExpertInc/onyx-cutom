@@ -198,6 +198,39 @@ def parse_id_list(id_string: str, context_name: str) -> List[int]:
                 id_list.append(int(id_stripped))
             elif id_stripped:  # Log non-empty invalid parts
                 logger.warning(f"[ID_PARSING] Skipping invalid {context_name} ID: '{id_stripped}'")
+    
+    except Exception as e:
+        logger.error(f"[ID_PARSING] Error parsing {context_name} IDs from '{id_string}': {e}")
+        return []
+    
+    return id_list
+
+def parse_completion_time_to_minutes(completion_time_str: str) -> int:
+    """
+    Parse completion time string to minutes, handling all language-specific time units.
+    
+    Args:
+        completion_time_str: String like "5m", "6м", "7хв", "8m", etc.
+    
+    Returns:
+        Minutes as integer, defaults to 5 if parsing fails
+    """
+    if not completion_time_str:
+        return 5
+    
+    time_str = str(completion_time_str).strip()
+    if not time_str:
+        return 5
+    
+    # Remove all language-specific minute units
+    # English: m, Russian: м, Ukrainian: хв, Spanish: m
+    cleaned_str = time_str.replace('m', '').replace('м', '').replace('хв', '')
+    
+    try:
+        minutes = int(cleaned_str)
+        return minutes if minutes > 0 else 5
+    except (ValueError, TypeError):
+        return 5
         
         logger.debug(f"[ID_PARSING] Parsed {context_name} IDs from '{id_string}': {id_list}")
         return id_list
@@ -16208,33 +16241,7 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     
                                     # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
-                                    completion_time_minutes = 5  # Default to 5 minutes
-                                    
-                                    if completion_time_str:
-                                        time_str = str(completion_time_str).strip()
-                                        if time_str and time_str != '':
-                                            if time_str.endswith('m'):
-                                                try:
-                                                    completion_time_minutes = int(time_str[:-1])
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.endswith('h'):
-                                                try:
-                                                    hours = int(time_str[:-1])
-                                                    completion_time_minutes = hours * 60
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.isdigit():
-                                                try:
-                                                    completion_time_minutes = int(time_str)
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            else:
-                                                completion_time_minutes = 5  # Fallback to 5 minutes
-                                        else:
-                                            completion_time_minutes = 5  # Empty string, use 5 minutes
-                                    else:
-                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    completion_time_minutes = parse_completion_time_to_minutes(completion_time_str)
                                     
                                     # Add to total completion time
                                     total_completion_time += completion_time_minutes
@@ -16587,33 +16594,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                                 if isinstance(lesson, dict):
                                     # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
-                                    completion_time_minutes = 5  # Default to 5 minutes
-                                    
-                                    if completion_time_str:
-                                        time_str = str(completion_time_str).strip()
-                                        if time_str and time_str != '':
-                                            if time_str.endswith('m'):
-                                                try:
-                                                    completion_time_minutes = int(time_str[:-1])
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.endswith('h'):
-                                                try:
-                                                    hours = int(time_str[:-1])
-                                                    completion_time_minutes = hours * 60
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.isdigit():
-                                                try:
-                                                    completion_time_minutes = int(time_str)
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            else:
-                                                completion_time_minutes = 5  # Fallback to 5 minutes
-                                        else:
-                                            completion_time_minutes = 5  # Empty string, use 5 minutes
-                                    else:
-                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    completion_time_minutes = parse_completion_time_to_minutes(completion_time_str)
                                     
                                     # Calculate hours using completion time (or 5 minutes default)
                                     lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
@@ -16739,33 +16720,7 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                                     
                                     # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
-                                    completion_time_minutes = 5  # Default to 5 minutes
-                                    
-                                    if completion_time_str:
-                                        time_str = str(completion_time_str).strip()
-                                        if time_str and time_str != '':
-                                            if time_str.endswith('m'):
-                                                try:
-                                                    completion_time_minutes = int(time_str[:-1])
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.endswith('h'):
-                                                try:
-                                                    hours = int(time_str[:-1])
-                                                    completion_time_minutes = hours * 60
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.isdigit():
-                                                try:
-                                                    completion_time_minutes = int(time_str)
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            else:
-                                                completion_time_minutes = 5  # Fallback to 5 minutes
-                                        else:
-                                            completion_time_minutes = 5  # Empty string, use 5 minutes
-                                    else:
-                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    completion_time_minutes = parse_completion_time_to_minutes(completion_time_str)
                                     
                                     # Recalculate hours with new project rate using completion time (or 5 minutes default)
                                     lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
@@ -16935,35 +16890,9 @@ async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(g
                             # Sum up completion time and use existing lesson hours for this section
                             for lesson in lessons:
                                 if isinstance(lesson, dict):
-                                    # Parse completion time (e.g., "5m", "6m", "7m", "8m") - treat missing as 5 minutes
+                                    # Parse completion time (e.g., "5m", "6м", "7хв", "8m") - treat missing as 5 minutes
                                     completion_time_str = lesson.get("completionTime", "")
-                                    completion_time_minutes = 5  # Default to 5 minutes
-                                    
-                                    if completion_time_str:
-                                        time_str = str(completion_time_str).strip()
-                                        if time_str and time_str != '':
-                                            if time_str.endswith('m'):
-                                                try:
-                                                    completion_time_minutes = int(time_str[:-1])
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.endswith('h'):
-                                                try:
-                                                    hours = int(time_str[:-1])
-                                                    completion_time_minutes = hours * 60
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            elif time_str.isdigit():
-                                                try:
-                                                    completion_time_minutes = int(time_str)
-                                                except ValueError:
-                                                    completion_time_minutes = 5  # Fallback to 5 minutes
-                                            else:
-                                                completion_time_minutes = 5  # Fallback to 5 minutes
-                                        else:
-                                            completion_time_minutes = 5  # Empty string, use 5 minutes
-                                    else:
-                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    completion_time_minutes = parse_completion_time_to_minutes(completion_time_str)
                                     
                                     # Add to totals
                                     section_completion_time += completion_time_minutes
@@ -17158,32 +17087,7 @@ async def download_projects_list_pdf(
                                 
                                 # Calculate completion time - treat missing completion time as 5 minutes
                                 completion_time_str = lesson.get('completionTime', '')
-                                if completion_time_str:
-                                    time_str = str(completion_time_str).strip()
-                                    if time_str and time_str != '':
-                                        if time_str.endswith('m'):
-                                            try:
-                                                minutes = int(time_str[:-1])
-                                                total_completion_time += minutes
-                                            except ValueError:
-                                                total_completion_time += 5  # Fallback to 5 minutes
-                                        elif time_str.endswith('h'):
-                                            try:
-                                                hours = int(time_str[:-1])
-                                                total_completion_time += (hours * 60)
-                                            except ValueError:
-                                                total_completion_time += 5  # Fallback to 5 minutes
-                                        elif time_str.isdigit():
-                                            try:
-                                                total_completion_time += int(time_str)
-                                            except ValueError:
-                                                total_completion_time += 5  # Fallback to 5 minutes
-                                        else:
-                                            total_completion_time += 5  # Fallback to 5 minutes
-                                    else:
-                                        total_completion_time += 5  # Empty string, use 5 minutes
-                                else:
-                                    total_completion_time += 5  # No completion time, use 5 minutes
+                                total_completion_time += parse_completion_time_to_minutes(completion_time_str)
             
             projects_data.append({
                 'id': row_dict['id'],
