@@ -275,7 +275,11 @@ export const DocumentDisplay = ({
                   >
                     <CustomTooltip showTick line content="Toggle content">
                       <LightBulbIcon
-                        className={`text-black my-auto ml-2 h-4 w-4 cursor-pointer`}
+                        className={`${
+                          settings?.isMobile && alternativeToggled
+                            ? "text-green-600"
+                            : "text-blue-600"
+                        } my-auto ml-2 h-4 w-4 cursor-pointer`}
                       />
                     </CustomTooltip>
                   </button>
