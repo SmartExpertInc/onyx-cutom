@@ -283,7 +283,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              width: '100%',
              height: '100%',
              borderRadius: '50%',
-             objectFit: 'cover'
+             overflow: 'hidden'
            }}
          />
        </div>
