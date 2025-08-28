@@ -27,6 +27,53 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
   const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
+  // Function to extract actual slide data from current project
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
+    
+    try {
+      // Try to get slide data from the global window object (if SmartSlideDeckViewer exposed it)
+      const slideViewerData = (window as any).currentSlideData;
+      if (slideViewerData?.deck?.slides) {
+        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        return {
+          slides: slideViewerData.deck.slides,
+          theme: slideViewerData.deck.theme || 'dark-purple'
+        };
+      }
+
+      // Fallback: Try to extract from the URL by getting project ID and fetching data
+      const currentUrl = window.location.href;
+      const projectIdMatch = currentUrl.match(/\/projects\/view\/(\d+)/);
+      
+      if (projectIdMatch) {
+        const projectId = projectIdMatch[1];
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted project ID from URL:', projectId);
+        
+        // Fetch project data from API
+        const response = await fetch(`/api/custom/projects/${projectId}`);
+        if (response.ok) {
+          const projectData = await response.json();
+          console.log('🎬 [VIDEO_DOWNLOAD] Fetched project data:', projectData);
+          
+          if (projectData.details?.slides) {
+            return {
+              slides: projectData.details.slides,
+              theme: projectData.details.theme || 'dark-purple'
+            };
+          }
+        }
+      }
+
+      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
+      return { slides: [], theme: 'dark-purple' };
+      
+    } catch (error) {
+      console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
+      return { slides: [], theme: 'dark-purple' };
+    }
+  };
+
   const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
     setSelectedAvatar(avatar);
     setSelectedVariant(variant || undefined);
@@ -53,6 +100,20 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code
       });
 
+      // Extract slide data
+      const slideData = await extractSlideData();
+      
+      if (!slideData.slides || slideData.slides.length === 0) {
+        const errorMsg = 'No slide data found. Please make sure you have a slide open.';
+        console.error('🎬 [VIDEO_DOWNLOAD]', errorMsg);
+        onError?.(errorMsg);
+        return;
+      }
+
+      console.log('🎬 [VIDEO_DOWNLOAD] Slide data extracted successfully');
+      console.log('🎬 [VIDEO_DOWNLOAD] Slides count:', slideData.slides.length);
+      console.log('🎬 [VIDEO_DOWNLOAD] Theme:', slideData.theme);
+
       // Create the request payload
       const requestPayload = {
         projectName: projectName || 'Generated Video',
@@ -61,10 +122,11 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
           "Let's dive into the main content. This presentation covers important topics that are essential for your learning journey.",
           "As we conclude, remember these key points. They will serve as a foundation for your continued growth and development."
         ],
+        slidesData: slideData.slides,  // Add the extracted slide data
+        theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
         useAvatarMask: true,
         layout: 'picture_in_picture',
-        theme: 'dark-purple',
         duration: 30.0,
         quality: 'high',
         resolution: [1920, 1080]
