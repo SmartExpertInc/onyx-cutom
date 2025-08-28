@@ -1,13 +1,25 @@
 import React from 'react';
+import { VideoLessonData } from '@/types/videoLessonTypes';
 
 interface VideoPresentationProps {
   aspectRatio: string;
   onElementSelect: (elementType: string | null) => void;
   selectedElement: string | null;
   onRightClick: (position: { x: number; y: number }) => void;
+  videoLessonData: VideoLessonData | undefined;
+  currentSlideId: string | undefined;
+  onSlideChange: (slideId: string) => void;
 }
 
-export default function VideoPresentation({ aspectRatio, onElementSelect, selectedElement, onRightClick }: VideoPresentationProps) {
+export default function VideoPresentation({ 
+  aspectRatio, 
+  onElementSelect, 
+  selectedElement, 
+  onRightClick,
+  videoLessonData,
+  currentSlideId,
+  onSlideChange
+}: VideoPresentationProps) {
   // Function to get video container styles based on aspect ratio
   const getVideoContainerStyles = () => {
     switch (aspectRatio) {
