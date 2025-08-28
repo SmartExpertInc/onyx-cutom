@@ -268,7 +268,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          borderRadius: '50%',
          display: 'flex',
          alignItems: 'center',
-         justifyContent: 'center'
+         justifyContent: 'center',
+         overflow: 'hidden'
        }}>
          <ClickableImagePlaceholder
            imagePath={profileImagePath}
