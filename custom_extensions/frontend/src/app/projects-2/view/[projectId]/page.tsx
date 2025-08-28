@@ -78,6 +78,9 @@ export default function Projects2ViewPage() {
   const [currentSlideId, setCurrentSlideId] = useState<string | undefined>(undefined);
   const [isVideoLessonMode, setIsVideoLessonMode] = useState<boolean>(false);
   const [isComponentBasedVideoLesson, setIsComponentBasedVideoLesson] = useState<boolean>(false);
+  
+  // NEW: Settings panel state for video lesson buttons
+  const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
 
   // Function to add a new scene (commented out for now - focusing on Video Lessons)
   // const handleAddScene = () => {
@@ -509,6 +512,16 @@ export default function Projects2ViewPage() {
     setIsLanguageVariantModalOpen(false);
   };
 
+  // NEW: Handler for video lesson settings buttons
+  const handleSettingsButtonClick = (settingsType: string) => {
+    setActiveSettingsPanel(settingsType);
+  };
+
+  // NEW: Handler to close settings panel
+  const handleCloseSettingsPanel = () => {
+    setActiveSettingsPanel(null);
+  };
+
   const handleAiButtonClick = (position: { x: number; y: number }) => {
     setAiPopupPosition(position);
     setIsAiPopupOpen(true);
@@ -520,6 +533,22 @@ export default function Projects2ViewPage() {
   };
 
   const renderSidebarComponent = () => {
+    // If video lesson settings panel is active, show the corresponding settings
+    if (activeSettingsPanel) {
+      switch (activeSettingsPanel) {
+        case 'text':
+          return <TextSettings />;
+        case 'image':
+          return <ImageSettings />;
+        case 'avatar':
+          return <AvatarSettings />;
+        case 'shape':
+          return <ShapeSettings />;
+        default:
+          break;
+      }
+    }
+
     // If an element is selected, show its settings
     if (selectedElement) {
       switch (selectedElement) {
@@ -603,10 +632,62 @@ export default function Projects2ViewPage() {
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 75% of main container height (matching VideoPresentation) */}
-          <div className="h-[75%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center">
+          <div className="h-[75%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
+            {/* Settings Buttons - Top Left Corner */}
+            {isComponentBasedVideoLesson && componentBasedSlideDeck && (
+              <div className="absolute top-2 left-2 z-10 flex gap-1">
+                <button
+                  onClick={() => handleSettingsButtonClick('text')}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors shadow-sm ${
+                    activeSettingsPanel === 'text'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  Text
+                </button>
+                <button
+                  onClick={() => handleSettingsButtonClick('shape')}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors shadow-sm ${
+                    activeSettingsPanel === 'shape'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  Shape
+                </button>
+                <button
+                  onClick={() => handleSettingsButtonClick('image')}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors shadow-sm ${
+                    activeSettingsPanel === 'image'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  Image
+                </button>
+                <button
+                  onClick={() => handleSettingsButtonClick('avatar')}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors shadow-sm ${
+                    activeSettingsPanel === 'avatar'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  }`}
+                >
+                  Avatar
+                </button>
+              </div>
+            )}
+
+            {/* Click handler to close settings panel */}
+            <div 
+              className="absolute inset-0 z-0"
+              onClick={handleCloseSettingsPanel}
+            />
+
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden z-0"
                 style={{
                   width: '80%',
                   height: '80%',
