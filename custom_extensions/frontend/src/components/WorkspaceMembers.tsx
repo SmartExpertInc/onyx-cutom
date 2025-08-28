@@ -489,7 +489,7 @@ const WorkspaceMembers: React.FC = () => {
       {/* Role Manager Modal */}
       {showRoleManager && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowRoleManager(false)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y" onClick={(e) => e.stopPropagation()}>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
               onClick={() => setShowRoleManager(false)}
@@ -530,7 +530,7 @@ const WorkspaceMembers: React.FC = () => {
                         <Palette size={16} className="text-gray-600" />
                       </button>
                       {showColorPalette && (
-                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 z-[9999] grid grid-cols-5 gap-1 w-48">
+                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-5 gap-1 w-48">
                           {ROLE_COLORS.map((colorOption) => (
                             <button
                               key={colorOption.bg}
