@@ -17,7 +17,7 @@ import InteractionPopup from '../components/InteractionPopup';
 import InteractionModal from '../components/InteractionModal';
 import AiPopup from '../components/AiPopup';
 import LanguageVariantModal from '../components/LanguageVariantModal';
-import VideoPresentation from '../components/VideoPresentation';
+import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import SceneTimeline from '../components/SceneTimeline';
 import TextSettings from '../components/TextSettings';
 import ImageSettings from '../components/ImageSettings';
@@ -143,6 +143,48 @@ export default function Projects2ViewPage() {
       setVideoLessonData(updatedData);
       saveVideoLessonData(updatedData);
     }
+  };
+
+  // NEW: Function to handle text changes (for Script component)
+  const handleTextChange = (path: (string | number)[], newValue: string | number | boolean) => {
+    if (!videoLessonData) return;
+
+    const updatedData = { ...videoLessonData };
+    
+    // Handle specific cases for VideoLessonData structure
+    if (path.length === 1 && path[0] === 'mainPresentationTitle') {
+      updatedData.mainPresentationTitle = newValue as string;
+    } else if (path.length === 1 && path[0] === 'currentSlideId') {
+      updatedData.currentSlideId = newValue as string;
+    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'voiceoverText') {
+      const slideIndex = path[1];
+      if (updatedData.slides[slideIndex]) {
+        updatedData.slides[slideIndex].voiceoverText = newValue as string;
+      }
+    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'slideTitle') {
+      const slideIndex = path[1];
+      if (updatedData.slides[slideIndex]) {
+        updatedData.slides[slideIndex].slideTitle = newValue as string;
+      }
+    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedText') {
+      const slideIndex = path[1];
+      if (updatedData.slides[slideIndex]) {
+        updatedData.slides[slideIndex].displayedText = newValue as string;
+      }
+    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedPictureDescription') {
+      const slideIndex = path[1];
+      if (updatedData.slides[slideIndex]) {
+        updatedData.slides[slideIndex].displayedPictureDescription = newValue as string;
+      }
+    } else if (path.length === 3 && path[0] === 'slides' && typeof path[1] === 'number' && path[2] === 'displayedVideoDescription') {
+      const slideIndex = path[1];
+      if (updatedData.slides[slideIndex]) {
+        updatedData.slides[slideIndex].displayedVideoDescription = newValue as string;
+      }
+    }
+    
+    setVideoLessonData(updatedData);
+    saveVideoLessonData(updatedData);
   };
 
   // NEW: Function to delete slide (following old interface pattern)
@@ -455,6 +497,7 @@ export default function Projects2ViewPage() {
           onAiButtonClick={handleAiButtonClick} 
           videoLessonData={videoLessonData}
           currentSlideId={currentSlideId}
+          onTextChange={handleTextChange}
         />;
       case 'background':
         return <Background />;
@@ -469,6 +512,7 @@ export default function Projects2ViewPage() {
           onAiButtonClick={handleAiButtonClick} 
           videoLessonData={videoLessonData}
           currentSlideId={currentSlideId}
+          onTextChange={handleTextChange}
         />;
     }
   };
@@ -505,14 +549,11 @@ export default function Projects2ViewPage() {
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
           {/* Top Container - Takes 70% of main container height */}
-          <VideoPresentation 
-            aspectRatio={aspectRatio} 
-            onElementSelect={handleElementSelect}
-            selectedElement={selectedElement}
-            onRightClick={handleRightClick}
-            videoLessonData={videoLessonData}
-            currentSlideId={currentSlideId}
-            onSlideChange={handleSlideSelect}
+          <VideoLessonDisplay 
+            dataToDisplay={videoLessonData || null}
+            isEditing={true}
+            className="h-full"
+            onTextChange={handleTextChange}
           />
 
           {/* Bottom Container - Takes 30% of main container height */}

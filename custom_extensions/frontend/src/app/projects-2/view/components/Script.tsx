@@ -12,9 +12,10 @@ interface ScriptProps {
   // NEW: Video Lesson specific props
   videoLessonData?: VideoLessonData;
   currentSlideId?: string;
+  onTextChange?: (path: (string | number)[], newValue: string | number | boolean) => void;
 }
 
-export default function Script({ onAiButtonClick, videoLessonData, currentSlideId }: ScriptProps) {
+export default function Script({ onAiButtonClick, videoLessonData, currentSlideId, onTextChange }: ScriptProps) {
   const [isAvatarDropdownOpen, setIsAvatarDropdownOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
 
@@ -29,6 +30,19 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
   const defaultPlaceholder = `Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!`;
   
   const [scriptContent, setScriptContent] = useState(defaultPlaceholder);
+  
+  // Function to handle script content changes
+  const handleScriptContentChange = (newContent: string) => {
+    setScriptContent(newContent);
+    
+    // Save changes back to video lesson data if we have the necessary props
+    if (onTextChange && currentSlide && videoLessonData) {
+      const slideIndex = videoLessonData.slides.findIndex(s => s.slideId === currentSlide.slideId);
+      if (slideIndex !== -1) {
+        onTextChange(['slides', slideIndex, 'voiceoverText'], newContent);
+      }
+    }
+  };
   const [cursorPosition, setCursorPosition] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const aiButtonRef = useRef<HTMLDivElement>(null);
@@ -262,6 +276,7 @@ export default function Script({ onAiButtonClick, videoLessonData, currentSlideI
             className="w-full text-[#5F5F5F] text-sm leading-loose font-normal bg-transparent border-none outline-none overflow-y-auto p-0"
             style={{ whiteSpace: 'pre-wrap', height: '200px' }}
             dangerouslySetInnerHTML={{ __html: scriptContent }}
+            onInput={(e) => handleScriptContentChange(e.currentTarget.innerHTML)}
           />
         </div>
       </div>
