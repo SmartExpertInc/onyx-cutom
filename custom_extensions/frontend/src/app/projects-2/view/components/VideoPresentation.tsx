@@ -83,6 +83,12 @@ export default function VideoPresentation({
 
   // Get current slide data
   const currentSlide = videoLessonData?.slides.find(s => s.slideId === currentSlideId);
+  
+  // Debug logging
+  console.log('VideoPresentation - videoLessonData:', videoLessonData);
+  console.log('VideoPresentation - currentSlideId:', currentSlideId);
+  console.log('VideoPresentation - currentSlide:', currentSlide);
+  console.log('VideoPresentation - slides count:', videoLessonData?.slides?.length);
 
   return (
     <div 

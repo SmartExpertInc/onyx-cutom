@@ -150,6 +150,8 @@ export default function Projects2ViewPage() {
     const loadVideoLessonData = async () => {
       if (!projectId) return;
       
+      console.log('Loading Video Lesson data for projectId:', projectId);
+      
       try {
         const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${projectId}`, {
           headers: { 'Content-Type': 'application/json' },
@@ -158,18 +160,61 @@ export default function Projects2ViewPage() {
         
         if (response.ok) {
           const projectData = await response.json();
+          console.log('Project data loaded:', projectData);
+          console.log('Project type:', projectData.design_microproduct_type);
           
-          // Check if this is a Video Lesson project
-          if (projectData.design_microproduct_type === 'VideoLessonPresentationDisplay') {
+          // Check if this is a Video Lesson project (try multiple possible types)
+          const isVideoLesson = projectData.design_microproduct_type === 'VideoLessonPresentationDisplay' ||
+                               projectData.design_microproduct_type === 'VideoLesson' ||
+                               projectData.design_microproduct_type === 'video_lesson_presentation';
+          
+          if (isVideoLesson) {
+            console.log('Detected Video Lesson project');
             setIsVideoLessonMode(true);
             
             // Load Video Lesson data from microProductContent
             if (projectData.microProductContent) {
+              console.log('Found microProductContent:', projectData.microProductContent);
               const videoData = projectData.microProductContent as VideoLessonData;
               setVideoLessonData(videoData);
               setCurrentSlideId(videoData.currentSlideId || videoData.slides[0]?.slideId);
+              console.log('Set Video Lesson data:', videoData);
+              console.log('Current slide ID:', videoData.currentSlideId || videoData.slides[0]?.slideId);
+            } else {
+              console.log('No microProductContent found, creating empty Video Lesson data');
+              // Create empty Video Lesson data if none exists
+              const emptyVideoData: VideoLessonData = {
+                mainPresentationTitle: projectData.title || 'Untitled Video Lesson',
+                slides: [],
+                detectedLanguage: 'en'
+              };
+              setVideoLessonData(emptyVideoData);
             }
+          } else {
+            console.log('Not a Video Lesson project, type:', projectData.design_microproduct_type);
+            // TEMPORARY: Force Video Lesson mode for testing
+            console.log('TEMPORARY: Forcing Video Lesson mode for testing');
+            setIsVideoLessonMode(true);
+            const testVideoData: VideoLessonData = {
+              mainPresentationTitle: 'Test Video Lesson',
+              slides: [
+                {
+                  slideId: 'slide-1',
+                  slideNumber: 1,
+                  slideTitle: 'Introduction',
+                  displayedText: 'Welcome to this video lesson!',
+                  displayedPictureDescription: '',
+                  displayedVideoDescription: '',
+                  voiceoverText: 'Welcome to this video lesson!'
+                }
+              ],
+              detectedLanguage: 'en'
+            };
+            setVideoLessonData(testVideoData);
+            setCurrentSlideId('slide-1');
           }
+        } else {
+          console.error('Failed to load project data:', response.status);
         }
       } catch (error) {
         console.error('Error loading Video Lesson data:', error);

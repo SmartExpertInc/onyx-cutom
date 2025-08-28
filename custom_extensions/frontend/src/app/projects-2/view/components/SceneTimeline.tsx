@@ -100,6 +100,12 @@ export default function SceneTimeline({
       slideData: slide
     })) : 
     []; // Commented out regular scenes for now
+    
+  // Debug logging
+  console.log('SceneTimeline - videoLessonData:', videoLessonData);
+  console.log('SceneTimeline - displayScenes:', displayScenes);
+  console.log('SceneTimeline - currentSlideId:', currentSlideId);
+  console.log('SceneTimeline - onAddSlide function:', !!onAddSlide);
 
   return (
     <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 20px)' }}>
@@ -226,15 +232,15 @@ export default function SceneTimeline({
               />
             </div>
           ) : (
-            // Commented out regular scene add button for now
+            // Debug: Show which condition is failing
             <div className="relative">
               <div 
-                className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                className="bg-red-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-red-400 transition-colors"
                 style={getSceneRectangleStyles()}
-                onClick={() => console.log('Regular scene add button clicked - disabled for now')}
+                onClick={() => console.log('Debug: videoLessonData:', !!videoLessonData, 'onAddSlide:', !!onAddSlide)}
               >
                 <svg 
-                  className="w-8 h-8 text-gray-600" 
+                  className="w-8 h-8 text-red-600" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
