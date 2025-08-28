@@ -1,3 +1,5 @@
+"use client";
+
 // custom_extensions/frontend/src/components/AvatarDisplayManager.tsx
 
 import React, { useState, useEffect, createContext, useContext } from 'react';

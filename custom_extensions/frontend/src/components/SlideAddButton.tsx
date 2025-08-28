@@ -1,3 +1,5 @@
+"use client";
+
 // components/SlideAddButton.tsx
 // Fixed-position slide adding button with template selection
 

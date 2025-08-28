@@ -1,3 +1,5 @@
+"use client";
+
 // custom_extensions/frontend/src/components/AvatarSelectionModal.tsx
 
 import React, { useState, useEffect } from 'react';

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, User, Loader } from 'lucide-react';
 import { useAvatarDisplay } from './AvatarDisplayManager';

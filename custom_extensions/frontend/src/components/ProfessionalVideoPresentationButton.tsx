@@ -1,3 +1,5 @@
+"use client";
+
 // Professional Video Presentation Button Component
 // This component creates professional video presentations by combining slide capture with avatar videos
 

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Code, Loader, ExternalLink } from 'lucide-react';
 
