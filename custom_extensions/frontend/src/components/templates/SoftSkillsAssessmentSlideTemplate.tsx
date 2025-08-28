@@ -233,7 +233,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           fontSize: '61px',
           color: themeTitle,
           lineHeight: '1.2',
-          maxWidth: '60%'
+          maxWidth: '76%'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor

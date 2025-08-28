@@ -270,12 +270,19 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
-                          style={{
-                fontSize: '74px',
-                color: themeTitle,
-                lineHeight: '1.1',
-                fontFamily: currentTheme.fonts.titleFont
-              }}
+            style={{
+              fontSize: '74px',
+              color: themeTitle,
+              lineHeight: '1.1',
+              fontFamily: currentTheme.fonts.titleFont,
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              width: '100%',
+              height: '100%',
+              margin: '0',
+              padding: '0'
+            }}
           />
         ) : (
           <div
@@ -287,7 +294,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               lineHeight: '1.1',
               cursor: isEditable ? 'pointer' : 'default',
               fontFamily: currentTheme.fonts.titleFont,
-              userSelect: 'none'
+              userSelect: 'none',
+              position: 'relative'
             }}
           >
             {currentTitle}
@@ -328,7 +336,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               Contacts
             </div>
             
-            <div style={{ marginBottom: '15px' }}>
+            <div style={{ marginBottom: '15px', position: 'relative' }}>
               {isEditable && editingEmail ? (
                 <InlineEditor
                   initialValue={currentEmail}
@@ -338,7 +346,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   style={{
                     fontSize: '18px',
                     color: themeContent,
-                    fontFamily: currentTheme.fonts.contentFont
+                    fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
@@ -349,7 +364,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    position: 'relative'
                   }}
                 >
                   {currentEmail}
@@ -357,7 +373,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               )}
             </div>
 
-            <div>
+            <div style={{ position: 'relative' }}>
               {isEditable && editingPhone ? (
                 <InlineEditor
                   initialValue={currentPhone}
@@ -367,7 +383,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   style={{
                     fontSize: '18px',
                     color: themeContent,
-                    fontFamily: currentTheme.fonts.contentFont
+                    fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
@@ -378,7 +401,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    position: 'relative'
                   }}
                 >
                   {currentPhone}
@@ -398,7 +422,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               Our address
             </div>
             
-            <div style={{ marginBottom: '15px' }}>
+            <div style={{ marginBottom: '15px', position: 'relative' }}>
               {isEditable && editingAddress ? (
                 <InlineEditor
                   initialValue={currentAddress}
@@ -408,7 +432,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   style={{
                     fontSize: '22px',
                     color: themeContent,
-                    fontFamily: currentTheme.fonts.contentFont
+                    fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
@@ -419,7 +450,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    position: 'relative'
                   }}
                 >
                   {currentAddress}
@@ -427,7 +459,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               )}
             </div>
 
-            <div>
+            <div style={{ position: 'relative' }}>
               {isEditable && editingPostalCode ? (
                 <InlineEditor
                   initialValue={currentPostalCode}
@@ -437,7 +469,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   style={{
                     fontSize: '22px',
                     color: themeContent,
-                    fontFamily: currentTheme.fonts.contentFont
+                    fontFamily: currentTheme.fonts.contentFont,
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                    margin: '0',
+                    padding: '0'
                   }}
                 />
               ) : (
@@ -448,7 +487,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    position: 'relative'
                   }}
                 >
                   {currentPostalCode}
@@ -515,7 +555,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           backgroundColor: themeAccent,
           transform: 'rotate(45deg)'
         }} />
-        <div>
+        <div style={{ position: 'relative' }}>
           {isEditable && editingCompanyName ? (
             <InlineEditor
               initialValue={currentCompanyName}
@@ -525,7 +565,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               style={{
                 fontSize: '14px',
                 color: themeSubtitle,
-                fontFamily: currentTheme.fonts.contentFont
+                fontFamily: currentTheme.fonts.contentFont,
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
             />
           ) : (
@@ -536,7 +583,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 color: themeSubtitle,
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
-                userSelect: 'none'
+                userSelect: 'none',
+                position: 'relative'
               }}
             >
               {currentCompanyName}

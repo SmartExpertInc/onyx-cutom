@@ -276,7 +276,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
           {/* Main title */}
           <div style={{
-            maxWidth: '275px',
+            maxWidth: '321px',
             fontSize: '51px',
             color: themeTitle,
             lineHeight: '1.1',

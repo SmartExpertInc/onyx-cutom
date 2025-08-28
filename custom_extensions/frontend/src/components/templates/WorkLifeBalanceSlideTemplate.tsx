@@ -293,7 +293,14 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 marginTop: '162px',
                 color: themeTitle,
                 lineHeight: '1.1',
-                fontFamily: currentTheme.fonts.titleFont
+                fontFamily: currentTheme.fonts.titleFont,
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
             />
           ) : (
@@ -306,7 +313,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
-                userSelect: 'none'
+                userSelect: 'none',
+                position: 'relative'
               }}
             >
               {currentTitle}
@@ -335,7 +343,14 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 fontSize: '23px',
                 color: themeContent,
                 lineHeight: '1.6',
-                fontFamily: currentTheme.fonts.contentFont
+                fontFamily: currentTheme.fonts.contentFont,
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
             />
           ) : (
@@ -350,7 +365,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
-                userSelect: 'none'
+                userSelect: 'none',
+                position: 'relative'
               }}
             >
               {currentContent}

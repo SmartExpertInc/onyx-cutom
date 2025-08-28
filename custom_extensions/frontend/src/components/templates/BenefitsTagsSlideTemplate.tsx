@@ -291,7 +291,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         maxWidth: '600px',
         position: 'relative',
         marginTop: '40px',
-        left: '-25%'
+        left: '-17%'
       }}>
         {/* First row */}
         <div style={{

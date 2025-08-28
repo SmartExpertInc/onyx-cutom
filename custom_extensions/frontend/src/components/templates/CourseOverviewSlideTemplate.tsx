@@ -258,9 +258,16 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: themeBg,
+                color: 'white',
                 lineHeight: '1.1',
-                fontFamily: currentTheme.fonts.titleFont
+                fontFamily: currentTheme.fonts.titleFont,
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
             />
           ) : (
@@ -269,11 +276,12 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: themeBg,
+                color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
-                userSelect: 'none'
+                userSelect: 'none',
+                position: 'relative'
               }}
             >
               {currentTitle}
@@ -289,9 +297,16 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: themeBg,
+                color: 'white',
                 lineHeight: '1.1',
-                fontFamily: currentTheme.fonts.titleFont
+                fontFamily: currentTheme.fonts.titleFont,
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                margin: '0',
+                padding: '0'
               }}
             />
           ) : (
@@ -300,11 +315,12 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 fontSize: '48px',
                 fontWeight: 'bold',
-                color: themeBg,
+                color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
-                userSelect: 'none'
+                userSelect: 'none',
+                position: 'relative'
               }}
             >
               {currentSubtitle}
