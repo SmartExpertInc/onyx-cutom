@@ -244,6 +244,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                textAlign: 'center',
                minHeight: '40px',
                maxHeight: '40px',
+               width: '155px',
                display: 'flex',
                alignItems: 'center',
                justifyContent: 'center',
@@ -288,6 +289,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              <div style={{
                fontSize: '14px',
                color: themeContent,
+               width: '155px',
                maxWidth: '120px',
                lineHeight: '1.3',
                minHeight: '40px',

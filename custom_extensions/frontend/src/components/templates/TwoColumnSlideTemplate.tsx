@@ -150,8 +150,6 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                   fontSize: '14px',
                   color: themeContent,
                   lineHeight: '1.6',
-                  position: 'relative',
-                  bottom: '-100px',
                   width: '100%',
                   height: 'auto',
                   minHeight: '100px'

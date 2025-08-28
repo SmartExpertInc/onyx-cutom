@@ -127,6 +127,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 fontWeight: 'bold',
                 color: themeTitle,
                 lineHeight: '1.1',
+                marginLeft: '-332%',
                 width: '100%',
                 height: 'auto'
               }}
