@@ -440,14 +440,22 @@ export default function Projects2ViewPage() {
         case 'shape':
           return <ShapeSettings />;
         default:
-          return <Script onAiButtonClick={handleAiButtonClick} />;
+          return <Script 
+            onAiButtonClick={handleAiButtonClick} 
+            videoLessonData={videoLessonData}
+            currentSlideId={currentSlideId}
+          />;
       }
     }
 
     // Otherwise show the active component
     switch (activeComponent) {
       case 'script':
-        return <Script onAiButtonClick={handleAiButtonClick} />;
+        return <Script 
+          onAiButtonClick={handleAiButtonClick} 
+          videoLessonData={videoLessonData}
+          currentSlideId={currentSlideId}
+        />;
       case 'background':
         return <Background />;
       case 'music':
@@ -457,7 +465,11 @@ export default function Projects2ViewPage() {
       case 'comments':
         return <Comments />;
       default:
-        return <Script onAiButtonClick={handleAiButtonClick} />;
+        return <Script 
+          onAiButtonClick={handleAiButtonClick} 
+          videoLessonData={videoLessonData}
+          currentSlideId={currentSlideId}
+        />;
     }
   };
 
