@@ -489,8 +489,8 @@ export const es = {
       standalone: "Independiente",
       sideBySideLeft: "Lado a lado (imagen a la izquierda)",
       sideBySideRight: "Lado a lado (imagen a la derecha)",
-      inlineLeft: "En línea (imagen a la izquierda, texto envuelve)",
-      inlineRight: "En línea (imagen a la derecha, texto envuelve)",
+      inlineLeft: "A la izquierda del texto",
+      inlineRight: "A la derecha del texto",
       layoutModeDescription:
         "Lado a lado: La imagen y el contenido tienen la misma altura. En línea: El texto fluye alrededor de la imagen.",
       layoutPartner: "Compañero de diseño",
