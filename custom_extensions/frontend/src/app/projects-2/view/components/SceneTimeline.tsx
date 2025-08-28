@@ -99,7 +99,7 @@ export default function SceneTimeline({
       // Handle component-based slide deck
       return componentBasedSlideDeck.slides.map((slide, index) => ({
         id: slide.slideId,
-        name: slide.props?.title || slide.slideId || `Slide ${slide.slideNumber}`,
+        name: slide.props?.title || '',
         order: slide.slideNumber,
         slideData: slide
       }));
@@ -107,7 +107,7 @@ export default function SceneTimeline({
       // Handle old video lesson data
       return videoLessonData.slides.map((slide, index) => ({
         id: slide.slideId,
-        name: slide.slideTitle || `Slide ${slide.slideNumber}`,
+        name: slide.slideTitle || '',
         order: slide.slideNumber,
         slideData: slide
       }));
@@ -146,25 +146,10 @@ export default function SceneTimeline({
                   style={getSceneRectangleStyles()}
                   onClick={() => onSlideSelect?.(scene.id)}
                 >
-                  {/* Video Lesson specific content preview */}
-                  {scene.slideData ? (
-                    <div className="text-xs text-gray-600 text-center p-1">
-                      <div className="font-medium truncate">
-                        {'slideTitle' in scene.slideData 
-                          ? scene.slideData.slideTitle 
-                          : scene.slideData.props?.title || scene.slideData.slideId
-                        }
-                      </div>
-                      {'displayedText' in scene.slideData && scene.slideData.displayedText && (
-                        <div className="text-gray-500 truncate">{scene.slideData.displayedText}</div>
-                      )}
-                      {'props' in scene.slideData && scene.slideData.props?.subtitle && (
-                        <div className="text-gray-500 truncate">{scene.slideData.props.subtitle}</div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="w-8 h-8 bg-blue-500 rounded"></div>
-                  )}
+                  {/* Simple visual indicator instead of text content */}
+                  <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">{scene.order}</span>
+                  </div>
                   
                   {/* Three-dot menu button - visible on hover */}
                   <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
