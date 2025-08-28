@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, User, Loader } from 'lucide-react';
+import { useAvatarDisplay } from './AvatarDisplayManager';
+import { ElaiAvatar, ElaiAvatarVariant } from '@/types/elaiTypes';
 
-export interface Avatar {
-  id: string;
-  code: string;
-  name: string;
-  gender: string;
-  thumbnail?: string;
-  canvas?: string;
-  variants?: AvatarVariant[];
-}
-
-export interface AvatarVariant {
-  code: string;
-  id: string;
-  name: string;
-  thumbnail?: string;
-  canvas?: string;
-}
+// Use the same types as the global context for consistency
+export type Avatar = ElaiAvatar;
+export type AvatarVariant = ElaiAvatarVariant;
 
 interface AvatarSelectorProps {
   onAvatarSelect: (avatar: Avatar, variant?: AvatarVariant) => void;
@@ -38,6 +26,9 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  // Get the global avatar context to update slide previews
+  const { updateSelectedAvatar } = useAvatarDisplay();
 
   useEffect(() => {
     fetchAvatars();
@@ -77,8 +68,19 @@ export const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   };
 
   const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
+    // Update local state (for video generation)
     onAvatarSelect(avatar, variant);
+    
+    // Update global state (for slide previews)
+    updateSelectedAvatar(avatar, variant);
+    
     setIsOpen(false);
+    
+    console.log('🎬 [AVATAR_SELECTOR] Avatar selected and global state updated:', {
+      avatar: avatar.name,
+      variant: variant?.name,
+      code: variant ? `${avatar.code}.${variant.code}` : avatar.code
+    });
   };
 
   const getDisplayName = (avatar: Avatar, variant?: AvatarVariant) => {
