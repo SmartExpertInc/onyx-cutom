@@ -2,27 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import VideoEditorHeader from './components/VideoEditorHeader';
-import Toolbar from './components/Toolbar';
-import Script from './components/Script';
-import Background from './components/Background';
-import Music from './components/Music';
-import Transition from './components/Transition';
-import Comments from './components/Comments';
-import Media from './components/Media';
-import TextPopup from './components/TextPopup';
-import ShapesPopup from './components/ShapesPopup';
-import InteractionPopup from './components/InteractionPopup';
-import InteractionModal from './components/InteractionModal';
-import AiPopup from './components/AiPopup';
-import LanguageVariantModal from './components/LanguageVariantModal';
-import VideoPresentation from './components/VideoPresentation';
-import SceneTimeline from './components/SceneTimeline';
-import TextSettings from './components/TextSettings';
-import ImageSettings from './components/ImageSettings';
-import AvatarSettings from './components/AvatarSettings';
-import ShapeSettings from './components/ShapeSettings';
-import OptionPopup from './components/OptionPopup';
+import { useParams } from 'next/navigation';
+import VideoEditorHeader from '../components/VideoEditorHeader';
+import Toolbar from '../components/Toolbar';
+import Script from '../components/Script';
+import Background from '../components/Background';
+import Music from '../components/Music';
+import Transition from '../components/Transition';
+import Comments from '../components/Comments';
+import Media from '../components/Media';
+import TextPopup from '../components/TextPopup';
+import ShapesPopup from '../components/ShapesPopup';
+import InteractionPopup from '../components/InteractionPopup';
+import InteractionModal from '../components/InteractionModal';
+import AiPopup from '../components/AiPopup';
+import LanguageVariantModal from '../components/LanguageVariantModal';
+import VideoPresentation from '../components/VideoPresentation';
+import SceneTimeline from '../components/SceneTimeline';
+import TextSettings from '../components/TextSettings';
+import ImageSettings from '../components/ImageSettings';
+import AvatarSettings from '../components/AvatarSettings';
+import ShapeSettings from '../components/ShapeSettings';
+import OptionPopup from '../components/OptionPopup';
 // NEW: Import SlideAddButton and types
 import { SlideAddButton } from '@/components/SlideAddButton';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
@@ -37,6 +38,8 @@ interface Scene {
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 export default function Projects2ViewPage() {
+  const params = useParams();
+  const projectId = params?.projectId as string;
   const [activeComponent, setActiveComponent] = useState<string>('script');
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
@@ -115,8 +118,10 @@ export default function Projects2ViewPage() {
   // NEW: Function to save Video Lesson data
   const saveVideoLessonData = async (data: VideoLessonData) => {
     try {
-      // Note: You'll need to get the actual projectId from URL params or props
-      const projectId = 'your-project-id'; // Replace with actual project ID
+      if (!projectId) {
+        console.error('No project ID available');
+        return;
+      }
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -139,6 +144,40 @@ export default function Projects2ViewPage() {
       saveVideoLessonData(updatedData);
     }
   };
+
+  // NEW: Load Video Lesson data on component mount
+  useEffect(() => {
+    const loadVideoLessonData = async () => {
+      if (!projectId) return;
+      
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/${projectId}`, {
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin'
+        });
+        
+        if (response.ok) {
+          const projectData = await response.json();
+          
+          // Check if this is a Video Lesson project
+          if (projectData.design_microproduct_type === 'VideoLessonPresentationDisplay') {
+            setIsVideoLessonMode(true);
+            
+            // Load Video Lesson data from microProductContent
+            if (projectData.microProductContent) {
+              const videoData = projectData.microProductContent as VideoLessonData;
+              setVideoLessonData(videoData);
+              setCurrentSlideId(videoData.currentSlideId || videoData.slides[0]?.slideId);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading Video Lesson data:', error);
+      }
+    };
+
+    loadVideoLessonData();
+  }, [projectId]);
 
 
 

@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+// NEW: Import SlideAddButton and types
+import { SlideAddButton } from '@/components/SlideAddButton';
+import { ComponentBasedSlide } from '@/types/slideTemplates';
+import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 
 interface Scene {
   id: string;
@@ -12,6 +16,11 @@ interface SceneTimelineProps {
   onAddScene: () => void;
   onMenuClick: (sceneId: string, event: React.MouseEvent) => void;
   onSceneRename?: (sceneId: string, newName: string) => void;
+  // NEW: Video Lesson specific props
+  videoLessonData?: VideoLessonData;
+  onSlideSelect?: (slideId: string) => void;
+  currentSlideId?: string;
+  onAddSlide?: (newSlide: ComponentBasedSlide) => void;
 }
 
 export default function SceneTimeline({ 
@@ -19,7 +28,11 @@ export default function SceneTimeline({
   aspectRatio, 
   onAddScene, 
   onMenuClick,
-  onSceneRename 
+  onSceneRename,
+  videoLessonData,
+  onSlideSelect,
+  currentSlideId,
+  onAddSlide
 }: SceneTimelineProps) {
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState<string>('');
@@ -78,6 +91,16 @@ export default function SceneTimeline({
     }
   };
 
+  // Convert Video Lesson slides to scenes if provided
+  const displayScenes = videoLessonData ? 
+    videoLessonData.slides.map((slide, index) => ({
+      id: slide.slideId,
+      name: slide.slideTitle || `Slide ${slide.slideNumber}`,
+      order: slide.slideNumber,
+      slideData: slide
+    })) : 
+    []; // Commented out regular scenes for now
+
   return (
     <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 20px)' }}>
       <div className="flex items-end gap-10">
@@ -90,14 +113,29 @@ export default function SceneTimeline({
           </div>
 
           {/* Dynamic Scene Rectangles */}
-          {scenes.map((scene, index) => (
+          {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
               <div className="relative group">
                 <div 
-                  className="bg-gray-100 border border-gray-300 rounded-md flex items-center justify-center relative"
+                  className={`bg-gray-100 border rounded-md flex items-center justify-center relative cursor-pointer transition-all ${
+                    currentSlideId === scene.id 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
                   style={getSceneRectangleStyles()}
+                  onClick={() => onSlideSelect?.(scene.id)}
                 >
-                  <div className="w-8 h-8 bg-blue-500 rounded"></div>
+                  {/* Video Lesson specific content preview */}
+                  {scene.slideData ? (
+                    <div className="text-xs text-gray-600 text-center p-1">
+                      <div className="font-medium truncate">{scene.slideData.slideTitle}</div>
+                      {scene.slideData.displayedText && (
+                        <div className="text-gray-500 truncate">{scene.slideData.displayedText}</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 bg-blue-500 rounded"></div>
+                  )}
                   
                   {/* Three-dot menu button - visible on hover */}
                   <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -154,7 +192,7 @@ export default function SceneTimeline({
               </div>
 
               {/* Transition button - show between scenes (not after the last one) */}
-              {index < scenes.length - 1 && (
+              {index < displayScenes.length - 1 && (
                 <div className="relative group flex items-center h-16">
                   <button className="w-16 h-8 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <svg 
@@ -178,28 +216,39 @@ export default function SceneTimeline({
             </React.Fragment>
           ))}
 
-          {/* Add Scene Rectangle */}
-          <div className="relative">
-            <div 
-              className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-              style={getSceneRectangleStyles()}
-              onClick={onAddScene}
-            >
-              <svg 
-                className="w-8 h-8 text-gray-600" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
-                />
-              </svg>
+          {/* Replace the simple "+" button with SlideAddButton for Video Lessons */}
+          {videoLessonData && onAddSlide ? (
+            <div className="relative">
+              <SlideAddButton
+                currentSlideCount={videoLessonData.slides.length}
+                onAddSlide={onAddSlide}
+                isVisible={true}
+              />
             </div>
-          </div>
+          ) : (
+            // Commented out regular scene add button for now
+            <div className="relative">
+              <div 
+                className="bg-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                style={getSceneRectangleStyles()}
+                onClick={() => console.log('Regular scene add button clicked - disabled for now')}
+              >
+                <svg 
+                  className="w-8 h-8 text-gray-600" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" 
+                  />
+                </svg>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

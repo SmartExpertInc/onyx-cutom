@@ -710,7 +710,10 @@ export default function LessonPresentationClient() {
       }
 
       // Navigate immediately without delay to prevent cancellation
-      router.push(`/projects/view/${data.id}`);
+      // Use new interface for Video Lessons, old interface for regular presentations
+      const isVideoLesson = productType === "video_lesson_presentation";
+      const redirectPath = isVideoLesson ? `/projects-2/view/${data.id}` : `/projects/view/${data.id}`;
+      router.push(redirectPath);
 
     } catch (error: any) {
       caughtError = error;
@@ -753,7 +756,10 @@ export default function LessonPresentationClient() {
               if (newestProject) {
                 // Found a newly created slide deck, redirect to it
                 console.log('Found newly created slide deck, redirecting...', newestProject.id);
-                router.push(`/projects/view/${newestProject.id}`);
+                // Use new interface for Video Lessons, old interface for regular presentations
+                const isVideoLesson = newestProject.design_microproduct_type === 'VideoLessonPresentationDisplay';
+                const redirectPath = isVideoLesson ? `/projects-2/view/${newestProject.id}` : `/projects/view/${newestProject.id}`;
+                router.push(redirectPath);
               } else {
                 // No new slide deck found, redirect to products page
                 console.log('No new slide deck found, redirecting to products page');
