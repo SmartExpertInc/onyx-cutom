@@ -3765,11 +3765,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
 
       const response = await fetch(
-        `${CUSTOM_BACKEND_URL}/projects/delete-permanently/${projectId}`,
+        `${CUSTOM_BACKEND_URL}/projects/delete-permanently`,
         {
-          method: "DELETE",
+          method: "POST",
           headers,
           credentials: "same-origin",
+          body: JSON.stringify({
+            project_ids: [projectId],
+            scope: "self"
+          }),
         }
       );
 
