@@ -747,9 +747,17 @@ export default function ProjectInstanceViewPage() {
                 if (typeof lesson.source !== 'string') {
                   lesson.source = '';
                 }
-                // Ensure completionTime is a string
+                // Ensure completionTime is normalized to English format before saving
                 if (typeof lesson.completionTime !== 'string') {
                   lesson.completionTime = '5m';
+                } else {
+                  // Normalize completion time to English format (extract numeric part and add 'm')
+                  const numbers = lesson.completionTime.match(/\d+/);
+                  if (numbers) {
+                    lesson.completionTime = `${numbers[0]}m`;
+                  } else {
+                    lesson.completionTime = '5m'; // Fallback
+                  }
                 }
               });
             }
