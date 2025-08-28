@@ -645,7 +645,6 @@ export default function TextPresentationClient() {
         setError(null);
         setContent(""); // Clear previous content
         setTextareaVisible(true);
-        setLoading(false);
         let gotFirstChunk = false;
 
         try {

@@ -514,7 +514,6 @@ export default function LessonPresentationClient() {
         setError(null);
         setContent("");
         setTextareaVisible(true);
-        setLoading(false); // Clear previous content
         let gotFirstChunk = false;
 
         try {
@@ -1341,7 +1340,7 @@ export default function LessonPresentationClient() {
             {/* Loading state */}
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
-                <LoadingAnimation />
+                <LoadingAnimation message={thoughts[thoughtIdx]} />
                 <p className="text-gray-600 text-center max-w-md text-sm">
                   {formatRetryCounter > 0
                     ? `Retrying generation due to formatting issues... (Attempt ${formatRetryCounter}/2)`
