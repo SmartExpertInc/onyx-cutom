@@ -407,15 +407,61 @@ export const es = {
       numberedListSettings: "Configuración de lista numerada",
       alertSettings: "Configuración de alerta",
       imageSettings: "Configuración de imagen",
+      // Block settings fields
+      importantSection: "Sección importante",
+      importantSectionDescription: "Marcar esta sección como importante para énfasis",
+      icon: "Icono",
+      noIcon: "Sin icono",
+      infoIcon: "Información",
+      goalIcon: "Objetivo",
+      starIcon: "Estrella",
+      appleIcon: "Manzana",
+      awardIcon: "Premio",
+      boxesIcon: "Cajas",
+      calendarIcon: "Calendario",
+      chartIcon: "Gráfico",
+      clockIcon: "Reloj",
+      globeIcon: "Globo",
+      headingLevel: "Nivel de encabezado",
+      large: "Grande",
+      medium: "Mediano",
+      small: "Pequeño",
+      extraSmall: "Muy pequeño",
+      extraLarge: "Muy grande",
+      fontSize: "Tamaño de fuente",
+      textSize: "Tamaño de texto",
+      recommendation: "Recomendación",
+      recommendationDescription: "Marcar este párrafo como una recomendación",
+      blockSettings: "Configuración de bloque",
+      // Alert settings
+      alertType: "Tipo de alerta",
+      success: "Éxito",
+      warning: "Advertencia",
+      danger: "Peligro",
+      customIcon: "Icono personalizado",
+      useDefaultForAlertType: "Usar predeterminado para tipo de alerta",
+      check: "Verificar",
+      error: "Error",
+      backgroundColor: "Color de fondo",
+      borderColor: "Color del borde",
+      textColor: "Color del texto",
+      iconColor: "Color del icono"
     },
 
     // Modal common
     modal: {
       customizeContent: "Personaliza tu contenido",
+      cancel: "Cancelar",
+      applyChanges: "Aplicar cambios",
     },
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Configuración de imagen",
+      format: "Formato",
+      size: "Tamaño",
+      layout: "Diseño",
+      effects: "Efectos",
       imagePreview: "Vista previa de imagen",
       preview: "Vista previa",
       noImageLoaded: "No hay imagen cargada",
@@ -463,6 +509,79 @@ export const es = {
       proportionImageSmaller: "40% - 60% (Imagen más pequeña)",
       proportionImageMuchLarger: "70% - 30% (Imagen mucho más grande)",
       proportionImageMuchSmaller: "30% - 70% (Imagen mucho más pequeña)",
+      // Quick size controls
+              quickSizeControls: "Tamaño",
+              quickSettings: "Configuración",
+      smaller: "Más pequeño",
+      larger: "Más grande",
+      resetToDefaultSize: "Restablecer al tamaño predeterminado",
+      currentWidth: "Ancho actual",
+      auto: "automático",
+      maintainAspectRatio: "mantener proporción",
+      scale: "Escala",
+      // Layout options
+      layoutOptions: "Posición",
+      partnerContent: "Contenido asociado",
+      partnerContentHelp: "contenido para colocar junto a la imagen",
+      block1: "Bloque 1: Encabezado/Párrafo",
+      block2: "Bloque 2: Lista/Contenido",
+      block3: "Bloque 3: Otro bloque de contenido",
+      partnerContentDescription: "Elige qué bloque de contenido debe aparecer junto a esta imagen.",
+      spaceDistribution: "Distribución del espacio",
+      spaceDistributionHelp: "cuánto espacio obtiene cada elemento",
+      equal: "Igual (50% cada uno)",
+      imageLarger: "Imagen más grande (60% imagen, 40% contenido)",
+      contentLarger: "Contenido más grande (40% imagen, 60% contenido)",
+      imageDominant: "Imagen dominante (70% imagen, 30% contenido)",
+      contentDominant: "Contenido dominante (30% imagen, 70% contenido)",
+      spaceDistributionDescription: "Controla cuánto espacio horizontal ocupan la imagen y el contenido.",
+      // Corner rounding options
+      cornerRounding: "Redondeo de esquinas",
+      sharp: "Agudo",
+      slightlyRounded: "Ligeramente redondeado",
+      rounded: "Redondeado",
+      veryRounded: "Muy redondeado",
+      // Alignment options
+      left: "Izquierda",
+      center: "Centro",
+      right: "Derecha",
+      // Size options
+      small: "Pequeño",
+      medium: "Mediano",
+      large: "Grande",
+      extraLarge: "Muy grande",
+      // Layout descriptions
+      imageOnOwnLine: "Imagen en su propia línea",
+      sideBySideDescription: "Imagen y texto lado a lado",
+      // Visual effects
+      visualEffects: "Efectos visuales",
+      // Additional image settings
+      textWrapping: "Ajuste de texto",
+      position: "Posición",
+      shadow: "Sombra",
+      border: "Borde",
+      none: "Ninguno",
+      subtle: "Sutil",
+      strong: "Fuerte",
+      livePreview: "Vista previa en vivo",
+      changesApplyInRealTime: "Los cambios se aplican en tiempo real",
+      documentPreview: "Vista previa del documento",
+      livePreviewDescription: "Esto muestra cómo aparecerá tu imagen en el documento. Los cambios se aplican en tiempo real mientras ajustas la configuración.",
+      resetToDefault: "Restablecer a predeterminado",
+      // Border options
+      solid: "Sólido",
+      dashed: "Discontinuo",
+      dotted: "Punteado",
+      // Advanced options
+      advanced: "Avanzado",
+      opacity: "Opacidad",
+      rotation: "Rotación",
+      // Preview placeholders
+      noDocumentContent: "No hay contenido del documento disponible para la vista previa",
+      additionalContentPlaceholder: "El contenido adicional de tu documento continuaría aquí, mostrando cómo la imagen se integra con el texto y diseño circundantes.",
+      previewDescription: "La vista previa demuestra los cambios en tiempo real al estilo de tu imagen y cómo afecta la presentación general del documento.",
+      // Basic actions dropdown
+      openAdvancedSettings: "Abrir configuración avanzada"
     },
 
     // Quality tiers
@@ -841,11 +960,6 @@ export const es = {
       modeUsingAsBaseStructure: "Modo: Usar como estructura base",
       // Additional keys for themes and content sections
       setupContentBuilder: "Configura tu Constructor de Contenido",
-      // Language options
-      english: "Inglés",
-      ukrainian: "Ucraniano",
-      spanish: "Español",
-      russian: "Ruso",
 
       aiWillUseTextAsContext:
         "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",

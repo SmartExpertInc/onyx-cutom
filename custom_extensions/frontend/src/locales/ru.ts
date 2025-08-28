@@ -393,15 +393,61 @@ export const ru = {
       numberedListSettings: "Настройки нумерованного списка",
       alertSettings: "Настройки предупреждения",
       imageSettings: "Настройки изображения",
+      // Block settings fields
+      importantSection: "Важный раздел",
+      importantSectionDescription: "Отметить этот раздел как важный для выделения",
+      icon: "Иконка",
+      noIcon: "Без иконки",
+      infoIcon: "Информация",
+      goalIcon: "Цель",
+      starIcon: "Звезда",
+      appleIcon: "Яблоко",
+      awardIcon: "Награда",
+      boxesIcon: "Коробки",
+      calendarIcon: "Календарь",
+      chartIcon: "График",
+      clockIcon: "Часы",
+      globeIcon: "Глобус",
+      headingLevel: "Уровень заголовка",
+      large: "Большой",
+      medium: "Средний",
+      small: "Маленький",
+      extraSmall: "Очень маленький",
+      extraLarge: "Очень большой",
+      fontSize: "Размер шрифта",
+      textSize: "Размер текста",
+      recommendation: "Рекомендация",
+      recommendationDescription: "Отметить этот абзац как рекомендацию",
+      blockSettings: "Настройки блока",
+      // Alert settings
+      alertType: "Тип предупреждения",
+      success: "Успех",
+      warning: "Предупреждение",
+      danger: "Опасность",
+      customIcon: "Пользовательская иконка",
+      useDefaultForAlertType: "Использовать по умолчанию для типа предупреждения",
+      check: "Проверка",
+      error: "Ошибка",
+      backgroundColor: "Цвет фона",
+      borderColor: "Цвет границы",
+      textColor: "Цвет текста",
+      iconColor: "Цвет иконки"
     },
 
     // Modal common
     modal: {
       customizeContent: "Настройте ваш контент",
+      cancel: "Отмена",
+      applyChanges: "Применить изменения"
     },
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Настройки изображения",
+      format: "Формат",
+      size: "Размер",
+      layout: "Макет",
+      effects: "Эффекты",
       imagePreview: "Предпросмотр изображения",
       preview: "Предпросмотр",
       noImageLoaded: "Изображение не загружено",
@@ -448,6 +494,79 @@ export const ru = {
       proportionImageSmaller: "40% - 60% (Изображение меньше)",
       proportionImageMuchLarger: "70% - 30% (Изображение намного больше)",
       proportionImageMuchSmaller: "30% - 70% (Изображение намного меньше)",
+      // Quick size controls
+              quickSizeControls: "Размер",
+              quickSettings: "Настройки",
+      smaller: "Меньше",
+      larger: "Больше",
+      resetToDefaultSize: "Сбросить к размеру по умолчанию",
+      currentWidth: "Текущая ширина",
+      auto: "авто",
+      maintainAspectRatio: "сохранить пропорции",
+      scale: "Масштаб",
+      // Layout options
+      layoutOptions: "Расположение",
+      partnerContent: "Партнерский контент",
+      partnerContentHelp: "контент для размещения рядом с изображением",
+      block1: "Блок 1: Заголовок/Абзац",
+      block2: "Блок 2: Список/Контент",
+      block3: "Блок 3: Другой блок контента",
+      partnerContentDescription: "Выберите, какой блок контента должен появляться рядом с этим изображением.",
+      spaceDistribution: "Распределение пространства",
+      spaceDistributionHelp: "сколько места получает каждый элемент",
+      equal: "Равные (50% каждый)",
+      imageLarger: "Изображение больше (60% изображение, 40% контент)",
+      contentLarger: "Контент больше (40% изображение, 60% контент)",
+      imageDominant: "Изображение доминирует (70% изображение, 30% контент)",
+      contentDominant: "Контент доминирует (30% изображение, 70% контент)",
+      spaceDistributionDescription: "Контролирует, сколько горизонтального пространства занимают изображение и контент.",
+      // Corner rounding options
+      cornerRounding: "Скругление углов",
+      sharp: "Острые",
+      slightlyRounded: "Слегка скругленные",
+      rounded: "Скругленные",
+      veryRounded: "Очень скругленные",
+      // Alignment options
+      left: "Слева",
+      center: "По центру",
+      right: "Справа",
+      // Size options
+      small: "Маленький",
+      medium: "Средний",
+      large: "Большой",
+      extraLarge: "Очень большой",
+      // Layout descriptions
+      imageOnOwnLine: "Изображение на своей строке",
+      sideBySideDescription: "Изображение и текст рядом",
+      // Visual effects
+      visualEffects: "Визуальные эффекты",
+      // Additional image settings
+      textWrapping: "Обтекание текста",
+      position: "Позиция",
+      shadow: "Тень",
+      border: "Граница",
+      none: "Нет",
+      subtle: "Легкая",
+      strong: "Сильная",
+      livePreview: "Живой предпросмотр",
+      changesApplyInRealTime: "Изменения применяются в реальном времени",
+      documentPreview: "Предпросмотр документа",
+      livePreviewDescription: "Это показывает, как ваше изображение появится в документе. Изменения применяются в реальном времени при настройке параметров.",
+      resetToDefault: "Сбросить к значению по умолчанию",
+      // Border options
+      solid: "Сплошная",
+      dashed: "Пунктирная",
+      dotted: "Точечная",
+      // Advanced options
+      advanced: "Расширенные",
+      opacity: "Прозрачность",
+      rotation: "Поворот",
+      // Preview placeholders
+      noDocumentContent: "Контент документа недоступен для предпросмотра",
+      additionalContentPlaceholder: "Дополнительный контент из вашего документа продолжится здесь, показывая как изображение интегрируется с окружающим текстом и макетом.",
+      previewDescription: "Предварительный просмотр демонстрирует изменения стиля изображения в реальном времени и как это влияет на общую презентацию документа.",
+      // Basic actions dropdown
+      openAdvancedSettings: "Открыть расширенные настройки"
     },
 
     // Quality tiers
@@ -818,11 +937,6 @@ export const ru = {
       modeUsingAsBaseStructure: "Режим: Использование как базовая структура",
       // Additional keys for themes and content sections
       setupContentBuilder: "Настройте ваш Конструктор Контента",
-      // Language options
-      english: "Английский",
-      ukrainian: "Украинский",
-      spanish: "Испанский",
-      russian: "Русский",
 
       aiWillUseTextAsContext:
         "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента.",

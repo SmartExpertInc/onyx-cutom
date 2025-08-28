@@ -111,6 +111,16 @@ export default function QuizClient() {
   const [textareaVisible, setTextareaVisible] = useState(false);
   const [firstLineRemoved, setFirstLineRemoved] = useState(false);
   
+  // State for editing quiz question titles
+  const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
+  const [editedTitles, setEditedTitles] = useState<{[key: number]: string}>({});
+  const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
+  const [originalTitles, setOriginalTitles] = useState<{[key: number]: string}>({});
+  
+  // NEW: Track user edits like in Course Outline
+  const [hasUserEdits, setHasUserEdits] = useState(false);
+  const [originalQuizData, setOriginalQuizData] = useState<string>("");
+  
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -148,6 +158,237 @@ export default function QuizClient() {
   ];
 
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
+
+  // Parse quiz content into questions/sections
+  const parseQuizIntoQuestions = (content: string) => {
+    if (!content.trim()) return [];
+    
+    const questions: Array<{title: string; content: string}> = [];
+    
+    // Check if content contains quiz questions (numbered questions pattern)
+    const quizQuestions = content.match(/^\s*\d+\.\s*\*\*(.*?)\*\*/gm);
+    
+    if (quizQuestions && quizQuestions.length > 0) {
+      // Parse quiz format
+      const questionSections = content.split(/(?=^\s*\d+\.\s*\*\*)/m).filter(section => section.trim());
+      
+      questionSections.forEach((section, index) => {
+        const lines = section.trim().split('\n');
+        if (lines.length === 0) return;
+        
+        // Extract question title
+        const questionMatch = lines[0].match(/^\s*\d+\.\s*\*\*(.*?)\*\*/);
+        if (!questionMatch) return;
+        
+        const questionTitle = questionMatch[1].trim();
+        
+        // Extract options and explanation
+        let options = [];
+        let correctAnswer = '';
+        let explanation = '';
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (line.match(/^\s*-\s*[A-D]\)/)) {
+            // Option line
+            options.push(line.replace(/^\s*-\s*/, '').trim());
+          } else if (line.includes('**Correct Answer:**')) {
+            correctAnswer = line.replace(/\*\*Correct Answer:\*\*\s*/, '').trim();
+          } else if (line.includes('**Explanation:**')) {
+            explanation = line.replace(/\*\*Explanation:\*\*\s*/, '').trim();
+          }
+        }
+        
+        questions.push({
+          title: questionTitle,
+          // content: `Options:\n${options.join('\n')}\n\nCorrect Answer: ${correctAnswer}\n\nExplanation: ${explanation}`
+          content: `Explanation: ${explanation}`
+
+        });
+      });
+      
+      return questions;
+    }
+    
+    return [];
+  };
+
+  const questionList = parseQuizIntoQuestions(quizData);
+
+  // Handle question title editing
+  const handleTitleEdit = (questionIndex: number, newTitle: string) => {
+    setEditedTitles(prev => ({
+      ...prev,
+      [questionIndex]: newTitle
+    }));
+    
+    // Store original title if not already stored
+    if (!originalTitles[questionIndex] && questionIndex < questionList.length) {
+      setOriginalTitles(prev => ({
+        ...prev,
+        [questionIndex]: questionList[questionIndex].title
+      }));
+    }
+    
+    // Add to edited titles list if title is different from original
+    const originalTitle = originalTitles[questionIndex] || (questionIndex < questionList.length ? questionList[questionIndex].title : '');
+    console.log(`Title edit - Index: ${questionIndex}, Original: "${originalTitle}", New: "${newTitle}", Different: ${newTitle !== originalTitle}`);
+    if (newTitle !== originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set([...prev, questionIndex]);
+        console.log(`Added to edited list: ${questionIndex}, Current list:`, Array.from(newSet));
+        return newSet;
+      });
+      
+      // NEW: Mark that user has made edits
+      setHasUserEdits(true);
+    } else {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(questionIndex);
+        console.log(`Removed from edited list: ${questionIndex}, Current list:`, Array.from(newSet));
+        return newSet;
+      });
+    }
+  };
+
+  const handleTitleSave = (questionIndex: number, finalTitle?: string) => {
+    setEditingQuestionId(null);
+    // Keep the item in edited titles list to maintain permanent blur
+    // Only remove if the title is back to original
+    const newTitle = (finalTitle ?? editedTitles[questionIndex]);
+    if (!newTitle) {
+      return;
+    }
+    const originalTitle = originalTitles[questionIndex] || questionList[questionIndex].title;
+    if (newTitle === originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(questionIndex);
+        return newSet;
+      });
+    }
+    // Update the original content with new title
+    updateContentWithNewTitle(questionIndex, newTitle);
+  };
+
+  const updateContentWithNewTitle = (questionIndex: number, newTitle: string) => {
+    if (!newTitle) return;
+
+    const questions = parseQuizIntoQuestions(quizData);
+    if (questionIndex >= questions.length) return;
+
+    const oldTitle = questions[questionIndex].title;
+    
+    // Find and replace the old title with new title in content
+    const patterns = [
+      new RegExp(`^(\\s*${questionIndex + 1}\\.\\s*\\*\\*)${escapeRegExp(oldTitle)}(\\*\\*)`, 'gm'),
+    ];
+
+    let updatedContent = quizData;
+    for (const pattern of patterns) {
+      if (pattern.test(updatedContent)) {
+        updatedContent = updatedContent.replace(pattern, (match, prefix, suffix) => {
+          return prefix + newTitle + suffix;
+        });
+        break;
+      }
+    }
+
+    setQuizData(updatedContent);
+    
+    // NEW: Mark that user has made edits if content changed
+    if (updatedContent !== quizData) {
+      setHasUserEdits(true);
+    }
+    
+    // Clear the edited title since it's now part of the main content
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[questionIndex];
+      return newTitles;
+    });
+    
+    // Update the questionList to reflect the new title
+    // This ensures the original title comparison works correctly
+    const updatedQuestions = parseQuizIntoQuestions(updatedContent);
+    if (questionIndex < updatedQuestions.length) {
+      // Force a re-render by updating the questionList
+      // The questionList will be recalculated on next render
+    }
+  };
+
+  // Helper function to escape special regex characters
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  // NEW: Function to create clean questions without options and answers
+  const createCleanQuestionsContent = (content: string) => {
+    if (!content.trim()) return "";
+    
+    const questions: string[] = [];
+    const lines = content.split('\n');
+    let currentQuestion = "";
+    let inQuestion = false;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // Check if this is a question start (numbered question with **title**)
+      const questionMatch = trimmedLine.match(/^\s*\d+\.\s*\*\*(.*?)\*\*/);
+      
+      if (questionMatch) {
+        // Save previous question if exists
+        if (currentQuestion.trim()) {
+          questions.push(currentQuestion.trim());
+        }
+        
+        // Start new question
+        currentQuestion = `${trimmedLine}`;
+        inQuestion = true;
+      } else if (inQuestion && trimmedLine) {
+        // Check if we hit options (lines starting with - A), - B), etc.)
+        if (trimmedLine.match(/^\s*-\s*[A-D]\)/)) {
+          // Stop here - we've reached options
+          inQuestion = false;
+        } else if (trimmedLine.includes('**Correct Answer:**') || 
+                   trimmedLine.includes('**Explanation:**')) {
+          // Stop here - we've reached answer/explanation
+          inQuestion = false;
+        } else {
+          // Continue adding to current question
+          currentQuestion += `\n${line}`;
+        }
+      }
+    }
+    
+    // Add the last question
+    if (currentQuestion.trim()) {
+      questions.push(currentQuestion.trim());
+    }
+    
+    return questions.join('\n\n');
+  };
+
+  const handleTitleCancel = (questionIndex: number) => {
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[questionIndex];
+      return newTitles;
+    });
+    setEditingQuestionId(null);
+    // Remove from edited titles list since changes are canceled
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(questionIndex);
+      return newSet;
+    });
+  };
+
+  const getTitleForQuestion = (question: any, index: number) => {
+    return editedTitles[index] || question.title;
+  };
 
   const toggleExample = (ex: typeof quizExamples[number]) => {
     setSelectedExamples((prev) => {
@@ -265,6 +506,8 @@ export default function QuizClient() {
         setLoading(true);
         setError(null);
         setQuizData(""); // Clear previous content
+        setTextareaVisible(true);
+        setLoading(false);
         let gotFirstChunk = false;
 
         try {
@@ -427,6 +670,9 @@ export default function QuizClient() {
         // Remove leading blank lines (one or more) at the very start
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setQuizData(trimmed);
+        
+        // NEW: Save original content for change detection
+        setOriginalQuizData(trimmed);
       }
       setFirstLineRemoved(true);
     }
@@ -454,13 +700,24 @@ export default function QuizClient() {
 
     setIsCreatingFinal(true);
     try {
+      // NEW: Prepare content based on whether user made edits
+      let contentToSend = quizData;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
+        // User edited question titles - send clean questions for regeneration
+        contentToSend = createCleanQuestionsContent(quizData);
+        isCleanContent = true;
+        console.log("Sending clean questions for regeneration:", contentToSend);
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: quizData,
+          aiResponse: contentToSend,
           prompt: prompt,
           outlineId: selectedOutlineId,
           lesson: selectedLesson,
@@ -474,6 +731,11 @@ export default function QuizClient() {
           textMode: textMode,
           questionCount: selectedQuestionCount,
           folderId: folderContext?.folderId || undefined,
+          // NEW: Send information about user edits
+          hasUserEdits: hasUserEdits,
+          originalContent: originalQuizData,
+          // NEW: Indicate if content is clean (questions only)
+          isCleanContent: isCleanContent,
         }),
       });
 
@@ -506,13 +768,24 @@ export default function QuizClient() {
     setLoadingEdit(true);
     setError(null);
     try {
+      // NEW: Prepare content based on whether user made edits
+      let contentToSend = quizData;
+      let isCleanContent = false;
+      
+      if (hasUserEdits && editedTitleIds.size > 0) {
+        // User edited question titles - send clean questions for regeneration
+        contentToSend = createCleanQuestionsContent(quizData);
+        isCleanContent = true;
+        console.log("Sending clean questions for edit:", contentToSend);
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/edit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          currentContent: quizData,
+          currentContent: contentToSend,
           editPrompt: editPrompt,
           outlineId: selectedOutlineId,
           lesson: selectedLesson,
@@ -525,6 +798,8 @@ export default function QuizClient() {
           fileIds: memoizedFileIds.join(','),
           textMode: textMode,
           questionCount: selectedQuestionCount,
+          // NEW: Indicate if content is clean (questions only)
+          isCleanContent: isCleanContent,
         }),
       });
 
@@ -588,6 +863,9 @@ export default function QuizClient() {
           }
         }
       }
+
+      // NEW: Mark that user has made edits after AI editing
+      setHasUserEdits(true);
 
       setEditPrompt("");
       setSelectedExamples([]);
@@ -915,7 +1193,7 @@ export default function QuizClient() {
           </div>
         )}
 
-          {/* Main content display - Textarea instead of module list */}
+          {/* Main content display - Cards or Textarea */}
           {textareaVisible && (
             <div
               className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
@@ -926,14 +1204,64 @@ export default function QuizClient() {
                   <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
                 </div>
               )}
-              <textarea
-                ref={textareaRef}
-                value={quizData}
-                onChange={(e) => setQuizData(e.target.value)}
-                placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={loadingEdit}
-              />
+              
+              {/* Display content in card format if questions are available, otherwise show textarea */}
+              {questionList.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  {questionList.map((question, idx: number) => (
+                    <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 p-4">
+                        <div className="mb-2">
+                          {editingQuestionId === idx ? (
+                            <input
+                              type="text"
+                              value={editedTitles[idx] || question.title}
+                              onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                              className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
+                              autoFocus
+                              onBlur={(e) => handleTitleSave(idx, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                if (e.key === 'Escape') handleTitleCancel(idx);
+                              }}
+                            />
+                          ) : (
+                            <h4 
+                              className="text-[#20355D] text-base font-semibold cursor-pointer"
+                              onClick={() => setEditingQuestionId(idx)}
+                            >
+                              {getTitleForQuestion(question, idx)}
+                            </h4>
+                          )}
+                        </div>
+                        {question.content && (
+                          <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${(() => {
+                            const shouldBlur = editedTitleIds.has(idx);
+                          
+                            return shouldBlur ? 'filter blur-[2px]' : '';
+                          })()}`}>
+                            {question.content}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+              //  : (
+              //   <textarea
+              //     ref={textareaRef}
+              //     value={quizData}
+              //     onChange={(e) => setQuizData(e.target.value)}
+              //     placeholder={t('interface.generate.quizContentPlaceholder', 'Quiz content will appear here...')}
+              //     className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
+              //     disabled={loadingEdit}
+              //   />
+              // )
+              }
             </div>
           )}
         </section>
@@ -1040,6 +1368,14 @@ export default function QuizClient() {
               {/* Quiz creation costs 5 credits */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span>5 {t('interface.credits', 'credits')}</span>
+              
+              {/* NEW: Show user edits indicator */}
+              {hasUserEdits && (
+                <div className="flex items-center gap-1 text-sm text-orange-600">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span>{t('interface.generate.userEdits', 'User edits detected')}</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-[7.5rem]">
               <span className="text-lg text-gray-700 font-medium select-none">

@@ -14055,6 +14055,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             logger.warning(f"Error during change detection (assuming changes made): {e}")
             return True
 
+
+
     # ---------- 1) Decide strategy ----------
     raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
     
@@ -14493,6 +14495,7 @@ async def init_course_outline_chat(request: Request):
 
 # === Wizard Outline helpers & cache ===
 OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
+QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
 
 def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
     """Return a markdown outline that reflects the *structure* provided in
@@ -17492,6 +17495,11 @@ class QuizWizardFinalize(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: user edits tracking (like in Course Outline)
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    # NEW: indicate if content is clean (questions only, no options/answers)
+    isCleanContent: Optional[bool] = False
 
 class QuizEditRequest(BaseModel):
     currentContent: str
@@ -17508,6 +17516,8 @@ class QuizEditRequest(BaseModel):
     textMode: Optional[str] = None
     questionCount: int = 10
     chatSessionId: Optional[str] = None
+    # NEW: indicate if content is clean (questions only, no options/answers)
+    isCleanContent: Optional[bool] = False
 
 async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
     """Ensure quiz design template exists, return template ID"""
@@ -17803,7 +17813,8 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
         "prompt": payload.editPrompt,
         "language": payload.language,
         "originalContent": payload.currentContent,
-        "editMode": True
+        "editMode": True,
+        "isCleanContent": payload.isCleanContent
     }
 
     # Add context if provided
@@ -17872,6 +17883,12 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
             return
 
         logger.info(f"[QUIZ_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        
+        # NEW: Cache the quiz content for later finalization
+        if chat_id:
+            QUIZ_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[QUIZ_PREVIEW_CACHE] Cached quiz content for chat_id={chat_id}, length={len(assistant_reply)}")
+        
         yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
 
     return StreamingResponse(
@@ -17932,6 +17949,30 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_CLEANUP] Cleaned up stale quiz key: {stale_key}")
     
     try:
+        # NEW: Check for user edits and decide strategy (like in Course Outline)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if payload.hasUserEdits and payload.originalContent:
+            # User has made edits - check if they're significant
+            any_changes = _any_quiz_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No quiz changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Quiz changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
+        
         # Ensure quiz template exists
         template_id = await _ensure_quiz_template(pool)
         
@@ -17965,52 +18006,142 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         
-        # Parse the quiz data using LLM - only call once with consistent project name
-        parsed_quiz = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
-            project_name=project_name,  # Use consistent project name
-            target_model=QuizData,
-            default_error_model_instance=QuizData(
-                quizTitle=project_name,
-                questions=[],
-                detectedLanguage=payload.language
-            ),
-            dynamic_instructions=f"""
-            CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
-
-            The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
-
-            REQUIREMENTS:
-            1. Extract the quiz title from the content:
-               - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
-               - Extract ONLY the quiz title part (the last part after the last "**")
-               - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
-               - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
-               - Do NOT include the course name or "Quiz" label in the title
-               - If no clear pattern is found, use the first meaningful title or heading
+        # NEW: Choose parsing strategy based on user edits
+        if use_direct_parser:
+            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+            logger.info("Using direct parser path for quiz finalization")
             
-            2. For each question in the content, create a structured question object with:
-               - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
-               - "question_text": The actual question text
-               - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
-               - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
-               - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
-               - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
-               - For open-answer: "acceptable_answers": ["answer1", "answer2"]
-               - "explanation": Explanation for the answer
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
 
-            CRITICAL RULES:
-            - Output ONLY the JSON object, no other text
-            - Every question MUST have "question_type" field
-            - Use exact field names as shown in the example
-            - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
-            - If content is unclear, infer question types based on structure
-            - Language: {payload.language}
-            - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
-            """,
-            target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
-        )
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content:
+                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+                   - Extract ONLY the quiz title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Quiz" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                
+                2. For each question in the content, create a structured question object with:
+                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+                   - "question_text": The actual question text
+                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+                   - "explanation": Explanation for the answer
+
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Every question MUST have "question_type" field
+                - Use exact field names as shown in the example
+                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+                - If content is unclear, infer question types based on structure
+                - Language: {payload.language}
+                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+                """,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
+            logger.info("Direct parser path completed successfully")
+        else:
+            # AI PARSER PATH: Use AI for parsing (original behavior)
+            logger.info("Using AI parser path for quiz finalization")
+            
+            # NEW: Handle clean content (questions only) differently
+            if payload.isCleanContent:
+                logger.info("Processing clean content (questions only) - will generate options and answers")
+                # For clean content, we need to generate complete quiz with options and answers
+                dynamic_instructions = f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains ONLY quiz questions without options or answers. You need to generate a complete quiz with:
+                1. Multiple choice options (A, B, C, D) for each question
+                2. Correct answers
+                3. Explanations for each answer
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content or use the lesson name
+                2. For each question, generate:
+                   - "question_type": "multiple-choice" (default)
+                   - "question_text": The question text
+                   - "options": Array with {{"id": "A", "text": "option text"}} for 4 options
+                   - "correct_option_id": "A" (or appropriate letter)
+                   - "explanation": Detailed explanation for the correct answer
+
+                CRITICAL RULES:
+                - Generate realistic and relevant options for each question
+                - Make sure only one option is correct
+                - Provide detailed explanations
+                - Language: {payload.language}
+                - Question types: {payload.questionTypes}
+                """
+            else:
+                # Regular content with options and answers
+                dynamic_instructions = f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content:
+                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+                   - Extract ONLY the quiz title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Quiz" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                
+                2. For each question in the content, create a structured question object with:
+                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+                   - "question_text": The actual question text
+                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+                   - "explanation": Explanation for the answer
+
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Every question MUST have "question_type" field
+                - Use exact field names as shown in the example
+                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+                - If content is unclear, infer question types based on structure
+                - Language: {payload.language}
+                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+                """
+            
+                        # Parse the quiz data using LLM - only call once with consistent project name
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=payload.aiResponse,
+                project_name=project_name,  # Use consistent project name
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=dynamic_instructions,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
         
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
@@ -18329,12 +18460,17 @@ class TextPresentationWizardFinalize(BaseModel):
     chatSessionId: Optional[str] = None
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: User edits tracking (like in Quiz)
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    isCleanContent: Optional[bool] = False
 
 class TextPresentationEditRequest(BaseModel):
     content: str
     editPrompt: str
     language: Optional[str] = "en"  # Add language field with default fallback
     chatSessionId: Optional[str] = None
+    isCleanContent: Optional[bool] = False
 
 @app.post("/api/custom/text-presentation/generate")
 async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
@@ -18575,6 +18711,7 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
     """Edit text presentation content with streaming response"""
     logger.info(f"[TEXT_PRESENTATION_EDIT_START] Text presentation edit initiated")
     logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
     
     cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
     logger.info(f"[TEXT_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
@@ -18598,7 +18735,8 @@ async def text_presentation_edit(payload: TextPresentationEditRequest, request: 
         "prompt": payload.editPrompt,
         "language": payload.language,  # Use the language from the request
         "originalContent": payload.content,
-        "editMode": True
+        "editMode": True,
+        "isCleanContent": getattr(payload, 'isCleanContent', False)
     }
 
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
@@ -18738,10 +18876,60 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {getattr(payload, 'hasUserEdits', False)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
+        
+        # NEW: Check for user edits and decide strategy (like in Quiz)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if getattr(payload, 'hasUserEdits', False) and getattr(payload, 'originalContent', None):
+            # User has made edits - check if they're significant
+            any_changes = _any_text_presentation_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No text presentation changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Text presentation changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
+        
+        # NEW: Choose parsing strategy based on user edits
+        if use_direct_parser:
+            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+            logger.info("Using direct parser path for text presentation finalization")
+            
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+        else:
+            # AI PARSER PATH: Use the provided content (which may be clean titles only)
+            logger.info("Using AI parser path for text presentation finalization")
+            
+            # NEW: Check if we have clean content (only titles without descriptions)
+            if getattr(payload, 'isCleanContent', False):
+                logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                
+                # Parse the clean content to identify sections that need content generation
+                content_to_parse = await _generate_content_for_clean_titles(
+                    clean_content=payload.aiResponse,
+                    original_content=payload.originalContent,
+                    language=payload.language
+                )
+            else:
+                content_to_parse = payload.aiResponse
         
         # Parse the text presentation data using LLM - only call once with consistent project name
         parsed_text_presentation = await parse_ai_response_with_llm(
-            ai_response=payload.aiResponse,
+            ai_response=content_to_parse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,
             default_error_model_instance=TextPresentationDetails(
@@ -19456,3 +19644,165 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                     status_code=500, 
                     detail=f"Failed to duplicate project: {str(e)}"
                 )
+
+def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited quiz content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Quiz content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No quiz changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
+        return True
+
+def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited text presentation content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Text presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No text presentation changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
+        return True
+
+async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
+    """Generate content for clean titles (titles without descriptions)"""
+    try:
+        logger.info("Starting content generation for clean titles")
+        
+        # Parse the clean content to identify sections
+        sections = []
+        lines = clean_content.split('\n')
+        current_section = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check if this is a header (## Title)
+            header_match = re.match(r'^(#{1,6})\s+(.+)$', line)
+            if header_match:
+                # Save previous section if exists
+                if current_section:
+                    sections.append(current_section)
+                
+                # Start new section
+                current_section = {
+                    'title': header_match.group(2).strip(),
+                    'content': '',
+                    'needs_content': True
+                }
+            elif current_section:
+                # This is content for the current section
+                current_section['content'] += line + '\n'
+                current_section['needs_content'] = False
+        
+        # Add the last section
+        if current_section:
+            sections.append(current_section)
+        
+        logger.info(f"Found {len(sections)} sections, {sum(1 for s in sections if s['needs_content'])} need content generation")
+        
+        # Generate content for sections that need it
+        for section in sections:
+            if section['needs_content']:
+                logger.info(f"Generating content for section: {section['title']}")
+                
+                # Create prompt for content generation
+                prompt = f"""Generate comprehensive content for the following section title in {language} language:
+
+Title: {section['title']}
+
+Please provide detailed, informative content that explains the topic thoroughly. The content should be:
+- Educational and informative
+- Well-structured with paragraphs
+- Include relevant examples or explanations
+- Match the tone and style of a professional presentation
+
+Generate the content:"""
+                
+                try:
+                    # Use OpenAI to generate content
+                    response = await stream_openai_response_direct(prompt)
+                    section['content'] = response
+                    logger.info(f"Generated {len(response)} characters for section: {section['title']}")
+                except Exception as e:
+                    logger.error(f"Failed to generate content for section {section['title']}: {e}")
+                    # Fallback to a simple description
+                    section['content'] = f"This section covers {section['title']}. Please refer to the original content for detailed information."
+        
+        # Reconstruct the content with generated descriptions
+        result_content = ""
+        for section in sections:
+            result_content += f"## {section['title']}\n\n{section['content']}\n\n"
+        
+        logger.info(f"Content generation completed. Total length: {len(result_content)} characters")
+        return result_content.strip()
+        
+    except Exception as e:
+        logger.error(f"Error in content generation for clean titles: {e}")
+        # Fallback to original content
+        return clean_content
+
+async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
+    """
+    Get a complete response directly from OpenAI API (non-streaming).
+    Returns the full response as a string.
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI request with model {model}")
+        logger.info(f"[OPENAI_DIRECT] Prompt length: {len(prompt)} chars")
+        
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_DIRECT] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Create the chat completion (non-streaming)
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4000,
+            temperature=0.2
+        )
+        
+        if response.choices and len(response.choices) > 0:
+            content = response.choices[0].message.content
+            logger.info(f"[OPENAI_DIRECT] Response received: {len(content)} characters")
+            return content
+        else:
+            logger.error(f"[OPENAI_DIRECT] No content in response")
+            return ""
+            
+    except Exception as e:
+        logger.error(f"[OPENAI_DIRECT] Error in OpenAI direct request: {e}", exc_info=True)
+        return f"Error generating content: {str(e)}"

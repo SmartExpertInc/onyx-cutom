@@ -393,15 +393,61 @@ export const uk = {
       numberedListSettings: "Налаштування нумерованого списку",
       alertSettings: "Налаштування попередження",
       imageSettings: "Налаштування зображення",
+      // Block settings fields
+      importantSection: "Важливий розділ",
+      importantSectionDescription: "Позначити цей розділ як важливий для виділення",
+      icon: "Іконка",
+      noIcon: "Без іконки",
+      infoIcon: "Інформація",
+      goalIcon: "Ціль",
+      starIcon: "Зірка",
+      appleIcon: "Яблуко",
+      awardIcon: "Нагорода",
+      boxesIcon: "Коробки",
+      calendarIcon: "Календар",
+      chartIcon: "Графік",
+      clockIcon: "Годинник",
+      globeIcon: "Глобус",
+      headingLevel: "Рівень заголовка",
+      large: "Великий",
+      medium: "Середній",
+      small: "Малий",
+      extraSmall: "Дуже малий",
+      extraLarge: "Дуже великий",
+      fontSize: "Розмір шрифту",
+      textSize: "Розмір тексту",
+      recommendation: "Рекомендація",
+      recommendationDescription: "Позначити цей абзац як рекомендацію",
+      blockSettings: "Налаштування блоку",
+      // Alert settings
+      alertType: "Тип попередження",
+      success: "Успіх",
+      warning: "Попередження",
+      danger: "Небезпека",
+      customIcon: "Власна іконка",
+      useDefaultForAlertType: "Використовувати за замовчуванням для типу попередження",
+      check: "Перевірка",
+      error: "Помилка",
+      backgroundColor: "Колір фону",
+      borderColor: "Колір межі",
+      textColor: "Колір тексту",
+      iconColor: "Колір іконки"
     },
 
     // Modal common
     modal: {
       customizeContent: "Налаштуйте ваш контент",
+      cancel: "Скасувати",
+      applyChanges: "Застосувати зміни",
     },
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Налаштування зображення",
+      format: "Формат",
+      size: "Розмір",
+      layout: "Макет",
+      effects: "Ефекти",
       imagePreview: "Попередній перегляд зображення",
       preview: "Попередній перегляд",
       noImageLoaded: "Зображення не завантажено",
@@ -448,6 +494,79 @@ export const uk = {
       proportionImageSmaller: "40% - 60% (Зображення менше)",
       proportionImageMuchLarger: "70% - 30% (Зображення набагато більше)",
       proportionImageMuchSmaller: "30% - 70% (Зображення набагато менше)",
+      // Quick size controls
+              quickSizeControls: "Розмір",
+              quickSettings: "Налаштування",
+      smaller: "Менше",
+      larger: "Більше",
+      resetToDefaultSize: "Скинути до розміру за замовчуванням",
+      currentWidth: "Поточна ширина",
+      auto: "авто",
+      maintainAspectRatio: "зберегти пропорції",
+      scale: "Масштаб",
+      // Layout options
+      layoutOptions: "Розташування",
+      partnerContent: "Партнерський контент",
+      partnerContentHelp: "контент для розміщення поруч з зображенням",
+      block1: "Блок 1: Заголовок/Абзац",
+      block2: "Блок 2: Список/Контент",
+      block3: "Блок 3: Інший блок контенту",
+      partnerContentDescription: "Виберіть, який блок контенту повинен з'являтися поруч з цим зображенням.",
+      spaceDistribution: "Розподіл простору",
+      spaceDistributionHelp: "скільки місця отримує кожен елемент",
+      equal: "Рівні (50% кожен)",
+      imageLarger: "Зображення більше (60% зображення, 40% контенту)",
+      contentLarger: "Контент більше (40% зображення, 60% контенту)",
+      imageDominant: "Зображення домінує (70% зображення, 30% контенту)",
+      contentDominant: "Контент домінує (30% зображення, 70% контенту)",
+      spaceDistributionDescription: "Контролює, скільки горизонтального простору займає зображення та контент.",
+      // Corner rounding options
+      cornerRounding: "Округлення кутів",
+      sharp: "Гострі",
+      slightlyRounded: "Трохи округлені",
+      rounded: "Округлені",
+      veryRounded: "Дуже округлені",
+      // Alignment options
+      left: "Ліворуч",
+      center: "По центру",
+      right: "Праворуч",
+      // Size options
+      small: "Малий",
+      medium: "Середній",
+      large: "Великий",
+      extraLarge: "Дуже великий",
+      // Layout descriptions
+      imageOnOwnLine: "Зображення на власному рядку",
+      sideBySideDescription: "Зображення та текст поруч",
+      // Visual effects
+      visualEffects: "Візуальні ефекти",
+      // Additional image settings
+      textWrapping: "Обтікання тексту",
+      position: "Позиція",
+      shadow: "Тінь",
+      border: "Межа",
+      none: "Немає",
+      subtle: "Легка",
+      strong: "Сильна",
+      livePreview: "Живий перегляд",
+      changesApplyInRealTime: "Зміни застосовуються в реальному часі",
+      documentPreview: "Перегляд документа",
+      livePreviewDescription: "Це показує, як ваше зображення з'явиться в документі. Зміни застосовуються в реальному часі під час налаштування параметрів.",
+      resetToDefault: "Скинути до за замовчуванням",
+      // Border options
+      solid: "Суцільна",
+      dashed: "Пунктирна",
+      dotted: "Крапкова",
+      // Advanced options
+      advanced: "Розширені",
+      opacity: "Прозорість",
+      rotation: "Поворот",
+      // Preview placeholders
+      noDocumentContent: "Контент документа недоступний для перегляду",
+      additionalContentPlaceholder: "Додатковий контент з вашого документа продовжиться тут, показуючи як зображення інтегрується з навколишнім текстом та макетом.",
+      previewDescription: "Попередній перегляд демонструє зміни стилю зображення в реальному часі та як це впливає на загальну презентацію документа.",
+      // Basic actions dropdown
+      openAdvancedSettings: "Відкрити розширені налаштування"
     },
 
     // Quality tiers
@@ -823,11 +942,6 @@ export const uk = {
       modeUsingAsBaseStructure: "Режим: Використання як базова структура",
       // Additional keys for themes and content sections
       setupContentBuilder: "Налаштуйте ваш Конструктор Контенту",
-      // Language options
-      english: "Англійська",
-      ukrainian: "Українська",
-      spanish: "Іспанська",
-      russian: "Російська",
 
       aiWillUseTextAsContext:
         "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту.",

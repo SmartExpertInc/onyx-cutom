@@ -8,11 +8,14 @@ import {
 } from '@/types/textPresentation';
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
-  Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw
+  Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
+  ChevronDown, Move, Trash2, Copy, Edit3
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
 import { uploadOnePagerImage } from '@/lib/designTemplateApi';
+import WordStyleImageEditor from './WordStyleImageEditor';
+import ImageBasicActions from './ImageBasicActions';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -194,6 +197,13 @@ interface RenderBlockProps {
   onMoveBlockDown?: (index: number) => void;
   isFirstBlock?: boolean;
   isLastBlock?: boolean;
+  documentContent?: string;
+  onDragStart?: (e: React.DragEvent, index: number) => void;
+  onDragOver?: (e: React.DragEvent, index: number) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent, index: number) => void;
+  onDragEnd?: () => void;
+  isDraggedOver?: boolean;
 }
 
 // Modern Settings Modal Component
@@ -344,39 +354,39 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">List Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.icon')}</label>
           <select
             value={listBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="">Default bullet</option>
-            <option value="none">No icon</option>
-            <option value="info">ℹ️ Info</option>
-            <option value="goal">🎯 Goal</option>
-            <option value="star">⭐ Star</option>
-            <option value="apple">🍎 Apple</option>
-            <option value="award">🏆 Award</option>
-            <option value="boxes">📦 Boxes</option>
-            <option value="calendar">📅 Calendar</option>
-            <option value="chart">📊 Chart</option>
-            <option value="clock">⏰ Clock</option>
-            <option value="globe">🌍 Globe</option>
+            <option value="">{t('interface.blockSettings.noIcon')}</option>
+            <option value="none">{t('interface.blockSettings.noIcon')}</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textSize')}</label>
           <select
             value={listBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="8px">Extra Small (8px)</option>
-            <option value="10px">Small (10px)</option>
-            <option value="12px">Medium (12px)</option>
-            <option value="14px">Large (14px)</option>
-            <option value="16px">Extra Large (16px)</option>
+            <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
+            <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
+            <option value="12px">{t('interface.blockSettings.medium')} (12px)</option>
+            <option value="14px">{t('interface.blockSettings.large')} (14px)</option>
+            <option value="16px">{t('interface.blockSettings.extraLarge')} (16px)</option>
           </select>
         </div>
       </div>
@@ -388,46 +398,46 @@ const BlockSettingsModal = ({
     return (
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Alert Type</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.alertType')}</label>
           <select
             value={alertBlock.alertType}
             onChange={e => onTextChange?.(fieldPath('alertType'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="info">ℹ️ Info</option>
-            <option value="success">✅ Success</option>
-            <option value="warning">⚠️ Warning</option>
-            <option value="danger">❌ Danger</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="success">✅ {t('interface.blockSettings.success')}</option>
+            <option value="warning">⚠️ {t('interface.blockSettings.warning')}</option>
+            <option value="danger">❌ {t('interface.blockSettings.danger')}</option>
           </select>
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Custom Icon</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.customIcon')}</label>
           <select
             value={alertBlock.iconName || ''}
             onChange={e => onTextChange?.(fieldPath('iconName'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="">Use default for alert type</option>
-            <option value="info">ℹ️ Info</option>
-            <option value="check">✅ Check</option>
-            <option value="alertTriangle">⚠️ Warning</option>
-            <option value="xCircle">❌ Error</option>
-            <option value="goal">🎯 Goal</option>
-            <option value="star">⭐ Star</option>
-            <option value="apple">🍎 Apple</option>
-            <option value="award">🏆 Award</option>
-            <option value="boxes">📦 Boxes</option>
-            <option value="calendar">📅 Calendar</option>
-            <option value="chart">📊 Chart</option>
-            <option value="clock">⏰ Clock</option>
-            <option value="globe">🌍 Globe</option>
+            <option value="">{t('interface.blockSettings.useDefaultForAlertType')}</option>
+            <option value="info">ℹ️ {t('interface.blockSettings.infoIcon')}</option>
+            <option value="check">✅ {t('interface.blockSettings.check')}</option>
+            <option value="alertTriangle">⚠️ {t('interface.blockSettings.warning')}</option>
+            <option value="xCircle">❌ {t('interface.blockSettings.error')}</option>
+            <option value="goal">🎯 {t('interface.blockSettings.goalIcon')}</option>
+            <option value="star">⭐ {t('interface.blockSettings.starIcon')}</option>
+            <option value="apple">🍎 {t('interface.blockSettings.appleIcon')}</option>
+            <option value="award">🏆 {t('interface.blockSettings.awardIcon')}</option>
+            <option value="boxes">📦 {t('interface.blockSettings.boxesIcon')}</option>
+            <option value="calendar">📅 {t('interface.blockSettings.calendarIcon')}</option>
+            <option value="chart">📊 {t('interface.blockSettings.chartIcon')}</option>
+            <option value="clock">⏰ {t('interface.blockSettings.clockIcon')}</option>
+            <option value="globe">🌍 {t('interface.blockSettings.globeIcon')}</option>
           </select>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Background Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.backgroundColor')}</label>
             <input
               type="color"
               value={alertBlock.backgroundColor || '#ffffff'}
@@ -436,7 +446,7 @@ const BlockSettingsModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Border Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.borderColor')}</label>
             <input
               type="color"
               value={alertBlock.borderColor || '#000000'}
@@ -445,7 +455,7 @@ const BlockSettingsModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Text Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textColor')}</label>
             <input
               type="color"
               value={alertBlock.textColor || '#000000'}
@@ -454,7 +464,7 @@ const BlockSettingsModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Icon Color</label>
+            <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.iconColor')}</label>
             <input
               type="color"
               value={alertBlock.iconColor || '#000000'}
@@ -465,17 +475,17 @@ const BlockSettingsModal = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-3">Text Size</label>
+          <label className="block text-sm font-medium text-gray-900 mb-3">{t('interface.blockSettings.textSize')}</label>
           <select
             value={alertBlock.fontSize || '10px'}
             onChange={e => onTextChange?.(fieldPath('fontSize'), e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
           >
-            <option value="8px">Extra Small (8px)</option>
-            <option value="10px">Small (10px)</option>
-            <option value="12px">Medium (12px)</option>
-            <option value="14px">Large (14px)</option>
-            <option value="16px">Extra Large (16px)</option>
+            <option value="8px">{t('interface.blockSettings.extraSmall')} (8px)</option>
+            <option value="10px">{t('interface.blockSettings.small')} (10px)</option>
+            <option value="12px">{t('interface.blockSettings.medium')} (12px)</option>
+            <option value="14px">{t('interface.blockSettings.large')} (14px)</option>
+            <option value="16px">{t('interface.blockSettings.extraLarge')} (16px)</option>
           </select>
         </div>
       </div>
@@ -683,13 +693,13 @@ const BlockSettingsModal = ({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              {t('interface.modal.cancel', 'Cancel')}
+              {t('interface.modal.cancel')}
             </button>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {t('interface.modal.applyChanges', 'Apply Changes')}
+              {t('interface.modal.applyChanges')}
             </button>
           </div>
         </div>
@@ -720,10 +730,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isMiniSectionHeadline, isListItemContent,
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
-    onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock
+    onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
+    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
   } = props;
 
-  const [showSettings, setShowSettings] = useState(false);
+  const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
+  const [showBasicActions, setShowBasicActions] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showDropdownMenu, setShowDropdownMenu] = useState(false);
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
@@ -792,7 +806,35 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const styledText = parseAndStyleText(text);
 
       return (
-        <div className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'}`}>
+        <div 
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+          className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'} ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+        >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
@@ -841,7 +883,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             ) : ( styledText )}
           </Tag>
           
-          {/* Settings Button - Only for images (headlines don't have settings) */}
+
         </div>
       );
     }
@@ -862,9 +904,37 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       if (isEditing && onTextChange) {
         const currentRawText = (block as ParagraphBlock).text;
         return (
-          <div className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative`}>
+          <div 
+            draggable={isEditing}
+            onDragStart={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                onDragStart(e, contentBlockIndex);
+              }
+            }}
+            onDragOver={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                onDragOver(e, contentBlockIndex);
+              }
+            }}
+            onDragLeave={(e) => {
+              if (isEditing && onDragLeave) {
+                onDragLeave(e);
+              }
+            }}
+            onDrop={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                onDrop(e, contentBlockIndex);
+              }
+            }}
+            onDragEnd={() => {
+              if (isEditing && onDragEnd) {
+                onDragEnd();
+              }
+            }}
+            className={`${isRecommendation ? recommendationClasses : ''} ${finalMb} text-left group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+          >
             {/* Arrow buttons for reordering */}
-            {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -932,9 +1002,37 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       }
 
       return (
-        <div className={`${containerClasses.trim()} group relative`}>
+        <div 
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+          className={`${containerClasses.trim()} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+        >
           {/* Arrow buttons for reordering */}
-          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
             <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -999,6 +1097,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                       onTextChange={onTextChange}
                                       basePath={listItemPath(index, String(blockIndex))}
                                       suppressRecommendationStripe={hasRecommendation}
+                                      documentContent={documentContent}
                                   />
                               ))}
                           </div>
@@ -1012,6 +1111,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               onTextChange={onTextChange}
                               basePath={listItemPath(index)}
                               suppressRecommendationStripe={hasRecommendation}
+                              documentContent={documentContent}
                           />
                       )}
                     </div>
@@ -1066,6 +1166,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                     onTextChange={onTextChange}
                                     basePath={listItemPath(index, String(blockIndex))}
                                     suppressRecommendationStripe={hasRecommendation}
+                                    documentContent={documentContent}
                                 />
                             ))}
                         </div>
@@ -1079,6 +1180,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                             onTextChange={onTextChange}
                             basePath={listItemPath(index)}
                             suppressRecommendationStripe={hasRecommendation}
+                            documentContent={documentContent}
                         />
                     )}
                   </div>
@@ -1099,9 +1201,38 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       const AlertIconComponent = iconName ? iconMap[iconName] : Icon;
       
       return (
-        <div className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative`} role="alert">
+        <div 
+          draggable={isEditing}
+          onDragStart={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+              onDragStart(e, contentBlockIndex);
+            }
+          }}
+          onDragOver={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+              onDragOver(e, contentBlockIndex);
+            }
+          }}
+          onDragLeave={(e) => {
+            if (isEditing && onDragLeave) {
+              onDragLeave(e);
+            }
+          }}
+          onDrop={(e) => {
+            if (isEditing && contentBlockIndex !== undefined && onDrop) {
+              onDrop(e, contentBlockIndex);
+            }
+          }}
+          onDragEnd={() => {
+            if (isEditing && onDragEnd) {
+              onDragEnd();
+            }
+          }}
+          className={`p-2 border-l-4 ${bgColor} ${defaultBorderColor} ${isLastInBox ? 'mb-0' : 'mb-3'} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+          role="alert"
+        >
           {/* Arrow buttons for reordering */}
-          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -1363,32 +1494,54 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </div>
             )}
             
-            {/* Settings button */}
-            {isEditing && (
-              <button
-                onClick={() => setShowSettings(true)}
-                className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 hover:bg-blue-700 rounded p-1.5 text-xs text-white shadow-lg z-50"
-                title="Image settings"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
-            )}
-            
+            {/* Image with overlay button */}
+            <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+              style={{
+                float: floatDirection,
+                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`
+              }}
+            >
             <img 
               src={imageSrc} 
               alt={alt || 'Image'} 
-              className="rounded-lg shadow-md"
+                className="rounded-lg"
               style={{
                 maxWidth: maxWidth || '200px',
                 width: width || 'auto',
                 height: height || 'auto',
                 borderRadius: borderRadius || '8px',
-                float: floatDirection,
-                margin: `0 ${marginDirection === 'right' ? '16px' : '0'} 16px ${marginDirection === 'left' ? '16px' : '0'}`,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  display: 'block',
+                  boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                  border: (block as ImageBlock).border || 'none',
+                  opacity: (block as ImageBlock).opacity || 1,
+                  transform: (block as ImageBlock).transform || 'none'
               }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -1397,6 +1550,24 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 if (fallback) fallback.style.display = 'block';
               }}
             />
+              
+              {/* Basic Actions Button - appears on image hover */}
+              {isEditing && (
+                <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 hover:opacity-100 transition-opacity duration-200 z-50">
+                  <ImageBasicActions
+                    imageBlock={block as ImageBlock}
+                    onImageChange={(updatedBlock) => {
+                      Object.keys(updatedBlock).forEach(key => {
+                        if (key !== 'type' && key !== 'src') {
+                          onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                        }
+                      });
+                    }}
+                    onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                  />
+                </div>
+              )}
+            </div>
             <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
               {alt || 'Image not available'}
             </div>
@@ -1406,13 +1577,178 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </p>
             )}
             
-            {/* Settings Modal for inline layout */}
-            <BlockSettingsModal
-              isOpen={showSettings}
-              onClose={() => setShowSettings(false)}
-              block={block}
-              onTextChange={onTextChange}
-              basePath={basePath}
+            {/* Word-style Image Editor */}
+            <WordStyleImageEditor
+              isOpen={showWordStyleEditor}
+              onClose={() => setShowWordStyleEditor(false)}
+              imageBlock={block as ImageBlock}
+              documentContent={documentContent}
+              onImageChange={(updatedBlock) => {
+                // Update all properties of the image block
+                Object.keys(updatedBlock).forEach(key => {
+                  if (key !== 'type' && key !== 'src') {
+                    onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                  }
+                });
+              }}
+            />
+          </div>
+        );
+      } else if (layoutMode === 'side-by-side-left' || layoutMode === 'side-by-side-right') {
+        // Side-by-side layout - this will be handled by the parent component
+        // For now, render as standalone but with layout info
+        return (
+                      <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`} 
+              data-layout-mode={layoutMode} 
+              data-partner-index={layoutPartnerIndex} 
+              data-proportion={layoutProportion}
+            >
+            {/* Arrow buttons for reordering */}
+            {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+                <button
+                  onClick={() => onMoveBlockUp(contentBlockIndex)}
+                  disabled={isFirstBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move up"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => onMoveBlockDown(contentBlockIndex)}
+                  disabled={isLastBlock}
+                  className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Move down"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+            
+            {/* Image with overlay button */}
+            <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`inline-block relative group/image w-full ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+            >
+            <img 
+              src={imageSrc} 
+              alt={alt || 'Image'} 
+                className="rounded-lg w-full"
+              style={{
+                maxWidth: maxWidth || '100%',
+                width: width || 'auto',
+                height: height || 'auto',
+                borderRadius: borderRadius || '8px',
+                display: 'block',
+                  boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                  border: (block as ImageBlock).border || 'none',
+                  opacity: (block as ImageBlock).opacity || 1,
+                  transform: (block as ImageBlock).transform || 'none'
+              }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
+              
+              {/* Basic Actions Button - appears on image hover */}
+              {isEditing && (
+                <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 hover:opacity-100 transition-opacity duration-200 z-50">
+                  <ImageBasicActions
+                    imageBlock={block as ImageBlock}
+                    onImageChange={(updatedBlock) => {
+                      Object.keys(updatedBlock).forEach(key => {
+                        if (key !== 'type' && key !== 'src') {
+                          onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                        }
+                      });
+                    }}
+                    onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                  />
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'none', padding: '20px', border: '2px dashed #ccc', textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
+              {alt || 'Image not available'}
+            </div>
+            {caption && (
+              <p style={{ fontSize: '10px', color: '#666', textAlign: alignment as 'left' | 'center' | 'right', margin: '8px 0 0 0', fontStyle: 'italic' }}>
+                {caption}
+              </p>
+            )}
+            
+            {/* Word-style Image Editor */}
+            <WordStyleImageEditor
+              isOpen={showWordStyleEditor}
+              onClose={() => setShowWordStyleEditor(false)}
+              imageBlock={block as ImageBlock}
+              documentContent={documentContent}
+              onImageChange={(updatedBlock) => {
+                // Update all properties of the image block
+                Object.keys(updatedBlock).forEach(key => {
+                  if (key !== 'type' && key !== 'src') {
+                    onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                  }
+                });
+              }}
             />
           </div>
         );
@@ -1420,9 +1756,37 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
       
       // Standard standalone layout
       return (
-        <div className={`my-4 ${alignmentClass} group relative`}>
+                    <div 
+              draggable={isEditing}
+              onDragStart={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                  onDragStart(e, contentBlockIndex);
+                }
+              }}
+              onDragOver={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                  onDragOver(e, contentBlockIndex);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (isEditing && onDragLeave) {
+                  onDragLeave(e);
+                }
+              }}
+              onDrop={(e) => {
+                if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                  onDrop(e, contentBlockIndex);
+                }
+              }}
+              onDragEnd={() => {
+                if (isEditing && onDragEnd) {
+                  onDragEnd();
+                }
+              }}
+              className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+            >
           {/* Arrow buttons for reordering */}
-          {contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+          {/* {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
@@ -1445,9 +1809,37 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </svg>
               </button>
             </div>
-          )}
+          )} */}
           
-          <div className="inline-block relative">
+          <div 
+            draggable={isEditing}
+            onDragStart={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragStart) {
+                onDragStart(e, contentBlockIndex);
+              }
+            }}
+            onDragOver={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDragOver) {
+                onDragOver(e, contentBlockIndex);
+              }
+            }}
+            onDragLeave={(e) => {
+              if (isEditing && onDragLeave) {
+                onDragLeave(e);
+              }
+            }}
+            onDrop={(e) => {
+              if (isEditing && contentBlockIndex !== undefined && onDrop) {
+                onDrop(e, contentBlockIndex);
+              }
+            }}
+            onDragEnd={() => {
+              if (isEditing && onDragEnd) {
+                onDragEnd();
+              }
+            }}
+            className={`inline-block relative group/image ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+          >
             {/* Use regular img tag for better compatibility in view mode */}
             <img
               src={imageSrc}
@@ -1457,7 +1849,11 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 width: `${imageWidth}px`,
                 height: height ? (typeof height === 'number' ? `${height}px` : height) : 'auto',
                 borderRadius: borderRadius || '8px',
-                maxWidth: maxWidth || '100%'
+                maxWidth: maxWidth || '100%',
+                boxShadow: (block as ImageBlock).boxShadow || '0 2px 4px rgba(0,0,0,0.1)',
+                border: (block as ImageBlock).border || 'none',
+                opacity: (block as ImageBlock).opacity || 1,
+                transform: (block as ImageBlock).transform || 'none'
               }}
               onError={(e) => {
                 console.error('Image failed to load:', imageSrc);
@@ -1468,6 +1864,23 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 }
               }}
             />
+            
+            {/* Basic Actions Button - appears on image hover */}
+            {isEditing && onTextChange && (
+              <div className="absolute top-2 right-2 opacity-0 group-hover/image:opacity-100 hover:opacity-100 transition-opacity duration-200 z-50">
+                <ImageBasicActions
+                  imageBlock={block as ImageBlock}
+                  onImageChange={(updatedBlock) => {
+                    Object.keys(updatedBlock).forEach(key => {
+                      if (key !== 'type' && key !== 'src') {
+                        onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                      }
+                    });
+                  }}
+                  onOpenAdvancedSettings={() => setShowWordStyleEditor(true)}
+                />
+              </div>
+            )}
             
             {/* Scaling Controls in Edit Mode */}
 
@@ -1489,23 +1902,22 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             )}
           </div>
           
-          {/* Modern Settings Button */}
-          {isEditing && onTextChange && (
-            <button
-              onClick={() => setShowSettings(true)}
-              className="absolute -right-8 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-300"
-              title="Image settings"
-            >
-              <Settings className="w-4 h-4 text-gray-600" />
-            </button>
-          )}
+
           
-          <BlockSettingsModal
-            isOpen={showSettings}
-            onClose={() => setShowSettings(false)}
-            block={block}
-            onTextChange={onTextChange}
-            basePath={basePath}
+          {/* Word-style Image Editor */}
+          <WordStyleImageEditor
+            isOpen={showWordStyleEditor}
+            onClose={() => setShowWordStyleEditor(false)}
+            imageBlock={block as ImageBlock}
+            documentContent={documentContent}
+            onImageChange={(updatedBlock) => {
+              // Update all properties of the image block
+              Object.keys(updatedBlock).forEach(key => {
+                if (key !== 'type' && key !== 'src') {
+                  onTextChange?.(fieldPath(key), (updatedBlock as any)[key]);
+                }
+              });
+            }}
           />
         </div>
       );
@@ -1649,12 +2061,87 @@ const ImageUploadModal: React.FC<{
 };
 
 const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName }: TextPresentationDisplayProps): React.JSX.Element | null => {
+  // Extract text content from the document for preview
+  const extractDocumentText = (data: TextPresentationData | null): string => {
+    if (!data?.contentBlocks) return '';
+    
+    const extractedText = data.contentBlocks
+      .map(block => {
+        if (block.type === 'paragraph') return block.text;
+        if (block.type === 'headline') return block.text;
+        if (block.type === 'alert') return block.text;
+        if (block.type === 'bullet_list') return block.items?.join(' ') || '';
+        if (block.type === 'numbered_list') return block.items?.join(' ') || '';
+        return '';
+      })
+      .filter(text => text.length > 0)
+      .join(' ');
+    
+    // Return more content for preview, but still limit to avoid performance issues
+    return extractedText.slice(0, 1000); // Increased from 500 to 1000 characters
+  };
+
+  const documentContent = extractDocumentText(dataToDisplay);
+  
   const searchParams = useSearchParams();
   const lang = dataToDisplay?.detectedLanguage || searchParams?.get('lang') || 'en';
   const locale = locales[lang as keyof typeof locales] || locales.en;
   const { t } = useLanguage();
   
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Drag & Drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    if (isEditing) {
+      setDraggedItemIndex(index);
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', index.toString());
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    if (isEditing && draggedItemIndex !== null && draggedItemIndex !== index) {
+      e.preventDefault();
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (isEditing) {
+      setDragOverIndex(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (isEditing && draggedItemIndex !== null && draggedItemIndex !== dropIndex && dataToDisplay?.contentBlocks && onTextChange) {
+      const newContentBlocks = [...dataToDisplay.contentBlocks];
+      const draggedItem = newContentBlocks[draggedItemIndex];
+      
+      // Remove from old position
+      newContentBlocks.splice(draggedItemIndex, 1);
+      
+      // Insert at new position
+      const actualDropIndex = draggedItemIndex < dropIndex ? dropIndex - 1 : dropIndex;
+      newContentBlocks.splice(actualDropIndex, 0, draggedItem);
+      
+      // Update the data
+      onTextChange(['contentBlocks'], newContentBlocks);
+      
+      console.log(`📦 [DRAG & DROP] Moved block from index ${draggedItemIndex} to ${actualDropIndex}`);
+    }
+    
+    setDraggedItemIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemIndex(null);
+    setDragOverIndex(null);
+  };
 
   // 🔍 COMPREHENSIVE LOGGING: Print entire content when one-pager opens
   useEffect(() => {
@@ -1848,8 +2335,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   return (
     <div className="min-h-screen bg-white p-4">
-      <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-        <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
+        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+          <div className="bg-[#f4f5f6] rounded-3xl p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
             <header className="mb-4 text-left">
               {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
@@ -1896,6 +2383,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                           onMoveBlockDown={handleMoveBlockDown}
                           isFirstBlock={originalHeadlineIndex === 0}
                           isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                          onDragStart={handleDragStart}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                          onDragEnd={handleDragEnd}
+                          isDraggedOver={dragOverIndex === originalHeadlineIndex}
+                          documentContent={documentContent}
                         />
                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
@@ -1918,6 +2412,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onMoveBlockDown={handleMoveBlockDown}
                                   isFirstBlock={originalMiniHeadlineIndex === 0}
                                   isLastBlock={originalMiniHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                  onDragStart={handleDragStart}
+                                  onDragOver={handleDragOver}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                  onDragEnd={handleDragEnd}
+                                  isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
+                                  documentContent={documentContent}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -1930,6 +2431,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onMoveBlockDown={handleMoveBlockDown}
                                   isFirstBlock={originalMiniListIndex === 0}
                                   isLastBlock={originalMiniListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                  onDragStart={handleDragStart}
+                                  onDragOver={handleDragOver}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                  onDragEnd={handleDragEnd}
+                                  isDraggedOver={dragOverIndex === originalMiniListIndex}
+                                  documentContent={documentContent}
                                 />
                               </div>
                             );
@@ -1947,6 +2455,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                               onMoveBlockDown={handleMoveBlockDown}
                               isFirstBlock={originalSubIndex === 0}
                               isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                              onDragStart={handleDragStart}
+                              onDragOver={handleDragOver}
+                              onDragLeave={handleDragLeave}
+                              onDrop={handleDrop}
+                              onDragEnd={handleDragEnd}
+                              isDraggedOver={dragOverIndex === originalSubIndex}
+                              documentContent={documentContent}
                             />;
                           }
                         })}
@@ -1975,6 +2490,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onMoveBlockDown={handleMoveBlockDown}
                         isFirstBlock={originalHeadlineIndex === 0}
                         isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                        documentContent={documentContent}
                       />
                       <RenderBlock
                         block={item.list}
@@ -1987,6 +2503,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onMoveBlockDown={handleMoveBlockDown}
                         isFirstBlock={originalListIndex === 0}
                         isLastBlock={originalListIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                        onDragStart={handleDragStart}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onDragEnd={handleDragEnd}
+                        isDraggedOver={dragOverIndex === originalListIndex}
+                        documentContent={documentContent}
                       />
                     </div>
                   </div>
@@ -2009,6 +2532,13 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       onMoveBlockDown={handleMoveBlockDown}
                       isFirstBlock={originalIndex === 0}
                       isLastBlock={originalIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                      documentContent={documentContent}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onDragEnd={handleDragEnd}
+                      isDraggedOver={dragOverIndex === originalIndex}
                     />
                   </div>
                 );
