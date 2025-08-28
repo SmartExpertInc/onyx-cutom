@@ -644,6 +644,7 @@
             background-color: var(--bg-color);
             position: relative;
             min-width: 0;
+            overflow: visible; /* ALLOW images to move outside container bounds */
         }
         
         .big-image-left .image-placeholder {
@@ -733,6 +734,7 @@
             min-width: 0;
             width: 50%;
             height: 100%;
+            overflow: visible; /* ALLOW images to move outside container bounds */
         }
         
         .bullet-points .placeholder {
@@ -2110,8 +2112,8 @@
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
-                                width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 700 }}px;
-                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 350 }}px;
+                                width: {{ ('{}px'.format(slide.props.widthPx|int)) if slide.props.widthPx else '100%' }};
+                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 240 }}px;
                                 margin: 0 auto;
                                 margin-bottom: 24px !important;
                             ">
@@ -2191,7 +2193,7 @@
                     <div class="content-row">
                         <div class="placeholder-container">
                             {% if slide.props.imagePath %}
-                                <!-- FRONTEND EXACT MATCH: Container with dimensions (like big-image-left) -->
+                                <!-- FRONTEND EXACT MATCH: Container with dimensions (EXACTLY like big-image-left) -->
                                 <div style="
                                     position: relative;
                                     overflow: hidden;
@@ -2201,9 +2203,8 @@
                                     justify-content: center;
                                     width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 320 }}px;
                                     height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 320 }}px;
-                                    margin: 0 auto;
                                 ">
-                                    <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
+                                    <!-- FRONTEND EXACT MATCH: Image with offset/scale (EXACTLY like big-image-left) -->
                                     <img src="{{ slide.props.imagePath }}" 
                                          alt="Uploaded image" 
                                          style="
@@ -2226,7 +2227,7 @@
                                             display: block;
                                          "
                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                </div>
+                            </div>
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
                                     <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
