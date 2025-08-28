@@ -125,7 +125,7 @@ export default function SceneTimeline({
 
   return (
     <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 60px)' }}>
-      <div className="flex items-end gap-10 overflow-x-auto">
+      <div className="flex items-end gap-4 overflow-x-auto">
           {/* Play Button with Time */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="relative flex items-center justify-center h-16">
@@ -236,9 +236,9 @@ export default function SceneTimeline({
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
                     </div>
                   </div>
-                  <div className="h-8 flex items-center justify-center">
-                    <span className="text-sm text-gray-500">Transition</span>
-                  </div>
+                                     <div className="h-8 flex items-center justify-center">
+                     {/* Empty space to maintain layout consistency */}
+                   </div>
                 </div>
               )}
             </React.Fragment>

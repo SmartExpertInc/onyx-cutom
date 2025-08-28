@@ -631,8 +631,8 @@ export default function Projects2ViewPage() {
 
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
-          {/* Top Container - Takes 75% of main container height (matching VideoPresentation) */}
-          <div className="h-[75%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
+          {/* Top Container - Takes 80% of main container height (increased from 75%) */}
+          <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Settings Buttons - Top Left Corner */}
             {isComponentBasedVideoLesson && componentBasedSlideDeck && (
               <div className="absolute top-2 left-2 z-10 flex gap-1">
@@ -728,7 +728,7 @@ export default function Projects2ViewPage() {
             )}
           </div>
 
-          {/* Bottom Container - Takes 30% of main container height */}
+          {/* Bottom Container - Takes 20% of main container height (reduced from 30% due to top container increase) */}
           <SceneTimeline 
             scenes={[]} // Commented out regular scenes for now
             aspectRatio={aspectRatio}
