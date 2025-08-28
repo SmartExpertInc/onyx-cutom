@@ -2034,7 +2034,7 @@
                 <div class="big-image-left">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <!-- FRONTEND EXACT MATCH: Container with dimensions + element positioning -->
+                            <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
                             <div style="
                                 position: relative;
                                 overflow: hidden;
@@ -2044,13 +2044,6 @@
                                 justify-content: center;
                                 width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 500 }}px;
                                 height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 350 }}px;
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set imageId = slide.slideId + '-image' %}
-                                    {% if slide.metadata.elementPositions[imageId] %}
-                                        transform: translate({{ slide.metadata.elementPositions[imageId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[imageId].y|float|round(2) }}px);
-                                    {% endif %}
-                                {% endif %}
-                                transform-origin: top left;
                             ">
                                 <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
                                 <img src="{{ slide.props.imagePath }}" 
@@ -2109,7 +2102,7 @@
                 <div class="big-image-top">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <!-- FRONTEND EXACT MATCH: Container with dimensions + element positioning -->
+                            <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
                             <div style="
                                 position: relative;
                                 overflow: hidden;
@@ -2121,13 +2114,6 @@
                                 height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 240 }}px;
                                 margin: 0 auto;
                                 margin-bottom: 24px !important;
-                                {% if slide.metadata and slide.metadata.elementPositions %}
-                                    {% set imageId = slide.slideId + '-image' %}
-                                    {% if slide.metadata.elementPositions[imageId] %}
-                                        transform: translate({{ slide.metadata.elementPositions[imageId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[imageId].y|float|round(2) }}px);
-                                    {% endif %}
-                                {% endif %}
-                                transform-origin: top left;
                             ">
                                 <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
                                 <img src="{{ slide.props.imagePath }}" 
