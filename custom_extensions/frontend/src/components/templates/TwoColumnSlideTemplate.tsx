@@ -93,6 +93,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         padding: '60px',
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'end',
         justifyContent: 'space-between'
       }}>
         {/* Profile image */}
@@ -101,7 +102,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
-          alignSelf: 'flex-end'
+          marginBottom: '40px'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -120,84 +121,58 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         </div>
 
         {/* Title */}
-        <div style={{
-          fontSize: '28px',
-          color: themeTitle,
-          lineHeight: '1.2',
-          marginBottom: '20px',
-          textAlign: 'right'
-        }}>
-          {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
-              initialValue={currentTitle}
-              onSave={handleTitleSave}
-              onCancel={handleTitleCancel}
-              multiline={true}
-              className="two-column-title-editor"
-              style={{
-                fontSize: '28px',
-                color: themeTitle,
-                lineHeight: '1.2',
-                width: '100%',
-                height: 'auto',
-                textAlign: 'right'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingTitle(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentTitle}
-            </div>
-          )}
-        </div>
 
-        {/* Content text */}
+
+        {/* Content */}
         <div style={{
-          fontSize: '14px',
-          color: themeContent,
-          lineHeight: '1.6',
-          textAlign: 'right',
-          maxWidth: '350px',
-          alignSelf: 'flex-end'
+          flex: '1',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center'
         }}>
-          {isEditable && editingContent ? (
-            <ImprovedInlineEditor
-              initialValue={currentContent}
-              onSave={handleContentSave}
-              onCancel={handleContentCancel}
-              multiline={true}
-              className="two-column-content-editor"
-              style={{
-                fontSize: '14px',
-                color: themeContent,
-                lineHeight: '1.6',
-                width: '100%',
-                height: 'auto',
-                textAlign: 'right'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingContent(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentContent}
-            </div>
-          )}
+
+          {/* Content text */}
+          <div style={{
+            fontSize: '14px',
+            color: themeContent,
+            lineHeight: '1.6',
+            position: 'relative',
+            bottom: '-100px'
+          }}>
+            {isEditable && editingContent ? (
+              <ImprovedInlineEditor
+                initialValue={currentContent}
+                onSave={handleContentSave}
+                onCancel={handleContentCancel}
+                multiline={true}
+                className="two-column-content-editor"
+                style={{
+                  fontSize: '14px',
+                  color: themeContent,
+                  lineHeight: '1.6',
+                  width: '100%',
+                  height: 'auto',
+                  minHeight: '100px'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingContent(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentContent}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Right section with image */}
       <div style={{
-        width: '50%',
+        width: '85%',
         height: '100%',
         position: 'relative'
       }}>
@@ -211,7 +186,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'cover'
+            objectFit: 'contain'
           }}
         />
       </div>
