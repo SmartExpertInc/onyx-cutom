@@ -217,6 +217,19 @@ const WorkspaceMembers: React.FC = () => {
     );
   }, []);
 
+  const handleRoleChange = (memberId: number, newRoleId: string) => {
+    const selectedRole = getRoleById(newRoleId);
+    if (!selectedRole) return;
+
+    setMembers(prev =>
+      prev.map(m =>
+        m.id === memberId
+          ? { ...m, roleId: newRoleId, role: selectedRole.name }
+          : m
+      )
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Search, Filter, and Create Button */}
@@ -326,7 +339,18 @@ const WorkspaceMembers: React.FC = () => {
                           color: getRoleTextColor(member.role, member.roleId)
                         }}
                       >
-                        {member.role}
+                        <select
+                          value={formData.status}
+                          onChange={(e) => handleRoleChange(member.id, e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
+                          required
+                        >
+                          {customRoles.map((role) => (
+                            <option key={role.id} value={role.id} style={{ color: role.textColor }}>
+                              {role.name}
+                            </option>
+                          ))}
+                        </select>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
