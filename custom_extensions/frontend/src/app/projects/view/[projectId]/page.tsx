@@ -1073,7 +1073,7 @@ export default function ProjectInstanceViewPage() {
         queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
         queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
         queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
-        queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
+        queryParams.append('time', columnVisibility.estCreationTime ? '1' : '0');
         queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
         queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
     }
