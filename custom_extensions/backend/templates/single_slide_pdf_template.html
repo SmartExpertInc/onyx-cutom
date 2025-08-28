@@ -2035,42 +2035,20 @@
                 {% elif slide.templateId == 'big-image-left' %}
                 <div class="big-image-left">
                     <div class="image-container">
-                        {% if slide.props.imagePath %}
-                            <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
-                            <div style="
-                                position: relative;
-                                overflow: hidden;
-                                border-radius: 8px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 500 }}px;
-                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 350 }}px;
-                            ">
-                                <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
+                                                    {% if slide.props.imagePath %}
+                                <!-- EXACT TWO-COLUMNS APPROACH: Direct image styling without container wrapper -->
                                 <img src="{{ slide.props.imagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: 100%;
-                                        height: 100%;
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '500px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '350px' }};
+                                        margin: 0; margin-bottom: 24px !important; 
                                         object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                        {% if slide.props.imageOffset or slide.props.imageScale %}
-                                            transform: 
-                                            {% if slide.props.imageOffset %}
-                                                translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
-                                            {% endif %}
-                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
-                                            {% endif %};
-                                            transform-origin: center center;
-                                        {% endif %}
-                                        border-radius: 8px;
-                                        margin: 0;
-                                        padding: 0;
-                                        display: block;
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            </div>
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
@@ -2193,41 +2171,19 @@
                     <div class="content-row">
                         <div class="placeholder-container">
                             {% if slide.props.imagePath %}
-                                <!-- FRONTEND EXACT MATCH: Container with dimensions (EXACTLY like big-image-left) -->
-                                <div style="
-                                    position: relative;
-                                    overflow: hidden;
-                                    border-radius: 8px;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    width: {{ (slide.props.widthPx|int) if slide.props.widthPx else 320 }}px;
-                                    height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 320 }}px;
-                                ">
-                                    <!-- FRONTEND EXACT MATCH: Image with offset/scale (EXACTLY like big-image-left) -->
-                                    <img src="{{ slide.props.imagePath }}" 
-                                         alt="Uploaded image" 
-                                         style="
-                                            width: 100%;
-                                            height: 100%;
-                                            object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
-                                            {% if slide.props.imageOffset or slide.props.imageScale %}
-                                                transform: 
-                                                {% if slide.props.imageOffset %}
-                                                    translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
-                                                {% endif %}
-                                                {% if slide.props.imageScale and slide.props.imageScale != 1 %}
-                                                    {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
-                                                {% endif %};
-                                                transform-origin: center center;
-                                            {% endif %}
-                                            border-radius: 8px;
-                                            margin: 0;
-                                            padding: 0;
-                                            display: block;
-                                         "
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            </div>
+                                <!-- EXACT TWO-COLUMNS APPROACH: Direct image styling without container wrapper -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '320px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '320px' }};
+                                        margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
                                     <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
