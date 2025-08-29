@@ -38,7 +38,7 @@ class CompositionConfig:
     video_codec: str = 'libx264'
     audio_codec: str = 'aac'
     quality: str = 'high'  # 'high', 'medium', 'low'
-    layout: str = 'side_by_side'  # 'side_by_side', 'picture_in_picture', 'split_screen'
+    layout: str = 'picture_in_picture'  # 'side_by_side', 'picture_in_picture', 'split_screen'
 
 class ProfessionalVideoComposer:
     """Professional video composition service using FFmpeg."""
@@ -74,135 +74,69 @@ class ProfessionalVideoComposer:
             Path to the composed video file
         """
         try:
-            logger.info(f"Starting video composition: {config.layout}")
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Starting video composition: {config.layout}")
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Input files:")
+            logger.info(f"  - Slide video: {slide_video}")
+            logger.info(f"  - Avatar video: {avatar_video}")
+            logger.info(f"  - Output path: {config.output_path}")
+            logger.info(f"  - Resolution: {config.resolution}")
+            logger.info(f"  - Quality: {config.quality}")
             
             # Validate input files
             if not os.path.exists(slide_video):
+                logger.error(f"🎬 [VIDEO_COMPOSITION] Slide video not found: {slide_video}")
                 raise FileNotFoundError(f"Slide video not found: {slide_video}")
             if not os.path.exists(avatar_video):
+                logger.error(f"🎬 [VIDEO_COMPOSITION] Avatar video not found: {avatar_video}")
                 raise FileNotFoundError(f"Avatar video not found: {avatar_video}")
             
-            # Get video durations
+            # Get video durations and dimensions
             slide_duration = await self._get_video_duration(slide_video)
             avatar_duration = await self._get_video_duration(avatar_video)
             
-            logger.info(f"Slide duration: {slide_duration}s, Avatar duration: {avatar_duration}s")
+            slide_dimensions = await self._get_video_dimensions(slide_video)
+            avatar_dimensions = await self._get_video_dimensions(avatar_video)
             
-            # Choose composition method based on layout
-            if config.layout == 'side_by_side':
-                return await self._compose_side_by_side(slide_video, avatar_video, config)
-            elif config.layout == 'picture_in_picture':
-                return await self._compose_pip(slide_video, avatar_video, config)
-            elif config.layout == 'split_screen':
-                return await self._compose_split_screen(slide_video, avatar_video, config)
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Video analysis:")
+            logger.info(f"  - Slide duration: {slide_duration}s, dimensions: {slide_dimensions}")
+            logger.info(f"  - Avatar duration: {avatar_duration}s, dimensions: {avatar_dimensions}")
+            
+            # Use SimpleVideoComposer for reliable, single-method composition
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Using SimpleVideoComposer (OpenCV-based)")
+            logger.info(f"🎬 [VIDEO_COMPOSITION] Eliminating dual-approach complexity")
+            
+            # Import and initialize SimpleVideoComposer
+            from .simple_video_composer import SimpleVideoComposer
+            simple_composer = SimpleVideoComposer()
+            
+            # Progress tracking
+            def progress_callback(progress):
+                logger.info(f"🎬 [VIDEO_COMPOSITION] Composition progress: {progress}%")
+            
+            # Compose videos using simple, reliable method
+            success = await simple_composer.compose_videos(
+                slide_video_path=slide_video,
+                avatar_video_path=avatar_video,
+                output_path=config.output_path,
+                progress_callback=progress_callback
+            )
+            
+            # Cleanup
+            simple_composer.cleanup()
+            
+            if success:
+                logger.info("🎬 [VIDEO_COMPOSITION] Simple composition completed successfully")
+                return config.output_path
             else:
-                raise ValueError(f"Unsupported layout: {config.layout}")
+                logger.error("🎬 [VIDEO_COMPOSITION] Simple composition failed")
+                raise Exception("Video composition failed")
                 
         except Exception as e:
             logger.error(f"Video composition failed: {e}")
             raise
     
-    async def _compose_side_by_side(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """Side-by-side composition with professional quality."""
-        try:
-            logger.info("Creating side-by-side composition")
-            
-            # Calculate dimensions for each half
-            half_width = config.resolution[0] // 2
-            full_height = config.resolution[1]
-            
-            # Build FFmpeg command for side-by-side composition
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', f'[0:v]scale={half_width}:{full_height}[slide];[1:v]scale={half_width}:{full_height}[avatar];[slide][avatar]hstack=inputs=2',
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            return await self._execute_ffmpeg_command(cmd, "Side-by-side composition")
-            
-        except Exception as e:
-            logger.error(f"Side-by-side composition failed: {e}")
-            raise
-    
-    async def _compose_pip(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """Picture-in-picture composition with professional overlay."""
-        try:
-            logger.info("Creating picture-in-picture composition")
-            
-            # Calculate overlay dimensions (25% of main video)
-            overlay_width = config.resolution[0] // 4
-            overlay_height = config.resolution[1] // 4
-            
-            # Position overlay in bottom-right corner
-            overlay_x = config.resolution[0] - overlay_width - 20  # 20px margin
-            overlay_y = config.resolution[1] - overlay_height - 20  # 20px margin
-            
-            # Build FFmpeg command for PiP composition
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', f'[0:v][1:v]overlay={overlay_x}:{overlay_y}:shortest=1',
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            return await self._execute_ffmpeg_command(cmd, "Picture-in-picture composition")
-            
-        except Exception as e:
-            logger.error(f"Picture-in-picture composition failed: {e}")
-            raise
-    
-    async def _compose_split_screen(self, slide_video: str, avatar_video: str, config: CompositionConfig) -> str:
-        """Split screen composition with custom positioning."""
-        try:
-            logger.info("Creating split screen composition")
-            
-            # Create a more sophisticated split screen layout
-            # Slide takes 70% of width, avatar takes 30%
-            slide_width = int(config.resolution[0] * 0.7)
-            avatar_width = config.resolution[0] - slide_width
-            full_height = config.resolution[1]
-            
-            # Build FFmpeg command for split screen composition
-            cmd = [
-                'ffmpeg',
-                '-i', slide_video,
-                '-i', avatar_video,
-                '-filter_complex', f'[0:v]scale={slide_width}:{full_height}[slide];[1:v]scale={avatar_width}:{full_height}[avatar];[slide][avatar]hstack=inputs=2',
-                '-c:v', config.video_codec,
-                '-c:a', config.audio_codec,
-                '-crf', str(self.quality_presets[config.quality]['crf']),
-                '-preset', self.quality_presets[config.quality]['preset'],
-                '-pix_fmt', 'yuv420p',
-                '-r', str(config.framerate),
-                '-movflags', '+faststart',
-                '-y',
-                config.output_path
-            ]
-            
-            return await self._execute_ffmpeg_command(cmd, "Split screen composition")
-            
-        except Exception as e:
-            logger.error(f"Split screen composition failed: {e}")
-            raise
+    # NOTE: Old composition methods removed - replaced with SimpleVideoComposer
+    # This eliminates the dual-approach complexity and provides single, reliable method
     
     async def _execute_ffmpeg_command(self, cmd: List[str], operation_name: str) -> str:
         """
@@ -216,7 +150,8 @@ class ProfessionalVideoComposer:
             Output file path
         """
         try:
-            logger.info(f"Executing FFmpeg command: {' '.join(cmd)}")
+            logger.info(f"🎬 [FFMPEG_EXECUTION] Executing FFmpeg command for: {operation_name}")
+            logger.info(f"🎬 [FFMPEG_EXECUTION] Command: {' '.join(cmd)}")
             
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -226,13 +161,30 @@ class ProfessionalVideoComposer:
             
             stdout, stderr = await process.communicate()
             
+            logger.info(f"🎬 [FFMPEG_EXECUTION] Process completed with return code: {process.returncode}")
+            
+            if stdout:
+                logger.info(f"🎬 [FFMPEG_EXECUTION] Stdout: {stdout.decode()}")
+            if stderr:
+                logger.info(f"🎬 [FFMPEG_EXECUTION] Stderr: {stderr.decode()}")
+            
             if process.returncode != 0:
                 error_msg = stderr.decode() if stderr else "Unknown FFmpeg error"
-                logger.error(f"{operation_name} failed: {error_msg}")
+                logger.error(f"🎬 [FFMPEG_EXECUTION] {operation_name} failed: {error_msg}")
                 raise Exception(f"{operation_name} failed: {error_msg}")
             
-            logger.info(f"{operation_name} completed successfully")
-            return cmd[-1]  # Return output path
+            logger.info(f"🎬 [FFMPEG_EXECUTION] {operation_name} completed successfully")
+            output_path = cmd[-1]
+            logger.info(f"🎬 [FFMPEG_EXECUTION] Output file: {output_path}")
+            
+            # Check if output file exists and get its size
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                logger.info(f"🎬 [FFMPEG_EXECUTION] Output file size: {file_size} bytes")
+            else:
+                logger.warning(f"🎬 [FFMPEG_EXECUTION] Output file not found: {output_path}")
+            
+            return output_path
             
         except Exception as e:
             logger.error(f"FFmpeg execution failed: {e}")
@@ -277,6 +229,53 @@ class ProfessionalVideoComposer:
         except Exception as e:
             logger.warning(f"Error getting video duration: {e}")
             return 10.0  # Default duration
+    
+    async def _get_video_dimensions(self, video_path: str) -> tuple:
+        """
+        Get video dimensions using FFprobe.
+        
+        Args:
+            video_path: Path to video file
+            
+        Returns:
+            Tuple of (width, height)
+        """
+        try:
+            cmd = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-select_streams', 'v:0',
+                '-show_entries', 'stream=width,height',
+                '-of', 'json',
+                video_path
+            ]
+            
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode != 0:
+                logger.warning(f"Could not get dimensions for {video_path}: {stderr.decode()}")
+                return (1920, 1080)  # Default dimensions
+            
+            data = json.loads(stdout.decode())
+            streams = data.get('streams', [])
+            
+            if streams:
+                width = streams[0].get('width', 1920)
+                height = streams[0].get('height', 1080)
+                return (width, height)
+            else:
+                logger.warning(f"No video streams found in {video_path}")
+                return (1920, 1080)  # Default dimensions
+            
+        except Exception as e:
+            logger.warning(f"Error getting video dimensions: {e}")
+            return (1920, 1080)  # Default dimensions
     
     async def add_professional_intro(self, video_path: str, intro_duration: float = 3.0) -> str:
         """

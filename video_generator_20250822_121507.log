@@ -1,0 +1,32 @@
+2025-08-22 12:15:07,542 - INFO - Standalone Video Generator initialized
+2025-08-22 12:15:07,542 - INFO - Output directory: output
+2025-08-22 12:15:07,542 - INFO - Temp directory: temp
+2025-08-22 12:15:07,634 - INFO - Fetching available avatars from Elai API...
+2025-08-22 12:15:08,296 - INFO - Selected avatar: Mikhailo
+2025-08-22 12:15:08,297 - INFO - Avatar code: mikhailo
+2025-08-22 12:15:08,298 - INFO - Creating slide video from image: test_slide_image.jpg
+2025-08-22 12:15:08,298 - INFO - Running FFmpeg command: ffmpeg -loop 1 -i test_slide_image.jpg -c:v libx264 -t 10.0 -pix_fmt yuv420p -vf scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 -r 30 -y temp\slide_video_20250822_121508.mp4
+2025-08-22 12:15:12,231 - INFO - Creating AI avatar video...
+2025-08-22 12:15:12,232 - INFO - Sending video creation request to Elai API...
+2025-08-22 12:15:12,881 - INFO - Starting video rendering...
+2025-08-22 12:15:13,146 - INFO - Waiting for video completion (max 15 minutes)...
+2025-08-22 12:15:13,738 - INFO - Video status: validating
+2025-08-22 12:15:13,739 - INFO - Still validating... (elapsed: 0.0 minutes)
+2025-08-22 12:15:44,254 - INFO - Video status: rendering
+2025-08-22 12:15:44,255 - INFO - Still rendering... (elapsed: 0.5 minutes)
+2025-08-22 12:16:14,862 - INFO - Video status: rendering
+2025-08-22 12:16:14,863 - INFO - Still rendering... (elapsed: 1.0 minutes)
+2025-08-22 12:16:45,352 - INFO - Video status: rendering
+2025-08-22 12:16:45,352 - INFO - Still rendering... (elapsed: 1.5 minutes)
+2025-08-22 12:17:15,838 - INFO - Video status: rendering
+2025-08-22 12:17:15,838 - INFO - Still rendering... (elapsed: 2.0 minutes)
+2025-08-22 12:17:46,315 - INFO - Video status: rendering
+2025-08-22 12:17:46,315 - INFO - Still rendering... (elapsed: 2.6 minutes)
+2025-08-22 12:18:16,790 - INFO - Video status: ready
+2025-08-22 12:18:16,796 - INFO - Downloading video to: temp\avatar_video_68a8433179ddf1ac59b5dea2_20250822_121816.mp4
+2025-08-22 12:18:19,426 - INFO - Merging videos with avatar overlay...
+2025-08-22 12:18:19,426 - INFO - Running FFmpeg merge command: ffmpeg -i temp\slide_video_20250822_121508.mp4 -i temp\avatar_video_68a8433179ddf1ac59b5dea2_20250822_121816.mp4 -filter_complex [1:v]chromakey=0x00FF00:0.1:0.2[ckout];[0:v][ckout]overlay=W-w-50:H-h-50 -c:v libx264 -c:a aac -crf 23 -preset medium -pix_fmt yuv420p -y output\final_video_20250822_121819.mp4
+2025-08-22 12:18:41,844 - INFO - Final video size: 0.56 MB
+2025-08-22 12:18:41,845 - INFO - Cleaning up temporary files...
+2025-08-22 12:18:41,847 - INFO - Cleaned up: temp\avatar_video_68a8433179ddf1ac59b5dea2_20250822_121816.mp4
+2025-08-22 12:18:41,849 - INFO - Cleaned up: temp\slide_video_20250822_121508.mp4

@@ -1,8 +1,13 @@
+"use client";
+
 // Professional Video Presentation Button Component
 // This component creates professional video presentations by combining slide capture with avatar videos
 
 import React, { useState } from 'react';
 import { Video, Loader, CheckCircle, AlertTriangle, Download } from 'lucide-react';
+import AvatarSelector, { Avatar, AvatarVariant } from './AvatarSelector';
+
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 interface ProfessionalVideoPresentationButtonProps {
   projectName?: string;
@@ -18,167 +23,124 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
   const [status, setStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
+  const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
-  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  // Function to extract actual slide data from current project
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+    console.log('🎬 [PROFESSIONAL_VIDEO] Extracting slide data from current project...');
+    
+    try {
+      // Try to get slide data from the global window object (if SmartSlideDeckViewer exposed it)
+      const slideViewerData = (window as any).currentSlideData;
+      if (slideViewerData?.deck?.slides) {
+        console.log('🎬 [PROFESSIONAL_VIDEO] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        return {
+          slides: slideViewerData.deck.slides,
+          theme: slideViewerData.deck.theme || 'dark-purple'
+        };
+      }
 
-  // Function to extract voiceover texts from slides
-  const extractVoiceoverTexts = async (): Promise<string[]> => {
-    console.log('🎬 [PROFESSIONAL_VIDEO] Extracting voiceover texts from DOM...');
-    
-    const voiceoverElements = document.querySelectorAll('[data-voiceover], .voiceover-text, [class*="voiceover"]');
-    console.log('🎬 [PROFESSIONAL_VIDEO] Found voiceover elements:', voiceoverElements.length);
-    
-    if (voiceoverElements.length > 0) {
-      const texts: string[] = [];
-      voiceoverElements.forEach((element, index) => {
-        const text = element.textContent?.trim();
-        if (text && text.length > 10) {
-          texts.push(text);
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Voiceover ${index + 1}:`, text.substring(0, 100) + '...');
-        }
-      });
-      return texts;
-    }
-    
-    // Fallback: extract from slide titles and content
-    console.log('🎬 [PROFESSIONAL_VIDEO] No voiceover elements found, extracting from slide content...');
-    const slideTitles = document.querySelectorAll('h1, h2, h3, .slide-title, [class*="title"]');
-    const texts: string[] = [];
-    
-    slideTitles.forEach((titleElement, index) => {
-      const title = titleElement.textContent?.trim();
-      if (title && title.length > 10) {
-        // Filter out problematic titles
-        if (!title.toLowerCase().includes('voiceover') && 
-            !title.toLowerCase().includes('presentation themes') &&
-            !/[\u0400-\u04FF]/.test(title)) { // Filter out Cyrillic characters
-          texts.push(title);
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Slide title ${index + 1}:`, title);
-        } else {
-          console.log(`🎬 [PROFESSIONAL_VIDEO] Skipping problematic title:`, title);
+      // Fallback: Try to extract from the URL by getting project ID and fetching data
+      const currentUrl = window.location.href;
+      const projectIdMatch = currentUrl.match(/\/projects\/view\/(\d+)/);
+      
+      if (projectIdMatch) {
+        const projectId = projectIdMatch[1];
+        console.log('🎬 [PROFESSIONAL_VIDEO] Extracted project ID from URL:', projectId);
+        
+        // Fetch project data from API
+        const response = await fetch(`/api/custom/projects/${projectId}`);
+        if (response.ok) {
+          const projectData = await response.json();
+          console.log('🎬 [PROFESSIONAL_VIDEO] Fetched project data:', projectData);
+          
+          if (projectData.details?.slides) {
+            return {
+              slides: projectData.details.slides,
+              theme: projectData.details.theme || 'dark-purple'
+            };
+          }
         }
       }
+
+      console.log('🎬 [PROFESSIONAL_VIDEO] Could not extract slide data');
+      return { slides: [], theme: 'dark-purple' };
+      
+    } catch (error) {
+      console.error('🎬 [PROFESSIONAL_VIDEO] Error extracting slide data:', error);
+      return { slides: [], theme: 'dark-purple' };
+    }
+  };
+
+  const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
+    setSelectedAvatar(avatar);
+    setSelectedVariant(variant || undefined);
+    console.log('🎬 [PROFESSIONAL_VIDEO] Avatar selected:', {
+      avatar: avatar.name,
+      variant: variant?.name,
+      code: variant ? `${avatar.code}.${variant.code}` : avatar.code
     });
-    
-    console.log('🎬 [PROFESSIONAL_VIDEO] Final extracted voiceover texts:', texts);
-    return texts;
-  };
-
-  // Function to get current slide URL
-  const getCurrentSlideUrl = (): string => {
-    // Return the current page URL for slide capture
-    return window.location.href;
-  };
-
-  // Function to monitor presentation progress
-  const monitorPresentationProgress = async (
-    jobId: string, 
-    onProgressUpdate: (progress: number) => void
-  ): Promise<string> => {
-    console.log('🎬 [PROFESSIONAL_VIDEO] Starting to monitor presentation progress for job:', jobId);
-    
-    const maxWaitTime = 30 * 60 * 1000; // 30 minutes for professional processing
-    const checkInterval = 10000; // Check every 10 seconds
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < maxWaitTime) {
-      try {
-        const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          credentials: 'same-origin',
-        });
-
-        if (!statusResponse.ok) {
-          throw new Error(`Status check failed: ${statusResponse.status}`);
-        }
-
-        const statusData = await statusResponse.json();
-        console.log('🎬 [PROFESSIONAL_VIDEO] Status check response:', statusData);
-
-        if (!statusData.success) {
-          throw new Error(statusData.error || 'Status check failed');
-        }
-
-        const jobStatus = statusData.status;
-        const jobProgress = statusData.progress || 0;
-        const videoUrl = statusData.videoUrl;
-
-        console.log('🎬 [PROFESSIONAL_VIDEO] Job status:', jobStatus, 'Progress:', jobProgress + '%');
-        
-        // Update progress
-        onProgressUpdate(jobProgress);
-
-        if (jobStatus === 'completed' && videoUrl) {
-          console.log('🎬 [PROFESSIONAL_VIDEO] Presentation generation completed!');
-          return videoUrl;
-        }
-
-        if (jobStatus === 'failed') {
-          throw new Error(statusData.error || 'Presentation generation failed');
-        }
-
-        // Wait before next check
-        await new Promise(resolve => setTimeout(resolve, checkInterval));
-        
-      } catch (error) {
-        console.error('🎬 [PROFESSIONAL_VIDEO] Error checking presentation status:', error);
-        throw error;
-      }
-    }
-
-    throw new Error('Presentation generation timeout after 30 minutes');
   };
 
   const handleCreatePresentation = async () => {
+    if (!selectedAvatar) {
+      onError?.('Please select an avatar first');
+      return;
+    }
+
     try {
-      console.log('🎬 [PROFESSIONAL_VIDEO] Starting professional video presentation generation...');
-      
       setStatus('generating');
       setProgress(0);
 
-      // Step 1: Extract voiceover text from slides
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 1: Extracting voiceover text from slides...');
-      setProgress(10);
+      console.log('🎬 [PROFESSIONAL_VIDEO] Starting professional video generation with selected avatar:', {
+        avatar: selectedAvatar.name,
+        variant: selectedVariant?.name,
+        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code
+      });
+
+      // Extract slide data
+      const slideData = await extractSlideData();
       
-      const voiceoverTexts = await extractVoiceoverTexts();
-      console.log('🎬 [PROFESSIONAL_VIDEO] Extracted voiceover texts:', voiceoverTexts);
-      
-      if (!voiceoverTexts || voiceoverTexts.length === 0) {
-        throw new Error('No voiceover text found in slides');
+      if (!slideData.slides || slideData.slides.length === 0) {
+        const errorMsg = 'No slide data found. Please make sure you have a slide open.';
+        console.error('🎬 [PROFESSIONAL_VIDEO]', errorMsg);
+        onError?.(errorMsg);
+        return;
       }
 
-      // Step 2: Get current slide URL
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 2: Getting current slide URL...');
-      setProgress(20);
-      
-      const slideUrl = getCurrentSlideUrl();
-      console.log('🎬 [PROFESSIONAL_VIDEO] Slide URL:', slideUrl);
+      console.log('🎬 [PROFESSIONAL_VIDEO] Slide data extracted successfully');
+      console.log('🎬 [PROFESSIONAL_VIDEO] Slides count:', slideData.slides.length);
+      console.log('🎬 [PROFESSIONAL_VIDEO] Theme:', slideData.theme);
 
-      // Step 3: Create professional presentation
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 3: Creating professional presentation...');
-      setProgress(30);
-      
+      // Create the request payload
+      const requestPayload = {
+        projectName: projectName,
+        voiceoverTexts: [
+          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better.",
+          "Let's dive into the main content. This presentation covers important topics that are essential for your learning journey.",
+          "As we conclude, remember these key points. They will serve as a foundation for your continued growth and development."
+        ],
+        slidesData: slideData.slides,  // Add the extracted slide data
+        theme: slideData.theme,  // Use the extracted theme
+        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
+        useAvatarMask: true,
+        layout: 'picture_in_picture',
+        duration: 30.0,
+        quality: 'high',
+        resolution: [1920, 1080]
+      };
+
+      console.log('🎬 [PROFESSIONAL_VIDEO] Request payload:', requestPayload);
+
+      // Create presentation
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          slideUrl: slideUrl,
-          voiceoverTexts: voiceoverTexts,
-          avatarCode: 'gia.casual', // Default avatar
-          duration: 30.0,
-          layout: 'side_by_side', // side_by_side, picture_in_picture, split_screen
-          quality: 'high',
-          resolution: [1920, 1080],
-          projectName: projectName
-        })
+        body: JSON.stringify(requestPayload)
       });
 
       if (!createResponse.ok) {
@@ -187,41 +149,70 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       }
 
       const createData = await createResponse.json();
-      console.log('🎬 [PROFESSIONAL_VIDEO] Presentation creation response:', createData);
-
+      
       if (!createData.success) {
         throw new Error(createData.error || 'Failed to create presentation');
       }
 
-      const presentationJobId = createData.jobId;
-      setJobId(presentationJobId);
-      console.log('🎬 [PROFESSIONAL_VIDEO] Presentation job created with ID:', presentationJobId);
+      const newJobId = createData.jobId;
+      setJobId(newJobId);
+      console.log('🎬 [PROFESSIONAL_VIDEO] Presentation job created:', newJobId);
 
-      // Step 4: Monitor presentation progress
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 4: Monitoring presentation progress...');
-      setProgress(40);
-      
-      const videoUrl = await monitorPresentationProgress(presentationJobId, (progressPercent) => {
-        // Update progress from 40% to 90% based on processing progress
-        const newProgress = 40 + (progressPercent * 0.5); // 40% to 90%
-        setProgress(newProgress);
-        console.log('🎬 [PROFESSIONAL_VIDEO] Processing progress:', progressPercent + '%');
-      });
+      // Poll for completion
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
+            method: 'GET',
+            credentials: 'same-origin',
+          });
 
-      // Step 5: Complete
-      console.log('🎬 [PROFESSIONAL_VIDEO] Step 5: Professional presentation generation completed!');
-      setProgress(100);
-      setStatus('completed');
-      console.log('🎬 [PROFESSIONAL_VIDEO] Final video URL:', videoUrl);
-      onSuccess?.(videoUrl);
+          if (!statusResponse.ok) {
+            throw new Error(`Status check failed: ${statusResponse.status}`);
+          }
+
+          const statusData = await statusResponse.json();
+          
+          if (statusData.success) {
+            const currentProgress = statusData.progress || 0;
+            setProgress(currentProgress);
+            
+            console.log('🎬 [PROFESSIONAL_VIDEO] Job progress:', currentProgress);
+
+            if (statusData.status === 'completed') {
+              clearInterval(pollInterval);
+              setStatus('completed');
+              setProgress(100);
+              console.log('🎬 [PROFESSIONAL_VIDEO] Video generation completed');
+            } else if (statusData.status === 'failed') {
+              clearInterval(pollInterval);
+              setStatus('error');
+              throw new Error(statusData.error || 'Video generation failed');
+            }
+          } else {
+            throw new Error(statusData.error || 'Status check failed');
+          }
+        } catch (error) {
+          console.error('🎬 [PROFESSIONAL_VIDEO] Status check error:', error);
+          clearInterval(pollInterval);
+          setStatus('error');
+          onError?.(error instanceof Error ? error.message : 'Status check failed');
+        }
+      }, 2000);
+
+      // Set a timeout to stop polling after 5 minutes
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if (status === 'generating') {
+          setStatus('error');
+          onError?.('Video generation timed out. Please check the status manually.');
+        }
+      }, 300000);
 
     } catch (error) {
-      console.error('🎬 [PROFESSIONAL_VIDEO] Professional presentation generation failed with error:', error);
-      
+      console.error('🎬 [PROFESSIONAL_VIDEO] Video generation failed:', error);
       setStatus('error');
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.log('🎬 [PROFESSIONAL_VIDEO] Calling onError with message:', errorMessage);
-      onError?.(errorMessage);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      onError?.(errorMsg);
     }
   };
 
@@ -255,6 +246,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       document.body.removeChild(a);
       
       console.log('🎬 [PROFESSIONAL_VIDEO] Video downloaded successfully');
+      onSuccess?.(url);
       
     } catch (error) {
       console.error('🎬 [PROFESSIONAL_VIDEO] Download failed:', error);
@@ -305,15 +297,45 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
 
   return (
     <div className="space-y-4">
+      {/* Avatar Selection */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Select AI Avatar
+        </label>
+        <AvatarSelector
+          onAvatarSelect={handleAvatarSelect}
+          selectedAvatar={selectedAvatar}
+          selectedVariant={selectedVariant}
+          className="w-full"
+        />
+        {selectedAvatar && (
+          <p className="text-xs text-gray-500">
+            Selected: {selectedAvatar.name}
+            {selectedVariant && ` - ${selectedVariant.name}`}
+          </p>
+        )}
+      </div>
+
+      {/* Main Video Generation Button */}
       <button
         onClick={status === 'completed' ? handleDownloadVideo : handleCreatePresentation}
-        disabled={status === 'generating'}
+        disabled={status === 'generating' || (!selectedAvatar && status !== 'completed')}
         className={getButtonClassName()}
+        title={
+          !selectedAvatar && status !== 'completed'
+            ? 'Please select an avatar first'
+            : status === 'generating' 
+              ? 'Professional video generation in progress...' 
+              : status === 'completed'
+                ? 'Download the generated video'
+                : 'Create professional video with slide capture and AI avatar'
+        }
       >
         {status === 'completed' ? <Download size={16} className="mr-2" /> : getButtonIcon()}
         {getButtonText()}
       </button>
       
+      {/* Progress Bar */}
       {status === 'generating' && (
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
@@ -323,6 +345,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         </div>
       )}
       
+      {/* Status Messages */}
       {status === 'completed' && (
         <div className="text-sm text-green-600">
           ✅ Professional video presentation created successfully! Click the button above to download.

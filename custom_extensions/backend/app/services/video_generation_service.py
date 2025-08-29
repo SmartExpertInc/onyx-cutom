@@ -1,7 +1,9 @@
 # custom_extensions/backend/app/services/video_generation_service.py
 
 import asyncio
+import json
 import logging
+import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
@@ -51,7 +53,7 @@ class ElaiVideoGenerationService:
         """
         if not self.client:
             return {
-                "success": False, 
+                "success": False,
                 "error": "HTTP client not available - httpx may not be installed"
             }
         
@@ -68,7 +70,7 @@ class ElaiVideoGenerationService:
             else:
                 logger.error(f"Failed to fetch avatars: {response.status_code} - {response.text}")
                 return {
-                    "success": False, 
+                    "success": False,
                     "error": f"Failed to fetch avatars: {response.status_code}"
                 }
                 
@@ -78,8 +80,24 @@ class ElaiVideoGenerationService:
     
     async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
         """
-        Create a video from voiceover texts and avatar code.
+        Create video from voiceover texts using Elai API.
+        
+        Args:
+            project_name: Name of the project
+            voiceover_texts: List of voiceover texts
+            avatar_code: Avatar code to use
+            
+        Returns:
+            Dict containing result with success status and video ID
         """
+        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Starting video creation from texts")
+        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Parameters:")
+        logger.info(f"  - Project name: {project_name}")
+        logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
+        logger.info(f"  - Avatar code: {avatar_code}")
+        
+        for i, text in enumerate(voiceover_texts):
+            logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
         if not self.client:
             return {
                 "success": False,
@@ -142,75 +160,155 @@ class ElaiVideoGenerationService:
                     "error": f"Failed to get avatars: {avatars_response['error']}"
                 }
             
-            # Find the specified avatar
+            # Find the specified avatar (handle variant codes like "gia.casual")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: {avatar_code}")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatars count: {len(avatars_response['avatars'])}")
+            
             avatar = None
-            for av in avatars_response["avatars"]:
-                if av.get("code") == avatar_code:
-                    avatar = av
-                    break
+            selected_variant = None
+            
+            # Check if avatar_code contains a variant (e.g., "gia.casual")
+            if '.' in avatar_code:
+                base_code, variant_code = avatar_code.split('.', 1)
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for avatar '{base_code}' with variant '{variant_code}'")
+                
+                for av in avatars_response["avatars"]:
+                    if av.get("code") == base_code:
+                        # Check if this avatar has the specified variant
+                        if av.get("variants"):
+                            for variant in av["variants"]:
+                                if variant.get("code") == variant_code:
+                                    avatar = av
+                                    selected_variant = variant
+                                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} with variant: {variant.get('name', 'Unknown')}")
+                                    break
+                            if avatar:
+                                break
+            else:
+                # No variant specified, look for exact match
+                for av in avatars_response["avatars"]:
+                    if av.get("code") == avatar_code:
+                        avatar = av
+                        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
+                        break
             
             if not avatar:
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar with code '{avatar_code}' not found")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatar codes: {[av.get('code') for av in avatars_response['avatars'][:10]]}...")
                 return {
                     "success": False,
                     "error": f"Avatar with code '{avatar_code}' not found"
                 }
             
-            # Prepare slides for Elai API
-            elai_slides = []
-            for i, voiceover_text in enumerate(cleaned_texts):
-                elai_slide = {
-                    "id": i + 1,
-                    "status": "edited",
+            # Validate avatar has required properties
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Avatar details:")
+            logger.info(f"  - Name: {avatar.get('name', 'Unknown')}")
+            logger.info(f"  - Code: {avatar.get('code', 'Unknown')}")
+            logger.info(f"  - Canvas: {avatar.get('canvas', 'None')}")
+            logger.info(f"  - Gender: {avatar.get('gender', 'Unknown')}")
+            
+            # Check if avatar has valid canvas URL
+            if not avatar.get("canvas"):
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar '{avatar.get('name', 'Unknown')}' has empty canvas URL")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for alternative avatar with valid canvas...")
+                
+                # Try to find an alternative avatar with valid canvas
+                alternative_avatar = None
+                for av in avatars_response["avatars"]:
+                    if av.get("canvas") and av.get("canvas").strip():
+                        alternative_avatar = av
+                        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found alternative avatar: {alternative_avatar.get('name', 'Unknown')} (code: {alternative_avatar.get('code', 'Unknown')})")
+                        break
+                
+                if alternative_avatar:
+                    avatar = alternative_avatar
+                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using alternative avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
+                else:
+                    logger.error(f"🎬 [ELAI_VIDEO_GENERATION] No avatars with valid canvas found")
+                    return {
+                        "success": False,
+                        "error": f"No avatars with valid canvas URL found"
+                    }
+            
+            # Validate avatar canvas URL before proceeding
+            # Use variant canvas URL if available, otherwise use avatar canvas URL
+            avatar_canvas_url = selected_variant.get('canvas') if selected_variant else avatar.get('canvas')
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Avatar validation:")
+            logger.info(f"  - Avatar code: {avatar.get('code')}")
+            logger.info(f"  - Selected variant: {selected_variant.get('name') if selected_variant else 'None'}")
+            logger.info(f"  - Avatar canvas URL: {avatar_canvas_url}")
+            
+            # Validate canvas URL format
+            if not avatar_canvas_url or not avatar_canvas_url.startswith('https://'):
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] CRITICAL ERROR: Invalid canvas URL format: {avatar_canvas_url}")
+                return {
+                    "success": False,
+                    "error": f"Invalid avatar canvas URL format: {avatar_canvas_url}"
+                }
+            
+            # Additional validation: Check URL contains expected patterns
+            if 'cloudfront.net' not in avatar_canvas_url and 'elai.io' not in avatar_canvas_url:
+                logger.warning(f"🎬 [ELAI_VIDEO_GENERATION] WARNING: Unusual canvas URL domain: {avatar_canvas_url}")
+            
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Canvas URL validation passed: {avatar_canvas_url[:50]}...")
+            
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Preparing video request with CORRECT 1080x1080 dimensions")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request configuration:")
+            logger.info(f"  - Name: {project_name}")
+            logger.info(f"  - Format: 1:1 aspect ratio (CORRECT)")
+            logger.info(f"  - Resolution: 1080p (CORRECT)")
+            logger.info(f"  - Avatar scale: 0.3x0.3 (appropriate for 1080x1080)")
+            logger.info(f"  - Avatar canvas URL: {avatar.get('canvas', 'N/A')[:100]}...")
+
+            # FIXED: Official Elai API structure with correct 1080x1080 dimensions
+            # Use actual avatar data instead of hardcoded example values
+            video_request = {
+                "name": project_name,
+                "slides": [{
+                    "id": 1,
                     "canvas": {
                         "objects": [{
                             "type": "avatar",
-                            "left": 510,
-                            "top": 255,
-                            "fill": "#4868FF",
-                            "scaleX": 0.1,
-                            "scaleY": 0.1,
-                            "width": 1080,
-                            "height": 1080,
-                            "src": avatar.get("canvas"),
-                            "avatarType": "transparent",
+                            "left": 151.5,     # Exact from example
+                            "top": 36,         # Exact from example
+                            "fill": "#4868FF", # Exact from example
+                            "scaleX": 0.3,     # Exact from example
+                            "scaleY": 0.3,     # Exact from example
+                            "width": 1080,     # Exact from example
+                            "height": 1080,    # Exact from example
+                            "src": avatar_canvas_url,  # Use selected avatar/variant canvas URL
+                            "avatarType": "transparent",  # Exact from example
                             "animation": {
                                 "type": None,
                                 "exitType": None
                             }
                         }],
-                        "background": "#ffffff",
-                        "version": "4.4.0"
+                        "background": "#110c35",  
+                        "version": "4.4.0"        # Exact from example
                     },
                     "avatar": {
-                        "code": avatar.get("code"),
-                        "name": avatar.get("name"),
-                        "gender": avatar.get("gender"),
-                        "canvas": avatar.get("canvas")
+                        "code": avatar_code,     # Use the original avatar_code (may include variant)
+                        "gender": avatar.get("gender", "female"),       # Use actual avatar gender
+                        "canvas": avatar_canvas_url  # Use selected avatar/variant canvas URL
                     },
                     "animation": "fade_in",
                     "language": "English",
-                    "speech": voiceover_text,
+                    "speech": " ".join(cleaned_texts),
                     "voice": "en-US-AriaNeural",
                     "voiceType": "text",
                     "voiceProvider": "azure"
-                }
-                elai_slides.append(elai_slide)
-            
-            # Prepare video request
-            video_request = {
-                "name": project_name,
-                "slides": elai_slides,
+                }],
                 "tags": ["video_lesson", "generated", "presentation"],
-                "public": False,
-                "data": {
-                    "skipEmails": False,
-                    "subtitlesEnabled": "false",
-                    "format": "16_9",
-                    "resolution": "FullHD"
-                }
+                "format": "1_1",  # CRITICAL FIX: Specify 1:1 aspect ratio for 1080x1080
+                "resolution": "1080p"  # CRITICAL FIX: Specify 1080p resolution
             }
             
-            logger.info(f"Creating video with {len(elai_slides)} slides")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video request JSON payload:")
+            logger.info(f"  {json.dumps(video_request, indent=2)}")
+            
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Making API call to Elai")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API endpoint: {self.api_base}/videos")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Headers: {self.headers}")
             
             # Create video
             response = await self.client.post(
@@ -219,17 +317,28 @@ class ElaiVideoGenerationService:
                 json=video_request
             )
             
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response status: {response.status_code}")
+            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response headers: {dict(response.headers)}")
+            
             if response.is_success:
                 result = response.json()
                 video_id = result.get("_id")
-                logger.info(f"Video created successfully: {video_id}")
+                
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] API response successful")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video data received:")
+                logger.info(f"  - Video ID: {video_id}")
+                logger.info(f"  - Full response: {json.dumps(result, indent=2)}")
+                
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Video created successfully: {video_id}")
                 return {
                     "success": True,
                     "videoId": video_id,
                     "message": "Video created successfully"
                 }
             else:
-                logger.error(f"Failed to create video: {response.status_code} - {response.text}")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] API request failed")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Status code: {response.status_code}")
+                logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Response text: {response.text}")
                 return {
                     "success": False,
                     "error": f"Video creation failed: {response.status_code} - {response.text}"
@@ -272,8 +381,8 @@ class ElaiVideoGenerationService:
                             "left": 510,
                             "top": 255,
                             "fill": "#4868FF",
-                            "scaleX": 0.1,
-                            "scaleY": 0.1,
+                            "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
+                            "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
                             "width": 1080,
                             "height": 1080,
                             "src": avatar_data.get("canvas_url"),
@@ -283,7 +392,7 @@ class ElaiVideoGenerationService:
                                 "exitType": None
                             }
                         }],
-                        "background": "#ffffff",
+                        "background": "#ffffff",  # Keep original white background for safety
                         "version": "4.4.0"
                     },
                     "avatar": {
@@ -306,13 +415,8 @@ class ElaiVideoGenerationService:
                 "name": f"Video Lesson - {datetime.now().isoformat()}",
                 "slides": elai_slides,
                 "tags": ["video_lesson", "generated", "presentation"],
-                "public": False,
-                "data": {
-                    "skipEmails": False,
-                    "subtitlesEnabled": "false",
-                    "format": "16_9",
-                    "resolution": "FullHD"
-                }
+                "format": "1_1",  # CRITICAL FIX: Specify 1:1 aspect ratio for 1080x1080
+                "resolution": "1080p"  # CRITICAL FIX: Specify 1080p resolution
             }
             
             # Create video
@@ -430,6 +534,10 @@ class ElaiVideoGenerationService:
                 logger.info(f"Video {video_id} status: {status}, progress: {progress}%")
                 if status == "error":
                     logger.warning(f"Video {video_id} reported error status - this may be temporary")
+                    # Log additional error details if available
+                    error_details = video_data.get("error", {})
+                    if error_details:
+                        logger.warning(f"Video {video_id} error details: {error_details}")
                 
                 return {
                     "success": True,
@@ -492,9 +600,29 @@ class ElaiVideoGenerationService:
                         logger.error(f"Video {video_id} rendered but no download URL found")
                         return None
                         
-                elif status in ["failed", "error"]:
-                    logger.error(f"Video {video_id} rendering failed: {status}")
+                elif status == "failed":
+                    logger.error(f"Video {video_id} rendering failed permanently")
                     return None
+                elif status == "error":
+                    # Check if this is a permanent error or temporary issue
+                    error_details = status_data.get("data", {}).get("error", {})
+                    error_message = error_details.get("message", "").lower() if isinstance(error_details, dict) else ""
+                    
+                    # Check for permanent error indicators
+                    permanent_errors = [
+                        "avatar not found",
+                        "invalid avatar",
+                        "canvas error",
+                        "rendering failed",
+                        "permanent error"
+                    ]
+                    
+                    if any(err in error_message for err in permanent_errors):
+                        logger.error(f"Video {video_id} rendering failed with permanent error: {error_message}")
+                        return None
+                    else:
+                        logger.warning(f"Video {video_id} reported temporary error status, continuing to wait...")
+                        await asyncio.sleep(self.poll_interval)
                     
                 elif status in ["rendering", "queued", "draft", "validating"]:
                     # Still processing, continue waiting
@@ -510,6 +638,154 @@ class ElaiVideoGenerationService:
         
         logger.error(f"Video {video_id} generation timeout after {self.max_wait_time} seconds")
         return None
+    
+    async def download_video(self, download_url: str, output_path: str) -> bool:
+        """
+        Download the rendered video to local storage.
+        
+        Args:
+            download_url: The URL to download the video from
+            output_path: Path where to save the video
+            
+        Returns:
+            True if download successful, False otherwise
+        """
+        try:
+            logger.info(f"Downloading video from: {download_url}")
+            logger.info(f"Downloading to: {output_path}")
+            
+            # Use httpx to download the video
+            response = await self.client.get(download_url, timeout=300)
+            response.raise_for_status()
+            
+            # Get total size for progress tracking
+            total_size = int(response.headers.get('content-length', 0))
+            downloaded_size = 0
+            
+            # Create output directory if it doesn't exist
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            
+            # Download the video
+            with open(output_path, 'wb') as f:
+                async for chunk in response.aiter_bytes(chunk_size=8192):
+                    f.write(chunk)
+                    downloaded_size += len(chunk)
+                    
+                    if total_size > 0:
+                        progress = (downloaded_size / total_size) * 100
+                        if downloaded_size % (1024 * 1024) == 0:  # Log every MB
+                            logger.info(f"Download progress: {progress:.1f}% ({downloaded_size / (1024*1024):.1f} MB)")
+            
+            # CRITICAL DEBUG: Comprehensive avatar video analysis
+            logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Download completed")
+            logger.info(f"  - Total size downloaded: {downloaded_size} bytes ({downloaded_size / (1024*1024):.2f} MB)")
+            logger.info(f"  - Expected size: {total_size} bytes ({total_size / (1024*1024):.2f} MB)")
+            
+            # Verify file was downloaded
+            if os.path.exists(output_path):
+                file_size_bytes = os.path.getsize(output_path)
+                file_size_mb = file_size_bytes / (1024 * 1024)
+                logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] Video downloaded successfully!")
+                logger.info(f"  - File path: {output_path}")
+                logger.info(f"  - File size: {file_size_mb:.2f} MB ({file_size_bytes} bytes)")
+                
+                # CRITICAL DEBUG: Check if file is suspiciously small (might be blank/error)
+                if file_size_bytes < 100000:  # Less than 100KB is suspicious for a video
+                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is very small ({file_size_bytes} bytes)")
+                    logger.warning(f"  - This might indicate a blank or error video")
+                elif file_size_bytes < 1000000:  # Less than 1MB is concerning
+                    logger.warning(f"🎬 [ELAI_VIDEO_DOWNLOAD] WARNING: Downloaded video is small ({file_size_mb:.2f} MB)")
+                    logger.warning(f"  - Avatar might not be visible or video might be very short")
+                else:
+                    logger.info(f"🎬 [ELAI_VIDEO_DOWNLOAD] File size looks normal for video content")
+                
+                # CRITICAL DEBUG: Analyze video properties to detect blank videos
+                await self._analyze_downloaded_video(output_path)
+                
+                return True
+            else:
+                logger.error("Download completed but file not found")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Download failed: {str(e)}")
+            return False
+    
+    async def _analyze_downloaded_video(self, video_path: str):
+        """
+        Analyze downloaded video to detect potential issues.
+        
+        Args:
+            video_path: Path to the downloaded video file
+        """
+        try:
+            logger.info(f"🎬 [VIDEO_ANALYSIS] Analyzing downloaded video: {video_path}")
+            
+            # Use FFprobe to get video information
+            cmd = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-print_format', 'json',
+                '-show_format',
+                '-show_streams',
+                video_path
+            ]
+            
+            import subprocess
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            
+            if result.returncode == 0:
+                import json
+                data = json.loads(result.stdout)
+                
+                # Analyze format information
+                format_info = data.get('format', {})
+                duration = float(format_info.get('duration', 0))
+                bitrate = int(format_info.get('bit_rate', 0))
+                
+                logger.info(f"🎬 [VIDEO_ANALYSIS] Video properties:")
+                logger.info(f"  - Duration: {duration:.2f} seconds")
+                logger.info(f"  - Bitrate: {bitrate} bps ({bitrate / 1000:.1f} kbps)")
+                
+                # Analyze video streams
+                video_streams = [s for s in data.get('streams', []) if s.get('codec_type') == 'video']
+                if video_streams:
+                    video_stream = video_streams[0]
+                    width = video_stream.get('width', 0)
+                    height = video_stream.get('height', 0)
+                    fps = video_stream.get('r_frame_rate', '0/1')
+                    
+                    logger.info(f"  - Resolution: {width}x{height}")
+                    logger.info(f"  - Frame rate: {fps}")
+                    
+                    # Detect potential issues
+                    if duration < 5.0:
+                        logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: Video is very short ({duration:.2f}s)")
+                    
+                    if bitrate < 500000:  # Less than 500 kbps
+                        logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: Video bitrate is very low ({bitrate / 1000:.1f} kbps)")
+                        logger.warning(f"  - This might indicate a mostly static/blank video")
+                    
+                    if width != 1920 or height != 1080:
+                        logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: Unexpected resolution {width}x{height} (expected 1920x1080)")
+                else:
+                    logger.error(f"🎬 [VIDEO_ANALYSIS] ERROR: No video streams found in file")
+                
+                # Analyze audio streams
+                audio_streams = [s for s in data.get('streams', []) if s.get('codec_type') == 'audio']
+                if audio_streams:
+                    audio_stream = audio_streams[0]
+                    sample_rate = audio_stream.get('sample_rate', 0)
+                    logger.info(f"  - Audio sample rate: {sample_rate} Hz")
+                else:
+                    logger.warning(f"🎬 [VIDEO_ANALYSIS] WARNING: No audio streams found")
+                    
+            else:
+                logger.error(f"🎬 [VIDEO_ANALYSIS] ERROR: FFprobe failed: {result.stderr}")
+                
+        except Exception as e:
+            logger.warning(f"🎬 [VIDEO_ANALYSIS] Could not analyze video: {str(e)}")
+            # Don't fail the whole process if analysis fails
     
     async def generate_video(self, slides_data: List[Dict[str, Any]], avatar_data: Dict[str, Any]) -> Dict[str, Any]:
         """

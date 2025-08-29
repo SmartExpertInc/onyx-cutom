@@ -1,3 +1,5 @@
+"use client";
+
 // custom_extensions/frontend/src/components/AvatarPlaceholder.tsx
 
 import React, { useState } from 'react';

@@ -20069,7 +20069,7 @@ async def create_video(request: Request):
         body = await request.json()
         project_name = body.get("projectName", "Generated Video")
         voiceover_texts = body.get("voiceoverTexts", [])
-        avatar_code = body.get("avatarCode", "gia.casual")
+        avatar_code = body.get("avatarCode")  # None will trigger auto-selection
         
         # Validate request data
         if not voiceover_texts:
@@ -20123,6 +20123,172 @@ async def render_video(video_id: str):
         return {"success": False, "error": f"Failed to start video render: {str(e)}"}
 
 # ============================================================================
+# Clean Video Generation API Endpoints (HTML → PNG → Video Pipeline)
+# ============================================================================
+
+@app.post("/api/custom/clean-video/avatar-slide")
+async def generate_clean_avatar_slide_video(request: Request):
+    """Generate video for a single avatar slide using clean HTML → PNG → Video pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slide_props = body.get("slideProps", {})
+        theme = body.get("theme", "dark-purple")
+        slide_duration = body.get("slideDuration", 5.0)
+        quality = body.get("quality", "high")
+        
+        # Validate slide props
+        validation = await clean_video_generation_service.validate_slide_props(slide_props)
+        if not validation["valid"]:
+            return {
+                "success": False,
+                "error": f"Invalid slide props: {validation['error']}"
+            }
+        
+        # Generate video
+        result = await clean_video_generation_service.generate_avatar_slide_video(
+            slide_props=slide_props,
+            theme=theme,
+            slide_duration=slide_duration,
+            quality=quality
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_url": result["video_url"],
+                "video_path": result["video_path"],
+                "file_size": result["file_size"],
+                "duration": result["duration"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating clean avatar slide video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.post("/api/custom/clean-video/presentation")
+async def generate_clean_presentation_video(request: Request):
+    """Generate video for multiple avatar slides using clean HTML → PNG → Video pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slides_props = body.get("slidesProps", [])
+        theme = body.get("theme", "dark-purple")
+        slide_duration = body.get("slideDuration", 5.0)
+        quality = body.get("quality", "high")
+        
+        # Validate request
+        if not slides_props:
+            return {
+                "success": False,
+                "error": "No slides provided"
+            }
+        
+        # Validate each slide
+        for i, slide_props in enumerate(slides_props):
+            validation = await clean_video_generation_service.validate_slide_props(slide_props)
+            if not validation["valid"]:
+                return {
+                    "success": False,
+                    "error": f"Invalid slide {i+1} props: {validation['error']}"
+                }
+        
+        # Generate video
+        result = await clean_video_generation_service.generate_presentation_video(
+            slides_props=slides_props,
+            theme=theme,
+            slide_duration=slide_duration,
+            quality=quality
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_url": result["video_url"],
+                "video_path": result["video_path"],
+                "file_size": result["file_size"],
+                "duration": result["duration"],
+                "slides_count": result["slides_count"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating clean presentation video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.get("/api/custom/clean-video/test")
+async def test_clean_video_pipeline():
+    """Test the clean video generation pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Run pipeline test
+        result = await clean_video_generation_service.test_pipeline()
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error testing clean video pipeline: {str(e)}")
+        return {"success": False, "error": f"Pipeline test failed: {str(e)}"}
+
+@app.get("/api/custom/clean-video/templates")
+async def get_supported_avatar_templates():
+    """Get list of supported avatar template IDs."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        templates = await clean_video_generation_service.get_supported_templates()
+        
+        return {
+            "success": True,
+            "templates": templates
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting supported templates: {str(e)}")
+        return {"success": False, "error": f"Failed to get templates: {str(e)}"}
+
+@app.get("/api/custom/video-system/status")
+async def get_video_system_status():
+    """Get video generation system status."""
+    try:
+        # Check HTML to Image service status
+        from app.services.html_to_image_service import html_to_image_service
+        image_service_status = html_to_image_service.get_status()
+        
+        return {
+            "success": True,
+            "system": "Clean Video Generation Pipeline",
+            "screenshot_services": "DISABLED",
+            "chromium_browser": "NOT REQUIRED",
+            "clean_pipeline": "ACTIVE",
+            "avatar_selection": "DYNAMIC",
+            "image_conversion": image_service_status,
+            "supported_formats": ["avatar-checklist", "avatar-crm", "avatar-service", "avatar-buttons", "avatar-steps"],
+            "output_resolution": "1920x1080",
+            "pipeline": "Props → HTML → PNG → Video"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting video system status: {str(e)}")
+        return {"success": False, "error": f"Failed to get status: {str(e)}"}
+
+# ============================================================================
 # Professional Presentation API Endpoints
 # ============================================================================
 
@@ -20142,16 +20308,35 @@ async def create_presentation(request: Request):
         # Extract parameters
         slide_url = body.get("slideUrl")
         voiceover_texts = body.get("voiceoverTexts", [])
-        avatar_code = body.get("avatarCode", "gia.casual")
+        # NEW: Accept actual slide data
+        slides_data = body.get("slidesData")  # Optional - actual slide content with text, props, etc.
+        theme = body.get("theme", "dark-purple")  # Theme for slide generation
+        avatar_code = body.get("avatarCode")  # None will trigger auto-selection
+        use_avatar_mask = body.get("useAvatarMask", True)  # NEW: Use avatar mask service by default
         duration = body.get("duration", 30.0)
-        layout = body.get("layout", "side_by_side")
+        layout = body.get("layout", "picture_in_picture")
         quality = body.get("quality", "high")
         resolution = body.get("resolution", [1920, 1080])
         project_name = body.get("projectName", "Generated Presentation")
         
-        # Validate required parameters
-        if not slide_url:
-            return {"success": False, "error": "slideUrl is required"}
+        # Add detailed logging for debugging
+        logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
+        logger.info(f"  - slide_url: {slide_url}")
+        logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
+        logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"  - theme: {theme}")
+        logger.info(f"  - avatar_code: {avatar_code}")
+        logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
+        logger.info(f"  - duration: {duration}")
+        logger.info(f"  - layout: {layout}")
+        logger.info(f"  - quality: {quality}")
+        logger.info(f"  - resolution: {resolution}")
+        logger.info(f"  - project_name: {project_name}")
+        
+        # Validate required parameters  
+        # slideUrl is required only if no slidesData provided
+        if not slide_url and not slides_data:
+            return {"success": False, "error": "Either slideUrl or slidesData is required"}
         
         if not voiceover_texts or len(voiceover_texts) == 0:
             return {"success": False, "error": "voiceoverTexts is required"}
@@ -20162,29 +20347,52 @@ async def create_presentation(request: Request):
             return {"success": False, "error": f"layout must be one of {allowed_layouts}"}
         
         # Create presentation request
+        logger.info("🎬 [MAIN_ENDPOINT] Creating PresentationRequest object...")
         presentation_request = PresentationRequest(
-            slide_url=slide_url,
+            slide_url=slide_url or "",  # Provide empty string if None
             voiceover_texts=voiceover_texts,
+            slides_data=slides_data,  # NEW: Pass actual slide data
+            theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
+            use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
             duration=duration,
             layout=layout,
             quality=quality,
             resolution=tuple(resolution),
             project_name=project_name
         )
+        logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
         
         # Create presentation
         job_id = await presentation_service.create_presentation(presentation_request)
         
-        return {
+        # Immediate response to prevent timeout
+        response = {
             "success": True,
             "jobId": job_id,
-            "message": "Presentation generation started"
+            "status": "processing",
+            "progress": 0,
+            "message": "Presentation generation started - check status with job ID",
+            "estimatedTime": "60-90 seconds"
         }
+        
+        logger.info(f"Returning immediate response for job {job_id}")
+        return response
         
     except Exception as e:
         logger.error(f"Error creating presentation: {str(e)}")
         return {"success": False, "error": f"Failed to create presentation: {str(e)}"}
+
+@app.get("/api/custom/presentations/test/quick")
+async def test_quick_response():
+    """Quick test endpoint to verify no timeout issues."""
+    from datetime import datetime
+    return {
+        "success": True,
+        "message": "Quick response test successful",
+        "timestamp": datetime.now().isoformat(),
+        "backend_status": "active"
+    }
 
 @app.get("/api/custom/presentations/{job_id}")
 async def get_presentation_status(job_id: str):
@@ -20209,6 +20417,7 @@ async def get_presentation_status(job_id: str):
             "error": job.error,
             "videoUrl": job.video_url,
             "thumbnailUrl": job.thumbnail_url,
+            "slideImageUrl": f"/api/custom/presentations/{job.job_id}/slide-image" if job.slide_image_path else None,
             "createdAt": job.created_at.isoformat() if job.created_at else None,
             "completedAt": job.completed_at.isoformat() if job.completed_at else None
         }
@@ -20268,6 +20477,247 @@ async def get_presentation_thumbnail(job_id: str):
     except Exception as e:
         logger.error(f"Error getting presentation thumbnail: {str(e)}")
         return {"success": False, "error": f"Failed to get thumbnail: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/slide-image")
+async def download_presentation_slide_image(job_id: str):
+    """Download the generated slide image for debugging."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        slide_image_path = await presentation_service.get_presentation_slide_image(job_id)
+        
+        if not slide_image_path:
+            return {"success": False, "error": "Slide image not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=slide_image_path,
+            media_type="image/png",
+            filename=f"slide_image_{job_id}.png"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error downloading presentation slide image: {str(e)}")
+        return {"success": False, "error": f"Failed to download slide image: {str(e)}"}
+
+@app.post("/api/custom/slide-image/generate")
+async def generate_slide_image(request: Request):
+    """Generate slide image from current slide data (standalone, no video generation)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Generating slide image")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Import the HTML to image service
+        from app.services.html_to_image_service import html_to_image_service
+        
+        # Generate a unique ID for this image generation
+        import uuid
+        image_id = str(uuid.uuid4())
+        
+        # Create output directory
+        from pathlib import Path
+        output_dir = Path("output/slide_images")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate image for the first slide (or all slides if needed)
+        slide_props = slides_data[0]  # Use first slide
+        template_id = slide_props.get("templateId")
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Template ID: {template_id}")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Slide props keys: {list(slide_props.keys())}")
+        
+        if not template_id:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Actual props keys: {list(actual_props.keys())}")
+        
+        # Log some key props for debugging
+        for key, value in actual_props.items():
+            if isinstance(value, str):
+                logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] {key}: '{value[:100]}...'")
+            else:
+                logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] {key}: {value}")
+        
+        # Generate output filename
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename = f"slide_image_{template_id}_{timestamp}_{image_id[:8]}.png"
+        output_path = str(output_dir / output_filename)
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Output path: {output_path}")
+        
+        # Convert slide to PNG
+        success = await html_to_image_service.convert_slide_to_png(
+            template_id=template_id,
+            props=actual_props,
+            theme=theme,
+            output_path=output_path
+        )
+        
+        if success:
+            # Verify file was created
+            if not os.path.exists(output_path):
+                logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] File not found after generation: {output_path}")
+                return {"success": False, "error": "Generated file not found"}
+            
+            file_size = os.path.getsize(output_path)
+            logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Successfully generated slide image: {output_path} ({file_size} bytes)")
+            
+            # Return the image directly
+            return FileResponse(
+                path=output_path,
+                media_type="image/png",
+                filename=output_filename
+            )
+        else:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] Failed to generate slide image")
+            return {"success": False, "error": "Failed to generate slide image"}
+        
+    except Exception as e:
+        logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] Error generating slide image: {str(e)}")
+        return {"success": False, "error": f"Failed to generate slide image: {str(e)}"}
+
+@app.post("/api/custom/slide-html/preview")
+async def preview_slide_html(request: Request):
+    """Preview the static HTML for a slide (debugging feature)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML preview")
+        logger.info(f"🔍 [HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"🔍 [HTML_PREVIEW] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("🔍 [HTML_PREVIEW] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Get the first slide
+        slide_props = slides_data[0]
+        template_id = slide_props.get("templateId")
+        
+        logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
+        
+        if not template_id:
+            logger.error("🔍 [HTML_PREVIEW] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        
+        # Log some key props for debugging
+        for key, value in actual_props.items():
+            if isinstance(value, str):
+                logger.info(f"🔍 [HTML_PREVIEW] {key}: '{value[:100]}...'")
+            else:
+                logger.info(f"🔍 [HTML_PREVIEW] {key}: {value}")
+        
+        # Import the HTML template service
+        from app.services.html_template_service import html_template_service
+        
+        # Generate clean HTML
+        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
+        html_content = html_template_service.generate_clean_html_for_video(
+            template_id, actual_props, theme
+        )
+        
+        logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
+        logger.info(f"🔍 [HTML_PREVIEW] HTML content length: {len(html_content)} characters")
+        
+        # Return the HTML content
+        return {
+            "success": True,
+            "html": html_content,
+            "template_id": template_id,
+            "theme": theme,
+            "props": actual_props
+        }
+        
+    except Exception as e:
+        logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
+        return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
+
+@app.post("/api/custom/slide-video/generate")
+async def generate_slide_video(request: Request):
+    """Generate video from slide image only (no AI avatar)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Generating slide-only video")
+        logger.info(f"🎬 [SLIDE_VIDEO] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"🎬 [SLIDE_VIDEO] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("🎬 [SLIDE_VIDEO] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Import the presentation service
+        from app.services.presentation_service import presentation_service
+        
+        # Create a presentation request with slide-only flag
+        from app.services.presentation_service import PresentationRequest
+        
+        # Get the first slide
+        slide_props = slides_data[0]
+        template_id = slide_props.get("templateId")
+        
+        if not template_id:
+            logger.error("🎬 [SLIDE_VIDEO] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        
+        # Create presentation request with required arguments
+        presentation_request = PresentationRequest(
+            slide_url="",  # Empty for slide-only mode
+            voiceover_texts=[],  # Empty for slide-only mode
+            slides_data=slides_data,
+            theme=theme,
+            slide_only=True,  # Flag to indicate slide-only video
+            use_avatar_mask=False  # Disable avatar mask for slide-only videos
+        )
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Creating slide-only presentation...")
+        
+        # Start the presentation generation
+        job_id = await presentation_service.create_presentation(presentation_request)
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Slide-only video generation started with job ID: {job_id}")
+        
+        return {
+            "success": True,
+            "jobId": job_id,
+            "message": "Slide-only video generation started"
+        }
+        
+    except Exception as e:
+        logger.error(f"🎬 [SLIDE_VIDEO] Error generating slide-only video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate slide-only video: {str(e)}"}
 
 @app.get("/api/custom/presentations")
 async def list_presentations(limit: int = 50):

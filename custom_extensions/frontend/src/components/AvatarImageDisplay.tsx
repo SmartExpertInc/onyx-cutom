@@ -1,3 +1,5 @@
+"use client";
+
 // custom_extensions/frontend/src/components/AvatarImageDisplay.tsx
 
 import React from 'react';
