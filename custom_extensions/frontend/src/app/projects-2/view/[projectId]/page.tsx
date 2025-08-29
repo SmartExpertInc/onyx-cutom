@@ -26,16 +26,8 @@ import ImageSettings from '../components/ImageSettings';
 import AvatarSettings from '../components/AvatarSettings';
 import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
-// NEW: Import SlideAddButton and types
-import { SlideAddButton } from '@/components/SlideAddButton';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-
-interface Scene {
-  id: string;
-  name: string;
-  order: number;
-}
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -77,19 +69,6 @@ export default function Projects2ViewPage() {
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
 
-  // Function to add a new scene (commented out for now - focusing on Video Lessons)
-  // const handleAddScene = () => {
-  //   const newSceneNumber = scenes.length + 1;
-  //   const newScene: Scene = {
-  //     id: `scene-${newSceneNumber}`,
-  //     name: `Scene ${newSceneNumber}`,
-  //     order: newSceneNumber
-  //   };
-  //   
-  //   // Add the new scene after existing scenes (at the end)
-  //   setScenes(prevScenes => [...prevScenes, newScene]);
-  // };
-
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     if (!videoLessonData) return;
@@ -121,7 +100,6 @@ export default function Projects2ViewPage() {
   const saveVideoLessonData = async (data: VideoLessonData | ComponentBasedSlideDeck) => {
     try {
       if (!projectId) {
-        console.error('No project ID available');
         return;
       }
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
@@ -130,10 +108,10 @@ export default function Projects2ViewPage() {
         body: JSON.stringify({ microProductContent: data })
       });
       if (!response.ok) {
-        console.error('Error saving video lesson data');
+        // Handle error silently or with user notification
       }
     } catch (error) {
-      console.error('Error saving video lesson data:', error);
+      // Handle error silently or with user notification
     }
   };
 
@@ -210,11 +188,8 @@ export default function Projects2ViewPage() {
   // NEW: Function to delete slide (following old interface pattern)
   const handleDeleteSlide = (slideId: string) => {
     if (!videoLessonData || videoLessonData.slides.length <= 1) {
-      console.log('Cannot delete slide: no data or only one slide remaining');
       return;
     }
-
-    console.log('Deleting slide:', slideId);
     
     // Filter out the deleted slide and renumber remaining slides
     const updatedSlides = videoLessonData.slides
@@ -243,35 +218,23 @@ export default function Projects2ViewPage() {
     
     // Save to backend
     saveVideoLessonData(updatedData);
-    
-    console.log('Slide deleted successfully. New current slide:', newCurrentSlideId);
   };
 
   // NEW: Load Video Lesson data on component mount
   useEffect(() => {
-    console.log('useEffect triggered with projectId:', projectId);
-    
     const loadVideoLessonData = async () => {
       if (!projectId) {
-        console.log('No projectId available, returning');
         return;
       }
       
-      console.log('Loading Video Lesson data for projectId:', projectId);
-      
       try {
-        console.log('Making fetch request to:', `${CUSTOM_BACKEND_URL}/projects/view/${projectId}`);
         const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${projectId}`, {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin'
         });
         
-        console.log('Fetch response status:', response.status);
-        
         if (response.ok) {
           const instanceData = await response.json();
-          console.log('Project data loaded:', instanceData);
-          console.log('Project component name:', instanceData.component_name);
           
           // Check if this is a Video Lesson project
           const isVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay' ||
@@ -281,31 +244,23 @@ export default function Projects2ViewPage() {
           const isComponentBasedVideoLesson = instanceData.component_name === 'VideoLessonPresentationDisplay';
           
           if (isVideoLesson) {
-            console.log('Detected Video Lesson project');
             setIsVideoLessonMode(true);
             setIsComponentBasedVideoLesson(isComponentBasedVideoLesson);
             
             // Load Video Lesson data from details
             if (instanceData.details) {
-              console.log('Found details:', instanceData.details);
-              
               if (isComponentBasedVideoLesson) {
                 // Handle component-based video lesson structure
                 const componentData = instanceData.details as ComponentBasedSlideDeck;
                 setComponentBasedSlideDeck(componentData);
                 setCurrentSlideId(componentData.currentSlideId || componentData.slides[0]?.slideId);
-                console.log('Set Component-Based Video Lesson data:', componentData);
-                console.log('Current slide ID:', componentData.currentSlideId || componentData.slides[0]?.slideId);
               } else {
                 // Handle old video lesson structure
                 const videoData = instanceData.details as VideoLessonData;
                 setVideoLessonData(videoData);
                 setCurrentSlideId(videoData.currentSlideId || videoData.slides[0]?.slideId);
-                console.log('Set Video Lesson data:', videoData);
-                console.log('Current slide ID:', videoData.currentSlideId || videoData.slides[0]?.slideId);
               }
             } else {
-              console.log('No details found, creating empty Video Lesson data');
               if (isComponentBasedVideoLesson) {
                 // Create empty component-based Video Lesson data
                 const emptyComponentData: ComponentBasedSlideDeck = {
@@ -326,9 +281,7 @@ export default function Projects2ViewPage() {
               }
             }
           } else {
-            console.log('Not a Video Lesson project, component_name:', instanceData.component_name);
             // TEMPORARY: Force Video Lesson mode for testing
-            console.log('TEMPORARY: Forcing Video Lesson mode for testing');
             setIsVideoLessonMode(true);
             setIsComponentBasedVideoLesson(true);
             const testComponentData: ComponentBasedSlideDeck = {
@@ -351,18 +304,13 @@ export default function Projects2ViewPage() {
             setComponentBasedSlideDeck(testComponentData);
             setCurrentSlideId('slide-1');
           }
-        } else {
-          console.error('Failed to load project data:', response.status);
         }
       } catch (error) {
-        console.error('Error loading Video Lesson data:', error);
-        console.error('Error details:', error);
+        // Handle error silently or with user notification
       }
     };
 
-    console.log('Calling loadVideoLessonData...');
     loadVideoLessonData();
-    console.log('loadVideoLessonData called');
   }, [projectId]);
 
 
@@ -410,13 +358,11 @@ export default function Projects2ViewPage() {
 
   // Function to handle menu actions
   const handleMenuAction = (action: string, sceneId: string) => {
-    console.log(`${action} for ${sceneId}`);
     
     if (action === 'delete' && isVideoLessonMode) {
       handleDeleteSlide(sceneId);
     } else {
       // TODO: Implement other actions for regular scenes
-      console.log(`Action ${action} not implemented yet`);
     }
     
     closeMenu();
@@ -424,7 +370,6 @@ export default function Projects2ViewPage() {
 
   // Function to handle element selection in presentation
   const handleElementSelect = (elementType: string | null) => {
-    console.log('handleElementSelect called with:', elementType);
     setSelectedElement(elementType);
   };
 
@@ -720,7 +665,7 @@ export default function Projects2ViewPage() {
           <SceneTimeline 
             scenes={[]} // Commented out regular scenes for now
             aspectRatio={aspectRatio}
-            onAddScene={() => console.log('Regular scene add - disabled for now')} // Commented out for now
+            onAddScene={() => {}} // Disabled for now
             onMenuClick={handleMenuClick}
             videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
             componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
