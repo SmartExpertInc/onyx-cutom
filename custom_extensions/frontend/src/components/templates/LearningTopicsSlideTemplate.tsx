@@ -48,7 +48,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '626px',
     backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
@@ -130,6 +130,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         height: '100%',
         backgroundColor: themeBg,
         padding: '40px 60px',
+        paddingTop: '56px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -173,7 +174,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           {/* Main title */}
           <div style={{
             maxWidth: '321px',
-            fontSize: '51px',
+            fontSize: '58px',
             color: themeTitle,
             lineHeight: '1.1',
             marginBottom: '60px'
@@ -187,7 +188,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 className="learning-title-editor"
                 style={{
                   maxWidth: '321px',
-                  fontSize: '51px',
+                  fontSize: '58px',
                   color: themeTitle,
                   lineHeight: '1.1',
                   width: '100%',
@@ -230,7 +231,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                   opacity: 0.3
                 }} />
                 <div style={{
-                  fontSize: '24px',
+                  fontSize: '32px',
                   color: themeTitle,
                   minWidth: '120px'
                 }}>
@@ -241,7 +242,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                       onCancel={handleTopicCancel}
                       className="topic-editor"
                       style={{
-                        fontSize: '24px',
+                        fontSize: '32px',
                         color: themeTitle,
                         width: '100%',
                         height: 'auto',
