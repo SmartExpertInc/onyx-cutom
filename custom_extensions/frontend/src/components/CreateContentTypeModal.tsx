@@ -5,6 +5,7 @@ import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings 
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AllContentTypesModal } from './AllContentTypesModal';
+import BallotIcon from '@mui/icons-material/Ballot';
 
 interface RecommendedContentTypes {
   primary: string[];
@@ -247,34 +248,26 @@ export const CreateContentTypeModal = ({
           </div>
         </div>
 
-        {/* Lesson Plan Button - Separate from content types */}
-        <div className="mb-6">
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
-            onClick={() => handleContentCreate('lessonPlan')}>
-            <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-xl bg-indigo-100 text-indigo-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+        <div className="mb-4">
+          <button
+            onClick={() => handleContentCreate('lessonPlan')}
+            className="w-full bg-yellow-50 border border-yellow-300 rounded-lg p-3 hover:bg-yellow-100 transition-all duration-200 flex items-center justify-between group"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-yellow-200 text-yellow-700">
+                <BallotIcon className="w-4 h-4" />
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-bold text-indigo-900">Lesson Plan</h3>
-                  <span className="text-xs bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-3 py-1 rounded-full font-medium border border-indigo-200">
-                    Planning Document
+              <div className="text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-yellow-800">Lesson Plan</span>
+                  <span className="text-xs bg-yellow-200 text-yellow-700 px-2 py-0.5 rounded-full">
+                    Planning
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed text-indigo-700">
-                  Create a technical specification with lesson objectives, topics outline, and learning goals for content development
-                </p>
-              </div>
-              <div className="text-indigo-400 group-hover:text-indigo-600 transition-all duration-200">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <p className="text-xs text-yellow-600">Create a technical specification with lesson objectives</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Combined Content Types View */}
