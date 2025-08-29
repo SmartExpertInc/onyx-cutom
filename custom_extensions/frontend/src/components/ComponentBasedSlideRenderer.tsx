@@ -99,6 +99,21 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     getPlaceholderGenerationState
   };
 
+  // Debug theme information for specific templates
+  if (slide.templateId === 'course-overview-slide' || slide.templateId === 'work-life-balance-slide' || slide.templateId === 'thank-you-slide') {
+    console.log('🎨 ComponentBasedSlideRenderer Theme Debug:', {
+      slideId: slide.slideId,
+      templateId: slide.templateId,
+      themeType: typeof theme,
+      themeValue: theme,
+      currentThemeId: currentTheme.id,
+      currentThemeBg: currentTheme.colors.backgroundColor,
+      templatePropsTheme: templateProps.theme.id
+    });
+  }
+
+
+
   // Use HybridTemplateBase for all editable slides (positioning enabled by default)
   if (shouldUsePositioning) {
     return (
@@ -126,8 +141,15 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   // Default template rendering
   return (
     <div 
-      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}
+      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} w-full h-full`}
       data-theme={theme || DEFAULT_SLIDE_THEME}
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <TemplateComponent {...templateProps} />
     </div>
@@ -164,13 +186,15 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   }
 
   return (
-    <div className="component-based-slide-deck">
+    <div className="component-based-slide-deck w-full h-full">
       {slides.map((slide) => (
         <div 
           key={slide.slideId}
           className={`slide-container ${selectedSlideId === slide.slideId ? 'active' : ''}`}
           style={{
             display: selectedSlideId ? (selectedSlideId === slide.slideId ? 'block' : 'none') : 'block',
+            width: '100%',
+            height: '100%',
             marginBottom: selectedSlideId ? 0 : '40px'
           }}
         >

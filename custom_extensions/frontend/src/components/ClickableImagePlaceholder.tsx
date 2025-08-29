@@ -789,12 +789,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         }}
         onClick={handlePlaceholderClick}
       >
-        <div className="text-center p-4">
+        <div className="text-center p-4" style={{ 
+          maxWidth: '100%', 
+          overflow: 'hidden',
+          wordWrap: 'break-word'
+        }}>
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-          <div className="font-medium">{size} Image</div>
-          <div className="text-xs mt-1 opacity-75">{description}</div>
+          <div className="font-medium" style={{ fontSize: '0.875rem' }}>{size} Image</div>
+          <div className="text-xs mt-1 opacity-75" style={{ fontSize: '0.75rem' }}>{description}</div>
           {prompt && (
-            <div className="text-xs mt-1 opacity-60 italic">
+            <div className="text-xs mt-1 opacity-60 italic" style={{ fontSize: '0.75rem' }}>
               "{prompt}"
             </div>
           )}
@@ -808,7 +812,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           )}
           {isEditable && !isGenerating && (
             <div className="space-y-2 mt-3">
-              <div className="text-xs text-blue-600 font-medium">
+              <div className="text-xs text-blue-600 font-medium" style={{ fontSize: '0.75rem' }}>
                 Click to upload
               </div>
               <div className="text-xs text-purple-600 font-medium">

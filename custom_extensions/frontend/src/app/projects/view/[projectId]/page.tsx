@@ -25,6 +25,7 @@ import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
+import { VideoDownloadButton } from '@/components/VideoDownloadButton';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
@@ -1480,22 +1481,28 @@ export default function ProjectInstanceViewPage() {
             )}
             
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                  <button
-                    onClick={handlePdfDownload}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={
-                      projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
-                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
-                    }
-                  >
-                   <Download size={16} className="mr-2" /> {
-                     projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
-                       : t('interface.projectView.downloadPdf', 'Download PDF')
-                   }
-                  </button>
+              projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
+              projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
+                <VideoDownloadButton
+                  projectName={projectInstanceData.name}
+                  onError={(error) => {
+                    console.error('Video generation error:', error);
+                    alert(`Video generation failed: ${error}`);
+                  }}
+                  onSuccess={(downloadUrl) => {
+                    console.log('Video generated successfully:', downloadUrl);
+                  }}
+                />
+              ) : (
+                <button
+                  onClick={handlePdfDownload}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                  title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
+                >
+                 <Download size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                </button>
+              )
             )}
             
             {/* Smart Edit button for Training Plans */}

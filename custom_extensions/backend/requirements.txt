@@ -13,4 +13,21 @@ python-multipart
 tiktoken
 openai
 Pillow # For pie chart image generation
+psutilaiohttp
+ffmpeg-python
+playwright
+opencv-python
+asyncio-mqtt
+
+# File handling
+pathlib2
+# Logging and monitoring
+structlog
+# Development dependencies (optional)
+pytest
+pytest-asyncio
+black
+flake8
+# Production dependencies
+gunicorn
 psutil

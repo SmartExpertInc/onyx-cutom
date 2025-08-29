@@ -145,6 +145,10 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
+
+
+
+
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
