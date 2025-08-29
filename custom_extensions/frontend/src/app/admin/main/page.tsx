@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Users, BarChart3, Settings, ChevronRight } from 'lucide-react';
+import { Users, BarChart3, Settings, ChevronRight, Home } from 'lucide-react';
+import Link from 'next/link';
 import CreditsTab from './components/CreditsTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import FeaturesTab from './components/FeaturesTab';
@@ -50,15 +51,26 @@ const AdminMainPage: React.FC = () => {
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-            <span>Admin</span>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-gray-900 font-medium">Main Dashboard</span>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                <span>Admin</span>
+                <ChevronRight className="w-4 h-4" />
+                <span className="text-gray-900 font-medium">Main Dashboard</span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="mt-2 text-gray-600">
+                Manage user credits, view analytics, and control feature access
+              </p>
+            </div>
+            <Link
+              href="/"
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home
+            </Link>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-gray-600">
-            Manage user credits, view analytics, and control feature access
-          </p>
         </div>
 
         {/* Tab Navigation */}

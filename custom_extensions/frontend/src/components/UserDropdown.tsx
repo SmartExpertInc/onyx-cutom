@@ -122,6 +122,13 @@ export function UserDropdown({
               />
             ) : (
               <>
+                {showAdminPanel && (
+                  <DropdownOption
+                    href="/admin/main"
+                    icon={<Settings size={16} className="my-auto" />}
+                    label="Admin Settings"
+                  />
+                )}
                 {showLogout && (
                   <DropdownOption
                     onClick={handleLogout}

@@ -29,6 +29,7 @@ import FolderModal from './FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
+import useFeaturePermission from '../../hooks/useFeaturePermission';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -344,6 +345,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const router = useRouter();
   const { t } = useLanguage();
   const [folderSearch, setFolderSearch] = useState('');
+  const { isEnabled: aiAuditEnabled } = useFeaturePermission('ai_audit_templates');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
@@ -493,10 +495,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         )}
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
-         <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <LayoutTemplate size={18} />
-          <span>{t('interface.templates', 'Templates')}</span>
-        </Link>
+        {aiAuditEnabled && (
+          <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+            <LayoutTemplate size={18} />
+            <span>{t('interface.templates', 'Templates')}</span>
+          </Link>
+        )}
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Palette size={18} />
           <span>{t('interface.themes', 'Themes')}</span>

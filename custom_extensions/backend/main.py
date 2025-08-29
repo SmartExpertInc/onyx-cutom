@@ -19507,7 +19507,7 @@ async def get_users_with_features(
     
     try:
         async with pool.acquire() as conn:
-            # Get all users with their feature permissions
+            # Get all users with their feature permissions and user details
             rows = await conn.fetch("""
                 SELECT 
                     uf.user_id,
@@ -19517,9 +19517,12 @@ async def get_users_with_features(
                     uf.updated_at,
                     fd.display_name,
                     fd.description,
-                    fd.category
+                    fd.category,
+                    uc.name as user_name,
+                    uc.onyx_user_id as user_email
                 FROM user_features uf
                 JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
+                LEFT JOIN user_credits uc ON uf.user_id = uc.onyx_user_id
                 WHERE fd.is_active = true
                 ORDER BY uf.user_id, fd.category, fd.display_name
             """)
@@ -19531,6 +19534,8 @@ async def get_users_with_features(
                 if user_id not in users_features:
                     users_features[user_id] = {
                         'user_id': user_id,
+                        'user_email': row['user_email'] or user_id,
+                        'user_name': row['user_name'] or 'Unknown User',
                         'features': []
                     }
                 

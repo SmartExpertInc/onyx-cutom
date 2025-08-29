@@ -25,6 +25,8 @@ interface UserFeature {
 
 interface UserWithFeatures {
   user_id: string;
+  user_email: string;
+  user_name: string;
   features: UserFeature[];
 }
 
@@ -79,6 +81,8 @@ const FeaturesTab: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter(user =>
+    user.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.user_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -203,7 +207,7 @@ const FeaturesTab: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Search by email or name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -249,7 +253,7 @@ const FeaturesTab: React.FC = () => {
                 />
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User ID
+                User Email
               </th>
               {featureDefinitions.map((feature) => (
                 <th key={feature.feature_name} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -275,7 +279,7 @@ const FeaturesTab: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   <div className="flex items-center">
                     <Users className="w-4 h-4 mr-2 text-gray-400" />
-                    {user.user_id}
+                    {user.user_email}
                   </div>
                 </td>
                 {featureDefinitions.map((feature) => {
