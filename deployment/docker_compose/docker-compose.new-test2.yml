@@ -1,0 +1,341 @@
+services:
+  api_server:
+    image: onyxdotapp/onyx-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ../../backend # Relative to deployment/docker_compose/
+      dockerfile: Dockerfile
+    command: >
+      /bin/sh -c "
+      alembic upgrade head &&
+      echo \"Starting Onyx Api Server\" &&
+      uvicorn onyx.main:app --host 0.0.0.0 --port 8080"
+    depends_on:
+      relational_db:
+        condition: service_healthy # Keep this if relational_db has a healthcheck
+      index:
+        condition: service_started
+      cache:
+        condition: service_started
+      inference_model_server:
+        condition: service_started
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - AUTH_TYPE=${AUTH_TYPE:-basic}
+      - POSTGRES_HOST=relational_db
+      - VESPA_HOST=index
+      - REDIS_HOST=cache
+      - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
+      - WEB_DOMAIN=${WEB_DOMAIN}
+      - ENCRYPTION_KEY_SECRET=${ENCRYPTION_KEY_SECRET}
+      - SESSION_EXPIRE_TIME_SECONDS=${SESSION_EXPIRE_TIME_SECONDS}
+    # HEALTHCHECK REMOVED FROM HERE
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    volumes:
+      - api_server_logs:/var/log
+
+  background:
+    mem_limit: 512m
+    image: onyxdotapp/onyx-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    command: >
+      /bin/sh -c "
+      if [ -f /etc/ssl/certs/custom-ca.crt ]; then
+        update-ca-certificates;
+      fi &&
+      /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
+    depends_on:
+      relational_db:
+        condition: service_healthy # Keep if db has healthcheck
+      index:
+        condition: service_started
+      cache:
+        condition: service_started
+      api_server: # Changed from service_healthy to service_started
+        condition: service_started
+      inference_model_server:
+        condition: service_started
+      indexing_model_server:
+        condition: service_started
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=relational_db
+      - VESPA_HOST=index
+      - REDIS_HOST=cache
+      - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
+      - INDEXING_MODEL_SERVER_HOST=${INDEXING_MODEL_SERVER_HOST:-indexing_model_server}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - background_logs:/var/log
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  web_server:
+    image: onyxdotapp/onyx-web-server:${IMAGE_TAG:-latest}
+    build:
+      context: ../../web
+      dockerfile: Dockerfile
+      args:
+        - NODE_OPTIONS=${NODE_OPTIONS:-}
+        - NEXT_PUBLIC_DISABLE_STREAMING=${NEXT_PUBLIC_DISABLE_STREAMING:-false}
+        - NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA=${NEXT_PUBLIC_NEW_CHAT_DIRECTS_TO_SAME_PERSONA:-false}
+        - NEXT_PUBLIC_POSITIVE_PREDEFINED_FEEDBACK_OPTIONS=${NEXT_PUBLIC_POSITIVE_PREDEFINED_FEEDBACK_OPTIONS:-}
+        - NEXT_PUBLIC_NEGATIVE_PREDEFINED_FEEDBACK_OPTIONS=${NEXT_PUBLIC_NEGATIVE_PREDEFINED_FEEDBACK_OPTIONS:-}
+        - NEXT_PUBLIC_DISABLE_LOGOUT=${NEXT_PUBLIC_DISABLE_LOGOUT:-}
+        - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-}
+        - NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED=${NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED:-}
+        - NEXT_PUBLIC_CUSTOM_PROJECTS_UI_DOMAIN=${NEXT_PUBLIC_CUSTOM_PROJECTS_UI_DOMAIN:-https://ml.contentbuilder.ai}
+    depends_on:
+      api_server: # Changed from service_healthy to service_started
+        condition: service_started
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - INTERNAL_URL=http://api_server:8080
+      - WEB_DOMAIN=${WEB_DOMAIN}
+      - NEXT_PUBLIC_CUSTOM_PROJECTS_UI_DOMAIN=${NEXT_PUBLIC_CUSTOM_PROJECTS_UI_DOMAIN:-https://ml.contentbuilder.ai}
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  nginx:
+    image: nginx:1.25.3-alpine
+    restart: always
+    depends_on:
+      api_server: # Changed from service_healthy to service_started
+        condition: service_started
+      web_server:
+        condition: service_started
+    environment:
+      - DOMAIN=${WEB_DOMAIN_NO_PROTOCOL:-143.198.59.56}
+    ports:
+      - "8088:80"
+    volumes:
+      - ../data/nginx:/etc/nginx/conf.d
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    command: >
+      /bin/sh -c "dos2unix /etc/nginx/conf.d/run-nginx.sh
+      && chmod +x /etc/nginx/conf.d/run-nginx.sh
+      && /etc/nginx/conf.d/run-nginx.sh app.conf.template.dev"
+
+  relational_db:
+    image: postgres:15.2-alpine
+    command: -c 'max_connections=250'
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    healthcheck: # Keeping healthcheck for DB
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-onyx_db} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  inference_model_server:
+    image: onyxdotapp/onyx-model-server:${IMAGE_TAG:-latest}
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile.model_server
+    command: >
+      /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-false}\" = \"True\" ]; then
+        echo 'Skipping service...';
+        exit 0;
+      else
+        exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
+      fi"
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - MIN_THREADS_ML_MODELS=${MIN_THREADS_ML_MODELS:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - model_cache_huggingface:/root/.cache/huggingface/
+      - inference_model_server_logs:/var/log
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  indexing_model_server:
+    image: onyxdotapp/onyx-model-server:${IMAGE_TAG:-latest}
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile.model_server
+    command: >
+      /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-false}\" = \"True\" ]; then
+        echo 'Skipping service...';
+        exit 0;
+      else
+        exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
+      fi"
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - MIN_THREADS_ML_MODELS=${MIN_THREADS_ML_MODELS:-}
+      - INDEXING_ONLY=True
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - VESPA_SEARCHER_THREADS=${VESPA_SEARCHER_THREADS:-1}
+    volumes:
+      - indexing_huggingface_model_cache:/root/.cache/huggingface/
+      - indexing_model_server_logs:/var/log
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  index: # Vespa
+    mem_limit: 1g
+    image: vespaengine/vespa:8.277.17
+    restart: always
+    ports:
+      - "19071:19071"
+      - "8081:8081"
+    volumes:
+      - vespa_volume:/opt/vespa/var
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  cache: # Redis
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  # --- Custom Extension Services ---
+  custom_projects_db:
+    image: postgres:15.2-alpine # You can choose your preferred Postgres version
+    container_name: onyx-stack-custom-projects-db # Unique container name
+    restart: always
+    environment:
+      POSTGRES_USER: ${CUSTOM_PROJECTS_DB_USER:-custom_user} # Define these in your .env
+      POSTGRES_PASSWORD: ${CUSTOM_PROJECTS_DB_PASSWORD:-custom_password} # Define these in your .env
+      POSTGRES_DB: ${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db}     # Define these in your .env
+    ports:
+      - "5433:5432" # Expose on host port 5433 to avoid conflict if relational_db uses 5432
+    volumes:
+      - custom_projects_db_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CUSTOM_PROJECTS_DB_USER:-custom_user} -d ${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  custom_frontend:
+    build:
+      context: ../../custom_extensions/frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_BASE_URL_ARG=/api/custom-projects-backend
+    # ports:
+      # - "3001:3001"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_CUSTOM_BACKEND_URL=/api/custom-projects-backend
+      - PORT=3001
+    depends_on:
+      custom_backend:
+        condition: service_started # Add healthcheck to custom_backend if possible
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  custom_backend:
+    build:
+      context: ../../custom_extensions/backend
+      dockerfile: Dockerfile
+    # ports:
+      # - "8001:8001"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CUSTOM_PROJECTS_DATABASE_URL=postgresql://${CUSTOM_PROJECTS_DB_USER:-custom_user}:${CUSTOM_PROJECTS_DB_PASSWORD:-custom_password}@custom_projects_db:5432/${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db}
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      - COHERE_API_KEY_FALLBACK=${COHERE_API_KEY_FALLBACK}
+      - ONYX_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@relational_db:5432/${POSTGRES_DB:-onyx_db}
+      - CUSTOM_FRONTEND_URL=http://custom_frontend:3001
+    shm_size: '2gb'
+    depends_on:
+      relational_db:
+        condition: service_healthy
+      custom_projects_db:
+        condition: service_healthy
+      api_server:
+        condition: service_started
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    volumes:
+      - ../../custom_extensions/backend:/app
+
+volumes:
+  db_volume:
+  vespa_volume:
+  model_cache_huggingface:
+  indexing_huggingface_model_cache:
+  api_server_logs:
+  background_logs:
+  inference_model_server_logs:
+  indexing_model_server_logs:
+  custom_projects_db_volume:
+  custom_frontend_logs:
+  custom_backend_logs:
