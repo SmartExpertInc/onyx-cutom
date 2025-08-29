@@ -403,6 +403,7 @@ export interface BenefitsListSlideProps extends BaseTemplateProps {
   currentStep?: number;
   totalSteps?: number;
   companyName?: string;
+  logoNew?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

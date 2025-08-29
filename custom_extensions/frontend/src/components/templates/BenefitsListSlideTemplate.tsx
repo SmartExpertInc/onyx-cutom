@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BenefitsListSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -141,6 +142,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   currentStep = 3,
   totalSteps = 4,
   companyName = 'Company name',
+  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -155,6 +157,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [editingDescription, setEditingDescription] = useState(false);
   const [editingBenefits, setEditingBenefits] = useState<number | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
@@ -180,7 +183,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -188,7 +191,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -196,7 +199,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentDescription(newDescription);
     setEditingDescription(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
     }
   };
 
@@ -206,7 +209,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentBenefits(newBenefits);
     setEditingBenefits(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
     }
   };
 
@@ -234,7 +237,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -245,7 +248,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
     }
   };
 
@@ -464,7 +473,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           maxWidth: '1000px',
           marginTop: '20px'
         }}>
-          {currentBenefits.map((benefit, index) => (
+          {currentBenefits.map((benefit: string, index: number) => (
             <div
               key={index}
               style={{
@@ -507,7 +516,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         {/* Horizontal line separator */}
         <hr style={{
           border: 'none',
-          height: '1px',
+          height: '2px',
           backgroundColor: themeContent,
           opacity: 0.3,
           margin: '20px 0',
@@ -522,12 +531,43 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           marginTop: 'auto',
           marginBottom: '20px'
         }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            backgroundColor: themeAccent,
-            transform: 'rotate(45deg)'
-          }} />
+{logoNew ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={logoNew}
+              onImageUploaded={handleLogoNewUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '24px',
+                width: '24px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo image
+            <div 
+              onClick={() => isEditable && setShowUploadModal(true)}
+              style={{
+                width: '24px',
+                height: '24px',
+                cursor: isEditable ? 'pointer' : 'default',
+                position: 'relative'
+              }}
+            >
+              <img
+                src="/custom-projects-ui/logoNew.png"
+                alt="Company Logo"
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
+          )}
           <div style={{
             fontSize: '12px',
             color: themeContent,
@@ -559,6 +599,19 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           </div>
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showUploadModal && (
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

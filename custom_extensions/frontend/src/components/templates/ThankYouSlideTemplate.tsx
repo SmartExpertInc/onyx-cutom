@@ -207,7 +207,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       <div style={{
         position: 'absolute',
         top: '373px',
-        left: '80px',
+        left: '85px',
         right: '80px'
       }}>
         {/* Left side - Contact and Address */}
