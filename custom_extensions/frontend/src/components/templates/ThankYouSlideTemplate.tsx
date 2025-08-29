@@ -5,6 +5,7 @@ import { ThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   theme?: SlideTheme | string;
@@ -34,6 +35,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [editingAddress, setEditingAddress] = useState(false);
   const [editingPostalCode, setEditingPostalCode] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentEmail, setCurrentEmail] = useState(email);
@@ -416,39 +418,49 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         alignItems: 'center',
         gap: '10px'
       }}>
-        {logoNew ? (
+<div 
+          onClick={() => isEditable && setShowUploadModal(true)}
+          style={{
+            width: '16px',
+            height: '16px',
+            cursor: isEditable ? 'pointer' : 'default',
+            position: 'relative'
+          }}
+        >
           <img
-            src={logoNew.startsWith('/static_design_images/') ? logoNew : `/static_design_images/${logoNew}`}
+            src={logoNew || '/custom-projects-ui/static_design_images/logoNew.png'}
             alt="Company Logo"
             style={{
               width: '16px',
               height: '16px',
               objectFit: 'contain'
             }}
-          />
-        ) : isEditable ? (
-          <ClickableImagePlaceholder
-            imagePath={logoNew}
-            onImageUploaded={handleLogoNewUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              width: '16px',
-              height: '16px',
-              backgroundColor: themeAccent,
-              transform: 'rotate(45deg)'
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              console.log('Failed to load logo:', logoNew);
+              // Fallback to default logo
+              (e.target as HTMLImageElement).src = '/custom-projects-ui/static_design_images/logoNew.png';
             }}
           />
-        ) : (
-          <div style={{
-            width: '16px',
-            height: '16px',
-            backgroundColor: themeAccent,
-            transform: 'rotate(45deg)'
-          }} />
-        )}
+          {isEditable && (
+            <div style={{
+              position: 'absolute',
+              top: '-2px',
+              right: '-2px',
+              width: '8px',
+              height: '8px',
+              backgroundColor: '#ff4444',
+              borderRadius: '50%',
+              fontSize: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              opacity: 0.8
+            }}>
+              ✎
+            </div>
+          )}
+        </div>
         <div style={{ position: 'relative' }}>
           {isEditable && editingCompanyName ? (
             <ImprovedInlineEditor
@@ -481,6 +493,19 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           )}
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showUploadModal && (
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
