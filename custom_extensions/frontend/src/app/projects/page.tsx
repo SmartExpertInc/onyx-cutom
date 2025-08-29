@@ -22,7 +22,8 @@ import {
   Bell,
   MessageSquare,
   ChevronRight,
-  LayoutTemplate
+  LayoutTemplate,
+  Play
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -445,6 +446,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Users size={18} />
           <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
         </Link>
+        <a 
+          href="/projects-2/view" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+        >
+          <Play size={18} />
+          <span>Video DEMO</span>
+        </a>
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
