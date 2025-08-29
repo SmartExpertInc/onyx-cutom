@@ -28,6 +28,7 @@ import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
+import '../components/compact-slide-styles.css';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -68,6 +69,22 @@ export default function Projects2ViewPage() {
   
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
+
+  // NEW: Calculate optimal scale for slides based on available space
+  const calculateOptimalScale = () => {
+    // Base scale for the smaller projects-2 interface
+    const baseScale = 0.7;
+    
+    // Adjust based on aspect ratio
+    let aspectRatioScale = 1;
+    if (aspectRatio === '9:16') {
+      aspectRatioScale = 0.9; // Slightly larger for portrait
+    } else if (aspectRatio === '1:1') {
+      aspectRatioScale = 0.8; // Medium for square
+    }
+    
+    return baseScale * aspectRatioScale;
+  };
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
@@ -620,7 +637,7 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden z-0"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden z-0 compact-slide-mode"
                 style={{
                   width: '80%',
                   height: '80%',
@@ -629,7 +646,10 @@ export default function Projects2ViewPage() {
                     : aspectRatio === '9:16'
                     ? 'calc((100vh - 145px) * 0.8 * 0.8 * 9 / 16)'
                     : 'calc((100vh - 145px) * 0.8 * 0.8)',
-                  maxHeight: 'calc((100vh - 145px) * 0.8 * 0.8)'
+                  maxHeight: 'calc((100vh - 145px) * 0.8 * 0.8)',
+                  // Scale down the entire slide to fit smaller space
+                  transform: `scale(${calculateOptimalScale()})`,
+                  transformOrigin: 'top left'
                 }}
               >
                 <ComponentBasedSlideDeckRenderer
