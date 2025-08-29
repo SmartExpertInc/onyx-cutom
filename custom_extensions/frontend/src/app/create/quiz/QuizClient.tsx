@@ -1253,7 +1253,7 @@ export default function QuizClient() {
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.quiz', 'Quiz')} {t('interface.generate.content', 'Content')}</h2>
             {loading && (
-              <LoadingAnimation message={t('interface.generate.generatingQuiz', 'Generating Quiz...')} />
+              <LoadingAnimation message={thoughts[thoughtIdx]} />
             )}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
