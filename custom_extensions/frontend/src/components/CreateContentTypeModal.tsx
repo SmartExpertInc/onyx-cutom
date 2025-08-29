@@ -5,7 +5,6 @@ import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings 
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AllContentTypesModal } from './AllContentTypesModal';
-import BallotIcon from '@mui/icons-material/Ballot';
 
 interface RecommendedContentTypes {
   primary: string[];
@@ -255,7 +254,14 @@ export const CreateContentTypeModal = ({
           >
             <div className="flex items-center space-x-3">
               <div className="p-2 rounded-lg bg-yellow-200 text-yellow-700">
-                <BallotIcon className="w-4 h-4" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="4" y="6" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
+                  <line x1="9" y1="7.5" x2="16" y2="7.5" stroke="currentColor" strokeWidth="1.5" />
+                  <rect x="4" y="11" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
+                  <line x1="9" y1="12.5" x2="16" y2="12.5" stroke="currentColor" strokeWidth="1.5" />
+                  <rect x="4" y="16" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
+                  <line x1="9" y1="17.5" x2="16" y2="17.5" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
               </div>
               <div className="text-left">
                 <div className="flex items-center gap-2">
