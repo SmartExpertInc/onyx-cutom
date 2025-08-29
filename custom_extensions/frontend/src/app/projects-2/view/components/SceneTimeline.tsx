@@ -117,23 +117,23 @@ export default function SceneTimeline({
 
   return (
     <div className="bg-white rounded-md overflow-visible p-2 h-full">
-      <div className="flex items-end gap-2 overflow-x-auto h-full">
+      <div className="flex items-end gap-2 overflow-x-auto">
           {/* Play Button with Time */}
-          <div className="flex flex-col items-center gap-1 flex-shrink-0 h-full justify-center">
-            <div className="relative flex items-center justify-center h-8">
-              <button className="w-6 h-6 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
-                <div className="w-0 h-0 border-l-[6px] border-l-white border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent ml-0.5"></div>
+          <div className="flex flex-col items-center gap-1 flex-shrink-0">
+            <div className="relative flex items-center justify-center h-16">
+              <button className="w-10 h-10 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors cursor-pointer">
+                <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
               </button>
             </div>
-            <div className="h-4 flex items-center justify-center">
-              <span className="text-xs text-gray-600">00:00</span>
+            <div className="h-8 flex items-center justify-center">
+              <span className="text-sm text-gray-600">00:00</span>
             </div>
           </div>
 
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
-              <div className="flex flex-col items-center gap-1 flex-shrink-0 h-full justify-center">
+              <div className="flex flex-col items-center gap-1 flex-shrink-0">
                 <div className="relative group">
                   <div 
                     className={`bg-gray-100 border rounded-md flex items-center justify-center relative cursor-pointer transition-all ${
@@ -141,28 +141,25 @@ export default function SceneTimeline({
                         ? 'border-blue-500 bg-blue-50' 
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
-                    style={{
-                      width: '48px',
-                      height: '32px'
-                    }}
+                    style={getSceneRectangleStyles()}
                     onClick={() => onSlideSelect?.(scene.id)}
                   >
                     {/* Simple visual indicator instead of text content */}
-                    <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center">
+                    <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
                       <span className="text-white text-xs font-bold">{scene.order}</span>
                     </div>
                     
                     {/* Three-dot menu button - visible on hover */}
-                    <div className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button 
-                        className="w-4 h-4 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        className="w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           onMenuClick(scene.id, e);
                         }}
                       >
                         <svg 
-                          className="w-2 h-2 text-gray-600" 
+                          className="w-3 h-3 text-gray-600" 
                           fill="currentColor" 
                           viewBox="0 0 24 24"
                         >
@@ -174,7 +171,7 @@ export default function SceneTimeline({
                     </div>
                   </div>
                 </div>
-                <div className="h-4 flex items-center gap-1 min-w-[80px] justify-center">
+                <div className="h-8 flex items-center gap-1 min-w-[120px] justify-center">
                   {editingSceneId === scene.id ? (
                     <input
                       type="text"
@@ -182,16 +179,16 @@ export default function SceneTimeline({
                       onChange={(e) => setEditingName(e.target.value)}
                       onKeyDown={handleKeyPress}
                       onBlur={handleRenameSave}
-                      className="text-xs font-medium text-gray-700 bg-transparent border-none outline-none focus:outline-none focus:ring-0 min-w-[60px] text-center"
+                      className="text-sm font-medium text-gray-700 bg-transparent border-none outline-none focus:outline-none focus:ring-0 min-w-[80px] text-center"
                       autoFocus
                     />
                   ) : (
                     <>
-                      <span className="text-xs font-medium text-gray-900 truncate max-w-[60px]" title={scene.name || 'Untitled'}>
+                      <span className="text-sm font-medium text-gray-900 truncate max-w-[100px]" title={scene.name || 'Untitled'}>
                         {scene.name || 'Untitled'}
                       </span>
                       <svg 
-                        className="w-3 h-3 text-gray-500 hover:text-gray-700 cursor-pointer flex-shrink-0" 
+                        className="w-4 h-4 text-gray-500 hover:text-gray-700 cursor-pointer flex-shrink-0" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -211,11 +208,11 @@ export default function SceneTimeline({
 
               {/* Transition button - show between scenes (not after the last one) */}
               {index < displayScenes.length - 1 && (
-                <div className="flex flex-col items-center gap-1 flex-shrink-0 h-full justify-center">
-                  <div className="relative group flex items-center h-8">
-                    <button className="w-8 h-4 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                  <div className="relative group flex items-center h-16">
+                    <button className="w-16 h-8 bg-white border border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                       <svg 
-                        className="w-3 h-3 text-gray-600" 
+                        className="w-4 h-4 text-gray-600" 
                         fill="currentColor" 
                         viewBox="0 0 24 24"
                       >
@@ -231,7 +228,7 @@ export default function SceneTimeline({
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-black"></div>
                     </div>
                   </div>
-                  <div className="h-4 flex items-center justify-center">
+                  <div className="h-8 flex items-center justify-center">
                     {/* Empty space to maintain layout consistency */}
                   </div>
                 </div>
@@ -241,8 +238,8 @@ export default function SceneTimeline({
 
           {/* Add Slide Button - positioned at the end */}
           {(videoLessonData || componentBasedSlideDeck) && onAddSlide ? (
-            <div className="flex flex-col items-center gap-1 flex-shrink-0 h-full justify-center">
-              <div className="h-8 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 flex-shrink-0">
+              <div className="h-16 flex items-center justify-center">
                 <SlideAddButton
                   currentSlideCount={(componentBasedSlideDeck?.slides.length || videoLessonData?.slides.length || 0)}
                   onAddSlide={onAddSlide}
@@ -252,29 +249,26 @@ export default function SceneTimeline({
                   top="auto"
                   transform="none"
                   containerStyle={{
-                    width: '32px',
-                    height: '32px'
+                    width: '64px',
+                    height: '64px'
                   }}
                 />
               </div>
-              <div className="h-4 flex items-center justify-center">
-                <span className="text-xs font-medium text-gray-700">Add</span>
+              <div className="h-8 flex items-center justify-center">
+                <span className="text-sm font-medium text-gray-700">Add Slide</span>
               </div>
             </div>
           ) : (
             // Debug: Show which condition is failing
-            <div className="flex flex-col items-center gap-1 flex-shrink-0 h-full justify-center">
-              <div className="h-8 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 flex-shrink-0">
+              <div className="h-16 flex items-center justify-center">
                 <div 
                   className="bg-red-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-red-400 transition-colors"
-                  style={{
-                    width: '32px',
-                    height: '32px'
-                  }}
+                  style={getSceneRectangleStyles()}
                   onClick={() => console.log('Debug: videoLessonData:', !!videoLessonData, 'componentBasedSlideDeck:', !!componentBasedSlideDeck, 'onAddSlide:', !!onAddSlide)}
                 >
                   <svg 
-                    className="w-4 h-4 text-red-600" 
+                    className="w-8 h-8 text-red-600" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -288,8 +282,8 @@ export default function SceneTimeline({
                   </svg>
                 </div>
               </div>
-              <div className="h-4 flex items-center justify-center">
-                <span className="text-xs font-medium text-gray-700">Debug</span>
+              <div className="h-8 flex items-center justify-center">
+                <span className="text-sm font-medium text-gray-700">Debug</span>
               </div>
             </div>
           )}
