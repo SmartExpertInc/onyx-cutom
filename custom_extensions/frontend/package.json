@@ -25,7 +25,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-draggable": "^4.4.6",
-    "react-moveable": "^0.56.0"
+    "react-moveable": "^0.56.0",
+    "formik": "^2.4.6",
+    "yup": "^1.7.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
