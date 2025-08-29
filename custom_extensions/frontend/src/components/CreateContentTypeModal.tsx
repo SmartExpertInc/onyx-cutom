@@ -235,7 +235,7 @@ export const CreateContentTypeModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="mb-5 justify-between">
+        <div className="mb-4 justify-between">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
             <button
@@ -284,10 +284,10 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Combined Content Types View */}
-        <div className="mb-3">
+        <div className="mb-2">
 
           {/* All Content Types with Checkboxes */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {updatedContentTypes.map((type) => {
               const isDisabled = type.disabled;
               const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
