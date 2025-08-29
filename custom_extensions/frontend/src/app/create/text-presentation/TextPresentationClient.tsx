@@ -1431,7 +1431,7 @@ export default function TextPresentationClient() {
                 </span>
               )}
             </div>
-            {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
+            {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
             {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
 
             {/* Main content display - Custom slide titles display matching course outline format */}
