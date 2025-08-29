@@ -232,65 +232,91 @@ class ProfessionalPresentationService:
                 # Import the clean video generation service
                 from .clean_video_generation_service import clean_video_generation_service
                 
-                # Generate clean slide video with actual slide data
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Calling clean video generation service:")
-                logger.info(f"  - Slides count: {len(slides_data)}")
-                logger.info(f"  - Theme: {request.theme or 'dark-purple'}")
-                logger.info(f"  - Duration: {request.duration}")
-                logger.info(f"  - Quality: {request.quality}")
-                
-                if len(slides_data) == 1:
-                    # Single slide generation
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Using single slide generation")
-                    result = await clean_video_generation_service.generate_avatar_slide_video(
-                        slide_props=slides_data[0],
-                        theme=request.theme or "dark-purple",
-                        slide_duration=request.duration,
-                        quality=request.quality
+                # Check if this is a multi-slide presentation
+                if len(slides_data) > 1:
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] MULTI-SLIDE MODE: Processing {len(slides_data)} slides")
+                    final_video_path = await self._process_multi_slide_presentation(
+                        job_id, slides_data, request, job
                     )
                 else:
-                    # Multiple slides generation
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Using multiple slides generation")
-                    result = await clean_video_generation_service.generate_presentation_video(
-                        slides_props=slides_data,
-                        theme=request.theme or "dark-purple", 
-                        slide_duration=request.duration,
-                        quality=request.quality
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] SINGLE-SLIDE MODE: Processing 1 slide")
+                    final_video_path = await self._process_single_slide_presentation(
+                        job_id, slides_data[0], request, job
                     )
                 
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation result:")
-                logger.info(f"  - Success: {result.get('success', False)}")
-                logger.info(f"  - Video Path: {result.get('video_path', 'N/A')}")
-                logger.info(f"  - File Size: {result.get('file_size', 'N/A')}")
-                logger.info(f"  - Duration: {result.get('duration', 'N/A')}")
-                logger.info(f"  - Slide Image Paths: {result.get('slide_image_paths', [])}")
-                logger.info(f"  - Error: {result.get('error', 'None')}")
+                # Step 4: Create thumbnail
+                logger.info(f"Step 4: Creating thumbnail for job {job_id}")
+                thumbnail_filename = f"thumbnail_{job_id}.jpg"
+                thumbnail_path = self.output_dir / thumbnail_filename
                 
-                if result["success"]:
-                    slide_video_path = result["video_path"]
-                    slide_image_paths = result.get("slide_image_paths", [])
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Clean video generation successful: {slide_video_path}")
-                    
-                    # Store the first slide image path for debugging
-                    if slide_image_paths and len(slide_image_paths) > 0:
-                        job.slide_image_path = slide_image_paths[0]  # Store the first slide image path
-                        logger.info(f"🎬 [PRESENTATION_PROCESSING] Stored slide image path for debugging: {job.slide_image_path}")
-                else:
-                    logger.error(f"Clean video generation failed: {result['error']}")
-                    raise Exception(f"Video generation failed: {result['error']}")
-                    
-            except Exception as slide_error:
-                logger.error(f"Clean video generation error: {slide_error}")
-                raise Exception(f"Video generation failed: {str(slide_error)}")
+                await video_composer_service.create_thumbnail(
+                    final_video_path,
+                    str(thumbnail_path)
+                )
+                
+                # Update job status
+                job.status = "completed"
+                job.progress = 100.0
+                job.completed_at = datetime.now()
+                job.video_url = f"/presentations/{job_id}/video"
+                job.thumbnail_url = f"/presentations/{job_id}/thumbnail"
+                
+                logger.info(f"Presentation {job_id} completed successfully")
+                
+            except Exception as e:
+                logger.error(f"Presentation processing failed: {e}")
+                raise
+            
+        except Exception as e:
+            logger.error(f"Presentation {job_id} failed: {e}")
+            job.status = "failed"
+            job.error = str(e)
+            job.completed_at = datetime.now()
+
+    async def _process_single_slide_presentation(self, job_id: str, slide_data: Dict[str, Any], request: PresentationRequest, job: PresentationJob) -> str:
+        """
+        Process a single slide presentation (existing workflow).
+        
+        Args:
+            job_id: Job ID
+            slide_data: Single slide data
+            request: Presentation request
+            job: Job tracking object
+            
+        Returns:
+            Path to final video
+        """
+        try:
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Processing single slide presentation")
+            
+            # Import the clean video generation service
+            from .clean_video_generation_service import clean_video_generation_service
+            
+            # Generate clean slide video
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating clean slide video")
+            result = await clean_video_generation_service.generate_avatar_slide_video(
+                slide_props=slide_data,
+                theme=request.theme or "dark-purple",
+                slide_duration=request.duration,
+                quality=request.quality
+            )
+            
+            if not result["success"]:
+                raise Exception(f"Slide video generation failed: {result['error']}")
+            
+            slide_video_path = result["video_path"]
+            slide_image_paths = result.get("slide_image_paths", [])
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Slide video generated: {slide_video_path}")
+            
+            # Store the slide image path for debugging
+            if slide_image_paths and len(slide_image_paths) > 0:
+                job.slide_image_path = slide_image_paths[0]
             
             job.progress = 30.0
             
-            # Check if this is a slide-only video (no AI avatar)
+            # Check if this is a slide-only video
             if request.slide_only:
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] SLIDE-ONLY MODE: Skipping avatar generation")
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Using slide video directly as final video")
-                
-                # For slide-only mode, copy the slide video to the final output location
+                logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] SLIDE-ONLY MODE: Using slide video directly")
                 output_filename = f"presentation_{job_id}.mp4"
                 output_path = self.output_dir / output_filename
                 
@@ -299,56 +325,27 @@ class ProfessionalPresentationService:
                 final_video_path = str(output_path)
                 job.progress = 90.0
                 
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Slide-only video copied to: {final_video_path}")
+                # Cleanup temporary files
+                await self._cleanup_temp_files([slide_video_path])
                 
-            else:
-                # Step 2: Generate avatar video via Elai API
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
-                logger.info(f"  - Voiceover texts count: {len(request.voiceover_texts)}")
-                logger.info(f"  - Avatar code: {request.avatar_code}")
-                logger.info(f"  - Duration: {request.duration}")
-                
-                for i, text in enumerate(request.voiceover_texts):
-                    logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
-                
-                job.progress = 40.0
-                
-                # Add detailed logging for avatar generation
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Starting avatar video generation...")
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar generation parameters:")
-                logger.info(f"  - use_avatar_mask: {request.use_avatar_mask}")
-                logger.info(f"  - avatar_code: {request.avatar_code}")
-                logger.info(f"  - voiceover_texts_count: {len(request.voiceover_texts)}")
-                logger.info(f"  - duration: {request.duration}")
+                return final_video_path
             
+            # Generate avatar video
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating avatar video")
             avatar_video_path = await self._generate_avatar_video(
                 request.voiceover_texts,
                 request.avatar_code,
-                    request.duration,
-                    request.use_avatar_mask
+                request.duration,
+                request.use_avatar_mask
             )
             job.progress = 60.0
             
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Avatar video generated: {avatar_video_path}")
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
             
-            # Step 3: Compose final video
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 3: Composing final video for job {job_id}")
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Video composition parameters:")
-            logger.info(f"  - Slide video path: {slide_video_path}")
-            logger.info(f"  - Avatar video path: {avatar_video_path}")
-            logger.info(f"  - Layout: {request.layout} (should be picture_in_picture for proper overlay)")
-            logger.info(f"  - Resolution: {request.resolution}")
-            logger.info(f"  - Quality: {request.quality}")
-            
-            job.progress = 70.0
-            
+            # Compose final video
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Composing final video")
             output_filename = f"presentation_{job_id}.mp4"
             output_path = self.output_dir / output_filename
-            
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Output configuration:")
-            logger.info(f"  - Output filename: {output_filename}")
-            logger.info(f"  - Output path: {output_path}")
             
             composition_config = CompositionConfig(
                 output_path=str(output_path),
@@ -364,40 +361,186 @@ class ProfessionalPresentationService:
             )
             job.progress = 90.0
             
-            logger.info(f"Final video composed: {final_video_path}")
+            logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: {final_video_path}")
             
-            # Step 4: Create thumbnail
-            logger.info(f"Step 4: Creating thumbnail for job {job_id}")
-            thumbnail_filename = f"thumbnail_{job_id}.jpg"
-            thumbnail_path = self.output_dir / thumbnail_filename
+            # Cleanup temporary files
+            await self._cleanup_temp_files([slide_video_path, avatar_video_path])
             
-            await video_composer_service.create_thumbnail(
-                final_video_path,
-                str(thumbnail_path)
-            )
-            
-            # Step 5: Cleanup temporary files
-            if request.slide_only:
-                # For slide-only mode, only cleanup the temporary slide video
-                await self._cleanup_temp_files([slide_video_path])
-            else:
-                # For full mode, cleanup both slide and avatar videos
-                await self._cleanup_temp_files([slide_video_path, avatar_video_path])
-            
-            # Update job status
-            job.status = "completed"
-            job.progress = 100.0
-            job.completed_at = datetime.now()
-            job.video_url = f"/presentations/{job_id}/video"
-            job.thumbnail_url = f"/presentations/{job_id}/thumbnail"
-            
-            logger.info(f"Presentation {job_id} completed successfully")
+            return final_video_path
             
         except Exception as e:
-            logger.error(f"Presentation {job_id} failed: {e}")
-            job.status = "failed"
-            job.error = str(e)
-            job.completed_at = datetime.now()
+            logger.error(f"Single slide processing failed: {e}")
+            raise
+
+    async def _process_multi_slide_presentation(self, job_id: str, slides_data: List[Dict[str, Any]], request: PresentationRequest, job: PresentationJob) -> str:
+        """
+        Process a multi-slide presentation with individual avatar videos for each slide.
+        
+        Args:
+            job_id: Job ID
+            slides_data: List of slide data
+            request: Presentation request
+            job: Job tracking object
+            
+        Returns:
+            Path to final concatenated video
+        """
+        try:
+            logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing multi-slide presentation with {len(slides_data)} slides")
+            
+            # Import the clean video generation service
+            from .clean_video_generation_service import clean_video_generation_service
+            
+            # List to store all individual slide videos
+            individual_videos = []
+            temp_files_to_cleanup = []
+            
+            # Process each slide individually
+            for slide_index, slide_data in enumerate(slides_data):
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing slide {slide_index + 1}/{len(slides_data)}")
+                
+                # Update progress based on slide processing
+                slide_progress = 10 + (slide_index * 70 // len(slides_data))
+                job.progress = slide_progress
+                
+                # Extract voiceover text for this specific slide
+                slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
+                if not slide_voiceover_text:
+                    # Fallback to generic text if no voiceover text found
+                    slide_voiceover_text = f"Welcome to slide {slide_index + 1}. This presentation covers important topics."
+                
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} voiceover: {slide_voiceover_text[:100]}...")
+                
+                # Generate clean slide video for this slide
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Generating slide video for slide {slide_index + 1}")
+                slide_result = await clean_video_generation_service.generate_avatar_slide_video(
+                    slide_props=slide_data,
+                    theme=request.theme or "dark-purple",
+                    slide_duration=request.duration,
+                    quality=request.quality
+                )
+                
+                if not slide_result["success"]:
+                    raise Exception(f"Slide {slide_index + 1} video generation failed: {slide_result['error']}")
+                
+                slide_video_path = slide_result["video_path"]
+                temp_files_to_cleanup.append(slide_video_path)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} video generated: {slide_video_path}")
+                
+                # Check if this is slide-only mode
+                if request.slide_only:
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] SLIDE-ONLY MODE: Using slide video directly")
+                    individual_videos.append(slide_video_path)
+                    continue
+                
+                # Generate avatar video for this slide
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Generating avatar video for slide {slide_index + 1}")
+                avatar_video_path = await self._generate_avatar_video(
+                    [slide_voiceover_text],  # Use slide-specific voiceover text
+                    request.avatar_code,
+                    request.duration,
+                    request.use_avatar_mask
+                )
+                temp_files_to_cleanup.append(avatar_video_path)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} generated: {avatar_video_path}")
+                
+                # Compose individual slide + avatar video
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Composing individual video for slide {slide_index + 1}")
+                individual_output_path = str(self.output_dir / f"slide_{slide_index + 1}_{job_id}.mp4")
+                
+                composition_config = CompositionConfig(
+                    output_path=individual_output_path,
+                    resolution=request.resolution,
+                    quality=request.quality,
+                    layout=request.layout
+                )
+                
+                individual_video_path = await video_composer_service.compose_presentation(
+                    slide_video_path,
+                    avatar_video_path,
+                    composition_config
+                )
+                
+                individual_videos.append(individual_video_path)
+                temp_files_to_cleanup.append(individual_video_path)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
+            
+            job.progress = 80.0
+            
+            # Concatenate all individual videos into final presentation
+            logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
+            final_video_path = await self._concatenate_videos(individual_videos, job_id)
+            job.progress = 90.0
+            
+            logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
+            
+            # Cleanup temporary files
+            await self._cleanup_temp_files(temp_files_to_cleanup)
+            
+            return final_video_path
+            
+        except Exception as e:
+            logger.error(f"Multi-slide processing failed: {e}")
+            raise
+
+    async def _concatenate_videos(self, video_paths: List[str], job_id: str) -> str:
+        """
+        Concatenate multiple videos into a single video using FFmpeg.
+        
+        Args:
+            video_paths: List of video file paths to concatenate
+            job_id: Job ID for output filename
+            
+        Returns:
+            Path to concatenated video
+        """
+        try:
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Concatenating {len(video_paths)} videos")
+            
+            # Create a temporary file list for FFmpeg
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+                for video_path in video_paths:
+                    f.write(f"file '{video_path}'\n")
+                concat_list_path = f.name
+            
+            # Output path for concatenated video
+            output_filename = f"presentation_{job_id}.mp4"
+            output_path = str(self.output_dir / output_filename)
+            
+            # FFmpeg command to concatenate videos
+            import subprocess
+            cmd = [
+                'ffmpeg',
+                '-f', 'concat',
+                '-safe', '0',
+                '-i', concat_list_path,
+                '-c', 'copy',  # Copy streams without re-encoding for speed
+                '-y',  # Overwrite output file
+                output_path
+            ]
+            
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Running FFmpeg command: {' '.join(cmd)}")
+            
+            # Run FFmpeg
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            
+            # Clean up temporary concat list file
+            try:
+                os.unlink(concat_list_path)
+            except:
+                pass
+            
+            if result.returncode != 0:
+                logger.error(f"🎬 [VIDEO_CONCATENATION] FFmpeg failed: {result.stderr}")
+                raise Exception(f"Video concatenation failed: {result.stderr}")
+            
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Successfully concatenated videos to: {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.error(f"Video concatenation failed: {e}")
+            raise
     
     async def _extract_slide_props_from_url(self, slide_url: str) -> Dict[str, Any]:
         """
