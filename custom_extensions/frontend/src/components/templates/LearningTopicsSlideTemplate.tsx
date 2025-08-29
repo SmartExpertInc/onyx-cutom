@@ -48,7 +48,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '626px',
+    height: '685px',
     backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
@@ -231,7 +231,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                   opacity: 0.3
                 }} />
                 <div style={{
-                  fontSize: '32px',
+                  fontSize: '30px',
                   color: themeTitle,
                   minWidth: '120px'
                 }}>
@@ -242,7 +242,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                       onCancel={handleTopicCancel}
                       className="topic-editor"
                       style={{
-                        fontSize: '32px',
+                        fontSize: '30px',
                         color: themeTitle,
                         width: '100%',
                         height: 'auto',
