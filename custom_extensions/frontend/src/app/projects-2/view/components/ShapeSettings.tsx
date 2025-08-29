@@ -313,7 +313,7 @@ export default function ShapeSettings() {
               </div>
             </div>
 
-                                        {/* Advanced Settings Content */}
+              {/* Advanced Settings Content */}
               <div className="pt-4">
                 <AdvancedSettings
                   rotation={rotation}

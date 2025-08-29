@@ -54,11 +54,6 @@ export default function Projects2ViewPage() {
   const [shapesPopupPosition, setShapesPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [interactionPopupPosition, setInteractionPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [aiPopupPosition, setAiPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  
-  // Scene management state (commented out for now - focusing on Video Lessons)
-  // const [scenes, setScenes] = useState<Scene[]>([
-  //   { id: 'scene-1', name: 'Scene 1', order: 1 }
-  // ]);
   const [openMenuSceneId, setOpenMenuSceneId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
@@ -426,13 +421,6 @@ export default function Projects2ViewPage() {
     
     closeMenu();
   };
-
-  // Function to delete scene (commented out for now - focusing on Video Lessons)
-  // const handleDeleteScene = (sceneId: string) => {
-  //   if (sceneId === 'scene-1') return; // Prevent deletion of first scene
-  //   setScenes(prevScenes => prevScenes.filter(scene => scene.id !== sceneId));
-  //   closeMenu();
-  // };
 
   // Function to handle element selection in presentation
   const handleElementSelect = (elementType: string | null) => {

@@ -196,7 +196,7 @@ export default function ImageSettings() {
               </div>
             </div>
 
-                                        {/* Advanced Settings Content */}
+              {/* Advanced Settings Content */}
               <div className="pt-4">
                 <AdvancedSettings
                   rotation={rotation}

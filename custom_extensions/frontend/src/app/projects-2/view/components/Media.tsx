@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { Folder, Image, Sparkles } from 'lucide-react';
 
 interface MediaProps {

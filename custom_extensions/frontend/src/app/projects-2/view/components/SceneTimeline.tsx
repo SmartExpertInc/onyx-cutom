@@ -114,14 +114,6 @@ export default function SceneTimeline({
     }
     return []; // Commented out regular scenes for now
   })();
-    
-  // Debug logging
-  console.log('SceneTimeline - videoLessonData:', videoLessonData);
-  console.log('SceneTimeline - componentBasedSlideDeck:', componentBasedSlideDeck);
-  console.log('SceneTimeline - displayScenes:', displayScenes);
-  console.log('SceneTimeline - currentSlideId:', currentSlideId);
-  console.log('SceneTimeline - onAddSlide function:', !!onAddSlide);
-  console.log('SceneTimeline - Scene names:', displayScenes.map(s => ({ id: s.id, name: s.name, order: s.order })));
 
   return (
     <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 60px)' }}>

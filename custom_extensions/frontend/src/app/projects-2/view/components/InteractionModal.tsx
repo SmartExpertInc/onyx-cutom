@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 interface InteractionModalProps {
   isOpen: boolean;
   onClose: () => void;
