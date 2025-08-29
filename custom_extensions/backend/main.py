@@ -5,7 +5,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
-from enum import Enum
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -39,6 +38,12 @@ try:
     from PyPDF2 import PdfMerger
 except ImportError:
     PdfMerger = None
+
+# Feature management models
+from app.models.feature_models import (
+    FeatureDefinition, UserFeature, UserFeatureWithDetails,
+    BulkFeatureToggleRequest, FeatureToggleRequest
+)
 
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
@@ -6904,22 +6909,6 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
             logger.info("'request_analytics' table ensured.")
 
-            # Feature Flags Table
-            await connection.execute("""
-                CREATE TABLE IF NOT EXISTS user_feature_flags (
-                    id SERIAL PRIMARY KEY,
-                    onyx_user_id VARCHAR(255) NOT NULL,
-                    feature_name VARCHAR(100) NOT NULL,
-                    is_enabled BOOLEAN DEFAULT true,
-                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE(onyx_user_id, feature_name)
-                );
-            """)
-            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_feature_flags_onyx_user_id ON user_feature_flags(onyx_user_id);")
-            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_feature_flags_feature_name ON user_feature_flags(feature_name);")
-            logger.info("'user_feature_flags' table ensured.")
-
             # Add AI parser tracking columns to request_analytics table
             try:
                 await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
@@ -6948,6 +6937,88 @@ async def startup_event():
                 
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
+
+            # --- Feature Management Tables ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS feature_definitions (
+                    id SERIAL PRIMARY KEY,
+                    feature_name VARCHAR(100) UNIQUE NOT NULL,
+                    display_name VARCHAR(200) NOT NULL,
+                    description TEXT,
+                    category VARCHAR(100),
+                    is_active BOOLEAN DEFAULT true,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_feature_definitions_name ON feature_definitions(feature_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_feature_definitions_active ON feature_definitions(is_active);")
+            logger.info("'feature_definitions' table ensured.")
+
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_features (
+                    id SERIAL PRIMARY KEY,
+                    user_id UUID NOT NULL,
+                    feature_name VARCHAR(100) NOT NULL,
+                    is_enabled BOOLEAN DEFAULT false,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                    UNIQUE(user_id, feature_name)
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_features_user_id ON user_features(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_features_feature_name ON user_features(feature_name);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_features_enabled ON user_features(is_enabled);")
+            logger.info("'user_features' table ensured.")
+
+            # Seed initial feature definitions
+            try:
+                initial_features = [
+                    ('ai_audit_templates', 'AI Audit Templates', 'Access to AI-powered audit template generation', 'Templates'),
+                    ('advanced_analytics', 'Advanced Analytics', 'Access to detailed analytics and reporting', 'Analytics'),
+                    ('bulk_operations', 'Bulk Operations', 'Ability to perform bulk operations on multiple items', 'Operations'),
+                    ('premium_support', 'Premium Support', 'Priority customer support access', 'Support'),
+                    ('beta_features', 'Beta Features', 'Access to experimental and beta features', 'Experimental'),
+                    ('api_access', 'API Access', 'Access to programmatic API endpoints', 'API'),
+                    ('custom_themes', 'Custom Themes', 'Ability to customize application themes', 'Customization'),
+                    ('advanced_export', 'Advanced Export', 'Access to advanced export options', 'Export')
+                ]
+
+                for feature_name, display_name, description, category in initial_features:
+                    await connection.execute("""
+                        INSERT INTO feature_definitions (feature_name, display_name, description, category)
+                        VALUES ($1, $2, $3, $4)
+                        ON CONFLICT (feature_name) DO UPDATE SET
+                            display_name = EXCLUDED.display_name,
+                            description = EXCLUDED.description,
+                            category = EXCLUDED.category,
+                            is_active = true
+                    """, feature_name, display_name, description, category)
+                
+                logger.info(f"Seeded {len(initial_features)} feature definitions.")
+            except Exception as e:
+                logger.warning(f"Error seeding feature definitions (may already exist): {e}")
+
+            # Create feature entries for existing users (all disabled by default)
+            try:
+                users = await connection.fetch("SELECT onyx_user_id FROM user_credits")
+                
+                if users:
+                    # Get all active feature names
+                    feature_names = await connection.fetch("SELECT feature_name FROM feature_definitions WHERE is_active = true")
+                    
+                    for user in users:
+                        user_id = user['onyx_user_id']
+                        for feature_row in feature_names:
+                            feature_name = feature_row['feature_name']
+                            await connection.execute("""
+                                INSERT INTO user_features (user_id, feature_name, is_enabled)
+                                VALUES ($1, $2, false)
+                                ON CONFLICT (user_id, feature_name) DO NOTHING
+                            """, user_id, feature_name)
+                    
+                    logger.info(f"Created feature entries for {len(users)} existing users.")
+            except Exception as e:
+                logger.warning(f"Error creating user feature entries (may already exist): {e}")
 
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
@@ -7031,39 +7102,6 @@ class UserTransactionHistoryResponse(BaseModel):
     user_email: str
     user_name: str
     transactions: List[TimelineActivity]
-
-# Feature Flag Models
-class FeatureFlag(BaseModel):
-    id: int
-    onyx_user_id: str
-    feature_name: str
-    is_enabled: bool
-    created_at: datetime
-    updated_at: datetime
-    model_config = {"from_attributes": True}
-
-class FeatureFlagUpdateRequest(BaseModel):
-    feature_name: str
-    is_enabled: bool
-
-class FeatureFlagBulkUpdateRequest(BaseModel):
-    feature_name: str
-    user_emails: List[str]
-    is_enabled: bool
-
-class UserFeatureFlagsResponse(BaseModel):
-    feature_flags: Dict[str, bool]
-    user_id: str
-
-class FeatureFlagEnum(str, Enum):
-    SETTINGS_MODAL = "settings_modal"
-    QUALITY_TIER_DISPLAY = "quality_tier_display"
-    AI_IMAGE_GENERATION = "ai_image_generation"
-    ADVANCED_EDITING = "advanced_editing"
-    ANALYTICS_DASHBOARD = "analytics_dashboard"
-    CUSTOM_RATES = "custom_rates"
-    FOLDER_MANAGEMENT = "folder_management"
-    BULK_OPERATIONS = "bulk_operations"
 
 class LessonDetail(BaseModel):
     title: str
@@ -19435,7 +19473,190 @@ async def get_user_transactions(
             user_name=user_row["name"],
             transactions=activities
         )
+
+# --- Feature Management Endpoints ---
+
+@app.get("/api/custom/admin/features/definitions")
+async def get_feature_definitions(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get all feature definitions"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT * FROM feature_definitions 
+                WHERE is_active = true 
+                ORDER BY category, display_name
+            """)
+            
+            return [dict(row) for row in rows]
+    except Exception as e:
+        logger.error(f"Error fetching feature definitions: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch feature definitions")
+
+@app.get("/api/custom/admin/features/users")
+async def get_users_with_features(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get all users and their feature permissions"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Get all users with their feature permissions
+            rows = await conn.fetch("""
+                SELECT 
+                    uf.user_id,
+                    uf.feature_name,
+                    uf.is_enabled,
+                    uf.created_at,
+                    uf.updated_at,
+                    fd.display_name,
+                    fd.description,
+                    fd.category
+                FROM user_features uf
+                JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
+                WHERE fd.is_active = true
+                ORDER BY uf.user_id, fd.category, fd.display_name
+            """)
+            
+            # Group by user
+            users_features = {}
+            for row in rows:
+                user_id = row['user_id']
+                if user_id not in users_features:
+                    users_features[user_id] = {
+                        'user_id': user_id,
+                        'features': []
+                    }
+                
+                users_features[user_id]['features'].append({
+                    'feature_name': row['feature_name'],
+                    'display_name': row['display_name'],
+                    'description': row['description'],
+                    'category': row['category'],
+                    'is_enabled': row['is_enabled'],
+                    'created_at': row['created_at'],
+                    'updated_at': row['updated_at']
+                })
+            
+            return list(users_features.values())
+    except Exception as e:
+        logger.error(f"Error fetching users with features: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch users with features")
+
+@app.post("/api/custom/admin/features/toggle")
+async def toggle_user_feature(
+    request: FeatureToggleRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Enable or disable a feature for a single user"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Verify feature exists
+            feature_row = await conn.fetchrow(
+                "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
+                request.feature_name
+            )
+            
+            if not feature_row:
+                raise HTTPException(status_code=404, detail="Feature not found")
+            
+            # Insert or update user feature
+            await conn.execute("""
+                INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
+                VALUES ($1, $2, $3, NOW())
+                ON CONFLICT (user_id, feature_name) 
+                DO UPDATE SET 
+                    is_enabled = $3,
+                    updated_at = NOW()
+            """, request.user_id, request.feature_name, request.is_enabled)
+            
+            action = "enabled" if request.is_enabled else "disabled"
+            return {
+                "success": True,
+                "message": f"Feature '{feature_row['display_name']}' {action} for user {request.user_id}"
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error toggling user feature: {e}")
+        raise HTTPException(status_code=500, detail="Failed to toggle feature")
+
+@app.post("/api/custom/admin/features/bulk-toggle")
+async def bulk_toggle_user_features(
+    request: BulkFeatureToggleRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Enable or disable a feature for multiple users"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Verify feature exists
+            feature_row = await conn.fetchrow(
+                "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
+                request.feature_name
+            )
+            
+            if not feature_row:
+                raise HTTPException(status_code=404, detail="Feature not found")
+            
+            # Bulk insert/update user features
+            updated_count = 0
+            for user_id in request.user_ids:
+                await conn.execute("""
+                    INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
+                    VALUES ($1, $2, $3, NOW())
+                    ON CONFLICT (user_id, feature_name) 
+                    DO UPDATE SET 
+                        is_enabled = $3,
+                        updated_at = NOW()
+                """, user_id, request.feature_name, request.is_enabled)
+                updated_count += 1
+            
+            action = "enabled" if request.is_enabled else "disabled"
+            return {
+                "success": True,
+                "message": f"Feature '{feature_row['display_name']}' {action} for {updated_count} users",
+                "users_updated": updated_count
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error bulk toggling user features: {e}")
+        raise HTTPException(status_code=500, detail="Failed to bulk toggle features")
+
+@app.get("/api/custom/features/check/{feature_name}")
+async def check_user_feature(
+    feature_name: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Check if a feature is enabled for the current user"""
+    try:
+        user_id = await get_current_user_id(request)
+        if not user_id:
+            return {"is_enabled": False}
         
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow("""
+                SELECT uf.is_enabled 
+                FROM user_features uf
+                JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
+                WHERE uf.user_id = $1 AND uf.feature_name = $2 AND fd.is_active = true
+            """, user_id, feature_name)
+            
+            return {"is_enabled": bool(row['is_enabled']) if row else False}
+    except Exception as e:
+        logger.error(f"Error checking user feature: {e}")
+        return {"is_enabled": False}
 
 @app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
 async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
@@ -19863,112 +20084,3 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
     except Exception as e:
         logger.error(f"[OPENAI_DIRECT] Error in OpenAI direct request: {e}", exc_info=True)
         return f"Error generating content: {str(e)}"
-
-# Feature Flag API Endpoints
-@app.get("/api/custom-projects-backend/admin/users/feature-flags")
-async def get_all_users_feature_flags(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to get all users and their feature flag states"""
-    await verify_admin_user(request)
-    
-    try:
-        from app.services.feature_flags import FeatureFlagService
-        service = FeatureFlagService(pool)
-        users_data = await service.get_all_users_feature_flags()
-        return users_data
-    except Exception as e:
-        logger.error(f"Error getting all users feature flags: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve feature flags")
-
-@app.patch("/api/custom-projects-backend/admin/users/{user_email}/feature-flags")
-async def update_user_feature_flag(
-    user_email: str,
-    update_request: FeatureFlagUpdateRequest,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to update a specific feature flag for a user"""
-    await verify_admin_user(request)
-    
-    try:
-        from app.services.feature_flags import FeatureFlagService
-        service = FeatureFlagService(pool)
-        success = await service.update_feature_flag(user_email, update_request.feature_name, update_request.is_enabled)
-        
-        if success:
-            return {"success": True, "message": f"Feature flag {update_request.feature_name} updated for {user_email}"}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to update feature flag")
-    except Exception as e:
-        logger.error(f"Error updating feature flag for user {user_email}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to update feature flag")
-
-@app.patch("/api/custom-projects-backend/admin/users/feature-flags/bulk")
-async def bulk_update_feature_flags(
-    bulk_request: FeatureFlagBulkUpdateRequest,
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to bulk update feature flags for multiple users"""
-    await verify_admin_user(request)
-    
-    try:
-        from app.services.feature_flags import FeatureFlagService
-        service = FeatureFlagService(pool)
-        results = await service.bulk_update_feature_flag(
-            bulk_request.user_emails, 
-            bulk_request.feature_name, 
-            bulk_request.is_enabled
-        )
-        
-        success_count = sum(1 for success in results.values() if success)
-        return {
-            "success": True,
-            "message": f"Updated feature flag for {success_count}/{len(bulk_request.user_emails)} users",
-            "results": results
-        }
-    except Exception as e:
-        logger.error(f"Error in bulk update feature flags: {e}")
-        raise HTTPException(status_code=500, detail="Failed to bulk update feature flags")
-
-@app.get("/api/custom-projects-backend/users/me/feature-flags", response_model=UserFeatureFlagsResponse)
-async def get_current_user_feature_flags(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Get feature flags for the currently authenticated user"""
-    try:
-        onyx_user_id = await get_onyx_user_id(request)
-        if not onyx_user_id:
-            raise HTTPException(status_code=401, detail="User not authenticated")
-        
-        from app.services.feature_flags import FeatureFlagService
-        service = FeatureFlagService(pool)
-        feature_flags = await service.get_user_feature_flags(onyx_user_id)
-        
-        return UserFeatureFlagsResponse(
-            feature_flags=feature_flags,
-            user_id=onyx_user_id
-        )
-    except Exception as e:
-        logger.error(f"Error getting current user feature flags: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve feature flags")
-
-@app.get("/api/custom-projects-backend/admin/feature-flags/available")
-async def get_available_features(
-    request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Admin endpoint to get list of all available features"""
-    await verify_admin_user(request)
-    
-    try:
-        from app.services.feature_flags import FeatureFlagService
-        service = FeatureFlagService(pool)
-        features = await service.get_available_features()
-        return {"features": features}
-    except Exception as e:
-        logger.error(f"Error getting available features: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve available features")

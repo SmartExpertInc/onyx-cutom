@@ -1,98 +1,74 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Users, Settings, Search, RefreshCw, Save } from 'lucide-react';
+import { Search, RefreshCw, ToggleLeft, ToggleRight, Users, Settings, Check, X } from 'lucide-react';
 
-interface UserFeatureFlags {
-  onyx_user_id: string;
-  name: string;
-  feature_flags: Record<string, boolean>;
+interface FeatureDefinition {
+  id: number;
+  feature_name: string;
+  display_name: string;
+  description: string | null;
+  category: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+interface UserFeature {
+  feature_name: string;
+  display_name: string;
+  description: string | null;
+  category: string | null;
+  is_enabled: boolean;
+  created_at: string;
   updated_at: string;
 }
 
-interface FeatureFlag {
-  name: string;
-  displayName: string;
-  description: string;
+interface UserWithFeatures {
+  user_id: string;
+  features: UserFeature[];
 }
 
 const FeaturesTab: React.FC = () => {
-  const [users, setUsers] = useState<UserFeatureFlags[]>([]);
-  const [availableFeatures, setAvailableFeatures] = useState<FeatureFlag[]>([]);
+  const [users, setUsers] = useState<UserWithFeatures[]>([]);
+  const [featureDefinitions, setFeatureDefinitions] = useState<FeatureDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [bulkUpdateModal, setBulkUpdateModal] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [bulkEnabled, setBulkEnabled] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [bulkFeature, setBulkFeature] = useState('');
+  const [bulkEnabled, setBulkEnabled] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-
-  const featureDefinitions: FeatureFlag[] = [
-    {
-      name: 'settings_modal',
-      displayName: 'Settings Modal',
-      description: 'Allow users to access advanced settings and configuration options'
-    },
-    {
-      name: 'quality_tier_display',
-      displayName: 'Quality Tier Display',
-      description: 'Show quality tier options in the user interface'
-    },
-    {
-      name: 'ai_image_generation',
-      displayName: 'AI Image Generation',
-      description: 'Enable AI-powered image generation features'
-    },
-    {
-      name: 'advanced_editing',
-      displayName: 'Advanced Editing',
-      description: 'Provide advanced editing capabilities and tools'
-    },
-    {
-      name: 'analytics_dashboard',
-      displayName: 'Analytics Dashboard',
-      description: 'Show analytics and usage statistics to users'
-    },
-    {
-      name: 'custom_rates',
-      displayName: 'Custom Rates',
-      description: 'Allow users to set custom pricing rates'
-    },
-    {
-      name: 'folder_management',
-      displayName: 'Folder Management',
-      description: 'Enable folder organization and management features'
-    },
-    {
-      name: 'bulk_operations',
-      displayName: 'Bulk Operations',
-      description: 'Allow users to perform bulk actions on multiple items'
-    }
-  ];
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      
-      // Fetch users and their feature flags
-      const usersResponse = await fetch(`${CUSTOM_BACKEND_URL}/admin/users/feature-flags`, {
-        credentials: 'same-origin',
-      });
+      const [usersResponse, definitionsResponse] = await Promise.all([
+        fetch(`${CUSTOM_BACKEND_URL}/admin/features/users`, {
+          credentials: 'same-origin',
+        }),
+        fetch(`${CUSTOM_BACKEND_URL}/admin/features/definitions`, {
+          credentials: 'same-origin',
+        })
+      ]);
 
-      if (!usersResponse.ok) {
-        throw new Error(`Failed to fetch users: ${usersResponse.status}`);
+      if (!usersResponse.ok || !definitionsResponse.ok) {
+        throw new Error('Failed to fetch feature data');
       }
 
-      const usersData = await usersResponse.json();
+      const [usersData, definitionsData] = await Promise.all([
+        usersResponse.json(),
+        definitionsResponse.json()
+      ]);
+
       setUsers(usersData);
-      setAvailableFeatures(featureDefinitions);
+      setFeatureDefinitions(definitionsData);
       setError(null);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      console.error('Error fetching feature data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch feature data');
     } finally {
       setLoading(false);
     }
@@ -103,319 +79,320 @@ const FeaturesTab: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase())
+    user.user_id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleFeatureToggle = async (userId: string, featureName: string, enabled: boolean) => {
+  const handleToggleFeature = async (userId: string, featureName: string, isEnabled: boolean) => {
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/users/${encodeURIComponent(userId)}/feature-flags`, {
-        method: 'PATCH',
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/features/toggle`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
         body: JSON.stringify({
+          user_id: userId,
           feature_name: featureName,
-          is_enabled: enabled
+          is_enabled: isEnabled
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to update feature flag: ${response.status}`);
+        throw new Error('Failed to toggle feature');
       }
 
-      // Update local state
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.onyx_user_id === userId 
-            ? {
-                ...user,
-                feature_flags: {
-                  ...user.feature_flags,
-                  [featureName]: enabled
-                }
-              }
-            : user
-        )
-      );
+      // Refresh data
+      await fetchData();
     } catch (err) {
-      console.error('Error updating feature flag:', err);
-      alert(err instanceof Error ? err.message : 'Failed to update feature flag');
+      console.error('Error toggling feature:', err);
+      alert('Failed to toggle feature');
     }
   };
 
-  const openBulkUpdateModal = () => {
-    setBulkUpdateModal(true);
-    setSelectedFeature('');
-    setSelectedUsers([]);
-    setBulkEnabled(true);
-  };
-
-  const closeBulkUpdateModal = () => {
-    setBulkUpdateModal(false);
-  };
-
-  const handleBulkUpdate = async () => {
-    if (!selectedFeature || selectedUsers.length === 0) {
+  const handleBulkToggle = async () => {
+    if (!bulkFeature || selectedUsers.size === 0) {
       alert('Please select a feature and at least one user');
       return;
     }
 
-    setSaving(true);
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/users/feature-flags/bulk`, {
-        method: 'PATCH',
+      setBulkLoading(true);
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/features/bulk-toggle`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
         body: JSON.stringify({
-          feature_name: selectedFeature,
-          user_emails: selectedUsers,
+          user_ids: Array.from(selectedUsers),
+          feature_name: bulkFeature,
           is_enabled: bulkEnabled
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to bulk update: ${response.status}`);
+        throw new Error('Failed to bulk toggle features');
       }
 
       const result = await response.json();
       alert(result.message);
-      closeBulkUpdateModal();
-      fetchData(); // Refresh data
+      
+      // Refresh data and reset selection
+      await fetchData();
+      setSelectedUsers(new Set());
+      setShowBulkModal(false);
     } catch (err) {
-      console.error('Error bulk updating:', err);
-      alert(err instanceof Error ? err.message : 'Failed to bulk update');
+      console.error('Error bulk toggling features:', err);
+      alert('Failed to bulk toggle features');
     } finally {
-      setSaving(false);
+      setBulkLoading(false);
     }
   };
 
   const toggleUserSelection = (userId: string) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    );
+    const newSelection = new Set(selectedUsers);
+    if (newSelection.has(userId)) {
+      newSelection.delete(userId);
+    } else {
+      newSelection.add(userId);
+    }
+    setSelectedUsers(newSelection);
+  };
+
+  const getFeatureStatus = (user: UserWithFeatures, featureName: string) => {
+    const feature = user.features.find(f => f.feature_name === featureName);
+    return feature?.is_enabled || false;
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading feature flags...</div>
+      <div className="p-6">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading feature data...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <div className="text-red-600 mb-4">{error}</div>
-        <button
-          onClick={fetchData}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Retry
-        </button>
+      <div className="p-6">
+        <div className="text-center max-w-md mx-auto">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+          <button
+            onClick={fetchData}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Feature Flags Management</h2>
-          <p className="text-gray-600">Control feature access for individual users</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={openBulkUpdateModal}
-            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 flex items-center gap-2"
-          >
-            <Users className="w-4 h-4" />
-            Bulk Update
-          </button>
+    <div className="p-6">
+      {/* Header Controls */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
           <button
             onClick={fetchData}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </button>
         </div>
+        
+        {selectedUsers.size > 0 && (
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Bulk Operations ({selectedUsers.size} users)
+          </button>
+        )}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <input
-          type="text"
-          placeholder="Search users by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {/* Feature Flags Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
+      {/* Feature Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <input
+                  type="checkbox"
+                  checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedUsers(new Set(filteredUsers.map(u => u.user_id)));
+                    } else {
+                      setSelectedUsers(new Set());
+                    }
+                  }}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                User ID
+              </th>
+              {featureDefinitions.map((feature) => (
+                <th key={feature.feature_name} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex flex-col">
+                    <span>{feature.display_name}</span>
+                    <span className="text-xs text-gray-400 font-normal">{feature.category}</span>
+                  </div>
                 </th>
-                {availableFeatures.map(feature => (
-                  <th key={feature.name} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex flex-col">
-                      <span>{feature.displayName}</span>
-                      <span className="text-xs text-gray-400 font-normal">{feature.name}</span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map(user => (
-                <tr key={user.onyx_user_id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                      <div className="text-sm text-gray-500">{user.onyx_user_id}</div>
-                    </div>
-                  </td>
-                  {availableFeatures.map(feature => (
-                    <td key={feature.name} className="px-6 py-4 whitespace-nowrap">
+              ))}
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredUsers.map((user) => (
+              <tr key={user.user_id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.has(user.user_id)}
+                    onChange={() => toggleUserSelection(user.user_id)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <div className="flex items-center">
+                    <Users className="w-4 h-4 mr-2 text-gray-400" />
+                    {user.user_id}
+                  </div>
+                </td>
+                {featureDefinitions.map((feature) => {
+                  const isEnabled = getFeatureStatus(user, feature.feature_name);
+                  return (
+                    <td key={feature.feature_name} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <button
-                        onClick={() => handleFeatureToggle(
-                          user.onyx_user_id, 
-                          feature.name, 
-                          !user.feature_flags[feature.name]
-                        )}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          user.feature_flags[feature.name] ? 'bg-blue-600' : 'bg-gray-200'
+                        onClick={() => handleToggleFeature(user.user_id, feature.feature_name, !isEnabled)}
+                        className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                          isEnabled
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                       >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            user.feature_flags[feature.name] ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
+                        {isEnabled ? (
+                          <>
+                            <ToggleRight className="w-3 h-3" />
+                            <span>Enabled</span>
+                          </>
+                        ) : (
+                          <>
+                            <ToggleLeft className="w-3 h-3" />
+                            <span>Disabled</span>
+                          </>
+                        )}
                       </button>
                     </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Bulk Update Modal */}
-      {bulkUpdateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Bulk Update Feature Flags</h3>
-            
-            <div className="space-y-4">
-              {/* Feature Selection */}
+      {/* Bulk Operations Modal */}
+      {showBulkModal && (
+        <div 
+          className="fixed inset-0 backdrop-blur-md bg-white bg-opacity-10 flex items-center justify-center p-4 z-50"
+          onClick={() => setShowBulkModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">
+                Bulk Feature Operations
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {selectedUsers.size} users selected
+              </p>
+            </div>
+
+            <div className="px-6 py-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Feature
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Feature
                 </label>
                 <select
-                  value={selectedFeature}
-                  onChange={(e) => setSelectedFeature(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={bulkFeature}
+                  onChange={(e) => setBulkFeature(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">Choose a feature...</option>
-                  {availableFeatures.map(feature => (
-                    <option key={feature.name} value={feature.name}>
-                      {feature.displayName} - {feature.description}
+                  <option value="">Select a feature...</option>
+                  {featureDefinitions.map((feature) => (
+                    <option key={feature.feature_name} value={feature.feature_name}>
+                      {feature.display_name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* User Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Users ({selectedUsers.length} selected)
-                </label>
-                <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
-                  {filteredUsers.map(user => (
-                    <label key={user.onyx_user_id} className="flex items-center space-x-2 p-1 hover:bg-gray-50">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.includes(user.onyx_user_id)}
-                        onChange={() => toggleUserSelection(user.onyx_user_id)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm">
-                        {user.name} ({user.onyx_user_id})
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Enable/Disable Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Action
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
                 </label>
                 <div className="flex space-x-4">
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center">
                     <input
                       type="radio"
                       checked={bulkEnabled}
                       onChange={() => setBulkEnabled(true)}
-                      className="text-blue-600 focus:ring-blue-500"
+                      className="mr-2"
                     />
-                    <span>Enable</span>
+                    <span className="text-sm">Enable</span>
                   </label>
-                  <label className="flex items-center space-x-2">
+                  <label className="flex items-center">
                     <input
                       type="radio"
                       checked={!bulkEnabled}
                       onChange={() => setBulkEnabled(false)}
-                      className="text-blue-600 focus:ring-blue-500"
+                      className="mr-2"
                     />
-                    <span>Disable</span>
+                    <span className="text-sm">Disable</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
               <button
-                type="button"
-                onClick={closeBulkUpdateModal}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                onClick={() => setShowBulkModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={bulkLoading}
               >
                 Cancel
               </button>
               <button
-                onClick={handleBulkUpdate}
-                disabled={saving || !selectedFeature || selectedUsers.length === 0}
-                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                onClick={handleBulkToggle}
+                disabled={bulkLoading || !bulkFeature}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Updating...
-                  </>
+                {bulkLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
                 ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    Update {selectedUsers.length} Users
-                  </>
+                  `${bulkEnabled ? 'Enable' : 'Disable'} for ${selectedUsers.size} users`
                 )}
               </button>
             </div>
