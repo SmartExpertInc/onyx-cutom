@@ -212,13 +212,14 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         height: '100%',
         backgroundColor: themeBg,
         padding: '60px',
+        paddingTop: '40px',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative'
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '44px',
+          fontSize: '58px',
           color: themeTitle,
           marginBottom: '15px',
           lineHeight: '1.2'
@@ -231,9 +232,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               multiline={true}
               className="phishing-title-editor"
               style={{
-                fontSize: '36px',
+                fontSize: '58px',
                 color: themeTitle,
-                fontWeight: 'bold',
                 lineHeight: '1.2'
               }}
             />
