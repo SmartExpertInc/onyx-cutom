@@ -150,6 +150,10 @@ export const CreateContentTypeModal = ({
         product = 'video-lesson';
         lessonType = contentType;
         break;
+      case 'lessonPlan':
+        product = 'lesson-plan';
+        lessonType = contentType;
+        break;
     }
 
     const params = new URLSearchParams({
@@ -240,6 +244,36 @@ export const CreateContentTypeModal = ({
             >
               <X size={24} className="group-hover:rotate-90 transition-transform duration-200" />
             </button>
+          </div>
+        </div>
+
+        {/* Lesson Plan Button - Separate from content types */}
+        <div className="mb-6">
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-[1.02]"
+            onClick={() => handleContentCreate('lessonPlan')}>
+            <div className="flex items-center space-x-4">
+              <div className="p-3 rounded-xl bg-indigo-100 text-indigo-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-lg font-bold text-indigo-900">Lesson Plan</h3>
+                  <span className="text-xs bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-3 py-1 rounded-full font-medium border border-indigo-200">
+                    Planning Document
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed text-indigo-700">
+                  Create a technical specification with lesson objectives, topics outline, and learning goals for content development
+                </p>
+              </div>
+              <div className="text-indigo-400 group-hover:text-indigo-600 transition-all duration-200">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -348,8 +382,8 @@ export const CreateContentTypeModal = ({
             onClick={handlePrefSave}
             disabled={!Object.values(selectedPrefs).some(Boolean)}
             className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${!Object.values(selectedPrefs).some(Boolean)
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
               }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
