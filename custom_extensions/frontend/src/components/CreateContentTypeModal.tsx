@@ -272,6 +272,11 @@ export const CreateContentTypeModal = ({
                 </div>
                 <p className="text-xs text-slate-600">Technical specification with lesson objectives</p>
               </div>
+              <div className="text-slate-400 group-hover:text-slate-600 transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
           </button>
         </div>
