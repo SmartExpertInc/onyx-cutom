@@ -78,7 +78,7 @@ class ElaiVideoGenerationService:
             logger.error(f"Error fetching avatars: {str(e)}")
             return {"success": False, "error": str(e)}
     
-    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str) -> Dict[str, Any]:
+    async def create_video_from_texts(self, project_name: str, voiceover_texts: List[str], avatar_code: str, avatar_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Create video from voiceover texts using Elai API.
         
@@ -86,6 +86,7 @@ class ElaiVideoGenerationService:
             project_name: Name of the project
             voiceover_texts: List of voiceover texts
             avatar_code: Avatar code to use
+            avatar_data: Optional full avatar data with voice information
             
         Returns:
             Dict containing result with success status and video ID
@@ -95,6 +96,10 @@ class ElaiVideoGenerationService:
         logger.info(f"  - Project name: {project_name}")
         logger.info(f"  - Voiceover texts count: {len(voiceover_texts)}")
         logger.info(f"  - Avatar code: {avatar_code}")
+        logger.info(f"  - Avatar data provided: {avatar_data is not None}")
+        if avatar_data:
+            logger.info(f"  - Avatar name: {avatar_data.get('name', 'N/A')}")
+            logger.info(f"  - Avatar default voice: {avatar_data.get('defaultVoice', 'N/A')}")
         
         for i, text in enumerate(voiceover_texts):
             logger.info(f"  - Voiceover text {i+1}: {text[:200]}...")
@@ -152,45 +157,61 @@ class ElaiVideoGenerationService:
                     "error": "No valid voiceover texts after cleaning"
                 }
             
-            # Get avatars to find the specified one
-            avatars_response = await self.get_avatars()
-            if not avatars_response["success"]:
-                return {
-                    "success": False,
-                    "error": f"Failed to get avatars: {avatars_response['error']}"
-                }
-            
-            # Find the specified avatar (handle variant codes like "gia.casual")
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: {avatar_code}")
-            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatars count: {len(avatars_response['avatars'])}")
-            
-            avatar = None
-            selected_variant = None
-            
-            # Check if avatar_code contains a variant (e.g., "gia.casual")
-            if '.' in avatar_code:
-                base_code, variant_code = avatar_code.split('.', 1)
-                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for avatar '{base_code}' with variant '{variant_code}'")
+            # Use provided avatar data if available, otherwise fetch from API
+            if avatar_data:
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using provided avatar data")
+                avatar = avatar_data
+                selected_variant = None
                 
-                for av in avatars_response["avatars"]:
-                    if av.get("code") == base_code:
-                        # Check if this avatar has the specified variant
-                        if av.get("variants"):
-                            for variant in av["variants"]:
-                                if variant.get("code") == variant_code:
-                                    avatar = av
-                                    selected_variant = variant
-                                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} with variant: {variant.get('name', 'Unknown')}")
-                                    break
-                            if avatar:
+                # If avatar_code contains a variant, try to find it in the provided data
+                if '.' in avatar_code:
+                    base_code, variant_code = avatar_code.split('.', 1)
+                    if avatar.get("variants"):
+                        for variant in avatar["variants"]:
+                            if variant.get("code") == variant_code:
+                                selected_variant = variant
+                                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found variant in provided data: {variant.get('name', 'Unknown')}")
                                 break
             else:
-                # No variant specified, look for exact match
-                for av in avatars_response["avatars"]:
-                    if av.get("code") == avatar_code:
-                        avatar = av
-                        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
-                        break
+                # Get avatars to find the specified one
+                avatars_response = await self.get_avatars()
+                if not avatars_response["success"]:
+                    return {
+                        "success": False,
+                        "error": f"Failed to get avatars: {avatars_response['error']}"
+                    }
+                
+                # Find the specified avatar (handle variant codes like "gia.casual")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Searching for avatar with code: {avatar_code}")
+                logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Available avatars count: {len(avatars_response['avatars'])}")
+                
+                avatar = None
+                selected_variant = None
+            
+                # Check if avatar_code contains a variant (e.g., "gia.casual")
+                if '.' in avatar_code:
+                    base_code, variant_code = avatar_code.split('.', 1)
+                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for avatar '{base_code}' with variant '{variant_code}'")
+                    
+                    for av in avatars_response["avatars"]:
+                        if av.get("code") == base_code:
+                            # Check if this avatar has the specified variant
+                            if av.get("variants"):
+                                for variant in av["variants"]:
+                                    if variant.get("code") == variant_code:
+                                        avatar = av
+                                        selected_variant = variant
+                                        logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} with variant: {variant.get('name', 'Unknown')}")
+                                        break
+                                if avatar:
+                                    break
+                else:
+                    # No variant specified, look for exact match
+                    for av in avatars_response["avatars"]:
+                        if av.get("code") == avatar_code:
+                            avatar = av
+                            logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found avatar: {avatar.get('name', 'Unknown')} (code: {avatar.get('code', 'Unknown')})")
+                            break
             
             if not avatar:
                 logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar with code '{avatar_code}' not found")
@@ -206,6 +227,7 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Code: {avatar.get('code', 'Unknown')}")
             logger.info(f"  - Canvas: {avatar.get('canvas', 'None')}")
             logger.info(f"  - Gender: {avatar.get('gender', 'Unknown')}")
+            logger.info(f"  - Default Voice: {avatar.get('defaultVoice', 'None')}")
             
             # Check if avatar has valid canvas URL
             if not avatar.get("canvas"):
@@ -294,7 +316,7 @@ class ElaiVideoGenerationService:
                     "animation": "fade_in",
                     "language": "English",
                     "speech": " ".join(cleaned_texts),
-                    "voice": "en-US-AriaNeural",
+                    "voice": avatar.get("defaultVoice", "en-US-AriaNeural"),  # Use avatar's default voice or fallback
                     "voiceType": "text",
                     "voiceProvider": "azure"
                 }],

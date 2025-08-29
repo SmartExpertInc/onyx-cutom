@@ -28,7 +28,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
   // Function to extract actual slide data from current project
-  const extractSlideData = async (): Promise<{ slides: any[], theme: string }> => {
+  const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
     
     try {
@@ -36,9 +36,18 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       const slideViewerData = (window as any).currentSlideData;
       if (slideViewerData?.deck?.slides) {
         console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+        
+        // Extract voiceover texts from slides
+        const voiceoverTexts = slideViewerData.deck.slides
+          .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText)
+          .filter((text: string) => text && text.trim().length > 0);
+        
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
+        
         return {
           slides: slideViewerData.deck.slides,
-          theme: slideViewerData.deck.theme || 'dark-purple'
+          theme: slideViewerData.deck.theme || 'dark-purple',
+          voiceoverTexts: voiceoverTexts
         };
       }
 
@@ -57,20 +66,28 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
           console.log('🎬 [VIDEO_DOWNLOAD] Fetched project data:', projectData);
           
           if (projectData.details?.slides) {
+            // Extract voiceover texts from slides
+            const voiceoverTexts = projectData.details.slides
+              .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText)
+              .filter((text: string) => text && text.trim().length > 0);
+            
+            console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
+            
             return {
               slides: projectData.details.slides,
-              theme: projectData.details.theme || 'dark-purple'
+              theme: projectData.details.theme || 'dark-purple',
+              voiceoverTexts: voiceoverTexts
             };
           }
         }
       }
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
       
     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
-      return { slides: [], theme: 'dark-purple' };
+      return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
     }
   };
 
@@ -117,14 +134,13 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       // Create the request payload
       const requestPayload = {
         projectName: projectName || 'Generated Video',
-        voiceoverTexts: [
-          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better.",
-          "Let's dive into the main content. This presentation covers important topics that are essential for your learning journey.",
-          "As we conclude, remember these key points. They will serve as a foundation for your continued growth and development."
-        ],
+        voiceoverTexts: slideData.voiceoverTexts.length > 0 ? slideData.voiceoverTexts : [
+          "Welcome to this professional presentation. We'll be exploring key concepts and insights that will help you understand the material better."
+        ],  // Use actual voiceover texts or fallback
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
+        avatarData: selectedAvatar,  // NEW: Send full avatar data with voice information
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
