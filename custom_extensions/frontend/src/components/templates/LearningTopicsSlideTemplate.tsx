@@ -5,6 +5,7 @@ import { LearningTopicsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   theme?: SlideTheme | string;
@@ -21,6 +22,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   companyName = 'Company name',
+  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -34,6 +36,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingTopics, setEditingTopics] = useState<number | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentTopics, setCurrentTopics] = useState(topics);
@@ -57,7 +60,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -65,7 +68,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -75,7 +78,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentTopics(newTopics);
     setEditingTopics(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
     }
   };
 
@@ -83,7 +86,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -109,7 +112,13 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
     }
   };
 
@@ -263,12 +272,43 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           gap: '10px',
           marginTop: '36px'
         }}>
-          <div style={{
-            width: '10px',
-            height: '10px',
-            backgroundColor: themeAccent,
-            transform: 'rotate(45deg)'
-          }} />
+{logoNew ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={logoNew}
+              onImageUploaded={handleLogoNewUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '24px',
+                width: '24px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo image
+            <div 
+              onClick={() => isEditable && setShowUploadModal(true)}
+              style={{
+                width: '24px',
+                height: '24px',
+                cursor: isEditable ? 'pointer' : 'default',
+                position: 'relative'
+              }}
+            >
+              <img
+                src="/custom-projects-ui/logoNew.png"
+                alt="Company Logo"
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
+          )}
           <div style={{
             fontSize: '14px',
             color: themeContent,
@@ -333,6 +373,19 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           />
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showUploadModal && (
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

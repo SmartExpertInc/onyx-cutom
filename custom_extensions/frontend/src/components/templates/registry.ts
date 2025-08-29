@@ -1313,7 +1313,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: '#333333',
       contentColor: '#666666',
       accentColor: '#9c27b0',
-      companyName: 'Company name'
+      companyName: 'Company name',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
@@ -1325,7 +1326,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       titleColor: { type: 'color', label: 'Title Color', default: '#333333' },
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#9c27b0' },
-      companyName: { type: 'text', label: 'Company Name', required: true }
+      companyName: { type: 'text', label: 'Company Name', required: true },
+      logoNew: { type: 'image', label: 'Company Logo' }
     }
   },
 

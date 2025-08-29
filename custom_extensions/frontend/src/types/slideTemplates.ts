@@ -455,6 +455,7 @@ export interface LearningTopicsSlideProps extends BaseTemplateProps {
   profileImagePath?: string;
   profileImageAlt?: string;
   companyName?: string;
+  logoNew?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
