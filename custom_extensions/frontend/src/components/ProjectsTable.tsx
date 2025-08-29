@@ -12,16 +12,17 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Lock,
-  MoreHorizontal,
-  Home,
-  Clock,
-  User,
-  Star,
-  ArrowUpDown,
-  LayoutGrid,
-  List,
-  Plus,
+  Lock, 
+  MoreHorizontal, 
+  Home, 
+  Clock, 
+  User, 
+  Users,
+  Star, 
+  ArrowUpDown, 
+  LayoutGrid, 
+  List, 
+  Plus, 
   ChevronsUpDown,
   LucideIcon,
   Share2,
@@ -826,6 +827,7 @@ interface Folder {
   name: string;
   created_at: string;
   project_count: number;
+  offer_count?: number;
   order: number;
   total_lessons: number;
   total_hours: number;
@@ -843,22 +845,24 @@ interface ProjectsTableProps {
 
 interface ColumnVisibility {
   title: boolean;
+  type: boolean;
+  offers: boolean;
   created: boolean;
   creator: boolean;
   numberOfLessons: boolean;
   estCreationTime: boolean;
   estCompletionTime: boolean;
-  type: boolean;
 }
 
 interface ColumnWidths {
-  title: number;
-  created: number;
-  creator: number;
-  numberOfLessons: number;
-  estCreationTime: number;
-  estCompletionTime: number;
-  type: number;
+    title: number;
+    type: number;
+    offers: number;
+    created: number;
+    creator: number;
+    numberOfLessons: number;
+    estCreationTime: number;
+    estCompletionTime: number;
 }
 
 // Recursive folder row component for nested display in list view
@@ -900,6 +904,7 @@ const FolderRow: React.FC<{
   handleRestoreProject: (projectId: number) => void;
   handleDeletePermanently: (projectId: number) => void;
   handleDeleteFolder: (folderId: number) => void;
+  handleOffersClick: (client: Folder, event: React.MouseEvent) => void;
   allFolders: Folder[];
 }> = ({
   folder,
@@ -928,6 +933,7 @@ const FolderRow: React.FC<{
   handleRestoreProject,
   handleDeletePermanently,
   handleDeleteFolder,
+  handleOffersClick,
   allFolders,
 }) => {
   const { t } = useLanguage();
@@ -2842,6 +2848,20 @@ const FolderRowMenu: React.FC<{
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
                 </button>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    if (typeof window !== "undefined") (window as any).__modalOpen = false;
+                    // Dispatch event to open create offer modal
+                    window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+                      detail: { folder }
+                    }));
+                  }}
+                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  <FileText size={16} className="text-gray-500" />
+                  <span>{t("interface.createOffer", "Create Offer")}</span>
+                </button>
               </div>
               <div className="py-1 border-t border-gray-100">
                 <button
@@ -3028,6 +3048,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   >({});
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
     title: true,
+    type: false,
+    offers: false,
     created: false,
     creator: false,
     numberOfLessons: true,
@@ -3036,7 +3058,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     type: false,
   });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-    title: 48,
+    title: 40,
+    type: 15,
+    offers: 12,
     created: 15,
     creator: 15,
     numberOfLessons: 13,
@@ -3056,6 +3080,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
+  
+  // Offers popup state
+  const [showOffersPopup, setShowOffersPopup] = useState(false);
+  const [selectedClientForOffers, setSelectedClientForOffers] = useState<Folder | null>(null);
+  const [clientOffers, setClientOffers] = useState<any[]>([]);
+  const [loadingOffers, setLoadingOffers] = useState(false);
+  const [clientOffersCount, setClientOffersCount] = useState<Record<number, number>>({});
 
   // Column resizing functionality
   const handleColumnResize = (columnKey: string, newWidth: number) => {
@@ -3090,6 +3121,68 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
+
+  // Function to fetch offers for a client
+  const fetchClientOffers = useCallback(async (clientId: number) => {
+    setLoadingOffers(true);
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers?company_id=${clientId}`, {
+        headers,
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setClientOffers(Array.isArray(data) ? data : (data.offers || []));
+      } else {
+        console.error("Failed to fetch offers:", response.status);
+        setClientOffers([]);
+      }
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+      setClientOffers([]);
+    } finally {
+      setLoadingOffers(false);
+    }
+  }, []);
+
+  const fetchClientOffersCount = useCallback(async () => {
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/offers/counts`, {
+        headers,
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setClientOffersCount(data || {});
+      }
+    } catch (e) {
+      console.error("Failed to fetch offers count", e);
+    }
+  }, []);
+
+  // Function to handle offers click
+  const handleOffersClick = useCallback((client: Folder, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSelectedClientForOffers(client);
+    setShowOffersPopup(true);
+    fetchClientOffers(client.id);
+  }, [fetchClientOffers]);
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -3429,14 +3522,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     [router]
   );
 
-  // Toggle folder expansion
+  // Toggle folder expansion - ensure only one client can be expanded at a time
   const toggleFolder = useCallback(
     (folderId: number) => {
       setExpandedFolders((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(folderId)) {
+          // If the folder is already expanded, collapse it
           newSet.delete(folderId);
         } else {
+          // If expanding a new folder, clear all other expanded folders first
+          newSet.clear();
           newSet.add(folderId);
           // Fetch projects for this folder if not already loaded
           if (!folderProjects[folderId]) {
@@ -3577,6 +3673,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   useEffect(() => {
     refreshProjects();
   }, [refreshProjects]);
+
+  useEffect(() => {
+    fetchClientOffersCount();
+  }, [fetchClientOffersCount]);
 
   useEffect(() => {
     const handleRefresh = () => {
@@ -4219,10 +4319,43 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     [t("interface.favorites", "Favorites")]: Star,
   };
 
-  // Add PDF download function
-  const handlePdfDownload = () => {
-    setShowClientNameModal(true);
-  };
+    // Add PDF download function
+    const handlePdfDownload = () => {
+        setShowClientNameModal(true);
+    };
+
+    // Handle client-specific PDF download
+    const handleClientPdfDownload = (folderId: number, clientName: string, projects: Project[]) => {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        
+        // Add folder_id
+        queryParams.append('folder_id', folderId.toString());
+        
+        // Add column visibility settings
+        queryParams.append('column_visibility', JSON.stringify(columnVisibility));
+        
+        // Add column widths settings
+        queryParams.append('column_widths', JSON.stringify(columnWidths));
+        
+        // Add client name
+        queryParams.append('client_name', clientName);
+        
+        // Add project IDs for this client
+        const projectIds = projects.map(p => p.id);
+        queryParams.append('selected_projects', JSON.stringify(projectIds));
+        
+        // Build the PDF URL
+        let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/projects-list`;
+        if (queryParams.toString()) {
+            pdfUrl += `?${queryParams.toString()}`;
+        }
+        
+        // Open PDF in new tab
+        window.open(pdfUrl, '_blank');
+    };
 
   // Handle client name confirmation
   const handleClientNameConfirm = (
@@ -4378,10 +4511,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                       {[
                         { key: "title", label: t("interface.title", "Title") },
-                        {
-                          key: "type",
-                          label: t("interface.type", "Type"),
-                        },
+                        { key: "type", label: t("interface.type", "Type") },
+                        { key: "offers", label: t("interface.offers", "Offers") },
                         {
                           key: "created",
                           label: t("interface.created", "Created"),
@@ -4449,18 +4580,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </div>
             )}
 
-            {/* PDF Download Button - only show in list view */}
+            {/* Add Client Button - only show in list view */}
             {viewMode === "list" && (
               <button
-                onClick={handlePdfDownload}
+                onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
                 title={t(
-                  "interface.downloadPDF",
-                  "Download projects list as PDF"
+                  "interface.addClient",
+                  "Add Client"
                 )}
               >
-                <ArrowDownToLine size={16} />
-                {t("common.downloadPdf", "Download PDF")}
+                <Plus size={16} />
+                {t("interface.addClient", "Add Client")}
               </button>
             )}
 

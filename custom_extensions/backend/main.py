@@ -33,6 +33,8 @@ import inspect
 import openai
 from openai import AsyncOpenAI
 from uuid import uuid4
+from cryptography.fernet import Fernet
+
 # NEW: PDF manipulation imports
 try:
     from PyPDF2 import PdfMerger
@@ -229,10 +231,15 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'userText') and payload.userText
     )
     
-    # Use hybrid approach when there's file context or text context
-    use_hybrid = has_files or has_text_context
+    # Check if Knowledge Base search is requested
+    has_knowledge_base = (
+        hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+    )
     
-    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_hybrid={use_hybrid}")
+    # Use hybrid approach when there's file context, text context, or Knowledge Base search
+    use_hybrid = has_files or has_text_context or has_knowledge_base
+    
+    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, has_knowledge_base={has_knowledge_base}, use_hybrid={use_hybrid}")
     return use_hybrid
 
 DB_POOL = None
@@ -510,6 +517,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -2159,6 +2167,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -2787,6 +2796,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -3639,6 +3649,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -4273,6 +4284,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -5106,6 +5118,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -5734,6 +5747,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -6774,6 +6788,30 @@ async def startup_event():
                     logger.error(f"Error adding project-level custom_rate/quality_tier columns: {e}")
                     raise e
             
+            # Add is_advanced and advanced_rates to project_folders for advanced per-product rates
+            try:
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("ALTER TABLE project_folders ADD COLUMN IF NOT EXISTS completion_times JSONB;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_project_folders_is_advanced ON project_folders(is_advanced);")
+                logger.info("Ensured is_advanced, advanced_rates, and completion_times on project_folders")
+            except Exception as e:
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding is_advanced/advanced_rates to project_folders: {e}")
+                    raise e
+
+            # Add is_advanced and advanced_rates to projects for advanced per-product rates
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_advanced BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS advanced_rates JSONB;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS completion_times JSONB;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_advanced ON projects(is_advanced);")
+                logger.info("Ensured is_advanced, advanced_rates, and completion_times on projects")
+            except Exception as e:
+                if "already exists" not in str(e) and "duplicate column" not in str(e):
+                    logger.error(f"Error adding is_advanced/advanced_rates to projects: {e}")
+                    raise e
+            
             # Add completionTime column to trashed_projects table to match projects table schema
             try:
                 await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS completion_time INTEGER;")
@@ -6938,6 +6976,119 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
 
+            # ============================
+            # SMART DRIVE DATABASE MIGRATIONS
+            # ============================
+            
+            # SmartDrive Accounts: Per-user SmartDrive linkage with individual Nextcloud credentials
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS smartdrive_accounts (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL UNIQUE,
+                    nextcloud_username VARCHAR(255),
+                    nextcloud_password_encrypted TEXT,
+                    nextcloud_base_url VARCHAR(512) DEFAULT 'http://nc1.contentbuilder.ai:8080',
+                    sync_cursor JSONB DEFAULT '{}',
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT idx_smartdrive_accounts_onyx_user UNIQUE (onyx_user_id)
+                );
+            """)
+            
+            # Add new columns to existing tables (migration-safe)
+            try:
+                await connection.execute("ALTER TABLE smartdrive_accounts ADD COLUMN IF NOT EXISTS nextcloud_username VARCHAR(255);")
+                await connection.execute("ALTER TABLE smartdrive_accounts ADD COLUMN IF NOT EXISTS nextcloud_password_encrypted TEXT;")
+                await connection.execute("ALTER TABLE smartdrive_accounts ADD COLUMN IF NOT EXISTS nextcloud_base_url VARCHAR(512) DEFAULT 'http://nc1.contentbuilder.ai:8080';")
+            except Exception as e:
+                logger.info(f"Columns may already exist: {e}")
+                pass
+            # Add encryption helper functions - provide placeholder for old nextcloud_user_id column
+            await connection.execute("INSERT INTO smartdrive_accounts (onyx_user_id, nextcloud_user_id, nextcloud_username, nextcloud_password_encrypted) VALUES ('system_encryption_key', 'system_key', '__encryption_key__', '__placeholder__') ON CONFLICT (onyx_user_id) DO NOTHING;")
+            logger.info("'smartdrive_accounts' table ensured.")
+
+            # SmartDrive Imports: Maps SmartDrive files to Onyx files with etags/checksums
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS smartdrive_imports (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL,
+                    smartdrive_path VARCHAR(1000) NOT NULL,
+                    onyx_file_id VARCHAR(255) NOT NULL,
+                    etag VARCHAR(255),
+                    checksum VARCHAR(255),
+                    file_size BIGINT,
+                    mime_type VARCHAR(255),
+                    imported_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    last_modified TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT idx_smartdrive_imports_user_path UNIQUE (onyx_user_id, smartdrive_path)
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_imports_onyx_user_id ON smartdrive_imports(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_imports_onyx_file_id ON smartdrive_imports(onyx_file_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_smartdrive_imports_imported_at ON smartdrive_imports(imported_at);")
+            logger.info("'smartdrive_imports' table ensured.")
+
+            # User Connectors: Per-user connector configs and encrypted tokens
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_connectors (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    source VARCHAR(100) NOT NULL,
+                    config JSONB DEFAULT '{}',
+                    credentials_encrypted TEXT,
+                    status VARCHAR(50) DEFAULT 'active',
+                    last_sync_at TIMESTAMP WITH TIME ZONE,
+                    last_error TEXT,
+                    total_docs_indexed INTEGER DEFAULT 0,
+                    onyx_connector_id INTEGER,
+                    onyx_credential_id INTEGER,
+                    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_onyx_user_id ON user_connectors(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_source ON user_connectors(source);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_status ON user_connectors(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_created_at ON user_connectors(created_at);")
+            logger.info("'user_connectors' table ensured.")
+
+            # --- Ensure offers table ---
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS offers (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    company_id INTEGER REFERENCES project_folders(id) ON DELETE CASCADE,
+                    offer_name TEXT NOT NULL,
+                    created_on TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    manager TEXT NOT NULL,
+                    status TEXT NOT NULL CHECK (status IN (
+                        'Draft',
+                        'Internal Review', 
+                        'Approved',
+                        'Sent to Client',
+                        'Viewed by Client',
+                        'Negotiation',
+                        'Accepted',
+                        'Rejected',
+                        'Archived'
+                    )),
+                    total_hours INTEGER DEFAULT 0,
+                    link TEXT,
+                    share_token TEXT UNIQUE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            await connection.execute("ALTER TABLE offers ADD COLUMN IF NOT EXISTS share_token TEXT;")
+            await connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_offers_share_token ON offers(share_token) WHERE share_token IS NOT NULL;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_onyx_user_id ON offers(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_company_id ON offers(company_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_status ON offers(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_offers_created_on ON offers(created_on);")
+            logger.info("'offers' table ensured.")
+
+            logger.info("Smart Drive database migrations completed successfully.")
             # --- Feature Management Tables ---
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS feature_definitions (
@@ -7100,6 +7251,39 @@ class CreditTransactionResponse(BaseModel):
     new_balance: int
     user_credits: UserCredits
 
+# Offers Models
+class OfferBase(BaseModel):
+    company_id: int
+    offer_name: str
+    manager: str
+    status: str
+    total_hours: int = 0
+    # link is auto-generated, not provided in create requests
+
+class OfferCreate(OfferBase):
+    pass
+
+class OfferUpdate(BaseModel):
+    company_id: Optional[int] = None
+    offer_name: Optional[str] = None
+    manager: Optional[str] = None
+    status: Optional[str] = None
+    total_hours: Optional[int] = None
+    created_on: Optional[datetime] = None
+    # link is auto-generated and not editable
+
+class OfferResponse(OfferBase):
+    id: int
+    onyx_user_id: str
+    created_on: datetime
+    created_at: datetime
+    updated_at: datetime
+    company_name: str  # Joined from project_folders
+
+class OfferListResponse(BaseModel):
+    offers: List[OfferResponse]
+    total_count: int
+
 # NEW: Analytics/timeline models
 class ProductUsage(BaseModel):
     product_type: str
@@ -7132,6 +7316,7 @@ class LessonDetail(BaseModel):
     completionTime: str = ""  # Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
     custom_rate: Optional[int] = None  # Individual lesson-level custom rate override
     quality_tier: Optional[str] = None  # Individual lesson-level quality tier override
+    recommended_content_types: Optional[Dict[str, Any]] = None
     model_config = {"from_attributes": True}
 
 class SectionDetail(BaseModel):
@@ -7363,6 +7548,9 @@ class ProjectDB(BaseModel):
     created_at: datetime
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
     model_config = {"from_attributes": True}
 
 class MicroProductApiResponse(BaseModel):
@@ -7378,6 +7566,8 @@ class MicroProductApiResponse(BaseModel):
     sourceChatSessionId: Optional[uuid.UUID] = None
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
     model_config = {"from_attributes": True}
 
 class ProjectApiResponse(BaseModel):
@@ -7411,7 +7601,7 @@ class ProjectUpdateRequest(BaseModel):
     projectName: Optional[str] = None
     design_template_id: Optional[int] = None
     microProductName: Optional[str] = None
-    microProductContent: Optional[MicroProductContentType] = None
+    microProductContent: Optional[Dict[str, Any]] = None
     custom_rate: Optional[int] = None
     quality_tier: Optional[str] = None
     model_config = {"from_attributes": True}
@@ -7419,6 +7609,9 @@ class ProjectUpdateRequest(BaseModel):
 class ProjectTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 BulletListBlock.model_rebuild()
 NumberedListBlock.model_rebuild()
@@ -7874,6 +8067,145 @@ def calculate_creation_hours(completion_time_minutes: int, custom_rate: int) -> 
     completion_hours = completion_time_minutes / 60.0
     creation_hours = completion_hours * custom_rate
     return round(creation_hours)
+
+
+def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Optional[str], existing_content: Optional[Dict[str, bool]] = None) -> Dict[str, Any]:
+    """Smart, robust combo recommendations per tier.
+    Returns a "primary" list of product types composing the chosen combo.
+    Types: 'one-pager' | 'presentation' | 'quiz' | 'video-lesson'
+    """
+    import hashlib
+
+    if existing_content is None:
+        existing_content = {}
+
+    title = (lesson_title or "").strip().lower()
+    tier = (quality_tier or "interactive").strip().lower()
+
+    # Keyword signals
+    kw_one_pager = ["introduction", "overview", "basics", "summary", "quick", "reference", "primer", "cheatsheet"]
+    kw_presentation = ["tutorial", "step-by-step", "process", "method", "workflow", "guide", "how to", "how-to", "walkthrough"]
+    kw_video = ["demo", "walkthrough", "show", "demonstrate", "visual", "hands-on", "practical", "screencast", "recording"]
+    kw_quiz = ["test", "check", "verify", "practice", "exercise", "assessment", "evaluation", "quiz"]
+
+    def score_for(keys: list[str]) -> float:
+        hits = sum(1 for k in keys if k in title)
+        return min(1.0, hits / 3.0)  # saturate after 3 hits
+
+    s_one = score_for(kw_one_pager)
+    s_pres = score_for(kw_presentation)
+    s_vid = score_for(kw_video)
+    s_quiz = score_for(kw_quiz)
+
+    # Deterministic variety seed per lesson
+    seed_val = int(hashlib.sha1(f"{title}|{tier}".encode("utf-8")).hexdigest()[:8], 16) / 0xFFFFFFFF
+
+    # Define candidate combos per tier
+    # combos are arrays of product types constituting the recommendation
+    if tier == "basic":
+        combos = [
+            ["one-pager"],
+            ["presentation"],
+        ]
+        # weights prefer brevity/overview to one-pager, procedural to presentation
+        weights = [
+            0.55 + 0.35 * s_one - 0.10 * s_pres,
+            0.45 + 0.35 * s_pres - 0.10 * s_one,
+        ]
+    elif tier == "interactive":
+        combos = [
+            ["presentation", "quiz"],
+            ["presentation"],
+            ["one-pager", "quiz"],
+        ]
+        weights = [
+            0.40 + 0.30 * s_pres + 0.30 * s_quiz,  # pres+quiz
+            0.30 + 0.50 * s_pres - 0.10 * s_quiz,  # pres
+            0.30 + 0.40 * s_one + 0.30 * s_quiz,   # one+quiz
+        ]
+    elif tier == "advanced":
+        combos = [
+            ["presentation", "quiz"],
+            ["video-lesson", "quiz"],
+        ]
+        weights = [
+            0.50 + 0.30 * s_pres + 0.20 * s_quiz,
+            0.50 + 0.40 * s_vid + 0.20 * s_quiz,
+        ]
+    else:  # immersive
+        combos = [
+            ["video-lesson", "quiz"],
+            ["video-lesson"],
+        ]
+        weights = [
+            0.60 + 0.25 * s_vid + 0.15 * s_quiz,
+            0.40 + 0.60 * s_vid - 0.10 * s_quiz,
+        ]
+
+    # Normalize weights, add small hash-based jitter for deterministic variety
+    eps = 1e-6
+    jitter = [(i + 1) * 0.0005 * seed_val for i in range(len(weights))]
+    norm_weights = [max(eps, w + jitter[i]) for i, w in enumerate(weights)]
+
+    # Sort combos by weight desc, break ties deterministically
+    ranked = sorted(range(len(combos)), key=lambda i: (-norm_weights[i], i))
+
+    # Choose the best combo that doesn’t fully collide with existing content
+    chosen: list[str] | None = None
+    for idx in ranked:
+        c = combos[idx]
+        # If combo has two items and one exists, we still propose the remaining one; if all exist, skip.
+        missing = [t for t in c if not existing_content.get(t, False)]
+        if missing:
+            chosen = missing
+            break
+
+    # Fallback to the top combo if everything existed (rare)
+    if not chosen:
+        chosen = combos[ranked[0]]
+
+    return {
+        "primary": chosen,
+        "reasoning": (
+            f"tier={tier}; signals(one={s_one:.2f}, pres={s_pres:.2f}, video={s_vid:.2f}, quiz={s_quiz:.2f}); "
+            f"seed={seed_val:.3f}; combos={combos}"
+        ),
+        "last_updated": datetime.utcnow().isoformat(),
+        "quality_tier_used": tier,
+    }
+
+# --- Completion time from recommendations ---
+PRODUCT_COMPLETION_RANGES = {
+    "one-pager": (2, 3),
+    "presentation": (5, 10),
+    "quiz": (5, 7),
+    "video-lesson": (2, 5),
+}
+
+def compute_completion_time_from_recommendations(primary_types: list[str]) -> str:
+    total = 0
+    for p in primary_types:
+        r = PRODUCT_COMPLETION_RANGES.get(p)
+        if not r:
+            continue
+        total += random.randint(r[0], r[1])
+    if total <= 0:
+        total = 5
+    return f"{total}m"
+
+def sanitize_training_plan_for_parse(content: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        sections = content.get('sections') or []
+        for section in sections:
+            lessons = section.get('lessons') or []
+            for lesson in lessons:
+                if isinstance(lesson, dict):
+                    # keep recommended_content_types for persistence
+                    pass
+    except Exception:
+        pass
+    return content
+
 
 def round_hours_in_content(content: Any) -> Any:
     """Recursively round all hours fields to integers in content structure"""
@@ -9406,6 +9738,328 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "folder_contexts": [],
             "key_topics": [],
             "metadata": {"error": str(e)}
+        }
+
+def _save_section_content(section_name: str, content_lines: list, local_vars: dict):
+    """Helper function to save accumulated section content"""
+    content = " ".join(content_lines).strip()
+    if section_name == "summary":
+        local_vars["summary"] = content
+    elif section_name == "important_details":
+        local_vars["important_details"] = content
+    elif section_name == "relevant_sources":
+        local_vars["relevant_sources"] = content
+
+async def enhanced_stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str]) -> str:
+    """Enhanced version of stream_chat_message specifically for Knowledge Base searches with better streaming handling."""
+    logger.info(f"[enhanced_stream_chat_message] Starting Knowledge Base search - chat_id={chat_session_id} len(message)={len(message)}")
+
+    async with httpx.AsyncClient(timeout=600.0) as client:  # Longer timeout for KB searches
+        retrieval_options = {
+            "run_search": "always",  # Always search for Knowledge Base
+            "real_time": False,
+        }
+        payload = {
+            "chat_session_id": chat_session_id,
+            "message": message,
+            "parent_message_id": None,
+            "file_descriptors": [],
+            "user_file_ids": [],
+            "user_folder_ids": [],
+            "prompt_id": None,
+            "search_doc_ids": None,
+            "retrieval_options": retrieval_options,
+            "stream_response": True,  # Force streaming for better control
+        }
+        
+        logger.info(f"[enhanced_stream_chat_message] Sending request to {ONYX_API_SERVER_URL}/chat/send-message")
+        resp = await client.post(
+            f"{ONYX_API_SERVER_URL}/chat/send-message",
+            json=payload,
+            cookies=cookies,
+        )
+        
+        logger.info(f"[enhanced_stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
+        resp.raise_for_status()
+        
+        # Handle the response
+        ctype = resp.headers.get("content-type", "")
+        if ctype.startswith("text/event-stream"):
+            logger.info(f"[enhanced_stream_chat_message] Processing streaming response...")
+            full_answer = ""
+            line_count = 0
+            done_received = False
+            last_log_length = 0
+            import time
+            start_time = time.time()
+            last_activity_time = start_time
+            max_idle_time = 120.0  # Wait up to 2 minutes without new content
+            max_total_time = 600.0  # Maximum 10 minutes total
+            
+            logger.info(f"[enhanced_stream_chat_message] Starting to read lines from stream...")
+            async for line in resp.aiter_lines():
+                line_count += 1
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                idle_time = current_time - last_activity_time
+                
+                # Log progress every 25 lines to track what's happening
+                if line_count % 25 == 0:
+                    logger.info(f"[enhanced_stream_chat_message] Progress: Line {line_count}, Elapsed: {elapsed_time:.1f}s, Idle: {idle_time:.1f}s, Chars: {len(full_answer)}")
+                
+                # Check for timeouts - but be more patient
+                if elapsed_time > max_total_time:
+                    logger.warning(f"[enhanced_stream_chat_message] Maximum total time ({max_total_time}s) exceeded after {line_count} lines, {len(full_answer)} chars")
+                    break
+                    
+                # Only timeout on idle if we have NO content after significant time
+                if idle_time > max_idle_time and len(full_answer) == 0 and elapsed_time > 60.0:
+                    logger.warning(f"[enhanced_stream_chat_message] Maximum idle time ({max_idle_time}s) exceeded since last content, still no answer content after {line_count} lines, elapsed: {elapsed_time:.1f}s")
+                    break
+                
+                if not line:
+                    if line_count <= 5:  # Log first few empty lines
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Empty line")
+                    continue
+                    
+                # Onyx doesn't use "data: " prefix - each line is a direct JSON object  
+                # Skip empty lines but process all non-empty lines as JSON
+                payload_text = line.strip()
+                if not payload_text:
+                    if line_count <= 5:  # Log first few empty lines
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count}: Empty line")
+                    continue
+                    
+                try:
+                    packet = json.loads(payload_text)
+                except Exception as e:
+                    logger.debug(f"[enhanced_stream_chat_message] Failed to parse JSON line {line_count}: {str(e)} | Line: {payload_text[:100]}")
+                    continue
+                
+                # For the first 10 packets, log full content to understand structure
+                if line_count <= 10:
+                    packet_str = str(packet)[:500] if packet else "empty"
+                    logger.info(f"[enhanced_stream_chat_message] Packet {line_count} content: {packet_str}")
+                
+                # Log packet structure for debugging (every 50 lines to avoid spam)
+                if line_count % 50 == 0:
+                    packet_keys = list(packet.keys()) if isinstance(packet, dict) else "not-dict"
+                    logger.info(f"[enhanced_stream_chat_message] Line {line_count} packet keys: {packet_keys}")
+                
+                # Handle different Onyx packet types
+                answer_content = None
+                
+                # Check for OnyxAnswerPiece
+                if "answer_piece" in packet:
+                    answer_piece = packet["answer_piece"]
+                    if answer_piece is None:
+                        # OnyxAnswerPiece with None signals end of answer
+                        logger.info(f"[enhanced_stream_chat_message] Received answer termination signal (answer_piece=None) after {line_count} lines")
+                        done_received = True
+                        break
+                    elif answer_piece:
+                        answer_content = answer_piece
+                        
+                # Check for AgentAnswerPiece (agent search responses)
+                elif packet.get("answer_type") and packet.get("answer_piece"):
+                    answer_content = packet["answer_piece"]
+                    logger.info(f"[enhanced_stream_chat_message] Received agent answer piece: {packet.get('answer_type')}")
+                    
+                # Check for QADocsResponse (search results)
+                elif packet.get("top_documents") or packet.get("rephrased_query"):
+                    logger.info(f"[enhanced_stream_chat_message] Received search results packet")
+                    last_activity_time = current_time  # Reset timer for search activity
+                    
+                # Check for StreamStopInfo
+                elif packet.get("stop_reason"):
+                    if packet["stop_reason"] == "finished":
+                        logger.info(f"[enhanced_stream_chat_message] Received stream stop signal: finished")
+                        done_received = True
+                        break
+                    
+                if answer_content:
+                    full_answer += answer_content
+                    last_activity_time = current_time  # Reset activity timer on content
+                    
+                    # Log progress every 200 chars to track streaming
+                    if len(full_answer) - last_log_length >= 200:
+                        logger.info(f"[enhanced_stream_chat_message] Accumulated {len(full_answer)} chars so far...")
+                        last_log_length = len(full_answer)
+                else:
+                    # Log what we're getting for non-answer packets
+                    if line_count <= 10 or line_count % 100 == 0:  # Log first 10 and every 100th
+                        packet_preview = str(packet)[:200] if packet else "empty"
+                        logger.debug(f"[enhanced_stream_chat_message] Line {line_count} - non-answer packet: {packet_preview}")
+            
+            # Stream ended - determine why
+            logger.info(f"[enhanced_stream_chat_message] Stream reading loop ended naturally")
+            final_elapsed = time.time() - start_time
+            logger.info(f"[enhanced_stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}, Elapsed: {final_elapsed:.1f}s")
+            
+            # If we got no content and stream ended quickly, something went wrong
+            if len(full_answer) == 0 and final_elapsed < 60.0 and not done_received:
+                logger.error(f"[enhanced_stream_chat_message] Stream ended prematurely! Only {final_elapsed:.1f}s elapsed, {line_count} lines processed, no content received")
+                logger.error(f"[enhanced_stream_chat_message] This suggests an issue with the Onyx search or streaming connection")
+                
+            if not done_received and len(full_answer) == 0:
+                logger.warning(f"[enhanced_stream_chat_message] Stream ended without [DONE] signal and no content - may be incomplete")
+            elif not done_received:
+                logger.warning(f"[enhanced_stream_chat_message] Stream ended without [DONE] signal but got {len(full_answer)} chars")
+                
+            # Ensure we have some minimum content or waited minimum time
+            if len(full_answer) == 0 and final_elapsed < 60.0:
+                logger.warning(f"[enhanced_stream_chat_message] No content received and insufficient wait time ({final_elapsed:.1f}s < 60s)")
+                # Wait a bit more to see if content comes
+                logger.info(f"[enhanced_stream_chat_message] Attempting extended wait for delayed response...")
+                import asyncio
+                await asyncio.sleep(5.0)  # Wait 5 more seconds
+                
+            return full_answer
+        else:
+            # Non-streaming response
+            logger.info(f"[enhanced_stream_chat_message] Processing non-streaming response")
+            try:
+                data = resp.json()
+                result = data.get("answer") or data.get("answer_citationless") or ""
+                logger.info(f"[enhanced_stream_chat_message] Non-streaming result: {len(result)} chars")
+                return result
+            except Exception as e:
+                logger.error(f"[enhanced_stream_chat_message] Failed to parse non-streaming response: {e}")
+                return resp.text.strip()
+
+async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract context from the entire Knowledge Base using the Search persona.
+    This function performs a comprehensive search across all documents in the Knowledge Base.
+    """
+    try:
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Starting Knowledge Base search for topic: {topic}")
+        
+        # Create a temporary chat session with the Search persona (ID 0)
+        search_persona_id = 0
+        temp_chat_id = await create_onyx_chat_session(search_persona_id, cookies)
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Created search chat session: {temp_chat_id}")
+        
+        # Create a comprehensive search prompt
+        search_prompt = f"""
+        Please search your entire Knowledge Base for information relevant to this topic: "{topic}"
+        
+        I need you to:
+        1. Search across all available documents and knowledge sources
+        2. Find the most relevant information related to this topic
+        3. Provide a comprehensive summary of what you find
+        4. Extract key topics, concepts, and important details
+        5. Identify any specific examples, case studies, or practical applications
+        
+        Please format your response as:
+        SUMMARY: [comprehensive summary of relevant information found]
+        KEY_TOPICS: [comma-separated list of key topics and concepts]
+        IMPORTANT_DETAILS: [specific details, examples, or practical information]
+        RELEVANT_SOURCES: [mention of any specific documents or sources that were particularly relevant]
+        
+        Be thorough and comprehensive in your search and analysis.
+        """
+        
+        # Use the Search persona to perform the Knowledge Base search
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Sending search request to Search persona")
+        search_result = await enhanced_stream_chat_message(temp_chat_id, search_prompt, cookies)
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Received search result ({len(search_result)} chars)")
+        
+        # Log the full response for debugging
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Full search response: {search_result}")
+        
+        if len(search_result) == 0:
+            logger.warning(f"[KNOWLEDGE_BASE_CONTEXT] Search result is empty! This might indicate no documents in Knowledge Base or search failed")
+        
+        # Parse the search result - handle Onyx response format  
+        summary = ""
+        key_topics = []
+        important_details = ""
+        relevant_sources = ""
+        
+        # Extract content flexibly using string searching
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Starting content extraction from search result")
+        
+        if "SUMMARY:" in search_result:
+            summary_start = search_result.find("SUMMARY:") + 8
+            summary_end = search_result.find("KEY_TOPICS:", summary_start)
+            if summary_end == -1:
+                summary_end = search_result.find("IMPORTANT_DETAILS:", summary_start)
+            if summary_end == -1:
+                summary_end = search_result.find("RELEVANT_SOURCES:", summary_start)
+            if summary_end == -1:
+                summary_end = len(search_result)
+            summary = search_result[summary_start:summary_end].strip()
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted summary: {len(summary)} chars")
+        
+        if "KEY_TOPICS:" in search_result:
+            topics_start = search_result.find("KEY_TOPICS:") + 11
+            topics_end = search_result.find("IMPORTANT_DETAILS:", topics_start)
+            if topics_end == -1:
+                topics_end = search_result.find("RELEVANT_SOURCES:", topics_start)
+            if topics_end == -1:
+                # Look for next section marker or end of text
+                next_section = search_result.find("\n\n", topics_start)
+                topics_end = next_section if next_section != -1 else len(search_result)
+            topics_text = search_result[topics_start:topics_end].strip()
+            key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted {len(key_topics)} key topics")
+        
+        if "IMPORTANT_DETAILS:" in search_result:
+            details_start = search_result.find("IMPORTANT_DETAILS:") + 18
+            details_end = search_result.find("RELEVANT_SOURCES:", details_start)
+            if details_end == -1:
+                details_end = len(search_result)
+            important_details = search_result[details_start:details_end].strip()
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted important details: {len(important_details)} chars")
+        
+        if "RELEVANT_SOURCES:" in search_result:
+            sources_start = search_result.find("RELEVANT_SOURCES:") + 17
+            relevant_sources = search_result[sources_start:].strip()
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted relevant sources: {len(relevant_sources)} chars")
+        
+        # Final fallback if still no content
+        if not summary and not key_topics:
+            summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
+            key_topics = ["knowledge base search"]
+            logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Using fallback summary from raw response")
+        
+        # Log the extracted information
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted summary: {summary[:200]}...")
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted key topics: {key_topics}")
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted important details: {important_details[:200]}...")
+        logger.info(f"[KNOWLEDGE_BASE_CONTEXT] Extracted relevant sources: {relevant_sources[:200]}...")
+        
+        # Return context in the same format as file context
+        return {
+            "knowledge_base_search": True,
+            "topic": topic,
+            "summary": summary,
+            "key_topics": key_topics,
+            "important_details": important_details,
+            "relevant_sources": relevant_sources,
+            "full_search_result": search_result,
+            "file_summaries": [{
+                "file_id": "knowledge_base",
+                "name": f"Knowledge Base Search: {topic}",
+                "summary": summary,
+                "topics": key_topics,
+                "key_info": important_details
+            }]
+        }
+        
+    except Exception as e:
+        logger.error(f"[KNOWLEDGE_BASE_CONTEXT] Error extracting Knowledge Base context: {e}", exc_info=True)
+        # Return fallback context
+        return {
+            "knowledge_base_search": True,
+            "topic": topic,
+            "summary": f"Knowledge Base search failed for topic: {topic}",
+            "key_topics": ["search error"],
+            "important_details": "Unable to search Knowledge Base",
+            "relevant_sources": "",
+            "full_search_result": f"Error: {str(e)}",
+            "file_summaries": []
         }
 
 async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> Dict[str, Any]:
@@ -11083,7 +11737,8 @@ Return ONLY the JSON object.
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
                     db_content_dict = round_hours_in_content(db_content_dict)
-                    final_content_for_response = TrainingPlanDetails(**db_content_dict)
+                    # Preserve custom fields (e.g., recommended_content_types) for edit view
+                    final_content_for_response = db_content_dict
             except Exception as e_parse:
                 logger.error(f"Error parsing content from DB on add (proj ID {row['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
 
@@ -11156,6 +11811,7 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     parsed_content_for_response = TextPresentationDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content_json = sanitize_training_plan_for_parse(db_content_json)
                     parsed_content_for_response = TrainingPlanDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON:
                     parsed_content_for_response = VideoLessonData(**db_content_json)
@@ -11297,7 +11953,9 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         sourceChatSessionId=row_dict.get("source_chat_session_id"),
         parentProjectName=row_dict.get('project_name'),
         custom_rate=row_dict.get("custom_rate"),
-        quality_tier=row_dict.get("quality_tier")
+        quality_tier=row_dict.get("quality_tier"),
+        is_advanced=row_dict.get("is_advanced"),
+        advanced_rates=row_dict.get("advanced_rates")
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
 
@@ -12862,6 +13520,8 @@ class OutlineWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
     theme: Optional[str] = None  # Selected theme from frontend
 
 class OutlineWizardFinalize(BaseModel):
@@ -12879,14 +13539,26 @@ class OutlineWizardFinalize(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
     theme: Optional[str] = None  # Selected theme from frontend
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 
-async def get_contentbuilder_persona_id(cookies: Dict[str, str]) -> int:
-    """Return persona id of the default ContentBuilder assistant (cached)."""
+async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
+    """Return persona id of the default ContentBuilder assistant (cached).
+    
+    Args:
+        cookies: Authentication cookies
+        use_search_persona: If True, return the Search persona (ID 0) instead of ContentBuilder
+    """
+    # If Knowledge Base search is requested, use Search persona (ID 0)
+    if use_search_persona:
+        logger.info(f"[PERSONA_SELECTION] Using Search persona (ID 0) for Knowledge Base search")
+        return 0
+    
     global _CONTENTBUILDER_PERSONA_CACHE
     if _CONTENTBUILDER_PERSONA_CACHE is not None:
         return _CONTENTBUILDER_PERSONA_CACHE
@@ -12912,13 +13584,16 @@ async def create_onyx_chat_session(persona_id: int, cookies: Dict[str, str]) -> 
         data = resp.json()
         return data.get("chat_session_id") or data.get("chatSessionId")
 
-async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str]) -> str:
-    """Send message via Onyx non-streaming simple API and return the full answer."""
-    logger.debug(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)}")
+async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str], enable_search: bool = False) -> str:
+    """Send message via Onyx and return the full answer, handling both streaming and non-streaming responses."""
+    logger.info(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)} enable_search={enable_search}")
 
-    async with httpx.AsyncClient(timeout=300.0) as client:
-        minimal_retrieval = {
-            "run_search": "never",
+    # Use longer timeout for Knowledge Base searches
+    timeout_duration = 600.0 if enable_search else 300.0
+    async with httpx.AsyncClient(timeout=timeout_duration) as client:
+        # Enable search when needed for Knowledge Base searches
+        retrieval_options = {
+            "run_search": "always" if enable_search else "never",
             "real_time": False,
         }
         payload = {
@@ -12930,7 +13605,7 @@ async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[
             "user_folder_ids": [],
             "prompt_id": None,
             "search_doc_ids": None,
-            "retrieval_options": minimal_retrieval,
+            "retrieval_options": retrieval_options,
             "stream_response": False,
         }
         # Prefer the non-streaming simplified endpoint if available (much faster and avoids nginx timeouts)
@@ -12948,24 +13623,44 @@ async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[
                 json=payload,
                 cookies=cookies,
             )
-        logger.debug(f"[stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
+        logger.info(f"[stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
         resp.raise_for_status()
         # Depending on deployment, Onyx may return SSE stream or JSON.
         ctype = resp.headers.get("content-type", "")
         if ctype.startswith("text/event-stream"):
+            logger.info(f"[stream_chat_message] Processing streaming response...")
             full_answer = ""
+            line_count = 0
+            done_received = False
+            
             async for line in resp.aiter_lines():
-                if not line or not line.startswith("data: "):
+                line_count += 1
+                if not line:
                     continue
-                payload = line.removeprefix("data: ").strip()
-                if payload == "[DONE]":
+                    
+                if not line.startswith("data: "):
+                    logger.debug(f"[stream_chat_message] Skipping non-data line: {line[:100]}")
+                    continue
+                    
+                payload_text = line.removeprefix("data: ").strip()
+                if payload_text == "[DONE]":
+                    logger.info(f"[stream_chat_message] Received [DONE] signal after {line_count} lines")
+                    done_received = True
                     break
+                    
                 try:
-                    packet = json.loads(payload)
-                except Exception:
+                    packet = json.loads(payload_text)
+                except Exception as e:
+                    logger.debug(f"[stream_chat_message] Failed to parse JSON: {payload_text[:100]} - {e}")
                     continue
+                    
                 if packet.get("answer_piece"):
-                    full_answer += packet["answer_piece"]
+                    answer_piece = packet["answer_piece"]
+                    full_answer += answer_piece
+                    if len(full_answer) % 500 == 0:  # Log progress every 500 chars
+                        logger.debug(f"[stream_chat_message] Accumulated {len(full_answer)} chars so far...")
+                        
+            logger.info(f"[stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}")
             return full_answer
         # Fallback JSON response
         try:
@@ -13211,8 +13906,10 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         logger.info(f"[PREVIEW_CHAT] Creating new chat session")
         try:
             logger.info(f"[PREVIEW_CHAT] Attempting to get contentbuilder persona ID")
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id}")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
             logger.info(f"[PREVIEW_CHAT] Attempting to create Onyx chat session")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[PREVIEW_CHAT] Created new chat session: {chat_id}")
@@ -13298,6 +13995,11 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     elif payload.fromText:
         logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding Knowledge Base context: fromKnowledgeBase=True")
+        wiz_payload["fromKnowledgeBase"] = True
+
     if payload.originalOutline:
         logger.info(f"[PREVIEW_PAYLOAD] Adding originalOutline ({len(payload.originalOutline)} chars)")
         wiz_payload["originalOutline"] = payload.originalOutline
@@ -13340,29 +14042,35 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -14013,6 +14721,45 @@ async def generate_and_finalize_course_outline_for_position(
                                 content_available = {"type": "yes", "text": "0%"} if source == "Create from scratch" else {"type": "yes", "text": "0%"}
                                 lesson.setdefault("contentAvailable", content_available)
                                 lesson.setdefault("source", source)
+                                # Populate recommended content types if missing
+                                try:
+                                    existing_flags = {
+                                        "presentation": False,
+                                        "one-pager": False,
+                                        "quiz": False,
+                                        "video-lesson": False,
+                                    }
+                                    recommendations = analyze_lesson_content_recommendations(
+                                        lesson.get("title", ""),
+                                        lesson.get("quality_tier") or section.get("quality_tier") or content.get("quality_tier"),
+                                        existing_flags
+                                    )
+                                    lesson.setdefault("recommended_content_types", recommendations)
+                                    # Update completionTime from recommendations
+                                    try:
+                                        lesson["completionTime"] = compute_completion_time_from_recommendations(recommendations.get("primary", []))
+                                        # Also generate completion_breakdown for advanced mode support
+                                        primary = recommendations.get("primary", [])
+                                        ranges = {
+                                            'one-pager': (2,3),
+                                            'presentation': (5,10),
+                                            'quiz': (5,7),
+                                            'video-lesson': (2,5),
+                                        }
+                                        breakdown = {}
+                                        total_m = 0
+                                        for p in primary:
+                                            r = ranges.get(p)
+                                            if r:
+                                                mid = int(round((r[0]+r[1])/2))
+                                                breakdown[p] = mid
+                                                total_m += mid
+                                        if total_m > 0:
+                                            lesson['completion_breakdown'] = breakdown
+                                    except Exception:
+                                        lesson.setdefault("completionTime", "5m")
+                                except Exception:
+                                    pass
                                 updated_lessons.append(lesson)
                             else:
                                 # If lesson is just a string, convert to proper structure
@@ -14022,7 +14769,7 @@ async def generate_and_finalize_course_outline_for_position(
                                     "contentAvailable": {"type": "yes", "text": "0%"},
                                     "source": "Create from scratch",
                                     "hours": 1,
-                                    "completionTime": "5m"
+                                    "recommended_content_types": analyze_lesson_content_recommendations(str(lesson), content.get("quality_tier"), {"presentation": False, "one-pager": False, "quiz": False, "video-lesson": False})
                                 })
                         
                         # Calculate total hours from lesson hours
@@ -14099,7 +14846,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Helper: check whether the user made ANY changes (structure or content)
@@ -14292,6 +15041,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             # Success when we have valid parsed content
             if content_valid:
                 logger.info(f"Direct parser path successful for project {direct_path_project_id}")
+                logger.debug(f'Full content for project {direct_path_project_id}: {project_db_candidate.microproduct_content}')
                 return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
             else:
                 # Direct parser path validation failed - clean up the created project and fall back to assistant
@@ -14591,6 +15341,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
 async def init_course_outline_chat(request: Request):
     """Pre-create Chat Session & persona so subsequent preview calls are faster."""
     cookies = request.cookies
+    # For init-chat, we'll use the default ContentBuilder persona
+    # The actual persona selection will happen in the preview endpoint based on the request payload
     persona_id = await get_contentbuilder_persona_id(cookies)
     chat_id = await create_onyx_chat_session(persona_id, cookies)
     return {"personaId": persona_id, "chatSessionId": chat_id}
@@ -14789,6 +15541,8 @@ class LessonWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
 
 
 class LessonWizardFinalize(BaseModel):
@@ -14814,7 +15568,9 @@ async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, 
     if payload.chatSessionId:
         chat_id = payload.chatSessionId
     else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
         chat_id = await create_onyx_chat_session(persona_id, cookies)
 
     # Build wizard request for assistant persona
@@ -14892,6 +15648,11 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        wizard_dict["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for lesson generation")
+
     # Decompress text if it was compressed
     if wizard_dict.get("textCompressed") and wizard_dict.get("userText"):
         try:
@@ -14916,29 +15677,35 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wizard_dict.get("virtualFileId"):
-                    file_ids_list.append(wizard_dict["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wizard_dict.get("virtualFileId"):
+                        file_ids_list.append(wizard_dict["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -16051,6 +16818,8 @@ class ProjectFolderCreateRequest(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None  # { presentation, one_pager, quiz, video_lesson }
 
 class ProjectFolderResponse(BaseModel):
     id: int
@@ -16059,6 +16828,9 @@ class ProjectFolderResponse(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 class ProjectFolderListResponse(BaseModel):
     id: int
@@ -16068,6 +16840,9 @@ class ProjectFolderListResponse(BaseModel):
     parent_id: Optional[int] = None
     quality_tier: Optional[str] = "medium"  # Default to medium tier
     custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
     project_count: int
     total_lessons: int
     total_hours: int
@@ -16083,6 +16858,9 @@ class ProjectFolderMoveRequest(BaseModel):
 class ProjectFolderTierRequest(BaseModel):
     quality_tier: str
     custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
 
 # --- Folders API Endpoints ---
 @app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
@@ -16096,6 +16874,9 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
             pf.parent_id,
             COALESCE(pf.quality_tier, 'medium') as quality_tier,
             COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times,
             COUNT(p.id) as project_count,
             COALESCE(
                 SUM(
@@ -16161,12 +16942,35 @@ async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), po
         FROM project_folders pf
         LEFT JOIN projects p ON pf.id = p.folder_id
         WHERE pf.onyx_user_id = $1
-        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id
+        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.is_advanced, pf.advanced_rates
         ORDER BY pf."order" ASC, pf.created_at ASC;
     """
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, onyx_user_id)
     return [ProjectFolderListResponse(**dict(row)) for row in rows]
+
+@app.get("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
+async def get_folder(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get a specific folder by ID"""
+    query = """
+        SELECT 
+            pf.id, 
+            pf.name, 
+            pf.created_at, 
+            pf.parent_id,
+            COALESCE(pf.quality_tier, 'medium') as quality_tier,
+            COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times
+        FROM project_folders pf
+        WHERE pf.id = $1 AND pf.onyx_user_id = $2
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, folder_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return ProjectFolderResponse(**dict(row))
 
 @app.post("/api/custom/projects/folders", response_model=ProjectFolderResponse)
 async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
@@ -16180,13 +16984,13 @@ async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Dep
             if not parent_folder:
                 raise HTTPException(status_code=404, detail="Parent folder not found")
         
-        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate;"
-        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate)
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None)
     return ProjectFolderResponse(**dict(row))
 
 @app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
 async def rename_folder(folder_id: int, req: ProjectFolderRenameRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at;"
+    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
     async with pool.acquire() as conn:
         row = await conn.fetchrow(query, req.name, folder_id, onyx_user_id)
     if not row:
@@ -16261,10 +17065,10 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
         if not folder:
             raise HTTPException(status_code=404, detail="Folder not found")
         
-        # Update the folder's quality_tier and custom_rate
+        # Update the folder's quality_tier/custom_rate and advanced fields
         updated_folder = await conn.fetchrow(
-            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate",
-            req.quality_tier, req.custom_rate, folder_id, onyx_user_id
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates, completion_times",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, folder_id, onyx_user_id
         )
         
         # Get all projects in this folder (including subfolders recursively)
@@ -16316,6 +17120,43 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     
                                     # Update the tier name to match the new folder tier
                                     lesson['quality_tier'] = req.quality_tier
+
+                                    # Always update recommendations when tier changes to ensure they match the new tier
+                                    try:
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                                lesson.get('title', ''),
+                                                req.quality_tier,
+                                                {
+                                                    'presentation': False,
+                                                    'one-pager': False,
+                                                    'quiz': False,
+                                                    'video-lesson': False,
+                                                }
+                                            )
+                                        # Also record a deterministic completion_breakdown and completionTime
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
+                                    except Exception:
+                                        pass
                                     
                                     # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
@@ -16350,8 +17191,37 @@ async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx
                                     # Add to total completion time
                                     total_completion_time += completion_time_minutes
                                     
-                                    # Recalculate hours with new folder rate using completion time (or 5 minutes default)
-                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    # Recalculate hours considering advanced per-product rates if enabled
+                                    try:
+                                        primary = []
+                                        if isinstance(lesson.get('recommended_content_types'), dict):
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                        is_adv = bool(updated_folder.get('is_advanced'))
+                                        adv_rates = updated_folder.get('advanced_rates') if is_adv else None
+                                        if is_adv and primary:
+                                            breakdown = lesson.get('completion_breakdown') if isinstance(lesson.get('completion_breakdown'), dict) else None
+                                            rates = {
+                                                'presentation': (adv_rates or {}).get('presentation') or req.custom_rate,
+                                                'one_pager': (adv_rates or {}).get('one_pager') or req.custom_rate,
+                                                'quiz': (adv_rates or {}).get('quiz') or req.custom_rate,
+                                                'video_lesson': (adv_rates or {}).get('video_lesson') or req.custom_rate,
+                                            }
+                                            total_hours = 0.0
+                                            if breakdown:
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    minutes = breakdown.get(p, 0)
+                                                    total_hours += (minutes / 60.0) * float(rates.get(key, req.custom_rate))
+                                            else:
+                                                per = max(1, int(round(completion_time_minutes / max(1, len(primary)))))
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    total_hours += (per / 60.0) * float(rates.get(key, req.custom_rate))
+                                            lesson_creation_hours = int(round(total_hours))
+                                        else:
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    except Exception:
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
                                     lesson['hours'] = lesson_creation_hours
                                     section_total_hours += lesson_creation_hours
                             
@@ -16402,7 +17272,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
             if design_row: db_microproduct_name_to_store = design_row["template_name"]
 
-        content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
+        content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
         
         # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
         if content_to_store_for_db:
@@ -16438,6 +17308,43 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         if project_update_data.microProductContent is not None: 
             update_clauses.append(f"microproduct_content = ${arg_idx}")
             update_values.append(content_to_store_for_db); arg_idx += 1
+            
+            # Ensure lessons have recommendations when storing training plan
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    for section in (content_to_store_for_db.get('sections') or []):
+                        lessons = section.get('lessons') or []
+                        for lesson in lessons:
+                            if isinstance(lesson, dict) and ('recommended_content_types' not in lesson or not lesson['recommended_content_types']):
+                                lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                    lesson.get('title', ''),
+                                    lesson.get('quality_tier') or section.get('quality_tier') or content_to_store_for_db.get('quality_tier'),
+                                    {'presentation': False, 'one-pager': False, 'quiz': False, 'video-lesson': False}
+                                )
+                                # Also generate completion_breakdown for advanced mode support
+                                try:
+                                    primary = lesson['recommended_content_types'].get('primary', [])
+                                    ranges = {
+                                        'one-pager': (2,3),
+                                        'presentation': (5,10),
+                                        'quiz': (5,7),
+                                        'video-lesson': (2,5),
+                                    }
+                                    breakdown = {}
+                                    total_m = 0
+                                    for p in primary:
+                                        r = ranges.get(p)
+                                        if r:
+                                            mid = int(round((r[0]+r[1])/2))
+                                            breakdown[p] = mid
+                                            total_m += mid
+                                    if total_m > 0:
+                                        lesson['completion_breakdown'] = breakdown
+                                        lesson['completionTime'] = f"{total_m}m"
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass
             
             # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
             if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
@@ -16476,7 +17383,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
 
         update_values.extend([project_id, onyx_user_id])
-        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier;"
+        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
 
         async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
         if not row:
@@ -16615,6 +17522,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     final_content_for_model = TextPresentationDetails(**db_content)
                     logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
                     final_content_for_model = VideoLessonData(**db_content)
@@ -16626,6 +17534,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                         db_content['slides'] = normalize_slide_props(db_content['slides'], current_component_name)
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 
                 # 🔍 BACKEND VALIDATION RESULT LOGGING
@@ -16688,6 +17597,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 
                 content = project['microproduct_content']
                 if isinstance(content, dict) and 'sections' in content:
+                    content = sanitize_training_plan_for_parse(dict(content))
                     sections = content['sections']
                     
                     # Update the hours in each lesson and recalculate section totals
@@ -16775,6 +17685,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     final_content_for_model = TextPresentationDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
                     final_content_for_model = VideoLessonData(**db_content)
@@ -16796,12 +17707,16 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
             microproduct_name=updated_project["microproduct_name"], 
             microproduct_content=final_content_for_model,
             design_template_id=updated_project["design_template_id"], 
-            created_at=updated_project["created_at"]
+            created_at=updated_project["created_at"],
+            custom_rate=updated_project.get("custom_rate"),
+            quality_tier=updated_project.get("quality_tier"),
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
         )
 
 @app.patch("/api/custom/projects/{project_id}/tier", response_model=ProjectDB)
 async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Update the quality tier and custom rate of a project and recalculate creation hours"""
+    """Update the quality tier, custom rate, and advanced rates of a project and recalculate creation hours"""
     async with pool.acquire() as conn:
         # Verify the project exists and belongs to user
         project = await conn.fetchrow(
@@ -16811,10 +17726,10 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
         
-        # Update the project's quality_tier and custom_rate
+        # Update the project's quality_tier, custom_rate, and advanced fields
         updated_project = await conn.fetchrow(
-            "UPDATE projects SET quality_tier = $1, custom_rate = $2 WHERE id = $3 AND onyx_user_id = $4 RETURNING *",
-            req.quality_tier, req.custom_rate, project_id, onyx_user_id
+            "UPDATE projects SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING *",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, project_id, onyx_user_id
         )
         
         # If the project has content, recalculate creation hours
@@ -16824,31 +17739,61 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                 if isinstance(content, dict) and 'sections' in content:
                     sections = content['sections']
                     
-                    # Update tier names and sum existing hours for section totals
+                    # Update tier names, update recommendations, and sum existing hours for section totals
                     for section in sections:
                         if isinstance(section, dict) and 'lessons' in section:
-                            # Clear any existing module-level tier settings to ensure project-level tier takes precedence
                             if 'custom_rate' in section:
                                 del section['custom_rate']
                             if 'quality_tier' in section:
                                 del section['quality_tier']
-                            
-                            # Update the module's tier name to match the new project tier
                             section['quality_tier'] = req.quality_tier
-                                
+                            
                             section_total_hours = 0
                             for lesson in section['lessons']:
                                 if isinstance(lesson, dict):
-                                    # Clear any existing lesson-level tier settings to ensure project-level tier takes precedence
                                     if 'custom_rate' in lesson:
                                         del lesson['custom_rate']
                                     if 'quality_tier' in lesson:
                                         del lesson['quality_tier']
-                                    
-                                    # Update the tier name to match the new project tier  
                                     lesson['quality_tier'] = req.quality_tier
+
+                                    try:
+                                        # Always update recommendations when tier changes to ensure they match the new tier
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                            lesson.get('title', ''),
+                                            req.quality_tier,
+                                            {
+                                                'presentation': False,
+                                                'one-pager': False,
+                                                'quiz': False,
+                                                'video-lesson': False,
+                                            }
+                                        )
+                                        # Also generate completion_breakdown for advanced mode support
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
+                                    except Exception:
+                                        pass
                                     
-                                    # Parse completion time - treat missing as 5 minutes
                                     completion_time_str = lesson.get('completionTime', '')
                                     completion_time_minutes = 5  # Default to 5 minutes
                                     
@@ -16949,8 +17894,200 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
             design_template_id=updated_project["design_template_id"], 
             created_at=updated_project["created_at"],
             custom_rate=updated_project["custom_rate"],
-            quality_tier=updated_project["quality_tier"]
+            quality_tier=updated_project["quality_tier"],
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
         )
+
+@app.get("/api/custom/projects/{project_id}/effective-rates")
+async def get_effective_rates(
+    project_id: int, 
+    section_index: Optional[int] = None, 
+    lesson_index: Optional[int] = None, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get effective advanced rates for a project/section/lesson following inheritance chain"""
+    async with pool.acquire() as conn:
+        # Get project and folder data
+        project_row = await conn.fetchrow(
+            """
+            SELECT p.*, pf.is_advanced as folder_is_advanced, pf.advanced_rates as folder_advanced_rates, 
+                   pf.custom_rate as folder_custom_rate, pf.completion_times as folder_completion_times
+            FROM projects p
+            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+            """,
+            project_id, onyx_user_id
+        )
+        if not project_row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        project = dict(project_row)
+        
+        # Extract section and lesson if specified
+        section = None
+        lesson = None
+        if project.get("microproduct_content"):
+            content = project["microproduct_content"]
+            if isinstance(content, dict) and isinstance(content.get('sections'), list):
+                sections = content['sections']
+                if section_index is not None and 0 <= section_index < len(sections):
+                    section = sections[section_index]
+                    if isinstance(section, dict) and isinstance(section.get('lessons'), list):
+                        lessons = section['lessons']
+                        if lesson_index is not None and 0 <= lesson_index < len(lessons):
+                            lesson = lessons[lesson_index]
+        
+        # Resolve effective advanced config following inheritance: lesson > section > project > folder
+        is_advanced = False
+        rates = {}
+        completion_times = {}
+        completion_times = {}
+        
+        # Start with folder defaults
+        if project.get('folder_is_advanced'):
+            is_advanced = True
+            if project.get('folder_advanced_rates'):
+                try:
+                    folder_rates = project['folder_advanced_rates']
+                    if isinstance(folder_rates, str):
+                        folder_rates = json.loads(folder_rates)
+                    rates.update(folder_rates)
+                except:
+                    pass
+            if project.get('folder_completion_times'):
+                try:
+                    folder_completion_times = project['folder_completion_times']
+                    if isinstance(folder_completion_times, str):
+                        folder_completion_times = json.loads(folder_completion_times)
+                    completion_times.update(folder_completion_times)
+                except:
+                    pass
+        folder_single_rate = project.get('folder_custom_rate') or 200
+        
+        # Override with project level
+        if project.get('is_advanced') is not None:
+            is_advanced = bool(project['is_advanced'])
+        if project.get('advanced_rates'):
+            try:
+                project_rates = project['advanced_rates']
+                if isinstance(project_rates, str):
+                    project_rates = json.loads(project_rates)
+                rates.update(project_rates)
+            except:
+                pass
+        if project.get('completion_times'):
+            try:
+                project_completion_times = project['completion_times']
+                if isinstance(project_completion_times, str):
+                    project_completion_times = json.loads(project_completion_times)
+                completion_times.update(project_completion_times)
+            except:
+                pass
+        project_single_rate = project.get('custom_rate') or folder_single_rate
+        
+        # Override with section level
+        if section:
+            if section.get('advanced') is not None:
+                is_advanced = bool(section['advanced'])
+            if section.get('advancedRates'):
+                section_rates = section['advancedRates']
+                if isinstance(section_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in section_rates:
+                        backend_rates['presentation'] = section_rates['presentation']
+                    if 'onePager' in section_rates:
+                        backend_rates['one_pager'] = section_rates['onePager']
+                    if 'quiz' in section_rates:
+                        backend_rates['quiz'] = section_rates['quiz']
+                    if 'videoLesson' in section_rates:
+                        backend_rates['video_lesson'] = section_rates['videoLesson']
+                    rates.update(backend_rates)
+            if section.get('completionTimes'):
+                section_completion_times = section['completionTimes']
+                if isinstance(section_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in section_completion_times:
+                        backend_completion_times['presentation'] = section_completion_times['presentation']
+                    if 'onePager' in section_completion_times:
+                        backend_completion_times['one_pager'] = section_completion_times['onePager']
+                    if 'quiz' in section_completion_times:
+                        backend_completion_times['quiz'] = section_completion_times['quiz']
+                    if 'videoLesson' in section_completion_times:
+                        backend_completion_times['video_lesson'] = section_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
+            section_single_rate = section.get('custom_rate') or project_single_rate
+        else:
+            section_single_rate = project_single_rate
+        
+        # Override with lesson level
+        if lesson:
+            if lesson.get('advanced') is not None:
+                is_advanced = bool(lesson['advanced'])
+            if lesson.get('advancedRates'):
+                lesson_rates = lesson['advancedRates']
+                if isinstance(lesson_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in lesson_rates:
+                        backend_rates['presentation'] = lesson_rates['presentation']
+                    if 'onePager' in lesson_rates:
+                        backend_rates['one_pager'] = lesson_rates['onePager']
+                    if 'quiz' in lesson_rates:
+                        backend_rates['quiz'] = lesson_rates['quiz']
+                    if 'videoLesson' in lesson_rates:
+                        backend_rates['video_lesson'] = lesson_rates['videoLesson']
+                    rates.update(backend_rates)
+            if lesson.get('completionTimes'):
+                lesson_completion_times = lesson['completionTimes']
+                if isinstance(lesson_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in lesson_completion_times:
+                        backend_completion_times['presentation'] = lesson_completion_times['presentation']
+                    if 'onePager' in lesson_completion_times:
+                        backend_completion_times['one_pager'] = lesson_completion_times['onePager']
+                    if 'quiz' in lesson_completion_times:
+                        backend_completion_times['quiz'] = lesson_completion_times['quiz']
+                    if 'videoLesson' in lesson_completion_times:
+                        backend_completion_times['video_lesson'] = lesson_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
+            lesson_single_rate = lesson.get('custom_rate') or section_single_rate
+        else:
+            lesson_single_rate = section_single_rate
+        
+        fallback_single_rate = lesson_single_rate
+        
+        # Fill in missing rates with fallback
+        default_rates = {
+            'presentation': fallback_single_rate,
+            'one_pager': fallback_single_rate,
+            'quiz': fallback_single_rate,
+            'video_lesson': fallback_single_rate
+        }
+        for key in default_rates:
+            if key not in rates:
+                rates[key] = default_rates[key]
+        
+        return {
+            "is_advanced": is_advanced,
+            "rates": {
+                "presentation": rates.get('presentation', fallback_single_rate),
+                "one_pager": rates.get('one_pager', fallback_single_rate),
+                "quiz": rates.get('quiz', fallback_single_rate),
+                "video_lesson": rates.get('video_lesson', fallback_single_rate),
+            },
+            "completion_times": {
+                "presentation": completion_times.get('presentation', 8),  # Will be replaced with proper inheritance logic
+                "one_pager": completion_times.get('one_pager', 3),
+                "quiz": completion_times.get('quiz', 6),
+                "video_lesson": completion_times.get('video_lesson', 4),
+            },
+            "fallback_single_rate": fallback_single_rate
+        }
 
 class ProjectOrderUpdateRequest(BaseModel):
     orders: List[Dict[str, int]]  # List of {projectId: int, order: int}
@@ -17150,6 +18287,14 @@ async def download_projects_list_pdf(
             except json.JSONDecodeError:
                 logger.warning("Invalid column_visibility JSON, using defaults")
 
+        # Parse selected projects first to use in the query
+        selected_project_ids = set()
+        if selected_projects:
+            try:
+                selected_project_ids = set(json.loads(selected_projects))
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing selected_projects: {e}")
+
         # Fetch projects and folders data
         async with pool.acquire() as conn:
             # Fetch projects
@@ -17157,17 +18302,26 @@ async def download_projects_list_pdf(
                 SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                        dt.template_name as design_template_name,
                        dt.microproduct_type as design_microproduct_type,
-                       p.folder_id, p."order", p.microproduct_content
+                       p.folder_id, p."order", p.microproduct_content, p.quality_tier
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.onyx_user_id = $1
-                ORDER BY p."order" ASC, p.created_at DESC;
             """
             projects_params = [onyx_user_id]
+            param_count = 1
             
             if folder_id is not None:
-                projects_query = projects_query.replace("WHERE p.onyx_user_id = $1", "WHERE p.onyx_user_id = $1 AND p.folder_id = $2")
+                projects_query += f" AND p.folder_id = ${param_count + 1}"
                 projects_params.append(folder_id)
+                param_count += 1
+            
+            # Add selected projects filter if provided
+            if selected_project_ids:
+                placeholders = ','.join([f'${i + param_count + 1}' for i in range(len(selected_project_ids))])
+                projects_query += f" AND p.id IN ({placeholders})"
+                projects_params.extend(selected_project_ids)
+            
+            projects_query += " ORDER BY p.\"order\" ASC, p.created_at DESC;"
             
             projects_rows = await conn.fetch(projects_query, *projects_params)
             
@@ -17470,19 +18624,14 @@ async def download_projects_list_pdf(
         for folder in folder_tree:
             add_tier_info(folder)
 
-        # Filter data based on selected folders and projects
-        if selected_folders or selected_projects:
+        # Filter data based on selected folders (projects are already filtered in the query)
+        if selected_folders:
             try:
                 selected_folder_ids = set()
-                selected_project_ids = set()
                 
                 # Parse selected folders
                 if selected_folders:
                     selected_folder_ids = set(json.loads(selected_folders))
-                
-                # Parse selected projects
-                if selected_projects:
-                    selected_project_ids = set(json.loads(selected_projects))
                 
                 # Filter folders - only include selected folders and their children
                 def filter_folders_recursive(folders_list):
@@ -17507,26 +18656,15 @@ async def download_projects_list_pdf(
                 filtered_folder_projects = {}
                 for folder_id, projects in folder_projects.items():
                     if folder_id in selected_folder_ids:
-                        # Filter projects within this folder
-                        if selected_project_ids:
-                            filtered_projects = [p for p in projects if p['id'] in selected_project_ids]
-                            if filtered_projects:
-                                filtered_folder_projects[folder_id] = filtered_projects
-                        else:
-                            filtered_folder_projects[folder_id] = projects
-                
-                # Filter unassigned projects
-                filtered_unassigned_projects = unassigned_projects
-                if selected_project_ids:
-                    filtered_unassigned_projects = [p for p in unassigned_projects if p['id'] in selected_project_ids]
+                        filtered_folder_projects[folder_id] = projects
                 
                 # Use filtered data
                 folder_tree = filtered_folder_tree
                 folder_projects = filtered_folder_projects
-                unassigned_projects = filtered_unassigned_projects
+                # Note: unassigned_projects are already filtered by the query when selected_projects is provided
                 
             except (json.JSONDecodeError, TypeError) as e:
-                logger.warning(f"Error parsing selected folders/projects: {e}. Using all data.")
+                logger.warning(f"Error parsing selected folders: {e}. Using all data.")
                 # If parsing fails, use all data (fallback)
 
         # Parse column widths if provided
@@ -17538,6 +18676,303 @@ async def download_projects_list_pdf(
                 logger.warning(f"Error parsing column widths: {e}. Using default widths.")
                 column_widths_settings = {}
 
+        # Calculate summary statistics for the mini table
+        def calculate_summary_stats(folders, folder_projects, unassigned_projects):
+            total_projects = 0
+            total_lessons = 0
+            total_creation_time = 0
+            total_completion_time = 0
+            
+            # Calculate from folders and their projects
+            for folder in folders:
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        total_projects += 1
+                        total_lessons += project.get('total_lessons', 0) or 0
+                        total_creation_time += project.get('total_hours', 0) or 0
+                        total_completion_time += project.get('total_completion_time', 0) or 0
+                
+                # Recursively calculate from subfolders
+                if folder.get('children'):
+                    child_stats = calculate_summary_stats(folder['children'], folder_projects, [])
+                    total_projects += child_stats['total_projects']
+                    total_lessons += child_stats['total_lessons']
+                    total_creation_time += child_stats['total_creation_time']
+                    total_completion_time += child_stats['total_completion_time']
+            
+            # Add unassigned projects
+            for project in unassigned_projects:
+                total_projects += 1
+                total_lessons += project.get('total_lessons', 0) or 0
+                total_creation_time += project.get('total_hours', 0) or 0
+                total_completion_time += project.get('total_completion_time', 0) or 0
+            
+            return {
+                'total_projects': total_projects,
+                'total_lessons': total_lessons,
+                'total_creation_time': total_creation_time,
+                'total_completion_time': total_completion_time
+            }
+
+        # Calculate summary statistics
+        summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
+
+        # Collect all project IDs that are actually included in the filtered PDF data
+        included_project_ids = set()
+        
+        # Add projects from filtered folders
+        for folder_id_key, projects in folder_projects.items():
+            for project in projects:
+                included_project_ids.add(project['id'])
+        
+        # Add filtered unassigned projects
+        for project in unassigned_projects:
+            included_project_ids.add(project['id'])
+        
+        logger.info(f"[PDF_ANALYTICS] Found {len(included_project_ids)} projects included in PDF: {list(included_project_ids)}")
+
+        # Fetch real analytics data for pie charts using only the projects actually included in the PDF
+        product_distribution = None
+        quality_distribution = None
+        
+        logger.info(f"[PDF_ANALYTICS] Starting analytics data fetch for user: {onyx_user_id}, included projects: {len(included_project_ids)}")
+        
+        try:
+            # Use a new connection for analytics queries since the original conn might be released
+            async with pool.acquire() as analytics_conn:
+                # Get product distribution data - since lessons don't have pre-computed recommendations,
+                # we'll generate them on-the-fly using Python logic
+                if included_project_ids:
+                    # Convert project IDs to a format suitable for SQL IN clause
+                    project_ids_list = list(included_project_ids)
+                    project_ids_placeholder = ','.join(['$' + str(i+2) for i in range(len(project_ids_list))])
+                    
+                    lessons_query = f"""
+                        SELECT 
+                            p.id as project_id,
+                            lesson->>'title' as lesson_title,
+                            lesson->>'quality_tier' as lesson_quality_tier,
+                            p.quality_tier as project_quality_tier,
+                            pf.quality_tier as folder_quality_tier
+                        FROM projects p
+                        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                        LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        WHERE p.onyx_user_id = $1
+                        AND p.id IN ({project_ids_placeholder})
+                        AND p.microproduct_content IS NOT NULL
+                        AND p.microproduct_content->>'sections' IS NOT NULL
+                        AND dt.component_name = 'TrainingPlanTable'
+                    """
+                    product_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    lessons_query = "SELECT NULL as project_id, NULL as lesson_title, NULL as lesson_quality_tier, NULL as project_quality_tier, NULL as folder_quality_tier WHERE FALSE"
+                    product_params = []
+                
+                logger.info(f"[PDF_ANALYTICS] Lessons query: {lessons_query}")
+                logger.info(f"[PDF_ANALYTICS] Lessons params: {product_params}")
+                
+                lessons_rows = await analytics_conn.fetch(lessons_query, *product_params)
+                logger.info(f"[PDF_ANALYTICS] Found {len(lessons_rows)} lessons for product analysis")
+                
+                # Generate recommendations for each lesson using the existing function
+                product_counts = {}
+                total_products = 0
+                
+                for row in lessons_rows:
+                    lesson_title = row['lesson_title'] or ''
+                    # Determine effective quality tier
+                    quality_tier = (
+                        row['lesson_quality_tier'] or 
+                        row['project_quality_tier'] or 
+                        row['folder_quality_tier'] or 
+                        'interactive'
+                    )
+                    
+                    logger.info(f"[PDF_ANALYTICS] Processing lesson: '{lesson_title}' (quality: {quality_tier})")
+                    
+                    # Generate recommendations using the existing function
+                    recommendations = analyze_lesson_content_recommendations(lesson_title, quality_tier)
+                    primary_types = recommendations.get('primary', [])
+                    
+                    logger.info(f"[PDF_ANALYTICS] Generated recommendations: {primary_types}")
+                    
+                    # Count each recommended product type
+                    for product_type_str in primary_types:
+                        total_products += 1
+                        
+                        # Map to our ProductType enum
+                        product_type_mapping = {
+                            'one-pager': ProductType.ONE_PAGER,
+                            'presentation': ProductType.PRESENTATION,
+                            'quiz': ProductType.QUIZ,
+                            'video-lesson': ProductType.VIDEO_LESSON
+                        }
+                        
+                        product_type = product_type_mapping.get(product_type_str)
+                        if product_type:
+                            if product_type not in product_counts:
+                                product_counts[product_type] = 0
+                            product_counts[product_type] += 1
+                            logger.info(f"[PDF_ANALYTICS] Added {product_type_str} -> {product_type}, count now: {product_counts[product_type]}")
+                        else:
+                            logger.warning(f"[PDF_ANALYTICS] Unknown product type: {product_type_str}")
+                
+                # We've already computed product_counts and total_products above using Python logic
+                
+                logger.info(f"[PDF_ANALYTICS] Total products: {total_products}")
+                logger.info(f"[PDF_ANALYTICS] Product counts: {product_counts}")
+                
+                # Create product distribution data for template
+                product_distribution = {
+                    'total_products': total_products,
+                    'one_pager_count': product_counts.get(ProductType.ONE_PAGER, 0),
+                    'presentation_count': product_counts.get(ProductType.PRESENTATION, 0),
+                    'quiz_count': product_counts.get(ProductType.QUIZ, 0),
+                    'video_lesson_count': product_counts.get(ProductType.VIDEO_LESSON, 0)
+                }
+                
+                logger.info(f"[PDF_ANALYTICS] Product distribution before percentages: {product_distribution}")
+                
+                # Calculate percentages
+                if total_products > 0:
+                    product_distribution['one_pager_percentage'] = round((product_distribution['one_pager_count'] / total_products * 100), 1)
+                    product_distribution['presentation_percentage'] = round((product_distribution['presentation_count'] / total_products * 100), 1)
+                    product_distribution['quiz_percentage'] = round((product_distribution['quiz_count'] / total_products * 100), 1)
+                    product_distribution['video_lesson_percentage'] = round((product_distribution['video_lesson_count'] / total_products * 100), 1)
+                else:
+                    product_distribution['one_pager_percentage'] = 0
+                    product_distribution['presentation_percentage'] = 0
+                    product_distribution['quiz_percentage'] = 0
+                    product_distribution['video_lesson_percentage'] = 0
+                
+                logger.info(f"[PDF_ANALYTICS] Final product distribution: {product_distribution}")
+                
+                # Get quality distribution data using the same project filtering
+                if included_project_ids:
+                    # Use the same project IDs that were included in the product analysis
+                    quality_query = f"""
+                        WITH lesson_quality_tiers AS (
+                            SELECT 
+                                COALESCE(
+                                    lesson->>'quality_tier',
+                                    section->>'quality_tier', 
+                                    p.quality_tier,
+                                    pf.quality_tier,
+                                    'interactive'
+                                ) as effective_quality_tier
+                            FROM projects p
+                            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                            CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                            WHERE p.onyx_user_id = $1
+                            AND p.id IN ({project_ids_placeholder})
+                            AND p.microproduct_content IS NOT NULL
+                            AND p.microproduct_content->>'sections' IS NOT NULL
+                        )
+                        SELECT 
+                            LOWER(effective_quality_tier) as quality_tier,
+                            COUNT(*) as count
+                        FROM lesson_quality_tiers
+                        GROUP BY LOWER(effective_quality_tier)
+                        ORDER BY count DESC
+                    """
+                    quality_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    quality_query = "SELECT NULL as quality_tier, 0 as count WHERE FALSE"
+                    quality_params = []
+                
+                logger.info(f"[PDF_ANALYTICS] Quality query: {quality_query}")
+                logger.info(f"[PDF_ANALYTICS] Quality params: {quality_params}")
+                
+                quality_rows = await analytics_conn.fetch(quality_query, *quality_params)
+                logger.info(f"[PDF_ANALYTICS] Quality query returned {len(quality_rows)} rows")
+                
+                # Process quality distribution
+                tier_counts = {}
+                total_lessons = 0
+                
+                for row in quality_rows:
+                    tier_name = row['quality_tier'].lower()
+                    count = row['count']
+                    total_lessons += count
+                    logger.info(f"[PDF_ANALYTICS] Raw quality tier: {tier_name}, count: {count}")
+                    
+                    # Map tier names to enum values
+                    tier_mapping = {
+                        'basic': 'basic',
+                        'interactive': 'interactive',
+                        'advanced': 'advanced',
+                        'immersive': 'immersive',
+                        'medium': 'interactive',  # Map medium to interactive
+                        'premium': 'advanced',    # Map premium to advanced
+                    }
+                    
+                    tier = tier_mapping.get(tier_name, 'interactive')
+                    logger.info(f"[PDF_ANALYTICS] Mapped quality tier {tier_name} -> {tier}")
+                    if tier not in tier_counts:
+                        tier_counts[tier] = 0
+                    tier_counts[tier] += count
+                    logger.info(f"[PDF_ANALYTICS] Added {count} to {tier}, total now: {tier_counts[tier]}")
+                
+                logger.info(f"[PDF_ANALYTICS] Total lessons: {total_lessons}")
+                logger.info(f"[PDF_ANALYTICS] Tier counts: {tier_counts}")
+                
+                # Create quality distribution data for template
+                quality_distribution = {
+                    'total_lessons': total_lessons,
+                    'basic_count': tier_counts.get('basic', 0),
+                    'interactive_count': tier_counts.get('interactive', 0),
+                    'advanced_count': tier_counts.get('advanced', 0),
+                    'immersive_count': tier_counts.get('immersive', 0)
+                }
+                
+                logger.info(f"[PDF_ANALYTICS] Quality distribution before percentages: {quality_distribution}")
+                
+                # Calculate percentages
+                if total_lessons > 0:
+                    quality_distribution['basic_percentage'] = round((quality_distribution['basic_count'] / total_lessons * 100), 1)
+                    quality_distribution['interactive_percentage'] = round((quality_distribution['interactive_count'] / total_lessons * 100), 1)
+                    quality_distribution['advanced_percentage'] = round((quality_distribution['advanced_count'] / total_lessons * 100), 1)
+                    quality_distribution['immersive_percentage'] = round((quality_distribution['immersive_count'] / total_lessons * 100), 1)
+                else:
+                    quality_distribution['basic_percentage'] = 0
+                    quality_distribution['interactive_percentage'] = 0
+                    quality_distribution['advanced_percentage'] = 0
+                    quality_distribution['immersive_percentage'] = 0
+                
+                logger.info(f"[PDF_ANALYTICS] Final quality distribution: {quality_distribution}")
+                
+        except Exception as e:
+            logger.error(f"[PDF_ANALYTICS] Failed to fetch analytics data for PDF: {str(e)}", exc_info=True)
+            # Use fallback data if analytics fetch fails
+            product_distribution = {
+                'total_products': 0,
+                'one_pager_count': 0,
+                'presentation_count': 0,
+                'quiz_count': 0,
+                'video_lesson_count': 0,
+                'one_pager_percentage': 0,
+                'presentation_percentage': 0,
+                'quiz_percentage': 0,
+                'video_lesson_percentage': 0
+            }
+            quality_distribution = {
+                'total_lessons': 0,
+                'basic_count': 0,
+                'interactive_count': 0,
+                'advanced_count': 0,
+                'immersive_count': 0,
+                'basic_percentage': 0,
+                'interactive_percentage': 0,
+                'advanced_percentage': 0,
+                'immersive_percentage': 0
+            }
+            logger.info(f"[PDF_ANALYTICS] Using fallback data due to error")
+
         # Prepare data for template
         template_data = {
             'folders': folder_tree,  # Use hierarchical structure
@@ -17547,10 +18982,26 @@ async def download_projects_list_pdf(
             'column_widths': column_widths_settings,
             'folder_id': folder_id,
             'client_name': client_name,  # Client name for header customization
-            'generated_at': datetime.now().isoformat()
+            'generated_at': datetime.now().isoformat(),
+            'summary_stats': summary_stats,  # Add summary statistics to template data
+            'product_distribution': product_distribution,  # Add real product distribution data
+            'quality_distribution': quality_distribution   # Add real quality distribution data
         }
+        
+        logger.info(f"[PDF_ANALYTICS] Template data prepared:")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {product_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {quality_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - summary_stats: {summary_stats}")
 
         # Generate PDF
+        logger.info(f"[PDF_ANALYTICS] About to generate PDF with template data keys: {list(template_data.keys())}")
+        logger.info(f"[PDF_ANALYTICS] Template data summary:")
+        logger.info(f"[PDF_ANALYTICS] - folders count: {len(template_data.get('folders', []))}")
+        logger.info(f"[PDF_ANALYTICS] - folder_projects count: {len(template_data.get('folder_projects', {}))}")
+        logger.info(f"[PDF_ANALYTICS] - unassigned_projects count: {len(template_data.get('unassigned_projects', []))}")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {template_data.get('product_distribution')}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {template_data.get('quality_distribution')}")
+        
         unique_output_filename = f"projects_list_{onyx_user_id}_{uuid.uuid4().hex[:12]}.pdf"
         pdf_path = await generate_pdf_from_html_template("projects_list_pdf_template.html", template_data, unique_output_filename)
         
@@ -17590,6 +19041,8 @@ class QuizWizardPreview(BaseModel):
     fromText: Optional[bool] = None
     textMode: Optional[str] = None   # "context" or "base"
     userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
@@ -17688,8 +19141,10 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     else:
         logger.info(f"[QUIZ_PREVIEW_CHAT] Creating new chat session")
         try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id}")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[QUIZ_PREVIEW_CHAT] Created new chat session: {chat_id}")
         except Exception as e:
@@ -17774,6 +19229,11 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        wiz_payload["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for quiz generation")
+
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
         try:
@@ -17803,29 +19263,35 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -18564,6 +20030,7 @@ class TextPresentationWizardPreview(BaseModel):
     fromText: bool = False
     textMode: Optional[str] = None
     userText: Optional[str] = None
+    fromKnowledgeBase: bool = False
     chatSessionId: Optional[str] = None
 
 class TextPresentationWizardFinalize(BaseModel):
@@ -18606,8 +20073,10 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     else:
         logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Creating new chat session")
         try:
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id}")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
             chat_id = await create_onyx_chat_session(persona_id, cookies)
             logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Created new chat session: {chat_id}")
         except Exception as e:
@@ -18695,6 +20164,11 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
     elif payload.fromText:
         logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
 
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        wiz_payload["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for text presentation generation")
+
     # Decompress text if it was compressed
     if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
         try:
@@ -18724,29 +20198,35 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
             
             try:
-                # Step 1: Extract file context from Onyx
-                folder_ids_list = []
-                file_ids_list = []
-                
-                if payload.fromFiles and payload.folderIds:
-                    folder_ids_list = parse_id_list(payload.folderIds, "folder")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
-                
-                if payload.fromFiles and payload.fileIds:
-                    file_ids_list = parse_id_list(payload.fileIds, "file")
-                    logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
-                
-                # Add virtual file ID if created for large text
-                if wiz_payload.get("virtualFileId"):
-                    file_ids_list.append(wiz_payload["virtualFileId"])
-                    logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
-                
-                # Extract context from Onyx
-                logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
-                file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                # Step 1: Extract context from Onyx
+                if payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -20913,3 +22393,2177 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
     except Exception as e:
         logger.error(f"[OPENAI_DIRECT] Error in OpenAI direct request: {e}", exc_info=True)
         return f"Error generating content: {str(e)}"
+
+
+# --- Analytics Response Models ---
+from enum import Enum
+
+class ProductType(str, Enum):
+    ONE_PAGER = "one_pager"
+    PRESENTATION = "presentation"
+    QUIZ = "quiz"
+    VIDEO_LESSON = "video_lesson"
+
+class QualityTier(str, Enum):
+    BASIC = "basic"
+    INTERACTIVE = "interactive"
+    ADVANCED = "advanced"
+    IMMERSIVE = "immersive"
+
+class ProductTypeDistribution(BaseModel):
+    type: ProductType
+    count: int
+    percentage: float
+    color: str
+
+class ProductsDistributionResponse(BaseModel):
+    total_products: int
+    distribution: List[ProductTypeDistribution]
+
+class QualityTierDistribution(BaseModel):
+    tier: QualityTier
+    count: int
+    percentage: float
+    color: str
+
+class QualityTiersDistributionResponse(BaseModel):
+    total_lessons: int
+    distribution: List[QualityTierDistribution]
+
+# Color mappings for consistency
+PRODUCT_TYPE_COLORS = {
+    ProductType.ONE_PAGER: "#9333ea",     # Purple
+    ProductType.PRESENTATION: "#2563eb",   # Blue  
+    ProductType.QUIZ: "#16a34a",          # Green
+    ProductType.VIDEO_LESSON: "#ea580c"   # Orange
+}
+
+QUALITY_TIER_COLORS = {
+    QualityTier.BASIC: "#059669",        # Green
+    QualityTier.INTERACTIVE: "#ea580c",   # Orange  
+    QualityTier.ADVANCED: "#7c3aed",      # Purple
+    QualityTier.IMMERSIVE: "#2563eb"      # Blue
+}
+
+# Component to Product Type mapping
+COMPONENT_TO_PRODUCT_TYPE = {
+    COMPONENT_NAME_TEXT_PRESENTATION: ProductType.ONE_PAGER,
+    COMPONENT_NAME_SLIDE_DECK: ProductType.PRESENTATION,
+    COMPONENT_NAME_QUIZ: ProductType.QUIZ,
+    COMPONENT_NAME_VIDEO_LESSON: ProductType.VIDEO_LESSON,
+    COMPONENT_NAME_VIDEO_LESSON_PRESENTATION: ProductType.VIDEO_LESSON,
+    COMPONENT_NAME_PDF_LESSON: ProductType.ONE_PAGER,  # PDF lessons are considered one-pagers
+    # Note: TrainingPlanTable components contain lessons, we need to count the lesson products, not the outline itself
+}
+
+@app.get("/api/custom/projects/analytics/product-distribution", response_model=ProductsDistributionResponse)
+async def get_product_distribution(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get product type distribution for analytics pie chart."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all projects with their component types
+            query = """
+                SELECT dt.component_name, COUNT(*) as count
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.onyx_user_id = $1
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += " GROUP BY dt.component_name ORDER BY count DESC"
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Process results
+            product_counts = {}
+            total_products = 0
+            
+            for row in rows:
+                component_name = row['component_name']
+                count = row['count']
+                total_products += count
+                
+                # Map component to product type
+                product_type = COMPONENT_TO_PRODUCT_TYPE.get(component_name)
+                if product_type:
+                    if product_type not in product_counts:
+                        product_counts[product_type] = 0
+                    product_counts[product_type] += count
+            
+            # Create distribution list
+            distribution = []
+            for product_type in ProductType:
+                count = product_counts.get(product_type, 0)
+                percentage = (count / total_products * 100) if total_products > 0 else 0
+                
+                distribution.append(ProductTypeDistribution(
+                    type=product_type,
+                    count=count,
+                    percentage=round(percentage, 1),
+                    color=PRODUCT_TYPE_COLORS[product_type]
+                ))
+            
+            return ProductsDistributionResponse(
+                total_products=total_products,
+                distribution=distribution
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting product distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get product distribution: {str(e)}")
+
+@app.get("/api/custom/projects/analytics/quality-distribution", response_model=QualityTiersDistributionResponse)
+async def get_quality_distribution(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get quality tiers distribution for analytics pie chart."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all lessons with their quality tiers
+            query = """
+                WITH lesson_quality_tiers AS (
+                    SELECT 
+                        COALESCE(
+                            lesson->>'quality_tier',
+                            section->>'quality_tier', 
+                            p.quality_tier,
+                            pf.quality_tier,
+                            'interactive'
+                        ) as effective_quality_tier
+                    FROM projects p
+                    LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                    CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                    CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                    WHERE p.onyx_user_id = $1
+                    AND p.microproduct_content IS NOT NULL
+                    AND p.microproduct_content->>'sections' IS NOT NULL
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += """
+                )
+                SELECT 
+                    LOWER(effective_quality_tier) as quality_tier,
+                    COUNT(*) as count
+                FROM lesson_quality_tiers
+                GROUP BY LOWER(effective_quality_tier)
+                ORDER BY count DESC
+            """
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Process results
+            tier_counts = {}
+            total_lessons = 0
+            
+            for row in rows:
+                tier_name = row['quality_tier'].lower()
+                count = row['count']
+                total_lessons += count
+                
+                # Map tier names to enum values
+                tier_mapping = {
+                    'basic': QualityTier.BASIC,
+                    'interactive': QualityTier.INTERACTIVE,
+                    'advanced': QualityTier.ADVANCED,
+                    'immersive': QualityTier.IMMERSIVE,
+                    'medium': QualityTier.INTERACTIVE,  # Map medium to interactive
+                    'premium': QualityTier.ADVANCED,    # Map premium to advanced
+                }
+                
+                tier = tier_mapping.get(tier_name, QualityTier.INTERACTIVE)
+                if tier not in tier_counts:
+                    tier_counts[tier] = 0
+                tier_counts[tier] += count
+            
+            # Create distribution list
+            distribution = []
+            for tier in QualityTier:
+                count = tier_counts.get(tier, 0)
+                percentage = (count / total_lessons * 100) if total_lessons > 0 else 0
+                
+                distribution.append(QualityTierDistribution(
+                    tier=tier,
+                    count=count,
+                    percentage=round(percentage, 1),
+                    color=QUALITY_TIER_COLORS[tier]
+                ))
+            
+            return QualityTiersDistributionResponse(
+                total_lessons=total_lessons,
+                distribution=distribution
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting quality distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get quality distribution: {str(e)}")
+
+# ============================
+# SMART DRIVE API ENDPOINTS
+# ============================
+
+@app.post("/api/custom/smartdrive/session")
+async def bootstrap_smartdrive_session(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Bootstrap SmartDrive access for the current user"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Bootstrapping SmartDrive session for user: {onyx_user_id}")
+
+        async with pool.acquire() as conn:
+            # Check if user already has SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                # Create new SmartDrive account placeholder
+                await conn.execute(
+                    """
+                    INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4)
+                    """,
+                    onyx_user_id,
+                    '{}',  # Empty JSON cursor
+                    datetime.now(timezone.utc),
+                    datetime.now(timezone.utc)
+                )
+                logger.info(f"Created SmartDrive account placeholder for user: {onyx_user_id}")
+                has_credentials = False
+            else:
+                logger.info(f"SmartDrive account already exists for user: {onyx_user_id}")
+                has_credentials = bool(account.get('nextcloud_username') and account.get('nextcloud_password_encrypted'))
+
+        return {
+            "success": True, 
+            "message": "SmartDrive session initialized",
+            "has_credentials": has_credentials,
+            "setup_required": not has_credentials
+        }
+        
+    except Exception as e:
+        logger.error(f"Error bootstrapping SmartDrive session: {e}")
+        raise HTTPException(status_code=500, detail="Failed to initialize SmartDrive session")
+
+
+@app.post("/api/custom/smartdrive/credentials")
+async def set_smartdrive_credentials(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Set or update user's Nextcloud credentials"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get request data
+        data = await request.json()
+        nextcloud_username = data.get('nextcloud_username', '').strip()
+        nextcloud_password = data.get('nextcloud_password', '').strip()
+        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
+        
+        if not nextcloud_username or not nextcloud_password:
+            raise HTTPException(status_code=400, detail="Username and password are required")
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(nextcloud_password)
+        
+        async with pool.acquire() as conn:
+            # Update or insert credentials
+            await conn.execute(
+                """
+                UPDATE smartdrive_accounts 
+                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                WHERE onyx_user_id = $1
+                """,
+                onyx_user_id,
+                nextcloud_username,
+                encrypted_password,
+                nextcloud_base_url,
+                datetime.now(timezone.utc)
+            )
+            
+        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
+        return {"success": True, "message": "Nextcloud credentials saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting SmartDrive credentials: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/custom/smartdrive/credentials")
+async def set_smartdrive_credentials(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Set or update user's Nextcloud credentials"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        data = await request.json()
+        
+        nextcloud_username = data.get('nextcloud_username', '').strip()
+        nextcloud_password = data.get('nextcloud_password', '').strip()
+        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
+        
+        if not nextcloud_username or not nextcloud_password:
+            raise HTTPException(status_code=400, detail="Username and password are required")
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(nextcloud_password)
+        
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                UPDATE smartdrive_accounts 
+                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                WHERE onyx_user_id = $1
+            """, onyx_user_id, nextcloud_username, encrypted_password, nextcloud_base_url, datetime.now(timezone.utc))
+            
+        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
+        return {"success": True, "message": "Nextcloud credentials saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting SmartDrive credentials: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/custom/smartdrive/list")
+async def list_smartdrive_files(
+    request: Request,
+    path: str = Query("/", description="Path to list files from"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """List files/folders in the user's SmartDrive"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Listing SmartDrive files for user: {onyx_user_id}, path: {path}")
+
+        async with pool.acquire() as conn:
+            # Get user's SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                raise HTTPException(status_code=404, detail="SmartDrive account not found")
+
+            # Use Nextcloud WebDAV API to list files
+            # Use a shared Nextcloud account for all Smart Drive access
+            nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+            nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+            
+            # Create user-specific folder path within the shared account
+            nextcloud_user_folder = account['nextcloud_user_id']  # This becomes the folder name
+            
+            # Ensure user folder exists
+            await ensure_user_folder_exists(nextcloud_username, nextcloud_password, nextcloud_user_folder)
+            
+            webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{path}"
+            
+            auth = (nextcloud_username, nextcloud_password)
+            
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.request(
+                        "PROPFIND", 
+                        webdav_url,
+                        auth=auth,
+                        headers={
+                            "Depth": "1",
+                            "Content-Type": "application/xml"
+                        },
+                        content="""<?xml version="1.0"?>
+                        <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                            <d:prop>
+                                <d:resourcetype/>
+                                <d:getcontentlength/>
+                                <d:getlastmodified/>
+                                <d:getcontenttype/>
+                            </d:prop>
+                        </d:propfind>"""
+                    )
+                    
+                    if response.status_code == 207:  # Multi-Status response
+                        # Parse WebDAV XML response
+                        files = await parse_webdav_response(response.text, path)
+                        return {
+                            "files": files,
+                            "path": path,
+                            "total_count": len(files)
+                        }
+                    else:
+                        logger.error(f"Nextcloud WebDAV error: {response.status_code} - {response.text}")
+                        # Fallback to mock data if Nextcloud is unavailable
+                        return await get_mock_files_response(path)
+                        
+            except Exception as nextcloud_error:
+                logger.error(f"Failed to connect to Nextcloud: {nextcloud_error}")
+                # Fallback to mock data if Nextcloud is unavailable
+                return await get_mock_files_response(path)
+        
+    except Exception as e:
+        logger.error(f"Error listing SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list SmartDrive files")
+
+async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
+    """Parse WebDAV PROPFIND XML response into file list"""
+    # Simple XML parsing for WebDAV response
+    import xml.etree.ElementTree as ET
+    
+    files = []
+    try:
+        root = ET.fromstring(xml_content)
+        
+        for response in root.findall('.//{DAV:}response'):
+            href = response.find('.//{DAV:}href')
+            if href is None:
+                continue
+                
+            file_path = href.text
+            if file_path.endswith('/remote.php/dav/files/'):
+                continue  # Skip the root directory entry
+                
+            # Extract relative path by removing the WebDAV prefix
+            # file_path looks like: /smartdrive/remote.php/dav/files/username/Documents/file.txt
+            # We want just: /Documents/file.txt
+            if '/remote.php/dav/files/' in file_path:
+                # Find the username part and extract everything after it
+                parts = file_path.split('/remote.php/dav/files/')
+                if len(parts) > 1:
+                    # parts[1] is like "username/Documents/file.txt"
+                    username_and_path = parts[1]
+                    # Split by first "/" to separate username from the actual path
+                    path_parts = username_and_path.split('/', 1)
+                    if len(path_parts) > 1:
+                        # This is the actual relative path we want
+                        relative_path = '/' + path_parts[1]
+                    else:
+                        # Just the username, so root path
+                        relative_path = '/'
+                else:
+                    relative_path = '/'
+            else:
+                relative_path = file_path
+                
+            # Extract file name
+            name = relative_path.split('/')[-1] if not relative_path.endswith('/') else relative_path.split('/')[-2]
+            if not name:
+                continue
+                
+            # Check if it's a directory
+            resourcetype = response.find('.//{DAV:}resourcetype')
+            is_directory = resourcetype is not None and resourcetype.find('.//{DAV:}collection') is not None
+            
+            # Get file size
+            size_elem = response.find('.//{DAV:}getcontentlength')
+            size = int(size_elem.text) if size_elem is not None and size_elem.text else None
+            
+            # Get last modified
+            modified_elem = response.find('.//{DAV:}getlastmodified')
+            modified = modified_elem.text if modified_elem is not None else None
+            
+            # Get content type
+            content_type_elem = response.find('.//{DAV:}getcontenttype')
+            mime_type = content_type_elem.text if content_type_elem is not None else None
+            
+            # Get ETag
+            etag_elem = response.find('.//{DAV:}getetag')
+            etag = etag_elem.text if etag_elem is not None else None
+            # Remove quotes from ETag if present
+            if etag and etag.startswith('"') and etag.endswith('"'):
+                etag = etag[1:-1]
+            
+            files.append({
+                "name": name,
+                "path": relative_path,
+                "type": "directory" if is_directory else "file",
+                "size": size,
+                "modified": modified,
+                "mime_type": mime_type,
+                "etag": etag
+            })
+            
+    except Exception as e:
+        logger.error(f"Error parsing WebDAV response: {e}")
+        
+    return files
+
+# --- Date Parsing Functions ---
+def parse_http_date(date_string: str) -> datetime:
+    """Parse HTTP date string (RFC 2822 format) to datetime object"""
+    try:
+        # Parse HTTP date format like "Wed, 13 Aug 2025 23:31:13 GMT"
+        from email.utils import parsedate_to_datetime
+        return parsedate_to_datetime(date_string)
+    except Exception as e:
+        logger.warning(f"Failed to parse date '{date_string}': {e}")
+        return datetime.now(timezone.utc)
+
+# --- Encryption Functions ---
+def get_or_create_encryption_key():
+    """Get or create a Fernet encryption key for the system"""
+    key = os.getenv("SMARTDRIVE_ENCRYPTION_KEY")
+    if not key:
+        # Generate a new key and save it to environment (in production, store securely)
+        from cryptography.fernet import Fernet
+        key = Fernet.generate_key().decode()
+        logger.warning(f"Generated new encryption key. Please set SMARTDRIVE_ENCRYPTION_KEY={key} in your environment for production!")
+    return key.encode()
+
+def encrypt_password(password: str) -> str:
+    """Encrypt a password for storage"""
+    try:
+        from cryptography.fernet import Fernet
+        f = Fernet(get_or_create_encryption_key())
+        return f.encrypt(password.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to encrypt password: {e}")
+        raise HTTPException(status_code=500, detail="Encryption failed")
+
+def decrypt_password(encrypted_password: str) -> str:
+    """Decrypt a password from storage"""
+    try:
+        from cryptography.fernet import Fernet
+        f = Fernet(get_or_create_encryption_key())
+        return f.decrypt(encrypted_password.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to decrypt password: {e}")
+        raise HTTPException(status_code=500, detail="Decryption failed")
+
+async def get_mock_files_response(path: str) -> Dict:
+    """Fallback mock data when Nextcloud is unavailable"""
+    mock_files = [
+        {
+            "name": "Documents",
+            "path": f"{path}Documents/",
+            "type": "directory",
+            "size": None,
+            "modified": "2024-01-15T10:30:00Z"
+        },
+        {
+            "name": "Training_Materials.pdf",
+            "path": f"{path}Training_Materials.pdf",
+            "type": "file",
+            "size": 2048576,
+            "modified": "2024-01-14T15:45:00Z",
+            "mime_type": "application/pdf"
+        },
+        {
+            "name": "Project_Notes.docx",
+            "path": f"{path}Project_Notes.docx",
+            "type": "file",
+            "size": 1024000,
+            "modified": "2024-01-13T09:20:00Z",
+            "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        }
+    ]
+    
+    return {
+        "files": mock_files,
+        "path": path,
+        "total_count": len(mock_files)
+    }
+
+@app.post("/api/custom/smartdrive/import")
+async def import_smartdrive_files(
+    request: Request,
+    file_paths: List[str] = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Stream files into Onyx; returns fileIds"""
+    try:
+        if file_paths is None:
+            payload = await request.json()
+            file_paths = payload.get('paths', [])
+            
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Importing SmartDrive files for user: {onyx_user_id}, paths: {file_paths}")
+
+        imported_file_ids = []
+        
+        async with pool.acquire() as conn:
+            for file_path in file_paths:
+                # TODO: Implement actual file import from Nextcloud
+                # For now, create mock import records
+                file_id = await conn.fetchval(
+                    """
+                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    RETURNING id
+                    """,
+                    onyx_user_id,
+                    file_path,
+                    f"mock_file_{hash(file_path) % 1000000}",  # Mock Onyx file ID
+                    f"etag_{hash(file_path)}",
+                    f"sha256_{hash(file_path)}",
+                    datetime.now(timezone.utc)
+                )
+                imported_file_ids.append(file_id)
+                logger.info(f"Created import record for {file_path} with ID: {file_id}")
+
+        return {
+            "success": True,
+            "fileIds": imported_file_ids,
+            "imported_count": len(imported_file_ids)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to import SmartDrive files")
+
+@app.post("/api/custom/smartdrive/import-new")
+async def import_new_smartdrive_files(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Import new/updated files since the last sync"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Importing new SmartDrive files for user: {onyx_user_id}")
+        
+        # Extract session cookies for Onyx authentication
+        session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+
+        async with pool.acquire() as conn:
+            # Get user's SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                raise HTTPException(status_code=404, detail="SmartDrive account not found")
+
+            # Check if user has set up their Nextcloud credentials
+            if not account['nextcloud_username'] or not account['nextcloud_password_encrypted']:
+                raise HTTPException(status_code=400, detail="Please set up your Nextcloud credentials first")
+
+            # Decrypt user's credentials
+            nextcloud_username = account['nextcloud_username']
+            nextcloud_password = decrypt_password(account['nextcloud_password_encrypted'])
+            nextcloud_base_url = account['nextcloud_base_url'] or 'http://nc1.contentbuilder.ai:8080'
+            
+            # Parse JSON cursor from database
+            sync_cursor = json.loads(account['sync_cursor']) if account['sync_cursor'] else {}
+            last_sync = sync_cursor.get('last_sync') if sync_cursor else None
+            
+            # Get list of all files from user's individual Nextcloud account
+            all_files = await get_all_nextcloud_files_individual(nextcloud_username, nextcloud_password, nextcloud_base_url, "/")
+            
+            imported_count = 0
+            imported_files = []
+            
+            logger.info(f"Processing {len(all_files)} items from Nextcloud")
+            
+            for file_info in all_files:
+                logger.debug(f"Processing item: {file_info}")
+                
+                if file_info['type'] == 'directory':
+                    logger.debug(f"Skipping directory: {file_info['path']}")
+                    continue  # Skip directories for now
+                    
+                file_path = file_info['path']
+                file_modified = file_info['modified']
+                file_etag = file_info.get('etag')
+                
+                logger.info(f"Processing file: {file_path} (type: {file_info['type']}, etag: {file_etag}, modified: {file_modified})")
+                
+                # Check if already imported
+                existing = await conn.fetchrow(
+                    "SELECT id, etag FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path = $2",
+                    onyx_user_id, file_path
+                )
+                
+                logger.info(f"Existing record for {file_path}: {existing}")
+                
+                # Skip if already imported with same etag (only if both etags exist and match)
+                if existing and existing.get('etag') and file_etag and existing['etag'] == file_etag:
+                    logger.info(f"Skipping {file_path} - already imported with same etag: {file_etag}")
+                    continue
+                
+                # For debugging: let's import all files for now and check the etag logic later
+                logger.info(f"Will import file: {file_path} (etag: {file_etag}, existing_etag: {existing.get('etag') if existing else None})")
+                
+                # Try to import the file into Onyx
+                try:
+                    # Extract session cookies for Onyx authentication from the request object
+                    session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+                    
+                    onyx_file_id = await import_file_to_onyx_individual(
+                        nextcloud_username,
+                        nextcloud_password,
+                        nextcloud_base_url, 
+                        file_path, 
+                        file_info, 
+                        onyx_user_id,
+                        session_cookies
+                    )
+                    
+                    if onyx_file_id:
+                        # Update or insert import record
+                        if existing:
+                            await conn.execute(
+                                """
+                                UPDATE smartdrive_imports 
+                                SET onyx_file_id = $1, etag = $2, checksum = $3, imported_at = $4, last_modified = $5
+                                WHERE id = $6
+                                """,
+                                onyx_file_id,
+                                file_info.get('etag', ''),
+                                file_info.get('checksum', ''),
+                                datetime.now(timezone.utc),
+                                parse_http_date(file_modified) if file_modified else None,
+                                existing['id']
+                            )
+                        else:
+                            await conn.execute(
+                                """
+                                INSERT INTO smartdrive_imports 
+                                (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, file_size, mime_type, imported_at, last_modified)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                                """,
+                                onyx_user_id,
+                                file_path,
+                                onyx_file_id,
+                                file_info.get('etag', ''),
+                                file_info.get('checksum', ''),
+                                file_info.get('size'),
+                                file_info.get('mime_type'),
+                                datetime.now(timezone.utc),
+                                parse_http_date(file_modified) if file_modified else None
+                            )
+                        
+                        imported_count += 1
+                        imported_files.append({
+                            "name": file_info['name'],
+                            "path": file_path,
+                            "onyx_file_id": onyx_file_id
+                        })
+                        logger.info(f"Successfully imported {file_path} as Onyx file {onyx_file_id}")
+                        
+                except Exception as import_error:
+                    logger.error(f"Failed to import {file_path}: {import_error}")
+                    continue
+
+            # Update sync cursor
+            await conn.execute(
+                "UPDATE smartdrive_accounts SET sync_cursor = $1, updated_at = $2 WHERE onyx_user_id = $3",
+                json.dumps({"last_sync": datetime.now(timezone.utc).isoformat()}),
+                datetime.now(timezone.utc),
+                onyx_user_id
+            )
+            
+            logger.info(f"Import completed: {imported_count} files imported for user {onyx_user_id}")
+
+        return {
+            "success": True,
+            "imported_count": imported_count,
+            "imported_files": imported_files,
+            "message": f"Imported {imported_count} new files"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing new SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to import new SmartDrive files")
+
+async def ensure_user_folder_exists(nextcloud_username: str, nextcloud_password: str, user_folder: str):
+    """Ensure the user's folder exists in Nextcloud, create if it doesn't"""
+    try:
+        folder_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{user_folder}/"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient() as client:
+            # Check if folder exists
+            response = await client.request("PROPFIND", folder_url, auth=auth, headers={"Depth": "0"})
+            
+            if response.status_code == 404:
+                # Folder doesn't exist, create it
+                logger.info(f"Creating Nextcloud folder for user: {user_folder}")
+                create_response = await client.request("MKCOL", folder_url, auth=auth)
+                
+                if create_response.status_code in [201, 405]:  # 201 = Created, 405 = Already exists
+                    logger.info(f"Successfully created/verified folder: {user_folder}")
+                else:
+                    logger.error(f"Failed to create folder {user_folder}: {create_response.status_code}")
+            elif response.status_code == 207:
+                # Folder exists
+                logger.debug(f"User folder already exists: {user_folder}")
+            else:
+                logger.warning(f"Unexpected response checking folder {user_folder}: {response.status_code}")
+                
+    except Exception as e:
+        logger.error(f"Error ensuring user folder exists: {e}")
+
+async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_password: str, nextcloud_base_url: str, base_path: str = "/") -> List[Dict]:
+    """Get all files from user's individual Nextcloud account recursively"""
+    all_files = []
+    visited_paths = set()  # Prevent infinite recursion
+    
+    async def traverse_directory(path: str, depth: int = 0):
+        # Prevent infinite recursion
+        if depth > 10:  # Max depth limit
+            logger.warning(f"Max recursion depth reached for path: {path}")
+            return
+            
+        if path in visited_paths:
+            logger.warning(f"Already visited path, skipping: {path}")
+            return
+            
+        visited_paths.add(path)
+        
+        try:
+            webdav_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{path}"
+            auth = (nextcloud_username, nextcloud_password)
+            
+            logger.debug(f"Traversing directory: {path} (depth: {depth}, URL: {webdav_url})")
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.request(
+                    "PROPFIND", 
+                    webdav_url, 
+                    auth=auth, 
+                    headers={"Depth": "1", "Content-Type": "application/xml"},
+                    content="""<?xml version="1.0"?>
+                    <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                        <d:prop>
+                            <d:resourcetype/>
+                            <d:getcontentlength/>
+                            <d:getlastmodified/>
+                            <d:getcontenttype/>
+                            <d:getetag/>
+                        </d:prop>
+                    </d:propfind>"""
+                )
+                
+                if response.status_code == 404:
+                    logger.warning(f"Directory not found: {path}")
+                    return
+                elif response.status_code != 207:
+                    logger.error(f"WebDAV PROPFIND failed: {response.status_code} - {response.text}")
+                    return
+                    
+                files = await parse_webdav_response(response.text, nextcloud_base_url)
+                logger.debug(f"Found {len(files)} items in {path}")
+                
+                for file_info in files:
+                    if file_info['name'] != '.' and file_info['name'] != '..':  # Skip current and parent directory entries
+                        all_files.append(file_info)
+                        
+                        if file_info['type'] == 'directory':
+                            # For subdirectories, traverse recursively
+                            subdir_path = file_info['path']
+                            logger.debug(f"Found subdirectory: {file_info['name']} -> {subdir_path}")
+                            await traverse_directory(subdir_path, depth + 1)
+                            
+        except Exception as e:
+            logger.error(f"Error traversing directory {path}: {e}")
+    
+    await traverse_directory(base_path)
+    logger.info(f"Directory traversal completed. Found {len(all_files)} total items.")
+    return all_files
+
+
+async def get_all_nextcloud_files(nextcloud_user_folder: str, base_path: str = "/") -> List[Dict]:
+    """Recursively get all files from Nextcloud using shared account"""
+    all_files = []
+    
+    try:
+        # Use shared Nextcloud account
+        nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+        nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+        
+        webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{base_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.request(
+                "PROPFIND",
+                webdav_url,
+                auth=auth,
+                headers={
+                    "Depth": "infinity",  # Get all files recursively
+                    "Content-Type": "application/xml"
+                },
+                content="""<?xml version="1.0"?>
+                <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                    <d:prop>
+                        <d:resourcetype/>
+                        <d:getcontentlength/>
+                        <d:getlastmodified/>
+                        <d:getcontenttype/>
+                        <d:getetag/>
+                    </d:prop>
+                </d:propfind>"""
+            )
+            
+            if response.status_code == 207:
+                files = await parse_webdav_response(response.text, base_path)
+                all_files.extend(files)
+                
+    except Exception as e:
+        logger.error(f"Error getting files from Nextcloud: {e}")
+        
+    return all_files
+
+async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_info: Dict, onyx_user_id: str) -> str:
+    """Download file from Nextcloud and upload to Onyx"""
+    try:
+        # Download file from Nextcloud using shared account
+        nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+        nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+        
+        download_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            file_name = file_info['name']
+            mime_type = file_info.get('mime_type', 'application/octet-stream')
+            
+            # Upload to Onyx using the user file upload endpoint (same as frontend)
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
+            
+            # Create multipart form data with folder_id parameter
+            files = {
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
+            
+            # Upload to Onyx with session authentication
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                data=data,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    return str(response_data[0].get('id'))
+                elif isinstance(response_data, dict):
+                    return str(response_data.get('id'))
+                else:
+                    logger.error(f"Unexpected Onyx response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"Failed to upload to Onyx: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error importing file {file_path} to Onyx: {e}")
+        return None
+
+
+async def import_file_to_onyx_individual(
+    nextcloud_username: str, 
+    nextcloud_password: str, 
+    nextcloud_base_url: str, 
+    file_path: str, 
+    file_info: Dict, 
+    onyx_user_id: str,
+    session_cookies: Dict[str, str]
+) -> str:
+    """Download file from individual Nextcloud account and upload to Onyx"""
+    try:
+        # Build download URL for individual account
+        download_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            file_name = file_info['name']
+            mime_type = file_info.get('mime_type', 'application/octet-stream')
+            
+            # Upload to Onyx using the user file upload endpoint (same as frontend)
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
+            
+            # Create multipart form data with folder_id parameter
+            files = {
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
+            
+            # Upload to Onyx with session authentication
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                data=data,
+                cookies=session_cookies,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    return str(response_data[0].get('id'))
+                elif isinstance(response_data, dict):
+                    return str(response_data.get('id'))
+                else:
+                    logger.error(f"Unexpected Onyx response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"Failed to upload to Onyx: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error importing individual file {file_path}: {e}")
+        return None
+
+
+@app.post("/api/custom/smartdrive/webhook")
+async def smartdrive_webhook(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Handle Nextcloud webhooks for file changes"""
+    try:
+        payload = await request.json()
+        logger.info(f"Received SmartDrive webhook: {payload}")
+
+        # TODO: Implement webhook processing
+        # This would handle notifications from Nextcloud about file changes
+        
+        return {"success": True, "message": "Webhook processed"}
+        
+    except Exception as e:
+        logger.error(f"Error processing SmartDrive webhook: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process webhook")
+
+# ============================
+# PER-USER CONNECTORS API (DEPRECATED)
+# ============================
+# 
+# NOTE: We now use Onyx's native connector system with AccessType.PRIVATE
+# instead of our custom connector implementation. The frontend redirects users
+# to /admin/connectors/{source}?access_type=private to create connectors using
+# Onyx's existing OAuth-enabled forms and configuration system.
+#
+# Users' private connectors are managed through:
+# - Creation: /admin/connectors/{source} with access_type=private
+# - Listing: /api/manage/admin/connector (filtered for private connectors)
+# - Management: /admin/connector/{id} (Onyx's existing connector management UI)
+# - Syncing: /api/manage/admin/connector/{id}/index (Onyx's existing sync API)
+#
+# This gives users the full Onyx connector experience (including OAuth support)
+# while keeping connectors private to each user.
+
+# New SmartDrive connector creation endpoint (bypasses admin requirements)
+@app.post("/api/custom/smartdrive/connectors/create")
+async def create_smartdrive_connector(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Create a private connector for the current user without requiring admin privileges.
+    This allows non-admin users to create connectors for Smart Drive.
+    """
+    try:
+        # Get the main app domain (remove /custom-projects-ui path)
+        host = request.headers.get('host', 'localhost')
+        # Force HTTPS for production domains, use HTTP only for localhost
+        if 'localhost' in host or '127.0.0.1' in host:
+            protocol = 'http'
+        else:
+            protocol = 'https'
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies (using the same pattern as other endpoints)
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'x-smart-drive-connector': 'true'  # Smart Drive header to bypass admin checks
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Get connector data from request
+        connector_data = await request.json()
+        connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
+        credential_id = connector_data.get('credential_id')  # ID of existing credential to use
+        name = connector_data.get('name', f'Smart Drive {connector_id}')
+        
+        if not connector_id:
+            raise HTTPException(status_code=400, detail="Connector ID is required")
+        
+        if not credential_id:
+            raise HTTPException(status_code=400, detail="Credential ID is required")
+        
+        # Define which fields are credentials vs connector config
+        credential_fields = {
+            'notion': ['notion_integration_token'],
+            'slack': ['slack_bot_token'],
+            'github': ['github_access_token'],
+            'zendesk': ['zendesk_subdomain', 'zendesk_email', 'zendesk_token'],
+            'asana': ['asana_api_token_secret'],
+            'dropbox': ['dropbox_access_token'],
+            'confluence': ['confluence_username', 'confluence_access_token'],
+            'jira': ['jira_user_email', 'jira_api_token'],
+            'linear': ['linear_access_token'],
+            'hubspot': ['hubspot_access_token'],
+            'clickup': ['clickup_api_token', 'clickup_team_id'],
+            'google_drive': ['google_tokens', 'google_primary_admin'],
+            'gmail': ['google_tokens', 'google_primary_admin'],
+            'salesforce': ['sf_username', 'sf_password', 'sf_security_token', 'is_sandbox'],
+            'sharepoint': ['sp_client_id', 'sp_client_secret', 'sp_directory_id'],
+            'airtable': ['airtable_access_token'],
+            'document360': ['portal_id', 'document360_api_token'],
+            'slab': ['slab_bot_token'],
+            'guru': ['guru_user', 'guru_user_token'],
+            'gong': ['gong_access_key', 'gong_access_key_secret'],
+            'loopio': ['loopio_subdomain', 'loopio_client_id', 'loopio_client_token'],
+            'productboard': ['productboard_access_token'],
+            'zulip': ['zuliprc_content'],
+            'gitbook': ['gitbook_api_key'],
+            'gitlab': ['gitlab_url', 'gitlab_access_token'],
+            'bookstack': ['bookstack_base_url', 'bookstack_api_token_id', 'bookstack_api_token_secret'],
+            's3': ['aws_access_key_id', 'aws_secret_access_key', 'aws_role_arn'],
+            'r2': ['account_id', 'r2_access_key_id', 'r2_secret_access_key'],
+            'google_cloud_storage': ['access_key_id', 'secret_access_key'],
+            'oci_storage': ['namespace', 'region', 'access_key_id', 'secret_access_key'],
+            'teams': ['teams_client_id', 'teams_client_secret', 'teams_directory_id']
+        }
+        
+        # Separate credential fields from connector config fields
+        connector_credential_fields = credential_fields.get(connector_id, [])
+        credential_json = {}
+        connector_specific_config = {}
+        
+        for key, value in connector_data.items():
+            if key not in ['connector_id', 'name', 'access_type', 'smart_drive', 'credential_id']:
+                if key in connector_credential_fields:
+                    credential_json[key] = value
+                else:
+                    connector_specific_config[key] = value
+        
+        # Create the connector payload
+        connector_payload = {
+            "name": name,
+            "source": connector_id,
+            "input_type": "poll",
+            "access_type": "private",  # Required field for Smart Drive connectors
+            "connector_specific_config": connector_specific_config,
+            "refresh_freq": 3600,  # 1 hour
+            "prune_freq": 86400,   # 1 day
+            "indexing_start": None
+        }
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Create the connector using httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            connector_url = ensure_https_url("/api/manage/admin/connector")
+            
+            connector_response = await client.post(
+                connector_url,
+                headers=auth_headers,
+                json=connector_payload
+            )
+            
+            if not connector_response.is_success:
+                logger.error(f"Failed to create connector: {connector_response.text}")
+                raise HTTPException(
+                    status_code=connector_response.status_code,
+                    detail=f"Failed to create connector: {connector_response.text}"
+                )
+            
+            connector_result = connector_response.json()
+            connector_id = connector_result.get('id')
+            
+            if not connector_id:
+                raise HTTPException(status_code=500, detail="Failed to get connector ID")
+            
+            # Use the existing credential instead of creating a new one
+            # Verify the credential exists and is accessible
+            credential_response = await client.get(
+                ensure_https_url(f"/api/manage/credential/{credential_id}"),
+                headers=auth_headers
+            )
+            
+            if not credential_response.is_success:
+                logger.error(f"Failed to access credential: {credential_response.text}")
+                # If credential access fails, try to delete the connector
+                try:
+                    await client.delete(
+                        ensure_https_url(f"/api/manage/admin/connector/{connector_id}"),
+                        headers=auth_headers
+                    )
+                except:
+                    pass
+                
+                raise HTTPException(
+                    status_code=credential_response.status_code,
+                    detail=f"Failed to access credential: {credential_response.text}"
+                )
+            
+            credential_result = credential_response.json()
+            
+            # Link the credential to the connector using Onyx's linkCredential approach
+            auto_sync_options = {
+                "enabled": True,
+                "frequency": 3600
+            }
+            
+            # Add Smart Drive header for credential linking
+            linking_headers = auth_headers.copy()
+            linking_headers['x-smart-drive-credential'] = 'true'
+            
+            cc_pair_response = await client.put(
+                ensure_https_url(f"/api/manage/connector/{connector_id}/credential/{credential_id}"),
+                headers=linking_headers,
+                json={
+                    "name": name,
+                    "access_type": "private",
+                    "groups": [],  # Must be an empty list, not None
+                    "auto_sync_options": auto_sync_options
+                }
+            )
+            
+            if not cc_pair_response.is_success:
+                logger.error(f"Failed to create connector-credential pair: {cc_pair_response.text}")
+                # If CC pair creation fails, try to delete both connector and credential
+                try:
+                    await client.delete(
+                        ensure_https_url(f"/api/manage/admin/connector/{connector_id}"),
+                        headers=auth_headers
+                    )
+                    await client.delete(
+                        ensure_https_url(f"/api/manage/credential/{credential_id}"),
+                        headers=auth_headers
+                    )
+                except:
+                    pass
+                
+                raise HTTPException(
+                    status_code=cc_pair_response.status_code,
+                    detail=f"Failed to create connector-credential pair: {cc_pair_response.text}"
+                )
+            
+            cc_pair_result = cc_pair_response.json()
+            
+            return {
+                "success": True,
+                "message": "Connector created successfully",
+                "connector": connector_result,
+                "credential": credential_result,
+                "cc_pair": cc_pair_result
+            }
+            
+    except httpx.RequestError as e:
+        logger.error(f"Network error creating connector: {e}")
+        raise HTTPException(status_code=500, detail="Network error occurred")
+    except Exception as e:
+        logger.error(f"Error creating connector: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Legacy endpoint stub (kept for backwards compatibility)
+@app.get("/api/custom/smartdrive/connectors/")
+async def list_user_connectors(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use Onyx's native connector system instead"""
+    return {
+        "message": "This endpoint is deprecated. Use Onyx's native connector system with AccessType.PRIVATE",
+        "redirect_url": "/admin/connectors/",
+        "api_endpoint": "/api/manage/admin/connector",
+        "connectors": []
+    }
+
+@app.post("/api/custom/smartdrive/connectors/")
+async def create_user_connector(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /admin/connectors/{source}?access_type=private instead"""
+    payload = await request.json()
+    source = payload.get('source', 'unknown')
+    
+    raise HTTPException(
+        status_code=410,  # Gone
+        detail={
+            "message": "This endpoint is deprecated. Create connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connectors/{source}?access_type=private",
+            "instructions": "Visit the connector creation page to set up your private connector with OAuth support."
+        }
+    )
+
+@app.put("/api/custom/smartdrive/connectors/{connector_id}")
+async def update_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /admin/connector/{connector_id} instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Manage connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connector/{connector_id}",
+            "instructions": "Visit the connector management page to update your connector configuration."
+        }
+    )
+
+@app.delete("/api/custom/smartdrive/connectors/{connector_id}")
+async def delete_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /admin/connector/{connector_id} instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Manage connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connector/{connector_id}",
+            "instructions": "Visit the connector management page to delete your connector."
+        }
+    )
+
+@app.post("/api/custom/smartdrive/connectors/{connector_id}/sync")
+async def sync_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /api/manage/admin/connector/{connector_id}/index instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Sync connectors using Onyx's native API.",
+            "api_endpoint": f"/api/manage/admin/connector/{connector_id}/index",
+            "instructions": "Use Onyx's connector sync API or the connector management UI."
+        }
+    )
+
+
+# Credential proxy endpoints for non-admin users
+@app.get("/api/custom/credentials/{source_type}")
+async def get_credentials_for_source(source_type: str, request: Request):
+    """
+    Proxy endpoint to fetch credentials for a specific source type.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Accept': 'application/json',
+            'x-smart-drive-credential': 'true'  # Smart Drive header to bypass admin checks
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's credential endpoint
+            credentials_url = ensure_https_url(f"/api/manage/admin/similar-credentials/{source_type}")
+            
+            response = await client.get(
+                credentials_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            elif response.status_code == 403:
+                # User doesn't have admin access, return empty list
+                # This allows the frontend to show "No existing credentials" 
+                # and proceed with credential creation
+                logger.info(f"Non-admin user accessing credentials for {source_type}, returning empty list")
+                return []
+            else:
+                logger.error(f"Failed to fetch credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to fetch credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error fetching credentials: {str(e)}")
+        # For any error, return empty list to allow credential creation
+        return []
+
+
+@app.post("/api/custom/credentials")
+async def create_credential(request: Request):
+    """
+    Proxy endpoint to create credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Get credential data from request
+        credential_data = await request.json()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's credential creation endpoint
+            credentials_url = ensure_https_url("/api/manage/credential")
+            
+            response = await client.post(
+                credentials_url,
+                headers=auth_headers,
+                json=credential_data
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to create credential: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to create credential: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error creating credential: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating credential: {str(e)}")
+
+# --- Offers API Endpoints ---
+
+@app.get("/api/custom/offers", response_model=List[OfferResponse])
+async def get_offers(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    company_id: Optional[int] = Query(None, description="Filter by company ID"),
+    status: Optional[str] = Query(None, description="Filter by status"),
+    search: Optional[str] = Query(None, description="Search in offer name or manager")
+):
+    """Get all offers for the current user with optional filtering"""
+    try:
+        
+        # Build the query with optional filters
+        query = """
+            SELECT o.*, pf.name as company_name
+            FROM offers o
+            LEFT JOIN project_folders pf ON o.company_id = pf.id
+            WHERE o.onyx_user_id = $1
+        """
+        params = [onyx_user_id]
+        param_count = 1
+        
+        if company_id is not None:
+            param_count += 1
+            query += f" AND o.company_id = ${param_count}"
+            params.append(company_id)
+        
+        if status is not None:
+            param_count += 1
+            query += f" AND o.status = ${param_count}"
+            params.append(status)
+        
+        if search is not None:
+            param_count += 1
+            query += f" AND (o.offer_name ILIKE ${param_count} OR o.manager ILIKE ${param_count})"
+            params.append(f"%{search}%")
+        
+        query += " ORDER BY o.created_on DESC"
+        
+        async with DB_POOL.acquire() as connection:
+            rows = await connection.fetch(query, *params)
+            
+        offers = []
+        for row in rows:
+            offers.append(OfferResponse(
+                id=row['id'],
+                onyx_user_id=row['onyx_user_id'],
+                company_id=row['company_id'],
+                offer_name=row['offer_name'],
+                created_on=row['created_on'],
+                manager=row['manager'],
+                status=row['status'],
+                total_hours=row['total_hours'],
+                link=row['link'],
+                created_at=row['created_at'],
+                updated_at=row['updated_at'],
+                company_name=row['company_name']
+            ))
+        
+        return offers
+        
+    except Exception as e:
+        logger.error(f"Error fetching offers: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offers")
+
+@app.get("/api/custom/offers/counts")
+async def get_offer_counts(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Return a mapping of company_id to number of offers for the current user."""
+    try:
+        async with DB_POOL.acquire() as connection:
+            rows = await connection.fetch(
+                """
+                SELECT company_id, COUNT(*) AS cnt
+                FROM offers
+                WHERE onyx_user_id = $1
+                GROUP BY company_id
+                """,
+                onyx_user_id,
+            )
+        result = {row["company_id"]: int(row["cnt"]) for row in rows}
+        return result
+    except Exception as e:
+        logger.error(f"Error fetching offer counts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offer counts")
+
+@app.post("/api/custom/offers", response_model=OfferResponse)
+async def create_offer(
+    offer_data: OfferCreate,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Create a new offer"""
+    try:
+        
+        # Validate that the company exists and belongs to the user
+        async with DB_POOL.acquire() as connection:
+            company_exists = await connection.fetchval(
+                "SELECT id FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                offer_data.company_id, onyx_user_id
+            )
+            
+            if not company_exists:
+                raise HTTPException(status_code=404, detail="Company not found")
+            
+            # First insert the offer without link to get the ID
+            row = await connection.fetchrow("""
+                INSERT INTO offers (onyx_user_id, company_id, offer_name, manager, status, total_hours, link)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING *, (SELECT name FROM project_folders WHERE id = $2) as company_name
+            """, onyx_user_id, offer_data.company_id, offer_data.offer_name, 
+                 offer_data.manager, offer_data.status, offer_data.total_hours, None)
+            
+            # Generate auto link based on the offer ID
+            offer_id = row['id']
+            # Get the base URL from the request
+            base_url = str(request.base_url).rstrip('/')
+            
+            # Log the base URL for debugging
+            logger.info(f"Original base URL: {base_url}")
+            
+            # Remove /api/custom-projects-backend from the base URL if present
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            auto_link = f"{base_url}/custom-projects-ui/offer/{offer_id}"
+            
+            # Log the generated link for debugging
+            logger.info(f"Generated auto link for offer {offer_id}: {auto_link}")
+            
+            # Update the offer with the auto-generated link
+            update_result = await connection.execute(
+                "UPDATE offers SET link = $1 WHERE id = $2",
+                auto_link, offer_id
+            )
+            
+            # Log the update result
+            logger.info(f"Update result for offer {offer_id}: {update_result}")
+            
+            # Update the row dict with the new link
+            row_dict = dict(row)
+            row_dict['link'] = auto_link
+        
+        return OfferResponse(
+            id=row_dict['id'],
+            onyx_user_id=row_dict['onyx_user_id'],
+            company_id=row_dict['company_id'],
+            offer_name=row_dict['offer_name'],
+            created_on=row_dict['created_on'],
+            manager=row_dict['manager'],
+            status=row_dict['status'],
+            total_hours=row_dict['total_hours'],
+            link=row_dict['link'],
+            created_at=row_dict['created_at'],
+            updated_at=row_dict['updated_at'],
+            company_name=row_dict['company_name']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create offer")
+
+@app.put("/api/custom/offers/{offer_id}", response_model=OfferResponse)
+async def update_offer(
+    offer_id: int,
+    offer_data: OfferUpdate,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Update an existing offer"""
+    try:
+        
+        # Build dynamic update query
+        update_fields = []
+        params = [onyx_user_id, offer_id]
+        param_count = 2
+        
+        if offer_data.company_id is not None:
+            param_count += 1
+            update_fields.append(f"company_id = ${param_count}")
+            params.append(offer_data.company_id)
+        
+        if offer_data.offer_name is not None:
+            param_count += 1
+            update_fields.append(f"offer_name = ${param_count}")
+            params.append(offer_data.offer_name)
+        
+        if offer_data.manager is not None:
+            param_count += 1
+            update_fields.append(f"manager = ${param_count}")
+            params.append(offer_data.manager)
+        
+        if offer_data.status is not None:
+            param_count += 1
+            update_fields.append(f"status = ${param_count}")
+            params.append(offer_data.status)
+        
+        if offer_data.total_hours is not None:
+            param_count += 1
+            update_fields.append(f"total_hours = ${param_count}")
+            params.append(offer_data.total_hours)
+        
+        if offer_data.created_on is not None:
+            param_count += 1
+            update_fields.append(f"created_on = ${param_count}")
+            params.append(offer_data.created_on)
+        
+        # Note: link is auto-generated and not editable
+        
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Add updated_at timestamp
+        param_count += 1
+        update_fields.append(f"updated_at = CURRENT_TIMESTAMP")
+        
+        query = f"""
+            UPDATE offers 
+            SET {', '.join(update_fields)}
+            WHERE id = $2 AND onyx_user_id = $1
+            RETURNING *, (SELECT name FROM project_folders WHERE id = company_id) as company_name
+        """
+        
+        async with DB_POOL.acquire() as connection:
+            row = await connection.fetchrow(query, *params)
+            
+            if not row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+        
+        return OfferResponse(
+            id=row['id'],
+            onyx_user_id=row['onyx_user_id'],
+            company_id=row['company_id'],
+            offer_name=row['offer_name'],
+            created_on=row['created_on'],
+            manager=row['manager'],
+            status=row['status'],
+            total_hours=row['total_hours'],
+            link=row['link'],
+            created_at=row['created_at'],
+            updated_at=row['updated_at'],
+            company_name=row['company_name']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update offer")
+
+@app.delete("/api/custom/offers/{offer_id}")
+async def delete_offer(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Delete an offer"""
+    try:
+        
+        async with DB_POOL.acquire() as connection:
+            result = await connection.execute(
+                "DELETE FROM offers WHERE id = $1 AND onyx_user_id = $2",
+                offer_id, onyx_user_id
+            )
+            
+            if result == "DELETE 0":
+                raise HTTPException(status_code=404, detail="Offer not found")
+        
+        return {"message": "Offer deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete offer")
+
+@app.get("/api/custom/offers/{offer_id}/details")
+async def get_offer_details(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Get detailed offer information for offer detail page"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offer basic info
+            offer_row = await connection.fetchrow("""
+                SELECT o.*, pf.name as company_name
+                FROM offers o
+                JOIN project_folders pf ON o.company_id = pf.id
+                WHERE o.id = $1 AND o.onyx_user_id = $2
+            """, offer_id, onyx_user_id)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            
+            offer = dict(offer_row)
+            
+            # Get projects in the company folder to build course modules
+            projects_rows = await connection.fetch("""
+                SELECT p.id, p.project_name, p.microproduct_content
+                FROM projects p
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, offer['company_id'], onyx_user_id)
+            
+            course_modules = []
+            total_lessons = 0
+            total_learning_duration = 0
+            total_production_time = 0
+            
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    project_lessons = 0
+                    project_modules = 0
+                    project_completion_time = 0
+                    project_hours = 0
+                    
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            project_modules += 1  # Count modules (sections)
+                            for lesson in section['lessons']:
+                                project_lessons += 1
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                    project_completion_time += completion_minutes
+                                except (ValueError, AttributeError):
+                                    project_completion_time += 5
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                project_hours += lesson_hours
+                    
+                    if project_lessons > 0:
+                        learning_duration_hours = round(project_completion_time / 60.0, 1)
+                        course_modules.append({
+                            'title': project_dict['project_name'],
+                            'modules': project_modules,
+                            'lessons': project_lessons,
+                            'learningDuration': f"{learning_duration_hours}h",
+                            'productionTime': f"{project_hours}h"
+                        })
+                        
+                        total_lessons += project_lessons
+                        total_learning_duration += learning_duration_hours
+                        total_production_time += project_hours
+            
+            # Calculate quality-level-specific totals by examining each lesson's quality tier
+            quality_tier_totals = {
+                'basic': {'learning_duration': 0, 'production_time': 0},
+                'interactive': {'learning_duration': 0, 'production_time': 0},
+                'advanced': {'learning_duration': 0, 'production_time': 0},
+                'immersive': {'learning_duration': 0, 'production_time': 0}
+            }
+            
+            # Re-process projects to calculate quality-specific totals
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            for lesson in section['lessons']:
+                                # Determine effective quality tier for this lesson
+                                effective_quality_tier = (
+                                    lesson.get('quality_tier') or 
+                                    section.get('quality_tier') or 
+                                    content.get('quality_tier') or
+                                    'interactive'  # Default fallback
+                                ).lower()
+                                
+                                # Map alternative names to standard tiers
+                                tier_mapping = {
+                                    'basic': 'basic',
+                                    'interactive': 'interactive',
+                                    'advanced': 'advanced',
+                                    'immersive': 'immersive',
+                                    'medium': 'interactive',  # Map medium to interactive
+                                    'premium': 'advanced',    # Map premium to advanced
+                                }
+                                
+                                standard_tier = tier_mapping.get(effective_quality_tier, 'interactive')
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                except (ValueError, AttributeError):
+                                    completion_minutes = 5
+                                
+                                learning_duration_hours = completion_minutes / 60.0
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                
+                                # Add to the appropriate quality tier totals
+                                quality_tier_totals[standard_tier]['learning_duration'] += learning_duration_hours
+                                quality_tier_totals[standard_tier]['production_time'] += lesson_hours
+            
+            # Generate quality levels data using quality-specific totals
+            quality_levels = [
+                {
+                    'level': 'Level 1 - Basic',
+                    'learningDuration': f"{round(quality_tier_totals['basic']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['basic']['production_time'], 1)}h"
+                },
+                {
+                    'level': 'Level 2 - Interactive',
+                    'learningDuration': f"{round(quality_tier_totals['interactive']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['interactive']['production_time'], 1)}h"
+                },
+                {
+                    'level': 'Level 3 - Advanced',
+                    'learningDuration': f"{round(quality_tier_totals['advanced']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['advanced']['production_time'], 1)}h"
+                },
+                {
+                    'level': 'Level 4 - Immersive',
+                    'learningDuration': f"{round(quality_tier_totals['immersive']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['immersive']['production_time'], 1)}h"
+                }
+            ]
+            
+            return {
+                'offer': offer,
+                'courseModules': course_modules,
+                'qualityLevels': quality_levels
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching offer details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offer details")
+
+@app.post("/api/custom/offers/migrate-links")
+async def migrate_offer_links(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Update existing offers with auto-generated links"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offers without links or with empty links
+            offers = await connection.fetch("""
+                SELECT id FROM offers 
+                WHERE onyx_user_id = $1 AND (link IS NULL OR link = '')
+            """, onyx_user_id)
+            
+            updated_count = 0
+            base_url = str(request.base_url).rstrip('/')
+            
+            # Log the base URL for debugging
+            logger.info(f"Migration: Original base URL: {base_url}")
+            
+            # Remove /api/custom-projects-backend from the base URL if present
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            logger.info(f"Migration: Found {len(offers)} offers to update")
+            
+            for offer in offers:
+                offer_id = offer['id']
+                auto_link = f"{base_url}/custom-projects-ui/offer/{offer_id}"
+                
+                logger.info(f"Migration: Updating offer {offer_id} with link: {auto_link}")
+                
+                await connection.execute(
+                    "UPDATE offers SET link = $1 WHERE id = $2",
+                    auto_link, offer_id
+                )
+                updated_count += 1
+            
+            logger.info(f"Migration: Successfully updated {updated_count} offers")
+            return {"message": f"Updated {updated_count} offers with auto-generated links"}
+            
+    except Exception as e:
+        logger.error(f"Error migrating offer links: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to migrate offer links")
+
+@app.post("/api/custom/offers/{offer_id}/generate-share-link")
+async def generate_offer_share_link(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Generate a shareable link for an offer that doesn't require authentication"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Verify offer exists and belongs to user
+            offer_row = await connection.fetchrow("""
+                SELECT id, share_token FROM offers 
+                WHERE id = $1 AND onyx_user_id = $2
+            """, offer_id, onyx_user_id)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            
+            # Generate or use existing share token
+            share_token = offer_row['share_token']
+            if not share_token:
+                share_token = str(uuid.uuid4())
+                await connection.execute(
+                    "UPDATE offers SET share_token = $1 WHERE id = $2",
+                    share_token, offer_id
+                )
+            
+            # Build shareable URL
+            base_url = str(request.base_url).rstrip('/')
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            share_url = f"{base_url}/custom-projects-ui/offer/shared/{share_token}"
+            
+            return {
+                "share_token": share_token,
+                "share_url": share_url
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating share link: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate share link")
+
+@app.get("/api/custom/offers/shared/{share_token}/details")
+async def get_shared_offer_details(share_token: str):
+    """Get offer details using share token - no authentication required"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offer basic info using share token
+            offer_row = await connection.fetchrow("""
+                SELECT o.*, pf.name as company_name
+                FROM offers o
+                JOIN project_folders pf ON o.company_id = pf.id
+                WHERE o.share_token = $1
+            """, share_token)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Shared offer not found")
+            
+            offer = dict(offer_row)
+            
+            # Get projects in the company folder to build course modules
+            projects_rows = await connection.fetch("""
+                SELECT p.id, p.project_name, p.microproduct_content
+                FROM projects p
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, offer['company_id'], offer['onyx_user_id'])
+            
+            course_modules = []
+            total_lessons = 0
+            total_learning_duration = 0
+            total_production_time = 0
+            
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    project_lessons = 0
+                    project_modules = 0
+                    project_completion_time = 0
+                    project_hours = 0
+                    
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            project_modules += 1  # Count modules (sections)
+                            for lesson in section['lessons']:
+                                project_lessons += 1
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                    project_completion_time += completion_minutes
+                                except (ValueError, AttributeError):
+                                    project_completion_time += 5
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                project_hours += lesson_hours
+                    
+                    if project_lessons > 0:
+                        learning_duration_hours = round(project_completion_time / 60.0, 1)
+                        course_modules.append({
+                            'title': project_dict['project_name'],
+                            'modules': project_modules,
+                            'lessons': project_lessons,
+                            'learningDuration': f"{learning_duration_hours}h",
+                            'productionTime': f"{project_hours}h"
+                        })
+                        
+                        total_lessons += project_lessons
+                        total_learning_duration += learning_duration_hours
+                        total_production_time += project_hours
+            
+            # Generate quality levels data - using actual totals from all courses
+            quality_levels = [
+                {
+                    'level': 'Level 1 - Basic',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{total_production_time}h"
+                },
+                {
+                    'level': 'Level 2 - Interactive',
+                    'learningDuration': f"{total_learning_duration}h", 
+                    'productionTime': f"{int(total_production_time * 1.5)}h"  # 50% more for interactive
+                },
+                {
+                    'level': 'Level 3 - Advanced',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{int(total_production_time * 2)}h"  # 2x for advanced
+                },
+                {
+                    'level': 'Level 4 - Immersive',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{int(total_production_time * 3)}h"  # 3x for immersive
+                }
+            ]
+            
+            # Remove sensitive information for shared view
+            offer_public = {
+                'id': offer['id'],
+                'offer_name': offer['offer_name'],
+                'company_name': offer['company_name'],
+                'manager': offer['manager'],
+                'created_on': offer['created_on'],
+                'status': offer['status'],
+                'total_hours': offer['total_hours']
+            }
+            
+            return {
+                'offer': offer_public,
+                'courseModules': course_modules,
+                'qualityLevels': quality_levels
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching shared offer details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch shared offer details")
