@@ -84,8 +84,8 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
-      
-    } catch (error) {
+        
+      } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
     }
@@ -140,7 +140,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
-        avatarData: selectedAvatar,  // NEW: Send full avatar data with voice information
+        avatarData: selectedVariant ? { ...selectedAvatar, selectedVariant } : selectedAvatar,  // Send avatar data with complete variant information
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
@@ -166,7 +166,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       }
 
       const createData = await createResponse.json();
-      
+
       if (!createData.success) {
         throw new Error(createData.error || 'Failed to create presentation');
       }
@@ -198,7 +198,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
             if (statusData.status === 'completed') {
               clearInterval(pollInterval);
               setStatus('completed');
-              setProgress(100);
+       setProgress(100);
               console.log('🎬 [VIDEO_DOWNLOAD] Video generation completed');
               
               // Auto-download the video
@@ -241,13 +241,13 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       console.log('🎬 [VIDEO_DOWNLOAD] Downloading video for job:', jobId);
       
       const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
-        method: 'GET',
+         method: 'GET',
         headers: {
           'Accept': 'video/mp4',
         },
-        credentials: 'same-origin',
-      });
-
+         credentials: 'same-origin',
+       });
+       
       if (!downloadResponse.ok) {
         throw new Error(`Download failed: ${downloadResponse.status}`);
       }
@@ -265,18 +265,18 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       
       console.log('🎬 [VIDEO_DOWNLOAD] Video downloaded successfully');
       onSuccess?.(url);
-      
-    } catch (error) {
+       
+     } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Download failed:', error);
       onError?.(error instanceof Error ? error.message : 'Download failed');
-    }
-  };
+     }
+   };
 
-  const getButtonText = () => {
+   const getButtonText = () => {
     switch (status) {
       case 'generating':
         return `Creating Professional Video... ${progress}%`;
-      case 'completed':
+             case 'completed':
         return 'Professional Video Ready';
       case 'error':
         return 'Generation Failed - Try Again';
@@ -362,21 +362,21 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       </div>
 
       {/* Main Video Generation Button */}
-      <button
-        onClick={handleDownloadVideo}
+    <button
+      onClick={handleDownloadVideo}
         disabled={status === 'generating' || !selectedAvatar}
-        className={getButtonClassName()}
-        title={
+      className={getButtonClassName()}
+      title={
           !selectedAvatar 
             ? 'Please select an avatar first'
             : status === 'generating' 
-              ? 'Professional video generation in progress...' 
-              : 'Create professional video with slide capture and AI avatar'
-        }
-      >
-        {getButtonIcon()}
-        {getButtonText()}
-      </button>
+          ? 'Professional video generation in progress...' 
+          : 'Create professional video with slide capture and AI avatar'
+      }
+    >
+      {getButtonIcon()}
+      {getButtonText()}
+    </button>
       
       {/* Progress Bar */}
       {status === 'generating' && (

@@ -158,13 +158,18 @@ class ElaiVideoGenerationService:
                 }
             
             # Use provided avatar data if available, otherwise fetch from API
+            avatars_response = None  # Initialize to avoid scope issues
             if avatar_data:
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Using provided avatar data")
                 avatar = avatar_data
                 selected_variant = None
                 
+                # Check if the avatar data includes a selectedVariant field (from frontend)
+                if avatar.get("selectedVariant"):
+                    selected_variant = avatar["selectedVariant"]
+                    logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Found selectedVariant in provided data: {selected_variant.get('name', 'Unknown')}")
                 # If avatar_code contains a variant, try to find it in the provided data
-                if '.' in avatar_code:
+                elif '.' in avatar_code:
                     base_code, variant_code = avatar_code.split('.', 1)
                     if avatar.get("variants"):
                         for variant in avatar["variants"]:
@@ -229,10 +234,22 @@ class ElaiVideoGenerationService:
             logger.info(f"  - Gender: {avatar.get('gender', 'Unknown')}")
             logger.info(f"  - Default Voice: {avatar.get('defaultVoice', 'None')}")
             
-            # Check if avatar has valid canvas URL
-            if not avatar.get("canvas"):
+            # Check if avatar has valid canvas URL (either from avatar or selectedVariant)
+            avatar_canvas = avatar.get("canvas")
+            variant_canvas = selected_variant.get("canvas") if selected_variant else None
+            
+            if not avatar_canvas and not variant_canvas:
                 logger.error(f"🎬 [ELAI_VIDEO_GENERATION] Avatar '{avatar.get('name', 'Unknown')}' has empty canvas URL")
                 logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Looking for alternative avatar with valid canvas...")
+                
+                # If we don't have avatars_response yet, fetch it
+                if not avatars_response:
+                    avatars_response = await self.get_avatars()
+                    if not avatars_response["success"]:
+                        return {
+                            "success": False,
+                            "error": f"Failed to get avatars for alternative selection: {avatars_response['error']}"
+                        }
                 
                 # Try to find an alternative avatar with valid canvas
                 alternative_avatar = None
@@ -254,7 +271,8 @@ class ElaiVideoGenerationService:
             
             # Validate avatar canvas URL before proceeding
             # Use variant canvas URL if available, otherwise use avatar canvas URL
-            avatar_canvas_url = selected_variant.get('canvas') if selected_variant else avatar.get('canvas')
+            # If avatar data was enhanced with variant canvas, use that
+            avatar_canvas_url = variant_canvas if variant_canvas else avatar_canvas
             logger.info(f"🎬 [ELAI_VIDEO_GENERATION] Avatar validation:")
             logger.info(f"  - Avatar code: {avatar.get('code')}")
             logger.info(f"  - Selected variant: {selected_variant.get('name') if selected_variant else 'None'}")
