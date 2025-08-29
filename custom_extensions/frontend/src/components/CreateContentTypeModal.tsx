@@ -235,7 +235,7 @@ export const CreateContentTypeModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 justify-between">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
             <button
@@ -263,7 +263,7 @@ export const CreateContentTypeModal = ({
                   <line x1="9" y1="17.5" x2="16" y2="17.5" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
               </div>
-              <div className="text-left">
+              <div className="text-left flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-slate-800">Lesson Plan</span>
                   <span className="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">
@@ -272,11 +272,11 @@ export const CreateContentTypeModal = ({
                 </div>
                 <p className="text-xs text-slate-600">Technical specification with lesson objectives</p>
               </div>
-              <div className="text-slate-400 group-hover:text-slate-600 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            </div>
+            <div className="text-slate-400 group-hover:text-slate-600 transition-colors ml-3">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
           </button>
         </div>
