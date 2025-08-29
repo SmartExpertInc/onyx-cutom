@@ -405,7 +405,7 @@ const WorkspaceMembers: React.FC = () => {
                         <select
                           value={member.roleId}
                           onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                          className="px-2 py-2 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
+                          className="px-1 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
                           required
                         >
                           {allCustomRoles.map((role) => (

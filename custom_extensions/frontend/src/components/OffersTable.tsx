@@ -136,7 +136,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   const updateOfferStatus = async (offerId: number, newStatus: string) => {
     try {
       setUpdatingStatus(offerId);
-      
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/offers/${offerId}`, {
         method: 'PUT',
         headers: {
@@ -155,14 +155,14 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
       }
 
       // Update local state
-      setOffers(prevOffers => 
-        prevOffers.map(offer => 
-          offer.id === offerId 
+      setOffers(prevOffers =>
+        prevOffers.map(offer =>
+          offer.id === offerId
             ? { ...offer, status: newStatus }
             : offer
         )
       );
-      
+
       setEditingStatus(null);
     } catch (error) {
       console.error('Error updating offer status:', error);
@@ -389,49 +389,49 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
       {/* Header with Search, Filter, and Create Button */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-        {/* Search and Filter Row */}
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder={t('interface.searchOffers', 'Search offers...')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
-            />
+          {/* Search and Filter Row */}
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                placeholder={t('interface.searchOffers', 'Search offers...')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
+              />
+            </div>
+            {/* <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
+            >
+              <option value="" className="text-black">{t('interface.allStatuses', 'All Statuses')}</option>
+              <option value="Draft" className="text-black">{t('interface.draft', 'Draft')}</option>
+              <option value="Internal Review" className="text-black">{t('interface.internalReview', 'Internal Review')}</option>
+              <option value="Approved" className="text-black">{t('interface.approved', 'Approved')}</option>
+              <option value="Sent to Client" className="text-black">{t('interface.sentToClient', 'Sent to Client')}</option>
+              <option value="Viewed by Client" className="text-black">{t('interface.viewedByClient', 'Viewed by Client')}</option>
+              <option value="Negotiation" className="text-black">{t('interface.negotiation', 'Negotiation')}</option>
+              <option value="Accepted" className="text-black">{t('interface.accepted', 'Accepted')}</option>
+              <option value="Rejected" className="text-black">{t('interface.rejected', 'Rejected')}</option>
+              <option value="Archived" className="text-black">{t('interface.archived', 'Archived')}</option>
+            </select> */}
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
+
+          {/* Create Button */}
+          <button
+            onClick={() => {
+              // Dispatch event to open create offer modal in parent component
+              window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+                detail: { folder: null }
+              }));
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
           >
-            <option value="" className="text-black">{t('interface.allStatuses', 'All Statuses')}</option>
-            <option value="Draft" className="text-black">{t('interface.draft', 'Draft')}</option>
-            <option value="Internal Review" className="text-black">{t('interface.internalReview', 'Internal Review')}</option>
-            <option value="Approved" className="text-black">{t('interface.approved', 'Approved')}</option>
-            <option value="Sent to Client" className="text-black">{t('interface.sentToClient', 'Sent to Client')}</option>
-            <option value="Viewed by Client" className="text-black">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-            <option value="Negotiation" className="text-black">{t('interface.negotiation', 'Negotiation')}</option>
-            <option value="Accepted" className="text-black">{t('interface.accepted', 'Accepted')}</option>
-            <option value="Rejected" className="text-black">{t('interface.rejected', 'Rejected')}</option>
-            <option value="Archived" className="text-black">{t('interface.archived', 'Archived')}</option>
-          </select>
-        </div>
-        
-        {/* Create Button */}
-        <button
-          onClick={() => {
-            // Dispatch event to open create offer modal in parent component
-            window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
-              detail: { folder: null }
-            }));
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
-        >
-          <Plus size={16} />
-          {t('interface.createOffer', 'Create Offer')}
-        </button>
+            <Plus size={16} />
+            {t('interface.createOffer', 'Create Offer')}
+          </button>
         </div>
       </div>
 
@@ -468,7 +468,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                     <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('status')}
                     className="flex items-center gap-1 hover:text-gray-700"
@@ -476,7 +476,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                     {t('interface.status', 'Status')}
                     <ArrowUpDown size={12} />
                   </button>
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('total_hours')}
@@ -507,17 +507,17 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                 sortedOffers.map((offer) => {
                   const statusInfo = getStatusInfo(offer.status);
                   const StatusIcon = statusInfo.icon;
-                  
+
                   return (
                     <tr key={offer.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <Building className="h-5 w-5 text-gray-400 mr-3" />
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{offer.offer_name}</div>
-                            <div className="text-sm text-gray-500">{offer.company_name}</div>
-                          </div>
+                          <div className="text-sm font-medium text-gray-900">{offer.offer_name}</div>
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="text-sm text-gray-500">{offer.company_name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {formatDate(offer.created_on)}
@@ -528,7 +528,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                           {offer.manager}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
                         {editingStatus === offer.id ? (
                           <select
                             value={offer.status}
@@ -562,7 +562,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                             )}
                           </span>
                         )}
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 text-gray-400 mr-2" />
@@ -573,10 +573,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                         {(() => {
                           // Debug logging
                           console.log(`Offer ${offer.id} link:`, offer.link, 'Type:', typeof offer.link);
-                          
+
                           // Always show View link - use stored link or generate one
                           const viewLink = offer.link || `/custom-projects-ui/offer/${offer.id}`;
-                          
+
                           return (
                             <a
                               href={viewLink}
@@ -637,11 +637,11 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
 
       {/* Share Offer Modal */}
       {shareModalOffer && (
-        <div 
+        <div
           className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50"
           onClick={() => setShareModalOffer(null)}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-gray-100"
             onClick={(e) => e.stopPropagation()}
           >
@@ -713,11 +713,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                       />
                       <button
                         onClick={handleCopyLink}
-                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md transition-all duration-200 ${
-                          copySuccess
-                            ? 'bg-green-100 text-green-600'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
+                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md transition-all duration-200 ${copySuccess
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
                         title={copySuccess ? t('interface.copied', 'Copied!') : t('interface.copyLink', 'Copy Link')}
                       >
                         {copySuccess ? (
@@ -754,11 +753,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                 {shareLink && (
                   <button
                     onClick={handleCopyLink}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      copySuccess
-                        ? 'bg-green-600 text-white'
-                        : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${copySuccess
+                      ? 'bg-green-600 text-white'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
                   >
                     {copySuccess ? (
                       <span className="flex items-center">
@@ -847,7 +845,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {t('interface.editOffer', 'Edit Offer')}
           </h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Company field (read-only) */}
             <div>
@@ -861,7 +859,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
               />
             </div>
-            
+
             {/* Offer Name field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -870,12 +868,12 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
               <input
                 type="text"
                 value={formData.offer_name}
-                onChange={(e) => setFormData({...formData, offer_name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, offer_name: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
             </div>
-            
+
             {/* Manager field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -884,12 +882,12 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
               <input
                 type="text"
                 value={formData.manager}
-                onChange={(e) => setFormData({...formData, manager: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
             </div>
-            
+
             {/* Date field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -898,20 +896,20 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
               <input
                 type="date"
                 value={formData.created_on.split('T')[0]}
-                onChange={(e) => setFormData({...formData, created_on: e.target.value + 'T00:00:00'})}
+                onChange={(e) => setFormData({ ...formData, created_on: e.target.value + 'T00:00:00' })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 required
               />
             </div>
-            
+
             {/* Status dropdown */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('interface.status', 'Status')} *
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({...formData, status: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
                 required
               >
@@ -925,9 +923,9 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
                 <option value="Archived">{t('interface.archived', 'Archived')}</option>
               </select>
-            </div>
+            </div> */}
 
-              {error && (
+            {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
@@ -941,7 +939,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
                 </div>
               </div>
             )}
-            
+
             {/* Action buttons */}
             <div className="flex gap-3 pt-6">
               <button

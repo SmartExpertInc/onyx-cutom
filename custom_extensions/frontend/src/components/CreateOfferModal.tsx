@@ -123,14 +123,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
           const projects = await response.json();
           // Calculate total hours using the same mechanism as ProjectsTable
           let totalHours = 0;
-          
+
           for (const project of projects) {
             if (project.design_microproduct_type === "Training Plan") {
               const lessonData = await getLessonData(project);
               totalHours += lessonData.totalHours || 0;
             }
           }
-          
+
           setFormData(prev => ({ ...prev, total_hours: totalHours }));
         }
       } catch (error) {
@@ -186,7 +186,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
@@ -195,7 +195,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {t('interface.createOffer', 'Create Offer')}
           </h2>
-          
+
           {isLoading && !dataLoaded ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -231,7 +231,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                   </select>
                 )}
               </div>
-              
+
               {/* Offer Name field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -240,13 +240,13 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                 <input
                   type="text"
                   value={formData.offer_name}
-                  onChange={(e) => setFormData({...formData, offer_name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, offer_name: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                   placeholder={t('interface.enterOfferName', 'Enter offer name...')}
                   required
                 />
               </div>
-              
+
               {/* Manager field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -255,35 +255,14 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                 <input
                   type="text"
                   value={formData.manager}
-                  onChange={(e) => setFormData({...formData, manager: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                   placeholder={t('interface.enterManager', 'Enter manager name...')}
                   required
                 />
               </div>
-              
-              {/* Status dropdown */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('interface.status', 'Status')} *
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                  required
-                >
-                  <option value="Draft">{t('interface.draft', 'Draft')}</option>
-                  <option value="Internal Review">{t('interface.internalReview', 'Internal Review')}</option>
-                  <option value="Approved">{t('interface.approved', 'Approved')}</option>
-                  <option value="Sent to Client">{t('interface.sentToClient', 'Sent to Client')}</option>
-                  <option value="Viewed by Client">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-                  <option value="Negotiation">{t('interface.negotiation', 'Negotiation')}</option>
-                  <option value="Accepted">{t('interface.accepted', 'Accepted')}</option>
-                  <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
-                  <option value="Archived">{t('interface.archived', 'Archived')}</option>
-                </select>
-              </div>
+
+              {/* Status is always Draft for new offers - no dropdown needed */}
 
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -299,7 +278,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                   </div>
                 </div>
               )}
-              
+
               {/* Action buttons */}
               <div className="flex gap-3 pt-6">
                 <button
