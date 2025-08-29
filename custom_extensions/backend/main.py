@@ -6957,7 +6957,7 @@ async def startup_event():
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS user_features (
                     id SERIAL PRIMARY KEY,
-                    user_id UUID NOT NULL,
+                    user_id TEXT NOT NULL,
                     feature_name VARCHAR(100) NOT NULL,
                     is_enabled BOOLEAN DEFAULT false,
                     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

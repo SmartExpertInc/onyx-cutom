@@ -64,7 +64,7 @@ const AdminMainPage: React.FC = () => {
               </p>
             </div>
             <Link
-              href="/"
+              href="/projects"
               className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
             >
               <Home className="w-4 h-4 mr-2" />

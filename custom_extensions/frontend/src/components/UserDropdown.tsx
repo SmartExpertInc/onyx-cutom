@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LogOut, User, Settings, Bell } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -45,18 +45,38 @@ const DropdownOption: React.FC<DropdownOptionProps> = ({
   }
 };
 
-// Mock user hook - replace with actual implementation when UserProvider is available
+// User hook to get actual user data
 const useUser = () => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/me', {
+          credentials: 'same-origin',
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   return {
-    user: {
-      id: "1",
-      email: "user@example.com",
-      role: UserRole.ADMIN,
-      is_active: true,
-      is_superuser: false,
-      is_verified: true,
-    },
-    isCurator: false,
+    user,
+    isCurator: user?.role === 'curator',
+    loading,
   };
 };
 
@@ -65,7 +85,7 @@ export function UserDropdown({
 }: {
   hideUserDropdown?: boolean;
 }) {
-  const { user, isCurator } = useUser();
+  const { user, isCurator, loading } = useUser();
   const [userInfoVisible, setUserInfoVisible] = useState(false);
   const userInfoRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -95,7 +115,7 @@ export function UserDropdown({
     });
   };
 
-  const showAdminPanel = !user || user.role === UserRole.ADMIN;
+  const showAdminPanel = !loading && user && user.role === 'admin';
   const showCuratorPanel = user && isCurator;
   const showLogout = user && !checkUserIsNoAuthUser(user.id) && !LOGOUT_DISABLED;
 
