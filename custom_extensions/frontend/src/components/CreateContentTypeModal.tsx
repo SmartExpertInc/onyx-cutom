@@ -261,9 +261,6 @@ export const CreateContentTypeModal = ({
               <div className="text-left flex-1">
                 <div className="flex items-center gap-3 mb-1">
                   <span className="text-base font-semibold text-amber-900">Lesson Plan</span>
-                  <span className="text-xs bg-gradient-to-r from-amber-200 to-orange-200 text-amber-800 px-3 py-1 rounded-full font-medium border border-amber-300">
-                    Planning
-                  </span>
                 </div>
                 <p className="text-sm text-amber-700 leading-relaxed">Technical specification with lesson objectives</p>
               </div>
