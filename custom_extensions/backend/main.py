@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
+from enum import Enum
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -6903,6 +6904,22 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_request_analytics_status_code ON request_analytics(status_code);")
             logger.info("'request_analytics' table ensured.")
 
+            # Feature Flags Table
+            await connection.execute("""
+                CREATE TABLE IF NOT EXISTS user_feature_flags (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL,
+                    feature_name VARCHAR(100) NOT NULL,
+                    is_enabled BOOLEAN DEFAULT true,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(onyx_user_id, feature_name)
+                );
+            """)
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_feature_flags_onyx_user_id ON user_feature_flags(onyx_user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_feature_flags_feature_name ON user_feature_flags(feature_name);")
+            logger.info("'user_feature_flags' table ensured.")
+
             # Add AI parser tracking columns to request_analytics table
             try:
                 await connection.execute("ALTER TABLE request_analytics ADD COLUMN IF NOT EXISTS is_ai_parser_request BOOLEAN DEFAULT FALSE;")
@@ -7014,6 +7031,39 @@ class UserTransactionHistoryResponse(BaseModel):
     user_email: str
     user_name: str
     transactions: List[TimelineActivity]
+
+# Feature Flag Models
+class FeatureFlag(BaseModel):
+    id: int
+    onyx_user_id: str
+    feature_name: str
+    is_enabled: bool
+    created_at: datetime
+    updated_at: datetime
+    model_config = {"from_attributes": True}
+
+class FeatureFlagUpdateRequest(BaseModel):
+    feature_name: str
+    is_enabled: bool
+
+class FeatureFlagBulkUpdateRequest(BaseModel):
+    feature_name: str
+    user_emails: List[str]
+    is_enabled: bool
+
+class UserFeatureFlagsResponse(BaseModel):
+    feature_flags: Dict[str, bool]
+    user_id: str
+
+class FeatureFlagEnum(str, Enum):
+    SETTINGS_MODAL = "settings_modal"
+    QUALITY_TIER_DISPLAY = "quality_tier_display"
+    AI_IMAGE_GENERATION = "ai_image_generation"
+    ADVANCED_EDITING = "advanced_editing"
+    ANALYTICS_DASHBOARD = "analytics_dashboard"
+    CUSTOM_RATES = "custom_rates"
+    FOLDER_MANAGEMENT = "folder_management"
+    BULK_OPERATIONS = "bulk_operations"
 
 class LessonDetail(BaseModel):
     title: str
@@ -19813,3 +19863,112 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
     except Exception as e:
         logger.error(f"[OPENAI_DIRECT] Error in OpenAI direct request: {e}", exc_info=True)
         return f"Error generating content: {str(e)}"
+
+# Feature Flag API Endpoints
+@app.get("/api/custom-projects-backend/admin/users/feature-flags")
+async def get_all_users_feature_flags(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to get all users and their feature flag states"""
+    await verify_admin_user(request)
+    
+    try:
+        from app.services.feature_flags import FeatureFlagService
+        service = FeatureFlagService(pool)
+        users_data = await service.get_all_users_feature_flags()
+        return users_data
+    except Exception as e:
+        logger.error(f"Error getting all users feature flags: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve feature flags")
+
+@app.patch("/api/custom-projects-backend/admin/users/{user_email}/feature-flags")
+async def update_user_feature_flag(
+    user_email: str,
+    update_request: FeatureFlagUpdateRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to update a specific feature flag for a user"""
+    await verify_admin_user(request)
+    
+    try:
+        from app.services.feature_flags import FeatureFlagService
+        service = FeatureFlagService(pool)
+        success = await service.update_feature_flag(user_email, update_request.feature_name, update_request.is_enabled)
+        
+        if success:
+            return {"success": True, "message": f"Feature flag {update_request.feature_name} updated for {user_email}"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to update feature flag")
+    except Exception as e:
+        logger.error(f"Error updating feature flag for user {user_email}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update feature flag")
+
+@app.patch("/api/custom-projects-backend/admin/users/feature-flags/bulk")
+async def bulk_update_feature_flags(
+    bulk_request: FeatureFlagBulkUpdateRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to bulk update feature flags for multiple users"""
+    await verify_admin_user(request)
+    
+    try:
+        from app.services.feature_flags import FeatureFlagService
+        service = FeatureFlagService(pool)
+        results = await service.bulk_update_feature_flag(
+            bulk_request.user_emails, 
+            bulk_request.feature_name, 
+            bulk_request.is_enabled
+        )
+        
+        success_count = sum(1 for success in results.values() if success)
+        return {
+            "success": True,
+            "message": f"Updated feature flag for {success_count}/{len(bulk_request.user_emails)} users",
+            "results": results
+        }
+    except Exception as e:
+        logger.error(f"Error in bulk update feature flags: {e}")
+        raise HTTPException(status_code=500, detail="Failed to bulk update feature flags")
+
+@app.get("/api/custom-projects-backend/users/me/feature-flags", response_model=UserFeatureFlagsResponse)
+async def get_current_user_feature_flags(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get feature flags for the currently authenticated user"""
+    try:
+        onyx_user_id = await get_onyx_user_id(request)
+        if not onyx_user_id:
+            raise HTTPException(status_code=401, detail="User not authenticated")
+        
+        from app.services.feature_flags import FeatureFlagService
+        service = FeatureFlagService(pool)
+        feature_flags = await service.get_user_feature_flags(onyx_user_id)
+        
+        return UserFeatureFlagsResponse(
+            feature_flags=feature_flags,
+            user_id=onyx_user_id
+        )
+    except Exception as e:
+        logger.error(f"Error getting current user feature flags: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve feature flags")
+
+@app.get("/api/custom-projects-backend/admin/feature-flags/available")
+async def get_available_features(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to get list of all available features"""
+    await verify_admin_user(request)
+    
+    try:
+        from app.services.feature_flags import FeatureFlagService
+        service = FeatureFlagService(pool)
+        features = await service.get_available_features()
+        return {"features": features}
+    except Exception as e:
+        logger.error(f"Error getting available features: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve available features")

@@ -123,6 +123,17 @@ export function ClientLayout({
     link: "#",
   });
 
+  // Admin Dashboard
+  contentBuilderAdminItems.push({
+    name: (
+      <a href="/custom-projects-ui/admin/main" target="_blank" rel="noopener noreferrer" className="flex items-center w-full text-sm hover:bg-accent-hovered rounded-md py-1.5 px-2">
+        <FiBarChart2 size={18} className="flex-none opacity-80 mr-1.5" />
+        Admin Dashboard
+      </a>
+    ),
+    link: "/custom-projects-ui/admin/main",
+  });
+
   const sidebarCollections = [
     {
       name: "Connectors",
