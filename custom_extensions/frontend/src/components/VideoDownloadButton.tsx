@@ -84,8 +84,8 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
-      
-    } catch (error) {
+        
+      } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
     }
@@ -177,7 +177,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
       // Poll for completion
       const pollInterval = setInterval(async () => {
         try {
-          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
+          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/presentations/${newJobId}`, {
             method: 'GET',
             credentials: 'same-origin',
           });
@@ -239,7 +239,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
     try {
       console.log('🎬 [VIDEO_DOWNLOAD] Downloading video for job:', jobId);
       
-      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
+      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/presentations/${jobId}/video`, {
          method: 'GET',
         headers: {
           'Accept': 'video/mp4',

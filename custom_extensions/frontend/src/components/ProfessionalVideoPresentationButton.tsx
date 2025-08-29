@@ -176,7 +176,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       // Poll for completion
       const pollInterval = setInterval(async () => {
         try {
-          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
+          const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/presentations/${newJobId}`, {
             method: 'GET',
             credentials: 'same-origin',
           });
@@ -237,7 +237,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
     try {
       console.log('🎬 [PROFESSIONAL_VIDEO] Downloading video for job:', jobId);
       
-      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
+      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/presentations/${jobId}/video`, {
         method: 'GET',
         headers: {
           'Accept': 'video/mp4',
