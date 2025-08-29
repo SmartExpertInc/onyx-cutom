@@ -317,7 +317,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                 fontWeight: '500',
                 color: themeBg,
                 lineHeight: '1.4',
-                textAlign: 'center'
               }}>
                 {isEditable && editingTips === index ? (
                   <InlineEditor
@@ -332,7 +331,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                       fontWeight: '500',
                       color: themeBg,
                       lineHeight: '1.4',
-                      textAlign: 'center',
                       background: 'transparent',
                       border: 'none',
                       outline: 'none'
