@@ -159,52 +159,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  // Responsive scaling that preserves original proportions
-  const originalHeight = 600;
-  const minHeight = 400;
-  
-  // Calculate scale factor based on available space
-  // Use a more flexible approach that allows growth on larger screens
-  const getScaleFactor = () => {
-    // Try to get the container height from the parent element
-    if (typeof window !== 'undefined') {
-      const container = document.querySelector('.bg-white.rounded-md.shadow-lg');
-      if (container) {
-        const containerHeight = container.clientHeight;
-        const containerWidth = container.clientWidth;
-        
-        // Calculate scale based on available space
-        const heightScale = containerHeight / originalHeight;
-        const widthScale = containerWidth / (originalHeight * 16 / 9); // Assuming 16:9 aspect ratio
-        
-        // Use the smaller scale to maintain proportions
-        const calculatedScale = Math.min(heightScale, widthScale);
-        
-        // Ensure minimum scale of 0.67 (400px) and allow growth up to 1.5x
-        return Math.max(Math.min(calculatedScale, 1.5), 0.67);
-      }
-    }
-    
-    // Fallback: use viewport-based calculation
-    const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    
-    const heightScale = (viewportHeight * 0.8) / originalHeight; // 80% of viewport
-    const widthScale = (viewportWidth * 0.8) / (originalHeight * 16 / 9);
-    
-    const calculatedScale = Math.min(heightScale, widthScale);
-    return Math.max(Math.min(calculatedScale, 1.5), 0.67);
-  };
-
-  const scaleFactor = getScaleFactor();
-
-  // Scale all dimensions proportionally
-  const scale = (value: number) => Math.max(value * scaleFactor, value * 0.5);
-
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    minHeight: `${minHeight}px`,
-    height: `${Math.max(600 * scaleFactor, minHeight)}px`,
+    height: '600px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -212,7 +169,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: `${scale(60)}px ${scale(80)}px`,
+    padding: '60px 80px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -263,16 +220,16 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: `${scale(60)}px`
+        marginBottom: '60px'
       }}>
         {/* Title */}
         <div style={{
-          fontSize: `${scale(48)}px`,
+          fontSize: '48px',
           fontWeight: 'bold',
           color: themeTitle,
           lineHeight: '1.1',
-          marginTop: `${scale(40)}px`,
-          marginLeft: `-${scale(332)}%`
+          marginTop: '40px',
+          marginLeft: '-332%'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -281,7 +238,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
-                fontSize: `${scale(48)}px`,
+                fontSize: '48px',
                 fontWeight: 'bold',
                 color: themeTitle,
                 lineHeight: '1.1'
@@ -302,12 +259,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
         {/* Profile image */}
         <div style={{
-          width: `${scale(155)}px`,
-          height: `${scale(155)}px`,
+          width: '155px',
+          height: '155px',
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'absolute',
-          left: `${scale(60)}px`,
+          left: '60px',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -330,33 +287,33 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: `${scale(20)}px`,
-        maxWidth: `${scale(600)}px`,
+        gap: '20px',
+        maxWidth: '600px',
         position: 'relative',
-        marginTop: `${scale(40)}px`,
-        left: `-${scale(17)}%`
+        marginTop: '40px',
+        left: '-17%'
       }}>
         {/* First row */}
         <div style={{
           display: 'flex',
-          gap: `${scale(20)}px`
+          gap: '20px'
         }}>
           {currentTags.slice(0, 2).map((tag, index) => (
             <div
               key={index}
               style={{
-                padding: `${scale(12)}px ${scale(20)}px`,
+                padding: '12px 20px',
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `${scale(1)}px solid ${themeContent}`,
-                borderRadius: `${scale(8)}px`,
-                fontSize: `${scale(34)}px`,
+                border: tag.isHighlighted ? 'none' : `${1}px solid ${themeContent}`,
+                borderRadius: '8px',
+                fontSize: '34px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                width: index === 0 ? `${scale(370)}px` : `${scale(180)}px`
+                width: index === 0 ? '370px' : '180px'
               }}
               onClick={() => isEditable && setEditingTags(index)}
             >
@@ -367,7 +324,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: `${scale(34)}px`,
+                    fontSize: '34px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -385,24 +342,24 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         {/* Second row */}
         <div style={{
           display: 'flex',
-          gap: `${scale(20)}px`
+          gap: '20px'
         }}>
           {currentTags.slice(2, 5).map((tag, index) => (
             <div
               key={index + 2}
               style={{
-                padding: `${scale(12)}px ${scale(20)}px`,
+                padding: '12px 20px',
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `${scale(1)}px solid ${themeContent}`,
-                borderRadius: `${scale(8)}px`,
-                fontSize: `${scale(34)}px`,
+                border: tag.isHighlighted ? 'none' : `${1}px solid ${themeContent}`,
+                borderRadius: '8px',
+                fontSize: '34px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                width: index === 0 ? `${scale(200)}px` : index === 1 ? `${scale(180)}px` : `${scale(180)}px`
+                width: index === 0 ? '200px' : index === 1 ? '180px' : '180px'
               }}
               onClick={() => isEditable && setEditingTags(index + 2)}
             >
@@ -413,7 +370,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: `${scale(34)}px`,
+                    fontSize: '34px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -431,24 +388,24 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         {/* Third row (single tag) */}
         <div style={{
           display: 'flex',
-          gap: `${scale(20)}px`,
+          gap: '20px',
         }}>
           {currentTags.slice(5).map((tag, index) => (
             <div
               key={index + 5}
               style={{
-                padding: `${scale(12)}px ${scale(20)}px`,
+                padding: '12px 20px',
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `${scale(1)}px solid ${themeContent}`,
-                borderRadius: `${scale(8)}px`,
-                fontSize: `${scale(30)}px`,
+                border: tag.isHighlighted ? 'none' : `${1}px solid ${themeContent}`,
+                borderRadius: '8px',
+                fontSize: '30px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                width: `${scale(380)}px`
+                width: '380px'
               }}
               onClick={() => isEditable && setEditingTags(index + 5)}
             >
@@ -459,7 +416,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   onCancel={handleTagCancel}
                   className="tag-editor"
                   style={{
-                    fontSize: `${scale(34)}px`,
+                    fontSize: '34px',
                     color: tag.isHighlighted ? themeBg : themeContent,
                     fontWeight: '500',
                     background: 'transparent',
@@ -478,14 +435,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       {/* Footer */}
       <div style={{
         position: 'absolute',
-        bottom: `${scale(25)}px`,
-        left: `${scale(80)}px`,
+        bottom: '25px',
+        left: '80px',
         display: 'flex',
         alignItems: 'center',
-        gap: `${scale(10)}px`
+        gap: '10px'
       }}>
         <div style={{
-          fontSize: `${scale(14)}px`,
+          fontSize: '14px',
           fontWeight: '300',
           color: themeContent
         }}>
@@ -499,8 +456,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               description="Company logo"
               isEditable={isEditable}
               style={{
-                height: `${scale(30)}px`,
-                maxWidth: `${scale(120)}px`,
+                height: '30px',
+                maxWidth: '120px',
                 objectFit: 'contain'
               }}
             />
@@ -509,15 +466,15 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: `${scale(10)}px`,
+              gap: '10px',
               cursor: isEditable ? 'pointer' : 'default'
             }}
             onClick={() => isEditable && setShowLogoUploadModal(true)}
             >
               <div style={{
-                width: `${scale(30)}px`,
-                height: `${scale(30)}px`,
-                border: `${scale(2)}px solid ${themeContent}`,
+                width: '30px',
+                height: '30px',
+                border: `${2}px solid ${themeContent}`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -525,14 +482,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 justifyContent: 'center'
               }}>
                 <div style={{
-                  width: `${scale(12)}px`,
-                  height: `${scale(2)}px`,
+                  width: '12px',
+                  height: '2px',
                   backgroundColor: themeContent,
                   position: 'absolute'
                 }} />
                 <div style={{
-                  width: `${scale(2)}px`,
-                  height: `${scale(12)}px`,
+                  width: '2px',
+                  height: '12px',
                   backgroundColor: themeContent,
                   position: 'absolute',
                   left: '50%',
@@ -540,7 +497,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: `${scale(14)}px`, fontWeight: '300', color: themeContent }}>Company logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Company logo</span>
             </div>
           )}
         </div>
