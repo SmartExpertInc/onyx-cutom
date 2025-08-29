@@ -415,7 +415,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 width: '45px',
                 height: '45px',
                 borderRadius: '50%',
-                border: `2px solid #fff`,
+                border: `2px solid ${i + 1 === currentStep ? '#fff' : themeBg}`,
                 backgroundColor: i + 1 === currentStep ? "#fff" : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
