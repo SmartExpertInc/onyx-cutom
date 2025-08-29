@@ -199,7 +199,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         top: '352px',
         left: '80px',
         right: '80px',
-        height: '1px',
+        height: '2px',
         backgroundColor: `#5B5B5B`
       }} />
 
@@ -405,7 +405,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         bottom: '100px',
         left: '80px',
         right: '80px',
-        height: '1px',
+        height: '3px',
         backgroundColor: '#5B5B5B'
       }} />
 
@@ -438,8 +438,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div 
             onClick={() => isEditable && setShowUploadModal(true)}
             style={{
-              width: '16px',
-              height: '16px',
+              width: '24px',
+              height: '24px',
               cursor: isEditable ? 'pointer' : 'default',
               position: 'relative'
             }}
@@ -448,8 +448,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               src="/custom-projects-ui/logoNew.png"
               alt="Company Logo"
               style={{
-                width: '16px',
-                height: '16px',
+                width: '24px',
+                height: '24px',
                 objectFit: 'contain'
               }}
             />
