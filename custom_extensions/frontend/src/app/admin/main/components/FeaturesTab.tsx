@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Toggle, Users, Settings, Search, RefreshCw, Save } from 'lucide-react';
+import { Users, Settings, Search, RefreshCw, Save } from 'lucide-react';
 
 interface UserFeatureFlags {
   onyx_user_id: string;
