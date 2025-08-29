@@ -447,7 +447,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <span>{t('interface.sharedWithYou', 'Shared with you')}</span>
         </Link>
         <a 
-          href="/projects-2/view" 
+          href="/custom-projects-ui/projects-2/view" 
           target="_blank" 
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600"
