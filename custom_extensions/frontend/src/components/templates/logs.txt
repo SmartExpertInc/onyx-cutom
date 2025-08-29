@@ -1,112 +1,8 @@
-frontend logs:
-🎨 Font styles applied to Chudo and Forta themes
-page-40d68a2317f1f49b.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Video Lesson Presentation",\n  "slug":…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "A Guide to Investing in Real E… "hasVoiceover": true,\n  "theme": "dark-purple"\n}', componentName: 'VideoLessonPresentationDisplay', …}
-page-40d68a2317f1f49b.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
-page-40d68a2317f1f49b.js:1 📄 Slide 1 (avatar-service-slide): {slideId: 'slide-1755862791071-o2ake5voc', templateId: 'avatar-service-slide', props: {…}}
-page-40d68a2317f1f49b.js:1 ✅ Component-based slides loaded with theme: {slideCount: 1, theme: 'dark-purple', themeColors: {…}, templates: Array(1)}
-page-40d68a2317f1f49b.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
-page-40d68a2317f1f49b.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
-page-40d68a2317f1f49b.js:1 🎭 [AVATAR_MANAGER] Response status: 200
-page-40d68a2317f1f49b.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
-page-40d68a2317f1f49b.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
-page-40d68a2317f1f49b.js:1 🎭 [AVATAR_MANAGER] Selected first avatar: Mikhailo
-page-40d68a2317f1f49b.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
-layout-1e76a94cbd5c836b.js:1 ✅ Mont bold font preloaded successfully
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Starting professional video generation process...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Environment check:
-page-40d68a2317f1f49b.js:1   - CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-40d68a2317f1f49b.js:1   - NEXT_PUBLIC_CUSTOM_BACKEND_URL: /api/custom-projects-backend
-page-40d68a2317f1f49b.js:1   - Window location: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/62
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Step 1: Extracting voiceover text from slides...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Extracting voiceover texts from slide data...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data for voiceover: {slides: Array(1), theme: 'dark-purple'}
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Slide 1 voiceover text: Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Final extracted voiceover texts: ["Welcome to our guide on investing in real estate! …ucceed in this exciting field. Let's get started!"]
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: ["Welcome to our guide on investing in real estate! …ucceed in this exciting field. Let's get started!"]
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Step 2: Getting current slide URL...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Slide URL for capture: https://dev4.contentbuilder.ai/custom-projects-ui/projects/view/62
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Step 3: Extracting slide data...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 1 slides
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Extracted slide data: {slides: Array(1), theme: 'dark-purple'}
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Step 3b: Creating professional presentation (with slide data + avatar + merging)...
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Request parameters:
-page-40d68a2317f1f49b.js:1   - useAvatarMask: true
-page-40d68a2317f1f49b.js:1   - slidesData count: 1
-page-40d68a2317f1f49b.js:1   - voiceoverTexts count: 1
-page-40d68a2317f1f49b.js:1   - theme: dark-purple
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Professional presentation creation response: {success: false, error: 'Presentation service not available. Please check backend configuration.'}
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed with error: 
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-40d68a2317f1f49b.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error type: object
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-40d68a2317f1f49b.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error constructor: Error
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-40d68a2317f1f49b.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error stack: Error: Presentation service not available. Please check backend configuration.
-    at g (https://dev4.contentbuilder.ai/custom-projects-ui/_next/static/chunks/app/projects/view/%5BprojectId%5D/page-40d68a2317f1f49b.js:1:230744)
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-40d68a2317f1f49b.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error message: Presentation service not available. Please check backend configuration.
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-40d68a2317f1f49b.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Error name: Error
-push.6905.window.console.error @ 684-061671409fcbce74.js:1
-g @ page-40d68a2317f1f49b.js:1
-await in g
-iX @ 4bd1b696-4bfbcd47340ed67c.js:1
-(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
-nS @ 4bd1b696-4bfbcd47340ed67c.js:1
-i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
-s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
-page-40d68a2317f1f49b.js:1 🎬 [VIDEO_DOWNLOAD] Calling onError with message: Presentation service not available. Please check backend configuration.
-684-061671409fcbce74.js:1 Video generation error: Presentation service not available. Please check backend configuration.
-
-backend logs:
+backend:
 custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
 custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
 custom_backend-1  | INFO:main:Video generation service imported successfully
-custom_backend-1  | WARNING:main:Presentation service not available: unexpected indent (presentation_service.py, line 229)
+custom_backend-1  | WARNING:main:Presentation service not available: unexpected indent (presentation_service.py, line 293)
 custom_backend-1  | INFO:     Started server process [1]
 custom_backend-1  | INFO:     Waiting for application startup.
 custom_backend-1  | INFO:main:Custom Backend starting...
@@ -154,13 +50,12 @@ custom_backend-1  | INFO:main:Database schema migration completed successfully.
 custom_backend-1  | INFO:     Application startup complete.
 custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - Raw details_data type: <class 'dict'>, value: {
 custom_backend-1  |   "theme": "dark-purple",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "A Guide to Investing in Real Estate",
+custom_backend-1  |         "title": "asdfgasd",
 custom_backend-1  |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
 custom_backend-1  |         "subtitle": "",
 custom_backend-1  |         "avatarAlt": "Avatar",
@@ -171,15 +66,38 @@ custom_backend-1  |         "subtitleColor": "#000000",
 custom_backend-1  |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
 custom_backend-1  |         "backgroundColor": "#ffffff"
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755862791071-o2ake5voc",
+custom_backend-1  |       "slideId": "slide-1756393757940-szjqa3um8",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T11:39:51.071Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T11:39:58.265Z"
+custom_backend-1  |         "createdAt": "2025-08-28T15:09:17.940Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T13:51:22.761Z"
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
 custom_backend-1  |       "templateId": "avatar-service-slide",
 custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "41234",
+custom_backend-1  |         "content": "jfghjfghj",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Hello my name is Max and i am from Ukraine",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756477928119-jx2mhua74",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-29T14:32:08.119Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T14:32:20.225Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "voiceoverText": "Hello my name is Max and i am from Ukraine"
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "A Guide to Investing in Real Estate",
@@ -192,7 +110,7 @@ custom_backend-1  |   "theme": "dark-purple",
 custom_backend-1  |   "slides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
-custom_backend-1  |         "title": "A Guide to Investing in Real Estate",
+custom_backend-1  |         "title": "asdfgasd",
 custom_backend-1  |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
 custom_backend-1  |         "subtitle": "",
 custom_backend-1  |         "avatarAlt": "Avatar",
@@ -203,15 +121,38 @@ custom_backend-1  |         "subtitleColor": "#000000",
 custom_backend-1  |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
 custom_backend-1  |         "backgroundColor": "#ffffff"
 custom_backend-1  |       },
-custom_backend-1  |       "slideId": "slide-1755862791071-o2ake5voc",
+custom_backend-1  |       "slideId": "slide-1756393757940-szjqa3um8",
 custom_backend-1  |       "metadata": {
-custom_backend-1  |         "createdAt": "2025-08-22T11:39:51.071Z",
-custom_backend-1  |         "updatedAt": "2025-08-22T11:39:58.265Z"
+custom_backend-1  |         "createdAt": "2025-08-28T15:09:17.940Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T13:51:22.761Z"
 custom_backend-1  |       },
 custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
 custom_backend-1  |       "templateId": "avatar-service-slide",
 custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "41234",
+custom_backend-1  |         "content": "jfghjfghj",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Hello my name is Max and i am from Ukraine",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756477928119-jx2mhua74",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-29T14:32:08.119Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T14:32:20.225Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "voiceoverText": "Hello my name is Max and i am from Ukraine"
 custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "lessonTitle": "A Guide to Investing in Real Estate",
@@ -220,9 +161,315 @@ custom_backend-1  |   "currentSlideId": "slide_1_intro",
 custom_backend-1  |   "detectedLanguage": "en"
 custom_backend-1  | }
 custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:45094 - "GET /api/custom/projects/view/62 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:45110 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39916 - "GET /api/custom/projects/view/62 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:60030 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53068 - "POST /api/custom/presentations HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39934 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:39930 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:51162 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35520 - "POST /api/custom/presentations HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - Raw details_data type: <class 'dict'>, value: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "asdfgasd",
+custom_backend-1  |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756393757940-szjqa3um8",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-28T15:09:17.940Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T13:51:22.761Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "41234",
+custom_backend-1  |         "content": "jfghjfghj",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Hello my name is Max and i am from Ukraine",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756477928119-jx2mhua74",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-29T14:32:08.119Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T14:32:20.225Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "voiceoverText": "Hello my name is Max and i am from Ukraine"
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "A Guide to Investing in Real Estate",
+custom_backend-1  |   "hasVoiceover": true,
+custom_backend-1  |   "currentSlideId": "slide_1_intro",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - Already dict, after round_hours: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "asdfgasd",
+custom_backend-1  |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756393757940-szjqa3um8",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-28T15:09:17.940Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T13:51:22.761Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "41234",
+custom_backend-1  |         "content": "jfghjfghj",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Hello my name is Max and i am from Ukraine",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756477928119-jx2mhua74",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-29T14:32:08.119Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T14:32:20.225Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "voiceoverText": "Hello my name is Max and i am from Ukraine"
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "A Guide to Investing in Real Estate",
+custom_backend-1  |   "hasVoiceover": true,
+custom_backend-1  |   "currentSlideId": "slide_1_intro",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:35542 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35530 - "GET /api/custom/projects/view/62 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:35554 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:50444 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50446 - "POST /api/custom/presentations HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - Raw details_data type: <class 'dict'>, value: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "asdfgasd",
+custom_backend-1  |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756393757940-szjqa3um8",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-28T15:09:17.940Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T13:51:22.761Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "41234",
+custom_backend-1  |         "content": "jfghjfghj",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Hello my name is Max and i am from Ukraine",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756477928119-jx2mhua74",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-29T14:32:08.119Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T14:32:20.225Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "voiceoverText": "Hello my name is Max and i am from Ukraine"
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "A Guide to Investing in Real Estate",
+custom_backend-1  |   "hasVoiceover": true,
+custom_backend-1  |   "currentSlideId": "slide_1_intro",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - Already dict, after round_hours: {
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "asdfgasd",
+custom_backend-1  |         "content": "Investing in real estate can be a lucrative opportunity for building wealth and securing financial freedom.",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756393757940-szjqa3um8",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-28T15:09:17.940Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T13:51:22.761Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "voiceoverText": "Welcome to our guide on investing in real estate! Today, we will delve into the fundamentals of real estate investing, including key strategies and tips to help you succeed in this exciting field. Let's get started!"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "41234",
+custom_backend-1  |         "content": "jfghjfghj",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Hello my name is Max and i am from Ukraine",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1756477928119-jx2mhua74",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-08-29T14:32:08.119Z",
+custom_backend-1  |         "updatedAt": "2025-08-29T14:32:20.225Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 2,
+custom_backend-1  |       "voiceoverText": "Hello my name is Max and i am from Ukraine"
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "A Guide to Investing in Real Estate",
+custom_backend-1  |   "hasVoiceover": true,
+custom_backend-1  |   "currentSlideId": "slide_1_intro",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 62 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:60396 - "GET /api/custom/projects/view/62 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60386 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:60404 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:60416 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44604 - "POST /api/custom/presentations HTTP/1.1" 200 OK
+
+frontend:
+🎨 Font styles applied to Chudo and Forta themes
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+page-2ba287c2331e4cbd.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Video Lesson Presentation",\n  "slug":…,\n  "custom_rate": null,\n  "quality_tier": null\n}', details: {…}, detailsStringified: '{\n  "lessonTitle": "A Guide to Investing in Real E… "hasVoiceover": true,\n  "theme": "dark-purple"\n}', componentName: 'VideoLessonPresentationDisplay', …}
+page-2ba287c2331e4cbd.js:1 🔍 RAW SLIDES DATA FROM BACKEND:
+page-2ba287c2331e4cbd.js:1 📄 Slide 1 (avatar-service-slide): {slideId: 'slide-1756393757940-szjqa3um8', templateId: 'avatar-service-slide', props: {…}}
+page-2ba287c2331e4cbd.js:1 📄 Slide 2 (avatar-service-slide): {slideId: 'slide-1756477928119-jx2mhua74', templateId: 'avatar-service-slide', props: {…}}
+page-2ba287c2331e4cbd.js:1 ✅ Component-based slides loaded with theme: {slideCount: 2, theme: 'dark-purple', themeColors: {…}, templates: Array(2)}
+page-2ba287c2331e4cbd.js:1 🎬 Exposed slide data to window for video generation: {deck: {…}}
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Loaded saved avatar from localStorage: {avatar: {…}, selectedVariant: {…}}
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Restored saved avatar: Dylan
+page-2ba287c2331e4cbd.js:1 🎬 [AVATAR_SELECTOR] Fetched avatars: 65
+layout-20f5123e5248d375.js:1 ✅ Mont bold font preloaded successfully
+layout-20f5123e5248d375.js:1 ✅ Mont regular font preloaded successfully
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Avatar selected: {avatar: 'Max', variant: 'Business', code: 'max.business'}
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Saved avatar to localStorage: {avatar: {…}, selectedVariant: {…}}
+page-2ba287c2331e4cbd.js:1 🎭 [AVATAR_MANAGER] Updated selected avatar: {avatar: 'Max', variant: 'Business', code: 'business'}
+page-2ba287c2331e4cbd.js:1 🎬 [AVATAR_SELECTOR] Avatar selected and global state updated: {avatar: 'Max', variant: 'Business', code: 'max.business'}
+layout-20f5123e5248d375.js:1 ✅ Mont thin font preloaded successfully
+layout-20f5123e5248d375.js:1 🎉 All Mont fonts preloaded successfully
+layout-20f5123e5248d375.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Starting video generation with selected avatar: {avatar: 'Max', variant: 'Business', avatarCode: 'max.business'}
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Found slide data in window object: 2 slides
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts: (2) ["Welcome to our guide on investing in real estate! …ucceed in this exciting field. Let's get started!", 'Hello my name is Max and i am from Ukraine']
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Slide data extracted successfully
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Slides count: 2
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Theme: dark-purple
+page-2ba287c2331e4cbd.js:1 🎬 [VIDEO_DOWNLOAD] Request payload: {projectName: 'Video Lesson Presentation', voiceoverTexts: Array(2), slidesData: Array(2), theme: 'dark-purple', avatarCode: 'max.business', …}
+684-061671409fcbce74.js:1 🎬 [VIDEO_DOWNLOAD] Video generation failed: Error: Presentation service not available. Please check backend configuration.
+    at b (page-2ba287c2331e4cbd.js:1:236079)
+(anonymous) @ 684-061671409fcbce74.js:1
+b @ page-2ba287c2331e4cbd.js:1
+await in b
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+684-061671409fcbce74.js:1 Video generation error: Presentation service not available. Please check backend configuration.
+(anonymous) @ 684-061671409fcbce74.js:1
+onError @ page-2ba287c2331e4cbd.js:1
+b @ page-2ba287c2331e4cbd.js:1
+await in b
+iX @ 4bd1b696-4bfbcd47340ed67c.js:1
+(anonymous) @ 4bd1b696-4bfbcd47340ed67c.js:1
+nS @ 4bd1b696-4bfbcd47340ed67c.js:1
+i2 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s7 @ 4bd1b696-4bfbcd47340ed67c.js:1
+s5 @ 4bd1b696-4bfbcd47340ed67c.js:1Understand this error
+62:1 The resource https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttf was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+62:1 The resource https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttf was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+62:1 The resource https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttf was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.

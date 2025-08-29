@@ -83,8 +83,8 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
 
       console.log('🎬 [PROFESSIONAL_VIDEO] Could not extract slide data');
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
-      
-    } catch (error) {
+        
+      } catch (error) {
       console.error('🎬 [PROFESSIONAL_VIDEO] Error extracting slide data:', error);
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
     }
@@ -164,7 +164,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
       }
 
       const createData = await createResponse.json();
-      
+
       if (!createData.success) {
         throw new Error(createData.error || 'Failed to create presentation');
       }
@@ -196,7 +196,7 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
             if (statusData.status === 'completed') {
               clearInterval(pollInterval);
               setStatus('completed');
-              setProgress(100);
+      setProgress(100);
               console.log('🎬 [PROFESSIONAL_VIDEO] Video generation completed');
             } else if (statusData.status === 'failed') {
               clearInterval(pollInterval);
