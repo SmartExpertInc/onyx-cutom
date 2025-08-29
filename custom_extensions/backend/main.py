@@ -19668,7 +19668,7 @@ async def check_user_feature(
 ):
     """Check if a feature is enabled for the current user"""
     try:
-        user_id = await get_current_user_id(request)
+        user_id = await get_current_onyx_user_id(request)
         if not user_id:
             return {"is_enabled": False}
         
