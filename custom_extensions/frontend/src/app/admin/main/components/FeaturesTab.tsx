@@ -207,7 +207,7 @@ const FeaturesTab: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Search by email or name..."
+              placeholder="Search by name or user ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -252,9 +252,9 @@ const FeaturesTab: React.FC = () => {
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User Email
-              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  User
+                </th>
               {featureDefinitions.map((feature) => (
                 <th key={feature.feature_name} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <div className="flex flex-col">
@@ -279,7 +279,10 @@ const FeaturesTab: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   <div className="flex items-center">
                     <Users className="w-4 h-4 mr-2 text-gray-400" />
-                    {user.user_email}
+                    <div>
+                      <div className="font-medium">{user.user_name}</div>
+                      <div className="text-xs text-gray-500">{user.user_email}</div>
+                    </div>
                   </div>
                 </td>
                 {featureDefinitions.map((feature) => {

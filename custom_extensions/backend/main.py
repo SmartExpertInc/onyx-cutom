@@ -6986,13 +6986,6 @@ async def startup_event():
             try:
                 initial_features = [
                     ('ai_audit_templates', 'AI Audit Templates', 'Access to AI-powered audit template generation', 'Templates'),
-                    ('advanced_analytics', 'Advanced Analytics', 'Access to detailed analytics and reporting', 'Analytics'),
-                    ('bulk_operations', 'Bulk Operations', 'Ability to perform bulk operations on multiple items', 'Operations'),
-                    ('premium_support', 'Premium Support', 'Priority customer support access', 'Support'),
-                    ('beta_features', 'Beta Features', 'Access to experimental and beta features', 'Experimental'),
-                    ('api_access', 'API Access', 'Access to programmatic API endpoints', 'API'),
-                    ('custom_themes', 'Custom Themes', 'Ability to customize application themes', 'Customization'),
-                    ('advanced_export', 'Advanced Export', 'Access to advanced export options', 'Export')
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
@@ -7007,6 +7000,21 @@ async def startup_event():
                     """, feature_name, display_name, description, category)
                 
                 logger.info(f"Seeded {len(initial_features)} feature definitions.")
+                
+                # Deactivate unused features that are not wired
+                unused_features = [
+                    'advanced_analytics', 'bulk_operations', 'premium_support', 
+                    'beta_features', 'api_access', 'custom_themes', 'advanced_export'
+                ]
+                
+                for feature_name in unused_features:
+                    await connection.execute("""
+                        UPDATE feature_definitions 
+                        SET is_active = false 
+                        WHERE feature_name = $1
+                    """, feature_name)
+                
+                logger.info(f"Deactivated {len(unused_features)} unused feature definitions.")
             except Exception as e:
                 logger.warning(f"Error seeding feature definitions (may already exist): {e}")
 
@@ -19531,7 +19539,7 @@ async def get_users_with_features(
                     fd.description,
                     fd.category,
                     uc.name as user_name,
-                    uc.onyx_user_id as user_email
+                    uc.onyx_user_id as user_display_id
                 FROM user_features uf
                 JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
                 LEFT JOIN user_credits uc ON uf.user_id = uc.onyx_user_id
@@ -19546,7 +19554,7 @@ async def get_users_with_features(
                 if user_id not in users_features:
                     users_features[user_id] = {
                         'user_id': user_id,
-                        'user_email': row['user_email'] or user_id,
+                        'user_email': row['user_display_id'] or user_id,
                         'user_name': row['user_name'] or 'Unknown User',
                         'features': []
                     }
