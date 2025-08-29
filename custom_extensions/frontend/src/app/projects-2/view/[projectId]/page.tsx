@@ -580,8 +580,8 @@ export default function Projects2ViewPage() {
 
         {/* Main Container - 70% width, full height of available space */}
         <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
-          {/* Top Container - Takes 80% of main container height (increased from 75%) */}
-          <div className="h-[80%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
+          {/* Top Container - Takes 85% of main container height */}
+          <div className="h-[85%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Settings Buttons - Top Left Corner */}
             {isComponentBasedVideoLesson && componentBasedSlideDeck && (
               <div className="absolute top-2 left-2 z-10 flex gap-1">
@@ -641,11 +641,11 @@ export default function Projects2ViewPage() {
                   width: '95%',
                   height: '95%',
                   maxWidth: aspectRatio === '16:9' 
-                    ? 'calc((100vh - 145px) * 0.8 * 0.95 * 16 / 9)'
+                    ? 'calc((100vh - 145px) * 0.85 * 0.95 * 16 / 9)'
                     : aspectRatio === '9:16'
-                    ? 'calc((100vh - 145px) * 0.8 * 0.95 * 9 / 16)'
-                    : 'calc((100vh - 145px) * 0.8 * 0.95)',
-                  maxHeight: 'calc((100vh - 145px) * 0.8 * 0.95)',
+                    ? 'calc((100vh - 145px) * 0.85 * 0.95 * 9 / 16)'
+                    : 'calc((100vh - 145px) * 0.85 * 0.95)',
+                  maxHeight: 'calc((100vh - 145px) * 0.85 * 0.95)',
                   // Center and scale the slide
                   position: 'absolute',
                   top: '50%',
@@ -683,18 +683,20 @@ export default function Projects2ViewPage() {
             )}
           </div>
 
-          {/* Bottom Container - Takes 20% of main container height (reduced from 30% due to top container increase) */}
-          <SceneTimeline 
-            scenes={[]} // Commented out regular scenes for now
-            aspectRatio={aspectRatio}
-            onAddScene={() => {}} // Disabled for now
-            onMenuClick={handleMenuClick}
-            videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
-            componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
-            onSlideSelect={handleSlideSelect}
-            currentSlideId={currentSlideId}
-            onAddSlide={handleAddSlide}
-          />
+          {/* Bottom Container - Takes 15% of main container height */}
+          <div className="h-[15%]">
+            <SceneTimeline 
+              scenes={[]} // Commented out regular scenes for now
+              aspectRatio={aspectRatio}
+              onAddScene={() => {}} // Disabled for now
+              onMenuClick={handleMenuClick}
+              videoLessonData={isComponentBasedVideoLesson ? undefined : videoLessonData}
+              componentBasedSlideDeck={isComponentBasedVideoLesson ? componentBasedSlideDeck : undefined}
+              onSlideSelect={handleSlideSelect}
+              currentSlideId={currentSlideId}
+              onAddSlide={handleAddSlide}
+            />
+          </div>
         </div>
       </div>
 
