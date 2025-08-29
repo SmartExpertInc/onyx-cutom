@@ -139,7 +139,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             color: themeContent,
             lineHeight: '1.6',
             position: 'relative',
-            bottom: '-135px'
+            bottom: '-160px'
           }}>
             {isEditable && editingContent ? (
               <ImprovedInlineEditor
