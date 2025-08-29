@@ -156,7 +156,30 @@ The fix relies on existing environment variable handling:
 
 ---
 
-**Fix Status:** ✅ **IMPLEMENTED**  
+**Fix Status:** ✅ **IMPLEMENTED + REDIRECT FIX APPLIED**  
 **Requires Restart:** Yes (nginx container)  
 **Breaking Changes:** None  
-**Backward Compatibility:** Full 
+**Backward Compatibility:** Full  
+
+---
+
+## 🆕 CRITICAL UPDATE - Double `/smartdrive/` Path Fix
+
+**Issue Discovered:** The iframe was showing white page due to malformed URLs with double `/smartdrive/` paths:
+- ❌ `GET /smartdrive/smartdrive/apps/files/` → 404 Not Found
+- ✅ `GET /smartdrive/apps/files/` → Expected working URL
+
+**Root Cause:** Nginx `proxy_redirect` rule was too broad:
+```nginx
+proxy_redirect ~^/(.*)$ /smartdrive/$1;  # ❌ Matches ALL paths
+```
+
+**Fix Applied:** Added negative lookahead to prevent double prefixing:
+```nginx
+proxy_redirect ~^/(?!smartdrive/)(.*)$ /smartdrive/$1;  # ✅ Excludes paths starting with /smartdrive/
+```
+
+**Files Updated:**
+- `deployment/data/nginx/app.conf.template`
+- `deployment/data/nginx/app.conf.template.dev` 
+- `deployment/data/nginx/app.conf.template.no-letsencrypt` 
