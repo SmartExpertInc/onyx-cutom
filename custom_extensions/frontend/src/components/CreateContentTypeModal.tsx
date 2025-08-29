@@ -277,7 +277,7 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Visual Separator */}
-        <div className="mb-6 flex items-center">
+        <div className="mb-3 flex items-center">
           <div className="flex-1 border-t border-gray-200"></div>
           <span className="px-3 text-xs text-gray-500 font-medium">Content Creation Options</span>
           <div className="flex-1 border-t border-gray-200"></div>
