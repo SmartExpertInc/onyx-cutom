@@ -247,13 +247,13 @@ export const CreateContentTypeModal = ({
           </div>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-3">
           <button
             onClick={() => handleContentCreate('lessonPlan')}
-            className="w-full bg-yellow-50 border border-yellow-300 rounded-lg p-3 hover:bg-yellow-100 transition-all duration-200 flex items-center justify-between group"
+            className="w-full bg-gray-50 border-2 border-dashed border-slate-300 rounded-lg p-3 hover:bg-gray-100 transition-all duration-200 flex items-center justify-between group"
           >
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-yellow-200 text-yellow-700">
+              <div className="p-2 rounded-lg bg-slate-200 text-slate-700">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="4" y="6" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
                   <line x1="9" y1="7.5" x2="16" y2="7.5" stroke="currentColor" strokeWidth="1.5" />
@@ -265,15 +265,22 @@ export const CreateContentTypeModal = ({
               </div>
               <div className="text-left">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-yellow-800">Lesson Plan</span>
-                  <span className="text-xs bg-yellow-200 text-yellow-700 px-2 py-0.5 rounded-full">
+                  <span className="text-sm font-semibold text-slate-800">Lesson Plan</span>
+                  <span className="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">
                     Planning
                   </span>
                 </div>
-                <p className="text-xs text-yellow-600">Create a technical specification with lesson objectives</p>
+                <p className="text-xs text-slate-600">Create a technical specification with lesson objectives</p>
               </div>
             </div>
           </button>
+        </div>
+
+        {/* Visual Separator */}
+        <div className="mb-6 flex items-center">
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="px-3 text-xs text-gray-500 font-medium">Content Creation Options</span>
+          <div className="flex-1 border-t border-gray-200"></div>
         </div>
 
         {/* Combined Content Types View */}
