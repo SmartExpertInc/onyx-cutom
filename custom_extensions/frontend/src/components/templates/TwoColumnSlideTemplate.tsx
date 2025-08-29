@@ -91,6 +91,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         height: '100%',
         backgroundColor: themeBg,
         padding: '60px',
+        paddingBottom: '110px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'end',
@@ -101,8 +102,9 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           width: '120px',
           height: '120px',
           borderRadius: '50%',
-          overflow: 'hidden',
-          marginBottom: '40px'
+          position: 'absolute',
+          top: '40px',
+          right: '8px',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -137,7 +139,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             color: themeContent,
             lineHeight: '1.6',
             position: 'relative',
-            bottom: '-100px'
+            bottom: '-135px'
           }}>
             {isEditable && editingContent ? (
               <ImprovedInlineEditor
