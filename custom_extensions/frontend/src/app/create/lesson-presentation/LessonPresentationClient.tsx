@@ -20,8 +20,8 @@ const CUSTOM_BACKEND_URL =
   process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
 // Simple bouncing dots loading animation (optionally with a status line)
-type LoadingProps = { message?: string };
-const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
+type LoadingProps = { message?: string; showFallback?: boolean };
+const LoadingAnimation: React.FC<LoadingProps> = ({ message, showFallback = true }) => {
   const { t } = useLanguage();
   return (
     <div className="flex flex-col items-center mt-4" aria-label="Loading">
@@ -35,7 +35,7 @@ const LoadingAnimation: React.FC<LoadingProps> = ({ message }) => {
         ))}
       </div>
       {message && (
-        <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{message || t('interface.generate.loading', 'Generating...')}</p>
+        <p className="text-sm text-gray-600 select-none min-h-[1.25rem]">{showFallback ? (message || t('interface.generate.loading', 'Generating...')) : message}</p>
       )}
     </div>
   );
@@ -1340,13 +1340,7 @@ export default function LessonPresentationClient() {
             {/* Loading state */}
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
-                <LoadingAnimation message={thoughts[thoughtIdx]} />
-                <p className="text-gray-600 text-center max-w-md text-sm">
-                  {formatRetryCounter > 0
-                    ? `Retrying generation due to formatting issues... (Attempt ${formatRetryCounter}/2)`
-                    : t('interface.lesson.generatingPreview', 'Generating lesson presentation preview...')
-                  }
-                </p>
+                <LoadingAnimation message={thoughts[thoughtIdx]} showFallback={false} />
                 {formatRetryCounter > 0 && debugInfo && (
                   <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-w-md">
                     <p>Debug: Content length: {debugInfo.contentLength}, Slides found: {debugInfo.slidesFound}</p>
