@@ -365,10 +365,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '25px',
+            fontSize: '28px',
             color: themeBg,
             lineHeight: '1.4',
-            maxWidth: '590px',
+            maxWidth: '643px',
             minHeight: '30px',
             display: 'flex',
             alignItems: 'flex-start'
@@ -381,7 +381,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 multiline={true}
                 className="benefits-description-editor"
                 style={{
-                  fontSize: '25px',
+                  fontSize: '28px',
                   color: themeBg,
                   lineHeight: '1.4',
                   width: '100%'
@@ -481,7 +481,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                fontSize: '18px',
+                fontSize: '20px',
                 color: themeContent
               }}
             >
@@ -493,7 +493,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   onCancel={handleBenefitCancel}
                   className="benefit-editor"
                   style={{
-                    fontSize: '16px',
+                    fontSize: '20px',
                     color: themeContent,
                     flex: '1'
                   }}

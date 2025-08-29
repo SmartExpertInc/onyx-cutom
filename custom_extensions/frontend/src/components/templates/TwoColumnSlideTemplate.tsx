@@ -135,11 +135,11 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
           {/* Content text */}
           <div style={{
-            fontSize: '14px',
+            fontSize: '13px',
             color: themeContent,
             lineHeight: '1.6',
             position: 'relative',
-            bottom: '-160px'
+            bottom: '-205px'
           }}>
             {isEditable && editingContent ? (
               <ImprovedInlineEditor
@@ -149,7 +149,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 multiline={true}
                 className="two-column-content-editor"
                 style={{
-                  fontSize: '14px',
+                  fontSize: '13px',
                   color: themeContent,
                   lineHeight: '1.6',
                   width: '100%',
