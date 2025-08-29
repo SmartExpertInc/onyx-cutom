@@ -270,7 +270,7 @@ export const CreateContentTypeModal = ({
                     Planning
                   </span>
                 </div>
-                <p className="text-xs text-slate-600">Create a technical specification with lesson objectives</p>
+                <p className="text-xs text-slate-600">Technical specification with lesson objectives</p>
               </div>
             </div>
           </button>
