@@ -28,7 +28,6 @@ import ShapeSettings from '../components/ShapeSettings';
 import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import '../components/compact-slide-styles.css';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -637,7 +636,7 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden z-0 compact-slide-mode"
+                className="bg-white rounded-md shadow-lg relative overflow-hidden z-0"
                 style={{
                   width: '95%',
                   height: '95%',

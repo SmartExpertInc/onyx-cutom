@@ -1,64 +1,64 @@
-/* Compact slide mode styles for projects-2 interface - 33.3% SCALING */
+/* Compact slide mode styles for projects-2 interface - MODERATE SCALING */
 .compact-slide-mode {
-  --slide-font-size: 0.75rem;
-  --slide-padding: 0.5rem;
-  --slide-spacing: 0.375rem;
-  --slide-title-size: 1.25rem;
-  --slide-subtitle-size: 1rem;
-  --slide-content-size: 0.875rem;
+  --slide-font-size: 0.875rem;
+  --slide-padding: 0.75rem;
+  --slide-spacing: 0.5rem;
+  --slide-title-size: 1.5rem;
+  --slide-subtitle-size: 1.125rem;
+  --slide-content-size: 1rem;
   --slide-card-width: 400px;
   --slide-card-height: 224px;
   --slide-image-size: 60px;
   --slide-border-radius: 20px;
 }
 
-/* ===== 33.3% SCALING RULES ===== */
+/* ===== MODERATE SCALING RULES ===== */
 
-/* Force all slides to use compact height (33.3% smaller) */
+/* Force all slides to use compact height */
 .compact-slide-mode [style*="height: 600px"],
 .compact-slide-mode [style*="min-height: 600px"] {
   height: 400px !important;
   min-height: 400px !important;
 }
 
-/* Override all font sizes with 33.3% scaling */
+/* Override all font sizes with moderate scaling */
 .compact-slide-mode [style*="font-size: 45px"] {
-  font-size: 30px !important;
+  font-size: 28px !important;
   line-height: 1.2 !important;
 }
 
 .compact-slide-mode [style*="font-size: 44px"] {
-  font-size: 29px !important;
-  line-height: 1.2 !important;
-}
-
-.compact-slide-mode [style*="font-size: 40px"] {
   font-size: 27px !important;
   line-height: 1.2 !important;
 }
 
+.compact-slide-mode [style*="font-size: 40px"] {
+  font-size: 25px !important;
+  line-height: 1.2 !important;
+}
+
 .compact-slide-mode [style*="font-size: 36px"] {
-  font-size: 24px !important;
+  font-size: 22px !important;
   line-height: 1.2 !important;
 }
 
 .compact-slide-mode [style*="font-size: 30px"] {
-  font-size: 20px !important;
+  font-size: 18px !important;
   line-height: 1.2 !important;
 }
 
 .compact-slide-mode [style*="font-size: 26px"] {
-  font-size: 17px !important;
-  line-height: 1.3 !important;
-}
-
-.compact-slide-mode [style*="font-size: 24px"] {
   font-size: 16px !important;
   line-height: 1.3 !important;
 }
 
-.compact-slide-mode [style*="font-size: 22px"] {
+.compact-slide-mode [style*="font-size: 24px"] {
   font-size: 15px !important;
+  line-height: 1.3 !important;
+}
+
+.compact-slide-mode [style*="font-size: 22px"] {
+  font-size: 14px !important;
   line-height: 1.3 !important;
 }
 
@@ -78,51 +78,51 @@
 }
 
 .compact-slide-mode [style*="font-size: 14px"] {
-  font-size: 9px !important;
+  font-size: 10px !important;
   line-height: 1.3 !important;
 }
 
 .compact-slide-mode [style*="font-size: 12px"] {
-  font-size: 8px !important;
+  font-size: 9px !important;
   line-height: 1.3 !important;
 }
 
 .compact-slide-mode [style*="font-size: 10px"] {
-  font-size: 7px !important;
+  font-size: 8px !important;
   line-height: 1.3 !important;
 }
 
-/* Override all padding values with 33.3% scaling */
+/* Override all padding values with moderate scaling */
 .compact-slide-mode [style*="padding: 80px"] {
-  padding: 53px !important;
-}
-
-.compact-slide-mode [style*="padding: 60px"] {
   padding: 40px !important;
 }
 
+.compact-slide-mode [style*="padding: 60px"] {
+  padding: 30px !important;
+}
+
 .compact-slide-mode [style*="padding: 50px"] {
-  padding: 33px !important;
+  padding: 25px !important;
 }
 
 .compact-slide-mode [style*="padding: 40px"] {
-  padding: 27px !important;
-}
-
-.compact-slide-mode [style*="padding: 30px"] {
   padding: 20px !important;
 }
 
-/* Override specific padding patterns with 33.3% scaling */
+.compact-slide-mode [style*="padding: 30px"] {
+  padding: 15px !important;
+}
+
+/* Override specific padding patterns with moderate scaling */
 .compact-slide-mode [style*="padding: 60px 80px"] {
-  padding: 40px 53px !important;
+  padding: 30px 40px !important;
 }
 
 .compact-slide-mode [style*="padding: 40px 60px"] {
-  padding: 27px 40px !important;
+  padding: 20px 30px !important;
 }
 
-/* Override width and height values with 33.3% scaling */
+/* Override width and height values with moderate scaling */
 .compact-slide-mode [style*="width: 600px"] {
   width: 400px !important;
 }
@@ -133,95 +133,95 @@
 
 .compact-slide-mode [style*="width: 80px"],
 .compact-slide-mode [style*="height: 80px"] {
-  width: 53px !important;
-  height: 53px !important;
+  width: 60px !important;
+  height: 60px !important;
 }
 
 .compact-slide-mode [style*="width: 120px"],
 .compact-slide-mode [style*="height: 120px"] {
-  width: 80px !important;
-  height: 80px !important;
+  width: 90px !important;
+  height: 90px !important;
 }
 
-/* Override margin values with 33.3% scaling */
+/* Override margin values with moderate scaling */
 .compact-slide-mode [style*="margin-bottom: 40px"] {
-  margin-bottom: 27px !important;
+  margin-bottom: 20px !important;
 }
 
 .compact-slide-mode [style*="margin-bottom: 32px"] {
-  margin-bottom: 21px !important;
-}
-
-.compact-slide-mode [style*="margin-bottom: 24px"] {
   margin-bottom: 16px !important;
 }
 
+.compact-slide-mode [style*="margin-bottom: 24px"] {
+  margin-bottom: 12px !important;
+}
+
 .compact-slide-mode [style*="margin-bottom: 20px"] {
-  margin-bottom: 13px !important;
+  margin-bottom: 10px !important;
 }
 
 .compact-slide-mode [style*="margin-bottom: 16px"] {
-  margin-bottom: 11px !important;
+  margin-bottom: 8px !important;
 }
 
-/* Override gap values with 33.3% scaling */
+/* Override gap values with moderate scaling */
 .compact-slide-mode [style*="gap: 32px"] {
-  gap: 21px !important;
-}
-
-.compact-slide-mode [style*="gap: 24px"] {
   gap: 16px !important;
 }
 
-.compact-slide-mode [style*="gap: 16px"] {
-  gap: 11px !important;
+.compact-slide-mode [style*="gap: 24px"] {
+  gap: 12px !important;
 }
 
-/* Override border radius with 33.3% scaling */
+.compact-slide-mode [style*="gap: 16px"] {
+  gap: 8px !important;
+}
+
+/* Override border radius with moderate scaling */
 .compact-slide-mode [style*="border-radius: 30px"] {
   border-radius: 20px !important;
 }
 
-/* Override positioning with 33.3% scaling */
+/* Override positioning with moderate scaling */
 .compact-slide-mode [style*="top: 40px"] {
-  top: 27px !important;
+  top: 20px !important;
 }
 
 .compact-slide-mode [style*="left: 40px"] {
-  left: 27px !important;
+  left: 20px !important;
 }
 
-/* Override max-width values with 33.3% scaling */
+/* Override max-width values with moderate scaling */
 .compact-slide-mode [style*="max-width: 900px"] {
   max-width: 600px !important;
 }
 
 .compact-slide-mode [style*="max-width: 700px"] {
-  max-width: 467px !important;
+  max-width: 500px !important;
 }
 
-/* Override list item spacing with 33.3% scaling */
+/* Override list item spacing with moderate scaling */
 .compact-slide-mode ul li,
 .compact-slide-mode ol li {
-  margin-bottom: 3px !important;
+  margin-bottom: 4px !important;
   font-size: 12px !important;
   line-height: 1.3 !important;
 }
 
-/* Override button and interactive elements with 33.3% scaling */
+/* Override button and interactive elements with moderate scaling */
 .compact-slide-mode button,
 .compact-slide-mode [class*="button"] {
-  padding: 5px 8px !important;
-  font-size: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 10px !important;
 }
 
-/* Override image dimensions with 33.3% scaling */
+/* Override image dimensions with moderate scaling */
 .compact-slide-mode img {
   max-width: 100% !important;
   height: auto !important;
 }
 
-/* Override any remaining large elements with 33.3% scaling */
+/* Override any remaining large elements with moderate scaling */
 .compact-slide-mode [style*="height: 60px"] {
   height: 40px !important;
 }
@@ -231,44 +231,44 @@
 }
 
 .compact-slide-mode [style*="height: 156px"] {
-  height: 104px !important;
+  height: 80px !important;
 }
 
-/* Override background image heights with 33.3% scaling */
+/* Override background image heights with moderate scaling */
 .compact-slide-mode [style*="height: 240px"] {
-  height: 160px !important;
+  height: 120px !important;
 }
 
 .compact-slide-mode [style*="height: 200px"] {
-  height: 133px !important;
+  height: 100px !important;
 }
 
-/* Override any remaining padding with 33.3% scaling */
+/* Override any remaining padding with moderate scaling */
 .compact-slide-mode [style*="padding: 20px 30px"] {
-  padding: 13px 20px !important;
+  padding: 10px 15px !important;
 }
 
 .compact-slide-mode [style*="padding: 30px 40px"] {
-  padding: 20px 27px !important;
+  padding: 15px 20px !important;
 }
 
-/* ===== UNIVERSAL 33.3% SCALING ===== */
+/* ===== UNIVERSAL MODERATE SCALING ===== */
 
-/* Force all elements to use 33.3% scaling */
+/* Force all elements to use moderate scaling */
 .compact-slide-mode * {
   box-sizing: border-box !important;
 }
 
-/* Override any remaining large text with 33.3% scaling */
+/* Override any remaining large text with moderate scaling */
 .compact-slide-mode [style*="font-size"] {
-  font-size: 9px !important;
+  font-size: 12px !important;
 }
 
-/* Override any remaining large spacing with 33.3% scaling */
+/* Override any remaining large spacing with moderate scaling */
 .compact-slide-mode [style*="margin"] {
-  margin: 3px !important;
+  margin: 4px !important;
 }
 
 .compact-slide-mode [style*="padding"] {
-  padding: 7px !important;
+  padding: 10px !important;
 }
