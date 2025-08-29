@@ -1298,7 +1298,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       chartSize: { type: 'number', label: 'Chart Size', default: 280, min: 200, max: 400 },
       descriptionText: { type: 'text', label: 'Description Text', required: false }
     }
-  }
+  },
+  
   'avatar-service-slide': {
     id: 'avatar-service-slide',
     name: 'Avatar Service Slide',
