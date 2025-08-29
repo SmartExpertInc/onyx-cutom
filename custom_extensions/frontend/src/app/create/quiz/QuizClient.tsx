@@ -187,6 +187,38 @@ export default function QuizClient() {
         let correctAnswer = '';
         let explanation = '';
 
+        // Common translations of "Explanation" in different languages
+        const explanationPatterns = [
+          /\*\*Explanation:\*\*/i,     // English
+          /\*\*Explicación:\*\*/i,    // Spanish
+          /\*\*Explication:\*\*/i,    // French
+          /\*\*Erklärung:\*\*/i,      // German
+          /\*\*Spiegazione:\*\*/i,    // Italian
+          /\*\*Explicação:\*\*/i,     // Portuguese
+          /\*\*Objaśnienie:\*\*/i,    // Polish
+          /\*\*Объяснение:\*\*/i,     // Russian
+          /\*\*Пояснення:\*\*/i,      // Ukrainian
+          /\*\*説明:\*\*/i,            // Japanese
+          /\*\*解释:\*\*/i,            // Chinese Simplified
+          /\*\*解釋:\*\*/i,            // Chinese Traditional
+          /\*\*설명:\*\*/i,            // Korean
+          /\*\*توضیح:\*\*/i,          // Persian
+          /\*\*شرح:\*\*/i,            // Arabic
+          /\*\*הסבר:\*\*/i,           // Hebrew
+          /\*\*Açıklama:\*\*/i,       // Turkish
+          /\*\*Förklaring:\*\*/i,     // Swedish
+          /\*\*Forklaring:\*\*/i,     // Norwegian/Danish
+          /\*\*Uitleg:\*\*/i,         // Dutch
+          /\*\*Vysvětlení:\*\*/i,     // Czech
+          /\*\*Magyarázat:\*\*/i,     // Hungarian
+          /\*\*Selitys:\*\*/i,        // Finnish
+          /\*\*Forklaring:\*\*/i,     // Afrikaans
+          /\*\*వివరణ:\*\*/i,         // Telugu
+          /\*\*स्पष्टीकरण:\*\*/i,    // Hindi
+          /\*\*ব্যাখ্যা:\*\*/i,       // Bengali
+          /\*\*விளக்கம்:\*\*/i,      // Tamil
+        ];
+
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (line.match(/^\s*-\s*[A-D]\)/)) {
@@ -194,8 +226,16 @@ export default function QuizClient() {
             options.push(line.replace(/^\s*-\s*/, '').trim());
           } else if (line.includes('**Correct Answer:**')) {
             correctAnswer = line.replace(/\*\*Correct Answer:\*\*\s*/, '').trim();
-          } else if (line.includes('**Explanation:**')) {
-            explanation = line.replace(/\*\*Explanation:\*\*\s*/, '').trim();
+          } else {
+            // Check for explanation patterns in any language
+            let isExplanationLine = false;
+            for (const pattern of explanationPatterns) {
+              if (pattern.test(line)) {
+                explanation = line.replace(pattern, '').trim();
+                isExplanationLine = true;
+                break;
+              }
+            }
           }
         }
 
@@ -332,6 +372,38 @@ export default function QuizClient() {
     let currentQuestion = "";
     let inQuestion = false;
 
+    // Common translations of "Explanation" in different languages (same as in parseQuizIntoQuestions)
+    const explanationPatterns = [
+      /\*\*Explanation:\*\*/i,     // English
+      /\*\*Explicación:\*\*/i,    // Spanish
+      /\*\*Explication:\*\*/i,    // French
+      /\*\*Erklärung:\*\*/i,      // German
+      /\*\*Spiegazione:\*\*/i,    // Italian
+      /\*\*Explicação:\*\*/i,     // Portuguese
+      /\*\*Objaśnienie:\*\*/i,    // Polish
+      /\*\*Объяснение:\*\*/i,     // Russian
+      /\*\*Пояснення:\*\*/i,      // Ukrainian
+      /\*\*説明:\*\*/i,            // Japanese
+      /\*\*解释:\*\*/i,            // Chinese Simplified
+      /\*\*解釋:\*\*/i,            // Chinese Traditional
+      /\*\*설명:\*\*/i,            // Korean
+      /\*\*توضیح:\*\*/i,          // Persian
+      /\*\*شرح:\*\*/i,            // Arabic
+      /\*\*הסבר:\*\*/i,           // Hebrew
+      /\*\*Açıklama:\*\*/i,       // Turkish
+      /\*\*Förklaring:\*\*/i,     // Swedish
+      /\*\*Forklaring:\*\*/i,     // Norwegian/Danish
+      /\*\*Uitleg:\*\*/i,         // Dutch
+      /\*\*Vysvětlení:\*\*/i,     // Czech
+      /\*\*Magyarázat:\*\*/i,     // Hungarian
+      /\*\*Selitys:\*\*/i,        // Finnish
+      /\*\*Forklaring:\*\*/i,     // Afrikaans
+      /\*\*వివరణ:\*\*/i,         // Telugu
+      /\*\*स्पष्टीकरण:\*\*/i,    // Hindi
+      /\*\*ব্যাখ্যা:\*\*/i,       // Bengali
+      /\*\*விளக்கம்:\*\*/i,      // Tamil
+    ];
+
     for (const line of lines) {
       const trimmedLine = line.trim();
 
@@ -352,13 +424,26 @@ export default function QuizClient() {
         if (trimmedLine.match(/^\s*-\s*[A-D]\)/)) {
           // Stop here - we've reached options
           inQuestion = false;
-        } else if (trimmedLine.includes('**Correct Answer:**') ||
-          trimmedLine.includes('**Explanation:**')) {
-          // Stop here - we've reached answer/explanation
+        } else if (trimmedLine.includes('**Correct Answer:**')) {
+          // Stop here - we've reached answer
           inQuestion = false;
         } else {
-          // Continue adding to current question
-          currentQuestion += `\n${line}`;
+          // Check for explanation patterns in any language
+          let isExplanationLine = false;
+          for (const pattern of explanationPatterns) {
+            if (pattern.test(trimmedLine)) {
+              isExplanationLine = true;
+              break;
+            }
+          }
+          
+          if (isExplanationLine) {
+            // Stop here - we've reached explanation
+            inQuestion = false;
+          } else {
+            // Continue adding to current question
+            currentQuestion += `\n${line}`;
+          }
         }
       }
     }
