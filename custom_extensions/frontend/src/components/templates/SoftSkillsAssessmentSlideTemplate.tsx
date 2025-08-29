@@ -308,11 +308,12 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               backgroundColor: tip.isHighlighted ? themeAccent : themeTitle,
               minHeight: '310px',
               display: 'flex',
-              paddingLeft: '10px',
+              paddingLeft: '32px',
+              paddingTop: '40px',
               zIndex: '2',
             }}>
               <div style={{
-                fontSize: '29px',
+                fontSize: '32px',
                 fontWeight: '500',
                 color: themeBg,
                 lineHeight: '1.4',
@@ -326,7 +327,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     multiline={true}
                     className="tip-editor"
                     style={{
-                      fontSize: '29px',
+                      fontSize: '32px',
+                      maxWidth: '386px',
                       fontWeight: '500',
                       color: themeBg,
                       lineHeight: '1.4',
