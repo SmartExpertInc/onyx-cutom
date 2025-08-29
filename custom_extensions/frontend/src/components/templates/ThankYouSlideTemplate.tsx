@@ -418,49 +418,62 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         alignItems: 'center',
         gap: '10px'
       }}>
-<div 
-          onClick={() => isEditable && setShowUploadModal(true)}
-          style={{
-            width: '16px',
-            height: '16px',
-            cursor: isEditable ? 'pointer' : 'default',
-            position: 'relative'
-          }}
-        >
-          <img
-            src={logoNew || '/custom-projects-ui/static_design_images/logoNew.png'}
-            alt="Company Logo"
+{logoNew ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '16px',
+              width: '16px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo image
+          <div 
+            onClick={() => isEditable && setShowUploadModal(true)}
             style={{
               width: '16px',
               height: '16px',
-              objectFit: 'contain'
+              cursor: isEditable ? 'pointer' : 'default',
+              position: 'relative'
             }}
-            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              console.log('Failed to load logo:', logoNew);
-              // Fallback to default logo
-              (e.target as HTMLImageElement).src = '/custom-projects-ui/static_design_images/logoNew.png';
-            }}
-          />
-          {isEditable && (
-            <div style={{
-              position: 'absolute',
-              top: '-2px',
-              right: '-2px',
-              width: '8px',
-              height: '8px',
-              backgroundColor: '#ff4444',
-              borderRadius: '50%',
-              fontSize: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              opacity: 0.8
-            }}>
-              ✎
-            </div>
-          )}
-        </div>
+          >
+            <img
+              src="/custom-projects-ui/logoNew.png"
+              alt="Company Logo"
+              style={{
+                width: '16px',
+                height: '16px',
+                objectFit: 'contain'
+              }}
+            />
+            {isEditable && (
+              <div style={{
+                position: 'absolute',
+                top: '-2px',
+                right: '-2px',
+                width: '8px',
+                height: '8px',
+                backgroundColor: '#ff4444',
+                borderRadius: '50%',
+                fontSize: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                opacity: 0.8
+              }}>
+                ✎
+              </div>
+            )}
+          </div>
+        )}
         <div style={{ position: 'relative' }}>
           {isEditable && editingCompanyName ? (
             <ImprovedInlineEditor
