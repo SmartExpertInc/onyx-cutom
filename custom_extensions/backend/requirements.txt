@@ -18,7 +18,8 @@ tiktoken
 openai
 Pillow # For pie chart image generation
 sqlalchemy
-cryptographypsutil
+cryptography
+psutil
 aiohttp
 ffmpeg-python
 playwright
