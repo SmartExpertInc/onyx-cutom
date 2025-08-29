@@ -46,7 +46,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '650px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -176,7 +176,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         maxWidth: '645px',
         position: 'relative',
         marginTop: '40px',
-        left: '-24%'
+        left: '-23%'
       }}>
         {/* First row */}
         <div style={{
@@ -283,14 +283,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
                 border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
                 borderRadius: '8px',
-                fontSize: '33px',
+                fontSize: '34px',
                 color: tag.isHighlighted ? themeBg : themeContent,
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                width: '351px'
+                width: '354px'
               }}
               onClick={() => isEditable && setEditingTags(index + 5)}
             >
