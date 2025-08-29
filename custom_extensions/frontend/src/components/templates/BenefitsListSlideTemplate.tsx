@@ -168,7 +168,41 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   // Responsive scaling that preserves original proportions
   const originalHeight = 600;
   const minHeight = 400;
-  const scaleFactor = Math.max(minHeight / originalHeight, 0.5); // Minimum 50% scale, maximum 100%+ scale
+  
+  // Calculate scale factor based on available space
+  // Use a more flexible approach that allows growth on larger screens
+  const getScaleFactor = () => {
+    // Try to get the container height from the parent element
+    if (typeof window !== 'undefined') {
+      const container = document.querySelector('.bg-white.rounded-md.shadow-lg');
+      if (container) {
+        const containerHeight = container.clientHeight;
+        const containerWidth = container.clientWidth;
+        
+        // Calculate scale based on available space
+        const heightScale = containerHeight / originalHeight;
+        const widthScale = containerWidth / (originalHeight * 16 / 9); // Assuming 16:9 aspect ratio
+        
+        // Use the smaller scale to maintain proportions
+        const calculatedScale = Math.min(heightScale, widthScale);
+        
+        // Ensure minimum scale of 0.67 (400px) and allow growth up to 1.5x
+        return Math.max(Math.min(calculatedScale, 1.5), 0.67);
+      }
+    }
+    
+    // Fallback: use viewport-based calculation
+    const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    
+    const heightScale = (viewportHeight * 0.8) / originalHeight; // 80% of viewport
+    const widthScale = (viewportWidth * 0.8) / (originalHeight * 16 / 9);
+    
+    const calculatedScale = Math.min(heightScale, widthScale);
+    return Math.max(Math.min(calculatedScale, 1.5), 0.67);
+  };
+
+  const scaleFactor = getScaleFactor();
 
   // Scale all dimensions proportionally
   const scale = (value: number) => Math.max(value * scaleFactor, value * 0.5);
