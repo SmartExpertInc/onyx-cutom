@@ -453,25 +453,6 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 objectFit: 'contain'
               }}
             />
-            {isEditable && (
-              <div style={{
-                position: 'absolute',
-                top: '-2px',
-                right: '-2px',
-                width: '8px',
-                height: '8px',
-                backgroundColor: '#ff4444',
-                borderRadius: '50%',
-                fontSize: '6px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                opacity: 0.8
-              }}>
-                ✎
-              </div>
-            )}
           </div>
         )}
         <div style={{ position: 'relative' }}>
