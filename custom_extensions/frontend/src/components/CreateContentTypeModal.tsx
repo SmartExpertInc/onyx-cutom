@@ -247,34 +247,29 @@ export const CreateContentTypeModal = ({
           </div>
         </div>
 
-        <div className="mb-3">
+        <div className="mb-4">
           <button
             onClick={() => handleContentCreate('lessonPlan')}
-            className="w-full bg-gray-50 border-2 border-dashed border-slate-300 rounded-lg p-3 hover:bg-gray-100 transition-all duration-200 flex items-center justify-between group"
+            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01]"
           >
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-slate-200 text-slate-700">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <rect x="4" y="6" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
-                  <line x1="9" y1="7.5" x2="16" y2="7.5" stroke="currentColor" strokeWidth="1.5" />
-                  <rect x="4" y="11" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
-                  <line x1="9" y1="12.5" x2="16" y2="12.5" stroke="currentColor" strokeWidth="1.5" />
-                  <rect x="4" y="16" width="3" height="3" strokeWidth="1.5" stroke="currentColor" fill="none" rx="0.5" />
-                  <line x1="9" y1="17.5" x2="16" y2="17.5" stroke="currentColor" strokeWidth="1.5" />
+            <div className="flex items-center space-x-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="text-left flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-slate-800">Lesson Plan</span>
-                  <span className="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-base font-semibold text-amber-900">Lesson Plan</span>
+                  <span className="text-xs bg-gradient-to-r from-amber-200 to-orange-200 text-amber-800 px-3 py-1 rounded-full font-medium border border-amber-300">
                     Planning
                   </span>
                 </div>
-                <p className="text-xs text-slate-600">Technical specification with lesson objectives</p>
+                <p className="text-sm text-amber-700 leading-relaxed">Technical specification with lesson objectives</p>
               </div>
             </div>
-            <div className="text-slate-400 group-hover:text-slate-600 transition-colors ml-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
