@@ -382,6 +382,7 @@ export interface ThankYouSlideProps extends BaseTemplateProps {
   address: string;
   postalCode: string;
   companyName: string;
+  logoNew?: string;
   profileImagePath?: string;
   profileImageAlt?: string;
   backgroundColor?: string;

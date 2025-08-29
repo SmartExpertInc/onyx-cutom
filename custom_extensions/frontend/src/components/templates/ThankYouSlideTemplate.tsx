@@ -16,6 +16,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   address = '374 Creekside Road Palmetto',
   postalCode = 'F134221',
   companyName = 'Company name',
+  logoNew = '',
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   backgroundColor,
@@ -61,7 +62,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, title: newTitle });
     }
   };
 
@@ -69,7 +70,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentEmail(newEmail);
     setEditingEmail(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, email: newEmail });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, email: newEmail });
     }
   };
 
@@ -77,7 +78,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentPhone(newPhone);
     setEditingPhone(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, phone: newPhone });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, phone: newPhone });
     }
   };
 
@@ -85,7 +86,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentAddress(newAddress);
     setEditingAddress(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, address: newAddress });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, address: newAddress });
     }
   };
 
@@ -93,7 +94,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentPostalCode(newPostalCode);
     setEditingPostalCode(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, postalCode: newPostalCode });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, postalCode: newPostalCode });
     }
   };
 
@@ -101,7 +102,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -137,7 +138,13 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, logoNew: newLogoPath });
     }
   };
 
@@ -157,13 +164,13 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             className="thank-you-title-editor"
             style={{
               fontSize: '80px',
-              fontWeight: 'bold',
               color: themeTitle,
               lineHeight: '1.1',
               fontFamily: currentTheme.fonts.titleFont,
               width: '100%',
               height: 'auto',
-              minHeight: '60px'
+              minHeight: '60px',
+              position: 'relative'
             }}
           />
         ) : (
@@ -171,7 +178,6 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               fontSize: '80px',
-              fontWeight: 'bold',
               color: themeTitle,
               lineHeight: '1.1',
               cursor: isEditable ? 'pointer' : 'default',
@@ -192,7 +198,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '1px',
-        backgroundColor: themeAccent
+        backgroundColor: `#5B5B5B`
       }} />
 
       {/* Content area */}
@@ -226,7 +232,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onCancel={handleEmailCancel}
                   className="thank-you-email-editor"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
@@ -237,7 +243,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <div
                   onClick={() => isEditable && setEditingEmail(true)}
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
@@ -258,7 +264,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onCancel={handlePhoneCancel}
                   className="thank-you-phone-editor"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: themeContent,
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
@@ -269,7 +275,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 <div
                   onClick={() => isEditable && setEditingPhone(true)}
                   style={{
-                    fontSize: '18px',
+                    fontSize: '22px',
                     color: themeContent,
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
@@ -363,9 +369,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
       {/* Profile Image - Top right */}
       <div style={{
-        width: '220px',
-        marginTop: '-37px',
-        height: '220px',
+        width: '210px',
+        marginTop: '0',
+        height: '210px',
         borderRadius: '100%',
         display: 'flex',
         alignItems: 'center',
@@ -398,7 +404,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '1px',
-        backgroundColor: themeAccent
+        backgroundColor: '#5B5B5B'
       }} />
 
       {/* Company name */}
@@ -410,12 +416,39 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         alignItems: 'center',
         gap: '10px'
       }}>
-        <div style={{
-          width: '16px',
-          height: '16px',
-          backgroundColor: themeAccent,
-          transform: 'rotate(45deg)'
-        }} />
+        {logoNew ? (
+          <img
+            src={logoNew.startsWith('/static_design_images/') ? logoNew : `/static_design_images/${logoNew}`}
+            alt="Company Logo"
+            style={{
+              width: '16px',
+              height: '16px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : isEditable ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              width: '16px',
+              height: '16px',
+              backgroundColor: themeAccent,
+              transform: 'rotate(45deg)'
+            }}
+          />
+        ) : (
+          <div style={{
+            width: '16px',
+            height: '16px',
+            backgroundColor: themeAccent,
+            transform: 'rotate(45deg)'
+          }} />
+        )}
         <div style={{ position: 'relative' }}>
           {isEditable && editingCompanyName ? (
             <ImprovedInlineEditor

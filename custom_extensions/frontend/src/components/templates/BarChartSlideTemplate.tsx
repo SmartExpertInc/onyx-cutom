@@ -4,7 +4,123 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BarChartSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import ImprovedInlineEditor from '../ImprovedInlineEditor';
+
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          height: '119px',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block',
+      }}
+    />
+  );
+}
 
 export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
   theme?: SlideTheme | string;
@@ -200,7 +316,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               gap: '15px',
               position: 'relative'
             }}
@@ -244,14 +360,13 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                textAlign: 'center',
                minHeight: '40px',
                maxHeight: '40px',
-               width: '155px',
                display: 'flex',
                alignItems: 'center',
                justifyContent: 'center',
                overflow: 'hidden'
              }}>
                {isEditable && editingBars?.index === index && editingBars?.field === 'percentage' ? (
-                 <ImprovedInlineEditor
+                 <InlineEditor
                    initialValue={bar.percentage}
                    onSave={(value) => handleBarSave(index, 'percentage', value)}
                    onCancel={handleBarCancel}
@@ -262,7 +377,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      fontWeight: 'bold',
                      textAlign: 'center',
                      width: '100%',
-                     height: '40px',
+                     height: '100%',
                      minHeight: '40px',
                      maxHeight: '40px'
                    }}
@@ -289,7 +404,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              <div style={{
                fontSize: '14px',
                color: themeContent,
-               width: '155px',
                maxWidth: '120px',
                lineHeight: '1.3',
                minHeight: '40px',
@@ -300,7 +414,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                overflow: 'hidden'
              }}>
                {isEditable && editingBars?.index === index && editingBars?.field === 'description' ? (
-                 <ImprovedInlineEditor
+                 <InlineEditor
                    initialValue={bar.description}
                    onSave={(value) => handleBarSave(index, 'description', value)}
                    onCancel={handleBarCancel}
@@ -313,7 +427,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      maxWidth: '120px',
                      lineHeight: '1.3',
                      width: '100%',
-                     height: 'auto',
+                     height: '100%',
                      minHeight: '40px',
                      maxHeight: '60px'
                    }}
@@ -522,16 +636,14 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          {/* Website - left aligned */}
          <div>
            {isEditable && editingWebsite ? (
-             <ImprovedInlineEditor
+             <InlineEditor
                initialValue={currentWebsite}
                onSave={handleWebsiteSave}
                onCancel={handleWebsiteCancel}
                className="footer-website-editor"
                style={{
                  fontSize: '12px',
-                 color: themeContent,
-                 width: '100%',
-                 height: 'auto'
+                 color: themeContent
                }}
              />
            ) : (
@@ -556,16 +668,14 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
            {/* Date */}
            <div>
              {isEditable && editingDate ? (
-               <ImprovedInlineEditor
+               <InlineEditor
                  initialValue={currentDate}
                  onSave={handleDateSave}
                  onCancel={handleDateCancel}
                  className="footer-date-editor"
                  style={{
                    fontSize: '12px',
-                   color: themeContent,
-                   width: '100%',
-                   height: 'auto'
+                   color: themeContent
                  }}
                />
              ) : (
@@ -584,16 +694,14 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
            {/* Page Number */}
            <div>
              {isEditable && editingPageNumber ? (
-               <ImprovedInlineEditor
+               <InlineEditor
                  initialValue={currentPageNumber}
                  onSave={handlePageNumberSave}
                  onCancel={handlePageNumberCancel}
                  className="footer-page-number-editor"
                  style={{
                    fontSize: '12px',
-                   color: themeContent,
-                   width: '100%',
-                   height: 'auto'
+                   color: themeContent
                  }}
                />
              ) : (
