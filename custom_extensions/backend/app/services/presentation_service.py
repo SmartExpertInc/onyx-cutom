@@ -470,10 +470,19 @@ class ProfessionalPresentationService:
                     layout=request.layout
                 )
                 
+                # Create progress callback that updates main job progress
+                def composition_progress_callback(comp_progress):
+                    # Map composition progress (0-100) to the remaining progress range for this slide
+                    remaining_progress = slide_end_progress - composition_progress
+                    actual_progress = composition_progress + (comp_progress * remaining_progress / 100)
+                    job.progress = actual_progress
+                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} detailed progress: {actual_progress:.1f}%")
+                
                 individual_video_path = await video_composer_service.compose_presentation(
                     slide_video_path,
                     avatar_video_path,
-                    composition_config
+                    composition_config,
+                    progress_callback=composition_progress_callback
                 )
                 
                 individual_videos.append(individual_video_path)
