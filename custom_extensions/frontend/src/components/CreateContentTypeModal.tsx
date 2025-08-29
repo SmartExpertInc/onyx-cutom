@@ -231,7 +231,7 @@ export const CreateContentTypeModal = ({
       onClick={handleClose}
     >
       <div
-        className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100 max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -247,21 +247,21 @@ export const CreateContentTypeModal = ({
           </div>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-3">
           <button
             onClick={() => handleContentCreate('lessonPlan')}
-            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-dashed border-amber-200 rounded-xl p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01]"
+            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01]"
           >
-            <div className="flex items-center space-x-3">
-              <div className="p-3 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="text-left flex-1">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-3 mb-1">
                   <span className="text-base font-semibold text-amber-900">Lesson Plan</span>
-                  <span className="text-xs bg-gradient-to-r from-amber-200 to-orange-200 text-amber-800 px-2 py-0.5 rounded-full font-medium border border-amber-300">
+                  <span className="text-xs bg-gradient-to-r from-amber-200 to-orange-200 text-amber-800 px-3 py-1 rounded-full font-medium border border-amber-300">
                     Planning
                   </span>
                 </div>
@@ -277,7 +277,7 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Visual Separator */}
-        <div className="mb-2 flex items-center">
+        <div className="mb-3 flex items-center">
           <div className="flex-1 border-t border-gray-200"></div>
           <span className="px-3 text-xs text-gray-500 font-medium">Content Creation Options</span>
           <div className="flex-1 border-t border-gray-200"></div>
@@ -287,7 +287,7 @@ export const CreateContentTypeModal = ({
         <div className="mb-3">
 
           {/* All Content Types with Checkboxes */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {updatedContentTypes.map((type) => {
               const isDisabled = type.disabled;
               const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
@@ -374,7 +374,7 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-4 flex justify-between items-center pt-4 border-t border-gray-200">
+        <div className="mt-3 flex justify-between items-center pt-3 border-t border-gray-200">
           <button
             onClick={handleClose}
             className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-all duration-200 flex items-center space-x-2 hover:bg-gray-100 rounded-lg"
