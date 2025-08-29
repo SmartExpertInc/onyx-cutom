@@ -579,7 +579,7 @@ export default function Projects2ViewPage() {
         </div>
 
         {/* Main Container - 70% width, full height of available space */}
-        <div className="w-[70%] h-full flex flex-col gap-2 overflow-visible">
+        <div className="w-[70%] h-full flex flex-col overflow-visible">
           {/* Top Container - Takes 85% of main container height */}
           <div className="h-[85%] bg-gray-200 rounded-md overflow-auto flex items-center justify-center relative">
             {/* Settings Buttons - Top Left Corner */}
