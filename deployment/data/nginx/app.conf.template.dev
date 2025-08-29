@@ -67,6 +67,8 @@ server {
 
     # Location for Smart Drive (Nextcloud integration)
     location ^~ /smartdrive/ {
+        # Strip /smartdrive/ prefix when proxying to Nextcloud
+        rewrite ^/smartdrive/(.*)$ /$1 break;
         proxy_pass http://nextcloud_server/;
         
         # Proper headers for embedding
@@ -98,7 +100,9 @@ server {
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Content-Security-Policy "frame-ancestors 'self' https://$host" always;
         
-        proxy_redirect off;
+        # Handle redirects properly
+        proxy_redirect ~^https?://[^/]+/(.*)$ https://$host/smartdrive/$1;
+        proxy_redirect ~^/(.*)$ /smartdrive/$1;
         proxy_pass_request_headers on;
     }
 
