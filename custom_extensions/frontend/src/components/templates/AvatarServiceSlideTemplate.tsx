@@ -126,7 +126,7 @@ function InlineEditor({
   );
 }
 
-export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
+export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
