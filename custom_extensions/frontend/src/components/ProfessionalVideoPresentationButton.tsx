@@ -139,7 +139,6 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
-        avatarData: selectedVariant ? { ...selectedAvatar, selectedVariant } : selectedAvatar,  // Send avatar data with complete variant information
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,

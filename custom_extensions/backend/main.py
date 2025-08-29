@@ -17161,7 +17161,6 @@ async def create_presentation(request: Request):
         slides_data = body.get("slidesData")  # Optional - actual slide content with text, props, etc.
         theme = body.get("theme", "dark-purple")  # Theme for slide generation
         avatar_code = body.get("avatarCode")  # None will trigger auto-selection
-        avatar_data = body.get("avatarData")  # NEW: Full avatar data with voice information
         use_avatar_mask = body.get("useAvatarMask", True)  # NEW: Use avatar mask service by default
         duration = body.get("duration", 30.0)
         layout = body.get("layout", "picture_in_picture")
@@ -17176,10 +17175,6 @@ async def create_presentation(request: Request):
         logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
         logger.info(f"  - theme: {theme}")
         logger.info(f"  - avatar_code: {avatar_code}")
-        logger.info(f"  - avatar_data: {avatar_data is not None}")
-        if avatar_data:
-            logger.info(f"  - avatar_data.name: {avatar_data.get('name', 'N/A')}")
-            logger.info(f"  - avatar_data.defaultVoice: {avatar_data.get('defaultVoice', 'N/A')}")
         logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
         logger.info(f"  - duration: {duration}")
         logger.info(f"  - layout: {layout}")
@@ -17208,7 +17203,6 @@ async def create_presentation(request: Request):
             slides_data=slides_data,  # NEW: Pass actual slide data
             theme=theme,  # NEW: Pass theme
             avatar_code=avatar_code,
-            avatar_data=avatar_data,  # NEW: Pass full avatar data
             use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
             duration=duration,
             layout=layout,

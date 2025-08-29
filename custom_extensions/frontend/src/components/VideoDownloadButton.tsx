@@ -27,7 +27,7 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
   const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
 
-  // Function to extract actual slide data from current project
+    // Function to extract actual slide data from current project
   const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
     
@@ -84,8 +84,8 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
 
       console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
-        
-      } catch (error) {
+      
+    } catch (error) {
       console.error('🎬 [VIDEO_DOWNLOAD] Error extracting slide data:', error);
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
     }
@@ -140,7 +140,6 @@ export const VideoDownloadButton: React.FC<VideoDownloadButtonProps> = ({
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
         avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
-        avatarData: selectedVariant ? { ...selectedAvatar, selectedVariant } : selectedAvatar,  // Send avatar data with complete variant information
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
