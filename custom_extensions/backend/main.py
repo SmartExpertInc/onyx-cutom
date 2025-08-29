@@ -19576,7 +19576,8 @@ async def get_users_with_features(
 
 @app.post("/api/custom/admin/features/toggle")
 async def toggle_user_feature(
-    request: FeatureToggleRequest,
+    feature_request: FeatureToggleRequest,
+    request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Enable or disable a feature for a single user"""
@@ -19587,7 +19588,7 @@ async def toggle_user_feature(
             # Verify feature exists
             feature_row = await conn.fetchrow(
                 "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
-                request.feature_name
+                feature_request.feature_name
             )
             
             if not feature_row:
@@ -19601,12 +19602,12 @@ async def toggle_user_feature(
                 DO UPDATE SET 
                     is_enabled = $3,
                     updated_at = NOW()
-            """, request.user_id, request.feature_name, request.is_enabled)
+            """, feature_request.user_id, feature_request.feature_name, feature_request.is_enabled)
             
-            action = "enabled" if request.is_enabled else "disabled"
+            action = "enabled" if feature_request.is_enabled else "disabled"
             return {
                 "success": True,
-                "message": f"Feature '{feature_row['display_name']}' {action} for user {request.user_id}"
+                "message": f"Feature '{feature_row['display_name']}' {action} for user {feature_request.user_id}"
             }
     except HTTPException:
         raise
@@ -19616,7 +19617,8 @@ async def toggle_user_feature(
 
 @app.post("/api/custom/admin/features/bulk-toggle")
 async def bulk_toggle_user_features(
-    request: BulkFeatureToggleRequest,
+    bulk_request: BulkFeatureToggleRequest,
+    request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     """Enable or disable a feature for multiple users"""
@@ -19627,7 +19629,7 @@ async def bulk_toggle_user_features(
             # Verify feature exists
             feature_row = await conn.fetchrow(
                 "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
-                request.feature_name
+                bulk_request.feature_name
             )
             
             if not feature_row:
@@ -19635,7 +19637,7 @@ async def bulk_toggle_user_features(
             
             # Bulk insert/update user features
             updated_count = 0
-            for user_id in request.user_ids:
+            for user_id in bulk_request.user_ids:
                 await conn.execute("""
                     INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
                     VALUES ($1, $2, $3, NOW())
@@ -19643,10 +19645,10 @@ async def bulk_toggle_user_features(
                     DO UPDATE SET 
                         is_enabled = $3,
                         updated_at = NOW()
-                """, user_id, request.feature_name, request.is_enabled)
+                """, user_id, bulk_request.feature_name, bulk_request.is_enabled)
                 updated_count += 1
             
-            action = "enabled" if request.is_enabled else "disabled"
+            action = "enabled" if bulk_request.is_enabled else "disabled"
             return {
                 "success": True,
                 "message": f"Feature '{feature_row['display_name']}' {action} for {updated_count} users",
