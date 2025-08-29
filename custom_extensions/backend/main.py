@@ -6968,6 +6968,18 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_features_user_id ON user_features(user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_features_feature_name ON user_features(feature_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_features_enabled ON user_features(is_enabled);")
+            
+            # Migration: Ensure user_id column is TEXT type (not UUID)
+            try:
+                await connection.execute("""
+                    ALTER TABLE user_features 
+                    ALTER COLUMN user_id TYPE TEXT USING user_id::TEXT
+                """)
+                logger.info("Migrated user_features.user_id column to TEXT type.")
+            except Exception as e:
+                # This might fail if column is already TEXT or if there are no records
+                logger.info(f"user_features.user_id column migration skipped (likely already TEXT): {e}")
+            
             logger.info("'user_features' table ensured.")
 
             # Seed initial feature definitions
