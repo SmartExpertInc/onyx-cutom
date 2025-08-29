@@ -497,12 +497,37 @@ class ProfessionalPresentationService:
         try:
             logger.info(f"🎬 [VIDEO_CONCATENATION] Concatenating {len(video_paths)} videos")
             
+            # Validate that all video files exist
+            for i, video_path in enumerate(video_paths):
+                if not os.path.exists(video_path):
+                    logger.error(f"🎬 [VIDEO_CONCATENATION] Video file {i+1} not found: {video_path}")
+                    raise FileNotFoundError(f"Video file {i+1} not found: {video_path}")
+                else:
+                    file_size = os.path.getsize(video_path)
+                    logger.info(f"🎬 [VIDEO_CONCATENATION] Video file {i+1} exists: {video_path} ({file_size} bytes)")
+            
+            # Convert relative paths to absolute paths
+            absolute_video_paths = []
+            for video_path in video_paths:
+                if not os.path.isabs(video_path):
+                    # Convert relative path to absolute path
+                    absolute_path = os.path.abspath(video_path)
+                    logger.info(f"🎬 [VIDEO_CONCATENATION] Converting relative path '{video_path}' to absolute path '{absolute_path}'")
+                    absolute_video_paths.append(absolute_path)
+                else:
+                    absolute_video_paths.append(video_path)
+            
             # Create a temporary file list for FFmpeg
             import tempfile
             with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-                for video_path in video_paths:
+                for video_path in absolute_video_paths:
                     f.write(f"file '{video_path}'\n")
                 concat_list_path = f.name
+            
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Created concat list file: {concat_list_path}")
+            logger.info(f"🎬 [VIDEO_CONCATENATION] Video paths in concat list:")
+            for i, path in enumerate(absolute_video_paths):
+                logger.info(f"  {i+1}: {path}")
             
             # Output path for concatenated video
             output_filename = f"presentation_{job_id}.mp4"
