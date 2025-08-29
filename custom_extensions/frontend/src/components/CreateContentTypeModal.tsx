@@ -38,10 +38,10 @@ interface CreateContentTypeModalProps {
   onOpenAllContentTypes?: () => void; // NEW: callback to open AllContentTypesModal
 }
 
-export const CreateContentTypeModal = ({ 
-  isOpen, 
-  onClose, 
-  lessonTitle, 
+export const CreateContentTypeModal = ({
+  isOpen,
+  onClose,
+  lessonTitle,
   moduleName,
   lessonNumber,
   sourceChatSessionId,
@@ -67,37 +67,37 @@ export const CreateContentTypeModal = ({
   }, [recommendedContentTypes]);
 
   const contentTypes = [
-    { 
-      name: "lessonPresentation", 
+    {
+      name: "lessonPresentation",
       key: "presentation",
-      icon: <BookText className="w-6 h-6" />, 
+      icon: <BookText className="w-6 h-6" />,
       label: t('modals.createContent.presentation'),
       description: t('modals.createContent.presentationDescription'),
       color: "blue",
-      disabled: false 
+      disabled: false
     },
-    { 
-      name: "textPresentation", 
+    {
+      name: "textPresentation",
       key: "one-pager",
-      icon: <FileText className="w-6 h-6" />, 
+      icon: <FileText className="w-6 h-6" />,
       label: t('modals.createContent.onePager'),
       description: t('modals.createContent.onePagerDescription'),
       color: "purple",
-      disabled: false 
+      disabled: false
     },
-    { 
-      name: "multiple-choice", 
+    {
+      name: "multiple-choice",
       key: "quiz",
-      icon: <HelpCircle className="w-6 h-6" />, 
+      icon: <HelpCircle className="w-6 h-6" />,
       label: t('modals.createContent.quiz'),
       description: t('modals.createContent.quizDescription'),
       color: "green",
-      disabled: false 
+      disabled: false
     },
-    { 
-      name: "videoLesson", 
+    {
+      name: "videoLesson",
       key: "video-lesson",
-      icon: <Video className="w-6 h-6" />, 
+      icon: <Video className="w-6 h-6" />,
       label: t('modals.createContent.videoLesson'),
       description: t('modals.createContent.videoLessonDescription'),
       color: "orange",
@@ -117,9 +117,9 @@ export const CreateContentTypeModal = ({
   const updatedContentTypes = contentTypes.map(type => ({
     ...type,
     disabled: (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
-              (type.name === "textPresentation" && existingFlags.hasOnePager) ||
-              (type.name === "multiple-choice" && existingFlags.hasQuiz) ||
-              type.disabled
+      (type.name === "textPresentation" && existingFlags.hasOnePager) ||
+      (type.name === "multiple-choice" && existingFlags.hasQuiz) ||
+      type.disabled
   }));
 
   const recommendedOnly = useMemo(() => {
@@ -132,7 +132,7 @@ export const CreateContentTypeModal = ({
   const handleContentCreate = (contentType: string) => {
     let product = '';
     let lessonType = '';
-    
+
     switch (contentType) {
       case 'lessonPresentation':
         product = 'lesson';
@@ -172,7 +172,7 @@ export const CreateContentTypeModal = ({
   useEffect(() => {
     const prim = recommendedState?.primary || recommendedContentTypes?.primary || [];
     const next: Record<string, boolean> = {};
-    allKeys.forEach(k => { 
+    allKeys.forEach(k => {
       // Only check options that are actually in the recommended list
       next[k] = prim.includes(k);
     });
@@ -222,11 +222,11 @@ export const CreateContentTypeModal = ({
   } as const;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleClose}
     >
-      <div 
+      <div
         className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
@@ -242,7 +242,7 @@ export const CreateContentTypeModal = ({
             </button>
           </div>
         </div>
-        
+
         {/* Combined Content Types View */}
         <div className="mb-4">
 
@@ -251,9 +251,9 @@ export const CreateContentTypeModal = ({
             {updatedContentTypes.map((type) => {
               const isDisabled = type.disabled;
               const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
-                                       (type.name === "textPresentation" && existingFlags.hasOnePager) ||
-                                       (type.name === "multiple-choice" && existingFlags.hasQuiz);
-              
+                (type.name === "textPresentation" && existingFlags.hasOnePager) ||
+                (type.name === "multiple-choice" && existingFlags.hasQuiz);
+
               // Check if this type is recommended
               const isRecommended = recommendedState?.primary?.includes(type.key) || recommendedContentTypes?.primary?.includes(type.key);
               const isSelected = selectedPrefs[type.key] || false;
@@ -261,16 +261,14 @@ export const CreateContentTypeModal = ({
               return (
                 <div
                   key={type.name}
-                  className={`group w-full flex items-center p-6 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
-                    isDisabled
-                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                      : isSelected
+                  className={`group w-full flex items-center p-6 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${isDisabled
+                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                    : isSelected
                       ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
                       : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                  }`}
-                  onClick={() => {
-                    if (!isDisabled && isSelected) {
-                      // Start content creation for this type
+                    }`}
+                  onClick={(e: React.MouseEvent) => {
+                    if (!isDisabled && isSelected && e.target === e.currentTarget) {
                       handleContentCreate(type.name);
                     }
                   }}
@@ -290,9 +288,8 @@ export const CreateContentTypeModal = ({
                   </div>
 
                   <div className="flex items-center space-x-4 flex-1">
-                    <div className={`p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${
-                      isDisabled || !isSelected ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
-                    }`}>
+                    <div className={`p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${isDisabled || !isSelected ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
+                      }`}>
                       {React.cloneElement(type.icon, {
                         className: `w-6 h-6 transition-all duration-200 ${isDisabled || !isSelected ? 'text-gray-400' : ''}`
                       })}
@@ -350,11 +347,10 @@ export const CreateContentTypeModal = ({
           <button
             onClick={handlePrefSave}
             disabled={!Object.values(selectedPrefs).some(Boolean)}
-            className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${
-              !Object.values(selectedPrefs).some(Boolean)
+            className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${!Object.values(selectedPrefs).some(Boolean)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
-            }`}
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
