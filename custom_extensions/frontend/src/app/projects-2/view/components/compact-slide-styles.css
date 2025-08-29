@@ -1,4 +1,4 @@
-/* Compact slide mode styles for projects-2 interface */
+/* Compact slide mode styles for projects-2 interface - 33.3% SCALING */
 .compact-slide-mode {
   --slide-font-size: 0.75rem;
   --slide-padding: 0.5rem;
@@ -12,416 +12,117 @@
   --slide-border-radius: 20px;
 }
 
-/* ===== SPECIFIC TEMPLATE OVERRIDES ===== */
+/* ===== 33.3% SCALING RULES ===== */
 
-/* 1. Course Overview Slide */
-.compact-slide-mode .template-course-overview-slide {
+/* Force all slides to use compact height (33.3% smaller) */
+.compact-slide-mode [style*="height: 600px"],
+.compact-slide-mode [style*="min-height: 600px"] {
   height: 400px !important;
+  min-height: 400px !important;
 }
 
-.compact-slide-mode .template-course-overview-slide > div[style*="width: 45%"] {
-  width: 45% !important;
-  padding: 20px !important;
+/* Override all font sizes with 33.3% scaling */
+.compact-slide-mode [style*="font-size: 45px"] {
+  font-size: 30px !important;
+  line-height: 1.2 !important;
 }
 
-.compact-slide-mode .template-course-overview-slide h1,
-.compact-slide-mode .template-course-overview-slide [style*="font-size: 45px"] {
+.compact-slide-mode [style*="font-size: 44px"] {
+  font-size: 29px !important;
+  line-height: 1.2 !important;
+}
+
+.compact-slide-mode [style*="font-size: 40px"] {
+  font-size: 27px !important;
+  line-height: 1.2 !important;
+}
+
+.compact-slide-mode [style*="font-size: 36px"] {
   font-size: 24px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 8px !important;
+  line-height: 1.2 !important;
 }
 
-.compact-slide-mode .template-course-overview-slide h2,
-.compact-slide-mode .template-course-overview-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
+.compact-slide-mode [style*="font-size: 30px"] {
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+}
+
+.compact-slide-mode [style*="font-size: 26px"] {
+  font-size: 17px !important;
   line-height: 1.3 !important;
-  margin-bottom: 16px !important;
 }
 
-/* 2. Work-Life Balance Slide */
-.compact-slide-mode .template-work-life-balance-slide {
-  height: 400px !important;
-}
-
-.compact-slide-mode .template-work-life-balance-slide > div[style*="width: 60%"] {
-  width: 60% !important;
-  padding: 20px 30px !important;
-}
-
-.compact-slide-mode .template-work-life-balance-slide h1,
-.compact-slide-mode .template-work-life-balance-slide [style*="font-size: 45px"] {
-  font-size: 24px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 12px !important;
-}
-
-.compact-slide-mode .template-work-life-balance-slide p,
-.compact-slide-mode .template-work-life-balance-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-}
-
-/* 3. Thank You Slide */
-.compact-slide-mode .template-thank-you-slide {
-  height: 400px !important;
-  padding: 20px !important;
-}
-
-.compact-slide-mode .template-thank-you-slide h1,
-.compact-slide-mode .template-thank-you-slide [style*="font-size: 45px"] {
-  font-size: 28px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 16px !important;
-}
-
-.compact-slide-mode .template-thank-you-slide p,
-.compact-slide-mode .template-thank-you-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  margin-bottom: 8px !important;
-}
-
-/* 4. Benefits List Slide */
-.compact-slide-mode .template-benefits-list-slide {
-  height: 400px !important;
-  padding: 20px !important;
-}
-
-.compact-slide-mode .template-benefits-list-slide h1,
-.compact-slide-mode .template-benefits-list-slide [style*="font-size: 45px"] {
-  font-size: 24px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 8px !important;
-}
-
-.compact-slide-mode .template-benefits-list-slide h2,
-.compact-slide-mode .template-benefits-list-slide [style*="font-size: 18px"] {
+.compact-slide-mode [style*="font-size: 24px"] {
   font-size: 16px !important;
-  line-height: 1.2 !important;
-  margin-bottom: 12px !important;
-}
-
-.compact-slide-mode .template-benefits-list-slide ul li,
-.compact-slide-mode .template-benefits-list-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
   line-height: 1.3 !important;
-  margin-bottom: 6px !important;
 }
 
-/* 5. Hybrid Work Best Practices */
-.compact-slide-mode .template-hybrid-work-best-practices-slide {
-  height: 400px !important;
-  padding: 20px 30px !important;
+.compact-slide-mode [style*="font-size: 22px"] {
+  font-size: 15px !important;
+  line-height: 1.3 !important;
 }
 
-.compact-slide-mode .template-hybrid-work-best-practices-slide h1,
-.compact-slide-mode .template-hybrid-work-best-practices-slide [style*="font-size: 45px"] {
-  font-size: 20px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 12px !important;
+.compact-slide-mode [style*="font-size: 20px"] {
+  font-size: 13px !important;
+  line-height: 1.3 !important;
 }
 
-.compact-slide-mode .template-hybrid-work-best-practices-slide p,
-.compact-slide-mode .template-hybrid-work-best-practices-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  margin-bottom: 8px !important;
-}
-
-/* 6. Benefits Tags Slide */
-.compact-slide-mode .template-benefits-tags-slide {
-  height: 400px !important;
-  padding: 30px 40px !important;
-}
-
-.compact-slide-mode .template-benefits-tags-slide h1,
-.compact-slide-mode .template-benefits-tags-slide [style*="font-size: 48px"] {
-  font-size: 24px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 20px !important;
-}
-
-.compact-slide-mode .template-benefits-tags-slide [class*="tag"],
-.compact-slide-mode .template-benefits-tags-slide [style*="font-size: 18px"] {
+.compact-slide-mode [style*="font-size: 18px"] {
   font-size: 12px !important;
-  padding: 6px 12px !important;
-  margin: 4px !important;
-}
-
-/* 7. Learning Topics Slide */
-.compact-slide-mode .template-learning-topics-slide {
-  height: 400px !important;
-}
-
-.compact-slide-mode .template-learning-topics-slide > div[style*="width: 50%"] {
-  width: 50% !important;
-  padding: 20px 30px !important;
-}
-
-.compact-slide-mode .template-learning-topics-slide h1,
-.compact-slide-mode .template-learning-topics-slide [style*="font-size: 45px"] {
-  font-size: 24px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 12px !important;
-}
-
-.compact-slide-mode .template-learning-topics-slide h2,
-.compact-slide-mode .template-learning-topics-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.2 !important;
-  margin-bottom: 16px !important;
-}
-
-.compact-slide-mode .template-learning-topics-slide ul li,
-.compact-slide-mode .template-learning-topics-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.3 !important;
-  margin-bottom: 8px !important;
-}
-
-/* 8. Soft Skills Assessment Slide */
-.compact-slide-mode .template-soft-skills-assessment-slide {
-  height: 400px !important;
-  padding: 30px 40px !important;
-}
-
-.compact-slide-mode .template-soft-skills-assessment-slide h1,
-.compact-slide-mode .template-soft-skills-assessment-slide [style*="font-size: 61px"] {
-  font-size: 28px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 20px !important;
-  max-width: 80% !important;
-}
-
-.compact-slide-mode .template-soft-skills-assessment-slide [class*="tip"],
-.compact-slide-mode .template-soft-skills-assessment-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  margin-bottom: 8px !important;
-}
-
-/* 9. Two Column Slide */
-.compact-slide-mode .template-two-column-slide {
-  height: 400px !important;
-}
-
-.compact-slide-mode .template-two-column-slide > div[style*="width: 50%"] {
-  width: 50% !important;
-  padding: 30px !important;
-}
-
-.compact-slide-mode .template-two-column-slide h1,
-.compact-slide-mode .template-two-column-slide [style*="font-size: 45px"] {
-  font-size: 20px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 12px !important;
-}
-
-.compact-slide-mode .template-two-column-slide p,
-.compact-slide-mode .template-two-column-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-}
-
-.compact-slide-mode .template-two-column-slide [style*="width: 120px"],
-.compact-slide-mode .template-two-column-slide [style*="height: 120px"] {
-  width: 80px !important;
-  height: 80px !important;
-}
-
-/* 10. Phishing Definition Slide */
-.compact-slide-mode .template-phishing-definition-slide {
-  height: 400px !important;
-}
-
-.compact-slide-mode .template-phishing-definition-slide > div[style*="width: 50%"] {
-  width: 50% !important;
-  padding: 30px !important;
-}
-
-.compact-slide-mode .template-phishing-definition-slide h1,
-.compact-slide-mode .template-phishing-definition-slide [style*="font-size: 44px"] {
-  font-size: 20px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 12px !important;
-}
-
-.compact-slide-mode .template-phishing-definition-slide ul li,
-.compact-slide-mode .template-phishing-definition-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  margin-bottom: 8px !important;
-}
-
-/* 11. Impact Statements Slide */
-.compact-slide-mode .template-impact-statements-slide {
-  height: 400px !important;
-  padding: 30px 40px !important;
-}
-
-.compact-slide-mode .template-impact-statements-slide h1,
-.compact-slide-mode .template-impact-statements-slide [style*="font-size: 40px"] {
-  font-size: 20px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 16px !important;
-  max-width: 60% !important;
-}
-
-.compact-slide-mode .template-impact-statements-slide [class*="statement"],
-.compact-slide-mode .template-impact-statements-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  margin-bottom: 8px !important;
-}
-
-/* 12. Bar Chart Slide */
-.compact-slide-mode .template-bar-chart-slide {
-  height: 400px !important;
-  padding: 20px 0px !important;
-}
-
-.compact-slide-mode .template-bar-chart-slide [class*="bar"],
-.compact-slide-mode .template-bar-chart-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
   line-height: 1.3 !important;
 }
 
-.compact-slide-mode .template-bar-chart-slide [style*="height: 60px"],
-.compact-slide-mode .template-bar-chart-slide [style*="height: 90px"],
-.compact-slide-mode .template-bar-chart-slide [style*="height: 156px"] {
-  height: 40px !important;
-  max-height: 60px !important;
+.compact-slide-mode [style*="font-size: 16px"] {
+  font-size: 11px !important;
+  line-height: 1.3 !important;
 }
 
-/* 13. Critical Thinking Slide */
-.compact-slide-mode .template-critical-thinking-slide {
-  height: 400px !important;
-  padding: 20px 30px !important;
+.compact-slide-mode [style*="font-size: 14px"] {
+  font-size: 9px !important;
+  line-height: 1.3 !important;
 }
 
-.compact-slide-mode .template-critical-thinking-slide h1,
-.compact-slide-mode .template-critical-thinking-slide [style*="font-size: 45px"] {
-  font-size: 20px !important;
-  line-height: 1.1 !important;
-  margin-bottom: 12px !important;
+.compact-slide-mode [style*="font-size: 12px"] {
+  font-size: 8px !important;
+  line-height: 1.3 !important;
 }
 
-.compact-slide-mode .template-critical-thinking-slide p,
-.compact-slide-mode .template-critical-thinking-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
+.compact-slide-mode [style*="font-size: 10px"] {
+  font-size: 7px !important;
+  line-height: 1.3 !important;
 }
 
-.compact-slide-mode .template-critical-thinking-slide [style*="background-color: #E8CCC6"] {
-  padding: 2px 6px !important;
-  font-size: 12px !important;
+/* Override all padding values with 33.3% scaling */
+.compact-slide-mode [style*="padding: 80px"] {
+  padding: 53px !important;
 }
 
-/* 14. Psychological Safety Slide */
-.compact-slide-mode .template-psychological-safety-slide {
-  height: 400px !important;
+.compact-slide-mode [style*="padding: 60px"] {
+  padding: 40px !important;
 }
 
-.compact-slide-mode .template-psychological-safety-slide > div[style*="width: 600px"] {
-  width: 400px !important;
-  height: 224px !important;
-  border-radius: 20px !important;
+.compact-slide-mode [style*="padding: 50px"] {
+  padding: 33px !important;
+}
+
+.compact-slide-mode [style*="padding: 40px"] {
+  padding: 27px !important;
+}
+
+.compact-slide-mode [style*="padding: 30px"] {
   padding: 20px !important;
 }
 
-.compact-slide-mode .template-psychological-safety-slide h1,
-.compact-slide-mode .template-psychological-safety-slide [style*="font-size: 30px"] {
-  font-size: 18px !important;
-  line-height: 1.1 !important;
-  margin-top: 60px !important;
-  margin-bottom: 12px !important;
+/* Override specific padding patterns with 33.3% scaling */
+.compact-slide-mode [style*="padding: 60px 80px"] {
+  padding: 40px 53px !important;
 }
 
-.compact-slide-mode .template-psychological-safety-slide p,
-.compact-slide-mode .template-psychological-safety-slide [style*="font-size: 18px"] {
-  font-size: 14px !important;
-  line-height: 1.4 !important;
-  margin-bottom: 8px !important;
+.compact-slide-mode [style*="padding: 40px 60px"] {
+  padding: 27px 40px !important;
 }
 
-.compact-slide-mode .template-psychological-safety-slide [style*="width: 80px"],
-.compact-slide-mode .template-psychological-safety-slide [style*="height: 80px"] {
-  width: 50px !important;
-  height: 50px !important;
-  top: 20px !important;
-  left: 20px !important;
-}
-
-/* ===== GENERAL COMPACT MODE OVERRIDES ===== */
-
-/* Override slide template styles for compact mode */
-.compact-slide-mode .slide-container,
-.compact-slide-mode .component-based-slide-deck {
-  font-size: var(--slide-font-size) !important;
-}
-
-.compact-slide-mode h1,
-.compact-slide-mode .slide-title,
-.compact-slide-mode [class*="title"] {
-  font-size: var(--slide-title-size) !important;
-  line-height: 1.2 !important;
-  margin-bottom: var(--slide-spacing) !important;
-}
-
-.compact-slide-mode h2,
-.compact-slide-mode .slide-subtitle,
-.compact-slide-mode [class*="subtitle"] {
-  font-size: var(--slide-subtitle-size) !important;
-  line-height: 1.3 !important;
-  margin-bottom: var(--slide-spacing) !important;
-}
-
-.compact-slide-mode p,
-.compact-slide-mode .slide-content,
-.compact-slide-mode [class*="content"] {
-  font-size: var(--slide-content-size) !important;
-  line-height: 1.4 !important;
-  margin-bottom: var(--slide-spacing) !important;
-}
-
-.compact-slide-mode .slide-container > div,
-.compact-slide-mode .component-based-slide-deck > div {
-  padding: var(--slide-padding) !important;
-}
-
-/* Adjust spacing for compact mode */
-.compact-slide-mode * {
-  margin-top: calc(var(--slide-spacing) * 0.5) !important;
-  margin-bottom: calc(var(--slide-spacing) * 0.5) !important;
-}
-
-.compact-slide-mode *:first-child {
-  margin-top: 0 !important;
-}
-
-.compact-slide-mode *:last-child {
-  margin-bottom: 0 !important;
-}
-
-/* Optimize button and interactive elements for compact mode */
-.compact-slide-mode button,
-.compact-slide-mode [class*="button"] {
-  padding: calc(var(--slide-padding) * 0.5) !important;
-  font-size: calc(var(--slide-font-size) * 0.9) !important;
-}
-
-/* Adjust grid and flex layouts for compact mode */
-.compact-slide-mode [class*="grid"],
-.compact-slide-mode [class*="flex"] {
-  gap: var(--slide-spacing) !important;
-}
-
-/* Force all slides to use compact height */
-.compact-slide-mode [style*="height: 600px"] {
-  height: 400px !important;
-}
-
-/* Scale down any remaining large elements */
+/* Override width and height values with 33.3% scaling */
 .compact-slide-mode [style*="width: 600px"] {
   width: 400px !important;
 }
@@ -430,14 +131,144 @@
   height: 224px !important;
 }
 
-.compact-slide-mode [style*="padding: 40px"] {
-  padding: 20px !important;
+.compact-slide-mode [style*="width: 80px"],
+.compact-slide-mode [style*="height: 80px"] {
+  width: 53px !important;
+  height: 53px !important;
 }
 
-.compact-slide-mode [style*="padding: 60px"] {
-  padding: 30px !important;
+.compact-slide-mode [style*="width: 120px"],
+.compact-slide-mode [style*="height: 120px"] {
+  width: 80px !important;
+  height: 80px !important;
 }
 
-.compact-slide-mode [style*="padding: 80px"] {
-  padding: 40px !important;
+/* Override margin values with 33.3% scaling */
+.compact-slide-mode [style*="margin-bottom: 40px"] {
+  margin-bottom: 27px !important;
+}
+
+.compact-slide-mode [style*="margin-bottom: 32px"] {
+  margin-bottom: 21px !important;
+}
+
+.compact-slide-mode [style*="margin-bottom: 24px"] {
+  margin-bottom: 16px !important;
+}
+
+.compact-slide-mode [style*="margin-bottom: 20px"] {
+  margin-bottom: 13px !important;
+}
+
+.compact-slide-mode [style*="margin-bottom: 16px"] {
+  margin-bottom: 11px !important;
+}
+
+/* Override gap values with 33.3% scaling */
+.compact-slide-mode [style*="gap: 32px"] {
+  gap: 21px !important;
+}
+
+.compact-slide-mode [style*="gap: 24px"] {
+  gap: 16px !important;
+}
+
+.compact-slide-mode [style*="gap: 16px"] {
+  gap: 11px !important;
+}
+
+/* Override border radius with 33.3% scaling */
+.compact-slide-mode [style*="border-radius: 30px"] {
+  border-radius: 20px !important;
+}
+
+/* Override positioning with 33.3% scaling */
+.compact-slide-mode [style*="top: 40px"] {
+  top: 27px !important;
+}
+
+.compact-slide-mode [style*="left: 40px"] {
+  left: 27px !important;
+}
+
+/* Override max-width values with 33.3% scaling */
+.compact-slide-mode [style*="max-width: 900px"] {
+  max-width: 600px !important;
+}
+
+.compact-slide-mode [style*="max-width: 700px"] {
+  max-width: 467px !important;
+}
+
+/* Override list item spacing with 33.3% scaling */
+.compact-slide-mode ul li,
+.compact-slide-mode ol li {
+  margin-bottom: 3px !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+
+/* Override button and interactive elements with 33.3% scaling */
+.compact-slide-mode button,
+.compact-slide-mode [class*="button"] {
+  padding: 5px 8px !important;
+  font-size: 8px !important;
+}
+
+/* Override image dimensions with 33.3% scaling */
+.compact-slide-mode img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Override any remaining large elements with 33.3% scaling */
+.compact-slide-mode [style*="height: 60px"] {
+  height: 40px !important;
+}
+
+.compact-slide-mode [style*="height: 90px"] {
+  height: 60px !important;
+}
+
+.compact-slide-mode [style*="height: 156px"] {
+  height: 104px !important;
+}
+
+/* Override background image heights with 33.3% scaling */
+.compact-slide-mode [style*="height: 240px"] {
+  height: 160px !important;
+}
+
+.compact-slide-mode [style*="height: 200px"] {
+  height: 133px !important;
+}
+
+/* Override any remaining padding with 33.3% scaling */
+.compact-slide-mode [style*="padding: 20px 30px"] {
+  padding: 13px 20px !important;
+}
+
+.compact-slide-mode [style*="padding: 30px 40px"] {
+  padding: 20px 27px !important;
+}
+
+/* ===== UNIVERSAL 33.3% SCALING ===== */
+
+/* Force all elements to use 33.3% scaling */
+.compact-slide-mode * {
+  box-sizing: border-box !important;
+}
+
+/* Override any remaining large text with 33.3% scaling */
+.compact-slide-mode [style*="font-size"] {
+  font-size: 9px !important;
+}
+
+/* Override any remaining large spacing with 33.3% scaling */
+.compact-slide-mode [style*="margin"] {
+  margin: 3px !important;
+}
+
+.compact-slide-mode [style*="padding"] {
+  padding: 7px !important;
 }
