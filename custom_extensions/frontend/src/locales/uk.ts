@@ -411,6 +411,8 @@ export const uk = {
     archived: "Архівовано",
     createOffer: "Створити пропозицію",
     offerName: "Назва пропозиції",
+    offer: "Пропозиція",
+    name: "Назва",
     createdOn: "Створено",
     manager: "Менеджер",
     status: "Статус",

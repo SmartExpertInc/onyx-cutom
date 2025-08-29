@@ -447,6 +447,8 @@ export const en = {
     archived: "Archived",
     createOffer: "Create Offer",
     offerName: "Offer Name",
+    offer: "Offer",
+    name: "Name",
     createdOn: "Created On",
     manager: "Manager",
     status: "Status",

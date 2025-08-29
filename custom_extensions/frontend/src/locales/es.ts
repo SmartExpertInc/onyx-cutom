@@ -421,6 +421,8 @@ export const es = {
     archived: "Archivado",
     createOffer: "Crear oferta",
     offerName: "Nombre de la oferta",
+    offer: "Oferta",
+    name: "Nombre",
     createdOn: "Creado en",
     manager: "Gerente",
     status: "Estado",

@@ -446,7 +446,16 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                     onClick={() => handleSort('offer_name')}
                     className="flex items-center gap-1 hover:text-gray-700"
                   >
-                    {t('interface.offerName', 'Offer Name')}
+                    {t('interface.offer', 'Offer')}
+                    <ArrowUpDown size={12} />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={() => handleSort('offer_name')}
+                    className="flex items-center gap-1 hover:text-gray-700"
+                  >
+                    {t('interface.name', 'Name')}
                     <ArrowUpDown size={12} />
                   </button>
                 </th>

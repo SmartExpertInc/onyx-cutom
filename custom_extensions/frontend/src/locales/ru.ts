@@ -425,6 +425,8 @@ export const ru = {
     archived: "Архивировано",
     createOffer: "Создать предложение",
     offerName: "Название предложения",
+    offer: "Предложение",
+    name: "Название",
     createdOn: "Создано",
     manager: "Менеджер",
     status: "Статус",
