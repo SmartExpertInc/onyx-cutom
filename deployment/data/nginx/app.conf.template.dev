@@ -100,9 +100,10 @@ server {
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Content-Security-Policy "frame-ancestors 'self' https://$host" always;
         
-        # Handle redirects properly - FIXED VERSION
-        proxy_redirect ~^https?://[^/]+/(.*)$ https://$host/smartdrive/$1;
-        proxy_redirect ~^/(?!smartdrive/)(.*)$ /smartdrive/$1;
+        # Handle redirects properly - FINAL FIX (disabled problematic redirects)
+        # proxy_redirect ~^https?://[^/]+/(.*)$ https://$host/smartdrive/$1;
+        # proxy_redirect ~^/(?!smartdrive/)(.*)$ /smartdrive/$1;
+        proxy_redirect / /smartdrive/;
         proxy_pass_request_headers on;
     }
 

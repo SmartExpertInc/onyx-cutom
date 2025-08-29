@@ -174,9 +174,11 @@ The fix relies on existing environment variable handling:
 proxy_redirect ~^/(.*)$ /smartdrive/$1;  # ❌ Matches ALL paths
 ```
 
-**Fix Applied:** Added negative lookahead to prevent double prefixing:
+**Fix Applied:** Disabled problematic redirect rules causing double `/smartdrive/` paths:
 ```nginx
-proxy_redirect ~^/(?!smartdrive/)(.*)$ /smartdrive/$1;  # ✅ Excludes paths starting with /smartdrive/
+# proxy_redirect ~^https?://[^/]+/(.*)$ https://$host/smartdrive/$1;  # ❌ Disabled - was causing double paths
+# proxy_redirect ~^/(?!smartdrive/)(.*)$ /smartdrive/$1;              # ❌ Disabled - was causing double paths  
+proxy_redirect / /smartdrive/;                                       # ✅ Simple redirect rule
 ```
 
 **Files Updated:**
