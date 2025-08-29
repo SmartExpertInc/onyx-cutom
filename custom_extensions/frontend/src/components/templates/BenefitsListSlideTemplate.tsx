@@ -170,7 +170,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '656px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -266,6 +266,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         backgroundColor: themeAccent,
         position: 'relative',
         padding: '40px 60px',
+        paddingTop: '56px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -432,10 +433,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         {/* Profile image */}
         <div style={{
           position: 'absolute',
-          top: '40px',
+          top: '60px',
           right: '60px',
-          width: '180px',
-          height: '180px',
+          width: '190px',
+          height: '190px',
           borderRadius: '50%',
           overflow: 'hidden',
         }}>
@@ -520,7 +521,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           backgroundColor: themeContent,
           opacity: 0.3,
           margin: '20px 0',
-          marginTop: '30px'
+          marginTop: '74px'
         }} />
 
         {/* Footer */}
