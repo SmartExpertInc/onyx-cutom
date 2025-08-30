@@ -68,7 +68,26 @@ class ProfessionalPresentationService:
         # Job tracking
         self.jobs: Dict[str, PresentationJob] = {}
         
+        # Add thread lock for job status updates
+        import threading
+        self._job_lock = threading.Lock()
+        
         logger.info("Professional Presentation Service initialized")
+    
+    def _update_job_status(self, job_id: str, **kwargs):
+        """
+        Thread-safe method to update job status.
+        
+        Args:
+            job_id: Job ID to update
+            **kwargs: Status fields to update (status, progress, error, etc.)
+        """
+        with self._job_lock:
+            if job_id in self.jobs:
+                job = self.jobs[job_id]
+                for key, value in kwargs.items():
+                    setattr(job, key, value)
+                logger.info(f"🎬 [JOB_STATUS] Updated job {job_id}: {kwargs}")
     
     async def create_presentation(self, request: PresentationRequest) -> str:
         """
@@ -134,9 +153,11 @@ class ProfessionalPresentationService:
                 
             except Exception as e:
                 logger.error(f"Thread processing failed for {job_id}: {e}")
-                if job_id in self.jobs:
-                    self.jobs[job_id].status = "failed"
-                    self.jobs[job_id].error = str(e)
+                self._update_job_status(
+                    job_id,
+                    status="failed",
+                    error=str(e)
+                )
             finally:
                 try:
                     loop.close()
@@ -186,12 +207,11 @@ class ProfessionalPresentationService:
                 for i, text in enumerate(request.voiceover_texts):
                     logger.info(f"  Text {i+1}: {text[:100]}...")
             
-            job.status = "processing"
-            job.progress = 5.0
+            self._update_job_status(job_id, status="processing", progress=5.0)
             
             # Step 1: Generate clean slide video
             logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
-            job.progress = 10.0
+            self._update_job_status(job_id, progress=10.0)
             
             # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
@@ -254,12 +274,15 @@ class ProfessionalPresentationService:
                     str(thumbnail_path)
                 )
                 
-                # Update job status
-                job.status = "completed"
-                job.progress = 100.0
-                job.completed_at = datetime.now()
-                job.video_url = f"/api/custom/presentations/{job_id}/video"
-                job.thumbnail_url = f"/api/custom/presentations/{job_id}/thumbnail"
+                # Update job status (thread-safe)
+                self._update_job_status(
+                    job_id,
+                    status="completed",
+                    progress=100.0,
+                    completed_at=datetime.now(),
+                    video_url=f"/api/custom/presentations/{job_id}/video",
+                    thumbnail_url=f"/api/custom/presentations/{job_id}/thumbnail"
+                )
                 
                 logger.info(f"Presentation {job_id} completed successfully")
                 
@@ -269,9 +292,12 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Presentation {job_id} failed: {e}")
-            job.status = "failed"
-            job.error = str(e)
-            job.completed_at = datetime.now()
+            self._update_job_status(
+                job_id,
+                status="failed",
+                error=str(e),
+                completed_at=datetime.now()
+            )
 
     async def _process_single_slide_presentation(self, job_id: str, slide_data: Dict[str, Any], request: PresentationRequest, job: PresentationJob) -> str:
         """
@@ -310,9 +336,9 @@ class ProfessionalPresentationService:
             
             # Store the slide image path for debugging
             if slide_image_paths and len(slide_image_paths) > 0:
-                job.slide_image_path = slide_image_paths[0]
+                self._update_job_status(job_id, slide_image_path=slide_image_paths[0])
             
-            job.progress = 30.0
+            self._update_job_status(job_id, progress=30.0)
             
             # Check if this is a slide-only video
             if request.slide_only:
@@ -323,7 +349,7 @@ class ProfessionalPresentationService:
                 import shutil
                 shutil.copy2(slide_video_path, output_path)
                 final_video_path = str(output_path)
-                job.progress = 90.0
+                self._update_job_status(job_id, progress=90.0)
                 
                 # Cleanup temporary files
                 await self._cleanup_temp_files([slide_video_path])
@@ -338,7 +364,7 @@ class ProfessionalPresentationService:
                 request.duration,
                 request.use_avatar_mask
             )
-            job.progress = 60.0
+            self._update_job_status(job_id, progress=60.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
             
@@ -456,7 +482,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress for composition (66% of slide progress)
                 composition_progress = slide_start_progress + ((slide_end_progress - slide_start_progress) * 66 // 100)
-                job.progress = composition_progress
+                self._update_job_status(job_id, progress=composition_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} composition progress: {composition_progress}%")
                 
                 # Compose individual slide + avatar video
@@ -475,7 +501,7 @@ class ProfessionalPresentationService:
                     # Map composition progress (0-100) to the remaining progress range for this slide
                     remaining_progress = slide_end_progress - composition_progress
                     actual_progress = composition_progress + (comp_progress * remaining_progress / 100)
-                    job.progress = actual_progress
+                    self._update_job_status(job_id, progress=actual_progress)
                     logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} detailed progress: {actual_progress:.1f}%")
                 
                 individual_video_path = await video_composer_service.compose_presentation(
@@ -489,12 +515,12 @@ class ProfessionalPresentationService:
                 temp_files_to_cleanup.append(individual_video_path)
                 
                 # Update progress to end of slide processing (100% of slide progress)
-                job.progress = slide_end_progress
+                self._update_job_status(job_id, progress=slide_end_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} completed: {slide_end_progress}%")
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
             
             # Update progress for concatenation phase (70-90%)
-            job.progress = 75.0
+            self._update_job_status(job_id, progress=75.0)
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] All individual slides completed - starting concatenation: 75%")
             
             # Concatenate all individual videos into final presentation
@@ -502,7 +528,7 @@ class ProfessionalPresentationService:
             final_video_path = await self._concatenate_videos(individual_videos, job_id)
             
             # Update progress after concatenation (90%)
-            job.progress = 90.0
+            self._update_job_status(job_id, progress=90.0)
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenation completed: 90%")
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
             
