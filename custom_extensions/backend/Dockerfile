@@ -93,4 +93,5 @@ RUN mkdir -p /app/data /tmp/generated_pdfs /app/temp
 RUN chmod -R 777 /tmp/generated_pdfs /app/temp
 
 EXPOSE 8001
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+# CRITICAL FIX: Force single worker to prevent multi-process job isolation
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]

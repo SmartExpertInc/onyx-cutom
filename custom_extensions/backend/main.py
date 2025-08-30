@@ -17145,6 +17145,9 @@ async def get_video_system_status():
 async def create_presentation(request: Request):
     """Create a new professional video presentation."""
     try:
+        import os
+        logger.info(f"🔧 [DIAGNOSTIC] CREATE Job in Process {os.getpid()}")
+        
         if not presentation_service:
             return {
                 "success": False,
@@ -17247,6 +17250,9 @@ async def test_quick_response():
 async def get_presentation_status(job_id: str):
     """Get presentation processing status."""
     try:
+        import os
+        logger.info(f"🔧 [DIAGNOSTIC] STATUS Job {job_id} in Process {os.getpid()}")
+        
         if not presentation_service:
             return {
                 "success": False,

@@ -131,7 +131,17 @@ class ProfessionalPresentationService:
         Returns:
             Job status or None if not found
         """
-        return self.jobs.get(job_id)
+        import os
+        logger.info(f"🔧 [DIAGNOSTIC] GET_STATUS Job {job_id} in Process {os.getpid()}")
+        logger.info(f"🔧 [DIAGNOSTIC] Jobs in memory: {list(self.jobs.keys())}")
+        
+        with self._job_lock:
+            job = self.jobs.get(job_id)
+            if job:
+                logger.info(f"🔧 [DIAGNOSTIC] Found job {job_id}: status={job.status}, progress={job.progress}")
+            else:
+                logger.warning(f"🔧 [DIAGNOSTIC] Job {job_id} NOT FOUND in process {os.getpid()}")
+            return job
     
     async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
