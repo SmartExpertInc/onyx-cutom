@@ -53,7 +53,7 @@ export default function AuditPage() {
       {/* Main Content */}
       <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
         {/* First Section */}
-        <section className="mb-16 flex flex-col gap-[30px] px-[20px] xl:px-[120px]">
+        <section className="flex flex-col gap-[30px] px-[20px] xl:px-[120px]">
           <div className="flex flex-col gap-5">
             {/* Pill-shaped div */}
             <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
@@ -99,8 +99,8 @@ export default function AuditPage() {
             {/* Card 1 */}
             <div className="border border-[#E0E0E0] rounded-[6px]">
               <div className="p-[15px] flex flex-col gap-[15px]">
-                <div className="flex items-center gap-[15px]">
-                  <div className="w-[24px] h-[24px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                <div className="flex flex-col gap-[15px]">
+                  <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                     <span className="font-semibold text-[15px] text-white leading-[120%]">1</span>
                   </div>
                   <h3 className="font-semibold text-[18px] text-black leading-[140%]">
@@ -122,8 +122,8 @@ export default function AuditPage() {
             {/* Card 2 */}
             <div className="border border-[#E0E0E0] rounded-[6px]">
               <div className="p-[15px] flex flex-col gap-[15px]">
-                <div className="flex items-center gap-[15px]">
-                  <div className="w-[24px] h-[24px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                <div className="flex flex-col gap-[15px]">
+                  <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                     <span className="font-semibold text-[15px] text-white leading-[120%]">2</span>
                   </div>
                   <h3 className="font-semibold text-[18px] text-black leading-[140%]">
@@ -144,9 +144,9 @@ export default function AuditPage() {
 
             {/* Card 3 */}
             <div className="border border-[#E0E0E0] rounded-[6px]">
-              <div className="p-[15px] flex flex-col gap-[15px]">
+              <div className="flex flex-col gap-[15px]">
                 <div className="flex items-center gap-[15px]">
-                  <div className="w-[24px] h-[24px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                  <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                     <span className="font-semibold text-[15px] text-white leading-[120%]">3</span>
                   </div>
                   <h3 className="font-semibold text-[18px] text-black leading-[140%]">
@@ -154,7 +154,7 @@ export default function AuditPage() {
                   </h3>
                 </div>
               </div>
-                              <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
                   <Image 
                     src="/custom-projects-ui/images/audit-section-2-card-3.png"
                     alt="Card 3"
