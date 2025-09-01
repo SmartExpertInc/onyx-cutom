@@ -44,6 +44,16 @@ export default function QuizClient() {
 
   // Get parameters from URL
   const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(searchParams?.get("prompt") || ""));
+
+  // Sync prompt state when URL parameters change
+  useEffect(() => {
+    const urlPrompt = searchParams?.get("prompt") || "";
+    const processedPrompt = getPromptFromUrlOrStorage(urlPrompt);
+    if (processedPrompt !== currentPrompt) {
+      setCurrentPrompt(processedPrompt);
+    }
+  }, [searchParams, currentPrompt]);
+
   const outlineId = searchParams?.get("outlineId");
   const lesson = searchParams?.get("lesson");
   const courseName = searchParams?.get("courseName"); // Add course name parameter

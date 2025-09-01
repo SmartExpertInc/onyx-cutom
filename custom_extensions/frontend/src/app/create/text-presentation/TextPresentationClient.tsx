@@ -48,6 +48,15 @@ export default function TextPresentationClient() {
   );
   const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
 
+  // Sync prompt state when URL parameters change
+  useEffect(() => {
+    const urlPrompt = params?.get("prompt") || "";
+    const processedPrompt = getPromptFromUrlOrStorage(urlPrompt);
+    if (processedPrompt !== prompt) {
+      setPrompt(processedPrompt);
+    }
+  }, [params, prompt]);
+
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);

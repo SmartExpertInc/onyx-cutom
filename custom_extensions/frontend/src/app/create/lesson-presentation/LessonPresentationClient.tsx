@@ -166,6 +166,15 @@ export default function LessonPresentationClient() {
   // Process prompt from URL or sessionStorage and create local state
   const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
 
+  // Sync prompt state when URL parameters change
+  useEffect(() => {
+    const urlPrompt = params?.get("prompt") || "";
+    const processedPrompt = getPromptFromUrlOrStorage(urlPrompt);
+    if (processedPrompt !== currentPrompt) {
+      setCurrentPrompt(processedPrompt);
+    }
+  }, [params, currentPrompt]);
+
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
   const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
