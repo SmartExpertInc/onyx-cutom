@@ -161,7 +161,6 @@ export default function ProjectInstanceViewPage() {
   // Column visibility controls for Training Plan table
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
   const columnDropdownRef = useRef<HTMLDivElement>(null);
-  const roleDropdownRef = useRef<HTMLDivElement>(null);
 
   // Theme picker state for slide decks
   const [showThemePicker, setShowThemePicker] = useState(false);
@@ -175,23 +174,17 @@ export default function ProjectInstanceViewPage() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    if (!showColumnDropdown && !roleAccess) return;
+    if (!showColumnDropdown) return;
     const handleClickOutside = (e: MouseEvent) => {
-      const isColumnDropdownClick = columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node);
-      const isRoleDropdownClick = roleDropdownRef.current && !roleDropdownRef.current.contains(e.target as Node);
-
-      if (isColumnDropdownClick) {
+      if (columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node)) {
         setShowColumnDropdown(false);
-      }
-      if (isRoleDropdownClick) {
-        setRoleAccess(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown, roleAccess]);
+  }, [showColumnDropdown]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -1424,11 +1417,11 @@ export default function ProjectInstanceViewPage() {
 
             {/* Role Visibility Dropdown - only for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <div className="relative" ref={roleDropdownRef}>
+              <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
                   className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-violet-200 border border-violet-300 hover:bg-violet-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
-                  title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
+                  title={t('interface.projectView.configureAccessControl', 'Configure access control')}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -1437,82 +1430,107 @@ export default function ProjectInstanceViewPage() {
                   <ChevronDown size={16} className="ml-1" />
                 </button>
 
-                {roleAccess && (
-                  <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">{t('interface.projectView.accessControl', 'Access Control')}</h3>
-
-                    {/* Predefined Roles Section */}
-                    <div className="mb-6">
-                      <h4 className="text-xs font-medium text-gray-700 mb-3">{t('interface.projectView.predefinedRoles', 'Predefined Roles')}</h4>
-                      <div className="space-y-2">
-                        {predefinedRoles.map((role) => (
-                          <label key={role.id} className="flex items-start">
-                            <input
-                              type="checkbox"
-                              checked={selectedRoles.includes(role.id)}
-                              onChange={() => handleRoleToggle(role.id)}
-                              className="mt-1 mr-3 text-blue-600 focus:ring-blue-500"
-                            />
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-gray-900">{role.label}</div>
-                              <div className="text-xs text-gray-500">{role.description}</div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Custom Emails Section */}
-                    <div className="mb-4">
-                      <h4 className="text-xs font-medium text-gray-700 mb-3">{t('interface.projectView.customEmails', 'Custom Email Access')}</h4>
-
-                      {/* Add Email Input */}
-                      <div className="flex gap-2 mb-3">
-                        <input
-                          type="email"
-                          value={newEmail}
-                          onChange={(e) => setNewEmail(e.target.value)}
-                          placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
-                          className="flex-1 px-3 py-1.5 text-sm text-gray-700 placeholder-gray-600 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
-                        />
+                {/* Role Access Modal */}
+                {roleAccess && createPortal(
+                  <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
+                    <div className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-semibold text-gray-900">{t('interface.projectView.accessControl', 'Access Control')}</h2>
                         <button
-                          onClick={handleAddEmail}
-                          className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => setRoleAccess(false)}
+                          className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
-                          {t('interface.projectView.add', 'Add')}
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                         </button>
                       </div>
 
-                      {/* Email List */}
-                      {customEmails.length > 0 && (
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
-                          {customEmails.map((email) => (
-                            <div key={email} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
-                              <label className="flex items-center flex-1">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedEmails.includes(email)}
-                                  onChange={() => handleEmailToggle(email)}
-                                  className="mr-2 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm text-gray-800">{email}</span>
-                              </label>
-                              <button
-                                onClick={() => handleRemoveEmail(email)}
-                                className="text-red-500 hover:text-red-700 text-sm"
-                                title={t('interface.projectView.removeEmail', 'Remove email')}
-                              >
-                                ×
-                              </button>
-                            </div>
+                      {/* Predefined Roles Section */}
+                      <div className="mb-8">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('interface.projectView.predefinedRoles', 'Predefined Roles')}</h3>
+                        <div className="grid gap-4">
+                          {predefinedRoles.map((role) => (
+                            <label key={role.id} className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                              <input
+                                type="checkbox"
+                                checked={selectedRoles.includes(role.id)}
+                                onChange={() => handleRoleToggle(role.id)}
+                                className="mt-1 mr-4 text-blue-600 focus:ring-blue-500"
+                              />
+                              <div className="flex-1">
+                                <div className="text-base font-medium text-gray-900 mb-1">{role.label}</div>
+                                <div className="text-sm text-gray-600">{role.description}</div>
+                              </div>
+                            </label>
                           ))}
                         </div>
-                      )}
+                      </div>
+
+                      {/* Custom Emails Section */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('interface.projectView.customEmails', 'Custom Email Access')}</h3>
+
+                        {/* Add Email Input */}
+                        <div className="flex gap-3 mb-4">
+                          <input
+                            type="email"
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                            placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
+                            className="flex-1 px-4 py-2 text-sm text-gray-900 placeholder-gray-600 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
+                          />
+                          <button
+                            onClick={handleAddEmail}
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {t('interface.projectView.add', 'Add')}
+                          </button>
+                        </div>
+
+                        {/* Email List */}
+                        {customEmails.length > 0 && (
+                          <div className="space-y-3 max-h-48 overflow-y-auto">
+                            {customEmails.map((email) => (
+                              <div key={email} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <label className="flex items-center flex-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedEmails.includes(email)}
+                                    onChange={() => handleEmailToggle(email)}
+                                    className="mr-3 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <span className="text-sm text-gray-900">{email}</span>
+                                </label>
+                                <button
+                                  onClick={() => handleRemoveEmail(email)}
+                                  className="text-red-500 hover:text-red-700 text-sm p-1 hover:bg-red-50 rounded transition-colors"
+                                  title={t('interface.projectView.removeEmail', 'Remove email')}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Summary Section */}
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="text-sm font-medium text-blue-900 mb-2">{t('interface.projectView.accessSummary', 'Access Summary')}</h4>
+                        <div className="text-sm text-blue-800">
+                          <p>{t('interface.projectView.selectedRoles', 'Selected Roles')}: {selectedRoles.length > 0 ? selectedRoles.map(id => predefinedRoles.find(r => r.id === id)?.label).join(', ') : t('interface.projectView.none', 'None')}</p>
+                          <p>{t('interface.projectView.selectedEmails', 'Selected Emails')}: {selectedEmails.length > 0 ? selectedEmails.join(', ') : t('interface.projectView.none', 'None')}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </div>,
+                  document.body
                 )}
-              </div>
+              </>
             )}
 
             {/* Column Visibility Dropdown - only for Training Plans */}
