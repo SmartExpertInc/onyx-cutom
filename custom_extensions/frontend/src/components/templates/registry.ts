@@ -37,6 +37,11 @@ import { BarChartSlideTemplate } from './BarChartSlideTemplate';
 import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
 import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
+import { OnlineSafetyTipsSlideTemplate } from './OnlineSafetyTipsSlideTemplate';
+import { TableOfContentsSlideTemplate } from './TableOfContentsSlideTemplate';
+import { CompanyToolsResourcesSlideTemplate } from './CompanyToolsResourcesSlideTemplate';
+import { ResourcesSlideTemplate } from './ResourcesSlideTemplate';
+import { MetricsSlideTemplate } from './MetricsSlideTemplate';
 
 // Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
@@ -1544,6 +1549,81 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       excelIconPath: { type: 'image', label: 'Excel Icon' },
       excelIconAlt: { type: 'text', label: 'Excel Icon Alt Text' }
+    }
+  },
+
+  'online-safety-tips': {
+    id: 'online-safety-tips',
+    name: 'Online Safety Tips',
+    description: 'Slide with 4 tips for staying safe online',
+    category: 'content',
+    icon: '🔒',
+    component: OnlineSafetyTipsSlideTemplate,
+    defaultProps: {
+      title: '4 tips to stay safe online'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 }
+    }
+  },
+
+  'table-of-contents': {
+    id: 'table-of-contents',
+    name: 'Table of Contents',
+    description: 'Slide with grid layout for table of contents',
+    category: 'content',
+    icon: '📋',
+    component: TableOfContentsSlideTemplate,
+    defaultProps: {
+      title: 'Table of Contents'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 }
+    }
+  },
+
+  'company-tools-resources': {
+    id: 'company-tools-resources',
+    name: 'Company Tools and Resources',
+    description: 'Slide with company tools and resources information',
+    category: 'content',
+    icon: '🛠️',
+    component: CompanyToolsResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Company tools and resources'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 }
+    }
+  },
+
+  'resources': {
+    id: 'resources',
+    name: 'Resources',
+    description: 'Slide with resources list and placeholder logo',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Resources'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 }
+    }
+  },
+
+  'metrics': {
+    id: 'metrics',
+    name: 'Metrics',
+    description: 'Slide with key performance metrics',
+    category: 'content',
+    icon: '📊',
+    component: MetricsSlideTemplate,
+    defaultProps: {
+      title: 'Metrics'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 }
     }
   }
 
