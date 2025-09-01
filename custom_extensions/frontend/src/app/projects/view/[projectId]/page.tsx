@@ -1496,7 +1496,7 @@ export default function ProjectInstanceViewPage() {
                                   onChange={() => handleEmailToggle(email)}
                                   className="mr-2 text-blue-600 focus:ring-blue-500"
                                 />
-                                <span className="text-sm text-gray-700">{email}</span>
+                                <span className="text-sm text-gray-900">{email}</span>
                               </label>
                               <button
                                 onClick={() => handleRemoveEmail(email)}
