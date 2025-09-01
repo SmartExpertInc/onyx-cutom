@@ -224,8 +224,8 @@ class ProfessionalPresentationService:
                                     logger.info(f"    - {key}: {value}")
                 else:
                     logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                # Try to extract slide props from URL or use fallback
-                slide_props = await self._extract_slide_props_from_url(request.slide_url)
+                    # Try to extract slide props from URL or use fallback
+                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
                     slides_data = [slide_props]  # Convert single slide to list
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
@@ -288,23 +288,23 @@ class ProfessionalPresentationService:
         """
         try:
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Processing single slide presentation")
-                
-                # Import the clean video generation service
-                from .clean_video_generation_service import clean_video_generation_service
-                
-                # Generate clean slide video
+            
+            # Import the clean video generation service
+            from .clean_video_generation_service import clean_video_generation_service
+            
+            # Generate clean slide video
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating clean slide video")
-                result = await clean_video_generation_service.generate_avatar_slide_video(
+            result = await clean_video_generation_service.generate_avatar_slide_video(
                 slide_props=slide_data,
                 theme=request.theme or "dark-purple",
-                    slide_duration=request.duration,
-                    quality=request.quality
-                )
-                
+                slide_duration=request.duration,
+                quality=request.quality
+            )
+            
             if not result["success"]:
                 raise Exception(f"Slide video generation failed: {result['error']}")
             
-                    slide_video_path = result["video_path"]
+            slide_video_path = result["video_path"]
             slide_image_paths = result.get("slide_image_paths", [])
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Slide video generated: {slide_video_path}")
             
@@ -793,6 +793,7 @@ class ProfessionalPresentationService:
         Returns:
             Path to generated avatar video
         """
+        try:
             # Create video with Elai API
             result = await video_generation_service.create_video_from_texts(
                 project_name="Avatar Video",
@@ -815,6 +816,10 @@ class ProfessionalPresentationService:
             avatar_video_path = await self._wait_for_avatar_completion(video_id)
             
             return avatar_video_path
+            
+        except Exception as e:
+            logger.error(f"Avatar video generation failed: {e}")
+            raise
     
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """
