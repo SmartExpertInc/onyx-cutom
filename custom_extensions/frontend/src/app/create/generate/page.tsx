@@ -1038,6 +1038,7 @@ function GenerateProductPicker() {
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
            isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
+           isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
            t('interface.generate.subtitle', 'What would you like to create today?')}
         </p>
 
@@ -1102,6 +1103,37 @@ function GenerateProductPicker() {
                   {t('interface.generate.aiWillSearchKnowledgeBase', 'The AI will search your entire Knowledge Base to find relevant information and create educational content.')}
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Connector context indicator */}
+        {isFromConnectors && connectorContext && (
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
+                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-purple-900">
+                  {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
+                </h3>
+                <p className="text-sm text-purple-700 mt-1">
+                  {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {connectorContext.connectorSources.map((source, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                >
+                  {source}
+                </span>
+              ))}
             </div>
           </div>
         )}
@@ -1891,14 +1923,14 @@ function GenerateProductPicker() {
         )}
 
         {/* Generate Button */}
-        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
-          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
+        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
-          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
+          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
-          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase)) ||
+          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase))) && (
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {

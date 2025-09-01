@@ -370,7 +370,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       isLoadingRef.current = true;
       setLoading(true);
       
-              const connectorsResponse = await fetch('/api/manage/admin/connector/indexing-status', { 
+              const connectorsResponse = await fetch('/api/manage/admin/connector/status', { 
           credentials: 'same-origin' 
         });
 
@@ -391,29 +391,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           });
         }
         
-        // Check for deleting connectors using Onyx's status logic
-        const deletingConnectors = allConnectorStatuses.filter((connectorStatus: any) => {
-          const actualStatus = getActualConnectorStatus(connectorStatus);
-          return connectorStatus.access_type === 'private' && actualStatus === 'DELETING';
-        });
-        if (deletingConnectors.length > 0) {
-          console.log('Found connectors being deleted (hiding from UI):', deletingConnectors.map((c: any) => ({ name: c.name, id: c.cc_pair_id, status: getActualConnectorStatus(c) })));
-        }
-        
-        // Filter to show connectors that have private access (Smart Drive connectors) and are not being deleted
+        // Filter to show connectors that have private access (Smart Drive connectors)
         const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => {
-          const actualStatus = getActualConnectorStatus(connectorStatus);
-          return connectorStatus.access_type === 'private' && actualStatus !== 'DELETING';
+          return connectorStatus.access_type === 'private';
         });
         
         const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
           id: connectorStatus.cc_pair_id, // IMPORTANT: Use cc_pair_id (not connector.id) for management API
-          name: connectorStatus.name,
+          name: connectorStatus.name || `Connector ${connectorStatus.cc_pair_id}`,
           source: connectorStatus.connector.source,
-          status: getActualConnectorStatus(connectorStatus), // Use Onyx's status logic
+          status: connectorStatus.connector.status || 'unknown', // Use simple status from connector
           last_sync_at: connectorStatus.last_sync_at,
-          total_docs_indexed: connectorStatus.docs_indexed || 0,
-          last_error: connectorStatus.latest_index_attempt?.error_msg, // Use latest_index_attempt
+          total_docs_indexed: connectorStatus.total_docs_indexed || 0,
+          last_error: connectorStatus.last_error,
           access_type: connectorStatus.access_type || 'unknown',
         }));
         
