@@ -1427,7 +1427,7 @@ export default function ProjectInstanceViewPage() {
               <div className="relative" ref={roleDropdownRef}>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-violet-200 border border-gray-300 hover:bg-violet-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-violet-200 border border-violet-400 hover:bg-violet-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
                   title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
