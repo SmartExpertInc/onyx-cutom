@@ -108,39 +108,54 @@ class ProfessionalPresentationService:
         Args:
             job_id: Job ID to start heartbeat for
         """
+        logger.info(f"💓 [HEARTBEAT] Attempting to start heartbeat for job {job_id}")
+        logger.info(f"💓 [HEARTBEAT] Current event loop: {asyncio.current_task()}")
+        logger.info(f"💓 [HEARTBEAT] Job exists in tracking: {job_id in self.jobs}")
         async def heartbeat_task():
             """Send periodic heartbeat updates to keep connection alive."""
+            logger.info(f"💓 [HEARTBEAT] Heartbeat task started for job {job_id}")
             try:
+                heartbeat_count = 0
                 while job_id in self.jobs:
                     job = self.jobs[job_id]
+                    heartbeat_count += 1
                     
                     # Only send heartbeats for active jobs
                     if job.status in ["processing"]:
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}%")
+                        logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}% (beat #{heartbeat_count})")
                         logger.info(f"💓 [HEARTBEAT] Keeping connection alive - {datetime.now().isoformat()}")
                         
                         # Update last activity timestamp to show we're alive
                         job.last_heartbeat = datetime.now()
                     elif job.status in ["completed", "failed"]:
                         # Job is done, stop heartbeat
-                        logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat")
+                        logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat after {heartbeat_count} beats")
                         break
+                    else:
+                        logger.info(f"💓 [HEARTBEAT] Job {job_id} status is {job.status}, continuing heartbeat")
                     
                     await asyncio.sleep(self.heartbeat_interval)
                     
             except asyncio.CancelledError:
-                logger.info(f"💓 [HEARTBEAT] Heartbeat task cancelled for job {job_id}")
+                logger.info(f"💓 [HEARTBEAT] Heartbeat task cancelled for job {job_id} after {heartbeat_count} beats")
+                raise  # Re-raise to properly handle cancellation
             except Exception as e:
-                logger.error(f"💓 [HEARTBEAT] Heartbeat task failed for job {job_id}: {e}")
+                logger.error(f"💓 [HEARTBEAT] Heartbeat task failed for job {job_id} after {heartbeat_count} beats: {e}")
+                logger.error(f"💓 [HEARTBEAT] Job status was: {self.jobs.get(job_id, {}).status if job_id in self.jobs else 'NOT_FOUND'}")
         
         # Cancel existing heartbeat if any
         if job_id in self.heartbeat_tasks:
             self.heartbeat_tasks[job_id].cancel()
         
         # Start new heartbeat task
-        task = asyncio.create_task(heartbeat_task())
-        self.heartbeat_tasks[job_id] = task
-        logger.info(f"💓 [HEARTBEAT] Started heartbeat for job {job_id} (interval: {self.heartbeat_interval}s)")
+        try:
+            task = asyncio.create_task(heartbeat_task())
+            self.heartbeat_tasks[job_id] = task
+            logger.info(f"💓 [HEARTBEAT] Started heartbeat for job {job_id} (interval: {self.heartbeat_interval}s)")
+        except Exception as e:
+            logger.error(f"💓 [HEARTBEAT] Failed to start heartbeat for job {job_id}: {e}")
+            # Continue without heartbeat rather than failing the job
+            logger.warning(f"💓 [HEARTBEAT] Job {job_id} will continue without heartbeat")
     
     async def _stop_heartbeat(self, job_id: str):
         """
