@@ -391,7 +391,14 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      height: '100%',
                      display: 'flex',
                      alignItems: 'center',
-                     justifyContent: 'center'
+                     justifyContent: 'center',
+                     fontSize: '32px',
+                     color: themeTitle,
+                     fontWeight: 'bold',
+                     textAlign: 'center',
+                     minHeight: '40px',
+                     maxHeight: '40px',
+                     overflow: 'hidden'
                    }}
                  >
                    {bar.percentage}
@@ -441,7 +448,15 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      height: '100%',
                      display: 'flex',
                      alignItems: 'center',
-                     justifyContent: 'center'
+                     justifyContent: 'center',
+                     fontSize: '14px',
+                     color: themeContent,
+                     textAlign: 'center',
+                     maxWidth: '120px',
+                     lineHeight: '1.3',
+                     minHeight: '40px',
+                     maxHeight: '60px',
+                     overflow: 'hidden'
                    }}
                  >
                    {bar.description}
@@ -682,7 +697,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onClick={() => isEditable && setEditingDate(true)}
                  style={{
                    cursor: isEditable ? 'pointer' : 'default',
-                   userSelect: 'none'
+                   userSelect: 'none',
+                   fontSize: '13px',
+                   color: themeContent
                  }}
                >
                  {currentDate}
@@ -708,7 +725,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onClick={() => isEditable && setEditingPageNumber(true)}
                  style={{
                    cursor: isEditable ? 'pointer' : 'default',
-                   userSelect: 'none'
+                   userSelect: 'none',
+                   fontSize: '13px',
+                   color: themeContent
                  }}
                >
                  {currentPageNumber}

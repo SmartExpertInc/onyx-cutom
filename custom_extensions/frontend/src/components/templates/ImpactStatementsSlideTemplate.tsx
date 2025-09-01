@@ -145,7 +145,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                maxWidth: '390px',
+                fontSize: '40px',
+                color: themeTitle,
+                lineHeight: '1.2',
+                minHeight: '50px'
               }}
             >
               {currentTitle}
@@ -243,7 +248,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       width: '100%',
                       height: '100%',
                       display: 'flex',
-                      alignItems: 'center'
+                      alignItems: 'center',
+                      fontSize: '48px',
+                      color: themeBg,
+                      minHeight: '60px',
+                      maxHeight: '60px',
+                      overflow: 'hidden'
                     }}
                   >
                     {statement.number}
@@ -280,7 +290,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onClick={() => isEditable && setEditingStatements(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
+                      userSelect: 'none',
+                      fontSize: '14px',
+                      color: themeBg,
+                      lineHeight: '1.4',
+                      width: '100%'
                     }}
                   >
                     {statement.description}
@@ -332,7 +346,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onClick={() => isEditable && setEditingNumbers(2)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
+                      userSelect: 'none',
+                      fontSize: '48px',
+                      color: themeBg,
+                      fontWeight: 'bold',
+                      width: '100%'
                     }}
                   >
                     {currentStatements[2].number}
@@ -364,7 +382,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onClick={() => isEditable && setEditingStatements(2)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
+                      userSelect: 'none',
+                      fontSize: '14px',
+                      color: themeBg,
+                      lineHeight: '1.4',
+                      width: '100%'
                     }}
                   >
                     {currentStatements[2].description}

@@ -52,6 +52,12 @@ export function ImprovedInlineEditor({
   const adjustTextareaHeight = () => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
+      
+      // Если minHeight установлен как 'auto', не изменяем высоту
+      if (style.minHeight === 'auto') {
+        return;
+      }
+      
       // Сохраняем текущую высоту для предотвращения скачков
       const currentHeight = textarea.style.height;
       textarea.style.height = 'auto';
@@ -104,7 +110,8 @@ export function ImprovedInlineEditor({
           ...editorStyles,
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
-          minHeight: style.minHeight || '1.6em',
+          minHeight: style.minHeight === 'auto' ? 'auto' : (style.minHeight || '1.6em'),
+          height: style.minHeight === 'auto' ? 'auto' : undefined,
         }}
         rows={1}
       />

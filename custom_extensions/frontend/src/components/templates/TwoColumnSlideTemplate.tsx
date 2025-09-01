@@ -117,7 +117,8 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              overflow: 'hidden'
             }}
           />
         </div>
@@ -139,7 +140,9 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             color: themeContent,
             lineHeight: '1.6',
             position: 'relative',
-            bottom: '-205px'
+            bottom: '-205px',
+            textAlign: 'right',
+            width: '100%'
           }}>
             {isEditable && editingContent ? (
               <ImprovedInlineEditor
@@ -153,10 +156,8 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                   color: themeContent,
                   lineHeight: '1.6',
                   width: '100%',
-                  height: 'auto',
-                  minHeight: '100px',
-                  alignSelf: 'flex-end',
-                  textAlign: 'right'
+                  textAlign: 'right',
+                  minHeight: 'auto'
                 }}
               />
             ) : (
@@ -164,7 +165,12 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 onClick={() => isEditable && setEditingContent(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  fontSize: '13px',
+                  color: themeContent,
+                  lineHeight: '1.6',
+                  textAlign: 'right',
+                  width: '100%'
                 }}
               >
                 {currentContent}

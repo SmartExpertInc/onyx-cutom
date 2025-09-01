@@ -261,7 +261,14 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-                alignItems: 'flex-start'
+                alignItems: 'flex-start',
+                fontSize: '36px',
+                color: themeTitle,
+                lineHeight: '1.2',
+                whiteSpace: 'pre-line',
+                minHeight: '60px',
+                maxHeight: '120px',
+                overflow: 'hidden'
               }}
             >
               {currentTitle}
@@ -302,7 +309,13 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               onClick={() => isEditable && setEditingContent(true)}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
+                userSelect: 'none',
+                fontSize: '36px',
+                color: themeContent,
+                lineHeight: '1.6',
+                maxWidth: '600px',
+                minHeight: '40px',
+                width: '100%'
               }}
             >
               {renderContentWithHighlights()}

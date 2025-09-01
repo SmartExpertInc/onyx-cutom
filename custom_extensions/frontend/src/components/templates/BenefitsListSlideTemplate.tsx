@@ -310,7 +310,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   width: '100%',
                   height: '100%',
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  fontSize: '14px',
+                  color: themeBg,
+                  fontWeight: '300',
+                  minHeight: '20px',
+                  maxHeight: '20px',
+                  overflow: 'hidden'
                 }}
               >
                 {currentSubtitle}
@@ -355,7 +361,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   width: '100%',
                   height: '100%',
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  fontSize: '65px',
+                  color: themeBg,
+                  lineHeight: '1.1',
+                  minHeight: '65px',
+                  maxHeight: '65px',
+                  overflow: 'hidden'
                 }}
               >
                 {currentTitle}
@@ -393,7 +405,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
-                  fontSize: '25px'
+                  fontSize: '28px',
+                  color: themeBg,
+                  lineHeight: '1.4',
+                  maxWidth: '643px',
+                  minHeight: '30px',
+                  width: '100%'
                 }}
               >
                 {currentDescription}
@@ -504,7 +521,9 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none',
-                    flex: '1'
+                    flex: '1',
+                    fontSize: '20px',
+                    color: themeContent
                   }}
                 >
                   {benefit}
@@ -591,7 +610,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onClick={() => isEditable && setEditingCompanyName(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
+                  userSelect: 'none',
+                  fontSize: '12px',
+                  color: themeContent,
+                  fontWeight: '300'
                 }}
               >
                 {currentCompanyName}
