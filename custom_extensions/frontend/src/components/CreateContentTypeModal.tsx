@@ -227,17 +227,17 @@ export const CreateContentTypeModal = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4"
       onClick={handleClose}
     >
       <div
-        className="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl border border-gray-100"
+        className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-3xl shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="mb-4 justify-between">
+        <div className="mb-3 sm:mb-4 justify-between">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{t('modals.createContent.title')}</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full group"
@@ -247,22 +247,22 @@ export const CreateContentTypeModal = ({
           </div>
         </div>
 
-        <div className="mb-3">
+        <div className="mb-2 sm:mb-3">
           <button
             onClick={() => handleContentCreate('lessonPlan')}
-            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01]"
+            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 sm:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01]"
           >
-            <div className="flex items-center space-x-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="text-left flex-1">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-base font-semibold text-amber-900">Lesson Plan</span>
+                <div className="flex items-center gap-2 sm:gap-3 mb-1">
+                  <span className="text-sm sm:text-base font-semibold text-black-900">Lesson Plan</span>
                 </div>
-                <p className="text-sm text-amber-700 leading-relaxed">Technical specification with lesson objectives</p>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Technical specification with lesson objectives</p>
               </div>
             </div>
             <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
@@ -274,9 +274,9 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Visual Separator */}
-        <div className="mb-3 flex items-center">
+        <div className="mb-2 sm:mb-3 flex items-center">
           <div className="flex-1 border-t border-gray-200"></div>
-          <span className="px-3 text-xs text-gray-500 font-medium">Content Creation Options</span>
+          <span className="px-2 sm:px-3 text-xs text-gray-500 font-medium">Content Creation Options</span>
           <div className="flex-1 border-t border-gray-200"></div>
         </div>
 
@@ -284,7 +284,7 @@ export const CreateContentTypeModal = ({
         <div className="mb-2">
 
           {/* All Content Types with Checkboxes */}
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             {updatedContentTypes.map((type) => {
               const isDisabled = type.disabled;
               const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
@@ -298,7 +298,7 @@ export const CreateContentTypeModal = ({
               return (
                 <div
                   key={type.name}
-                  className={`group w-full flex items-center p-6 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${isDisabled
+                  className={`group w-full flex items-center p-3 sm:p-4 lg:p-6 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${isDisabled
                     ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                     : isSelected
                       ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
@@ -311,12 +311,12 @@ export const CreateContentTypeModal = ({
                   }}
                 >
                   {/* Checkbox */}
-                  <div className="mr-4">
+                  <div className="mr-3 sm:mr-4">
                     <input
                       type="checkbox"
-                      className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       checked={isSelected}
-                      onChange={(e) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         e.stopPropagation();
                         handlePrefToggle(type.key);
                       }}
@@ -324,16 +324,16 @@ export const CreateContentTypeModal = ({
                     />
                   </div>
 
-                  <div className="flex items-center space-x-3 flex-1">
-                    <div className={`p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${isDisabled || !isSelected ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1">
+                    <div className={`p-2 sm:p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${isDisabled || !isSelected ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
                       }`}>
                       {React.cloneElement(type.icon, {
-                        className: `w-6 h-6 transition-all duration-200 ${isDisabled || !isSelected ? 'text-gray-400' : ''}`
+                        className: `w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200 ${isDisabled || !isSelected ? 'text-gray-400' : ''}`
                       })}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className={`text-lg font-bold ${isSelected ? 'text-gray-900 group-hover:text-gray-800' : 'text-gray-400'}`}>
+                      <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                        <h3 className={`text-base sm:text-lg font-bold ${isSelected ? 'text-gray-900 group-hover:text-gray-800' : 'text-gray-400'}`}>
                           {type.label}
                         </h3>
                         {type.soon && (
@@ -352,14 +352,14 @@ export const CreateContentTypeModal = ({
                           </span>
                         )}
                       </div>
-                      <p className={`text-sm leading-relaxed ${isSelected ? 'text-gray-600' : 'text-gray-400'}`}>
+                      <p className={`text-xs sm:text-sm leading-relaxed ${isSelected ? 'text-gray-600' : 'text-gray-400'}`}>
                         {type.description}
                       </p>
                     </div>
                   </div>
                   {isSelected && !isDisabled && (
                     <div className="text-gray-400 group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
@@ -371,20 +371,20 @@ export const CreateContentTypeModal = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-3 flex justify-between items-center pt-3 border-t border-gray-200">
+        <div className="mt-2 sm:mt-3 flex justify-between items-center pt-2 sm:pt-3 border-t border-gray-200">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-all duration-200 flex items-center space-x-2 hover:bg-gray-100 rounded-lg"
+            className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 transition-all duration-200 flex items-center space-x-1 sm:space-x-2 hover:bg-gray-100 rounded-lg"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            <span>{t('actions.cancel')}</span>
+            <span className="text-sm sm:text-base">{t('actions.cancel')}</span>
           </button>
           <button
             onClick={handlePrefSave}
             disabled={!Object.values(selectedPrefs).some(Boolean)}
-            className={`px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 ${!Object.values(selectedPrefs).some(Boolean)
+            className={`px-4 sm:px-6 py-2 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-1 sm:space-x-2 ${!Object.values(selectedPrefs).some(Boolean)
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-lg hover:shadow-xl'
               }`}
@@ -392,7 +392,7 @@ export const CreateContentTypeModal = ({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span>{t('actions.save')}</span>
+            <span className="text-sm sm:text-base">{t('actions.save')}</span>
           </button>
         </div>
       </div>
