@@ -330,8 +330,8 @@ class ProfessionalPresentationService:
                                     logger.info(f"    - {key}: {value}")
                 else:
                     logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                    # Try to extract slide props from URL or use fallback
-                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
+                # Try to extract slide props from URL or use fallback
+                slide_props = await self._extract_slide_props_from_url(request.slide_url)
                     slides_data = [slide_props]  # Convert single slide to list
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
@@ -375,9 +375,25 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [FINAL_COMPLETION] Final video path: {final_video_path}")
                 logger.info(f"🎬 [FINAL_COMPLETION] Thumbnail path: {str(thumbnail_path)}")
                 
+                # ROOT CAUSE DIAGNOSTIC: Add timing analysis
+                current_time = datetime.now()
+                if job_id in self.jobs:
+                    job_start_time = self.jobs[job_id].created_at
+                    total_processing_time = (current_time - job_start_time).total_seconds()
+                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Job {job_id} total processing time: {total_processing_time:.1f} seconds")
+                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Job start time: {job_start_time}")
+                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Job completion time: {current_time}")
+                    
+                    if total_processing_time > 60:
+                        logger.warning(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] LONG PROCESSING TIME DETECTED: {total_processing_time:.1f}s")
+                        logger.warning(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] This may cause frontend polling timeout!")
+                        logger.warning(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Frontend likely stopped polling before backend completion")
+                
                 # CRITICAL FIX: Update job status with all completion details - this MUST run
                 try:
                     logger.info(f"🎬 [FINAL_COMPLETION] Updating job status to completed for job {job_id}")
+                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] About to send FINAL 100% status to frontend...")
+                    
                     self._update_job_status(
                         job_id,
                         status="completed",
@@ -387,6 +403,8 @@ class ProfessionalPresentationService:
                         thumbnail_url=f"/presentations/{job_id}/thumbnail"
                     )
                     logger.info(f"🎬 [FINAL_COMPLETION] Job status update completed successfully for job {job_id}")
+                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] ✅ FINAL 100% STATUS SENT TO FRONTEND!")
+                    
                 except Exception as e:
                     logger.error(f"🎬 [FINAL_COMPLETION] CRITICAL ERROR: Failed to update job status for {job_id}: {e}")
                     raise  # Re-raise this as it's critical
@@ -439,23 +457,23 @@ class ProfessionalPresentationService:
         """
         try:
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Processing single slide presentation")
-            
-            # Import the clean video generation service
-            from .clean_video_generation_service import clean_video_generation_service
-            
-            # Generate clean slide video
+                
+                # Import the clean video generation service
+                from .clean_video_generation_service import clean_video_generation_service
+                
+                # Generate clean slide video
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating clean slide video")
-            result = await clean_video_generation_service.generate_avatar_slide_video(
+                result = await clean_video_generation_service.generate_avatar_slide_video(
                 slide_props=slide_data,
                 theme=request.theme or "dark-purple",
-                slide_duration=request.duration,
-                quality=request.quality
-            )
-            
+                    slide_duration=request.duration,
+                    quality=request.quality
+                )
+                
             if not result["success"]:
                 raise Exception(f"Slide video generation failed: {result['error']}")
             
-            slide_video_path = result["video_path"]
+                    slide_video_path = result["video_path"]
             slide_image_paths = result.get("slide_image_paths", [])
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Slide video generated: {slide_video_path}")
             
@@ -1133,7 +1151,7 @@ class ProfessionalPresentationService:
         except Exception as e:
             logger.error(f"Avatar video completion with progress failed: {e}")
             raise
-
+    
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """
         Wait for avatar video to complete rendering.
