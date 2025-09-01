@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AuditPage() {
   return (
@@ -46,9 +47,9 @@ export default function AuditPage() {
       </header>
 
       {/* Main Content */}
-      <main className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] flex-1">
+      <main className="bg-[#FAFAFA] w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] flex-1">
         {/* First Section */}
-        <section className="mb-16 bg-[#FAFAFA] flex flex-col gap-[30px]">
+        <section className="mb-16 flex flex-col gap-[30px]">
           <div className="flex flex-col gap-5">
             {/* Pill-shaped div */}
             <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
@@ -73,10 +74,12 @@ export default function AuditPage() {
           </div>
           
           {/* Image */}
-          <img 
-            src="/images/audit-section-1-mobile.png" 
+          <Image 
+            src="/images/audit-section-1-mobile.png"
             alt="Audit"
-            className="w-full h-[339.39px] -mx-[20px] xl:-mx-[120px]"
+            width={360}
+            height={339.39}
+            className="-mx-[20px] xl:-mx-[120px]"
           />
         </section>
       </main>
