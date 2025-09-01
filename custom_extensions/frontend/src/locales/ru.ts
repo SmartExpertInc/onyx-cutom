@@ -818,7 +818,7 @@ export const ru = {
     pasteInTextDescription:
       "Создать из заметок, плана или существующего контента",
     generateDescription: "Создать из однострочного запроса за несколько секунд",
-    importFileOrUrl: "Импортировать файл или URL",
+    importFileOrUrl: "Создать из файлов",
     importFileOrUrlDescription:
       "Улучшить существующие документы, презентации или веб-страницы",
     popular: "ПОПУЛЯРНО",

@@ -199,7 +199,7 @@ export default function DataSourceLanding() {
           />
           <OptionCard
             Icon={UploadCloud}
-            title={t('interface.importFileOrUrl', 'Import file or URL')}
+            title={t('interface.importFileOrUrl', 'Create from files')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
           />

@@ -816,7 +816,7 @@ export const es = {
     pasteInTextDescription:
       "Crear desde notas, un esquema o contenido existente",
     generateDescription: "Crear desde un prompt de una línea en segundos",
-    importFileOrUrl: "Importar archivo o URL",
+    importFileOrUrl: "Crear desde archivos",
     importFileOrUrlDescription:
       "Mejorar documentos, presentaciones o páginas web existentes",
     popular: "POPULAR",

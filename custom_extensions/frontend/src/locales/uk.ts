@@ -803,7 +803,7 @@ export const uk = {
     pasteInText: "Вставити текст",
     pasteInTextDescription: "Створити з нотаток, плану або існуючого контенту",
     generateDescription: "Створити з однострочного запиту за кілька секунд",
-    importFileOrUrl: "Імпортувати файл або URL",
+    importFileOrUrl: "Створити з файлів",
     importFileOrUrlDescription:
       "Покращити існуючі документи, презентації або веб-сторінки",
     popular: "ПОПУЛЯРНО",

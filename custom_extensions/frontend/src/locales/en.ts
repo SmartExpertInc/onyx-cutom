@@ -852,7 +852,7 @@ export const en = {
     pasteInTextDescription:
       "Create from notes, an outline, or existing content",
     generateDescription: "Create from a one-line prompt in a few seconds",
-    importFileOrUrl: "Import file or URL",
+    importFileOrUrl: "Create from files",
     importFileOrUrlDescription:
       "Enhance existing docs, presentations, or webpages",
     popular: "POPULAR",
