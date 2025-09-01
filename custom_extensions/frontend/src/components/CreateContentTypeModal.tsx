@@ -231,7 +231,7 @@ export const CreateContentTypeModal = ({
       onClick={handleClose}
     >
       <div
-        className="bg-white rounded-2xl p-3 sm:p-4 lg:p-6 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl 2xl:max-w-4xl shadow-2xl border border-gray-100"
+        className="bg-white rounded-2xl p-3 sm:p-4 lg:p-6 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-3xl shadow-2xl border border-gray-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
