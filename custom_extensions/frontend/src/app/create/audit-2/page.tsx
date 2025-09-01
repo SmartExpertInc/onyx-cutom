@@ -12,7 +12,7 @@ export default function AuditPage() {
       `}</style>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
-      <header className="bg-[#FAFAFA] h-[50px] xl:h-[81px]">
+      <header className="bg-[#FAFAFA] h-[50px] xl:h-[81px] mb-[33px]">
         <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
           <div className="flex items-center justify-between h-full">
             <svg className="h-[30px] xl:h-[37px]" width="136" height="30" viewBox="0 0 136 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,14 +78,16 @@ export default function AuditPage() {
           </div>
           
           {/* Image */}
-          <Image 
-            src="/custom-projects-ui/images/audit-section-1-mobile.png"
-            alt="Audit"
-            width={360}
-            height={339}
-            className="-mx-[20px] xl:-mx-[120px] w-[calc(100%+40px)] xl:w-[calc(100%+240px)]"
-            style={{ height: '339.39px' }}
-          />
+          <div className="-mx-[20px] xl:-mx-[120px]">
+            <Image 
+              src="/custom-projects-ui/images/audit-section-1-mobile.png"
+              alt="Audit"
+              width={360}
+              height={339}
+              className="w-full"
+              style={{ height: '339.39px' }}
+            />
+          </div>
         </section>
       </main>
       
