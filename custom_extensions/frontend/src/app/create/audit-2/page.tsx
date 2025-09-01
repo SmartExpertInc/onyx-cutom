@@ -7,7 +7,7 @@ export default function AuditPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 h-[50px] xl:h-[81px]">
+      <header className="bg-[#FAFAFA] h-[50px] xl:h-[81px]">
         <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
           <div className="flex items-center justify-between h-full">
             <svg className="h-[30px] xl:h-[37px]" width="136" height="30" viewBox="0 0 136 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,8 +48,8 @@ export default function AuditPage() {
       {/* Main Content */}
       <main className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] flex-1">
         {/* First Section */}
-        <section className="mb-16">
-          <div className="bg-white flex flex-col gap-5">
+        <section className="mb-16 bg-[#FAFAFA] flex flex-col gap-[30px]">
+          <div className="flex flex-col gap-5">
             {/* Pill-shaped div */}
             <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
               {/* Circle with gradient background */}
@@ -63,7 +63,7 @@ export default function AuditPage() {
             
             {/* Title with colored text and span */}
             <h1 className="font-semibold text-[34px] text-[#0F58F9]">
-              AI-аудит для компании <span className="text-black">FUSE</span>
+              AI-аудит <span className="text-black">для компании FUSE</span>
             </h1>
             
             {/* Description text */}
@@ -71,6 +71,13 @@ export default function AuditPage() {
               Компания предоставляющий услуги по установке и обслуживанию систем HVAC, электрики, солнечных панелей, а также бытовой и коммерческой техники. Обеспечивая полный цикл инженерных решений
             </p>
           </div>
+          
+          {/* Image */}
+          <img 
+            src="/images/audit-section-1-mobile.png" 
+            alt="Audit"
+            className="w-full h-[339.39px] -mx-[20px] xl:-mx-[120px]"
+          />
         </section>
       </main>
       
