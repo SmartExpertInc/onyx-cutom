@@ -7,7 +7,7 @@ interface SlideDeckViewerProps {
   onSave?: (updatedDeck: SlideDeckData) => void;
 }
 
-// Professional slide templates based on industry best practices
+// Professional slide templates based on industry best practices1
 const SLIDE_TEMPLATES = {
   title: {
     name: 'Title Slide',
@@ -357,6 +357,8 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
         onSave={handleSave}
         onCancel={handleCancel}
         multiline={block.type === 'bullet_list' || block.type === 'numbered_list'}
+        blockType={block.type}
+        blockLevel={(block as HeadlineBlock)?.level}
       />
     );
   };
@@ -556,6 +558,8 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                         setEditingTitle(null);
                       }}
                       onCancel={() => setEditingTitle(null)}
+                      blockType="headline"
+                      blockLevel={2}
                     />
                   ) : (
                     <h2 className="slide-title-text">{slide.slideTitle}</h2>
@@ -587,9 +591,11 @@ interface InlineEditorProps {
   onSave: (value: string) => void;
   onCancel: () => void;
   multiline?: boolean;
+  blockType?: string;
+  blockLevel?: number;
 }
 
-function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: InlineEditorProps) {
+function InlineEditor({ initialValue, onSave, onCancel, multiline = false, blockType, blockLevel }: InlineEditorProps) {
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
@@ -617,16 +623,89 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
     onSave(value);
   };
 
+  // Определяем стили в зависимости от типа блока
+  const getEditorStyles = () => {
+    const baseStyles: React.CSSProperties = {
+      width: '100%',
+      border: '2px solid var(--primary-color)',
+      borderRadius: 'var(--border-radius)',
+      padding: 'var(--space-lg)',
+      outline: 'none',
+      boxShadow: 'var(--shadow-md)',
+      transition: 'all 0.2s ease',
+      background: 'white',
+      color: 'inherit',
+      fontFamily: 'inherit',
+      fontSize: 'inherit',
+      lineHeight: 'inherit',
+      fontWeight: 'inherit',
+      textAlign: 'inherit',
+      letterSpacing: 'inherit',
+      wordSpacing: 'inherit',
+      whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
+      overflow: multiline ? 'visible' : 'hidden',
+      resize: 'none',
+      boxSizing: 'border-box',
+      position: 'relative',
+      zIndex: 1000,
+    };
+
+    // Специфичные стили для заголовков
+    if (blockType === 'headline') {
+      baseStyles.fontFamily = "'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      baseStyles.fontWeight = '700';
+      baseStyles.color = '#ffffff';
+      
+      if (blockLevel === 1) {
+        baseStyles.fontSize = '45px';
+        baseStyles.lineHeight = '1.3';
+      } else if (blockLevel === 2) {
+        baseStyles.fontSize = '35px';
+        baseStyles.lineHeight = '1.3';
+      } else if (blockLevel === 3) {
+        baseStyles.fontSize = '28px';
+        baseStyles.lineHeight = '1.3';
+      } else if (blockLevel === 4) {
+        baseStyles.fontSize = '22px';
+        baseStyles.lineHeight = '1.3';
+      }
+    }
+    
+    // Специфичные стили для параграфов
+    if (blockType === 'paragraph') {
+      baseStyles.fontFamily = "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace";
+      baseStyles.fontSize = '1rem';
+      baseStyles.lineHeight = '1.6';
+      baseStyles.color = '#d9e1ff';
+      baseStyles.fontWeight = '400';
+    }
+
+    // Специфичные стили для списков
+    if (blockType === 'bullet_list' || blockType === 'numbered_list') {
+      baseStyles.fontFamily = "'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace";
+      baseStyles.fontSize = '1rem';
+      baseStyles.lineHeight = '1.6';
+      baseStyles.color = '#d9e1ff';
+      baseStyles.fontWeight = '400';
+      baseStyles.minHeight = 'auto';
+      baseStyles.height = 'auto';
+    }
+
+    return baseStyles;
+  };
+
   if (multiline) {
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         className="inline-editor-textarea"
+        style={getEditorStyles()}
+        data-block-type={blockType}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
-        rows={4}
+        rows={Math.max(1, Math.min(10, value.split('\n').length + 1))}
       />
     );
   }
@@ -636,6 +715,8 @@ function InlineEditor({ initialValue, onSave, onCancel, multiline = false }: Inl
       ref={inputRef as React.RefObject<HTMLInputElement>}
       className="inline-editor-input"
       type="text"
+      style={getEditorStyles()}
+      data-block-type={blockType}
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}

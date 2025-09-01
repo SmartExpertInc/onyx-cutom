@@ -804,33 +804,75 @@
   line-height: 1;
 }
 
-/* Clean Inline Editing */
+/* Enhanced Inline Editing - Preserves Layout and Styling */
 .inline-editor-input,
 .inline-editor-textarea {
   width: 100%;
   border: 2px solid var(--primary-color);
   border-radius: var(--border-radius);
   padding: var(--space-lg);
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  color: inherit;
   background: white;
   outline: none;
   box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1000;
+  
+  /* Preserve exact positioning and sizing */
+  margin: 0;
+  display: block;
+  vertical-align: baseline;
+  
+  /* Ensure text doesn't shift */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Prevent layout shifts */
+  min-height: 0;
+  max-height: none;
+  
+  /* Ensure proper text alignment */
+  text-align: left;
 }
 
 .inline-editor-input:focus,
 .inline-editor-textarea:focus {
   border-color: var(--primary-dark);
   box-shadow: var(--shadow-lg), 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
 }
 
 .inline-editor-textarea {
-  resize: vertical;
-  min-height: 100px;
-  font-family: var(--font-primary);
+  resize: none;
+  overflow: visible;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  min-height: auto;
+  height: auto;
+}
+
+/* Specific styles for different block types to maintain exact appearance */
+.inline-editor-input[data-block-type="headline"],
+.inline-editor-textarea[data-block-type="headline"] {
+  font-family: 'Kanit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.inline-editor-input[data-block-type="paragraph"],
+.inline-editor-textarea[data-block-type="paragraph"] {
+  font-family: 'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  color: #d9e1ff;
+}
+
+.inline-editor-input[data-block-type="bullet_list"],
+.inline-editor-textarea[data-block-type="bullet_list"],
+.inline-editor-input[data-block-type="numbered_list"],
+.inline-editor-textarea[data-block-type="numbered_list"] {
+  font-family: 'Martian Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  color: #d9e1ff;
 }
 
 /* Responsive Design */
