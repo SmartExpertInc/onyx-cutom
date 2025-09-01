@@ -368,6 +368,7 @@ export const en = {
       "Organize your products by topic and share them with your team",
     templates: "Templates",
     themes: "Themes",
+    audit: "Audit",
 
     // Main content
     all: "All",
