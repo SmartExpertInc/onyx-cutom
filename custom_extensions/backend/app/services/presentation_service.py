@@ -78,23 +78,28 @@ class ProfessionalPresentationService:
             request: Presentation request configuration
             
         Returns:
-            Job ID for tracking
+            Job ID for tracking (returns immediately)
         """
         try:
             job_id = str(uuid.uuid4())
             
-            # Create job tracking
+            logger.info(f"🎬 [CREATE_PRESENTATION] Creating new presentation job: {job_id}")
+            
+            # Create job tracking (immediate)
             job = PresentationJob(
                 job_id=job_id,
                 status="queued"
             )
             self.jobs[job_id] = job
             
-            logger.info(f"Created presentation job: {job_id}")
+            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} created - status: {job.status}, progress: {job.progress}%")
+            logger.info(f"🎬 [CREATE_PRESENTATION] Job {job_id} stored in memory successfully")
             
-            # Start background processing (completely detached)
-            loop = asyncio.get_event_loop()
-            loop.create_task(self._process_presentation_detached(job_id, request))
+            # Start background processing (non-blocking)
+            await self._process_presentation_detached(job_id, request)
+            
+            logger.info(f"🎬 [CREATE_PRESENTATION] Returning job ID immediately: {job_id}")
+            logger.info(f"🎬 [CREATE_PRESENTATION] HTTP response will be sent now, processing continues in background")
             
             return job_id
             
@@ -116,13 +121,17 @@ class ProfessionalPresentationService:
     
     async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
-        Detached presentation processing using asyncio task instead of separate thread.
-        This ensures job status updates are visible to the main thread serving API requests.
+        Start detached presentation processing using asyncio task.
+        Returns immediately without blocking the HTTP response.
         """
         try:
-            # Use asyncio.create_task to run in background without blocking
-            # This keeps everything in the same event loop and memory space
-            asyncio.create_task(self._process_presentation_with_error_handling(job_id, request))
+            logger.info(f"🎬 [DETACHED_PROCESSING] Starting background task for job {job_id}")
+            
+            # Start processing as background task (non-blocking)
+            # This returns immediately and processing continues in background
+            asyncio.create_task(self._process_presentation_async(job_id, request))
+            
+            logger.info(f"🎬 [DETACHED_PROCESSING] Background task created for job {job_id}")
             
         except Exception as e:
             logger.error(f"Failed to start background processing for {job_id}: {e}")
@@ -130,21 +139,35 @@ class ProfessionalPresentationService:
                 self.jobs[job_id].status = "failed"
                 self.jobs[job_id].error = str(e)
     
-    async def _process_presentation_with_error_handling(self, job_id: str, request: PresentationRequest):
+    async def _process_presentation_async(self, job_id: str, request: PresentationRequest):
         """
-        Wrapper for presentation processing with proper error handling.
+        Process presentation asynchronously without blocking the HTTP response.
         Runs in the same event loop to ensure job status updates are visible.
         """
         try:
+            job = self.jobs.get(job_id)
+            if not job:
+                logger.error(f"🎬 [ASYNC_PROCESSING] Job {job_id} not found")
+                return
+            
+            logger.info(f"🎬 [ASYNC_PROCESSING] Starting async processing for job {job_id}")
+            
+            # Update job status to show processing started
+            job.status = "processing"
+            job.progress = 5.0
+            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} processing started - status: {job.status}, progress: {job.progress}%")
+            
+            # Call the actual processing method
             await self._process_presentation(job_id, request)
+            
         except Exception as e:
-            logger.error(f"Background processing failed for {job_id}: {e}")
+            logger.error(f"🎬 [ASYNC_PROCESSING] Error in async processing for job {job_id}: {str(e)}")
             if job_id in self.jobs:
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Updating job {job_id} status to failed")
-                self.jobs[job_id].status = "failed"
-                self.jobs[job_id].error = str(e)
-                self.jobs[job_id].completed_at = datetime.now()
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} marked as failed: {str(e)}")
+                job = self.jobs[job_id]
+                job.status = "failed"
+                job.error = str(e)
+                job.completed_at = datetime.now()
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} failed - status: {job.status}, error: {str(e)}")
     
     async def _process_presentation(self, job_id: str, request: PresentationRequest):
         """
