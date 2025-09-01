@@ -116,36 +116,35 @@ class ProfessionalPresentationService:
     
     async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
-        Completely detached presentation processing that won't block any endpoints.
-        Runs in a separate thread to avoid blocking the main event loop.
+        Detached presentation processing using asyncio task instead of separate thread.
+        This ensures job status updates are visible to the main thread serving API requests.
         """
-        import concurrent.futures
-        
-        def run_blocking_processing():
-            """Run the processing in a separate thread."""
-            try:
-                # Create a new event loop for this thread
-                import asyncio
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                
-                # Run the processing
-                loop.run_until_complete(self._process_presentation(job_id, request))
-                
-            except Exception as e:
-                logger.error(f"Thread processing failed for {job_id}: {e}")
-                if job_id in self.jobs:
-                    self.jobs[job_id].status = "failed"
-                    self.jobs[job_id].error = str(e)
-            finally:
-                try:
-                    loop.close()
-                except:
-                    pass
-        
-        # Run in thread pool to avoid blocking main event loop
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        executor.submit(run_blocking_processing)
+        try:
+            # Use asyncio.create_task to run in background without blocking
+            # This keeps everything in the same event loop and memory space
+            asyncio.create_task(self._process_presentation_with_error_handling(job_id, request))
+            
+        except Exception as e:
+            logger.error(f"Failed to start background processing for {job_id}: {e}")
+            if job_id in self.jobs:
+                self.jobs[job_id].status = "failed"
+                self.jobs[job_id].error = str(e)
+    
+    async def _process_presentation_with_error_handling(self, job_id: str, request: PresentationRequest):
+        """
+        Wrapper for presentation processing with proper error handling.
+        Runs in the same event loop to ensure job status updates are visible.
+        """
+        try:
+            await self._process_presentation(job_id, request)
+        except Exception as e:
+            logger.error(f"Background processing failed for {job_id}: {e}")
+            if job_id in self.jobs:
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Updating job {job_id} status to failed")
+                self.jobs[job_id].status = "failed"
+                self.jobs[job_id].error = str(e)
+                self.jobs[job_id].completed_at = datetime.now()
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} marked as failed: {str(e)}")
     
     async def _process_presentation(self, job_id: str, request: PresentationRequest):
         """
@@ -254,12 +253,20 @@ class ProfessionalPresentationService:
                     str(thumbnail_path)
                 )
                 
-                # Update job status
+                # Update job status - CRITICAL: This now runs in main event loop
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Updating job {job_id} status to completed")
                 job.status = "completed"
                 job.progress = 100.0
                 job.completed_at = datetime.now()
                 job.video_url = f"/presentations/{job_id}/video"
                 job.thumbnail_url = f"/presentations/{job_id}/thumbnail"
+                
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} status updated successfully:")
+                logger.info(f"  - Status: {job.status}")
+                logger.info(f"  - Progress: {job.progress}%")
+                logger.info(f"  - Video URL: {job.video_url}")
+                logger.info(f"  - Thumbnail URL: {job.thumbnail_url}")
+                logger.info(f"  - Completed at: {job.completed_at}")
                 
                 logger.info(f"Presentation {job_id} completed successfully")
                 
@@ -269,9 +276,11 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Presentation {job_id} failed: {e}")
+            logger.info(f"🎬 [JOB_STATUS_UPDATE] Updating job {job_id} status to failed (main handler)")
             job.status = "failed"
             job.error = str(e)
             job.completed_at = datetime.now()
+            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} marked as failed (main handler): {str(e)}")
 
     async def _process_single_slide_presentation(self, job_id: str, slide_data: Dict[str, Any], request: PresentationRequest, job: PresentationJob) -> str:
         """
