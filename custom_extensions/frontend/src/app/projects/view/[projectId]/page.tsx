@@ -1432,8 +1432,14 @@ export default function ProjectInstanceViewPage() {
 
                 {/* Role Access Modal */}
                 {roleAccess && createPortal(
-                  <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
-                    <div className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                  <div
+                    className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20"
+                    onClick={() => setRoleAccess(false)}
+                  >
+                    <div
+                      className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold text-gray-900">{t('interface.projectView.accessControl', 'Access Control')}</h2>
                         <button
