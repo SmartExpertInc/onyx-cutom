@@ -1,348 +1,232 @@
 // custom_extensions/frontend/src/components/templates/TableOfContentsSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
-import { TitleSlideProps } from '@/types/slideTemplates';
+import React, { useState } from 'react';
+import { TableOfContentsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-import AvatarImageDisplay from '../AvatarImageDisplay';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
-
-export const TableOfContentsSlideTemplate: React.FC<TitleSlideProps & { 
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
+export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & {
+  theme?: SlideTheme | string;
 }> = ({
   slideId,
-  title,
-  subtitle,
-  author,
-  date,
-  backgroundImage,
+  title = 'Table of Contents',
+  companyName = 'Logo',
+  companyLogoPath = '',
+  profileImagePath = '',
+  profileImageAlt = 'Profile image',
+  navigationButtons = [
+    'The Problem',
+    'Benefits',
+    'Best Practices',
+    'Methods',
+    'Achieving Success',
+    'The Future'
+  ],
+  backgroundColor,
+  titleColor,
+  contentColor,
+  accentColor,
+  isEditable = false,
   onUpdate,
   theme,
-  isEditable = false
+  voiceoverText
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
-
-  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingItem1, setEditingItem1] = useState(false);
-  const [editingItem2, setEditingItem2] = useState(false);
-  const [editingItem3, setEditingItem3] = useState(false);
-  const [editingItem4, setEditingItem4] = useState(false);
-  const [editingItem5, setEditingItem5] = useState(false);
-  const [editingItem6, setEditingItem6] = useState(false);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [editingButtons, setEditingButtons] = useState<number | null>(null);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [currentButtons, setCurrentButtons] = useState(navigationButtons);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+
+  // Use theme colors instead of props
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
-    minHeight: '600px',
-    backgroundColor: '#FEF3C7',
-    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    height: '650px',
+    backgroundColor: '#f8f8f8', // Light off-white background
     display: 'flex',
-    flexDirection: 'row',
-    padding: '0',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    overflow: 'hidden',
+    fontFamily: currentTheme.fonts.titleFont,
+    padding: '40px 60px',
   };
 
-  const leftColumnStyles: React.CSSProperties = {
-    flex: '1',
-    padding: '60px 80px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start'
-  };
-
-  const rightColumnStyles: React.CSSProperties = {
-    flex: '1',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative'
-  };
-
-  const titleStyles: React.CSSProperties = {
-    fontSize: '48px',
-    fontFamily: 'Inter, sans-serif',
-    color: '#000000',
-    textAlign: 'left',
-    marginBottom: '40px',
-    lineHeight: 1.2,
-    maxWidth: '100%',
-    fontWeight: '700'
-  };
-
-  const gridStyles: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gridTemplateRows: '1fr 1fr 1fr',
-    gap: '24px',
-    width: '100%'
-  };
-
-  const itemStyles: React.CSSProperties = {
-    backgroundColor: '#86EFAC',
-    borderRadius: '16px',
-    padding: '32px 24px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '120px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
-  const itemTextStyles: React.CSSProperties = {
-    fontSize: '24px',
-    fontFamily: 'Inter, sans-serif',
-    color: '#000000',
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 1.3
-  };
-
-  const avatarStyles: React.CSSProperties = {
-    width: '300px',
-    height: '400px',
-    objectFit: 'cover',
-    borderRadius: '16px',
-    backgroundColor: '#BFDBFE'
-  };
-
-  // Default content based on the image
-  const defaultTitle = "Table of Contents";
-  const defaultItems = [
-    "The Problem",
-    "Benefits", 
-    "Best Practices",
-    "Methods",
-    "Achieving Success",
-    "The Future"
-  ];
-
-  const handleUpdate = (field: string, value: string) => {
+  const handleTitleSave = (newTitle: string) => {
+    setCurrentTitle(newTitle);
+    setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ [field]: value });
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, navigationButtons, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+    }
+  };
+
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, navigationButtons, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+    }
+  };
+
+  const handleButtonSave = (index: number, newButton: string) => {
+    const newButtons = [...currentButtons];
+    newButtons[index] = newButton;
+    setCurrentButtons(newButtons);
+    setEditingButtons(null);
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, navigationButtons, backgroundColor, titleColor, contentColor, accentColor }, navigationButtons: newButtons });
+    }
+  };
+
+  const handleProfileImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, navigationButtons, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, navigationButtons, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
   return (
-    <div style={slideStyles}>
-      {/* Left Column - Content */}
-      <div style={leftColumnStyles}>
+    <div className="table-of-contents-slide-template" style={slideStyles}>
+      {/* Left section - Navigation buttons */}
+      <div style={{
+        flex: '2',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
         {/* Title */}
-        <div style={titleStyles}>
-          {isEditable ? (
-            editingTitle ? (
-              <InlineEditor
-                initialValue={title || defaultTitle}
-                onSave={(value) => {
-                  handleUpdate('title', value);
-                  setEditingTitle(false);
-                }}
-                onCancel={() => setEditingTitle(false)}
-                style={titleStyles}
-              />
-            ) : (
-              <div onClick={() => setEditingTitle(true)} style={{ cursor: 'pointer' }}>
-                {title || defaultTitle}
-              </div>
-            )
+        <div style={{
+          fontSize: '36px',
+          color: themeTitle,
+          lineHeight: '1.1',
+          fontWeight: 'bold',
+          marginBottom: '40px'
+        }}>
+          {isEditable && editingTitle ? (
+            <ImprovedInlineEditor
+              initialValue={currentTitle}
+              onSave={handleTitleSave}
+              onCancel={() => setEditingTitle(false)}
+              className="title-editor"
+              style={{
+                fontSize: '36px',
+                color: themeTitle,
+                lineHeight: '1.1',
+                fontWeight: 'bold',
+                width: '100%'
+              }}
+            />
           ) : (
-            title || defaultTitle
+            <div
+              onClick={() => isEditable && setEditingTitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentTitle}
+            </div>
           )}
         </div>
 
-        {/* Grid of Items */}
-        <div style={gridStyles}>
-          {defaultItems.map((item, index) => (
-            <div key={index} style={itemStyles}>
-                              {isEditable ? (
-                  (() => {
-                    let editingState = false;
-                    let setEditingState: React.Dispatch<React.SetStateAction<boolean>> = () => {};
-                    
-                    switch(index) {
-                      case 0: editingState = editingItem1; setEditingState = setEditingItem1; break;
-                      case 1: editingState = editingItem2; setEditingState = setEditingItem2; break;
-                      case 2: editingState = editingItem3; setEditingState = setEditingItem3; break;
-                      case 3: editingState = editingItem4; setEditingState = setEditingItem4; break;
-                      case 4: editingState = editingItem5; setEditingState = setEditingItem5; break;
-                      case 5: editingState = editingItem6; setEditingState = setEditingItem6; break;
-                    }
-                    
-                    return editingState ? (
-                      <InlineEditor
-                        initialValue={item}
-                        onSave={(value) => {
-                          handleUpdate(`item${index + 1}`, value);
-                          setEditingState(false);
-                        }}
-                        onCancel={() => setEditingState(false)}
-                        style={itemTextStyles}
-                      />
-                    ) : (
-                      <div onClick={() => setEditingState(true)} style={itemTextStyles}>
-                        {item}
-                      </div>
-                    );
-                  })()
-                ) : (
-                <div style={itemTextStyles}>
-                  {item}
-                </div>
+        {/* Navigation buttons grid 2x3 */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: '1fr 1fr 1fr',
+          gap: '20px',
+          maxWidth: '500px'
+        }}>
+          {currentButtons.map((button, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: '#4CAF50', // Vibrant green
+                padding: '20px 25px',
+                borderRadius: '12px',
+                fontSize: '20px',
+                color: '#333333', // Dark gray text
+                fontWeight: '500',
+                textAlign: 'center',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '60px'
+              }}
+              onClick={() => isEditable && setEditingButtons(index)}
+            >
+              {isEditable && editingButtons === index ? (
+                <ImprovedInlineEditor
+                  initialValue={button}
+                  onSave={(value) => handleButtonSave(index, value)}
+                  onCancel={() => setEditingButtons(null)}
+                  className="button-editor"
+                  style={{
+                    fontSize: '20px',
+                    color: '#333333',
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    width: '100%'
+                  }}
+                />
+              ) : (
+                button
               )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Right Column - Avatar */}
-      <div style={rightColumnStyles}>
-        <AvatarImageDisplay
-          size="LARGE"
-          position="CENTER"
-          style={avatarStyles}
-        />
+      {/* Right section - Profile image with blue background */}
+      <div style={{
+        flex: '1',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: '40px'
+      }}>
+        <div style={{
+          width: '300px',
+          height: '400px',
+          backgroundColor: '#87CEEB', // Light blue background
+          border: '2px solid #333333',
+          borderRadius: '8px',
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
+              width: '280px',
+              height: '380px',
+              borderRadius: '6px',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
       </div>
     </div>
   );
-}; 
+};
+
+export default TableOfContentsSlideTemplate; 

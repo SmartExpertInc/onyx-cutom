@@ -1,410 +1,344 @@
 // custom_extensions/frontend/src/components/templates/OnlineSafetyTipsSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
-import { TitleSlideProps } from '@/types/slideTemplates';
+import React, { useState } from 'react';
+import { OnlineSafetyTipsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-import AvatarImageDisplay from '../AvatarImageDisplay';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
-
-export const OnlineSafetyTipsSlideTemplate: React.FC<TitleSlideProps & { 
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
+export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps & {
+  theme?: SlideTheme | string;
 }> = ({
   slideId,
-  title,
-  subtitle,
-  author,
-  date,
-  backgroundImage,
+  title = '4 tips to stay safe online',
+  companyName = 'Logo',
+  companyLogoPath = '',
+  profileImagePath = '',
+  profileImageAlt = 'Profile image',
+  tips = [
+    {
+      number: '1',
+      title: 'Know the scams',
+      description: 'Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them.'
+    },
+    {
+      number: '2',
+      title: 'Don\'t click',
+      description: 'These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer'
+    },
+    {
+      number: '3',
+      title: 'Shop safely',
+      description: 'Don\'t shop on a site unless it has the "https". Also, protect yourself and use a credit card instead of a debit card while shopping online'
+    },
+    {
+      number: '4',
+      title: 'Passwords',
+      description: 'Do away with the "Fitguy1982" password and use an extremely uncrackable one like 9&4yiw2pyqx# Phrases are good too.'
+    }
+  ],
+  backgroundColor,
+  titleColor,
+  contentColor,
+  accentColor,
+  isEditable = false,
   onUpdate,
   theme,
-  isEditable = false
+  voiceoverText
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
-
-  // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingTip1, setEditingTip1] = useState(false);
-  const [editingTip2, setEditingTip2] = useState(false);
-  const [editingTip3, setEditingTip3] = useState(false);
-  const [editingTip4, setEditingTip4] = useState(false);
-  const [editingDesc1, setEditingDesc1] = useState(false);
-  const [editingDesc2, setEditingDesc2] = useState(false);
-  const [editingDesc3, setEditingDesc3] = useState(false);
-  const [editingDesc4, setEditingDesc4] = useState(false);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
+  const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [editingTips, setEditingTips] = useState<{ index: number; field: 'title' | 'description' } | null>(null);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [currentTips, setCurrentTips] = useState(tips);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+
+  // Use theme colors instead of props
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '100%',
-    minHeight: '600px',
-    backgroundColor: '#ffffff',
-    backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    height: '650px',
+    backgroundColor: themeBg,
     display: 'flex',
-    flexDirection: 'row',
-    padding: '0',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    overflow: 'hidden',
+    fontFamily: currentTheme.fonts.titleFont,
   };
 
-  const leftColumnStyles: React.CSSProperties = {
-    flex: '1',
-    padding: '60px 80px',
-    backgroundColor: '#ffffff',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start'
-  };
-
-  const rightColumnStyles: React.CSSProperties = {
-    flex: '1',
-    backgroundColor: '#000000',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative'
-  };
-
-  const titleStyles: React.CSSProperties = {
-    fontSize: '48px',
-    fontFamily: 'Inter, sans-serif',
-    color: '#000000',
-    textAlign: 'left',
-    marginBottom: '40px',
-    lineHeight: 1.2,
-    maxWidth: '100%',
-    fontWeight: '700'
-  };
-
-  const tipGridStyles: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '40px',
-    width: '100%'
-  };
-
-  const tipStyles: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
-  };
-
-  const tipNumberStyles: React.CSSProperties = {
-    fontSize: '32px',
-    fontFamily: 'Inter, sans-serif',
-    color: '#8B5CF6',
-    fontWeight: '700',
-    marginBottom: '8px'
-  };
-
-  const tipTitleStyles: React.CSSProperties = {
-    fontSize: '24px',
-    fontFamily: 'Inter, sans-serif',
-    color: '#000000',
-    fontWeight: '700',
-    marginBottom: '8px',
-    lineHeight: 1.3
-  };
-
-  const tipDescriptionStyles: React.CSSProperties = {
-    fontSize: '16px',
-    fontFamily: 'Inter, sans-serif',
-    color: '#6B7280',
-    lineHeight: 1.6,
-    maxWidth: '100%'
-  };
-
-  const avatarStyles: React.CSSProperties = {
-    width: '300px',
-    height: '400px',
-    objectFit: 'cover',
-    borderRadius: '0'
-  };
-
-  // Default content based on the image
-  const defaultTitle = "4 tips to stay safe online";
-  const defaultTips = [
-    {
-      title: "Know the scams",
-      description: "Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them."
-    },
-    {
-      title: "Don't click",
-      description: "These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer"
-    },
-    {
-      title: "Shop safely",
-      description: "Don't shop on a site unless it has the \"https\". Also, protect yourself and use a credit card instead of a debit card while shopping online"
-    },
-    {
-      title: "Passwords",
-      description: "Do away with the \"Fitguy1982\" password and use an extremely uncrackable one like 9&4yiw2pyqx#. Phrases are good too."
-    }
-  ];
-
-  const handleUpdate = (field: string, value: string) => {
+  const handleTitleSave = (newTitle: string) => {
+    setCurrentTitle(newTitle);
+    setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ [field]: value });
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, tips, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+    }
+  };
+
+  const handleCompanyNameSave = (newCompanyName: string) => {
+    setCurrentCompanyName(newCompanyName);
+    setEditingCompanyName(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, tips, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+    }
+  };
+
+  const handleTipSave = (index: number, field: 'title' | 'description', value: string) => {
+    const newTips = [...currentTips];
+    newTips[index] = { ...newTips[index], [field]: value };
+    setCurrentTips(newTips);
+    setEditingTips(null);
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, tips, backgroundColor, titleColor, contentColor, accentColor }, tips: newTips });
+    }
+  };
+
+  const handleProfileImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, tips, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, companyName, companyLogoPath, profileImagePath, profileImageAlt, tips, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
   return (
-    <div style={slideStyles}>
-      {/* Left Column - Content */}
-      <div style={leftColumnStyles}>
-        {/* Title */}
-        <div style={titleStyles}>
-          {isEditable ? (
-            editingTitle ? (
-              <InlineEditor
-                initialValue={title || defaultTitle}
-                onSave={(value) => {
-                  handleUpdate('title', value);
-                  setEditingTitle(false);
+    <div className="online-safety-tips-slide-template" style={slideStyles}>
+      {/* Left section - Tips content */}
+      <div style={{
+        flex: '2',
+        backgroundColor: '#ffffff',
+        padding: '60px 50px',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative'
+      }}>
+        {/* Company logo */}
+        <div style={{
+          position: 'absolute',
+          top: '40px',
+          left: '50px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            border: `2px solid ${themeContent}`,
+            borderRadius: '50%',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '2px',
+              backgroundColor: themeContent,
+              position: 'absolute'
+            }} />
+          </div>
+          <div style={{
+            fontSize: '14px',
+            color: themeContent,
+            fontWeight: '300'
+          }}>
+            {isEditable && editingCompanyName ? (
+              <ImprovedInlineEditor
+                initialValue={currentCompanyName}
+                onSave={handleCompanyNameSave}
+                onCancel={() => setEditingCompanyName(false)}
+                className="company-name-editor"
+                style={{
+                  fontSize: '14px',
+                  color: themeContent,
+                  fontWeight: '300'
                 }}
-                onCancel={() => setEditingTitle(false)}
-                style={titleStyles}
               />
             ) : (
-              <div onClick={() => setEditingTitle(true)} style={{ cursor: 'pointer' }}>
-                {title || defaultTitle}
+              <div
+                onClick={() => isEditable && setEditingCompanyName(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentCompanyName}
               </div>
-            )
+            )}
+          </div>
+        </div>
+
+        {/* Main title */}
+        <div style={{
+          fontSize: '48px',
+          color: themeTitle,
+          lineHeight: '1.1',
+          fontWeight: 'bold',
+          marginBottom: '50px',
+          marginTop: '40px'
+        }}>
+          {isEditable && editingTitle ? (
+            <ImprovedInlineEditor
+              initialValue={currentTitle}
+              onSave={handleTitleSave}
+              onCancel={() => setEditingTitle(false)}
+              className="title-editor"
+              style={{
+                fontSize: '48px',
+                color: themeTitle,
+                lineHeight: '1.1',
+                fontWeight: 'bold',
+                width: '100%'
+              }}
+            />
           ) : (
-            title || defaultTitle
+            <div
+              onClick={() => isEditable && setEditingTitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentTitle}
+            </div>
           )}
         </div>
 
-        {/* Tips Grid */}
-        <div style={tipGridStyles}>
-          {defaultTips.map((tip, index) => (
-            <div key={index} style={tipStyles}>
-              {/* Tip Number */}
-              <div style={tipNumberStyles}>
-                {index + 1}
+        {/* Tips list */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '30px'
+        }}>
+          {currentTips.map((tip, index) => (
+            <div
+              key={index}
+              style={{
+                display: 'flex',
+                gap: '20px',
+                alignItems: 'flex-start'
+              }}
+            >
+              {/* Tip number */}
+              <div style={{
+                fontSize: '32px',
+                color: '#8B5A96', // Purple color
+                fontWeight: 'bold',
+                minWidth: '40px'
+              }}>
+                {tip.number}
               </div>
-              
-                             {/* Tip Title */}
-               <div style={tipTitleStyles}>
-                 {isEditable ? (
-                   (() => {
-                     let editingState = false;
-                     let setEditingState: React.Dispatch<React.SetStateAction<boolean>> = () => {};
-                     
-                     switch(index) {
-                       case 0: editingState = editingTip1; setEditingState = setEditingTip1; break;
-                       case 1: editingState = editingTip2; setEditingState = setEditingTip2; break;
-                       case 2: editingState = editingTip3; setEditingState = setEditingTip3; break;
-                       case 3: editingState = editingTip4; setEditingState = setEditingTip4; break;
-                     }
-                     
-                     return editingState ? (
-                       <InlineEditor
-                         initialValue={tip.title}
-                         onSave={(value) => {
-                           handleUpdate(`tip${index + 1}Title`, value);
-                           setEditingState(false);
-                         }}
-                         onCancel={() => setEditingState(false)}
-                         style={tipTitleStyles}
-                       />
-                     ) : (
-                       <div onClick={() => setEditingState(true)} style={{ cursor: 'pointer' }}>
-                         {tip.title}
-                       </div>
-                     );
-                   })()
-                 ) : (
-                   tip.title
-                 )}
-               </div>
-               
-               {/* Tip Description */}
-               <div style={tipDescriptionStyles}>
-                 {isEditable ? (
-                   (() => {
-                     let editingState = false;
-                     let setEditingState: React.Dispatch<React.SetStateAction<boolean>> = () => {};
-                     
-                     switch(index) {
-                       case 0: editingState = editingDesc1; setEditingState = setEditingDesc1; break;
-                       case 1: editingState = editingDesc2; setEditingState = setEditingDesc2; break;
-                       case 2: editingState = editingDesc3; setEditingState = setEditingDesc3; break;
-                       case 3: editingState = editingDesc4; setEditingState = setEditingDesc4; break;
-                     }
-                     
-                     return editingState ? (
-                       <InlineEditor
-                         initialValue={tip.description}
-                         onSave={(value) => {
-                           handleUpdate(`tip${index + 1}Description`, value);
-                           setEditingState(false);
-                         }}
-                         onCancel={() => setEditingState(false)}
-                         multiline={true}
-                         style={tipDescriptionStyles}
-                       />
-                     ) : (
-                       <div onClick={() => setEditingState(true)} style={{ cursor: 'pointer' }}>
-                         {tip.description}
-                       </div>
-                     );
-                   })()
-                 ) : (
-                   tip.description
-                 )}
-               </div>
+
+              {/* Tip content */}
+              <div style={{
+                flex: '1'
+              }}>
+                {/* Tip title */}
+                <div style={{
+                  fontSize: '24px',
+                  color: themeTitle,
+                  fontWeight: 'bold',
+                  marginBottom: '10px'
+                }}>
+                  {isEditable && editingTips?.index === index && editingTips?.field === 'title' ? (
+                    <ImprovedInlineEditor
+                      initialValue={tip.title}
+                      onSave={(value) => handleTipSave(index, 'title', value)}
+                      onCancel={() => setEditingTips(null)}
+                      className="tip-title-editor"
+                      style={{
+                        fontSize: '24px',
+                        color: themeTitle,
+                        fontWeight: 'bold',
+                        width: '100%'
+                      }}
+                    />
+                  ) : (
+                    <div
+                      onClick={() => isEditable && setEditingTips({ index, field: 'title' })}
+                      style={{
+                        cursor: isEditable ? 'pointer' : 'default',
+                        userSelect: 'none'
+                      }}
+                    >
+                      {tip.title}
+                    </div>
+                  )}
+                </div>
+
+                {/* Tip description */}
+                <div style={{
+                  fontSize: '18px',
+                  color: '#666666', // Gray color
+                  lineHeight: '1.4'
+                }}>
+                  {isEditable && editingTips?.index === index && editingTips?.field === 'description' ? (
+                    <ImprovedInlineEditor
+                      initialValue={tip.description}
+                      onSave={(value) => handleTipSave(index, 'description', value)}
+                      onCancel={() => setEditingTips(null)}
+                      multiline={true}
+                      className="tip-description-editor"
+                      style={{
+                        fontSize: '18px',
+                        color: '#666666',
+                        lineHeight: '1.4',
+                        width: '100%'
+                      }}
+                    />
+                  ) : (
+                    <div
+                      onClick={() => isEditable && setEditingTips({ index, field: 'description' })}
+                      style={{
+                        cursor: isEditable ? 'pointer' : 'default',
+                        userSelect: 'none'
+                      }}
+                    >
+                      {tip.description}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Right Column - Avatar */}
-      <div style={rightColumnStyles}>
-        <AvatarImageDisplay
+      {/* Right section - Profile image with black background */}
+      <div style={{
+        flex: '1',
+        backgroundColor: '#000000',
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <ClickableImagePlaceholder
+          imagePath={profileImagePath}
+          onImageUploaded={handleProfileImageUploaded}
           size="LARGE"
           position="CENTER"
-          style={avatarStyles}
+          description="Profile photo"
+          isEditable={isEditable}
+          style={{
+            width: '280px',
+            height: '350px',
+            borderRadius: '8px',
+            objectFit: 'cover'
+          }}
         />
       </div>
     </div>
   );
-}; 
+};
+
+export default OnlineSafetyTipsSlideTemplate; 
