@@ -321,52 +321,76 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<TitleSlideProps & {
                 {index + 1}
               </div>
               
-              {/* Tip Title */}
-              <div style={tipTitleStyles}>
-                {isEditable ? (
-                  editingTip1 && index === 0 ? (
-                    <InlineEditor
-                      initialValue={tip.title}
-                      onSave={(value) => {
-                        handleUpdate(`tip${index + 1}Title`, value);
-                        setEditingTip1(false);
-                      }}
-                      onCancel={() => setEditingTip1(false)}
-                      style={tipTitleStyles}
-                    />
-                  ) : (
-                    <div onClick={() => index === 0 && setEditingTip1(true)} style={{ cursor: 'pointer' }}>
-                      {tip.title}
-                    </div>
-                  )
-                ) : (
-                  tip.title
-                )}
-              </div>
-              
-              {/* Tip Description */}
-              <div style={tipDescriptionStyles}>
-                {isEditable ? (
-                  editingDesc1 && index === 0 ? (
-                    <InlineEditor
-                      initialValue={tip.description}
-                      onSave={(value) => {
-                        handleUpdate(`tip${index + 1}Description`, value);
-                        setEditingDesc1(false);
-                      }}
-                      onCancel={() => setEditingDesc1(false)}
-                      multiline={true}
-                      style={tipDescriptionStyles}
-                    />
-                  ) : (
-                    <div onClick={() => index === 0 && setEditingDesc1(true)} style={{ cursor: 'pointer' }}>
-                      {tip.description}
-                    </div>
-                  )
-                ) : (
-                  tip.description
-                )}
-              </div>
+                             {/* Tip Title */}
+               <div style={tipTitleStyles}>
+                 {isEditable ? (
+                   (() => {
+                     let editingState = false;
+                     let setEditingState: React.Dispatch<React.SetStateAction<boolean>> = () => {};
+                     
+                     switch(index) {
+                       case 0: editingState = editingTip1; setEditingState = setEditingTip1; break;
+                       case 1: editingState = editingTip2; setEditingState = setEditingTip2; break;
+                       case 2: editingState = editingTip3; setEditingState = setEditingTip3; break;
+                       case 3: editingState = editingTip4; setEditingState = setEditingTip4; break;
+                     }
+                     
+                     return editingState ? (
+                       <InlineEditor
+                         initialValue={tip.title}
+                         onSave={(value) => {
+                           handleUpdate(`tip${index + 1}Title`, value);
+                           setEditingState(false);
+                         }}
+                         onCancel={() => setEditingState(false)}
+                         style={tipTitleStyles}
+                       />
+                     ) : (
+                       <div onClick={() => setEditingState(true)} style={{ cursor: 'pointer' }}>
+                         {tip.title}
+                       </div>
+                     );
+                   })()
+                 ) : (
+                   tip.title
+                 )}
+               </div>
+               
+               {/* Tip Description */}
+               <div style={tipDescriptionStyles}>
+                 {isEditable ? (
+                   (() => {
+                     let editingState = false;
+                     let setEditingState: React.Dispatch<React.SetStateAction<boolean>> = () => {};
+                     
+                     switch(index) {
+                       case 0: editingState = editingDesc1; setEditingState = setEditingDesc1; break;
+                       case 1: editingState = editingDesc2; setEditingState = setEditingDesc2; break;
+                       case 2: editingState = editingDesc3; setEditingState = setEditingDesc3; break;
+                       case 3: editingState = editingDesc4; setEditingState = setEditingDesc4; break;
+                     }
+                     
+                     return editingState ? (
+                       <InlineEditor
+                         initialValue={tip.description}
+                         onSave={(value) => {
+                           handleUpdate(`tip${index + 1}Description`, value);
+                           setEditingState(false);
+                         }}
+                         onCancel={() => setEditingState(false)}
+                         multiline={true}
+                         style={tipDescriptionStyles}
+                       />
+                     ) : (
+                       <div onClick={() => setEditingState(true)} style={{ cursor: 'pointer' }}>
+                         {tip.description}
+                       </div>
+                     );
+                   })()
+                 ) : (
+                   tip.description
+                 )}
+               </div>
             </div>
           ))}
         </div>

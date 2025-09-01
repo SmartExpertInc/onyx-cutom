@@ -294,37 +294,37 @@ export const TableOfContentsSlideTemplate: React.FC<TitleSlideProps & {
         <div style={gridStyles}>
           {defaultItems.map((item, index) => (
             <div key={index} style={itemStyles}>
-              {isEditable ? (
-                (() => {
-                  let editingState = false;
-                  let setEditingState = () => {};
-                  
-                  switch(index) {
-                    case 0: editingState = editingItem1; setEditingState = setEditingItem1; break;
-                    case 1: editingState = editingItem2; setEditingState = setEditingItem2; break;
-                    case 2: editingState = editingItem3; setEditingState = setEditingItem3; break;
-                    case 3: editingState = editingItem4; setEditingState = setEditingItem4; break;
-                    case 4: editingState = editingItem5; setEditingState = setEditingItem5; break;
-                    case 5: editingState = editingItem6; setEditingState = setEditingItem6; break;
-                  }
-                  
-                  return editingState ? (
-                    <InlineEditor
-                      initialValue={item}
-                      onSave={(value) => {
-                        handleUpdate(`item${index + 1}`, value);
-                        setEditingState(false);
-                      }}
-                      onCancel={() => setEditingState(false)}
-                      style={itemTextStyles}
-                    />
-                  ) : (
-                    <div onClick={() => setEditingState(true)} style={itemTextStyles}>
-                      {item}
-                    </div>
-                  );
-                })()
-              ) : (
+                              {isEditable ? (
+                  (() => {
+                    let editingState = false;
+                    let setEditingState: React.Dispatch<React.SetStateAction<boolean>> = () => {};
+                    
+                    switch(index) {
+                      case 0: editingState = editingItem1; setEditingState = setEditingItem1; break;
+                      case 1: editingState = editingItem2; setEditingState = setEditingItem2; break;
+                      case 2: editingState = editingItem3; setEditingState = setEditingItem3; break;
+                      case 3: editingState = editingItem4; setEditingState = setEditingItem4; break;
+                      case 4: editingState = editingItem5; setEditingState = setEditingItem5; break;
+                      case 5: editingState = editingItem6; setEditingState = setEditingItem6; break;
+                    }
+                    
+                    return editingState ? (
+                      <InlineEditor
+                        initialValue={item}
+                        onSave={(value) => {
+                          handleUpdate(`item${index + 1}`, value);
+                          setEditingState(false);
+                        }}
+                        onCancel={() => setEditingState(false)}
+                        style={itemTextStyles}
+                      />
+                    ) : (
+                      <div onClick={() => setEditingState(true)} style={itemTextStyles}>
+                        {item}
+                      </div>
+                    );
+                  })()
+                ) : (
                 <div style={itemTextStyles}>
                   {item}
                 </div>
