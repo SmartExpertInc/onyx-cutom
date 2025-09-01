@@ -355,31 +355,54 @@ class ProfessionalPresentationService:
                 thumbnail_filename = f"thumbnail_{job_id}.jpg"
                 thumbnail_path = self.output_dir / thumbnail_filename
                 
-                await video_composer_service.create_thumbnail(
-                    final_video_path,
-                    str(thumbnail_path)
-                )
+                # Critical fix: Add explicit error handling around thumbnail creation
+                try:
+                    logger.info(f"🎬 [THUMBNAIL_CREATION] Starting thumbnail creation for job {job_id}")
+                    await video_composer_service.create_thumbnail(
+                        final_video_path,
+                        str(thumbnail_path)
+                    )
+                    logger.info(f"🎬 [THUMBNAIL_CREATION] Thumbnail creation completed successfully for job {job_id}")
+                except Exception as e:
+                    logger.error(f"🎬 [THUMBNAIL_CREATION] Thumbnail creation failed for job {job_id}: {e}")
+                    logger.warning(f"🎬 [THUMBNAIL_CREATION] Continuing with final completion despite thumbnail error")
+                
+                # CRITICAL FIX: Ensure final completion ALWAYS runs after thumbnail
+                logger.info(f"🎬 [FINAL_COMPLETION] Starting final completion for job {job_id}")
                 
                 # Final completion update with detailed logging
                 logger.info(f"🎬 [FINAL_COMPLETION] Presentation {job_id} processing completed successfully")
                 logger.info(f"🎬 [FINAL_COMPLETION] Final video path: {final_video_path}")
                 logger.info(f"🎬 [FINAL_COMPLETION] Thumbnail path: {str(thumbnail_path)}")
                 
-                # Update job status with all completion details
-                self._update_job_status(
-                    job_id,
-                    status="completed",
-                    progress=100.0,
-                    completed_at=datetime.now(),
-                    video_url=f"/presentations/{job_id}/video",
-                    thumbnail_url=f"/presentations/{job_id}/thumbnail"
-                )
+                # CRITICAL FIX: Update job status with all completion details - this MUST run
+                try:
+                    logger.info(f"🎬 [FINAL_COMPLETION] Updating job status to completed for job {job_id}")
+                    self._update_job_status(
+                        job_id,
+                        status="completed",
+                        progress=100.0,
+                        completed_at=datetime.now(),
+                        video_url=f"/presentations/{job_id}/video",
+                        thumbnail_url=f"/presentations/{job_id}/thumbnail"
+                    )
+                    logger.info(f"🎬 [FINAL_COMPLETION] Job status update completed successfully for job {job_id}")
+                except Exception as e:
+                    logger.error(f"🎬 [FINAL_COMPLETION] CRITICAL ERROR: Failed to update job status for {job_id}: {e}")
+                    raise  # Re-raise this as it's critical
                 
                 # Stop heartbeat for completed job
-                await self._stop_heartbeat(job_id)
+                try:
+                    logger.info(f"🎬 [FINAL_COMPLETION] Stopping heartbeat for job {job_id}")
+                    await self._stop_heartbeat(job_id)
+                    logger.info(f"🎬 [FINAL_COMPLETION] Heartbeat stopped successfully for job {job_id}")
+                except Exception as e:
+                    logger.error(f"🎬 [FINAL_COMPLETION] Failed to stop heartbeat for job {job_id}: {e}")
+                    # Don't raise here as job is already completed
                 
                 logger.info(f"🎬 [FINAL_COMPLETION] Job {job_id} marked as completed with all URLs set")
                 logger.info(f"🎬 [FINAL_COMPLETION] Frontend should now receive completion status and trigger download")
+                logger.info(f"🎬 [FINAL_COMPLETION] *** COMPLETION PROCESS FINISHED FOR JOB {job_id} ***")
                 
             except Exception as e:
                 logger.error(f"Presentation processing failed: {e}")
