@@ -202,8 +202,8 @@ export default function CourseOutlineClient() {
   
   // Initialize prompt when params are available
   useEffect(() => {
-    if (params?.get("prompt")) {
-      const urlPrompt = params.get("prompt");
+    const urlPrompt = params?.get("prompt");
+    if (urlPrompt) {
       const retrievedPrompt = getPromptFromUrlOrStorage(urlPrompt);
       setPrompt(retrievedPrompt);
       

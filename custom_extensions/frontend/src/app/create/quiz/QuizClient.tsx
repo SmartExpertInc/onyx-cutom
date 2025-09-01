@@ -47,8 +47,8 @@ export default function QuizClient() {
   
   // Initialize prompt when searchParams are available
   useEffect(() => {
-    if (searchParams?.get("prompt")) {
-      const urlPrompt = searchParams.get("prompt");
+    const urlPrompt = searchParams?.get("prompt");
+    if (urlPrompt) {
       const retrievedPrompt = getPromptFromUrlOrStorage(urlPrompt);
       setPrompt(retrievedPrompt);
       
