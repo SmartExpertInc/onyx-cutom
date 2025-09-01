@@ -370,6 +370,24 @@ export const en = {
     themes: "Themes",
     audit: "Audit",
 
+    // Landing page
+    landing: {
+      home: "Home",
+      heroTitle: "Create Online Courses in Just 30 Minutes",
+      heroSubtitle: "Build engaging, professional courses with the help of AI. No technical skills required.",
+      getStarted: "Get Started",
+      learnMore: "Learn More",
+      feature1Title: "AI-Powered Creation",
+      feature1Description: "Generate course content, slides, and assessments automatically with advanced AI.",
+      feature2Title: "Professional Templates",
+      feature2Description: "Choose from hundreds of beautiful, customizable templates designed for learning.",
+      feature3Title: "Easy Export",
+      feature3Description: "Export your courses as PDFs, presentations, or interactive web content.",
+      ctaTitle: "Ready to Start Creating?",
+      ctaDescription: "Join thousands of educators who are already using Content Builder AI to create amazing courses.",
+      startCreating: "Start Creating Now",
+    },
+
     // Main content
     all: "All",
     trainingPlans: "Training Plans",
