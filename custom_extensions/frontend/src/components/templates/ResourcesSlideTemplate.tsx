@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import AvatarImageDisplay from '../AvatarImageDisplay';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -396,9 +397,9 @@ export const ResourcesSlideTemplate: React.FC<TitleSlideProps & {
       </div>
 
       {/* Avatar */}
-      <img
-        src="/api/placeholder/120/120/9CA3AF/FFFFFF?text=Avatar"
-        alt="Profile"
+      <AvatarImageDisplay
+        size="MEDIUM"
+        position="CENTER"
         style={avatarStyles}
       />
     </div>

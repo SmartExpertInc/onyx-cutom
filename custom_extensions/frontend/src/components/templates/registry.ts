@@ -36,7 +36,7 @@ import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
 import { BarChartSlideTemplate } from './BarChartSlideTemplate';
 import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
-import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
+
 import { OnlineSafetyTipsSlideTemplate } from './OnlineSafetyTipsSlideTemplate';
 import { TableOfContentsSlideTemplate } from './TableOfContentsSlideTemplate';
 import { CompanyToolsResourcesSlideTemplate } from './CompanyToolsResourcesSlideTemplate';
@@ -1529,28 +1529,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'data-analysis-slide': {
-    id: 'data-analysis-slide',
-    name: 'Data Analysis Slide',
-    description: 'Slide with profile image and Excel icon for data analysis topics',
-    category: 'content',
-    icon: '📈',
-    component: DataAnalysisSlideTemplate,
-    defaultProps: {
-      title: 'Introduction to Data Analysis',
-      profileImagePath: '',
-      profileImageAlt: 'Profile image',
-      excelIconPath: '',
-      excelIconAlt: 'Excel icon'
-    },
-    propSchema: {
-      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
-      profileImagePath: { type: 'image', label: 'Profile Image' },
-      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-      excelIconPath: { type: 'image', label: 'Excel Icon' },
-      excelIconAlt: { type: 'text', label: 'Excel Icon Alt Text' }
-    }
-  },
+
 
   'online-safety-tips': {
     id: 'online-safety-tips',
