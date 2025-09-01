@@ -1436,7 +1436,7 @@ export default function ProjectInstanceViewPage() {
                     onClick={() => setRoleAccess(false)}
                   >
                     <div
-                      className="bg-white rounded-lg shadow-2xl max-w-4xl w-full mx-4 max-h-[80vh]"
+                      className="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
@@ -1453,91 +1453,86 @@ export default function ProjectInstanceViewPage() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex h-[60vh]">
-                        {/* Left Side - Tree Structure */}
-                        <div className="w-1/3 border-r border-gray-200 p-4">
-                          <h3 className="text-sm font-medium text-gray-700 mb-3">{t('interface.projectView.roles', 'Roles')}</h3>
-                          <div className="space-y-1">
+                      <div className="p-4">
+                        <p className="text-sm text-gray-600 mb-4">{t('interface.projectView.inviteNewMember', 'Invite a new member to the workspace')}</p>
+
+                        {/* Predefined Roles Section */}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-3">{t('interface.projectView.roles', 'Roles')}</label>
+                          <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                             {predefinedRoles.map((role) => (
-                              <div key={role.id} className="flex items-center">
+                              <label key={role.id} className="flex items-center">
                                 <input
                                   type="checkbox"
                                   checked={selectedRoles.includes(role.id)}
                                   onChange={() => handleRoleToggle(role.id)}
                                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
-                                <span className="ml-2 text-sm text-gray-900">{role.label}</span>
-                              </div>
+                                <span className="ml-3 text-sm font-medium text-gray-900">{role.label}</span>
+                              </label>
                             ))}
                           </div>
                         </div>
 
-                        {/* Right Side - Two Sections */}
-                        <div className="w-2/3 p-4 flex flex-col">
-                          {/* Top Section - Email Input */}
-                          <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.projectView.email', 'Email')}</label>
-                            <div className="flex gap-2">
-                              <input
-                                type="email"
-                                value={newEmail}
-                                onChange={(e) => setNewEmail(e.target.value)}
-                                placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
-                                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
-                              />
-                              <button
-                                onClick={handleAddEmail}
-                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {t('interface.projectView.addEmail', 'Add Email')}
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Bottom Section - Email List */}
-                          <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.projectView.addedEmails', 'Added Emails')}</label>
-                            <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2">
-                              {customEmails.length > 0 ? (
-                                customEmails.map((email) => (
-                                  <div key={email} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
-                                    <span className="text-sm text-gray-900">{email}</span>
-                                    <button
-                                      onClick={() => handleRemoveEmail(email)}
-                                      className="text-red-500 hover:text-red-700 text-sm p-1 hover:bg-red-50 rounded transition-colors"
-                                      title={t('interface.projectView.removeEmail', 'Remove email')}
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="text-sm text-gray-500 text-center py-4">
-                                  {t('interface.projectView.noEmailsAdded', 'No emails added yet')}
-                                </div>
-                              )}
-                            </div>
+                        {/* Custom Emails Section */}
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.projectView.email', 'Email')}</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="email"
+                              value={newEmail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                              placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
+                              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
+                            />
+                            <button
+                              onClick={handleAddEmail}
+                              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {t('interface.projectView.addEmail', 'Add Email')}
+                            </button>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Action Buttons */}
-                      <div className="flex justify-end space-x-3 p-4 border-t border-gray-200">
-                        <button
-                          onClick={() => setRoleAccess(false)}
-                          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        >
-                          {t('interface.projectView.cancel', 'Cancel')}
-                        </button>
-                        <button
-                          onClick={() => setRoleAccess(false)}
-                          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {t('interface.projectView.save', 'Save')}
-                        </button>
+                        {/* Email List */}
+                        {customEmails.length > 0 && (
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.projectView.addedEmails', 'Added Emails')}</label>
+                            <div className="space-y-2 max-h-24 overflow-y-auto">
+                              {customEmails.map((email) => (
+                                <div key={email} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                                  <span className="text-sm text-gray-900">{email}</span>
+                                  <button
+                                    onClick={() => handleRemoveEmail(email)}
+                                    className="text-red-500 hover:text-red-700 text-sm p-1 hover:bg-red-50 rounded transition-colors"
+                                    title={t('interface.projectView.removeEmail', 'Remove email')}
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200">
+                          <button
+                            onClick={() => setRoleAccess(false)}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          >
+                            {t('interface.projectView.cancel', 'Cancel')}
+                          </button>
+                          <button
+                            onClick={() => setRoleAccess(false)}
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {t('interface.projectView.save', 'Save')}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>,
