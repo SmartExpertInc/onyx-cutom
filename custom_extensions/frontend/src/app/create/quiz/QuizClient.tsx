@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -42,7 +43,7 @@ export default function QuizClient() {
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
 
   // Get parameters from URL
-  const prompt = searchParams?.get("prompt") || "";
+  const prompt = getPromptFromUrlOrStorage(searchParams?.get("prompt") || "");
   const outlineId = searchParams?.get("outlineId");
   const lesson = searchParams?.get("lesson");
   const courseName = searchParams?.get("courseName"); // Add course name parameter
@@ -651,7 +652,7 @@ export default function QuizClient() {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
-    const promptQuery = searchParams?.get("prompt")?.trim() || "";
+    const promptQuery = prompt?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
       return;
@@ -1323,7 +1324,7 @@ export default function QuizClient() {
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
             <textarea
-              value={searchParams?.get("prompt") || ""}
+              value={prompt || ""}
               onChange={(e) => {
                 const sp = new URLSearchParams(searchParams?.toString() || "");
                 sp.set("prompt", e.target.value);

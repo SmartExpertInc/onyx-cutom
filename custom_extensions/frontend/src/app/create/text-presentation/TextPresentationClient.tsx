@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -43,9 +44,9 @@ export default function TextPresentationClient() {
   const [selectedStyles, setSelectedStyles] = useState<string[]>(params?.get("styles")?.split(",").filter(Boolean) || []);
   const [showStylesDropdown, setShowStylesDropdown] = useState(false);
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
+    params?.get("outlineId") ? true : (getPromptFromUrlOrStorage(params?.get("prompt") || "") ? false : null)
   );
-  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
+  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
 
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);

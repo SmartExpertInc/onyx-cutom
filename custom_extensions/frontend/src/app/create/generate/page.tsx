@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { generatePromptId } from "../../../utils/promptUtils";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -224,8 +225,16 @@ function GenerateProductPicker() {
         : "Create educational content based on the provided text structure";
     }
 
+          // Store prompt in sessionStorage if it's long (over 500 characters)
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+
     const params = new URLSearchParams({
-      prompt: finalPrompt,
+      prompt: promptReference,
       modules: String(modulesCount),
       lessons: lessonsPerModule,
       lang: language,
@@ -650,19 +659,43 @@ function GenerateProductPicker() {
     
     // Handle file-based prompts
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create lesson content from the provided files");
+      const finalPrompt = prompt.trim() || "Create lesson content from the provided files";
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      const finalPrompt = prompt.trim() || (textMode === 'context' 
         ? "Create lesson content using the provided text as context"
-        : "Create lesson content based on the provided text structure"));
+        : "Create lesson content based on the provided text structure");
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+      const finalPrompt = prompt.trim();
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
     }
     
     params.set("lang", language);
@@ -699,19 +732,43 @@ function GenerateProductPicker() {
     
     // Handle file-based prompts
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create quiz content from the provided files");
+      const finalPrompt = prompt.trim() || "Create quiz content from the provided files";
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      const finalPrompt = prompt.trim() || (textMode === 'context' 
         ? "Create quiz content using the provided text as context"
-        : "Create quiz content based on the provided text structure"));
+        : "Create quiz content based on the provided text structure");
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+      const finalPrompt = prompt.trim();
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
     }
 
     router.push(`/create/quiz?${params.toString()}`);
@@ -870,19 +927,43 @@ function GenerateProductPicker() {
     
     // Handle file-based prompts
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create text presentation content from the provided files");
+      const finalPrompt = prompt.trim() || "Create text presentation content from the provided files";
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      const finalPrompt = prompt.trim() || (textMode === 'context' 
         ? "Create text presentation content using the provided text as context"
-        : "Create text presentation content based on the provided text structure"));
+        : "Create text presentation content based on the provided text structure");
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+      const finalPrompt = prompt.trim();
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
     }
 
     router.push(`/create/text-presentation?${params.toString()}`);
@@ -900,19 +981,43 @@ function GenerateProductPicker() {
     
     // Handle file-based prompts
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
+      const finalPrompt = prompt.trim() || "Create video lesson content from the provided files";
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      const finalPrompt = prompt.trim() || (textMode === 'context' 
         ? "Create video lesson content using the provided text as context"
-        : "Create video lesson content based on the provided text structure"));
+        : "Create video lesson content based on the provided text structure");
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+      const finalPrompt = prompt.trim();
+      // Store prompt in sessionStorage if it's long
+      let promptReference = finalPrompt;
+      if (finalPrompt.length > 500) {
+        const promptId = generatePromptId();
+        sessionStorage.setItem(promptId, finalPrompt);
+        promptReference = promptId;
+      }
+      params.set("prompt", promptReference);
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);

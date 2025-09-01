@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -197,7 +198,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 export default function CourseOutlineClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
-  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
+  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
