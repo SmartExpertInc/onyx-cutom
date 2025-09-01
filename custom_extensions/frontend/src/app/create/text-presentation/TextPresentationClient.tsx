@@ -43,19 +43,12 @@ export default function TextPresentationClient() {
   const [length, setLength] = useState<string>(params?.get("length") || "medium");
   const [selectedStyles, setSelectedStyles] = useState<string[]>(params?.get("styles")?.split(",").filter(Boolean) || []);
   const [showStylesDropdown, setShowStylesDropdown] = useState(false);
+  // Process prompt from URL or sessionStorage and create local state
+  const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
+  
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    params?.get("outlineId") ? true : (getPromptFromUrlOrStorage(params?.get("prompt") || "") ? false : null)
+    params?.get("outlineId") ? true : (currentPrompt ? false : null)
   );
-  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
-
-  // Sync prompt state with URL changes
-  useEffect(() => {
-    const urlPrompt = params?.get("prompt") || "";
-    const processedPrompt = getPromptFromUrlOrStorage(urlPrompt);
-    if (processedPrompt !== prompt) {
-      setPrompt(processedPrompt);
-    }
-  }, [params?.get("prompt")]);
 
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -638,7 +631,7 @@ export default function TextPresentationClient() {
     // Only trigger if we have a lesson or a prompt
     if (useExistingOutline === null) return;
     if (useExistingOutline === true && !selectedLesson) return;
-    if (useExistingOutline === false && !prompt.trim()) return;
+    if (useExistingOutline === false && !currentPrompt.trim()) return;
 
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
@@ -662,12 +655,12 @@ export default function TextPresentationClient() {
             // Only send outlineId when the user actually selected one
             outlineId: selectedOutlineId || undefined,
             // If no lesson was picked, derive a temporary title from the prompt or fallback
-            lesson: selectedLesson || (prompt ? prompt.slice(0, 80) : "Untitled One-Pager"),
+            lesson: selectedLesson || (currentPrompt ? currentPrompt.slice(0, 80) : "Untitled One-Pager"),
             language,
             length,
             styles: selectedStyles.join(','),
             // Always forward the prompt (if any) so backend can generate content
-            prompt: prompt || undefined,
+            prompt: currentPrompt || undefined,
           };
 
           // Add file context if creating from files
@@ -828,7 +821,7 @@ export default function TextPresentationClient() {
 
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing presentation request for "${prompt.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Analyzing presentation request for "${currentPrompt?.slice(0, 40) || "Untitled"}"...`);
     list.push(`Detected language: ${language.toUpperCase()}`);
     list.push(`Planning ${length} presentation with ${selectedStyles.length} style${selectedStyles.length > 1 ? "s" : ""}...`);
     // shuffle little filler line
@@ -1424,10 +1417,10 @@ export default function TextPresentationClient() {
           {/* Prompt input for standalone presentation */}
           {useExistingOutline === false && (
             <textarea
-              value={prompt}
+              value={currentPrompt}
               onChange={(e) => {
                 const newPrompt = e.target.value;
-                setPrompt(newPrompt);
+                setCurrentPrompt(newPrompt);
                 
                 // Handle prompt storage for long prompts by updating URL
                 const sp = new URLSearchParams(params?.toString() || "");
