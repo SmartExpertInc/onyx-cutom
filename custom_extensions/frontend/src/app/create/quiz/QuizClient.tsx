@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { extractPrompt } from "../../../utils/promptExtractor";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -34,6 +35,8 @@ export default function QuizClient() {
   const { t } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Prompt extraction is now handled by the imported utility function
   const [loading, setLoading] = useState(false);
   const [quizData, setQuizData] = useState<string>("");
   const [isComplete, setIsComplete] = useState(false);
@@ -42,7 +45,7 @@ export default function QuizClient() {
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
 
   // Get parameters from URL
-  const prompt = searchParams?.get("prompt") || "";
+  const prompt = extractPrompt(searchParams?.get("prompt"));
   const outlineId = searchParams?.get("outlineId");
   const lesson = searchParams?.get("lesson");
   const courseName = searchParams?.get("courseName"); // Add course name parameter

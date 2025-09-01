@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { storePromptIfLong } from "../../../utils/promptExtractor";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -271,13 +272,15 @@ function GenerateProductPicker() {
       finalPrompt = "Create educational content by searching the Knowledge Base";
     }
 
+    // Store long prompt in sessionStorage to avoid URL length issues
+    finalPrompt = storePromptIfLong(finalPrompt, 'course_outline');
+
     const params = new URLSearchParams({
       prompt: finalPrompt,
       modules: String(modulesCount),
       lessons: lessonsPerModule,
       lang: language,
       knowledgeCheck: filters.knowledgeCheck ? '1' : '0',
-      contentAvailability: filters.contentAvailability ? '1' : '0',
       informationSource: filters.informationSource ? '1' : '0',
       time: filters.time ? '1' : '0',
     });
@@ -705,24 +708,28 @@ function GenerateProductPicker() {
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
     
-    // Handle different prompt sources
+    // Handle different prompt sources with long prompt handling
+    let finalPrompt = prompt.trim();
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create lesson content from the provided files");
+      finalPrompt = finalPrompt || "Create lesson content from the provided files";
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      finalPrompt = finalPrompt || (textMode === 'context' 
         ? "Create lesson content using the provided text as context"
-        : "Create lesson content based on the provided text structure"));
+        : "Create lesson content based on the provided text structure");
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create lesson content from the Knowledge Base");
+      finalPrompt = finalPrompt || "Create lesson content from the Knowledge Base";
       params.set("fromKnowledgeBase", "true");
-    } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+    }
+
+    // Store long prompt in sessionStorage to avoid URL length issues
+    if (finalPrompt) {
+      params.set("prompt", storePromptIfLong(finalPrompt, 'lesson_presentation'));
     }
     
     params.set("lang", language);
@@ -764,24 +771,28 @@ function GenerateProductPicker() {
     params.set("questionCount", String(quizQuestionCount));
     params.set("lang", quizLanguage);
     
-    // Handle different prompt sources
+    // Handle different prompt sources with long prompt handling
+    let finalPrompt = prompt.trim();
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create quiz content from the provided files");
+      finalPrompt = finalPrompt || "Create quiz content from the provided files";
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      finalPrompt = finalPrompt || (textMode === 'context' 
         ? "Create quiz content using the provided text as context"
-        : "Create quiz content based on the provided text structure"));
+        : "Create quiz content based on the provided text structure");
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create quiz content from the Knowledge Base");
+      finalPrompt = finalPrompt || "Create quiz content from the Knowledge Base";
       params.set("fromKnowledgeBase", "true");
-    } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+    }
+
+    // Store long prompt in sessionStorage to avoid URL length issues
+    if (finalPrompt) {
+      params.set("prompt", storePromptIfLong(finalPrompt, 'quiz'));
     }
 
     // Add connector context if coming from connectors
@@ -945,24 +956,28 @@ function GenerateProductPicker() {
     params.set("length", textLength);
     params.set("styles", textStyles.join(','));
     
-    // Handle different prompt sources
+    // Handle different prompt sources with long prompt handling
+    let finalPrompt = prompt.trim();
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create text presentation content from the provided files");
+      finalPrompt = finalPrompt || "Create text presentation content from the provided files";
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      finalPrompt = finalPrompt || (textMode === 'context' 
         ? "Create text presentation content using the provided text as context"
-        : "Create text presentation content based on the provided text structure"));
+        : "Create text presentation content based on the provided text structure");
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create text presentation content from the Knowledge Base");
+      finalPrompt = finalPrompt || "Create text presentation content from the Knowledge Base";
       params.set("fromKnowledgeBase", "true");
-    } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+    }
+
+    // Store long prompt in sessionStorage to avoid URL length issues
+    if (finalPrompt) {
+      params.set("prompt", storePromptIfLong(finalPrompt, 'text_presentation'));
     }
 
     // Add connector context if coming from connectors
@@ -985,24 +1000,28 @@ function GenerateProductPicker() {
     params.set("slidesCount", String(slidesCount));
     params.set("lang", language);
     
-    // Handle different prompt sources
+    // Handle different prompt sources with long prompt handling
+    let finalPrompt = prompt.trim();
     if (isFromFiles) {
-      params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
+      finalPrompt = finalPrompt || "Create video lesson content from the provided files";
       params.set("fromFiles", "true");
       if (folderIds.length > 0) params.set("folderIds", folderIds.join(','));
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     } else if (isFromText) {
-      params.set("prompt", prompt.trim() || (textMode === 'context' 
+      finalPrompt = finalPrompt || (textMode === 'context' 
         ? "Create video lesson content using the provided text as context"
-        : "Create video lesson content based on the provided text structure"));
+        : "Create video lesson content based on the provided text structure");
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
     } else if (isFromKnowledgeBase) {
-      params.set("prompt", prompt.trim() || "Create video lesson content from the Knowledge Base");
+      finalPrompt = finalPrompt || "Create video lesson content from the Knowledge Base";
       params.set("fromKnowledgeBase", "true");
-    } else if (prompt.trim()) {
-      params.set("prompt", prompt.trim());
+    }
+
+    // Store long prompt in sessionStorage to avoid URL length issues
+    if (finalPrompt) {
+      params.set("prompt", storePromptIfLong(finalPrompt, 'video_lesson'));
     }
 
     // Add connector context if coming from connectors
