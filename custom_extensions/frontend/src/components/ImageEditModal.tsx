@@ -78,7 +78,9 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
 
       log('ImageEditModal', 'modalOpened', {
         hasImageFile: !!imageFile,
-        placeholderDimensions
+        placeholderDimensions,
+        imageFileSize: imageFile.size,
+        imageFileName: imageFile.name
       });
     }
   }, [isOpen, imageFile, placeholderDimensions]);
@@ -123,13 +125,15 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       imageDimensions: { width: naturalWidth, height: naturalHeight }
     }));
 
-    // Auto-fit image to fill the placeholder
+    // Calculate scale to cover the entire placeholder (similar to CSS object-fit: cover)
     const scaleX = placeholderDimensions.width / naturalWidth;
     const scaleY = placeholderDimensions.height / naturalHeight;
-    const initialScale = Math.max(scaleX, scaleY, 0.1); // Cover the placeholder
+    const initialScale = Math.max(scaleX, scaleY, 0.1); // Cover the placeholder completely
     
     const scaledWidth = naturalWidth * initialScale;
     const scaledHeight = naturalHeight * initialScale;
+    
+    // Center the image within the placeholder
     const centerX = (placeholderDimensions.width - scaledWidth) / 2;
     const centerY = (placeholderDimensions.height - scaledHeight) / 2;
     
@@ -139,7 +143,8 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       initialScale,
       centerX,
       centerY,
-      initialTransform
+      initialTransform,
+      scaledDimensions: { width: scaledWidth, height: scaledHeight }
     });
 
     // Apply initial transform to the image element
@@ -257,7 +262,8 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       hasImageFile: !!imageFile,
       hasImageDimensions: !!editState.imageDimensions,
       transform: editState.transform,
-      imageDimensions: editState.imageDimensions
+      imageDimensions: editState.imageDimensions,
+      placeholderDimensions
     });
 
     if (!imageFile || !editState.imageDimensions) {
@@ -265,6 +271,16 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
         hasImageFile: !!imageFile,
         hasImageDimensions: !!editState.imageDimensions
       });
+      return;
+    }
+
+    // Validate placeholder dimensions
+    if (!placeholderDimensions || placeholderDimensions.width <= 0 || placeholderDimensions.height <= 0) {
+      log('ImageEditModal', 'confirmEdit_invalidPlaceholderDimensions', {
+        placeholderDimensions
+      });
+      console.error('Invalid placeholder dimensions:', placeholderDimensions);
+      setIsProcessing(false);
       return;
     }
 
@@ -282,7 +298,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context not available');
       
-      // Set canvas to placeholder dimensions for high quality
+      // Set canvas to exact placeholder dimensions for precise cropping
       canvas.width = placeholderDimensions.width;
       canvas.height = placeholderDimensions.height;
       
@@ -323,7 +339,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         
-        // Fill background with transparent
+        // Clear canvas with transparent background
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Calculate the area of the image that's visible in the crop frame
@@ -331,14 +347,30 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
         const scaledWidth = imgWidth * currentScale;
         const scaledHeight = imgHeight * currentScale;
         
-        // Draw the scaled image at the current position
+        // Calculate the visible portion of the image within the placeholder bounds
+        const visibleX = Math.max(0, -x);
+        const visibleY = Math.max(0, -y);
+        const visibleWidth = Math.min(scaledWidth, placeholderDimensions.width - x);
+        const visibleHeight = Math.min(scaledHeight, placeholderDimensions.height - y);
+        
+        // Calculate source coordinates for the visible portion
+        const sourceX = visibleX / currentScale;
+        const sourceY = visibleY / currentScale;
+        const sourceWidth = visibleWidth / currentScale;
+        const sourceHeight = visibleHeight / currentScale;
+        
+        // Draw only the visible portion of the image, positioned correctly
         ctx.drawImage(
           img,
-          x, y, scaledWidth, scaledHeight
+          sourceX, sourceY, sourceWidth, sourceHeight, // Source rectangle
+          Math.max(0, x), Math.max(0, y), visibleWidth, visibleHeight // Destination rectangle
         );
         
         log('ImageEditModal', 'confirmEdit_imageDrawn', {
-          drawParams: { x, y, width: scaledWidth, height: scaledHeight }
+          drawParams: { 
+            source: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
+            destination: { x: Math.max(0, x), y: Math.max(0, y), width: visibleWidth, height: visibleHeight }
+          }
         });
         
         // Convert to blob and upload
@@ -495,6 +527,11 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
                 maxHeight: '60vh'
               }}
             >
+              {/* Dimensions indicator */}
+              <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded z-10">
+                {placeholderDimensions.width} × {placeholderDimensions.height}
+              </div>
+              
               {editState.imageUrl && (
                 <>
                   <img

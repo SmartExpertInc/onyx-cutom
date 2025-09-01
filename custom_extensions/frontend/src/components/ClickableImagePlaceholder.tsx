@@ -519,12 +519,30 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         'MEDIUM': { width: 300, height: 200 },
         'SMALL': { width: 200, height: 150 }
       };
+      
+      log('ClickableImagePlaceholder', 'getPlaceholderDimensions_fallback', {
+        elementId,
+        instanceId,
+        size,
+        fallbackDimensions: fallbackDimensions[size]
+      });
+      
       return fallbackDimensions[size];
     }
 
     const rect = containerRef.current.getBoundingClientRect();
-    return { width: rect.width, height: rect.height };
-  }, [containerRef, size]);
+    const dimensions = { width: rect.width, height: rect.height };
+    
+    log('ClickableImagePlaceholder', 'getPlaceholderDimensions_actual', {
+      elementId,
+      instanceId,
+      containerRef: !!containerRef.current,
+      rect,
+      dimensions
+    });
+    
+    return dimensions;
+  }, [containerRef, size, elementId, instanceId]);
 
   // Handle modal confirm crop
   const handleConfirmCrop = useCallback((croppedImagePath: string) => {

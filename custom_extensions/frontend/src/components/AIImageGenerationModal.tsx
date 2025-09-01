@@ -309,6 +309,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               rows={3}
               disabled={generating}
+              style={{ color: '#374151' }} // Darker text color
             />
             <p className="text-xs text-gray-500 mt-1">
               Be specific and descriptive for better results
@@ -345,35 +346,6 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
                 <option value="vivid">Vivid</option>
                 <option value="natural">Natural</option>
               </select>
-            </div>
-          </div>
-
-          {/* Dimensions Info */}
-          <div className="bg-gray-50 p-3 rounded-md">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <ImageIcon className="w-4 h-4" />
-              <span>
-                Image will be generated at {
-                  (() => {
-                    if (templateId === 'big-image-left') {
-                      const aspect = placeholderDimensions.width / placeholderDimensions.height;
-                      return aspect < 1.2 ? '1024×1792 (Portrait, optimized for template)' : '1792×1024 (Landscape, based on placeholder)';
-                    } else if (templateId === 'bullet-points' || templateId === 'bullet-points-right') {
-                      const aspect = placeholderDimensions.width / placeholderDimensions.height;
-                      if (aspect > 1.5) return '1792×1024 (Landscape, based on placeholder)';
-                      if (aspect < 0.7) return '1024×1792 (Portrait, based on placeholder)';
-                      return '1024×1024 (Square, optimized for template)';
-                    } else {
-                      return placeholderDimensions.width > placeholderDimensions.height ? '1792×1024 (Landscape)' : 
-                             placeholderDimensions.height > placeholderDimensions.width ? '1024×1792 (Portrait)' : 
-                             '1024×1024 (Square)';
-                    }
-                  })()
-                } pixels
-              </span>
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              (Optimized for DALL-E 3 based on your placeholder's aspect ratio)
             </div>
           </div>
 
