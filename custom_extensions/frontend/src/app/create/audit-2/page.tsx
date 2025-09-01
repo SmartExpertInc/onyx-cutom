@@ -57,18 +57,18 @@ export default function AuditPage() {
               <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#01D0FF] to-[#6496F8]"></div>
               
               {/* Text */}
-              <span className="font-medium text-[13px] text-[#71717A]">
+              <span className="font-medium text-[13px] text-[#71717A] tracking-[0.05em] leading-[140%]">
                 Внедрите AI-онбординг за 7 дней
               </span>
             </div>
             
             {/* Title with colored text and span */}
-            <h1 className="font-semibold text-[34px] text-[#0F58F9]">
+            <h1 className="font-semibold text-[34px] text-[#0F58F9] leading-[120%] tracking-[0%]">
               AI-аудит <span className="text-black">для компании FUSE</span>
             </h1>
             
             {/* Description text */}
-            <p className="font-normal text-[18px] text-[#71717A] leading-relaxed">
+            <p className="font-normal text-[18px] text-[#71717A] leading-[140%] tracking-[0%]">
               Компания предоставляющий услуги по установке и обслуживанию систем HVAC, электрики, солнечных панелей, а также бытовой и коммерческой техники. Обеспечивая полный цикл инженерных решений
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function AuditPage() {
             alt="Audit"
             width={360}
             height={339}
-            className="-mx-[20px] xl:-mx-[120px]"
+            className="-mx-[40px] xl:-mx-[120px]"
             style={{ height: '339.39px' }}
           />
         </section>
