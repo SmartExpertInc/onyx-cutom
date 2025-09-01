@@ -96,7 +96,8 @@ class ProfessionalPresentationService:
             logger.info(f"🎬 [CREATE_PRESENTATION] Job {job_id} stored in memory successfully")
             
             # Start background processing (non-blocking)
-            await self._process_presentation_detached(job_id, request)
+            # CRITICAL FIX: Remove await to prevent blocking HTTP response
+            self._process_presentation_detached(job_id, request)
             
             logger.info(f"🎬 [CREATE_PRESENTATION] Returning job ID immediately: {job_id}")
             logger.info(f"🎬 [CREATE_PRESENTATION] HTTP response will be sent now, processing continues in background")
@@ -119,7 +120,7 @@ class ProfessionalPresentationService:
         """
         return self.jobs.get(job_id)
     
-    async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
+    def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
         Start detached presentation processing using asyncio task.
         Returns immediately without blocking the HTTP response.
