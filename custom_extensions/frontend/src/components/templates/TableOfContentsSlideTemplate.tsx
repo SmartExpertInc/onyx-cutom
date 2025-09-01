@@ -280,8 +280,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
       </div>
     </div>
 
-     {/* Logo Upload Modal */}
-     {showLogoUploadModal && (
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
        <PresentationImageUpload
          isOpen={showLogoUploadModal}
          onClose={() => setShowLogoUploadModal(false)}

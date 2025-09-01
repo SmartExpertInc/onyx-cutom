@@ -338,8 +338,8 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
       </div>
     </div>
 
-     {/* Logo Upload Modal */}
-     {showLogoUploadModal && (
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
        <PresentationImageUpload
          isOpen={showLogoUploadModal}
          onClose={() => setShowLogoUploadModal(false)}
