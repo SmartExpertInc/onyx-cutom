@@ -330,10 +330,10 @@ class ProfessionalPresentationService:
                                     logger.info(f"    - {key}: {value}")
                 else:
                     logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                # Try to extract slide props from URL or use fallback
-                slide_props = await self._extract_slide_props_from_url(request.slide_url)
-                slides_data = [slide_props]  # Convert single slide to list
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
+                    # Try to extract slide props from URL or use fallback
+                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
+                    slides_data = [slide_props]  # Convert single slide to list
+                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
                 # Import the clean video generation service
                 from .clean_video_generation_service import clean_video_generation_service
