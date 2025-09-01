@@ -324,7 +324,7 @@ export const CreateContentTypeModal = ({
                     />
                   </div>
 
-                  <div className="flex items-center space-x-4 flex-1">
+                  <div className="flex items-center space-x-3 flex-1">
                     <div className={`p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${isDisabled || !isSelected ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
                       }`}>
                       {React.cloneElement(type.icon, {
@@ -337,17 +337,17 @@ export const CreateContentTypeModal = ({
                           {type.label}
                         </h3>
                         {type.soon && (
-                          <span className="text-xs bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-3 py-1 rounded-full font-medium border border-orange-200">
+                          <span className="text-xs bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-2 py-1 rounded-full font-medium border border-orange-200">
                             {t('modals.createContent.soon')}
                           </span>
                         )}
                         {isAlreadyCreated && (
-                          <span className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 px-3 py-1 rounded-full font-medium border border-green-200">
+                          <span className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 px-2 py-1 rounded-full font-medium border border-green-200">
                             ✓ {t('modals.createContent.alreadyCreated')}
                           </span>
                         )}
                         {isRecommended && (
-                          <span className="text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 px-3 py-1 rounded-full font-medium border border-blue-200">
+                          <span className="text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 px-2 py-1 rounded-full font-medium border border-blue-200">
                             {t('modals.createContent.recommended', 'Recommended')}
                           </span>
                         )}
