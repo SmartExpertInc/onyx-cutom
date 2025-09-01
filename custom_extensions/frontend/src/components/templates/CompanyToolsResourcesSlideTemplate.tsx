@@ -126,52 +126,51 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           alignItems: 'center',
           gap: '10px'
         }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            border: `2px solid ${themeContent}`,
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
             <div style={{
-              width: '8px',
-              height: '2px',
-              backgroundColor: themeContent,
-              position: 'absolute'
-            }} />
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: themeContent,
-            fontWeight: '300'
-          }}>
-            {isEditable && editingCompanyName ? (
-              <ImprovedInlineEditor
-                initialValue={currentCompanyName}
-                onSave={handleCompanyNameSave}
-                onCancel={() => setEditingCompanyName(false)}
-                className="company-name-editor"
-                style={{
-                  fontSize: '14px',
-                  color: themeContent,
-                  fontWeight: '300'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingCompanyName(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentCompanyName}
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                border: `2px solid ${themeContent}`,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '8px',
+                  height: '2px',
+                  backgroundColor: themeContent,
+                  position: 'absolute'
+                }} />
               </div>
-            )}
-          </div>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>{currentCompanyName}</span>
+            </div>
+          )}
         </div>
 
         {/* Title */}
@@ -246,33 +245,33 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         {currentContentBlocks.map((block, index) => (
           <div
             key={index}
-            style={{
-              backgroundColor: block.backgroundColor === '#f5f5f5' ? '#f5f5f5' : '#007bff',
-              padding: '25px',
-              borderRadius: '8px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px'
-            }}
+                         style={{
+               backgroundColor: block.backgroundColor === '#f5f5f5' ? themeBg : themeAccent,
+               padding: '25px',
+               borderRadius: '8px',
+               display: 'flex',
+               flexDirection: 'column',
+               gap: '15px'
+             }}
           >
             {/* Block title */}
-            <div style={{
-              fontSize: '24px',
-              color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
-              fontWeight: 'bold'
-            }}>
+                         <div style={{
+               fontSize: '24px',
+               color: block.backgroundColor === '#f5f5f5' ? themeTitle : themeBg,
+               fontWeight: 'bold'
+             }}>
               {isEditable && editingContentBlocks?.index === index && editingContentBlocks?.field === 'title' ? (
                 <ImprovedInlineEditor
                   initialValue={block.title}
                   onSave={(value) => handleContentBlockSave(index, 'title', value)}
                   onCancel={() => setEditingContentBlocks(null)}
                   className="block-title-editor"
-                  style={{
-                    fontSize: '24px',
-                    color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
-                    fontWeight: 'bold',
-                    width: '100%'
-                  }}
+                                     style={{
+                     fontSize: '24px',
+                     color: block.backgroundColor === '#f5f5f5' ? themeTitle : themeBg,
+                     fontWeight: 'bold',
+                     width: '100%'
+                   }}
                 />
               ) : (
                 <div
@@ -288,11 +287,11 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             </div>
 
             {/* Block content */}
-            <div style={{
-              fontSize: '16px',
-              color: block.backgroundColor === '#f5f5f5' ? themeContent : '#ffffff',
-              lineHeight: '1.4'
-            }}>
+                         <div style={{
+               fontSize: '16px',
+               color: block.backgroundColor === '#f5f5f5' ? themeContent : themeBg,
+               lineHeight: '1.4'
+             }}>
               {isEditable && editingContentBlocks?.index === index && editingContentBlocks?.field === 'content' ? (
                 <ImprovedInlineEditor
                   initialValue={block.content}
@@ -300,12 +299,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   onCancel={() => setEditingContentBlocks(null)}
                   multiline={true}
                   className="block-content-editor"
-                  style={{
-                    fontSize: '16px',
-                    color: block.backgroundColor === '#f5f5f5' ? themeContent : '#ffffff',
-                    lineHeight: '1.4',
-                    width: '100%'
-                  }}
+                                     style={{
+                     fontSize: '16px',
+                     color: block.backgroundColor === '#f5f5f5' ? themeContent : themeBg,
+                     lineHeight: '1.4',
+                     width: '100%'
+                   }}
                 />
               ) : (
                 <div
@@ -320,10 +319,23 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               )}
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+                 ))}
+       </div>
+
+       {/* Logo Upload Modal */}
+       {showLogoUploadModal && (
+         <PresentationImageUpload
+           isOpen={showLogoUploadModal}
+           onClose={() => setShowLogoUploadModal(false)}
+           onImageUploaded={(newLogoPath) => {
+             handleCompanyLogoUploaded(newLogoPath);
+             setShowLogoUploadModal(false);
+           }}
+           title="Upload Company Logo"
+         />
+       )}
+     </div>
+   );
+ };
 
 export default CompanyToolsResourcesSlideTemplate; 

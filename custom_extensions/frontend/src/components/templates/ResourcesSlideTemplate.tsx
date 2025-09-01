@@ -43,17 +43,17 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
-    width: '100%',
-    height: '650px',
-    backgroundColor: '#556B2F', // Dark olive background
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
-    overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
-    padding: '40px 60px',
-  };
+     const slideStyles: React.CSSProperties = {
+     width: '100%',
+     height: '650px',
+     backgroundColor: themeAccent, // Use theme accent color
+     display: 'flex',
+     flexDirection: 'column',
+     position: 'relative',
+     overflow: 'hidden',
+     fontFamily: currentTheme.fonts.titleFont,
+     padding: '40px 60px',
+   };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -96,92 +96,91 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
 
   return (
     <div className="resources-slide-template" style={slideStyles}>
-      {/* Header section with logo */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        marginBottom: '60px'
-      }}>
-        <div style={{
-          width: '24px',
-          height: '24px',
-          border: `2px solid #C0C0C0`,
-          borderRadius: '50%',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{
-            width: '12px',
-            height: '2px',
-            backgroundColor: '#C0C0C0',
-            position: 'absolute'
-          }} />
-          <div style={{
-            width: '2px',
-            height: '12px',
-            backgroundColor: '#C0C0C0',
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)'
-          }} />
-        </div>
-        <div style={{
-          fontSize: '14px',
-          color: '#C0C0C0',
-          fontWeight: '300'
-        }}>
-          {isEditable && editingCompanyName ? (
-            <ImprovedInlineEditor
-              initialValue={currentCompanyName}
-              onSave={handleCompanyNameSave}
-              onCancel={() => setEditingCompanyName(false)}
-              className="company-name-editor"
-              style={{
-                fontSize: '14px',
-                color: '#C0C0C0',
-                fontWeight: '300'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingCompanyName(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentCompanyName}
-            </div>
-          )}
-        </div>
-      </div>
+             {/* Header section with logo */}
+       <div style={{
+         display: 'flex',
+         alignItems: 'center',
+         gap: '10px',
+         marginBottom: '60px'
+       }}>
+         {currentCompanyLogoPath ? (
+           // Show uploaded logo image
+           <ClickableImagePlaceholder
+             imagePath={currentCompanyLogoPath}
+             onImageUploaded={handleCompanyLogoUploaded}
+             size="SMALL"
+             position="CENTER"
+             description="Company logo"
+             isEditable={isEditable}
+             style={{
+               height: '30px',
+               maxWidth: '120px',
+               objectFit: 'contain'
+             }}
+           />
+         ) : (
+           // Show default logo design with clickable area
+           <div style={{
+             display: 'flex',
+             alignItems: 'center',
+             gap: '10px',
+             cursor: isEditable ? 'pointer' : 'default'
+           }}
+           onClick={() => isEditable && setShowLogoUploadModal(true)}
+           >
+             <div style={{
+               width: '24px',
+               height: '24px',
+               border: `2px solid ${themeContent}`,
+               borderRadius: '50%',
+               position: 'relative',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center'
+             }}>
+               <div style={{
+                 width: '12px',
+                 height: '2px',
+                 backgroundColor: themeContent,
+                 position: 'absolute'
+               }} />
+               <div style={{
+                 width: '2px',
+                 height: '12px',
+                 backgroundColor: themeContent,
+                 position: 'absolute',
+                 left: '50%',
+                 top: '50%',
+                 transform: 'translate(-50%, -50%)'
+               }} />
+             </div>
+             <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>{currentCompanyName}</span>
+           </div>
+         )}
+       </div>
 
-      {/* Main title */}
-      <div style={{
-        fontSize: '72px',
-        color: '#C0C0C0',
-        lineHeight: '1.1',
-        fontWeight: 'bold',
-        marginBottom: '80px',
-        marginLeft: '40px'
-      }}>
+             {/* Main title */}
+       <div style={{
+         fontSize: '72px',
+         color: themeBg, // Use theme background color for contrast
+         lineHeight: '1.1',
+         fontWeight: 'bold',
+         marginBottom: '80px',
+         marginLeft: '40px'
+       }}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
             className="title-editor"
-            style={{
-              fontSize: '72px',
-              color: '#C0C0C0',
-              lineHeight: '1.1',
-              fontWeight: 'bold',
-              width: '100%'
-            }}
+                           style={{
+                 fontSize: '72px',
+                 color: themeBg,
+                 lineHeight: '1.1',
+                 fontWeight: 'bold',
+                 width: '100%'
+               }}
           />
         ) : (
           <div
@@ -207,14 +206,14 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
         {currentResources.map((resource, index) => (
           <div
             key={index}
-            style={{
-              backgroundColor: '#6B8E23', // Slightly lighter olive
-              padding: '20px 25px',
-              borderRadius: '8px',
-              fontSize: '18px',
-              color: '#C0C0C0',
-              lineHeight: '1.4'
-            }}
+                         style={{
+               backgroundColor: themeBg, // Use theme background color
+               padding: '20px 25px',
+               borderRadius: '8px',
+               fontSize: '18px',
+               color: themeContent, // Use theme content color
+               lineHeight: '1.4'
+             }}
           >
             {isEditable && editingResources === index ? (
               <ImprovedInlineEditor
@@ -223,12 +222,12 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
                 onCancel={() => setEditingResources(null)}
                 multiline={true}
                 className="resource-editor"
-                style={{
-                  fontSize: '18px',
-                  color: '#C0C0C0',
-                  lineHeight: '1.4',
-                  width: '100%'
-                }}
+                                 style={{
+                   fontSize: '18px',
+                   color: themeContent,
+                   lineHeight: '1.4',
+                   width: '100%'
+                 }}
               />
             ) : (
               <div
@@ -254,7 +253,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
         height: '140px',
         borderRadius: '50%',
         overflow: 'hidden',
-        backgroundColor: '#6B8E23'
+                 backgroundColor: themeBg
       }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
@@ -269,10 +268,23 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
             borderRadius: '50%',
             objectFit: 'cover'
           }}
-        />
-      </div>
-    </div>
-  );
-};
+                 />
+       </div>
+
+       {/* Logo Upload Modal */}
+       {showLogoUploadModal && (
+         <PresentationImageUpload
+           isOpen={showLogoUploadModal}
+           onClose={() => setShowLogoUploadModal(false)}
+           onImageUploaded={(newLogoPath) => {
+             handleCompanyLogoUploaded(newLogoPath);
+             setShowLogoUploadModal(false);
+           }}
+           title="Upload Company Logo"
+         />
+       )}
+     </div>
+   );
+ };
 
 export default ResourcesSlideTemplate; 

@@ -120,62 +120,61 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
         flexDirection: 'column',
         position: 'relative'
       }}>
-        {/* Company logo */}
-        <div style={{
-          position: 'absolute',
-          top: '40px',
-          left: '50px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px'
-        }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            border: `2px solid ${themeContent}`,
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{
-              width: '8px',
-              height: '2px',
-              backgroundColor: themeContent,
-              position: 'absolute'
-            }} />
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: themeContent,
-            fontWeight: '300'
-          }}>
-            {isEditable && editingCompanyName ? (
-              <ImprovedInlineEditor
-                initialValue={currentCompanyName}
-                onSave={handleCompanyNameSave}
-                onCancel={() => setEditingCompanyName(false)}
-                className="company-name-editor"
-                style={{
-                  fontSize: '14px',
-                  color: themeContent,
-                  fontWeight: '300'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingCompanyName(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentCompanyName}
-              </div>
-            )}
-          </div>
-        </div>
+                 {/* Company logo */}
+         <div style={{
+           position: 'absolute',
+           top: '40px',
+           left: '50px',
+           display: 'flex',
+           alignItems: 'center',
+           gap: '10px'
+         }}>
+           {currentCompanyLogoPath ? (
+             // Show uploaded logo image
+             <ClickableImagePlaceholder
+               imagePath={currentCompanyLogoPath}
+               onImageUploaded={handleCompanyLogoUploaded}
+               size="SMALL"
+               position="CENTER"
+               description="Company logo"
+               isEditable={isEditable}
+               style={{
+                 height: '30px',
+                 maxWidth: '120px',
+                 objectFit: 'contain'
+               }}
+             />
+           ) : (
+             // Show default logo design with clickable area
+             <div style={{
+               display: 'flex',
+               alignItems: 'center',
+               gap: '10px',
+               cursor: isEditable ? 'pointer' : 'default'
+             }}
+             onClick={() => isEditable && setShowLogoUploadModal(true)}
+             >
+               <div style={{
+                 width: '20px',
+                 height: '20px',
+                 border: `2px solid ${themeContent}`,
+                 borderRadius: '50%',
+                 position: 'relative',
+                 display: 'flex',
+                 alignItems: 'center',
+                 justifyContent: 'center'
+               }}>
+                 <div style={{
+                   width: '8px',
+                   height: '2px',
+                   backgroundColor: themeContent,
+                   position: 'absolute'
+                 }} />
+               </div>
+               <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>{currentCompanyName}</span>
+             </div>
+           )}
+         </div>
 
         {/* Main title */}
         <div style={{
@@ -313,15 +312,15 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
         </div>
       </div>
 
-      {/* Right section - Profile image with black background */}
-      <div style={{
-        flex: '1',
-        backgroundColor: '#000000',
-        position: 'relative',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
+             {/* Right section - Profile image with black background */}
+       <div style={{
+         flex: '1',
+         backgroundColor: themeTitle, // Use theme title color
+         position: 'relative',
+         display: 'flex',
+         justifyContent: 'center',
+         alignItems: 'center'
+       }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}
@@ -335,10 +334,23 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
             borderRadius: '8px',
             objectFit: 'cover'
           }}
-        />
-      </div>
-    </div>
-  );
-};
+                 />
+       </div>
+     </div>
+
+     {/* Logo Upload Modal */}
+     {showLogoUploadModal && (
+       <PresentationImageUpload
+         isOpen={showLogoUploadModal}
+         onClose={() => setShowLogoUploadModal(false)}
+         onImageUploaded={(newLogoPath) => {
+           handleCompanyLogoUploaded(newLogoPath);
+           setShowLogoUploadModal(false);
+         }}
+         title="Upload Company Logo"
+       />
+     )}
+   );
+ };
 
 export default OnlineSafetyTipsSlideTemplate; 
