@@ -527,9 +527,11 @@ class ProfessionalPresentationService:
             for slide_index, slide_data in enumerate(slides_data):
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing slide {slide_index + 1}/{len(slides_data)}")
                 
-                # Update progress based on slide processing
-                slide_progress = 10 + (slide_index * 70 // len(slides_data))
-                self._update_job_status(job_id, progress=slide_progress)
+                # Update progress based on slide processing (more granular)
+                base_progress = 10 + (slide_index * 70 // len(slides_data))
+                self._update_job_status(job_id, progress=base_progress)
+                
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Starting processing for slide {slide_index + 1} - Progress: {base_progress}%")
                 
                 # Extract voiceover text for this specific slide
                 slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
@@ -561,20 +563,34 @@ class ProfessionalPresentationService:
                     individual_videos.append(slide_video_path)
                     continue
                 
-                # Generate avatar video for this slide
+                # Generate avatar video for this slide with progress updates
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Generating avatar video for slide {slide_index + 1}")
-                avatar_video_path = await self._generate_avatar_video(
+                
+                # Update progress to show avatar generation started
+                avatar_start_progress = base_progress + 10
+                self._update_job_status(job_id, progress=avatar_start_progress)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar generation started for slide {slide_index + 1} - Progress: {avatar_start_progress}%")
+                
+                avatar_video_path = await self._generate_avatar_video_with_progress(
                     [slide_voiceover_text],  # Use slide-specific voiceover text
                     request.avatar_code,
                     request.duration,
-                    request.use_avatar_mask
+                    request.use_avatar_mask,
+                    job_id,
+                    base_progress + 10,  # Start progress
+                    base_progress + 30   # End progress
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} generated: {avatar_video_path}")
                 
-                # Compose individual slide + avatar video
+                # Compose individual slide + avatar video with progress updates
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Composing individual video for slide {slide_index + 1}")
                 individual_output_path = str(self.output_dir / f"slide_{slide_index + 1}_{job_id}.mp4")
+                
+                # Update progress for composition start
+                composition_start_progress = base_progress + 30
+                self._update_job_status(job_id, progress=composition_start_progress)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition started for slide {slide_index + 1} - Progress: {composition_start_progress}%")
                 
                 composition_config = CompositionConfig(
                     output_path=individual_output_path,
@@ -588,6 +604,11 @@ class ProfessionalPresentationService:
                     avatar_video_path,
                     composition_config
                 )
+                
+                # Update progress for composition complete
+                composition_end_progress = base_progress + 50
+                self._update_job_status(job_id, progress=composition_end_progress)
+                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition completed for slide {slide_index + 1} - Progress: {composition_end_progress}%")
                 
                 individual_videos.append(individual_video_path)
                 temp_files_to_cleanup.append(individual_video_path)
@@ -786,6 +807,73 @@ class ProfessionalPresentationService:
             logger.error(f"Error getting available avatar: {str(e)}")
             return "anna"  # Final fallback
     
+    async def _generate_avatar_video_with_progress(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float, use_avatar_mask: bool, job_id: str, start_progress: float, end_progress: float) -> str:
+        """
+        Generate avatar video using Elai API with progress updates.
+        
+        Args:
+            voiceover_texts: List of voiceover texts
+            avatar_code: Avatar code to use (None for auto-selection)
+            duration: Video duration
+            use_avatar_mask: Whether to use avatar mask
+            job_id: Job ID for progress updates
+            start_progress: Starting progress percentage
+            end_progress: Ending progress percentage
+            
+        Returns:
+            Path to generated avatar video
+        """
+        try:
+            logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Starting avatar generation: {start_progress}% → {end_progress}%")
+            
+            # Get avatar code if not provided
+            if not avatar_code:
+                avatar_code = await self._get_available_avatar()
+                logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Auto-selected avatar: {avatar_code}")
+            
+            # Create video with Elai API
+            result = await video_generation_service.create_video_from_texts(
+                project_name="Avatar Video",
+                voiceover_texts=voiceover_texts,
+                avatar_code=avatar_code
+            )
+            
+            if not result["success"]:
+                raise Exception(f"Failed to create avatar video: {result['error']}")
+            
+            video_id = result["videoId"]
+            logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Avatar video created with ID: {video_id}")
+            
+            # Update progress - video creation started
+            creation_progress = start_progress + ((end_progress - start_progress) * 0.2)
+            self._update_job_status(job_id, progress=creation_progress)
+            logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Video creation started - Progress: {creation_progress}%")
+            
+            # Start rendering
+            render_result = await video_generation_service.render_video(video_id)
+            if not render_result["success"]:
+                raise Exception(f"Failed to start avatar video rendering: {render_result['error']}")
+            
+            # Update progress - rendering started
+            render_progress = start_progress + ((end_progress - start_progress) * 0.4)
+            self._update_job_status(job_id, progress=render_progress)
+            logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Rendering started - Progress: {render_progress}%")
+            
+            # Wait for completion with progress updates
+            avatar_video_path = await self._wait_for_avatar_completion_with_progress(
+                video_id, job_id, render_progress, end_progress
+            )
+            
+            # Final progress update
+            self._update_job_status(job_id, progress=end_progress)
+            logger.info(f"🎬 [AVATAR_WITH_PROGRESS] Avatar generation completed - Progress: {end_progress}%")
+            
+            return avatar_video_path
+            
+        except Exception as e:
+            logger.error(f"Avatar video generation with progress failed: {e}")
+            raise
+
     async def _generate_avatar_video(self, voiceover_texts: List[str], avatar_code: Optional[str], duration: float, use_avatar_mask: bool = True) -> str:
         """
         Generate avatar video using Elai API.
@@ -949,6 +1037,80 @@ class ProfessionalPresentationService:
             logger.error(f"Avatar video generation failed: {e}")
             raise
     
+    async def _wait_for_avatar_completion_with_progress(self, video_id: str, job_id: str, start_progress: float, end_progress: float) -> str:
+        """
+        Wait for avatar video to complete rendering with progress updates.
+        
+        Args:
+            video_id: Elai video ID
+            job_id: Job ID for progress updates
+            start_progress: Starting progress percentage
+            end_progress: Ending progress percentage
+            
+        Returns:
+            Path to downloaded avatar video
+        """
+        try:
+            logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Waiting for avatar video: {video_id}")
+            logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Progress range: {start_progress}% → {end_progress}%")
+            
+            max_wait_time = 15 * 60  # 15 minutes
+            check_interval = 30  # 30 seconds
+            start_time = datetime.now()
+            consecutive_errors = 0
+            max_consecutive_errors = 5
+            
+            while (datetime.now() - start_time).total_seconds() < max_wait_time:
+                status_result = await video_generation_service.check_video_status(video_id)
+                
+                if not status_result["success"]:
+                    logger.warning(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Failed to check video status: {status_result['error']}")
+                    await asyncio.sleep(check_interval)
+                    continue
+                
+                status = status_result["status"]
+                elai_progress = status_result["progress"]
+                elapsed_time = (datetime.now() - start_time).total_seconds()
+                
+                # Calculate our progress based on Elai's progress
+                our_progress = start_progress + ((end_progress - start_progress) * (elai_progress / 100))
+                
+                logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Status: {status}, Elai Progress: {elai_progress}%, Our Progress: {our_progress:.1f}%")
+                logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Elapsed: {elapsed_time:.1f}s")
+                
+                # Update our job progress based on Elai progress
+                if elai_progress > 0:
+                    self._update_job_status(job_id, progress=our_progress)
+                
+                if status in ["rendered", "ready"]:
+                    download_url = status_result["downloadUrl"]
+                    if download_url:
+                        # Download the video
+                        avatar_video_path = await self._download_avatar_video(download_url, video_id)
+                        logger.info(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Avatar video downloaded: {avatar_video_path}")
+                        return avatar_video_path
+                    else:
+                        raise Exception("Video rendered but no download URL available")
+                
+                elif status == "failed":
+                    raise Exception(f"Avatar video rendering failed: {status}")
+                elif status == "error":
+                    consecutive_errors += 1
+                    logger.warning(f"🎬 [AVATAR_WAIT_WITH_PROGRESS] Error status (consecutive: {consecutive_errors}/{max_consecutive_errors})")
+                    
+                    if consecutive_errors >= max_consecutive_errors:
+                        raise Exception(f"Avatar video rendering failed after {consecutive_errors} consecutive errors")
+                else:
+                    consecutive_errors = 0
+                
+                await asyncio.sleep(check_interval)
+            
+            raise Exception("Avatar video rendering timeout")
+            
+        except Exception as e:
+            logger.error(f"Avatar video completion with progress failed: {e}")
+            raise
+
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """
         Wait for avatar video to complete rendering.
