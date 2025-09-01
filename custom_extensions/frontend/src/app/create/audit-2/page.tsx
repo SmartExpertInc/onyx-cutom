@@ -97,7 +97,7 @@ export default function AuditPage() {
           </h2>
           <div className="flex flex-col gap-[15px]">
             {/* Card 1 */}
-            <div className="border border-[#E0E0E0] rounded-[6px]">
+            <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
               <div className="p-[15px] flex flex-col gap-[15px]">
                 <div className="flex flex-col gap-[15px]">
                   <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
@@ -120,7 +120,7 @@ export default function AuditPage() {
             </div>
 
             {/* Card 2 */}
-            <div className="border border-[#E0E0E0] rounded-[6px]">
+            <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
               <div className="p-[15px] flex flex-col gap-[15px]">
                 <div className="flex flex-col gap-[15px]">
                   <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
@@ -143,7 +143,7 @@ export default function AuditPage() {
             </div>
 
             {/* Card 3 */}
-            <div className="border border-[#E0E0E0] rounded-[6px]">
+            <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
               <div className="flex flex-col gap-[15px]">
                 <div className="flex items-center gap-[15px]">
                   <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
@@ -165,6 +165,16 @@ export default function AuditPage() {
                 </div>
             </div>
           </div>
+        </section>
+
+        {/* Third Section */}
+        <section className="bg-[#FAFAFA] pt-[50px] pb-[60px] px-[20px] xl:px-[120px]">
+          <h2 className="font-medium text-[32px] text-black leading-[120%] tracking-[-0.03em] mb-[30px]">
+            Открытые вакансии FUSE
+          </h2>
+          
+          <div className="bg-white w-full h-32 rounded-[6px] mb-[20px]"></div>
+          <div className="bg-white w-full h-32 rounded-[6px]"></div>
         </section>
       </main>
       
