@@ -205,7 +205,8 @@ export default function ProjectInstanceViewPage() {
     { id: 'admin', label: 'Admin', description: 'Full access to all features' },
     { id: 'viewer', label: 'Viewer', description: 'Can view content only' },
     { id: 'editor', label: 'Editor', description: 'Can view and edit content' },
-    { id: 'member', label: 'Member', description: 'Basic access to content' }
+    { id: 'member', label: 'Member', description: 'Basic access to content' },
+    { id: 'manager', label: 'Manager', description: 'Can manage projects and assign tasks' }
   ];
 
   // Helper functions for role and email management
@@ -227,7 +228,9 @@ export default function ProjectInstanceViewPage() {
 
   const handleAddEmail = () => {
     if (newEmail.trim() && !customEmails.includes(newEmail.trim())) {
-      setCustomEmails(prev => [...prev, newEmail.trim()]);
+      const emailToAdd = newEmail.trim();
+      setCustomEmails(prev => [...prev, emailToAdd]);
+      setSelectedEmails(prev => [...prev, emailToAdd]);
       setNewEmail('');
     }
   };
@@ -236,11 +239,6 @@ export default function ProjectInstanceViewPage() {
     setCustomEmails(prev => prev.filter(e => e !== email));
     setSelectedEmails(prev => prev.filter(e => e !== email));
   };
-
-  // const isValidEmail = (email: string) => {
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   return emailRegex.test(email);
-  // };
 
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
     setPageState('fetching');
@@ -1475,12 +1473,11 @@ export default function ProjectInstanceViewPage() {
                           value={newEmail}
                           onChange={(e) => setNewEmail(e.target.value)}
                           placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
-                          className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="flex-1 px-3 py-1.5 text-sm border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                         />
                         <button
                           onClick={handleAddEmail}
-                          // disabled={!isValidEmail(newEmail)}
                           className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {t('interface.projectView.add', 'Add')}
@@ -1512,14 +1509,6 @@ export default function ProjectInstanceViewPage() {
                           ))}
                         </div>
                       )}
-                    </div>
-
-                    {/* Summary */}
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="text-xs text-gray-600">
-                        <div>{t('interface.projectView.selectedRoles', 'Selected Roles')}: {selectedRoles.length}</div>
-                        <div>{t('interface.projectView.selectedEmails', 'Selected Emails')}: {selectedEmails.length}</div>
-                      </div>
                     </div>
                   </div>
                 )}
