@@ -297,8 +297,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
     const handleSave = (newValue: string) => {
       // Проверяем, что значение не пустое
       if (!newValue || newValue.trim() === '') {
-        // Если значение пустое, восстанавливаем исходное
-        setValue(initialValue);
+        // Если значение пустое, просто закрываем редактор без сохранения
         setEditingBlock(null);
         return;
       }
@@ -558,6 +557,7 @@ export default function SlideDeckViewer({ deck, isEditable = false, onSave }: Sl
                       onSave={(newTitle) => {
                         // Проверяем, что заголовок не пустой
                         if (!newTitle || newTitle.trim() === '') {
+                          // Если заголовок пустой, восстанавливаем исходное значение
                           setEditingTitle(null);
                           return;
                         }

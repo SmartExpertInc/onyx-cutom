@@ -840,21 +840,9 @@
   word-break: normal;
   overflow-wrap: normal;
   
-  /* Ensure consistent sizing */
-  box-sizing: border-box;
-  width: 100%;
-  
-  /* Prevent text overlapping */
-  position: relative;
-  z-index: 1000;
-  
-  /* Ensure proper text rendering */
-  font-feature-settings: "liga" 1, "kern" 1;
-  text-rendering: optimizeLegibility;
-  
   /* Ensure text is always visible */
-  color: #000000 !important;
-  background: white !important;
+  color: #000000;
+  background: white;
   
   /* Prevent text from being cut off */
   text-indent: 0;
@@ -862,6 +850,9 @@
   
   /* Ensure proper cursor */
   cursor: text;
+  
+  /* Ensure proper text rendering */
+  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 .inline-editor-input:focus,
@@ -891,8 +882,8 @@
   overflow-wrap: break-word;
   
   /* Ensure text is always visible in textarea */
-  color: #000000 !important;
-  background: white !important;
+  color: #000000;
+  background: white;
   
   /* Prevent text from disappearing */
   min-height: 24px;
@@ -912,9 +903,6 @@
   
   /* Prevent overlapping with other elements */
   z-index: 1000;
-  
-  /* Ensure proper positioning */
-  position: relative;
   
   /* Prevent layout shifts */
   overflow: visible;
