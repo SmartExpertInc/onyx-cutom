@@ -61,7 +61,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '715px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -250,6 +250,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         {/* Right column */}
         <div style={{
           width: '71%',
+          height: '370px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between'
@@ -258,7 +259,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            marginBottom: '30px'
+            marginBottom: '10px'
           }}>
             {currentPractices.map((practice, index) => (
               <div
@@ -329,6 +330,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   <div style={{
                     fontSize: '11px',
                     color: themeContent,
+                    maxWidth: '230px',
                     lineHeight: '1.4'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
@@ -367,8 +369,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           {/* Team image at bottom */}
           <div style={{
             width: '100%',
-            height: '100%',
-            marginBottom: '25px',
+            height: '90%',
             borderRadius: '3px',
           }}>
             <ClickableImagePlaceholder
