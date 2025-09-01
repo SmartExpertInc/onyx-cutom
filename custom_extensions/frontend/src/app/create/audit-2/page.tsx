@@ -10,7 +10,7 @@ export default function AuditPage() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
       `}</style>
-      <div className="min-h-screen bg-[#FAFAFA] from-blue-50 via-white to-indigo-50 flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
       <header className="h-[50px] xl:h-[81px] mb-[33px]">
         <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
@@ -51,9 +51,9 @@ export default function AuditPage() {
       </header>
 
       {/* Main Content */}
-      <main className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] flex-1">
+      <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
         {/* First Section */}
-        <section className="mb-16 flex flex-col gap-[30px]">
+        <section className="mb-16 flex flex-col gap-[30px] px-[20px] xl:px-[120px]">
           <div className="flex flex-col gap-5">
             {/* Pill-shaped div */}
             <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
@@ -91,7 +91,7 @@ export default function AuditPage() {
         </section>
 
         {/* Second Section */}
-        <section className="flex flex-col gap-[30px] bg-white py-[60px]">
+        <section className="flex flex-col gap-[30px] bg-white py-[60px] px-[20px] xl:px-[120px]">
           <h2 className="font-medium text-[30px] text-black leading-[115%] tracking-[-0.03em]">
             Как с помощью AI:
           </h2>
