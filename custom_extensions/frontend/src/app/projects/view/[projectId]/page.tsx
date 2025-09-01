@@ -1500,7 +1500,7 @@ export default function ProjectInstanceViewPage() {
 
                         {/* Email List */}
                         {customEmails.length > 0 && (
-                          <div className="space-y-3 max-h-48">
+                          <div className="space-y-2 max-h-48 mb-2">
                             {customEmails.map((email) => (
                               <div key={email} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                                 <label className="flex items-center flex-1">
