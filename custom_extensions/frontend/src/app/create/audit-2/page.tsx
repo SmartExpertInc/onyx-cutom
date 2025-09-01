@@ -356,7 +356,7 @@ export default function AuditPage() {
             {/* Second Card */}
             <div className="py-[15px] px-[9px]">
               <Image 
-                src="/images/audit-section-3-card-2-mobile.png" 
+                src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
                 alt="Audit section 3 card 2 mobile" 
                 width={281}
                 height={225}
@@ -373,7 +373,7 @@ export default function AuditPage() {
           </h2>
 
           <Image 
-            src="/images/audit-section-4-image.png" 
+            src="/custom-projects-ui/images/audit-section-4-image.png" 
             alt="Кадровый кризис в HVAC-отрасли" 
             width={320}
             height={220}
