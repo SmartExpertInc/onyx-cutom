@@ -384,9 +384,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // Clear the image from local state
     setDisplayedImage(undefined);
     
-    // Clear the image from backend by passing null/undefined instead of empty string
-    // This ensures the backend properly clears the imagePath field
-    onImageUploaded(null as any);
+    // Clear the image from backend by passing a special object that indicates intentional deletion
+    // This prevents automatic regeneration of deleted images
+    onImageUploaded({
+      imagePath: null,
+      imageIntentionallyDeleted: true
+    } as any);
     
     // Clear selection state
     setIsSelected(false);
@@ -400,6 +403,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       displayedImageCleared: true,
       backendNotified: true,
       selectionCleared: true,
+      imageIntentionallyDeleted: true,
       timestamp: Date.now()
     });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
@@ -410,13 +414,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       elementId,
       instanceId,
       imagePath,
+      hadExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
     
-    // Set the generated image
+    // Set the generated image (this will replace any existing image)
     setDisplayedImage(imagePath);
     
-    // Notify parent component
+    // Notify parent component of the new image
     onImageUploaded(imagePath);
     
     // Clear selection state
@@ -426,15 +431,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       elementId,
       instanceId,
       imagePath,
+      hadExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
-  }, [onImageUploaded, elementId, instanceId]);
+  }, [onImageUploaded, elementId, instanceId, displayedImage]);
 
   // ✅ NEW: AI Generation Started handler
   const handleAIGenerationStarted = useCallback(() => {
     console.log('🔍 [AIGeneration] Generation started', { 
       elementId,
       instanceId,
+      hasExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
     
@@ -442,21 +449,24 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setShowAIGenerationModal(false);
     
     // ✅ NEW: Notify parent component that generation has started
+    // This will show the spinner even if there's an existing image
     if (onGenerationStarted && elementId) {
       onGenerationStarted(elementId);
       console.log('🔍 [AIGeneration] Parent notified of generation start', {
         elementId,
         instanceId,
+        hasExistingImage: !!displayedImage,
         timestamp: Date.now()
       });
     } else {
       console.log('🔍 [AIGeneration] No parent callback or elementId, waiting for parent to set isGenerating=true', {
         elementId,
         instanceId,
-        currentIsGenerating: isGenerating
+        currentIsGenerating: isGenerating,
+        hasExistingImage: !!displayedImage
       });
     }
-  }, [elementId, instanceId, isGenerating, onGenerationStarted]);
+  }, [elementId, instanceId, isGenerating, onGenerationStarted, displayedImage]);
 
   // ✅ NEW: Image choice handlers
   const handleChooseUpload = useCallback(() => {

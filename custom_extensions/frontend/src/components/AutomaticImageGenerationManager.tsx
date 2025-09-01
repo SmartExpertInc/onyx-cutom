@@ -105,7 +105,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       switch (templateId) {
         case 'big-image-left':
         case 'big-image-top':
-          if (slide.props.imagePrompt && !slide.props.imagePath) {
+          // Only extract if there's a prompt AND no image path, AND the image wasn't intentionally deleted
+          if (slide.props.imagePrompt && !slide.props.imagePath && !slide.props.imageIntentionallyDeleted) {
             extractedPlaceholders.push({
               elementId: `${slideId}-image`,
               slideId,
@@ -120,7 +121,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
 
         case 'bullet-points':
         case 'bullet-points-right':
-          if (slide.props.imagePrompt && !slide.props.imagePath) {
+          // Only extract if there's a prompt AND no image path, AND the image wasn't intentionally deleted
+          if (slide.props.imagePrompt && !slide.props.imagePath && !slide.props.imageIntentionallyDeleted) {
             extractedPlaceholders.push({
               elementId: `${slideId}-image`,
               slideId,
@@ -134,8 +136,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           break;
 
         case 'two-column':
-          // Handle left image
-          if (slide.props.leftImagePrompt && !slide.props.leftImagePath) {
+          // Handle left image - only if not intentionally deleted
+          if (slide.props.leftImagePrompt && !slide.props.leftImagePath && !slide.props.leftImageIntentionallyDeleted) {
             extractedPlaceholders.push({
               elementId: `${slideId}-left-image`,
               slideId,
@@ -146,8 +148,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
               isGenerating: false
             });
           }
-          // Handle right image
-          if (slide.props.rightImagePrompt && !slide.props.rightImagePath) {
+          // Handle right image - only if not intentionally deleted
+          if (slide.props.rightImagePrompt && !slide.props.rightImagePath && !slide.props.rightImageIntentionallyDeleted) {
             extractedPlaceholders.push({
               elementId: `${slideId}-right-image`,
               slideId,
@@ -161,8 +163,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           break;
 
         default:
-          // Check for generic image properties
-          if (slide.props.imagePrompt && !slide.props.imagePath) {
+          // Check for generic image properties - only if not intentionally deleted
+          if (slide.props.imagePrompt && !slide.props.imagePath && !slide.props.imageIntentionallyDeleted) {
             extractedPlaceholders.push({
               elementId: `${slideId}-image`,
               slideId,
@@ -184,7 +186,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         elementId: p.elementId,
         templateId: p.templateId,
         hasPrompt: !!p.imagePrompt,
-        hasImage: !!p.imagePath
+        hasImage: !!p.imagePath,
+        intentionallyDeleted: false
       }))
     });
 

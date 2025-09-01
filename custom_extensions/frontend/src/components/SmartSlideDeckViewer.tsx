@@ -122,9 +122,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const handleGenerationStarted = useCallback((elementId: string) => {
     log('SmartSlideDeckViewer', 'handleGenerationStarted', { elementId });
     
+    // Always set generating state to true, regardless of whether an image already exists
+    // This ensures the spinner shows even when regenerating an existing image
     setGenerationStates(prev => new Map(prev).set(elementId, { 
       isGenerating: true, 
-      hasImage: false 
+      hasImage: false // Reset hasImage during generation
     }));
     
     // Notify parent
@@ -135,7 +137,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const handleGenerationCompleted = useCallback((elementId: string, imagePath: string) => {
     log('SmartSlideDeckViewer', 'handleGenerationCompleted', { elementId, imagePath });
     
-    // Update generation state
+    // Update generation state to show the new image
     setGenerationStates(prev => new Map(prev).set(elementId, { 
       isGenerating: false, 
       hasImage: true 
@@ -145,13 +147,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     setComponentDeck(prevDeck => {
       if (!prevDeck?.slides) return prevDeck;
 
-      const updatedDeck = { ...prevDeck };
-      const updatedSlides = [...updatedDeck.slides];
-
-      // Find the slide containing this placeholder
+      const updatedSlides = [...prevDeck.slides];
+      
       for (let slideIndex = 0; slideIndex < updatedSlides.length; slideIndex++) {
         const slide = updatedSlides[slideIndex];
-        const slideId = slide.slideId || `slide-${slideIndex}`;
+        const slideId = slide.slideId || `slideId-${slideIndex}`;
         
         // Check if this is the slide containing the placeholder
         if (elementId.startsWith(slideId)) {
@@ -163,21 +163,24 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             updatedSlide.props = { 
               ...updatedSlide.props, 
               imagePath,
-              objectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+              objectFit: 'cover', // ✅ NEW: Force crop mode for AI-generated images
+              imageIntentionallyDeleted: false // Clear the deletion flag since we're regenerating
             };
           } else if (elementId === `${slideId}-left-image`) {
             // Two-column template - left image
             updatedSlide.props = { 
               ...updatedSlide.props, 
               leftImagePath: imagePath,
-              leftObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+              leftObjectFit: 'cover', // ✅ NEW: Force crop mode for AI-generated images
+              leftImageIntentionallyDeleted: false // Clear the deletion flag
             };
           } else if (elementId === `${slideId}-right-image`) {
             // Two-column template - right image
             updatedSlide.props = { 
               ...updatedSlide.props, 
               rightImagePath: imagePath,
-              rightObjectFit: 'cover' // ✅ NEW: Force crop mode for AI-generated images
+              rightObjectFit: 'cover', // ✅ NEW: Force crop mode for AI-generated images
+              rightImageIntentionallyDeleted: false // Clear the deletion flag
             };
           }
           
@@ -186,7 +189,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         }
       }
 
-      updatedDeck.slides = updatedSlides;
+      const updatedDeck = { ...prevDeck, slides: updatedSlides };
       
       // Save the updated deck
       onSave?.(updatedDeck);
@@ -227,6 +230,81 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const getPlaceholderGenerationState = useCallback((elementId: string) => {
     return generationStates.get(elementId) || { isGenerating: false, hasImage: false };
   }, [generationStates]);
+
+  // Handle image upload/generation for a specific placeholder
+  const handleImageUploaded = useCallback((elementId: string, imageData: any) => {
+    log('SmartSlideDeckViewer', 'handleImageUploaded', { elementId, imageData });
+    
+    // Handle both string (imagePath) and object (with imageIntentionallyDeleted flag) formats
+    let imagePath: string | null = null;
+    let imageIntentionallyDeleted = false;
+    
+    if (typeof imageData === 'string') {
+      imagePath = imageData;
+      // If a new image is uploaded/generated, clear any deletion flags
+      imageIntentionallyDeleted = false;
+    } else if (imageData && typeof imageData === 'object') {
+      imagePath = imageData.imagePath;
+      imageIntentionallyDeleted = imageData.imageIntentionallyDeleted || false;
+    }
+    
+    // Update generation states
+    setGenerationStates(prev => new Map(prev).set(elementId, { 
+      isGenerating: false, 
+      hasImage: !!imagePath 
+    }));
+
+    // Update the deck with the uploaded/generated image or deletion flag
+    setComponentDeck(prevDeck => {
+      if (!prevDeck?.slides) return prevDeck;
+
+      const updatedSlides = [...prevDeck.slides];
+      
+      for (let slideIndex = 0; slideIndex < updatedSlides.length; slideIndex++) {
+        const slide = updatedSlides[slideIndex];
+        const slideId = slide.slideId || `slide-${slideIndex}`;
+        
+        // Check if this is the slide containing the placeholder
+        if (elementId.startsWith(slideId)) {
+          const updatedSlide = { ...slide };
+          
+          // Update the appropriate image property based on template and element ID
+          if (elementId === `${slideId}-image`) {
+            // Single image template
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              imagePath,
+              ...(imageIntentionallyDeleted ? { imageIntentionallyDeleted: true } : { imageIntentionallyDeleted: false })
+            };
+          } else if (elementId === `${slideId}-left-image`) {
+            // Two-column template - left image
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              leftImagePath: imagePath,
+              ...(imageIntentionallyDeleted ? { leftImageIntentionallyDeleted: true } : { leftImageIntentionallyDeleted: false })
+            };
+          } else if (elementId === `${slideId}-right-image`) {
+            // Two-column template - right image
+            updatedSlide.props = { 
+              ...updatedSlide.props, 
+              rightImagePath: imagePath,
+              ...(imageIntentionallyDeleted ? { rightImageIntentionallyDeleted: true } : { rightImageIntentionallyDeleted: false })
+            };
+          }
+          
+          updatedSlides[slideIndex] = updatedSlide;
+          break;
+        }
+      }
+
+      const updatedDeck = { ...prevDeck, slides: updatedSlides };
+      
+      // Save the updated deck
+      onSave?.(updatedDeck);
+      
+      return updatedDeck;
+    });
+  }, [onSave]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
