@@ -118,6 +118,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
 
 function GenerateProductPicker() {
   const { t } = useLanguage();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
   const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
@@ -167,7 +168,7 @@ function GenerateProductPicker() {
         });
       }
     }
-  }, [isFromConnectors, connectorIds, connectorSources]);
+  }, [isFromConnectors, connectorIds.join(','), connectorSources.join(',')]);
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -310,8 +311,6 @@ function GenerateProductPicker() {
 
     router.push(`/create/course-outline?${params.toString()}`);
   };
-
-  const router = useRouter();
 
   // Ref for auto-resizing the prompt textarea
   const promptRef = useRef<HTMLTextAreaElement>(null);
