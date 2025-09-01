@@ -1437,7 +1437,7 @@ export default function ProjectInstanceViewPage() {
                     onClick={() => setRoleAccess(false)}
                   >
                     <div
-                      className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+                      className="bg-white rounded-xl shadow-xl p-6 pb-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-6">
