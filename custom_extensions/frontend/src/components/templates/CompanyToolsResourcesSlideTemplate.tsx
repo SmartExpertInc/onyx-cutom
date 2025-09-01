@@ -113,14 +113,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
 
   return (
     <div className="company-tools-resources-slide-template" style={slideStyles}>
-      {/* Header section with logo, title and profile image */}
+      {/* Header section */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         marginBottom: '40px'
       }}>
-        {/* Logo and Company Name */}
+        {/* Company logo */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -173,9 +173,9 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           )}
         </div>
 
-        {/* Title */}
+        {/* Main title */}
         <div style={{
-          fontSize: '42px',
+          fontSize: '36px',
           color: themeTitle,
           lineHeight: '1.1',
           fontWeight: 'bold',
@@ -189,12 +189,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               onCancel={() => setEditingTitle(false)}
               className="title-editor"
               style={{
-                fontSize: '42px',
+                fontSize: '36px',
                 color: themeTitle,
                 lineHeight: '1.1',
                 fontWeight: 'bold',
-                textAlign: 'center',
-                width: '100%'
+                width: '100%',
+                textAlign: 'center'
               }}
             />
           ) : (
@@ -212,15 +212,16 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
 
         {/* Profile image */}
         <div style={{
-          width: '120px',
-          height: '120px',
+          width: '80px',
+          height: '80px',
           borderRadius: '50%',
           overflow: 'hidden',
+          backgroundColor: themeTitle
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
+            size="MEDIUM"
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
@@ -240,38 +241,38 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         gridTemplateColumns: '1fr 1fr',
         gridTemplateRows: '1fr 1fr',
         gap: '20px',
-        flex: '1'
+        height: 'calc(100% - 120px)'
       }}>
         {currentContentBlocks.map((block, index) => (
           <div
             key={index}
-                         style={{
-               backgroundColor: block.backgroundColor === '#f5f5f5' ? themeBg : themeAccent,
-               padding: '25px',
-               borderRadius: '8px',
-               display: 'flex',
-               flexDirection: 'column',
-               gap: '15px'
-             }}
+            style={{
+              backgroundColor: block.backgroundColor === '#f5f5f5' ? themeContent : themeAccent,
+              padding: '25px 30px',
+              borderRadius: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '15px'
+            }}
           >
             {/* Block title */}
-                         <div style={{
-               fontSize: '24px',
-               color: block.backgroundColor === '#f5f5f5' ? themeTitle : themeBg,
-               fontWeight: 'bold'
-             }}>
+            <div style={{
+              fontSize: '20px',
+              color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+              fontWeight: 'bold'
+            }}>
               {isEditable && editingContentBlocks?.index === index && editingContentBlocks?.field === 'title' ? (
                 <ImprovedInlineEditor
                   initialValue={block.title}
                   onSave={(value) => handleContentBlockSave(index, 'title', value)}
                   onCancel={() => setEditingContentBlocks(null)}
                   className="block-title-editor"
-                                     style={{
-                     fontSize: '24px',
-                     color: block.backgroundColor === '#f5f5f5' ? themeTitle : themeBg,
-                     fontWeight: 'bold',
-                     width: '100%'
-                   }}
+                  style={{
+                    fontSize: '20px',
+                    color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+                    fontWeight: 'bold',
+                    width: '100%'
+                  }}
                 />
               ) : (
                 <div
@@ -287,11 +288,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             </div>
 
             {/* Block content */}
-                         <div style={{
-               fontSize: '16px',
-               color: block.backgroundColor === '#f5f5f5' ? themeContent : themeBg,
-               lineHeight: '1.4'
-             }}>
+            <div style={{
+              fontSize: '16px',
+              color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+              lineHeight: '1.4',
+              flex: '1'
+            }}>
               {isEditable && editingContentBlocks?.index === index && editingContentBlocks?.field === 'content' ? (
                 <ImprovedInlineEditor
                   initialValue={block.content}
@@ -299,12 +301,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   onCancel={() => setEditingContentBlocks(null)}
                   multiline={true}
                   className="block-content-editor"
-                                     style={{
-                     fontSize: '16px',
-                     color: block.backgroundColor === '#f5f5f5' ? themeContent : themeBg,
-                     lineHeight: '1.4',
-                     width: '100%'
-                   }}
+                  style={{
+                    fontSize: '16px',
+                    color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+                    lineHeight: '1.4',
+                    width: '100%'
+                  }}
                 />
               ) : (
                 <div
@@ -319,23 +321,23 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               )}
             </div>
           </div>
-                 ))}
-       </div>
+        ))}
+      </div>
 
-       {/* Logo Upload Modal */}
-       {showLogoUploadModal && (
-         <PresentationImageUpload
-           isOpen={showLogoUploadModal}
-           onClose={() => setShowLogoUploadModal(false)}
-           onImageUploaded={(newLogoPath) => {
-             handleCompanyLogoUploaded(newLogoPath);
-             setShowLogoUploadModal(false);
-           }}
-           title="Upload Company Logo"
-         />
-       )}
-     </div>
-   );
- };
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
+    </div>
+  );
+};
 
 export default CompanyToolsResourcesSlideTemplate; 

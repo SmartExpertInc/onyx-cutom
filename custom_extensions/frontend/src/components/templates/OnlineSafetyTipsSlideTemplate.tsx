@@ -312,7 +312,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
         </div>
       </div>
 
-      {/* Right section - Profile image with black background */}
+      {/* Right section - Profile image with dark background */}
       <div style={{
         flex: '1',
         backgroundColor: themeTitle, // Use theme title color
