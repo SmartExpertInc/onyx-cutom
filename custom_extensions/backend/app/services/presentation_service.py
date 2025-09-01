@@ -53,6 +53,7 @@ class PresentationJob:
     slide_image_path: Optional[str] = None  # Path to generated slide image for debugging
     created_at: datetime = None
     completed_at: Optional[datetime] = None
+    last_heartbeat: Optional[datetime] = None  # Track last heartbeat to prevent timeouts
     
     def __post_init__(self):
         if self.created_at is None:
@@ -68,7 +69,90 @@ class ProfessionalPresentationService:
         # Job tracking
         self.jobs: Dict[str, PresentationJob] = {}
         
+        # Heartbeat configuration
+        self.heartbeat_interval = 30  # Send heartbeat every 30 seconds
+        self.heartbeat_tasks: Dict[str, asyncio.Task] = {}  # Track heartbeat tasks per job
+        
         logger.info("Professional Presentation Service initialized")
+    
+    def _update_job_status(self, job_id: str, **kwargs):
+        """
+        Update job status with detailed logging to prevent connection timeouts.
+        
+        Args:
+            job_id: Job ID to update
+            **kwargs: Status fields to update (status, progress, error, etc.)
+        """
+        if job_id in self.jobs:
+            job = self.jobs[job_id]
+            old_status = job.status
+            old_progress = job.progress
+            
+            for key, value in kwargs.items():
+                setattr(job, key, value)
+            
+            # Log every status update with timestamp
+            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id}: {old_status}→{job.status}, {old_progress}%→{job.progress}%")
+            logger.info(f"🎬 [JOB_STATUS_UPDATE] Timestamp: {datetime.now().isoformat()}")
+            
+            # Log specific updates
+            if 'status' in kwargs:
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Status changed: {old_status} → {kwargs['status']}")
+            if 'progress' in kwargs:
+                logger.info(f"🎬 [JOB_STATUS_UPDATE] Progress updated: {old_progress}% → {kwargs['progress']}%")
+    
+    async def _start_heartbeat(self, job_id: str):
+        """
+        Start heartbeat task for a job to prevent connection timeouts.
+        
+        Args:
+            job_id: Job ID to start heartbeat for
+        """
+        async def heartbeat_task():
+            """Send periodic heartbeat updates to keep connection alive."""
+            try:
+                while job_id in self.jobs:
+                    job = self.jobs[job_id]
+                    
+                    # Only send heartbeats for active jobs
+                    if job.status in ["processing"]:
+                        logger.info(f"💓 [HEARTBEAT] Job {job_id}: status={job.status}, progress={job.progress}%")
+                        logger.info(f"💓 [HEARTBEAT] Keeping connection alive - {datetime.now().isoformat()}")
+                        
+                        # Update last activity timestamp to show we're alive
+                        job.last_heartbeat = datetime.now()
+                    elif job.status in ["completed", "failed"]:
+                        # Job is done, stop heartbeat
+                        logger.info(f"💓 [HEARTBEAT] Job {job_id} finished with status {job.status}, stopping heartbeat")
+                        break
+                    
+                    await asyncio.sleep(self.heartbeat_interval)
+                    
+            except asyncio.CancelledError:
+                logger.info(f"💓 [HEARTBEAT] Heartbeat task cancelled for job {job_id}")
+            except Exception as e:
+                logger.error(f"💓 [HEARTBEAT] Heartbeat task failed for job {job_id}: {e}")
+        
+        # Cancel existing heartbeat if any
+        if job_id in self.heartbeat_tasks:
+            self.heartbeat_tasks[job_id].cancel()
+        
+        # Start new heartbeat task
+        task = asyncio.create_task(heartbeat_task())
+        self.heartbeat_tasks[job_id] = task
+        logger.info(f"💓 [HEARTBEAT] Started heartbeat for job {job_id} (interval: {self.heartbeat_interval}s)")
+    
+    async def _stop_heartbeat(self, job_id: str):
+        """
+        Stop heartbeat task for a job.
+        
+        Args:
+            job_id: Job ID to stop heartbeat for
+        """
+        if job_id in self.heartbeat_tasks:
+            self.heartbeat_tasks[job_id].cancel()
+            del self.heartbeat_tasks[job_id]
+            logger.info(f"💓 [HEARTBEAT] Stopped heartbeat for job {job_id}")
     
     async def create_presentation(self, request: PresentationRequest) -> str:
         """
@@ -78,29 +162,23 @@ class ProfessionalPresentationService:
             request: Presentation request configuration
             
         Returns:
-            Job ID for tracking (returns immediately)
+            Job ID for tracking
         """
         try:
             job_id = str(uuid.uuid4())
             
-            logger.info(f"🎬 [CREATE_PRESENTATION] Creating new presentation job: {job_id}")
-            
-            # Create job tracking (immediate)
+            # Create job tracking
             job = PresentationJob(
                 job_id=job_id,
                 status="queued"
             )
             self.jobs[job_id] = job
             
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} created - status: {job.status}, progress: {job.progress}%")
-            logger.info(f"🎬 [CREATE_PRESENTATION] Job {job_id} stored in memory successfully")
+            logger.info(f"Created presentation job: {job_id}")
             
-            # Start background processing (non-blocking)
-            # CRITICAL FIX: Remove await to prevent blocking HTTP response
-            self._process_presentation_detached(job_id, request)
-            
-            logger.info(f"🎬 [CREATE_PRESENTATION] Returning job ID immediately: {job_id}")
-            logger.info(f"🎬 [CREATE_PRESENTATION] HTTP response will be sent now, processing continues in background")
+            # Start background processing (completely detached)
+            loop = asyncio.get_event_loop()
+            loop.create_task(self._process_presentation_detached(job_id, request))
             
             return job_id
             
@@ -120,55 +198,44 @@ class ProfessionalPresentationService:
         """
         return self.jobs.get(job_id)
     
-    def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
+    async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
-        Start detached presentation processing using asyncio task.
-        Returns immediately without blocking the HTTP response.
+        Completely detached presentation processing that won't block any endpoints.
+        Runs in a separate thread to avoid blocking the main event loop.
         """
-        try:
-            logger.info(f"🎬 [DETACHED_PROCESSING] Starting background task for job {job_id}")
-            
-            # Start processing as background task (non-blocking)
-            # This returns immediately and processing continues in background
-            asyncio.create_task(self._process_presentation_async(job_id, request))
-            
-            logger.info(f"🎬 [DETACHED_PROCESSING] Background task created for job {job_id}")
-            
-        except Exception as e:
-            logger.error(f"Failed to start background processing for {job_id}: {e}")
-            if job_id in self.jobs:
-                self.jobs[job_id].status = "failed"
-                self.jobs[job_id].error = str(e)
-    
-    async def _process_presentation_async(self, job_id: str, request: PresentationRequest):
-        """
-        Process presentation asynchronously without blocking the HTTP response.
-        Runs in the same event loop to ensure job status updates are visible.
-        """
-        try:
-            job = self.jobs.get(job_id)
-            if not job:
-                logger.error(f"🎬 [ASYNC_PROCESSING] Job {job_id} not found")
-                return
-            
-            logger.info(f"🎬 [ASYNC_PROCESSING] Starting async processing for job {job_id}")
-            
-            # Update job status to show processing started
-            job.status = "processing"
-            job.progress = 5.0
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} processing started - status: {job.status}, progress: {job.progress}%")
-            
-            # Call the actual processing method
-            await self._process_presentation(job_id, request)
-            
-        except Exception as e:
-            logger.error(f"🎬 [ASYNC_PROCESSING] Error in async processing for job {job_id}: {str(e)}")
-            if job_id in self.jobs:
-                job = self.jobs[job_id]
-                job.status = "failed"
-                job.error = str(e)
-                job.completed_at = datetime.now()
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} failed - status: {job.status}, error: {str(e)}")
+        import concurrent.futures
+        
+        def run_blocking_processing():
+            """Run the processing in a separate thread."""
+            try:
+                # Create a new event loop for this thread
+                import asyncio
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                # Run the processing
+                loop.run_until_complete(self._process_presentation(job_id, request))
+                
+            except Exception as e:
+                logger.error(f"Thread processing failed for {job_id}: {e}")
+                if job_id in self.jobs:
+                    self.jobs[job_id].status = "failed"
+                    self.jobs[job_id].error = str(e)
+                    self.jobs[job_id].completed_at = datetime.now()
+                    
+                # Stop heartbeat for failed job (run in the main event loop)
+                main_loop = asyncio.new_event_loop()
+                main_loop.run_until_complete(self._stop_heartbeat(job_id))
+                main_loop.close()
+            finally:
+                try:
+                    loop.close()
+                except:
+                    pass
+        
+        # Run in thread pool to avoid blocking main event loop
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        executor.submit(run_blocking_processing)
     
     async def _process_presentation(self, job_id: str, request: PresentationRequest):
         """
@@ -209,12 +276,13 @@ class ProfessionalPresentationService:
                 for i, text in enumerate(request.voiceover_texts):
                     logger.info(f"  Text {i+1}: {text[:100]}...")
             
-            job.status = "processing"
-            job.progress = 5.0
+            # Start processing with heartbeat
+            self._update_job_status(job_id, status="processing", progress=5.0)
+            await self._start_heartbeat(job_id)
             
             # Step 1: Generate clean slide video
             logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
-            job.progress = 10.0
+            self._update_job_status(job_id, progress=10.0)
             
             # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
@@ -277,54 +345,46 @@ class ProfessionalPresentationService:
                     str(thumbnail_path)
                 )
                 
-                # Update job status - CRITICAL: This now runs in main event loop
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Updating job {job_id} status to completed")
-                job.status = "completed"
-                job.progress = 100.0
-                job.completed_at = datetime.now()
-                job.video_url = f"/presentations/{job_id}/video"
-                job.thumbnail_url = f"/presentations/{job_id}/thumbnail"
+                # Final completion update with detailed logging
+                logger.info(f"🎬 [FINAL_COMPLETION] Presentation {job_id} processing completed successfully")
+                logger.info(f"🎬 [FINAL_COMPLETION] Final video path: {final_video_path}")
+                logger.info(f"🎬 [FINAL_COMPLETION] Thumbnail path: {str(thumbnail_path)}")
                 
-                logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} status updated successfully:")
-                logger.info(f"  - Status: {job.status}")
-                logger.info(f"  - Progress: {job.progress}%")
-                logger.info(f"  - Video URL: {job.video_url}")
-                logger.info(f"  - Thumbnail URL: {job.thumbnail_url}")
-                logger.info(f"  - Completed at: {job.completed_at}")
+                # Update job status with all completion details
+                self._update_job_status(
+                    job_id,
+                    status="completed",
+                    progress=100.0,
+                    completed_at=datetime.now(),
+                    video_url=f"/presentations/{job_id}/video",
+                    thumbnail_url=f"/presentations/{job_id}/thumbnail"
+                )
                 
-                logger.info(f"Presentation {job_id} completed successfully")
+                # Stop heartbeat for completed job
+                await self._stop_heartbeat(job_id)
                 
-                # DEBUGGING FEATURE: Log the full downloadable URL for testing
-                # Construct the full absolute URL for the final video
-                backend_base_url = "http://localhost:8000"  # This should match your backend URL
-                full_video_url = f"{backend_base_url}/presentations/{job_id}/video"
-                logger.info(f"🎬 [DEBUG_URL] ========================================")
-                logger.info(f"🎬 [DEBUG_URL] FINAL VIDEO DOWNLOAD URL:")
-                logger.info(f"🎬 [DEBUG_URL] {full_video_url}")
-                logger.info(f"🎬 [DEBUG_URL] ========================================")
-                logger.info(f"🎬 [DEBUG_URL] Copy and paste this URL into your browser to test direct download")
-                logger.info(f"🎬 [DEBUG_URL] Video file path: {final_video_path}")
-                logger.info(f"🎬 [DEBUG_URL] Video exists: {os.path.exists(final_video_path)}")
-                
-                # Additional debugging: Also log expected file size
-                if os.path.exists(final_video_path):
-                    file_size = os.path.getsize(final_video_path)
-                    file_size_mb = file_size / (1024 * 1024)
-                    logger.info(f"🎬 [DEBUG_URL] Video file size: {file_size_mb:.2f} MB ({file_size} bytes)")
-                else:
-                    logger.error(f"🎬 [DEBUG_URL] WARNING: Final video file does not exist at path: {final_video_path}")
+                logger.info(f"🎬 [FINAL_COMPLETION] Job {job_id} marked as completed with all URLs set")
+                logger.info(f"🎬 [FINAL_COMPLETION] Frontend should now receive completion status and trigger download")
                 
             except Exception as e:
                 logger.error(f"Presentation processing failed: {e}")
                 raise
             
         except Exception as e:
-            logger.error(f"Presentation {job_id} failed: {e}")
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Updating job {job_id} status to failed (main handler)")
-            job.status = "failed"
-            job.error = str(e)
-            job.completed_at = datetime.now()
-            logger.info(f"🎬 [JOB_STATUS_UPDATE] Job {job_id} marked as failed (main handler): {str(e)}")
+            logger.error(f"🎬 [PRESENTATION_FAILED] Presentation {job_id} failed: {e}")
+            
+            # Update job status with failure details
+            self._update_job_status(
+                job_id,
+                status="failed",
+                error=str(e),
+                completed_at=datetime.now()
+            )
+            
+            # Stop heartbeat for failed job
+            await self._stop_heartbeat(job_id)
+            
+            logger.error(f"🎬 [PRESENTATION_FAILED] Job {job_id} marked as failed, heartbeat stopped")
 
     async def _process_single_slide_presentation(self, job_id: str, slide_data: Dict[str, Any], request: PresentationRequest, job: PresentationJob) -> str:
         """
@@ -365,7 +425,7 @@ class ProfessionalPresentationService:
             if slide_image_paths and len(slide_image_paths) > 0:
                 job.slide_image_path = slide_image_paths[0]
             
-            job.progress = 30.0
+            self._update_job_status(job_id, progress=30.0)
             
             # Check if this is a slide-only video
             if request.slide_only:
@@ -376,7 +436,7 @@ class ProfessionalPresentationService:
                 import shutil
                 shutil.copy2(slide_video_path, output_path)
                 final_video_path = str(output_path)
-                job.progress = 90.0
+                self._update_job_status(job_id, progress=90.0)
                 
                 # Cleanup temporary files
                 await self._cleanup_temp_files([slide_video_path])
@@ -391,7 +451,7 @@ class ProfessionalPresentationService:
                 request.duration,
                 request.use_avatar_mask
             )
-            job.progress = 60.0
+            self._update_job_status(job_id, progress=60.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
             
@@ -412,7 +472,7 @@ class ProfessionalPresentationService:
                 avatar_video_path,
                 composition_config
             )
-            job.progress = 90.0
+            self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: {final_video_path}")
             
@@ -454,7 +514,7 @@ class ProfessionalPresentationService:
                 
                 # Update progress based on slide processing
                 slide_progress = 10 + (slide_index * 70 // len(slides_data))
-                job.progress = slide_progress
+                self._update_job_status(job_id, progress=slide_progress)
                 
                 # Extract voiceover text for this specific slide
                 slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
@@ -518,12 +578,12 @@ class ProfessionalPresentationService:
                 temp_files_to_cleanup.append(individual_video_path)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
             
-            job.progress = 80.0
+            self._update_job_status(job_id, progress=80.0)
             
             # Concatenate all individual videos into final presentation
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
             final_video_path = await self._concatenate_videos(individual_videos, job_id)
-            job.progress = 90.0
+            self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
             
@@ -888,23 +948,26 @@ class ProfessionalPresentationService:
             logger.info(f"Waiting for avatar video completion: {video_id}")
             
             max_wait_time = 15 * 60  # 15 minutes
-            check_interval = 60  # 60 seconds - longer interval to reduce API calls
+            check_interval = 30  # 30 seconds - reduced interval for better heartbeat
             start_time = datetime.now()
             consecutive_errors = 0  # Track consecutive error statuses
             max_consecutive_errors = 5  # Maximum consecutive errors before giving up
+            
+            logger.info(f"💓 [AVATAR_WAITING] Starting avatar video wait loop with {check_interval}s intervals")
             
             while (datetime.now() - start_time).total_seconds() < max_wait_time:
                 status_result = await video_generation_service.check_video_status(video_id)
                 
                 if not status_result["success"]:
-                    logger.warning(f"Failed to check video status: {status_result['error']}")
+                    logger.warning(f"💓 [AVATAR_WAITING] Failed to check video status: {status_result['error']}")
                     await asyncio.sleep(check_interval)
                     continue
                 
                 status = status_result["status"]
                 progress = status_result["progress"]
                 
-                logger.info(f"Avatar video status: {status}, Progress: {progress}%")
+                logger.info(f"💓 [AVATAR_WAITING] Avatar video status: {status}, Progress: {progress}%")
+                logger.info(f"💓 [AVATAR_WAITING] Elapsed time: {(datetime.now() - start_time).total_seconds():.1f}s")
                 
                 if status in ["rendered", "ready"]:
                     download_url = status_result["downloadUrl"]

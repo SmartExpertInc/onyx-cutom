@@ -17268,7 +17268,8 @@ async def get_presentation_status(job_id: str):
             "thumbnailUrl": job.thumbnail_url,
             "slideImageUrl": f"/api/custom/presentations/{job.job_id}/slide-image" if job.slide_image_path else None,
             "createdAt": job.created_at.isoformat() if job.created_at else None,
-            "completedAt": job.completed_at.isoformat() if job.completed_at else None
+            "completedAt": job.completed_at.isoformat() if job.completed_at else None,
+            "lastHeartbeat": job.last_heartbeat.isoformat() if job.last_heartbeat else None
         }
         
     except Exception as e:
