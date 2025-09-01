@@ -10,7 +10,7 @@
  */
 export function getPromptFromUrlOrStorage(urlPrompt: string): string {
   // If the prompt looks like a sessionStorage reference (starts with 'prompt_' and contains timestamp)
-  if (urlPrompt.startsWith('prompt_') && urlPrompt.includes('_')) {
+  if (isPromptReference(urlPrompt)) {
     try {
       // Try to retrieve from sessionStorage
       const storedPrompt = sessionStorage.getItem(urlPrompt);

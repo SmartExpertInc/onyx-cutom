@@ -46,7 +46,20 @@ export default function TextPresentationClient() {
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
     params?.get("outlineId") ? true : (getPromptFromUrlOrStorage(params?.get("prompt") || "") ? false : null)
   );
-  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
+  const [prompt, setPrompt] = useState("");
+  
+  // Initialize prompt when params are available
+  useEffect(() => {
+    if (params?.get("prompt")) {
+      const urlPrompt = params.get("prompt");
+      const retrievedPrompt = getPromptFromUrlOrStorage(urlPrompt);
+      setPrompt(retrievedPrompt);
+      
+      // Debug logging to help troubleshoot prompt handling
+      console.log('TextPresentation - URL prompt:', urlPrompt);
+      console.log('TextPresentation - Processed prompt:', retrievedPrompt);
+    }
+  }, [params]);
 
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);

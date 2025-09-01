@@ -164,7 +164,20 @@ export default function LessonPresentationClient() {
   const router = useRouter();
   
   // Process prompt from URL or sessionStorage
-  const processedPrompt = getPromptFromUrlOrStorage(params?.get("prompt") || "");
+  const [processedPrompt, setProcessedPrompt] = useState("");
+  
+  // Initialize processed prompt when params are available
+  useEffect(() => {
+    if (params?.get("prompt")) {
+      const urlPrompt = params.get("prompt");
+      const retrievedPrompt = getPromptFromUrlOrStorage(urlPrompt);
+      setProcessedPrompt(retrievedPrompt);
+      
+      // Debug logging to help troubleshoot prompt handling
+      console.log('LessonPresentation - URL prompt:', urlPrompt);
+      console.log('LessonPresentation - Processed prompt:', retrievedPrompt);
+    }
+  }, [params]);
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
