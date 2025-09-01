@@ -512,19 +512,20 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Get placeholder dimensions for the modal
   const getPlaceholderDimensions = useCallback(() => {
     if (!containerRef.current) {
-      // Fallback dimensions based on size prop
+      // Fallback dimensions based on size prop with proper aspect ratios
       const fallbackDimensions = {
-        'XLARGE': { width: 500, height: 400 },
-        'LARGE': { width: 400, height: 300 },
-        'MEDIUM': { width: 300, height: 200 },
-        'SMALL': { width: 200, height: 150 }
+        'XLARGE': { width: 500, height: 375 }, // 4:3 ratio (500x375)
+        'LARGE': { width: 500, height: 375 }, // 4:3 ratio (500x375) - matches big-image-left template
+        'MEDIUM': { width: 400, height: 300 }, // 4:3 ratio (400x300)
+        'SMALL': { width: 300, height: 200 }  // 3:2 ratio (300x200)
       };
       
       log('ClickableImagePlaceholder', 'getPlaceholderDimensions_fallback', {
         elementId,
         instanceId,
         size,
-        fallbackDimensions: fallbackDimensions[size]
+        fallbackDimensions: fallbackDimensions[size],
+        templateId
       });
       
       return fallbackDimensions[size];
@@ -538,11 +539,12 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       instanceId,
       containerRef: !!containerRef.current,
       rect,
-      dimensions
+      dimensions,
+      templateId
     });
     
     return dimensions;
-  }, [containerRef, size, elementId, instanceId]);
+  }, [containerRef, size, elementId, instanceId, templateId]);
 
   // Handle modal confirm crop
   const handleConfirmCrop = useCallback((croppedImagePath: string) => {
