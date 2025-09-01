@@ -1447,7 +1447,7 @@ export default function ProjectInstanceViewPage() {
                       </div>
 
                       {/* Predefined Roles Section */}
-                      <div className="mb-6">
+                      <div className="mb-4">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">{t('interface.projectView.predefinedRoles', 'Predefined Roles')}</h3>
                         <div className="grid gap-4">
                           {predefinedRoles.map((role) => (
@@ -1483,10 +1483,10 @@ export default function ProjectInstanceViewPage() {
                           />
                           <button
                             onClick={handleAddEmail}
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                           >
-                            <svg className="w-4 h-4 mr-2 gap-2" viewBox="0 0 24 24" fill="none">
-                              <path d="M4 12H20M12 4V20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none">
+                              <path d="M4 12H20M12 4V20" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             {t('interface.projectView.add', 'Add')}
                           </button>
