@@ -251,17 +251,17 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         alignItems: 'center',
         marginLeft: '40px'
       }}>
-                 <div style={{
-           width: '300px',
-           height: '400px',
-           backgroundColor: themeContent, // Use theme content color
-           border: `2px solid ${themeTitle}`,
-           borderRadius: '8px',
-           position: 'relative',
-           display: 'flex',
-           justifyContent: 'center',
-           alignItems: 'center'
-         }}>
+        <div style={{
+          width: '300px',
+          height: '400px',
+          backgroundColor: themeContent, // Use theme content color
+          border: `2px solid ${themeTitle}`,
+          borderRadius: '8px',
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -277,8 +277,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             }}
           />
         </div>
-             </div>
-     </div>
+      </div>
+    </div>
 
      {/* Logo Upload Modal */}
      {showLogoUploadModal && (

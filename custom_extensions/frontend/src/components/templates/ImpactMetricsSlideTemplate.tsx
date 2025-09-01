@@ -212,14 +212,14 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
         </div>
       </div>
 
-             {/* Right column - Orange background with profile image */}
-       <div style={{
-         flex: '1',
-         backgroundColor: themeTitle, // Use theme title color
-         position: 'relative',
-         borderTopRightRadius: '20px',
-         borderBottomRightRadius: '20px'
-       }}>
+      {/* Right column - Orange background with profile image */}
+      <div style={{
+        flex: '1',
+        backgroundColor: themeTitle, // Use theme title color
+        position: 'relative',
+        borderTopRightRadius: '20px',
+        borderBottomRightRadius: '20px'
+      }}>
         {/* Profile image */}
         <div style={{
           position: 'absolute',
@@ -246,8 +246,8 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
             }}
           />
         </div>
-             </div>
-     </div>
+      </div>
+    </div>
 
      {/* Logo Upload Modal */}
      {showLogoUploadModal && (

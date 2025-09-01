@@ -312,15 +312,15 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
         </div>
       </div>
 
-             {/* Right section - Profile image with black background */}
-       <div style={{
-         flex: '1',
-         backgroundColor: themeTitle, // Use theme title color
-         position: 'relative',
-         display: 'flex',
-         justifyContent: 'center',
-         alignItems: 'center'
-       }}>
+      {/* Right section - Profile image with black background */}
+      <div style={{
+        flex: '1',
+        backgroundColor: themeTitle, // Use theme title color
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}
@@ -334,9 +334,9 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
             borderRadius: '8px',
             objectFit: 'cover'
           }}
-                 />
-       </div>
-     </div>
+        />
+      </div>
+    </div>
 
      {/* Logo Upload Modal */}
      {showLogoUploadModal && (
