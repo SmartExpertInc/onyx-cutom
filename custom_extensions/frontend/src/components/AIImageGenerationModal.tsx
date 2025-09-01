@@ -329,8 +329,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 style={{ color: '#374151' }} // Darker text color
               >
-                <option value="standard">Standard</option>
-                <option value="hd">HD</option>
+                <option value="standard" style={{ color: '#374151' }}>Standard</option>
+                <option value="hd" style={{ color: '#374151' }}>HD</option>
               </select>
             </div>
             
@@ -345,8 +345,8 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 style={{ color: '#374151' }} // Darker text color
               >
-                <option value="vivid">Vivid</option>
-                <option value="natural">Natural</option>
+                <option value="vivid" style={{ color: '#374151' }}>Vivid</option>
+                <option value="natural" style={{ color: '#374151' }}>Natural</option>
               </select>
             </div>
           </div>

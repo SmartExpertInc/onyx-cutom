@@ -275,10 +275,10 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   const getImageDimensions = () => {
     switch (imageSize) {
-      case 'small': return { width: '300px', height: '200px' }; // 3:2 ratio
-      case 'medium': return { width: '400px', height: '300px' }; // 4:3 ratio
+      case 'small': return { width: '300px', height: '200px' };
+      case 'medium': return { width: '400px', height: '300px' };
       case 'large': 
-      default: return { width: '100%', maxWidth: '500px', height: '375px' }; // 4:3 ratio (500x375)
+      default: return { width: '100%', maxWidth: '500px', height: '350px' };
     }
   };
 
@@ -292,19 +292,11 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     backgroundColor: backgroundColor,
     position: 'relative',
     minWidth: 0, // для flexbox overflow
-    // Ensure proper aspect ratio for cropping
-    aspectRatio: '4/3',
-    maxWidth: '500px',
-    maxHeight: '375px'
   };
 
   const placeholderStyles: React.CSSProperties = {
-    // Use proper dimensions that match the cropping expectations
-    ...(widthPx && heightPx ? {} : { 
-      width: '100%', 
-      height: '100%',
-      aspectRatio: '4/3' // Maintain 4:3 aspect ratio for better cropping
-    }),
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%' }),
     margin: '0 auto'
   };
 

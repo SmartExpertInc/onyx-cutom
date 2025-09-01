@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ZoomIn, ZoomOut, Check, X, Image } from 'lucide-react';
 import Moveable from 'react-moveable';
@@ -85,6 +85,16 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
     }
   }, [isOpen, imageFile, placeholderDimensions]);
 
+  // Check if this is a big-image-left template based on dimensions
+  const isBigImageLeftTemplate = useMemo(() => {
+    if (!placeholderDimensions || placeholderDimensions.width <= 0 || placeholderDimensions.height <= 0) {
+      return false;
+    }
+    const aspect = placeholderDimensions.width / placeholderDimensions.height;
+    // big-image-left template typically has a portrait aspect ratio around 5:7
+    return aspect <= 1.2;
+  }, [placeholderDimensions]);
+
   // Cleanup on close
   useEffect(() => {
     if (!isOpen && editState.imageUrl) {
@@ -103,7 +113,8 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
   const handleEditImageLoad = useCallback(() => {
     log('ImageEditModal', 'handleEditImageLoad_start', {
       hasImg: !!editImageRef.current,
-      placeholderDimensions
+      placeholderDimensions,
+      isBigImageLeftTemplate
     });
 
     const img = editImageRef.current;
@@ -116,7 +127,8 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
     
     log('ImageEditModal', 'handleEditImageLoad_setup', {
       naturalSize: { width: naturalWidth, height: naturalHeight },
-      placeholderDimensions
+      placeholderDimensions,
+      isBigImageLeftTemplate
     });
     
     // Set image dimensions immediately
@@ -144,7 +156,10 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       centerX,
       centerY,
       initialTransform,
-      scaledDimensions: { width: scaledWidth, height: scaledHeight }
+      scaledDimensions: { width: scaledWidth, height: scaledHeight },
+      isBigImageLeftTemplate,
+      placeholderAspect: placeholderDimensions.width / placeholderDimensions.height,
+      imageAspect: naturalWidth / naturalHeight
     });
 
     // Apply initial transform to the image element
@@ -160,9 +175,10 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
 
     log('ImageEditModal', 'handleEditImageLoad_complete', {
       finalTransform: initialTransform,
-      finalScale: initialScale
+      finalScale: initialScale,
+      isBigImageLeftTemplate
     });
-  }, [placeholderDimensions]);
+  }, [placeholderDimensions, isBigImageLeftTemplate]);
 
   // Handle zoom in edit mode
   const handleZoom = useCallback((delta: number) => {
@@ -263,7 +279,8 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       hasImageDimensions: !!editState.imageDimensions,
       transform: editState.transform,
       imageDimensions: editState.imageDimensions,
-      placeholderDimensions
+      placeholderDimensions,
+      isBigImageLeftTemplate
     });
 
     if (!imageFile || !editState.imageDimensions) {
@@ -304,7 +321,9 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       
       log('ImageEditModal', 'confirmEdit_canvasSetup', {
         canvasSize: { width: canvas.width, height: canvas.height },
-        placeholderDimensions
+        placeholderDimensions,
+        isBigImageLeftTemplate,
+        placeholderAspect: placeholderDimensions.width / placeholderDimensions.height
       });
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -332,7 +351,10 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       img.onload = async () => {
         log('ImageEditModal', 'confirmEdit_imageLoaded', {
           imageSize: { width: img.width, height: img.height },
-          transform: { x, y, scale: currentScale }
+          transform: { x, y, scale: currentScale },
+          isBigImageLeftTemplate,
+          placeholderAspect: placeholderDimensions.width / placeholderDimensions.height,
+          imageAspect: img.width / img.height
         });
         
         // Use high-quality settings
@@ -370,7 +392,10 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
           drawParams: { 
             source: { x: sourceX, y: sourceY, width: sourceWidth, height: sourceHeight },
             destination: { x: Math.max(0, x), y: Math.max(0, y), width: visibleWidth, height: visibleHeight }
-          }
+          },
+          isBigImageLeftTemplate,
+          placeholderAspect: placeholderDimensions.width / placeholderDimensions.height,
+          finalCanvasSize: { width: canvas.width, height: canvas.height }
         });
         
         // Convert to blob and upload
@@ -530,6 +555,11 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
               {/* Dimensions indicator */}
               <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded z-10">
                 {placeholderDimensions.width} × {placeholderDimensions.height}
+                {isBigImageLeftTemplate && (
+                  <div className="text-xs opacity-90 mt-1">
+                    Portrait template
+                  </div>
+                )}
               </div>
               
               {editState.imageUrl && (

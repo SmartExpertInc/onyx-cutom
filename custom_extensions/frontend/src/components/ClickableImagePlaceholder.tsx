@@ -512,27 +512,72 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Get placeholder dimensions for the modal
   const getPlaceholderDimensions = useCallback(() => {
     if (!containerRef.current) {
-      // Fallback dimensions based on size prop with proper aspect ratios
+      // Template-specific fallback dimensions
+      if (templateId === 'big-image-left') {
+        // For big-image-left, use portrait dimensions that match the template's intended aspect ratio
+        const fallbackDimensions = {
+          'XLARGE': { width: 500, height: 700 }, // Portrait aspect ratio
+          'LARGE': { width: 400, height: 560 },  // Portrait aspect ratio
+          'MEDIUM': { width: 300, height: 420 }, // Portrait aspect ratio
+          'SMALL': { width: 200, height: 280 }   // Portrait aspect ratio
+        };
+        
+        log('ClickableImagePlaceholder', 'getPlaceholderDimensions_bigImageLeft_fallback', {
+          elementId,
+          instanceId,
+          size,
+          templateId,
+          fallbackDimensions: fallbackDimensions[size]
+        });
+        
+        return fallbackDimensions[size];
+      }
+      
+      // Default fallback dimensions for other templates
       const fallbackDimensions = {
-        'XLARGE': { width: 500, height: 375 }, // 4:3 ratio (500x375)
-        'LARGE': { width: 500, height: 375 }, // 4:3 ratio (500x375) - matches big-image-left template
-        'MEDIUM': { width: 400, height: 300 }, // 4:3 ratio (400x300)
-        'SMALL': { width: 300, height: 200 }  // 3:2 ratio (300x200)
+        'XLARGE': { width: 500, height: 400 },
+        'LARGE': { width: 400, height: 300 },
+        'MEDIUM': { width: 300, height: 200 },
+        'SMALL': { width: 200, height: 150 }
       };
       
       log('ClickableImagePlaceholder', 'getPlaceholderDimensions_fallback', {
         elementId,
         instanceId,
         size,
-        fallbackDimensions: fallbackDimensions[size],
-        templateId
+        templateId,
+        fallbackDimensions: fallbackDimensions[size]
       });
       
       return fallbackDimensions[size];
     }
 
     const rect = containerRef.current.getBoundingClientRect();
-    const dimensions = { width: rect.width, height: rect.height };
+    let dimensions = { width: rect.width, height: rect.height };
+    
+    // For big-image-left template, ensure we maintain portrait aspect ratio
+    if (templateId === 'big-image-left' && rect.width > 0 && rect.height > 0) {
+      const currentAspect = rect.width / rect.height;
+      const targetAspect = 5/7; // Target portrait aspect ratio (500x700)
+      
+      if (currentAspect > targetAspect) {
+        // If current is too wide, adjust height to maintain portrait ratio
+        dimensions.height = rect.width / targetAspect;
+      } else if (currentAspect < targetAspect) {
+        // If current is too tall, adjust width to maintain portrait ratio
+        dimensions.width = rect.height * targetAspect;
+      }
+      
+      log('ClickableImagePlaceholder', 'getPlaceholderDimensions_bigImageLeft_adjusted', {
+        elementId,
+        instanceId,
+        templateId,
+        originalRect: rect,
+        adjustedDimensions: dimensions,
+        originalAspect: currentAspect,
+        targetAspect
+      });
+    }
     
     log('ClickableImagePlaceholder', 'getPlaceholderDimensions_actual', {
       elementId,
