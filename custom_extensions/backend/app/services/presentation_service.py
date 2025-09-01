@@ -293,6 +293,26 @@ class ProfessionalPresentationService:
                 
                 logger.info(f"Presentation {job_id} completed successfully")
                 
+                # DEBUGGING FEATURE: Log the full downloadable URL for testing
+                # Construct the full absolute URL for the final video
+                backend_base_url = "http://localhost:8000"  # This should match your backend URL
+                full_video_url = f"{backend_base_url}/presentations/{job_id}/video"
+                logger.info(f"🎬 [DEBUG_URL] ========================================")
+                logger.info(f"🎬 [DEBUG_URL] FINAL VIDEO DOWNLOAD URL:")
+                logger.info(f"🎬 [DEBUG_URL] {full_video_url}")
+                logger.info(f"🎬 [DEBUG_URL] ========================================")
+                logger.info(f"🎬 [DEBUG_URL] Copy and paste this URL into your browser to test direct download")
+                logger.info(f"🎬 [DEBUG_URL] Video file path: {final_video_path}")
+                logger.info(f"🎬 [DEBUG_URL] Video exists: {os.path.exists(final_video_path)}")
+                
+                # Additional debugging: Also log expected file size
+                if os.path.exists(final_video_path):
+                    file_size = os.path.getsize(final_video_path)
+                    file_size_mb = file_size / (1024 * 1024)
+                    logger.info(f"🎬 [DEBUG_URL] Video file size: {file_size_mb:.2f} MB ({file_size} bytes)")
+                else:
+                    logger.error(f"🎬 [DEBUG_URL] WARNING: Final video file does not exist at path: {final_video_path}")
+                
             except Exception as e:
                 logger.error(f"Presentation processing failed: {e}")
                 raise
