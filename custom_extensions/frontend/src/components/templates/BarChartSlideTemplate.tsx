@@ -270,7 +270,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          display: 'flex',
          alignItems: 'center',
          justifyContent: 'center',
-         overflow: 'hidden'
        }}>
          <ClickableImagePlaceholder
            imagePath={profileImagePath}
@@ -630,7 +629,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          display: 'flex',
          justifyContent: 'space-between',
          alignItems: 'center',
-         fontSize: '12px',
+         fontSize: '13px',
          color: themeContent
        }}>
          {/* Website - left aligned */}
@@ -642,7 +641,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                onCancel={handleWebsiteCancel}
                className="footer-website-editor"
                style={{
-                 fontSize: '12px',
+                 fontSize: '13px',
                  color: themeContent
                }}
              />
@@ -662,7 +661,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          {/* Date and Page Number - right aligned together */}
          <div style={{
            display: 'flex',
-           gap: '20px',
+           gap: '40px',
            alignItems: 'center'
          }}>
            {/* Date */}
@@ -674,7 +673,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onCancel={handleDateCancel}
                  className="footer-date-editor"
                  style={{
-                   fontSize: '12px',
+                   fontSize: '13px',
                    color: themeContent
                  }}
                />
@@ -700,7 +699,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onCancel={handlePageNumberCancel}
                  className="footer-page-number-editor"
                  style={{
-                   fontSize: '12px',
+                   fontSize: '13px',
                    color: themeContent
                  }}
                />

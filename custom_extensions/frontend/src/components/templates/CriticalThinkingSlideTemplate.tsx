@@ -42,7 +42,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    height: '650px',
     backgroundColor: themeBg,
     display: 'flex',
     flexDirection: 'column',
@@ -221,7 +221,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '34px',
+          fontSize: '36px',
           color: themeTitle,
           lineHeight: '1.2',
           marginBottom: '40px',
@@ -242,7 +242,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-title-editor"
               style={{
-                fontSize: '34px',
+                fontSize: '36px',
                 color: themeTitle,
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
@@ -271,7 +271,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
         {/* Content */}
         <div style={{
-          fontSize: '34px',
+          fontSize: '36px',
           color: themeContent,
           lineHeight: '1.6',
           maxWidth: '600px',
@@ -288,7 +288,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-content-editor"
               style={{
-                fontSize: '34px',
+                fontSize: '36px',
                 color: themeContent,
                 lineHeight: '1.6',
                 maxWidth: '600px',
