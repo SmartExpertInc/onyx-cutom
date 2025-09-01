@@ -68,26 +68,7 @@ class ProfessionalPresentationService:
         # Job tracking
         self.jobs: Dict[str, PresentationJob] = {}
         
-        # Add thread lock for job status updates
-        import threading
-        self._job_lock = threading.Lock()
-        
         logger.info("Professional Presentation Service initialized")
-    
-    def _update_job_status(self, job_id: str, **kwargs):
-        """
-        Thread-safe method to update job status.
-        
-        Args:
-            job_id: Job ID to update
-            **kwargs: Status fields to update (status, progress, error, etc.)
-        """
-        with self._job_lock:
-            if job_id in self.jobs:
-                job = self.jobs[job_id]
-                for key, value in kwargs.items():
-                    setattr(job, key, value)
-                logger.info(f"🎬 [JOB_STATUS] Updated job {job_id}: {kwargs}")
     
     async def create_presentation(self, request: PresentationRequest) -> str:
         """
@@ -131,17 +112,7 @@ class ProfessionalPresentationService:
         Returns:
             Job status or None if not found
         """
-        import os
-        logger.info(f"🔧 [DIAGNOSTIC] GET_STATUS Job {job_id} in Process {os.getpid()}")
-        logger.info(f"🔧 [DIAGNOSTIC] Jobs in memory: {list(self.jobs.keys())}")
-        
-        with self._job_lock:
-            job = self.jobs.get(job_id)
-            if job:
-                logger.info(f"🔧 [DIAGNOSTIC] Found job {job_id}: status={job.status}, progress={job.progress}")
-            else:
-                logger.warning(f"🔧 [DIAGNOSTIC] Job {job_id} NOT FOUND in process {os.getpid()}")
-            return job
+        return self.jobs.get(job_id)
     
     async def _process_presentation_detached(self, job_id: str, request: PresentationRequest):
         """
@@ -163,11 +134,9 @@ class ProfessionalPresentationService:
                 
             except Exception as e:
                 logger.error(f"Thread processing failed for {job_id}: {e}")
-                self._update_job_status(
-                    job_id,
-                    status="failed",
-                    error=str(e)
-                )
+                if job_id in self.jobs:
+                    self.jobs[job_id].status = "failed"
+                    self.jobs[job_id].error = str(e)
             finally:
                 try:
                     loop.close()
@@ -217,11 +186,12 @@ class ProfessionalPresentationService:
                 for i, text in enumerate(request.voiceover_texts):
                     logger.info(f"  Text {i+1}: {text[:100]}...")
             
-            self._update_job_status(job_id, status="processing", progress=5.0)
+            job.status = "processing"
+            job.progress = 5.0
             
             # Step 1: Generate clean slide video
             logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
-            self._update_job_status(job_id, progress=10.0)
+            job.progress = 10.0
             
             # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
             try:
@@ -254,8 +224,8 @@ class ProfessionalPresentationService:
                                     logger.info(f"    - {key}: {value}")
                 else:
                     logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                    # Try to extract slide props from URL or use fallback
-                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
+                # Try to extract slide props from URL or use fallback
+                slide_props = await self._extract_slide_props_from_url(request.slide_url)
                     slides_data = [slide_props]  # Convert single slide to list
                     logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
                 
@@ -284,15 +254,12 @@ class ProfessionalPresentationService:
                     str(thumbnail_path)
                 )
                 
-                # Update job status (thread-safe)
-                self._update_job_status(
-                    job_id,
-                    status="completed",
-                    progress=100.0,
-                    completed_at=datetime.now(),
-                    video_url=f"/api/custom/presentations/{job_id}/video",
-                    thumbnail_url=f"/api/custom/presentations/{job_id}/thumbnail"
-                )
+                # Update job status
+                job.status = "completed"
+                job.progress = 100.0
+                job.completed_at = datetime.now()
+                job.video_url = f"/presentations/{job_id}/video"
+                job.thumbnail_url = f"/presentations/{job_id}/thumbnail"
                 
                 logger.info(f"Presentation {job_id} completed successfully")
                 
@@ -302,12 +269,9 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Presentation {job_id} failed: {e}")
-            self._update_job_status(
-                job_id,
-                status="failed",
-                error=str(e),
-                completed_at=datetime.now()
-            )
+            job.status = "failed"
+            job.error = str(e)
+            job.completed_at = datetime.now()
 
     async def _process_single_slide_presentation(self, job_id: str, slide_data: Dict[str, Any], request: PresentationRequest, job: PresentationJob) -> str:
         """
@@ -324,31 +288,31 @@ class ProfessionalPresentationService:
         """
         try:
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Processing single slide presentation")
-            
-            # Import the clean video generation service
-            from .clean_video_generation_service import clean_video_generation_service
-            
-            # Generate clean slide video
+                
+                # Import the clean video generation service
+                from .clean_video_generation_service import clean_video_generation_service
+                
+                # Generate clean slide video
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Generating clean slide video")
-            result = await clean_video_generation_service.generate_avatar_slide_video(
+                result = await clean_video_generation_service.generate_avatar_slide_video(
                 slide_props=slide_data,
                 theme=request.theme or "dark-purple",
-                slide_duration=request.duration,
-                quality=request.quality
-            )
-            
+                    slide_duration=request.duration,
+                    quality=request.quality
+                )
+                
             if not result["success"]:
                 raise Exception(f"Slide video generation failed: {result['error']}")
             
-            slide_video_path = result["video_path"]
+                    slide_video_path = result["video_path"]
             slide_image_paths = result.get("slide_image_paths", [])
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Slide video generated: {slide_video_path}")
             
             # Store the slide image path for debugging
             if slide_image_paths and len(slide_image_paths) > 0:
-                self._update_job_status(job_id, slide_image_path=slide_image_paths[0])
+                job.slide_image_path = slide_image_paths[0]
             
-            self._update_job_status(job_id, progress=30.0)
+            job.progress = 30.0
             
             # Check if this is a slide-only video
             if request.slide_only:
@@ -359,7 +323,7 @@ class ProfessionalPresentationService:
                 import shutil
                 shutil.copy2(slide_video_path, output_path)
                 final_video_path = str(output_path)
-                self._update_job_status(job_id, progress=90.0)
+                job.progress = 90.0
                 
                 # Cleanup temporary files
                 await self._cleanup_temp_files([slide_video_path])
@@ -374,7 +338,7 @@ class ProfessionalPresentationService:
                 request.duration,
                 request.use_avatar_mask
             )
-            self._update_job_status(job_id, progress=60.0)
+            job.progress = 60.0
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: {avatar_video_path}")
             
@@ -435,14 +399,9 @@ class ProfessionalPresentationService:
             for slide_index, slide_data in enumerate(slides_data):
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Processing slide {slide_index + 1}/{len(slides_data)}")
                 
-                # Update progress based on slide processing (more granular updates)
-                # Allocate 60% of progress (10-70%) for individual slide processing
-                slide_start_progress = 10 + (slide_index * 60 // len(slides_data))
-                slide_end_progress = 10 + ((slide_index + 1) * 60 // len(slides_data))
-                
-                # Start of slide processing
-                job.progress = slide_start_progress
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} progress: {slide_start_progress}%")
+                # Update progress based on slide processing
+                slide_progress = 10 + (slide_index * 70 // len(slides_data))
+                job.progress = slide_progress
                 
                 # Extract voiceover text for this specific slide
                 slide_voiceover_text = slide_data.get('props', {}).get('voiceoverText', '')
@@ -474,11 +433,6 @@ class ProfessionalPresentationService:
                     individual_videos.append(slide_video_path)
                     continue
                 
-                # Update progress for avatar generation (33% of slide progress)
-                avatar_progress = slide_start_progress + ((slide_end_progress - slide_start_progress) * 33 // 100)
-                job.progress = avatar_progress
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} avatar generation progress: {avatar_progress}%")
-                
                 # Generate avatar video for this slide
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Generating avatar video for slide {slide_index + 1}")
                 avatar_video_path = await self._generate_avatar_video(
@@ -489,11 +443,6 @@ class ProfessionalPresentationService:
                 )
                 temp_files_to_cleanup.append(avatar_video_path)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Avatar video for slide {slide_index + 1} generated: {avatar_video_path}")
-                
-                # Update progress for composition (66% of slide progress)
-                composition_progress = slide_start_progress + ((slide_end_progress - slide_start_progress) * 66 // 100)
-                self._update_job_status(job_id, progress=composition_progress)
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} composition progress: {composition_progress}%")
                 
                 # Compose individual slide + avatar video
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Composing individual video for slide {slide_index + 1}")
@@ -506,40 +455,23 @@ class ProfessionalPresentationService:
                     layout=request.layout
                 )
                 
-                # Create progress callback that updates main job progress
-                def composition_progress_callback(comp_progress):
-                    # Map composition progress (0-100) to the remaining progress range for this slide
-                    remaining_progress = slide_end_progress - composition_progress
-                    actual_progress = composition_progress + (comp_progress * remaining_progress / 100)
-                    self._update_job_status(job_id, progress=actual_progress)
-                    logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} detailed progress: {actual_progress:.1f}%")
-                
                 individual_video_path = await video_composer_service.compose_presentation(
                     slide_video_path,
                     avatar_video_path,
-                    composition_config,
-                    progress_callback=composition_progress_callback
+                    composition_config
                 )
                 
                 individual_videos.append(individual_video_path)
                 temp_files_to_cleanup.append(individual_video_path)
-                
-                # Update progress to end of slide processing (100% of slide progress)
-                self._update_job_status(job_id, progress=slide_end_progress)
-                logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Slide {slide_index + 1} completed: {slide_end_progress}%")
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Individual video for slide {slide_index + 1} composed: {individual_video_path}")
             
-            # Update progress for concatenation phase (70-90%)
-            self._update_job_status(job_id, progress=75.0)
-            logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] All individual slides completed - starting concatenation: 75%")
+            job.progress = 80.0
             
             # Concatenate all individual videos into final presentation
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenating {len(individual_videos)} videos into final presentation")
             final_video_path = await self._concatenate_videos(individual_videos, job_id)
+            job.progress = 90.0
             
-            # Update progress after concatenation (90%)
-            self._update_job_status(job_id, progress=90.0)
-            logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Concatenation completed: 90%")
             logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Final multi-slide video created: {final_video_path}")
             
             # Cleanup temporary files
@@ -860,8 +792,7 @@ class ProfessionalPresentationService:
             
         Returns:
             Path to generated avatar video
-                """
-        try:
+        """
             # Create video with Elai API
             result = await video_generation_service.create_video_from_texts(
                 project_name="Avatar Video",
@@ -884,10 +815,6 @@ class ProfessionalPresentationService:
             avatar_video_path = await self._wait_for_avatar_completion(video_id)
             
             return avatar_video_path
-            
-        except Exception as e:
-            logger.error(f"Avatar video generation failed: {e}")
-            raise
     
     async def _wait_for_avatar_completion(self, video_id: str) -> str:
         """

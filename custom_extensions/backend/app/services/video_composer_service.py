@@ -60,8 +60,7 @@ class ProfessionalVideoComposer:
         self,
         slide_video: str,
         avatar_video: str,
-        config: CompositionConfig,
-        progress_callback=None
+        config: CompositionConfig
     ) -> str:
         """
         Compose slide and avatar videos with professional quality.
@@ -110,18 +109,16 @@ class ProfessionalVideoComposer:
             from .simple_video_composer import SimpleVideoComposer
             simple_composer = SimpleVideoComposer()
             
-            # Progress tracking - relay to external callback if provided
-            def internal_progress_callback(progress):
+            # Progress tracking
+            def progress_callback(progress):
                 logger.info(f"🎬 [VIDEO_COMPOSITION] Composition progress: {progress}%")
-                if progress_callback:
-                    progress_callback(progress)
             
             # Compose videos using simple, reliable method
             success = await simple_composer.compose_videos(
                 slide_video_path=slide_video,
                 avatar_video_path=avatar_video,
                 output_path=config.output_path,
-                progress_callback=internal_progress_callback
+                progress_callback=progress_callback
             )
             
             # Cleanup
