@@ -13642,6 +13642,10 @@ class OutlineWizardPreview(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
     theme: Optional[str] = None  # Selected theme from frontend
 
 class OutlineWizardFinalize(BaseModel):
@@ -20198,6 +20202,10 @@ class TextPresentationWizardPreview(BaseModel):
     textMode: Optional[str] = None
     userText: Optional[str] = None
     fromKnowledgeBase: bool = False
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
     chatSessionId: Optional[str] = None
 
 class TextPresentationWizardFinalize(BaseModel):
