@@ -83,71 +83,71 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
 
   return (
     <div className="impact-metrics-slide-template" style={slideStyles}>
-             {/* Left column - Dark teal background with metrics */}
-       <div style={{
-         flex: '2',
-         backgroundColor: themeAccent, // Use theme accent color
-         padding: '60px 50px',
-         display: 'flex',
-         flexDirection: 'column',
-         justifyContent: 'center',
-         position: 'relative'
-       }}>
-                 {/* Company logo */}
-         <div style={{
-           position: 'absolute',
-           top: '40px',
-           left: '50px',
-           display: 'flex',
-           alignItems: 'center',
-           gap: '10px'
-         }}>
-           {currentCompanyLogoPath ? (
-             // Show uploaded logo image
-             <ClickableImagePlaceholder
-               imagePath={currentCompanyLogoPath}
-               onImageUploaded={handleCompanyLogoUploaded}
-               size="SMALL"
-               position="CENTER"
-               description="Company logo"
-               isEditable={isEditable}
-               style={{
-                 height: '30px',
-                 maxWidth: '120px',
-                 objectFit: 'contain'
-               }}
-             />
-           ) : (
-             // Show default logo design with clickable area
-             <div style={{
-               display: 'flex',
-               alignItems: 'center',
-               gap: '10px',
-               cursor: isEditable ? 'pointer' : 'default'
-             }}
-             onClick={() => isEditable && setShowLogoUploadModal(true)}
-             >
-               <div style={{
-                 width: '20px',
-                 height: '20px',
-                 border: `2px solid ${themeBg}`,
-                 borderRadius: '50%',
-                 position: 'relative',
-                 display: 'flex',
-                 alignItems: 'center',
-                 justifyContent: 'center'
-               }}>
-                 <div style={{
-                   width: '8px',
-                   height: '2px',
-                   backgroundColor: themeBg,
-                   position: 'absolute'
-                 }} />
-               </div>
-               <span style={{ fontSize: '14px', fontWeight: '300', color: themeBg }}>{currentCompanyName}</span>
-             </div>
-           )}
-         </div>
+      {/* Left column - Dark teal background with metrics */}
+      <div style={{
+        flex: '2',
+        backgroundColor: themeAccent, // Use theme accent color
+        padding: '60px 50px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        position: 'relative'
+      }}>
+        {/* Company logo */}
+        <div style={{
+          position: 'absolute',
+          top: '40px',
+          left: '50px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                border: `2px solid ${themeBg}`,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '8px',
+                  height: '2px',
+                  backgroundColor: themeBg,
+                  position: 'absolute'
+                }} />
+              </div>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeBg }}>{currentCompanyName}</span>
+            </div>
+          )}
+        </div>
 
         {/* Metrics list */}
         <div style={{
@@ -247,21 +247,21 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
           />
         </div>
       </div>
-    </div>
 
       {/* Logo Upload Modal */}
       {showLogoUploadModal && (
-       <PresentationImageUpload
-         isOpen={showLogoUploadModal}
-         onClose={() => setShowLogoUploadModal(false)}
-         onImageUploaded={(newLogoPath) => {
-           handleCompanyLogoUploaded(newLogoPath);
-           setShowLogoUploadModal(false);
-         }}
-         title="Upload Company Logo"
-       />
-     )}
-   );
- };
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
+    </div>
+  );
+};
 
 export default ImpactMetricsSlideTemplate; 

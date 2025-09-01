@@ -98,67 +98,68 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
 
   return (
     <div className="table-of-contents-slide-template" style={slideStyles}>
-             {/* Left section - Navigation buttons */}
-       <div style={{
-         flex: '2',
-         display: 'flex',
-         flexDirection: 'column',
-         gap: '20px'
-       }}>
-         {/* Company logo */}
-         <div style={{
-           display: 'flex',
-           alignItems: 'center',
-           gap: '10px',
-           marginBottom: '20px'
-         }}>
-           {currentCompanyLogoPath ? (
-             // Show uploaded logo image
-             <ClickableImagePlaceholder
-               imagePath={currentCompanyLogoPath}
-               onImageUploaded={handleCompanyLogoUploaded}
-               size="SMALL"
-               position="CENTER"
-               description="Company logo"
-               isEditable={isEditable}
-               style={{
-                 height: '30px',
-                 maxWidth: '120px',
-                 objectFit: 'contain'
-               }}
-             />
-           ) : (
-             // Show default logo design with clickable area
-             <div style={{
-               display: 'flex',
-               alignItems: 'center',
-               gap: '10px',
-               cursor: isEditable ? 'pointer' : 'default'
-             }}
-             onClick={() => isEditable && setShowLogoUploadModal(true)}
-             >
-               <div style={{
-                 width: '20px',
-                 height: '20px',
-                 border: `2px solid ${themeContent}`,
-                 borderRadius: '50%',
-                 position: 'relative',
-                 display: 'flex',
-                 alignItems: 'center',
-                 justifyContent: 'center'
-               }}>
-                 <div style={{
-                   width: '8px',
-                   height: '2px',
-                   backgroundColor: themeContent,
-                   position: 'absolute'
-                 }} />
-               </div>
-               <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>{currentCompanyName}</span>
-             </div>
-           )}
-         </div>
-         {/* Title */}
+      {/* Left section - Navigation buttons */}
+      <div style={{
+        flex: '2',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        {/* Company logo */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '20px'
+        }}>
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                border: `2px solid ${themeContent}`,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '8px',
+                  height: '2px',
+                  backgroundColor: themeContent,
+                  position: 'absolute'
+                }} />
+              </div>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>{currentCompanyName}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Title */}
         <div style={{
           fontSize: '36px',
           color: themeTitle,
@@ -204,21 +205,21 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           {currentButtons.map((button, index) => (
             <div
               key={index}
-                             style={{
-                 backgroundColor: themeAccent, // Use theme accent color
-                 padding: '20px 25px',
-                 borderRadius: '12px',
-                 fontSize: '20px',
-                 color: themeBg, // Use theme background color for contrast
-                 fontWeight: '500',
-                 textAlign: 'center',
-                 cursor: isEditable ? 'pointer' : 'default',
-                 userSelect: 'none',
-                 display: 'flex',
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 minHeight: '60px'
-               }}
+              style={{
+                backgroundColor: themeAccent, // Use theme accent color
+                padding: '20px 25px',
+                borderRadius: '12px',
+                fontSize: '20px',
+                color: themeBg, // Use theme background color for contrast
+                fontWeight: '500',
+                textAlign: 'center',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '60px'
+              }}
               onClick={() => isEditable && setEditingButtons(index)}
             >
               {isEditable && editingButtons === index ? (
@@ -278,21 +279,21 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           />
         </div>
       </div>
-    </div>
 
       {/* Logo Upload Modal */}
       {showLogoUploadModal && (
-       <PresentationImageUpload
-         isOpen={showLogoUploadModal}
-         onClose={() => setShowLogoUploadModal(false)}
-         onImageUploaded={(newLogoPath) => {
-           handleCompanyLogoUploaded(newLogoPath);
-           setShowLogoUploadModal(false);
-         }}
-         title="Upload Company Logo"
-       />
-     )}
-   );
- };
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
+    </div>
+  );
+};
 
 export default TableOfContentsSlideTemplate; 
