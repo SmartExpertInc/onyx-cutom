@@ -8,14 +8,9 @@
  * @param urlPrompt - The prompt value from URL parameters
  * @returns The actual prompt text
  */
-export function getPromptFromUrlOrStorage(urlPrompt: string | null | undefined): string {
-  // Handle null/undefined input
-  if (!urlPrompt) {
-    return "";
-  }
-  
+export function getPromptFromUrlOrStorage(urlPrompt: string): string {
   // If the prompt looks like a sessionStorage reference (starts with 'prompt_' and contains timestamp)
-  if (isPromptReference(urlPrompt)) {
+  if (urlPrompt.startsWith('prompt_') && urlPrompt.includes('_')) {
     try {
       // Try to retrieve from sessionStorage
       const storedPrompt = sessionStorage.getItem(urlPrompt);
@@ -38,8 +33,8 @@ export function getPromptFromUrlOrStorage(urlPrompt: string | null | undefined):
  * @param prompt - The prompt value to check
  * @returns True if the prompt is a sessionStorage reference
  */
-export function isPromptReference(prompt: string | null | undefined): boolean {
-  return prompt ? (prompt.startsWith('prompt_') && prompt.includes('_')) : false;
+export function isPromptReference(prompt: string): boolean {
+  return prompt.startsWith('prompt_') && prompt.includes('_');
 }
 
 /**

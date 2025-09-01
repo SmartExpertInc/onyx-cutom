@@ -198,20 +198,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 export default function CourseOutlineClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
-  const [prompt, setPrompt] = useState("");
-  
-  // Initialize prompt when params are available
-  useEffect(() => {
-    const urlPrompt = params?.get("prompt");
-    if (urlPrompt) {
-      const retrievedPrompt = getPromptFromUrlOrStorage(urlPrompt);
-      setPrompt(retrievedPrompt);
-      
-      // Debug logging to help troubleshoot prompt handling
-      console.log('CourseOutline - URL prompt:', urlPrompt);
-      console.log('CourseOutline - Processed prompt:', retrievedPrompt);
-    }
-  }, [params]);
+  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");

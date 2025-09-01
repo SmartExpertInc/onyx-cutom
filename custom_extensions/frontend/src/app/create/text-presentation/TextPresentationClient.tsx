@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
+import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -46,20 +46,7 @@ export default function TextPresentationClient() {
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
     params?.get("outlineId") ? true : (getPromptFromUrlOrStorage(params?.get("prompt") || "") ? false : null)
   );
-  const [prompt, setPrompt] = useState("");
-  
-  // Initialize prompt when params are available
-  useEffect(() => {
-    const urlPrompt = params?.get("prompt");
-    if (urlPrompt) {
-      const retrievedPrompt = getPromptFromUrlOrStorage(urlPrompt);
-      setPrompt(retrievedPrompt);
-      
-      // Debug logging to help troubleshoot prompt handling
-      console.log('TextPresentation - URL prompt:', urlPrompt);
-      console.log('TextPresentation - Processed prompt:', retrievedPrompt);
-    }
-  }, [params]);
+  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
 
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1429,7 +1416,21 @@ export default function TextPresentationClient() {
           {useExistingOutline === false && (
             <textarea
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e) => {
+                const newPrompt = e.target.value;
+                setPrompt(newPrompt);
+                
+                // Handle prompt storage for long prompts by updating URL
+                const sp = new URLSearchParams(params?.toString() || "");
+                if (newPrompt.length > 500) {
+                  const promptId = generatePromptId();
+                  sessionStorage.setItem(promptId, newPrompt);
+                  sp.set("prompt", promptId);
+                } else {
+                  sp.set("prompt", newPrompt);
+                }
+                router.replace(`?${sp.toString()}`, { scroll: false });
+              }}
               placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
               rows={1}
               className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"

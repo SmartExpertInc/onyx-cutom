@@ -33,31 +33,26 @@ All preview pages now use the new utility function to handle prompts:
 
 #### **Lesson Presentation Preview**
 - **`custom_extensions/frontend/src/app/create/lesson-presentation/LessonPresentationClient.tsx`**
-  - Added import for `getPromptFromUrlOrStorage`
-  - Created `processedPrompt` variable to store the retrieved prompt
-  - Updated all 6 instances of prompt usage:
-    - Conditional logic for `useExistingOutline`
-    - Loading message display
-    - Preview generation logic
-    - Finalization logic
-    - Edit application logic
-    - Textarea value display
+  - Added import for `getPromptFromUrlOrStorage` and `generatePromptId`
+  - Created `currentPrompt` state variable to manage the prompt locally
+  - Updated all 6 instances of prompt usage to use `currentPrompt`
+  - Enhanced textarea onChange handler with proper prompt storage logic
+  - Now displays actual prompt text instead of storage reference ID
 
 #### **Quiz Preview**
 - **`custom_extensions/frontend/src/app/create/quiz/QuizClient.tsx`**
-  - Added import for `getPromptFromUrlOrStorage`
-  - Updated prompt initialization to use the utility function
-  - Updated all 3 instances of prompt usage:
-    - Main prompt variable
-    - Preview generation logic
-    - Textarea value display
+  - Added import for `getPromptFromUrlOrStorage` and `generatePromptId`
+  - Created `currentPrompt` state variable to manage the prompt locally
+  - Updated all 4 instances of prompt usage to use `currentPrompt`
+  - Enhanced textarea onChange handler with proper prompt storage logic
+  - Now displays actual prompt text instead of storage reference ID
 
 #### **Text Presentation Preview**
 - **`custom_extensions/frontend/src/app/create/text-presentation/TextPresentationClient.tsx`**
-  - Added import for `getPromptFromUrlOrStorage`
-  - Updated both instances of prompt usage:
-    - Conditional logic for `useExistingOutline`
-    - Prompt state initialization
+  - Added import for `getPromptFromUrlOrStorage` and `generatePromptId`
+  - Updated prompt state initialization to use the utility function
+  - Enhanced textarea onChange handler with proper prompt storage logic
+  - Already had proper local state management, now includes URL sync
 
 ## Implementation Details
 
@@ -106,6 +101,15 @@ All preview pages now use the new utility function to handle prompts:
 - **No Server Storage**: User prompts never sent to server unnecessarily
 - **Session-based**: Data cleared when browser tab closes
 - **Automatic Cleanup**: Stored prompts removed after use
+
+## Recent Fix: Display Issue Resolved
+
+**Issue**: Preview pages were showing prompt reference IDs (e.g., `prompt_1756735176980_ggtsq9vil`) in input fields instead of the actual prompt text.
+
+**Solution**: 
+- Updated all preview pages to use local state variables for prompt display
+- Enhanced onChange handlers to properly manage prompt storage
+- Now input fields show the actual prompt text while maintaining proper URL storage for long prompts
 
 ## Next Steps
 
