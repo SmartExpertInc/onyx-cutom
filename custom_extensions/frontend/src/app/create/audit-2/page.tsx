@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import auditImage from '../../../public/images/audit-section-1-mobile.png';
 
 export default function AuditPage() {
   return (
@@ -74,12 +74,10 @@ export default function AuditPage() {
           </div>
           
           {/* Image */}
-          <Image 
-            src="/images/audit-section-1-mobile.png"
+          <img 
+            src={auditImage.src}
             alt="Audit"
-            width={360}
-            height={339.39}
-            className="-mx-[20px] xl:-mx-[120px]"
+            className="w-full h-[339.39px] -mx-[20px] xl:-mx-[120px]"
           />
         </section>
       </main>
