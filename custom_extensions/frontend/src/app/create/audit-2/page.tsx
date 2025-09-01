@@ -10,9 +10,9 @@ export default function AuditPage() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
       `}</style>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
+      <div className="min-h-screen bg-[#FAFAFA] from-blue-50 via-white to-indigo-50 flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
-      <header className="bg-[#FAFAFA] h-[50px] xl:h-[81px] mb-[33px]">
+      <header className="h-[50px] xl:h-[81px] mb-[33px]">
         <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
           <div className="flex items-center justify-between h-full">
             <svg className="h-[30px] xl:h-[37px]" width="136" height="30" viewBox="0 0 136 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,7 +51,7 @@ export default function AuditPage() {
       </header>
 
       {/* Main Content */}
-      <main className="bg-[#FAFAFA] w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] flex-1">
+      <main className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] flex-1">
         {/* First Section */}
         <section className="mb-16 flex flex-col gap-[30px]">
           <div className="flex flex-col gap-5">
@@ -87,6 +87,83 @@ export default function AuditPage() {
               className="w-full"
               style={{ height: '339.39px' }}
             />
+          </div>
+        </section>
+
+        {/* Second Section */}
+        <section className="flex flex-col gap-[30px] bg-white py-[60px]">
+          <h2 className="font-medium text-[30px] text-black leading-[115%] tracking-[-0.03em]">
+            Как с помощью AI:
+          </h2>
+          <div className="flex flex-col gap-[15px]">
+            {/* Card 1 */}
+            <div className="border border-[#E0E0E0] rounded-[6px]">
+              <div className="p-[15px] flex flex-col gap-[15px]">
+                <div className="flex items-center gap-[15px]">
+                  <div className="w-[24px] h-[24px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                    <span className="font-semibold text-[15px] text-white leading-[120%]">1</span>
+                  </div>
+                  <h3 className="font-semibold text-[18px] text-black leading-[140%]">
+                    Сократите текучку кадров на <span className="text-[#0F58F9]">30–50%</span>
+                  </h3>
+                </div>
+              </div>
+              <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-2-card-1.png"
+                  alt="Card 1"
+                  width={290}
+                  height={203}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="border border-[#E0E0E0] rounded-[6px]">
+              <div className="p-[15px] flex flex-col gap-[15px]">
+                <div className="flex items-center gap-[15px]">
+                  <div className="w-[24px] h-[24px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                    <span className="font-semibold text-[15px] text-white leading-[120%]">2</span>
+                  </div>
+                  <h3 className="font-semibold text-[18px] text-black leading-[140%]">
+                    Поднять продуктивность на <span className="text-[#0F58F9]">50-300%</span> сотрудников
+                  </h3>
+                </div>
+              </div>
+                <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-2-card-2.png"
+                    alt="Card 2"
+                    width={290}
+                    height={203}
+                    className="w-full"
+                  />
+                </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="border border-[#E0E0E0] rounded-[6px]">
+              <div className="p-[15px] flex flex-col gap-[15px]">
+                <div className="flex items-center gap-[15px]">
+                  <div className="w-[24px] h-[24px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
+                    <span className="font-semibold text-[15px] text-white leading-[120%]">3</span>
+                  </div>
+                  <h3 className="font-semibold text-[18px] text-black leading-[140%]">
+                    Внедрение AI-онбординг <span className="text-[#0F58F9]">за 7 дней</span>
+                  </h3>
+                </div>
+              </div>
+                              <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-2-card-3.png"
+                    alt="Card 3"
+                    width={290}
+                    height={203}
+                    className="w-full"
+                  />
+                </div>
+            </div>
           </div>
         </section>
       </main>
