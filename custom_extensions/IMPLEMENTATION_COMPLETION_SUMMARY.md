@@ -106,19 +106,10 @@ All preview pages now use the new utility function to handle prompts:
 
 **Issue**: Preview pages were showing prompt reference IDs (e.g., `prompt_1756735176980_ggtsq9vil`) in input fields instead of the actual prompt text.
 
-**Root Cause**: Preview pages were using local state for prompts, but not syncing when URL parameters changed during navigation or page refresh.
-
 **Solution**: 
 - Updated all preview pages to use local state variables for prompt display
 - Enhanced onChange handlers to properly manage prompt storage
-- **Added useEffect hooks** to sync local prompt state when URL parameters change
-- Now input fields show the actual prompt text in all scenarios while maintaining proper URL storage for long prompts
-
-**Pages Fixed**:
-- ✅ Lesson Presentation Preview
-- ✅ Quiz Preview  
-- ✅ Text Presentation Preview (One-Pager)
-- ✅ Course Outline Preview (was already working)
+- Now input fields show the actual prompt text while maintaining proper URL storage for long prompts
 
 ## Next Steps
 
