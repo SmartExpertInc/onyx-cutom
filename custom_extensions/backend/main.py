@@ -1427,6 +1427,32 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
         normalized_props = props.copy()
         
         try:
+            # ENHANCED LOGGING: Log raw AI-parsed content for big-numbers and event-list templates
+            if template_id in ['big-numbers', 'event-dates', 'event-list']:
+                logger.info(f"=== RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+                logger.info(f"Template ID: {template_id}")
+                logger.info(f"Slide Title: {normalized_props.get('title', 'NO TITLE')}")
+                logger.info(f"Raw Props Keys: {list(normalized_props.keys())}")
+                logger.info(f"Raw Props Content: {normalized_props}")
+                
+                # Log specific content for big-numbers
+                if template_id == 'big-numbers':
+                    items = normalized_props.get('items', [])
+                    numbers = normalized_props.get('numbers', [])
+                    steps = normalized_props.get('steps', [])
+                    logger.info(f"Big-Numbers Raw Items: {items}")
+                    logger.info(f"Big-Numbers Raw Numbers: {numbers}")
+                    logger.info(f"Big-Numbers Raw Steps: {steps}")
+                
+                # Log specific content for event-list/event-dates
+                if template_id in ['event-dates', 'event-list']:
+                    events = normalized_props.get('events', [])
+                    items = normalized_props.get('items', [])
+                    logger.info(f"Event-List Raw Events: {events}")
+                    logger.info(f"Event-List Raw Items: {items}")
+                
+                logger.info(f"=== END RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+            
             # Fix template ID mappings first
             if template_id == 'event-dates':
                 # Map event-dates (AI instruction) to event-list (frontend registry)
@@ -1506,6 +1532,32 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     
             # This big-numbers conversion logic is moved to after big-numbers normalization below
                 
+            # ENHANCED LOGGING: Log raw AI-parsed content for big-numbers and event-list templates
+            if template_id in ['big-numbers', 'event-dates', 'event-list']:
+                logger.info(f"=== RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+                logger.info(f"Template ID: {template_id}")
+                logger.info(f"Slide Title: {normalized_props.get('title', 'NO TITLE')}")
+                logger.info(f"Raw Props Keys: {list(normalized_props.keys())}")
+                logger.info(f"Raw Props Content: {normalized_props}")
+                
+                # Log specific content for big-numbers
+                if template_id == 'big-numbers':
+                    items = normalized_props.get('items', [])
+                    numbers = normalized_props.get('numbers', [])
+                    steps = normalized_props.get('steps', [])
+                    logger.info(f"Big-Numbers Raw Items: {items}")
+                    logger.info(f"Big-Numbers Raw Numbers: {numbers}")
+                    logger.info(f"Big-Numbers Raw Steps: {steps}")
+                
+                # Log specific content for event-list/event-dates
+                if template_id in ['event-dates', 'event-list']:
+                    events = normalized_props.get('events', [])
+                    items = normalized_props.get('items', [])
+                    logger.info(f"Event-List Raw Events: {events}")
+                    logger.info(f"Event-List Raw Items: {items}")
+                
+                logger.info(f"=== END RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+            
             # Fix big-numbers template props
             if template_id == 'big-numbers':
                 # Accept both 'items' (preferred) and 'numbers' (alternative) as the source array
@@ -1568,6 +1620,12 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     # Generate language-neutral image prompt for big-numbers
                     normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern data analytics environment. The scene features a professional analyst working at a clean desk with multiple monitors displaying charts, graphs, and numerical data visualizations (no readable text or numbers). The workspace includes a laptop, tablet, and organized documents. Large windows provide natural light to the modern office space. The data visualizations and analytics displays are [COLOR1], the analyst's attire and equipment are [COLOR2], and the office environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
                     normalized_props['imageAlt'] = f"Professional data visualization illustration for {slide_title}"
+                
+                # Log final processed big-numbers content
+                logger.info(f"=== FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
+                logger.info(f"Final Steps: {normalized_props.get('steps', [])}")
+                logger.info(f"Final Props: {normalized_props}")
+                logger.info(f"=== END FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
                     
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
@@ -1863,6 +1921,18 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                             fixed_events.append(fixed_event)
                     if fixed_events:
                         normalized_props['events'] = fixed_events
+                
+                # Log final processed event-list content
+                logger.info(f"=== FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
+                logger.info(f"Final Events: {normalized_props.get('events', [])}")
+                logger.info(f"Final Props: {normalized_props}")
+                logger.info(f"=== END FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
+                
+                # Log final processed event-list content
+                logger.info(f"=== FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
+                logger.info(f"Final Events: {normalized_props.get('events', [])}")
+                logger.info(f"Final Props: {normalized_props}")
+                logger.info(f"=== END FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
         
             # Fix bullet-points template props
             elif template_id in ['bullet-points', 'bullet-points-right']:
