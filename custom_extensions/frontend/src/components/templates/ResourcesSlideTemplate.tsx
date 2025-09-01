@@ -46,13 +46,11 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
      const slideStyles: React.CSSProperties = {
      width: '100%',
      height: '650px',
-     backgroundColor: themeAccent, // Use theme accent color
+     backgroundColor: themeAccent, // Dark olive background like other slides
      display: 'flex',
-     flexDirection: 'column',
      position: 'relative',
      overflow: 'hidden',
      fontFamily: currentTheme.fonts.titleFont,
-     padding: '40px 60px',
    };
 
   const handleTitleSave = (newTitle: string) => {
@@ -169,7 +167,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
           {/* Title at bottom left */}
           <div style={{
             fontSize: '48px',
-            color: themeBg,
+            color: themeBg, // Light gray text on dark background
             lineHeight: '1.1',
             fontWeight: 'bold',
             marginTop: 'auto'
@@ -212,11 +210,11 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
               <div
                 key={index}
                 style={{
-                  backgroundColor: themeContent,
+                  backgroundColor: themeContent, // Light panels on dark background
                   padding: '25px 30px',
                   borderRadius: '12px',
                   fontSize: '18px',
-                  color: themeBg,
+                  color: themeBg, // Light gray text on light panels
                   lineHeight: '1.4'
                 }}
               >

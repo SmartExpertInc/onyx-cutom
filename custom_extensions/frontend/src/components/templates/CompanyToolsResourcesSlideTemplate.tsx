@@ -63,7 +63,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '650px',
-    backgroundColor: themeBg,
+    backgroundColor: themeBg, // Light background like other slides
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -247,7 +247,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           <div
             key={index}
             style={{
-              backgroundColor: block.backgroundColor === '#f5f5f5' ? themeContent : themeAccent,
+              backgroundColor: block.backgroundColor === '#f5f5f5' ? '#f5f5f5' : themeAccent, // Light gray or theme accent
               padding: '25px 30px',
               borderRadius: '12px',
               display: 'flex',
@@ -258,7 +258,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             {/* Block title */}
             <div style={{
               fontSize: '20px',
-              color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+              color: block.backgroundColor === '#f5f5f5' ? '#000000' : '#ffffff', // Black on light gray, white on blue
               fontWeight: 'bold'
             }}>
               {isEditable && editingContentBlocks?.index === index && editingContentBlocks?.field === 'title' ? (
@@ -269,7 +269,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   className="block-title-editor"
                   style={{
                     fontSize: '20px',
-                    color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+                    color: block.backgroundColor === '#f5f5f5' ? '#000000' : '#ffffff',
                     fontWeight: 'bold',
                     width: '100%'
                   }}
@@ -290,7 +290,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             {/* Block content */}
             <div style={{
               fontSize: '16px',
-              color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+              color: block.backgroundColor === '#f5f5f5' ? '#000000' : '#ffffff', // Black on light gray, white on blue
               lineHeight: '1.4',
               flex: '1'
             }}>
@@ -303,7 +303,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   className="block-content-editor"
                   style={{
                     fontSize: '16px',
-                    color: block.backgroundColor === '#f5f5f5' ? themeTitle : '#ffffff',
+                    color: block.backgroundColor === '#f5f5f5' ? '#000000' : '#ffffff',
                     lineHeight: '1.4',
                     width: '100%'
                   }}

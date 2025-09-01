@@ -49,7 +49,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '650px',
-    backgroundColor: '#f8f8f8', // Light off-white background
+    backgroundColor: '#f8f8f8', // Light off-white background like screenshot
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -206,11 +206,11 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             <div
               key={index}
               style={{
-                backgroundColor: themeAccent, // Use theme accent color
+                backgroundColor: themeAccent, // Vibrant green buttons like screenshot
                 padding: '20px 25px',
                 borderRadius: '12px',
                 fontSize: '20px',
-                color: themeBg, // Use theme background color for contrast
+                color: '#333333', // Dark gray text like screenshot
                 fontWeight: '500',
                 textAlign: 'center',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -255,7 +255,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         <div style={{
           width: '300px',
           height: '400px',
-          backgroundColor: themeContent, // Use theme content color
+          backgroundColor: themeContent, // Light blue background like screenshot
           border: `2px solid ${themeTitle}`,
           borderRadius: '8px',
           position: 'relative',

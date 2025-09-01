@@ -317,6 +317,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 backgroundColor: themeAccent,
                 borderRadius: '20px',
                 padding: '30px',
+                paddingTop: '22px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
@@ -336,7 +337,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       fontSize: '48px',
                       color: themeBg,
-                      fontWeight: 'bold',
                       width: '100%',
                       height: 'auto'
                     }}

@@ -43,7 +43,7 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '650px',
-    backgroundColor: themeBg,
+    backgroundColor: themeBg, // Light background like other slides
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -86,7 +86,7 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
       {/* Left column - Dark teal background with metrics */}
       <div style={{
         flex: '2',
-        backgroundColor: themeAccent, // Use theme accent color
+        backgroundColor: '#008080', // Dark teal background like screenshot
         padding: '60px 50px',
         display: 'flex',
         flexDirection: 'column',
@@ -130,7 +130,7 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
               <div style={{
                 width: '20px',
                 height: '20px',
-                border: `2px solid ${themeBg}`,
+                border: `2px solid #ffffff`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -140,11 +140,11 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
                 <div style={{
                   width: '8px',
                   height: '2px',
-                  backgroundColor: themeBg,
+                  backgroundColor: '#ffffff',
                   position: 'absolute'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: themeBg }}>{currentCompanyName}</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: '#ffffff' }}>{currentCompanyName}</span>
             </div>
           )}
         </div>
@@ -164,14 +164,14 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
                 alignItems: 'center',
                 gap: '15px',
                 fontSize: '28px',
-                color: '#ffffff',
+                color: '#ffffff', // White text on dark background like screenshot
                 lineHeight: '1.3'
               }}
             >
               {/* Up arrow icon */}
               <div style={{
                 fontSize: '32px',
-                color: '#ffffff',
+                color: '#ffffff', // White arrow like screenshot
                 fontWeight: 'bold'
               }}>
                 ↗
@@ -215,7 +215,7 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
       {/* Right column - Orange background with profile image */}
       <div style={{
         flex: '1',
-        backgroundColor: themeTitle, // Use theme title color
+        backgroundColor: '#FF8C00', // Orange background like screenshot
         position: 'relative',
         borderTopRightRadius: '20px',
         borderBottomRightRadius: '20px'

@@ -63,7 +63,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '650px',
-    backgroundColor: themeBg,
+    backgroundColor: themeBg, // Light background like other slides
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -114,7 +114,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
       {/* Left section - Tips content */}
       <div style={{
         flex: '2',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#ffffff', // White background like screenshot
         padding: '60px 50px',
         display: 'flex',
         flexDirection: 'column',
@@ -179,7 +179,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
         {/* Main title */}
         <div style={{
           fontSize: '48px',
-          color: themeTitle,
+          color: '#000000', // Black text on white background like screenshot
           lineHeight: '1.1',
           fontWeight: 'bold',
           marginBottom: '50px',
@@ -193,7 +193,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
               className="title-editor"
               style={{
                 fontSize: '48px',
-                color: themeTitle,
+                color: '#000000',
                 lineHeight: '1.1',
                 fontWeight: 'bold',
                 width: '100%'
@@ -230,7 +230,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
               {/* Tip number */}
               <div style={{
                 fontSize: '32px',
-                color: '#8B5A96', // Purple color
+                color: '#8B5A96', // Purple color like screenshot
                 fontWeight: 'bold',
                 minWidth: '40px'
               }}>
@@ -244,7 +244,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
                 {/* Tip title */}
                 <div style={{
                   fontSize: '24px',
-                  color: themeTitle,
+                  color: '#000000', // Black text on white background like screenshot
                   fontWeight: 'bold',
                   marginBottom: '10px'
                 }}>
@@ -256,7 +256,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
                       className="tip-title-editor"
                       style={{
                         fontSize: '24px',
-                        color: themeTitle,
+                        color: '#000000',
                         fontWeight: 'bold',
                         width: '100%'
                       }}
@@ -277,7 +277,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
                 {/* Tip description */}
                 <div style={{
                   fontSize: '18px',
-                  color: '#666666', // Gray color
+                  color: '#666666', // Gray color like screenshot
                   lineHeight: '1.4'
                 }}>
                   {isEditable && editingTips?.index === index && editingTips?.field === 'description' ? (
@@ -315,7 +315,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
       {/* Right section - Profile image with dark background */}
       <div style={{
         flex: '1',
-        backgroundColor: themeTitle, // Use theme title color
+        backgroundColor: '#000000', // Black background like screenshot
         position: 'relative',
         display: 'flex',
         justifyContent: 'center',
