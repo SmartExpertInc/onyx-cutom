@@ -1560,15 +1560,25 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
             
             # Fix big-numbers template props
             if template_id == 'big-numbers':
-                # Accept both 'items' (preferred) and 'numbers' (alternative) as the source array
+                # FIXED: Accept 'items', 'numbers', or 'steps' as the source array
                 source_list = normalized_props.get('items')
+                source_type = 'items'
+                
                 if not (isinstance(source_list, list) and source_list):
                     alt_list = normalized_props.get('numbers')
                     if isinstance(alt_list, list) and alt_list:
                         logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'numbers' → 'items'")
                         source_list = alt_list
+                        source_type = 'numbers'
                     else:
-                        source_list = []
+                        # FIXED: Also check for 'steps' which AI commonly generates
+                        steps_list = normalized_props.get('steps')
+                        if isinstance(steps_list, list) and steps_list:
+                            logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'steps' → 'items'")
+                            source_list = steps_list
+                            source_type = 'steps'
+                        else:
+                            source_list = []
 
                 # Validate and coerce each item
                 fixed_items = []
@@ -1914,19 +1924,19 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     fixed_events = []
                     for event in events:
                         if isinstance(event, dict):
+                            # FIXED: Use 'title' as description if 'description' is empty
+                            description = event.get('description') or event.get('desc') or ''
+                            if not description.strip():
+                                # If description is empty, use title as description
+                                description = event.get('title') or 'Event description'
+                            
                             fixed_event = {
-                                'date': str(event.get('date') or event.get('title') or 'Event Date'),
-                                'description': str(event.get('description') or event.get('desc') or 'Event description')
+                                'date': str(event.get('date') or 'Event Date'),
+                                'description': str(description)
                             }
                             fixed_events.append(fixed_event)
                     if fixed_events:
                         normalized_props['events'] = fixed_events
-                
-                # Log final processed event-list content
-                logger.info(f"=== FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
-                logger.info(f"Final Events: {normalized_props.get('events', [])}")
-                logger.info(f"Final Props: {normalized_props}")
-                logger.info(f"=== END FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
                 
                 # Log final processed event-list content
                 logger.info(f"=== FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
