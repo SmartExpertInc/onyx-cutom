@@ -1447,7 +1447,7 @@ export default function ProjectInstanceViewPage() {
                       </div>
 
                       {/* Predefined Roles Section */}
-                      <div className="mb-8">
+                      <div className="mb-6">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">{t('interface.projectView.predefinedRoles', 'Predefined Roles')}</h3>
                         <div className="grid gap-4">
                           {predefinedRoles.map((role) => (
@@ -1485,13 +1485,16 @@ export default function ProjectInstanceViewPage() {
                             onClick={handleAddEmail}
                             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
+                            <svg class="w-4 h-4 mr-2 gap-2" viewBox="0 0 24 24" fill="none">
+                              <path d="M4 12H20M12 4V20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                             {t('interface.projectView.add', 'Add')}
                           </button>
                         </div>
 
                         {/* Email List */}
                         {customEmails.length > 0 && (
-                          <div className="space-y-3 max-h-48 overflow-y-auto">
+                          <div className="space-y-3 max-h-48">
                             {customEmails.map((email) => (
                               <div key={email} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                                 <label className="flex items-center flex-1">
@@ -1516,15 +1519,6 @@ export default function ProjectInstanceViewPage() {
                             ))}
                           </div>
                         )}
-                      </div>
-
-                      {/* Summary Section */}
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="text-sm font-medium text-blue-900 mb-2">{t('interface.projectView.accessSummary', 'Access Summary')}</h4>
-                        <div className="text-sm text-blue-800">
-                          <p>{t('interface.projectView.selectedRoles', 'Selected Roles')}: {selectedRoles.length > 0 ? selectedRoles.map(id => predefinedRoles.find(r => r.id === id)?.label).join(', ') : t('interface.projectView.none', 'None')}</p>
-                          <p>{t('interface.projectView.selectedEmails', 'Selected Emails')}: {selectedEmails.length > 0 ? selectedEmails.join(', ') : t('interface.projectView.none', 'None')}</p>
-                        </div>
                       </div>
                     </div>
                   </div>,
