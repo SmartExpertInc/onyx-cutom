@@ -1473,7 +1473,7 @@ export default function ProjectInstanceViewPage() {
                           value={newEmail}
                           onChange={(e) => setNewEmail(e.target.value)}
                           placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
-                          className="flex-1 px-3 py-1.5 text-sm border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="flex-1 px-3 py-1.5 text-sm placeholder-gray-700 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                         />
                         <button
@@ -1496,7 +1496,7 @@ export default function ProjectInstanceViewPage() {
                                   onChange={() => handleEmailToggle(email)}
                                   className="mr-2 text-blue-600 focus:ring-blue-500"
                                 />
-                                <span className="text-sm text-gray-900">{email}</span>
+                                <span className="text-sm text-gray-800">{email}</span>
                               </label>
                               <button
                                 onClick={() => handleRemoveEmail(email)}
