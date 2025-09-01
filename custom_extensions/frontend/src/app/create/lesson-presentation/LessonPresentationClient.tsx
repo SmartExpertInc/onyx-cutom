@@ -175,6 +175,11 @@ export default function LessonPresentationClient() {
   const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
 
+  // Connector context for creation from selected connectors
+  const isFromConnectors = params?.get("fromConnectors") === "true";
+  const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
@@ -555,6 +560,13 @@ export default function LessonPresentationClient() {
             requestBody.fromKnowledgeBase = true;
           }
 
+          // Add connector context if creating from connectors
+          if (isFromConnectors) {
+            requestBody.fromConnectors = true;
+            requestBody.connectorIds = connectorIds.join(',');
+            requestBody.connectorSources = connectorSources.join(',');
+          }
+
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -797,6 +809,12 @@ export default function LessonPresentationClient() {
           folderId: folderContext?.folderId || undefined,
           // Include selected theme
           theme: selectedTheme,
+          // Add connector context if creating from connectors
+          ...(isFromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
         signal: abortController.signal
       });

@@ -213,6 +213,11 @@ export default function CourseOutlineClient() {
   const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
   
+  // Connector context for creation from selected connectors
+  const isFromConnectors = params?.get("fromConnectors") === "true";
+  const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+  
   // Retrieve user text from sessionStorage
   useEffect(() => {
     if (isFromText) {
@@ -558,6 +563,13 @@ export default function CourseOutlineClient() {
             requestBody.fromKnowledgeBase = true;
           }
 
+          // Add connector context if creating from connectors
+          if (isFromConnectors) {
+            requestBody.fromConnectors = true;
+            requestBody.connectorIds = connectorIds.join(',');
+            requestBody.connectorSources = connectorSources.join(',');
+          }
+
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -750,6 +762,13 @@ export default function CourseOutlineClient() {
       // Add folder context if coming from inside a folder
       if (folderContext?.folderId) {
         finalizeBody.folderId = folderContext.folderId;
+      }
+
+      // Add connector context if creating from connectors
+      if (isFromConnectors) {
+        finalizeBody.fromConnectors = true;
+        finalizeBody.connectorIds = connectorIds.join(',');
+        finalizeBody.connectorSources = connectorSources.join(',');
       }
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {

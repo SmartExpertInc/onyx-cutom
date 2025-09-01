@@ -12,8 +12,10 @@ interface Connector {
   id: number;
   name: string;
   source: string;
-  status: 'active' | 'paused' | 'error' | 'syncing';
+  status: 'active' | 'paused' | 'error' | 'syncing' | 'unknown';
+  last_sync_at?: string;
   total_docs_indexed: number;
+  last_error?: string;
   access_type: string;
 }
 
@@ -114,40 +116,59 @@ export default function CreateFromSpecificFilesPage() {
   const router = useRouter();
   const [connectors, setConnectors] = useState<Connector[]>([]);
   const [selectedConnectors, setSelectedConnectors] = useState<number[]>([]);
+  const [connectorSelectionValid, setConnectorSelectionValid] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showFileBrowser, setShowFileBrowser] = useState(true); // Changed to true to open by default
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
+  // Load connectors from the backend API
+  const loadConnectors = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/manage/admin/connector/status', {
+        credentials: 'same-origin',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Filter to only show private connectors (Smart Drive connectors)
+        const privateConnectors = data
+          .filter((connector: any) => connector.access_type === 'private')
+          .map((connector: any) => ({
+            id: connector.cc_pair_id,
+            name: connector.name || `Connector ${connector.cc_pair_id}`,
+            source: connector.connector.source,
+            status: connector.connector.status || 'unknown',
+            last_sync_at: connector.last_sync_at,
+            total_docs_indexed: connector.total_docs_indexed || 0,
+            last_error: connector.last_error,
+            access_type: connector.access_type
+          }));
+        setConnectors(privateConnectors);
+      } else {
+        console.error('Failed to fetch connectors:', response.status);
+        // Fallback to mock data if API fails
+        setConnectors(mockConnectors);
+      }
+    } catch (error) {
+      console.error('Failed to fetch connectors:', error);
+      // Fallback to mock data
+      setConnectors(mockConnectors);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch user connectors on component mount
   useEffect(() => {
-    const fetchConnectors = async () => {
-      try {
-        const response = await fetch('/api/custom-projects-backend/connectors', {
-          credentials: 'same-origin',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          // Filter to only show private connectors (Smart Drive connectors)
-          const privateConnectors = data.filter((connector: Connector) => 
-            connector.access_type === 'private'
-          );
-          setConnectors(privateConnectors);
-        } else {
-          // Fallback to mock data if API fails
-          setConnectors(mockConnectors);
-        }
-      } catch (error) {
-        console.error('Failed to fetch connectors:', error);
-        // Fallback to mock data
-        setConnectors(mockConnectors);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConnectors();
+    loadConnectors();
   }, []);
+
+  // Validate connector selection
+  useEffect(() => {
+    setConnectorSelectionValid(selectedConnectors.length > 0);
+  }, [selectedConnectors]);
 
   const handleConnectorToggle = (connectorId: number) => {
     setSelectedConnectors(prev => 
@@ -171,11 +192,31 @@ export default function CreateFromSpecificFilesPage() {
   );
 
   const handleCreateContent = () => {
-    // TODO: Implement backend functionality
-    console.log('Creating content from selected connectors:', selectedConnectors);
-    console.log('Selected files:', selectedFiles);
-    // For now, just show an alert
-    alert(t('interface.contentCreationNotImplemented', 'Content creation functionality will be implemented in the backend'));
+    if (selectedConnectors.length === 0) {
+      return;
+    }
+
+    // Construct connector context
+    const connectorContext = {
+      fromConnectors: true,
+      connectorIds: selectedConnectors,
+      connectorSources: selectedConnectors.map(id => {
+        const connector = connectors.find(c => c.id === id);
+        return connector?.source || 'unknown';
+      }),
+      timestamp: Date.now() // Add timestamp for data freshness validation
+    };
+
+    // Store in sessionStorage for the generate page
+    sessionStorage.setItem('connectorContext', JSON.stringify(connectorContext));
+
+    // Redirect to generate page with connector information
+    const searchParams = new URLSearchParams();
+    searchParams.set('fromConnectors', 'true');
+    searchParams.set('connectorIds', selectedConnectors.join(','));
+    searchParams.set('connectorSources', connectorContext.connectorSources.join(','));
+    
+    router.push(`/create/generate?${searchParams.toString()}`);
   };
 
   const getStatusColor = (status: string) => {
@@ -184,7 +225,19 @@ export default function CreateFromSpecificFilesPage() {
       case 'syncing': return 'bg-yellow-100 text-yellow-800';
       case 'error': return 'bg-red-100 text-red-800';
       case 'paused': return 'bg-gray-100 text-gray-800';
+      case 'unknown': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return '🟢';
+      case 'syncing': return '🟡';
+      case 'error': return '🔴';
+      case 'paused': return '⏸️';
+      case 'unknown': return '❓';
+      default: return '❓';
     }
   };
 
@@ -347,6 +400,7 @@ export default function CreateFromSpecificFilesPage() {
                       {/* Status and Stats */}
                       <div className="flex items-center justify-between">
                         <span className={`px-3 py-1 text-xs rounded-full font-medium ${getStatusColor(connector.status)}`}>
+                          <span className="mr-1">{getStatusIcon(connector.status)}</span>
                           {t(`interface.connectorStatusLabels.${connector.status}`, connector.status)}
                         </span>
                         <span className="text-xs text-gray-500 font-medium">
@@ -418,18 +472,21 @@ export default function CreateFromSpecificFilesPage() {
               <div className="mt-6">
                 <button
                   onClick={handleCreateContent}
-                  disabled={selectedConnectors.length === 0 && selectedFiles.length === 0}
+                  disabled={!connectorSelectionValid}
                   className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
-                    selectedConnectors.length === 0 && selectedFiles.length === 0
+                    !connectorSelectionValid
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-3">
                     <Sparkles className="w-5 h-5" />
-                    {t('interface.createContentFromSelected', 'Create Content from {count} Selected Source{s}')
-                      .replace('{count}', (selectedConnectors.length + selectedFiles.length).toString())
-                      .replace('{s}', (selectedConnectors.length + selectedFiles.length) !== 1 ? 's' : '')}
+                    {connectorSelectionValid 
+                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Selected Connector{s}')
+                          .replace('{count}', selectedConnectors.length.toString())
+                          .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                      : t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
+                    }
                   </div>
                 </button>
               </div>

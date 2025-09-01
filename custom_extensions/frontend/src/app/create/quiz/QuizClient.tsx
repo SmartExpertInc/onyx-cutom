@@ -52,6 +52,9 @@ export default function QuizClient() {
   const fromFiles = searchParams?.get("fromFiles") === "true";
   const fromText = searchParams?.get("fromText") === "true";
   const fromKnowledgeBase = searchParams?.get("fromKnowledgeBase") === "true";
+  const fromConnectors = searchParams?.get("fromConnectors") === "true";
+  const connectorIds = searchParams?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = searchParams?.get("connectorSources")?.split(",").filter(Boolean) || [];
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
@@ -698,6 +701,12 @@ export default function QuizClient() {
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
             fromKnowledgeBase: fromKnowledgeBase,
             questionCount: selectedQuestionCount,
+            // Add connector context if creating from connectors
+            ...(fromConnectors && {
+              fromConnectors: true,
+              connectorIds: connectorIds.join(','),
+              connectorSources: connectorSources.join(','),
+            }),
           };
 
           const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
@@ -906,6 +915,12 @@ export default function QuizClient() {
           originalContent: originalQuizData,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // Add connector context if creating from connectors
+          ...(fromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
       });
 
@@ -971,6 +986,12 @@ export default function QuizClient() {
           questionCount: selectedQuestionCount,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // Add connector context if creating from connectors
+          ...(fromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
       });
 

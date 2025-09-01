@@ -126,6 +126,49 @@ function GenerateProductPicker() {
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
   
+  // NEW: Connector context from URL parameters and sessionStorage
+  const isFromConnectors = searchParams?.get('fromConnectors') === 'true';
+  const connectorIds = searchParams?.get('connectorIds')?.split(',').filter(Boolean) || [];
+  const connectorSources = searchParams?.get('connectorSources')?.split(',').filter(Boolean) || [];
+  const [connectorContext, setConnectorContext] = useState<{
+    fromConnectors: boolean;
+    connectorIds: string[];
+    connectorSources: string[];
+  } | null>(null);
+
+  // Load connector context from sessionStorage
+  useEffect(() => {
+    if (isFromConnectors) {
+      try {
+        const storedConnectorContext = sessionStorage.getItem('connectorContext');
+        if (storedConnectorContext) {
+          const context = JSON.parse(storedConnectorContext);
+          // Check if data is recent (within 1 hour)
+          if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
+            setConnectorContext(context);
+          } else {
+            sessionStorage.removeItem('connectorContext');
+          }
+        } else {
+          // Use URL parameters if sessionStorage is not available
+          setConnectorContext({
+            fromConnectors: true,
+            connectorIds,
+            connectorSources
+          });
+        }
+      } catch (error) {
+        console.error('Error retrieving connector context:', error);
+        // Fallback to URL parameters
+        setConnectorContext({
+          fromConnectors: true,
+          connectorIds,
+          connectorSources
+        });
+      }
+    }
+  }, [isFromConnectors, connectorIds, connectorSources]);
+  
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
@@ -256,6 +299,13 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    }
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
     router.push(`/create/course-outline?${params.toString()}`);
@@ -678,6 +728,13 @@ function GenerateProductPicker() {
     
     params.set("lang", language);
 
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    }
+
     router.push(`/create/lesson-presentation?${params.toString()}`);
   };
 
@@ -726,6 +783,13 @@ function GenerateProductPicker() {
       params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
+    }
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
     router.push(`/create/quiz?${params.toString()}`);
@@ -902,6 +966,13 @@ function GenerateProductPicker() {
       params.set("prompt", prompt.trim());
     }
 
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    }
+
     router.push(`/create/text-presentation?${params.toString()}`);
   };
 
@@ -933,6 +1004,13 @@ function GenerateProductPicker() {
       params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
+    }
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);

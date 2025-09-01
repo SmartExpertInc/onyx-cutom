@@ -216,7 +216,7 @@ def parse_id_list(id_string: str, context_name: str) -> List[int]:
 def should_use_hybrid_approach(payload) -> bool:
     """
     Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
-    Returns True when file context is present.
+    Returns True when file context is present or when connector-based filtering is requested.
     """
     # Check if files are explicitly provided
     has_files = (
@@ -236,10 +236,16 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
     )
     
-    # Use hybrid approach when there's file context, text context, or Knowledge Base search
-    use_hybrid = has_files or has_text_context or has_knowledge_base
+    # Check if connector-based filtering is requested
+    has_connector_filtering = (
+        hasattr(payload, 'fromConnectors') and payload.fromConnectors and
+        hasattr(payload, 'connectorSources') and payload.connectorSources
+    )
     
-    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, has_knowledge_base={has_knowledge_base}, use_hybrid={use_hybrid}")
+    # Use hybrid approach when there's file context, text context, Knowledge Base search, or connector filtering
+    use_hybrid = has_files or has_text_context or has_knowledge_base or has_connector_filtering
+    
+    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, has_knowledge_base={has_knowledge_base}, has_connector_filtering={has_connector_filtering}, use_hybrid={use_hybrid}")
     return use_hybrid
 
 DB_POOL = None
@@ -9740,6 +9746,120 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
             "metadata": {"error": str(e)}
         }
 
+async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
+    """
+    Extract relevant context from specific connectors using Onyx's capabilities.
+    Returns structured context that can be used with OpenAI, filtered by connector sources.
+    """
+    try:
+        logger.info(f"[CONNECTOR_CONTEXT] Extracting context from connectors: {connector_sources}")
+        
+        # Parse connector sources
+        connector_list = [source.strip() for source in connector_sources.split(',') if source.strip()]
+        logger.info(f"[CONNECTOR_CONTEXT] Parsed connector sources: {connector_list}")
+        
+        extracted_context = {
+            "connector_summaries": [],
+            "connector_contents": [],
+            "key_topics": [],
+            "metadata": {
+                "connector_sources": connector_list,
+                "extraction_time": time.time(),
+                "filtering_method": "connector_based"
+            }
+        }
+        
+        # Use Onyx's chat endpoint to search within specific connectors
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            # Create a search query that focuses on the prompt within the specified connectors
+            search_message = f"Search for information about: {prompt}"
+            
+            # Construct retrieval options with connector filtering
+            retrieval_options = {
+                "run_search": "always",
+                "real_time": False,
+                "filters": {
+                    "connectorSources": connector_list
+                }
+            }
+            
+            payload = {
+                "chat_session_id": str(uuid.uuid4()),  # Create a temporary session
+                "message": search_message,
+                "parent_message_id": None,
+                "file_descriptors": [],
+                "user_file_ids": [],
+                "user_folder_ids": [],
+                "prompt_id": None,
+                "search_doc_ids": None,
+                "retrieval_options": retrieval_options,
+                "stream_response": False,  # We want the complete response
+            }
+            
+            logger.info(f"[CONNECTOR_CONTEXT] Sending search request to Onyx with connector filters: {connector_list}")
+            
+            try:
+                resp = await client.post(
+                    f"{ONYX_API_SERVER_URL}/chat/send-message",
+                    json=payload,
+                    cookies=cookies,
+                    timeout=300.0
+                )
+                
+                if resp.status_code == 200:
+                    response_data = resp.json()
+                    
+                    # Extract relevant information from the response
+                    if "message" in response_data and "content" in response_data["message"]:
+                        content = response_data["message"]["content"]
+                        
+                        # Extract key topics and content
+                        extracted_context["connector_contents"].append(content)
+                        
+                        # Extract topics from the content (basic extraction)
+                        # This could be enhanced with more sophisticated topic extraction
+                        words = content.lower().split()
+                        potential_topics = [word for word in words if len(word) > 4 and word.isalpha()]
+                        extracted_context["key_topics"].extend(potential_topics[:20])  # Limit to 20 topics
+                        
+                        logger.info(f"[CONNECTOR_CONTEXT] Successfully extracted context from connectors: {len(content)} chars, {len(extracted_context['key_topics'])} topics")
+                    else:
+                        logger.warning(f"[CONNECTOR_CONTEXT] No content found in Onyx response")
+                        # Provide fallback context
+                        extracted_context["connector_contents"] = [f"Content from connectors: {', '.join(connector_list)}"]
+                        extracted_context["key_topics"] = ["connector-based content", "filtered information"]
+                        extracted_context["metadata"]["fallback_used"] = True
+                        
+                else:
+                    logger.warning(f"[CONNECTOR_CONTEXT] Onyx search failed with status {resp.status_code}")
+                    # Provide fallback context
+                    extracted_context["connector_contents"] = [f"Content from connectors: {', '.join(connector_list)}"]
+                    extracted_context["key_topics"] = ["connector-based content", "filtered information"]
+                    extracted_context["metadata"]["fallback_used"] = True
+                    
+            except Exception as e:
+                logger.warning(f"[CONNECTOR_CONTEXT] Error during Onyx search: {e}")
+                # Provide fallback context
+                extracted_context["connector_contents"] = [f"Content from connectors: {', '.join(connector_list)}"]
+                extracted_context["key_topics"] = ["connector-based content", "filtered information"]
+                extracted_context["metadata"]["fallback_used"] = True
+        
+        # Remove duplicate topics
+        extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
+        
+        logger.info(f"[CONNECTOR_CONTEXT] Successfully extracted connector context: {len(extracted_context['connector_contents'])} content pieces, {len(extracted_context['key_topics'])} key topics")
+        
+        return extracted_context
+        
+    except Exception as e:
+        logger.error(f"[CONNECTOR_CONTEXT] Error extracting connector context: {e}", exc_info=True)
+        return {
+            "connector_summaries": [],
+            "connector_contents": [],
+            "key_topics": [],
+            "metadata": {"error": str(e), "filtering_method": "connector_based"}
+        }
+
 def _save_section_content(section_name: str, content_lines: list, local_vars: dict):
     """Helper function to save accumulated section content"""
     content = " ".join(content_lines).strip()
@@ -13541,6 +13661,10 @@ class OutlineWizardFinalize(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
     theme: Optional[str] = None  # Selected theme from frontend
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
@@ -13936,6 +14060,17 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             wiz_payload["fileIds"] = payload.fileIds
             logger.info(f"[PREVIEW_PAYLOAD] Added fileIds: {payload.fileIds}")
 
+    # Add connector context if provided
+    if payload.fromConnectors:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding connector context: fromConnectors=True")
+        wiz_payload["fromConnectors"] = True
+        if payload.connectorIds:
+            wiz_payload["connectorIds"] = payload.connectorIds
+            logger.info(f"[PREVIEW_PAYLOAD] Added connectorIds: {payload.connectorIds}")
+        if payload.connectorSources:
+            wiz_payload["connectorSources"] = payload.connectorSources
+            logger.info(f"[PREVIEW_PAYLOAD] Added connectorSources: {payload.connectorSources}")
+
     # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
     if payload.fromText and payload.userText:
         logger.info(f"[PREVIEW_PAYLOAD] Adding text context: fromText=True, textMode={payload.textMode}")
@@ -14042,11 +14177,15 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
             
             try:
                 # Step 1: Extract context from Onyx
-                if payload.fromKnowledgeBase:
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
@@ -15543,6 +15682,10 @@ class LessonWizardPreview(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
 
 
 class LessonWizardFinalize(BaseModel):
@@ -15626,6 +15769,14 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         if payload.fileIds:
             wizard_dict["fileIds"] = payload.fileIds
 
+    # Add connector context if provided
+    if payload.fromConnectors:
+        wizard_dict["fromConnectors"] = True
+        if payload.connectorIds:
+            wizard_dict["connectorIds"] = payload.connectorIds
+        if payload.connectorSources:
+            wizard_dict["connectorSources"] = payload.connectorSources
+
     # Add text context if provided - use compression for large texts
     if payload.fromText and payload.userText:
         wizard_dict["fromText"] = True
@@ -15677,11 +15828,15 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
             
             try:
                 # Step 1: Extract context from Onyx
-                if payload.fromKnowledgeBase:
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
@@ -19043,6 +19198,10 @@ class QuizWizardPreview(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: Knowledge Base context for creation from Knowledge Base search
     fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
@@ -19063,6 +19222,10 @@ class QuizWizardFinalize(BaseModel):
     userText: Optional[str] = None   # User's pasted text
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
     # NEW: user edits tracking (like in Course Outline)
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
@@ -19263,11 +19426,15 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
             
             try:
                 # Step 1: Extract context from Onyx
-                if payload.fromKnowledgeBase:
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
@@ -20198,11 +20365,15 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
         if should_use_hybrid_approach(payload):
             logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
-            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
             
             try:
                 # Step 1: Extract context from Onyx
-                if payload.fromKnowledgeBase:
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
                     file_context = await extract_knowledge_base_context(payload.prompt, cookies)
