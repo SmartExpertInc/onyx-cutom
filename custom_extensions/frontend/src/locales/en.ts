@@ -1021,6 +1021,7 @@ export const en = {
     projectView: {
       loadingProjectDetails: "Loading project details...",
       backButton: "Back",
+      role: "Role",
       openProducts: "Open Products",
       downloadPdf: "Download PDF",
       downloadSlideDeckPdf: "Download PDF",

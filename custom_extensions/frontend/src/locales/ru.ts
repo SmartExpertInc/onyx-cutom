@@ -824,6 +824,7 @@ export const ru = {
       errorLoadingProject: "Ошибка: {error}",
       projectNotFound: "Проект не найден или данные недоступны.",
       back: "Назад",
+      role: "Роль",
       openProducts: "Открыть продукты",
       downloadPdf: "Скачать PDF",
       smartEdit: "Умное редактирование",

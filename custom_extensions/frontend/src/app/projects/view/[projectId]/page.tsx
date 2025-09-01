@@ -34,7 +34,7 @@ import { createPortal } from 'react-dom';
 const columnLabelLocalization = {
   ru: {
     assessmentType: "Тип оценки",
-    contentVolume: "Объем контента", 
+    contentVolume: "Объем контента",
     source: "Источник",
     estCreationTime: "Оц. время создания",
     estCompletionTime: "Оц. время завершения",
@@ -43,7 +43,7 @@ const columnLabelLocalization = {
   uk: {
     assessmentType: "Тип оцінки",
     contentVolume: "Обсяг контенту",
-    source: "Джерело", 
+    source: "Джерело",
     estCreationTime: "Оц. час створення",
     estCompletionTime: "Оц. час завершення",
     qualityTier: "Рівень якості"
@@ -52,7 +52,7 @@ const columnLabelLocalization = {
     assessmentType: "Tipo de evaluación",
     contentVolume: "Volumen de contenido",
     source: "Fuente",
-    estCreationTime: "Tiempo Est. Creación", 
+    estCreationTime: "Tiempo Est. Creación",
     estCompletionTime: "Tiempo Est. Finalización",
     qualityTier: "Nivel de Calidad"
   },
@@ -61,7 +61,7 @@ const columnLabelLocalization = {
     contentVolume: "Content Volume",
     source: "Source",
     estCreationTime: "Est. Creation Time",
-    estCompletionTime: "Est. Completion Time", 
+    estCompletionTime: "Est. Completion Time",
     qualityTier: "Quality Tier"
   }
 };
@@ -95,7 +95,7 @@ const PdfExportLoadingModal: React.FC<{
   projectName: string;
 }> = ({ isOpen, projectName }) => {
   const { t } = useLanguage();
-  
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -146,12 +146,12 @@ export default function ProjectInstanceViewPage() {
     qualityTier: false, // Hidden by default
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
-  
+
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
-  
 
-  
+
+
   // State for the absolute chat URL
   const [chatRedirectUrl, setChatRedirectUrl] = useState<string | null>(null);
 
@@ -161,23 +161,37 @@ export default function ProjectInstanceViewPage() {
   // Column visibility controls for Training Plan table
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
   const columnDropdownRef = useRef<HTMLDivElement>(null);
+  const roleDropdownRef = useRef<HTMLDivElement>(null);
 
   // Theme picker state for slide decks
   const [showThemePicker, setShowThemePicker] = useState(false);
 
+  // Role access control state
+  const [roleAccess, setRoleAccess] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [customEmails, setCustomEmails] = useState<string[]>([]);
+  const [newEmail, setNewEmail] = useState('');
+  const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
-    if (!showColumnDropdown) return;
+    if (!showColumnDropdown && !roleAccess) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node)) {
+      const isColumnDropdownClick = columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node);
+      const isRoleDropdownClick = roleDropdownRef.current && !roleDropdownRef.current.contains(e.target as Node);
+
+      if (isColumnDropdownClick) {
         setShowColumnDropdown(false);
+      }
+      if (isRoleDropdownClick) {
+        setRoleAccess(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown]);
+  }, [showColumnDropdown, roleAccess]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -185,6 +199,48 @@ export default function ProjectInstanceViewPage() {
       [column]: checked
     }));
   };
+
+  // Predefined roles
+  const predefinedRoles = [
+    { id: 'admin', label: 'Admin', description: 'Full access to all features' },
+    { id: 'viewer', label: 'Viewer', description: 'Can view content only' },
+    { id: 'editor', label: 'Editor', description: 'Can view and edit content' },
+    { id: 'member', label: 'Member', description: 'Basic access to content' }
+  ];
+
+  // Helper functions for role and email management
+  const handleRoleToggle = (roleId: string) => {
+    setSelectedRoles(prev =>
+      prev.includes(roleId)
+        ? prev.filter(id => id !== roleId)
+        : [...prev, roleId]
+    );
+  };
+
+  const handleEmailToggle = (email: string) => {
+    setSelectedEmails(prev =>
+      prev.includes(email)
+        ? prev.filter(e => e !== email)
+        : [...prev, email]
+    );
+  };
+
+  const handleAddEmail = () => {
+    if (newEmail.trim() && !customEmails.includes(newEmail.trim())) {
+      setCustomEmails(prev => [...prev, newEmail.trim()]);
+      setNewEmail('');
+    }
+  };
+
+  const handleRemoveEmail = (email: string) => {
+    setCustomEmails(prev => prev.filter(e => e !== email));
+    setSelectedEmails(prev => prev.filter(e => e !== email));
+  };
+
+  // const isValidEmail = (email: string) => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   return emailRegex.test(email);
+  // };
 
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
     setPageState('fetching');
@@ -225,7 +281,7 @@ export default function ProjectInstanceViewPage() {
         throw new Error(errorDetail);
       }
       const instanceData: ProjectInstanceDetail = await instanceRes.json();
-      
+
       // 🔍 FETCH DATA LOGGING: What we got back from backend
       console.log('📥 [FETCH DATA] Received from backend:', {
         instanceData,
@@ -235,9 +291,9 @@ export default function ProjectInstanceViewPage() {
         componentName: instanceData.component_name,
         hasDetails: !!instanceData.details
       });
-      
+
       setProjectInstanceData(instanceData);
-      
+
       if (typeof window !== 'undefined' && instanceData.sourceChatSessionId) {
         setChatRedirectUrl(`${window.location.origin}/chat?chatId=${instanceData.sourceChatSessionId}`);
       }
@@ -248,7 +304,7 @@ export default function ProjectInstanceViewPage() {
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
       } else {
-          console.warn(t('interface.projectView.couldNotFetchFullProjectsList', 'Could not fetch full projects list to determine parent project name.'));
+        console.warn(t('interface.projectView.couldNotFetchFullProjectsList', 'Could not fetch full projects list to determine parent project name.'));
       }
 
       if (instanceData.details) {
@@ -279,23 +335,23 @@ export default function ProjectInstanceViewPage() {
             copiedDetailsStringified: JSON.stringify(copiedDetails, null, 2),
             contentBlocks: copiedDetails.contentBlocks,
             contentBlocksStringified: JSON.stringify(copiedDetails.contentBlocks, null, 2),
-            imageBlocksFromBackend: Array.isArray(copiedDetails.contentBlocks) 
+            imageBlocksFromBackend: Array.isArray(copiedDetails.contentBlocks)
               ? copiedDetails.contentBlocks.filter((block: any) => block.type === 'image').map((block: any, index: number) => ({
-                  index,
-                  block,
-                  blockStringified: JSON.stringify(block, null, 2),
-                  blockKeys: Object.keys(block),
-                  isValid: !!(block.src && typeof block.src === 'string'),
-                  hasCorruptProps: 'style' in block
-                }))
+                index,
+                block,
+                blockStringified: JSON.stringify(block, null, 2),
+                blockKeys: Object.keys(block),
+                isValid: !!(block.src && typeof block.src === 'string'),
+                hasCorruptProps: 'style' in block
+              }))
               : 'No content blocks or not array'
           });
           setEditableData(copiedDetails as TextPresentationData);
         } else {
-          setEditableData(copiedDetails); 
+          setEditableData(copiedDetails);
         }
       } else {
-        const lang = instanceData.detectedLanguage || 'en'; 
+        const lang = instanceData.detectedLanguage || 'en';
         if (instanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           setEditableData({ mainTitle: instanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
@@ -342,7 +398,7 @@ export default function ProjectInstanceViewPage() {
 
     const paramVal = (key: string): string | null => searchParams?.get(key) ?? null;
 
-    const hasExplicitParams = ["knowledgeCheck","contentAvailability","informationSource","estCreationTime","estCompletionTime"].some(k => paramVal(k) !== null);
+    const hasExplicitParams = ["knowledgeCheck", "contentAvailability", "informationSource", "estCreationTime", "estCompletionTime"].some(k => paramVal(k) !== null);
     if (!hasExplicitParams) return; // nothing to persist
 
     const desired = {
@@ -384,11 +440,11 @@ export default function ProjectInstanceViewPage() {
   }, [displayOptsSynced, projectId, editableData, projectInstanceData, searchParams]);
 
   const handleTextChange = useCallback((path: (string | number)[], newValue: any) => {
-    console.log('🔄 [HANDLE TEXT CHANGE] Called with:', { 
-      path, 
+    console.log('🔄 [HANDLE TEXT CHANGE] Called with:', {
+      path,
       newValueType: typeof newValue,
       newValueLength: Array.isArray(newValue) ? newValue.length : 'N/A',
-      currentEditableData: editableData 
+      currentEditableData: editableData
     });
 
     // 🔍 DETAILED ANALYSIS: If this is updating contentBlocks
@@ -436,7 +492,7 @@ export default function ProjectInstanceViewPage() {
           target[finalKey] = newValue;
         } else if (Array.isArray(target) && typeof finalKey === 'number') {
           if (finalKey <= target.length) {
-              target[finalKey] = newValue;
+            target[finalKey] = newValue;
           } else {
             console.warn("Index out of bounds for array update at path:", path, "Target length:", target.length, "Index:", finalKey);
             return currentData;
@@ -449,20 +505,20 @@ export default function ProjectInstanceViewPage() {
         console.error("Error updating editableData at path:", path, e.message);
         return currentData;
       }
-      
+
       console.log('🔄 [AFTER UPDATE] Updated data:', {
         newDataStringified: JSON.stringify(newData, null, 2),
         updatedContentBlocks: (newData as any)?.contentBlocks || 'No contentBlocks',
-        imageBlocksInResult: Array.isArray((newData as any)?.contentBlocks) 
+        imageBlocksInResult: Array.isArray((newData as any)?.contentBlocks)
           ? (newData as any).contentBlocks.filter((block: any) => block.type === 'image').map((block: any, index: number) => ({
-              index,
-              block,
-              blockStringified: JSON.stringify(block, null, 2),
-              isValid: !!(block.src && typeof block.src === 'string')
-            }))
+            index,
+            block,
+            blockStringified: JSON.stringify(block, null, 2),
+            isValid: !!(block.src && typeof block.src === 'string')
+          }))
           : 'Not an array'
       });
-      
+
       return newData;
     });
   }, [editableData]);
@@ -527,7 +583,7 @@ export default function ProjectInstanceViewPage() {
       if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK && editableData) {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
         processedEditableData = JSON.parse(JSON.stringify(slideDeckData)); // Deep clone
-        
+
         // Apply same validation as auto-save - with proper type checking
         const processedSlideDeck = processedEditableData as ComponentBasedSlideDeck;
         if (processedSlideDeck.slides && Array.isArray(processedSlideDeck.slides)) {
@@ -558,35 +614,35 @@ export default function ProjectInstanceViewPage() {
           });
         }
       }
-      
+
       const payload = { microProductContent: processedEditableData };
-      
+
       // 🔍 CRITICAL SAVE LOGGING: What we're sending to backend
       console.log('💾 [SAVE OPERATION] Sending to backend:', {
         payload,
         payloadStringified: JSON.stringify(payload, null, 2),
         editableData,
         editableDataStringified: JSON.stringify(editableData, null, 2),
-        imageBlocksBeforeSave: Array.isArray((editableData as any)?.contentBlocks) 
+        imageBlocksBeforeSave: Array.isArray((editableData as any)?.contentBlocks)
           ? (editableData as any).contentBlocks.filter((block: any) => block.type === 'image').map((block: any, index: number) => ({
-              index,
-              block,
-              blockStringified: JSON.stringify(block, null, 2),
-              blockKeys: Object.keys(block),
-              isValid: !!(block.src && typeof block.src === 'string'),
-              hasCorruptProps: 'style' in block
-            }))
+            index,
+            block,
+            blockStringified: JSON.stringify(block, null, 2),
+            blockKeys: Object.keys(block),
+            isValid: !!(block.src && typeof block.src === 'string'),
+            hasCorruptProps: 'style' in block
+          }))
           : 'No content blocks or not array'
       });
-      
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
       });
       if (!response.ok) {
         const errorDataText = await response.text();
         let errorDetail = `HTTP error ${response.status}`;
-        try { 
-          const errorJson = JSON.parse(errorDataText); 
+        try {
+          const errorJson = JSON.parse(errorDataText);
           if (errorJson.detail) {
             // Handle Pydantic validation errors (array of objects) vs regular string errors
             if (Array.isArray(errorJson.detail)) {
@@ -624,7 +680,7 @@ export default function ProjectInstanceViewPage() {
       console.log('Auto-save: Missing required data', { projectId, hasEditableData: !!editableData, hasProjectInstance: !!projectInstanceData });
       return; // Silent fail for auto-save
     }
-    
+
     const editableComponentTypes = [
       COMPONENT_NAME_PDF_LESSON,
       COMPONENT_NAME_TRAINING_PLAN,
@@ -647,7 +703,7 @@ export default function ProjectInstanceViewPage() {
     try {
       const payload = { microProductContent: editableData };
       console.log('Auto-save: Payload being sent:', JSON.stringify(payload, null, 2));
-      
+
       // Only do detailed validation for TrainingPlanData
       if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
         const trainingPlanData = editableData as TrainingPlanData;
@@ -671,7 +727,7 @@ export default function ProjectInstanceViewPage() {
             }))
           }))
         });
-        
+
         // Validate and fix data structure before sending
         if (trainingPlanData.sections) {
           trainingPlanData.sections.forEach(section => {
@@ -701,7 +757,7 @@ export default function ProjectInstanceViewPage() {
           });
         }
       }
-      
+
       // Add validation for Slide Deck data
       if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK) {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
@@ -717,7 +773,7 @@ export default function ProjectInstanceViewPage() {
             propsKeys: slide.props ? Object.keys(slide.props) : []
           }))
         });
-        
+
         // Validate and fix slide deck structure before sending - IMPROVED FOR BACKEND COMPATIBILITY
         if (slideDeckData.slides) {
           slideDeckData.slides.forEach((slide: any, index) => {
@@ -731,7 +787,7 @@ export default function ProjectInstanceViewPage() {
             if (!slide.props) {
               slide.props = {};
             }
-            
+
             // Ensure props have required fields
             if (!slide.props.title) {
               slide.props.title = `Slide ${index + 1}`;
@@ -739,13 +795,13 @@ export default function ProjectInstanceViewPage() {
             if (!slide.props.content) {
               slide.props.content = '';
             }
-            
+
             // 🔑 CRITICAL: Ensure slideTitle exists for backend compatibility
             if (!slide.slideTitle) {
               slide.slideTitle = slide.props.title || `Slide ${index + 1}`;
               console.log(`🔧 Auto-save: Added missing slideTitle "${slide.slideTitle}" to slide ${slide.slideId}`);
             }
-            
+
             // Ensure slideNumber is set
             if (!slide.slideNumber) {
               slide.slideNumber = index + 1;
@@ -753,7 +809,7 @@ export default function ProjectInstanceViewPage() {
           });
         }
       }
-      
+
       console.log('🔍 Auto-save: Sending request to', `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`);
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
@@ -762,7 +818,7 @@ export default function ProjectInstanceViewPage() {
         console.error('🔍 Auto-save failed:', response.status);
         const errorText = await response.text();
         console.error('🔍 Auto-save error details:', errorText);
-        
+
         // Try to parse error details for better debugging
         try {
           const errorJson = JSON.parse(errorText);
@@ -777,7 +833,7 @@ export default function ProjectInstanceViewPage() {
         console.log('🔍 Auto-save successful');
         const responseData = await response.json();
         console.log('🔍 Auto-save response data:', JSON.stringify(responseData, null, 2));
-        
+
         // NEW: Refresh products list to update names after rename propagation
         try {
           const listRes = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store', headers: saveOperationHeaders });
@@ -802,7 +858,7 @@ export default function ProjectInstanceViewPage() {
             setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
           }
         }
-        
+
         // Check if the response data matches what we sent
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           const trainingPlanData = editableData as TrainingPlanData;
@@ -851,7 +907,7 @@ export default function ProjectInstanceViewPage() {
       const lang = projectInstanceData.details?.detectedLanguage || 'en';
       if (projectInstanceData.details) {
         setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
-      } else { 
+      } else {
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           setEditableData({ mainTitle: projectInstanceData.name || t('interface.projectView.newTrainingPlanTitle', 'New Training Plan'), sections: [], detectedLanguage: lang });
         } else if (projectInstanceData.component_name === COMPONENT_NAME_PDF_LESSON) {
@@ -872,51 +928,51 @@ export default function ProjectInstanceViewPage() {
 
   const handlePdfDownload = async () => {
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
-        alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
-        return;
+      alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
+      return;
     }
-    
+
     // Special handling for slide decks and video lesson presentations  
-    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
-        projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
-        const slideDeckData = editableData as ComponentBasedSlideDeck;
-        const theme = slideDeckData?.theme || 'dark-purple';
-        
-        // Show loading modal
-        setIsExportingPdf(true);
-        
-        try {
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
+    if (projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK ||
+      projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION) {
+      const slideDeckData = editableData as ComponentBasedSlideDeck;
+      const theme = slideDeckData?.theme || 'dark-purple';
 
-            if (!response.ok) {
-                throw new Error(`PDF generation failed: ${response.status}`);
-            }
+      // Show loading modal
+      setIsExportingPdf(true);
 
-            // Get the blob from the response
-            const blob = await response.blob();
-            
-            // Create a download link
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
-        } finally {
-            // Hide loading modal
-            setIsExportingPdf(false);
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
+          method: 'GET',
+          credentials: 'same-origin'
+        });
+
+        if (!response.ok) {
+          throw new Error(`PDF generation failed: ${response.status}`);
         }
-        return;
+
+        // Get the blob from the response
+        const blob = await response.blob();
+
+        // Create a download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
+      } finally {
+        // Hide loading modal
+        setIsExportingPdf(false);
+      }
+      return;
     }
-    
+
     // Original PDF download logic for other component types
     const nameForSlug = projectInstanceData.name || 'document';
     const docNameSlug = slugify(nameForSlug);
@@ -926,36 +982,36 @@ export default function ProjectInstanceViewPage() {
     const lessonNumber = searchParams?.get('lessonNumber');
 
     let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/${pdfProjectId}/${docNameSlug}`;
-    
+
     const queryParams = new URLSearchParams();
     if (parentProjectName) {
-        queryParams.append('parentProjectName', parentProjectName);
+      queryParams.append('parentProjectName', parentProjectName);
     }
     const details = projectInstanceData.details;
     if (details && 'lessonNumber' in details && typeof details.lessonNumber === 'number') {
-       queryParams.append('lessonNumber', details.lessonNumber.toString());
+      queryParams.append('lessonNumber', details.lessonNumber.toString());
     }
-    
+
     // Add column visibility settings for Training Plan PDFs
     if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-        queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
-        queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
-        queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
-        queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
-        queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
-        queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
+      queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
+      queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
+      queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
+      queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
+      queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
+      queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
     }
-    
+
     if (queryParams.toString()) {
-        pdfUrl += `?${queryParams.toString()}`;
+      pdfUrl += `?${queryParams.toString()}`;
     }
 
     window.open(pdfUrl, '_blank');
   };
 
   // Theme management for slide decks
-  const slideDeckData = projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK 
-    ? (editableData as ComponentBasedSlideDeck) 
+  const slideDeckData = projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
+    ? (editableData as ComponentBasedSlideDeck)
     : null;
 
   const { currentTheme, changeTheme, isChangingTheme } = useTheme({
@@ -965,11 +1021,11 @@ export default function ProjectInstanceViewPage() {
     enablePersistence: true,
     onThemeChange: (newTheme, updatedDeck) => {
       console.log('🎨 Theme changed:', { newTheme, updatedDeck });
-      
+
       // Update the editable data with new theme
       if (updatedDeck && projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK) {
         setEditableData(updatedDeck);
-        
+
         // Auto-save the theme change
         if (isEditing) {
           handleAutoSave();
@@ -1005,11 +1061,11 @@ export default function ProjectInstanceViewPage() {
       });
       if (!resp.ok) {
         const responseText = await resp.text();
-        throw new Error(`${t('interface.projectView.failedToMoveToTrash', 'Failed to move to trash')}: ${resp.status} ${responseText.slice(0,200)}`);
+        throw new Error(`${t('interface.projectView.failedToMoveToTrash', 'Failed to move to trash')}: ${resp.status} ${responseText.slice(0, 200)}`);
       }
       // redirect to products
       router.push('/projects');
-    } catch (e:any) {
+    } catch (e: any) {
       alert(e.message || t('interface.projectView.couldNotMoveToTrash', 'Could not move to trash'));
     }
   };
@@ -1022,15 +1078,15 @@ export default function ProjectInstanceViewPage() {
   if (pageState === 'error') {
     return <div className="flex items-center justify-center min-h-screen bg-red-50"><div className="p-8 text-center text-red-700 text-lg">{t('interface.projectView.errorLoadingProject', 'Error: Failed to load project data.')}</div></div>;
   }
-    if (!projectInstanceData) {
-      return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">{t('interface.projectView.projectNotFound', 'Project not found or data unavailable.')}</div></div>;
+  if (!projectInstanceData) {
+    return <div className="flex items-center justify-center min-h-screen bg-gray-100"><div className="p-8 text-center text-gray-500">{t('interface.projectView.projectNotFound', 'Project not found or data unavailable.')}</div></div>;
   }
 
   const DefaultDisplayComponent = ({ instanceData, t }: { instanceData: ProjectInstanceDetail | null; t: (key: string, fallback?: string) => string }) => (
     <div className="p-6 border rounded-lg bg-gray-50 shadow-md">
       <div className="flex items-center text-blue-600 mb-3">
-          <Info size={24} className="mr-3" />
-          <h2 className="text-2xl font-semibold">{instanceData?.name || t('interface.projectView.contentDetails', 'Content Details')}</h2>
+        <Info size={24} className="mr-3" />
+        <h2 className="text-2xl font-semibold">{instanceData?.name || t('interface.projectView.contentDetails', 'Content Details')}</h2>
       </div>
       <p className="text-gray-700 mb-2">
         {t('interface.projectView.utilizesDesignComponent', 'This project instance utilizes the design component:')} <strong className="font-medium text-gray-800">&quot;{instanceData?.component_name || t('interface.projectView.unknownComponent', 'Unknown')}&quot;</strong>.
@@ -1040,25 +1096,25 @@ export default function ProjectInstanceViewPage() {
         {t('interface.projectView.editGeneralDetails', 'You can typically edit the project&apos;s general details (like name or design template) via the main project editing page.')}
       </p>
       <details className="group text-sm">
-          <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
-              {t('interface.projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
-          </summary>
-          <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
-              {JSON.stringify(instanceData?.details, null, 2)}
-          </pre>
+        <summary className="cursor-pointer text-blue-500 hover:text-blue-700 transition-colors duration-150 group-open:mb-2 font-medium">
+          {t('interface.projectView.toggleRawContentPreview', 'Toggle Raw Content Preview')}
+        </summary>
+        <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-gray-200 mt-1 max-h-96">
+          {JSON.stringify(instanceData?.details, null, 2)}
+        </pre>
       </details>
     </div>
   );
 
   const displayContent = () => {
     if (!projectInstanceData || pageState !== 'success') {
-      return null; 
+      return null;
     }
 
     const parentProjectName = searchParams?.get('parentProjectName') || parentProjectNameForCurrentView;
     const lessonNumberStr = searchParams?.get('lessonNumber');
     let lessonNumber: number | undefined = lessonNumberStr ? parseInt(lessonNumberStr, 10) : undefined;
-    
+
     if (lessonNumber === undefined && projectInstanceData.details && 'lessonNumber' in projectInstanceData.details && typeof projectInstanceData.details.lessonNumber === 'number') {
       lessonNumber = projectInstanceData.details.lessonNumber;
     }
@@ -1099,9 +1155,9 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_PDF_LESSON:
         const pdfLessonData = editableData as PdfLessonData | null;
         return (
-          <PdfLessonDisplayComponent 
-            dataToDisplay={pdfLessonData} 
-            isEditing={isEditing} 
+          <PdfLessonDisplayComponent
+            dataToDisplay={pdfLessonData}
+            isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
@@ -1112,9 +1168,9 @@ export default function ProjectInstanceViewPage() {
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
-                // For slide decks, use the new SmartSlideDeckViewer with component-based templates
+        // For slide decks, use the new SmartSlideDeckViewer with component-based templates
         return (
-          <div style={{ 
+          <div style={{
             width: '100%',
             minHeight: '600px',
             backgroundColor: '#f8f9fa',
@@ -1128,7 +1184,7 @@ export default function ProjectInstanceViewPage() {
                 // Update the editableData state with the new deck and trigger save
                 console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
                 setEditableData(updatedDeck);
-                
+
                 // Use the updated deck directly for immediate save
                 console.log('🔍 page.tsx: Triggering auto-save with updated data');
                 // Create a temporary auto-save function that uses the updated deck
@@ -1137,7 +1193,7 @@ export default function ProjectInstanceViewPage() {
                     console.log('🔍 page.tsx: Missing required data for auto-save');
                     return;
                   }
-                  
+
                   const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
                   const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
                   if (devUserId && process.env.NODE_ENV === 'development') {
@@ -1147,11 +1203,11 @@ export default function ProjectInstanceViewPage() {
                   try {
                     const payload = { microProductContent: updatedDeck };
                     console.log('🔍 page.tsx: Sending updated deck to backend:', JSON.stringify(payload, null, 2));
-                    
+
                     const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
                       method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
                     });
-                    
+
                     if (!response.ok) {
                       console.error('🔍 page.tsx: Auto-save failed:', response.status);
                       const errorText = await response.text();
@@ -1165,7 +1221,7 @@ export default function ProjectInstanceViewPage() {
                     console.error('🔍 page.tsx: Auto-save error:', err.message);
                   }
                 };
-                
+
                 tempAutoSave();
               }}
               // onAutoSave removed to prevent duplicate save requests
@@ -1182,7 +1238,7 @@ export default function ProjectInstanceViewPage() {
         }
         // For video lesson presentations, use the same SmartSlideDeckViewer but with voiceover support
         return (
-          <div style={{ 
+          <div style={{
             width: '100%',
             minHeight: '600px',
             backgroundColor: '#f8f9fa',
@@ -1196,7 +1252,7 @@ export default function ProjectInstanceViewPage() {
                 // Update the editableData state with the new deck and trigger save
                 console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
                 setEditableData(updatedDeck);
-                
+
                 // Use the updated deck directly for immediate save
                 console.log('🔍 page.tsx: Triggering auto-save with updated video lesson data');
                 // Create a temporary auto-save function that uses the updated deck
@@ -1205,7 +1261,7 @@ export default function ProjectInstanceViewPage() {
                     console.log('🔍 page.tsx: Missing required data for auto-save');
                     return;
                   }
-                  
+
                   const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
                   const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
                   if (devUserId && process.env.NODE_ENV === 'development') {
@@ -1215,11 +1271,11 @@ export default function ProjectInstanceViewPage() {
                   try {
                     const payload = { microProductContent: updatedDeck };
                     console.log('🔍 page.tsx: Sending updated video lesson deck to backend:', JSON.stringify(payload, null, 2));
-                    
+
                     const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
                       method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
                     });
-                    
+
                     if (!response.ok) {
                       console.error('🔍 page.tsx: Auto-save failed:', response.status);
                       const errorText = await response.text();
@@ -1233,7 +1289,7 @@ export default function ProjectInstanceViewPage() {
                     console.error('🔍 page.tsx: Auto-save error:', err.message);
                   }
                 };
-                
+
                 tempAutoSave();
               }}
               // onAutoSave removed to prevent duplicate save requests
@@ -1244,7 +1300,7 @@ export default function ProjectInstanceViewPage() {
             />
           </div>
         );
-       case COMPONENT_NAME_TEXT_PRESENTATION:
+      case COMPONENT_NAME_TEXT_PRESENTATION:
         const textPresentationData = editableData as TextPresentationData | null;
         return (
           <TextPresentationDisplay
@@ -1268,10 +1324,10 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_QUIZ:
         const quizData = editableData as QuizData | null;
         return (
-          <QuizDisplay 
-            dataToDisplay={quizData} 
-            isEditing={isEditing} 
-            onTextChange={handleTextChange} 
+          <QuizDisplay
+            dataToDisplay={quizData}
+            isEditing={isEditing}
+            onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
           />
@@ -1283,7 +1339,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
@@ -1293,7 +1349,7 @@ export default function ProjectInstanceViewPage() {
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          
+
           <div className="flex items-center gap-x-4">
             <button
               onClick={() => router.back()}
@@ -1302,13 +1358,13 @@ export default function ProjectInstanceViewPage() {
               <ArrowLeft size={16} className="mr-2" />
               {t('interface.projectView.back', 'Back')}
             </button>
-            
+
             <Link
-                href="/projects"
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors"
-                >
-                <FolderOpen size={16} className="mr-2" />
-                {t('interface.projectView.openProducts', 'Open Products')}
+              href="/projects"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors"
+            >
+              <FolderOpen size={16} className="mr-2" />
+              {t('interface.projectView.openProducts', 'Open Products')}
             </Link>
           </div>
 
@@ -1318,11 +1374,10 @@ export default function ProjectInstanceViewPage() {
               <button
                 onClick={handleToggleEdit}
                 disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center ${
-                  isEditing 
-                    ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
-                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
-                }`}
+                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center ${isEditing
+                  ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500'
+                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
+                  }`}
                 title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
               >
                 {isEditing ? (
@@ -1338,26 +1393,26 @@ export default function ProjectInstanceViewPage() {
                 )}
               </button>
             )}
-            
+
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                  <button
-                    onClick={handlePdfDownload}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
-                    title={
-                      projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
-                        : t('interface.projectView.downloadPdf', 'Download content as PDF')
-                    }
-                  >
-                   <Download size={16} className="mr-2" /> {
-                     projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
-                       ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
-                       : t('interface.projectView.downloadPdf', 'Download PDF')
-                   }
-                  </button>
+              <button
+                onClick={handlePdfDownload}
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                title={
+                  projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK
+                    ? t('interface.projectView.downloadSlideDeckPdf', 'Download presentation as PDF')
+                    : t('interface.projectView.downloadPdf', 'Download content as PDF')
+                }
+              >
+                <Download size={16} className="mr-2" /> {
+                  projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK
+                    ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
+                    : t('interface.projectView.downloadPdf', 'Download PDF')
+                }
+              </button>
             )}
-            
+
             {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
@@ -1367,6 +1422,108 @@ export default function ProjectInstanceViewPage() {
               >
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
+            )}
+
+            {/* Role Visibility Dropdown - only for Training Plans */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+              <div className="relative" ref={roleDropdownRef}>
+                <button
+                  onClick={() => setRoleAccess(!roleAccess)}
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-violet-200 border border-gray-300 hover:bg-violet-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                  title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {t('interface.projectView.Role', 'Role')}
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
+
+                {roleAccess && (
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">{t('interface.projectView.accessControl', 'Access Control')}</h3>
+
+                    {/* Predefined Roles Section */}
+                    <div className="mb-6">
+                      <h4 className="text-xs font-medium text-gray-700 mb-3">{t('interface.projectView.predefinedRoles', 'Predefined Roles')}</h4>
+                      <div className="space-y-2">
+                        {predefinedRoles.map((role) => (
+                          <label key={role.id} className="flex items-start">
+                            <input
+                              type="checkbox"
+                              checked={selectedRoles.includes(role.id)}
+                              onChange={() => handleRoleToggle(role.id)}
+                              className="mt-1 mr-3 text-blue-600 focus:ring-blue-500"
+                            />
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-gray-900">{role.label}</div>
+                              <div className="text-xs text-gray-500">{role.description}</div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Custom Emails Section */}
+                    <div className="mb-4">
+                      <h4 className="text-xs font-medium text-gray-700 mb-3">{t('interface.projectView.customEmails', 'Custom Email Access')}</h4>
+
+                      {/* Add Email Input */}
+                      <div className="flex gap-2 mb-3">
+                        <input
+                          type="email"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
+                          className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
+                        />
+                        <button
+                          onClick={handleAddEmail}
+                          disabled={!isValidEmail(newEmail)}
+                          className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {t('interface.projectView.add', 'Add')}
+                        </button>
+                      </div>
+
+                      {/* Email List */}
+                      {customEmails.length > 0 && (
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {customEmails.map((email) => (
+                            <div key={email} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                              <label className="flex items-center flex-1">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedEmails.includes(email)}
+                                  onChange={() => handleEmailToggle(email)}
+                                  className="mr-2 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">{email}</span>
+                              </label>
+                              <button
+                                onClick={() => handleRemoveEmail(email)}
+                                className="text-red-500 hover:text-red-700 text-sm"
+                                title={t('interface.projectView.removeEmail', 'Remove email')}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Summary */}
+                    <div className="pt-3 border-t border-gray-200">
+                      <div className="text-xs text-gray-600">
+                        <div>{t('interface.projectView.selectedRoles', 'Selected Roles')}: {selectedRoles.length}</div>
+                        <div>{t('interface.projectView.selectedEmails', 'Selected Emails')}: {selectedEmails.length}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Column Visibility Dropdown - only for Training Plans */}
@@ -1381,7 +1538,7 @@ export default function ProjectInstanceViewPage() {
                   {t('interface.projectView.columns', 'Columns')}
                   <ChevronDown size={16} className="ml-1" />
                 </button>
-                
+
                 {showColumnDropdown && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
                     <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
@@ -1466,16 +1623,16 @@ export default function ProjectInstanceViewPage() {
         }
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
-            <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
-              {displayContent()}
-            </Suspense>
+          <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
+            {displayContent()}
+          </Suspense>
         </div>
       </div>
 
       {/* PDF Export Loading Modal */}
-      <PdfExportLoadingModal 
-        isOpen={isExportingPdf} 
-        projectName={projectInstanceData?.name || 'Presentation'} 
+      <PdfExportLoadingModal
+        isOpen={isExportingPdf}
+        projectName={projectInstanceData?.name || 'Presentation'}
       />
     </main>
   );

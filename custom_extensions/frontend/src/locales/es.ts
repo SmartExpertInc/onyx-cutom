@@ -828,6 +828,7 @@ export const es = {
       errorLoadingProject: "Error: {error}",
       projectNotFound: "Proyecto no encontrado o datos no disponibles.",
       back: "Atrás",
+      role: "Role",
       openProducts: "Abrir productos",
       downloadPdf: "Descargar PDF",
       smartEdit: "Edición inteligente",
