@@ -1473,7 +1473,7 @@ export default function ProjectInstanceViewPage() {
                           value={newEmail}
                           onChange={(e) => setNewEmail(e.target.value)}
                           placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
-                          className="flex-1 px-3 py-1.5 text-sm placeholder-gray-500 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="flex-1 px-3 py-1.5 text-sm placeholder-gray-700 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                         />
                         <button
