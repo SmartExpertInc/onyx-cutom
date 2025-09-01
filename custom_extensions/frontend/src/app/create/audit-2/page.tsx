@@ -6,7 +6,11 @@ import Image from 'next/image';
 
 export default function AuditPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col">
+    <>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+      `}</style>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
       <header className="bg-[#FAFAFA] h-[50px] xl:h-[81px]">
         <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
@@ -79,7 +83,7 @@ export default function AuditPage() {
             alt="Audit"
             width={360}
             height={339}
-            className="-mx-[40px] xl:-mx-[120px]"
+            className="-mx-[20px] xl:-mx-[120px] w-[calc(100%+40px)] xl:w-[calc(100%+240px)]"
             style={{ height: '339.39px' }}
           />
         </section>
@@ -91,6 +95,7 @@ export default function AuditPage() {
           {/* Footer content will be added here */}
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
