@@ -90,6 +90,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // ✅ NEW: Image choice modal state
   const [showImageChoiceModal, setShowImageChoiceModal] = useState(false);
 
+  // ✅ NEW: Track manual deletion to prevent auto-regeneration
+  const [wasManuallyDeleted, setWasManuallyDeleted] = useState(false);
+
   // ✅ NEW: Click-to-activate interaction model
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -384,12 +387,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // Clear the image from local state
     setDisplayedImage(undefined);
     
-    // Clear the image from backend by passing a special object that indicates intentional deletion
-    // This prevents automatic regeneration of deleted images
-    onImageUploaded({
-      imagePath: null,
-      imageIntentionallyDeleted: true
-    } as any);
+    // Clear the image from backend by passing null/undefined instead of empty string
+    // This ensures the backend properly clears the imagePath field
+    onImageUploaded(null as any);
     
     // Clear selection state
     setIsSelected(false);
@@ -397,13 +397,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // Also clear any saved image dimensions
     setImageDimensions(null);
     
+    // Set the flag to true when manually deleted
+    setWasManuallyDeleted(true);
+    
     console.log('🔍 [InlineAction] Image removal completed', {
       elementId,
       instanceId,
       displayedImageCleared: true,
       backendNotified: true,
       selectionCleared: true,
-      imageIntentionallyDeleted: true,
+      manuallyDeleted: true,
       timestamp: Date.now()
     });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
@@ -414,34 +417,34 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       elementId,
       instanceId,
       imagePath,
-      hadExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
     
-    // Set the generated image (this will replace any existing image)
+    // Set the generated image
     setDisplayedImage(imagePath);
     
-    // Notify parent component of the new image
+    // Notify parent component
     onImageUploaded(imagePath);
     
     // Clear selection state
     setIsSelected(false);
     
+    // Reset manual deletion flag
+    setWasManuallyDeleted(false);
+    
     console.log('🔍 [AIGeneration] AI image integration completed', {
       elementId,
       instanceId,
       imagePath,
-      hadExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
-  }, [onImageUploaded, elementId, instanceId, displayedImage]);
+  }, [onImageUploaded, elementId, instanceId]);
 
   // ✅ NEW: AI Generation Started handler
   const handleAIGenerationStarted = useCallback(() => {
     console.log('🔍 [AIGeneration] Generation started', { 
       elementId,
       instanceId,
-      hasExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
     
@@ -449,24 +452,21 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setShowAIGenerationModal(false);
     
     // ✅ NEW: Notify parent component that generation has started
-    // This will show the spinner even if there's an existing image
     if (onGenerationStarted && elementId) {
       onGenerationStarted(elementId);
       console.log('🔍 [AIGeneration] Parent notified of generation start', {
         elementId,
         instanceId,
-        hasExistingImage: !!displayedImage,
         timestamp: Date.now()
       });
     } else {
       console.log('🔍 [AIGeneration] No parent callback or elementId, waiting for parent to set isGenerating=true', {
         elementId,
         instanceId,
-        currentIsGenerating: isGenerating,
-        hasExistingImage: !!displayedImage
+        currentIsGenerating: isGenerating
       });
     }
-  }, [elementId, instanceId, isGenerating, onGenerationStarted, displayedImage]);
+  }, [elementId, instanceId, isGenerating, onGenerationStarted]);
 
   // ✅ NEW: Image choice handlers
   const handleChooseUpload = useCallback(() => {
@@ -474,17 +474,31 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     log('ClickableImagePlaceholder', 'chooseUpload', { elementId, instanceId });
   }, [elementId, instanceId]);
 
+  // ✅ NEW: AI Generation handlers
   const handleChooseAI = useCallback(() => {
-    console.log('🔍 [AIGeneration] Choose AI clicked', { 
-      elementId, 
+    console.log('🔍 [InlineAction] AI Generation chosen', { 
+      elementId,
       instanceId,
-      hasAiGeneratedPrompt: !!aiGeneratedPrompt,
-      aiGeneratedPromptPreview: aiGeneratedPrompt?.substring(0, 50) + '...',
+      hasExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
+    
+    setShowImageChoiceModal(false);
     setShowAIGenerationModal(true);
-    log('ClickableImagePlaceholder', 'chooseAI', { elementId, instanceId });
-  }, [elementId, instanceId, aiGeneratedPrompt]);
+  }, [elementId, instanceId, displayedImage]);
+
+  const handleGenerateAI = useCallback(() => {
+    console.log('🔍 [InlineAction] Generate AI Image clicked', { 
+      elementId,
+      instanceId,
+      hasExistingImage: !!displayedImage,
+      timestamp: Date.now()
+    });
+    
+    // Reset manual deletion flag if generating new image
+    setWasManuallyDeleted(false);
+    setShowAIGenerationModal(true);
+  }, [elementId, instanceId, displayedImage]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
@@ -767,7 +781,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                  onClick={(e) => {
                    e.stopPropagation();
                    console.log('🔍 [InlineAction] Generate with AI clicked', { elementId, instanceId });
-                   setShowAIGenerationModal(true);
+                   handleGenerateAI();
                  }}
                  className="bg-purple-500 hover:bg-purple-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
                  title="Generate with AI"

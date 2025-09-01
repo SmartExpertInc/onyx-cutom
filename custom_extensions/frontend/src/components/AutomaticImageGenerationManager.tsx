@@ -105,10 +105,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       switch (templateId) {
         case 'big-image-left':
         case 'big-image-top':
-          // Only extract if there's a prompt AND no image path, AND the image wasn't intentionally deleted
-          if (slide.props.imagePrompt && !slide.props.imagePath && !slide.props.imageIntentionallyDeleted) {
+          const imageElementId = `${slideId}-image`;
+          // Only include if has prompt, no image, AND not manually deleted
+          if (slide.props.imagePrompt && !slide.props.imagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-image`,
+              elementId: imageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.imagePrompt,
@@ -121,10 +122,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
 
         case 'bullet-points':
         case 'bullet-points-right':
-          // Only extract if there's a prompt AND no image path, AND the image wasn't intentionally deleted
-          if (slide.props.imagePrompt && !slide.props.imagePath && !slide.props.imageIntentionallyDeleted) {
+          const bulletImageElementId = `${slideId}-image`;
+          // Only include if has prompt, no image, AND not manually deleted
+          if (slide.props.imagePrompt && !slide.props.imagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-image`,
+              elementId: bulletImageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.imagePrompt,
@@ -136,10 +138,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           break;
 
         case 'two-column':
-          // Handle left image - only if not intentionally deleted
-          if (slide.props.leftImagePrompt && !slide.props.leftImagePath && !slide.props.leftImageIntentionallyDeleted) {
+          // Handle left image
+          const leftImageElementId = `${slideId}-left-image`;
+          if (slide.props.leftImagePrompt && !slide.props.leftImagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-left-image`,
+              elementId: leftImageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.leftImagePrompt,
@@ -148,10 +151,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
               isGenerating: false
             });
           }
-          // Handle right image - only if not intentionally deleted
-          if (slide.props.rightImagePrompt && !slide.props.rightImagePath && !slide.props.rightImageIntentionallyDeleted) {
+          // Handle right image
+          const rightImageElementId = `${slideId}-right-image`;
+          if (slide.props.rightImagePrompt && !slide.props.rightImagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-right-image`,
+              elementId: rightImageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.rightImagePrompt,
@@ -163,8 +167,8 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
           break;
 
         default:
-          // Check for generic image properties - only if not intentionally deleted
-          if (slide.props.imagePrompt && !slide.props.imagePath && !slide.props.imageIntentionallyDeleted) {
+          // Check for generic image properties
+          if (slide.props.imagePrompt && !slide.props.imagePath) {
             extractedPlaceholders.push({
               elementId: `${slideId}-image`,
               slideId,
@@ -186,8 +190,7 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         elementId: p.elementId,
         templateId: p.templateId,
         hasPrompt: !!p.imagePrompt,
-        hasImage: !!p.imagePath,
-        intentionallyDeleted: false
+        hasImage: !!p.imagePath
       }))
     });
 
@@ -284,7 +287,7 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       
       return { success: false, error: errorMessage };
     }
-  }, []);
+  }, [enhancePromptWithTheme]);
 
   // Process all placeholders with automatic generation
   const processAllPlaceholders = useCallback(async () => {
