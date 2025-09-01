@@ -1436,7 +1436,7 @@ export default function ProjectInstanceViewPage() {
                     onClick={() => setRoleAccess(false)}
                   >
                     <div
-                      className="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4"
+                      className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
@@ -1483,7 +1483,7 @@ export default function ProjectInstanceViewPage() {
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
                               placeholder={t('interface.projectView.enterEmail', 'Enter email address')}
-                              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="flex-1 px-3 py-2 text-sm border text-gray-600 placeholder-gray-600 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
                             <button
