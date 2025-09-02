@@ -1,10 +1,19 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function AuditPage() {
+  const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules(prev => ({
+      ...prev,
+      [moduleId]: !prev[moduleId]
+    }));
+  };
+
   return (
     <>
       <style jsx global>{`
@@ -778,6 +787,162 @@ export default function AuditPage() {
                       <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
                     </svg>
                   </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-[20px]">
+                <h4 className="font-medium text-[18px] text-[#09090B] leading-[140%]">
+                  План обучения
+                </h4>
+                
+                {/* Module 1*/}
+                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                      Модуль 02:
+                    </span>
+                    
+                    <button 
+                      onClick={() => toggleModule('module1')}
+                      className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                        expandedModules['module1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
+                      }`}
+                    >
+                      {expandedModules['module1'] ? (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      ) : (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
+                    Подбор и управление персоналом
+                  </h5>
+                </div>
+
+                {/* Module 2*/}
+                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                      Модуль 01:
+                    </span>
+                    
+                    <button 
+                      onClick={() => toggleModule('module2')}
+                      className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                        expandedModules['module2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
+                      }`}
+                    >
+                      {expandedModules['module2'] ? (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      ) : (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
+                    Корпоративная культура и стандарты работы в Vogue Lashes & Spa
+                  </h5>
+                </div>
+
+                {/* Module 3*/}
+                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                      Модуль 02:
+                    </span>
+                    
+                    <button 
+                      onClick={() => toggleModule('module3')}
+                      className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                        expandedModules['module3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
+                      }`}
+                    >
+                      {expandedModules['module3'] ? (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      ) : (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
+                    Подбор и управление персоналом
+                  </h5>
+                </div>
+
+                {/* Module 4*/}
+                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                      Модуль 03:
+                    </span>
+                    
+                    <button 
+                      onClick={() => toggleModule('module4')}
+                      className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                        expandedModules['module4'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
+                      }`}
+                    >
+                      {expandedModules['module4'] ? (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      ) : (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
+                    Маркетинг и привлечение клиентов
+                  </h5>
+                </div>
+
+                {/* Module 5*/}
+                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                      Модуль 04:
+                    </span>
+                    
+                    <button 
+                      onClick={() => toggleModule('module5')}
+                      className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                        expandedModules['module5'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
+                      }`}
+                    >
+                      {expandedModules['module5'] ? (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      ) : (
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  
+                  <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
+                    Финансовый контроль и развитие бизнеса
+                  </h5>
                 </div>
               </div>
             </div>
