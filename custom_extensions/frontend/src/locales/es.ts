@@ -586,6 +586,30 @@ export const es = {
       // Basic actions dropdown
       openAdvancedSettings: "Abrir configuración avanzada"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Generar imagen con IA",
+      promptLabel: "Describe la imagen que quieres generar",
+      promptPlaceholder: "ej., Una diapositiva de presentación empresarial moderna con gráficos y diagramas, estilo profesional, diseño limpio",
+      promptHelp: "Sé específico y descriptivo para mejores resultados",
+      qualityLabel: "Calidad",
+      qualityStandard: "Estándar",
+      qualityHD: "HD",
+      styleLabel: "Estilo",
+      styleVivid: "Vívido",
+      styleNatural: "Natural",
+      errorEmptyPrompt: "Por favor, ingresa una descripción para generar la imagen",
+      cancel: "Cancelar",
+      generate: "Generar imagen",
+      generating: "Generando...",
+      addImage: "Agregar imagen",
+      chooseMethod: "Elige cómo quieres agregar una imagen a este marcador de posición",
+      uploadImage: "Subir imagen",
+      uploadDescription: "Elige un archivo de tu dispositivo",
+      generateWithAI: "Generar con IA",
+      generateDescription: "Crear una imagen usando DALL-E"
+    },
 
     // Quality tiers
     basic: "Básico",
@@ -943,43 +967,6 @@ export const es = {
       stableDiffusion: "Stable Diffusion 2.1",
       describeImprovements: "Describe lo que te gustaría mejorar...",
       total: "total",
-      // AI Image Generation Modal
-      generateAIImage: "Generar imagen IA",
-      describeImageToGenerate: "Describe la imagen que quieres generar",
-      promptPlaceholder: "ej., Una diapositiva de presentación empresarial moderna con gráficos y tablas, estilo profesional, diseño limpio",
-      beSpecificForBetterResults: "Sé específico y descriptivo para mejores resultados",
-      quality: "Calidad",
-      style: "Estilo",
-      standard: "Estándar",
-      hd: "HD",
-      vivid: "Vívido",
-      natural: "Natural",
-      cancel: "Cancelar",
-      generateImage: "Generar imagen",
-      generating: "Generando...",
-      pleaseEnterPrompt: "Por favor ingresa una descripción para generar la imagen",
-      // Image Choice Modal
-      addImage: "Agregar imagen",
-      chooseHowToAddImage: "Elige cómo te gustaría agregar una imagen a este marcador de posición",
-      uploadImage: "Subir imagen",
-      chooseFileFromDevice: "Elige un archivo de tu dispositivo",
-      generateWithAI: "Generar con IA",
-      createImageUsingDalle: "Crear una imagen usando DALL-E",
-      // Image Upload Modal
-      uploadPresentationImage: "Subir imagen de presentación",
-      dragAndDropImageHere: "Arrastra y suelta una imagen aquí, o haz clic para navegar",
-      chooseFile: "Elegir archivo",
-      uploading: "Subiendo...",
-      supportedFormats: "Formatos soportados: PNG, JPG, JPEG, GIF, WebP (máx. 10MB)",
-      // Image Edit Modal
-      editImage: "Editar imagen",
-      portraitTemplate: "Plantilla de retrato",
-      doNotCrop: "No recortar",
-      processing: "Procesando...",
-      confirmCrop: "Confirmar recorte",
-      // Image Placeholder Actions
-      replaceImage: "Reemplazar imagen",
-      clickToUploadImage: "Haz clic para subir imagen",
     },
     // Generate Page
     generate: {

@@ -41,7 +41,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
   onImageGenerated,
   onGenerationStarted,
   placeholderDimensions = { width: 1024, height: 1024 },
-  title = "Generate AI Image",
+  title,
   preFilledPrompt,
   placeholderId,
   currentTheme,
@@ -134,7 +134,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
 
   const generateImage = async () => {
     if (!prompt.trim()) {
-      setError(t('interface.pleaseEnterPrompt', 'Please enter a prompt for image generation'));
+      setError(t('interface.modals.aiImageGeneration.errorEmptyPrompt', 'Please enter a prompt for image generation'));
       return;
     }
 
@@ -285,7 +285,9 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">{title || t('interface.generateAIImage', 'Generate AI Image')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {title || t('interface.modals.aiImageGeneration.title', 'Generate AI Image')}
+            </h3>
           </div>
           <button
             onClick={onClose}
@@ -300,21 +302,21 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
           {/* Prompt Input */}
           <div>
             <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-2">
-              {t('interface.describeImageToGenerate', 'Describe the image you want to generate')}
+              {t('interface.modals.aiImageGeneration.promptLabel', 'Describe the image you want to generate')}
             </label>
             <textarea
               id="prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={t('interface.promptPlaceholder', 'e.g., A modern business presentation slide with charts and graphs, professional style, clean design')}
+              placeholder={t('interface.modals.aiImageGeneration.promptPlaceholder', 'e.g., A modern business presentation slide with charts and graphs, professional style, clean design')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               rows={3}
               disabled={generating}
               style={{ color: '#374151' }} // Darker text color
             />
             <p className="text-xs text-gray-500 mt-1">
-              {t('interface.beSpecificForBetterResults', 'Be specific and descriptive for better results')}
+              {t('interface.modals.aiImageGeneration.promptHelp', 'Be specific and descriptive for better results')}
             </p>
           </div>
 
@@ -322,7 +324,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('interface.quality', 'Quality')}
+                {t('interface.modals.aiImageGeneration.qualityLabel', 'Quality')}
               </label>
               <select
                 value={quality}
@@ -331,14 +333,18 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 style={{ color: '#374151' }} // Darker text color
               >
-                <option value="standard" style={{ color: '#374151' }}>{t('interface.standard', 'Standard')}</option>
-                <option value="hd" style={{ color: '#374151' }}>{t('interface.hd', 'HD')}</option>
+                <option value="standard" style={{ color: '#374151' }}>
+                  {t('interface.modals.aiImageGeneration.qualityStandard', 'Standard')}
+                </option>
+                <option value="hd" style={{ color: '#374151' }}>
+                  {t('interface.modals.aiImageGeneration.qualityHD', 'HD')}
+                </option>
               </select>
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('interface.style', 'Style')}
+                {t('interface.modals.aiImageGeneration.styleLabel', 'Style')}
               </label>
               <select
                 value={style}
@@ -347,8 +353,12 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 style={{ color: '#374151' }} // Darker text color
               >
-                <option value="vivid" style={{ color: '#374151' }}>{t('interface.vivid', 'Vivid')}</option>
-                <option value="natural" style={{ color: '#374151' }}>{t('interface.natural', 'Natural')}</option>
+                <option value="vivid" style={{ color: '#374151' }}>
+                  {t('interface.modals.aiImageGeneration.styleVivid', 'Vivid')}
+                </option>
+                <option value="natural" style={{ color: '#374151' }}>
+                  {t('interface.modals.aiImageGeneration.styleNatural', 'Natural')}
+                </option>
               </select>
             </div>
           </div>
@@ -367,7 +377,7 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
               disabled={generating}
               className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 disabled:opacity-50"
             >
-              {t('interface.cancel', 'Cancel')}
+              {t('interface.modals.aiImageGeneration.cancel', 'Cancel')}
             </button>
             <button
               onClick={generateImage}
@@ -377,12 +387,12 @@ const AIImageGenerationModal: React.FC<AIImageGenerationModalProps> = ({
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  {t('interface.generating', 'Generating...')}
+                  {t('interface.modals.aiImageGeneration.generating', 'Generating...')}
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  {t('interface.generateImage', 'Generate Image')}
+                  {t('interface.modals.aiImageGeneration.generate', 'Generate Image')}
                 </>
               )}
             </button>

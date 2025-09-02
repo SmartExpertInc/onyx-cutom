@@ -571,6 +571,30 @@ export const uk = {
       // Basic actions dropdown
       openAdvancedSettings: "Відкрити розширені налаштування"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Згенерувати ШІ зображення",
+      promptLabel: "Опишіть зображення, яке хочете згенерувати",
+      promptPlaceholder: "наприклад, Сучасний слайд бізнес-презентації з діаграмами та графіками, професійний стиль, чистий дизайн",
+      promptHelp: "Будьте конкретними та описовими для кращих результатів",
+      qualityLabel: "Якість",
+      qualityStandard: "Стандартна",
+      qualityHD: "HD",
+      styleLabel: "Стиль",
+      styleVivid: "Яскравий",
+      styleNatural: "Природний",
+      errorEmptyPrompt: "Будь ласка, введіть опис для генерації зображення",
+      cancel: "Скасувати",
+      generate: "Згенерувати зображення",
+      generating: "Генерація...",
+      addImage: "Додати зображення",
+      chooseMethod: "Виберіть, як ви хочете додати зображення в цей заповнювач",
+      uploadImage: "Завантажити зображення",
+      uploadDescription: "Виберіть файл з вашого пристрою",
+      generateWithAI: "Згенерувати з ШІ",
+      generateDescription: "Створити зображення за допомогою DALL-E"
+    },
 
     // Quality tiers
     basic: "Базовий",
@@ -925,43 +949,6 @@ export const uk = {
       stableDiffusion: "Stable Diffusion 2.1",
       describeImprovements: "Опишіть, що ви хочете покращити...",
       total: "всього",
-      // AI Image Generation Modal
-      generateAIImage: "Згенерувати ШІ зображення",
-      describeImageToGenerate: "Опишіть зображення, яке хочете згенерувати",
-      promptPlaceholder: "наприклад, Сучасний слайд бізнес-презентації з діаграмами та графіками, професійний стиль, чистий дизайн",
-      beSpecificForBetterResults: "Будьте конкретними та описовими для кращих результатів",
-      quality: "Якість",
-      style: "Стиль",
-      standard: "Стандартна",
-      hd: "HD",
-      vivid: "Яскравий",
-      natural: "Природний",
-      cancel: "Скасувати",
-      generateImage: "Згенерувати зображення",
-      generating: "Генерація...",
-      pleaseEnterPrompt: "Будь ласка, введіть опис для генерації зображення",
-      // Image Choice Modal
-      addImage: "Додати зображення",
-      chooseHowToAddImage: "Виберіть, як ви хочете додати зображення в цей плейсхолдер",
-      uploadImage: "Завантажити зображення",
-      chooseFileFromDevice: "Виберіть файл з вашого пристрою",
-      generateWithAI: "Згенерувати з ШІ",
-      createImageUsingDalle: "Створити зображення за допомогою DALL-E",
-      // Image Upload Modal
-      uploadPresentationImage: "Завантажити зображення презентації",
-      dragAndDropImageHere: "Перетягніть зображення сюди або натисніть для вибору",
-      chooseFile: "Вибрати файл",
-      uploading: "Завантаження...",
-      supportedFormats: "Підтримувані формати: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)",
-      // Image Edit Modal
-      editImage: "Редагувати зображення",
-      portraitTemplate: "Портретний шаблон",
-      doNotCrop: "Не обрізати",
-      processing: "Обробка...",
-      confirmCrop: "Підтвердити обрізку",
-      // Image Placeholder Actions
-      replaceImage: "Замінити зображення",
-      clickToUploadImage: "Натисніть, щоб завантажити зображення",
     },
     // Generate Page
     generate: {

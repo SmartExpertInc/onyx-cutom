@@ -826,7 +826,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           onImageUploaded={handleImageUploaded}
-          title={t('interface.replaceImage', 'Replace Image')}
+          title={t('interface.modals.aiImageGeneration.uploadImage', 'Upload Image')}
         />
 
         <ImageEditModal
@@ -847,7 +847,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onGenerationStarted={handleAIGenerationStarted}
           placeholderDimensions={getPlaceholderDimensions()}
           placeholderId={elementId}
-          title="Generate AI Image"
+          title={t('interface.modals.aiImageGeneration.title', 'Generate AI Image')}
           preFilledPrompt={aiGeneratedPrompt}
           templateId={templateId}
         />
@@ -883,7 +883,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <div className="text-center p-4">
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="font-medium">{size} Image</div>
-          <div className="text-xs mt-1 opacity-75">{t('interface.clickToUploadImage', description)}</div>
+          <div className="text-xs mt-1 opacity-75">{description}</div>
           {prompt && (
             <div className="text-xs mt-1 opacity-60 italic">
               "{prompt}"
@@ -914,7 +914,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onImageUploaded={handleImageUploaded}
-        title={t('interface.uploadImage', 'Upload Image')}
+                  title={t('interface.modals.aiImageGeneration.uploadImage', 'Upload Image')}
       />
 
       <ImageEditModal
@@ -935,7 +935,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onGenerationStarted={handleAIGenerationStarted}
         placeholderDimensions={getPlaceholderDimensions()}
         placeholderId={elementId}
-        title="Generate AI Image"
+        title={t('generateAIImage')}
         preFilledPrompt={aiGeneratedPrompt}
       />
 
@@ -945,7 +945,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onClose={() => setShowImageChoiceModal(false)}
         onChooseUpload={handleChooseUpload}
         onChooseAI={handleChooseAI}
-        title="Add Image"
+                  title={t('interface.modals.aiImageGeneration.addImage', 'Add Image')}
       />
     </>
   );

@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom';
 import { ZoomIn, ZoomOut, Check, X, Image } from 'lucide-react';
 import Moveable from 'react-moveable';
-import { useLanguage } from '../contexts/LanguageContext';
 
 // Enhanced debug logging utility
 const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true);
@@ -44,7 +43,6 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
   onDoNotCrop,
   onCancel,
 }) => {
-  const { t } = useLanguage();
   const [isProcessing, setIsProcessing] = useState(false);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [editState, setEditState] = useState<ImageEditState>({
@@ -531,7 +529,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-xl font-semibold text-gray-900">{t('interface.editImage', 'Edit Image')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Edit Image</h2>
           <button
             onClick={handleCancel}
             className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -557,11 +555,11 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
               {/* Dimensions indicator */}
               <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded z-10">
                 {placeholderDimensions.width} × {placeholderDimensions.height}
-                              {isBigImageLeftTemplate && (
-                <div className="text-xs opacity-90 mt-1">
-                  {t('interface.portraitTemplate', 'Portrait template')}
-                </div>
-              )}
+                {isBigImageLeftTemplate && (
+                  <div className="text-xs opacity-90 mt-1">
+                    Portrait template
+                  </div>
+                )}
               </div>
               
               {editState.imageUrl && (
@@ -712,7 +710,7 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
             className="flex items-center space-x-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
           >
             <X className="w-4 h-4" />
-            <span>{t('interface.cancel', 'Cancel')}</span>
+            <span>Cancel</span>
           </button>
           
           <button
@@ -723,12 +721,12 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
             {isProcessing ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
-                <span>{t('interface.processing', 'Processing...')}</span>
+                <span>Processing...</span>
               </>
             ) : (
               <>
                 <Image className="w-4 h-4" />
-                <span>{t('interface.doNotCrop', 'Do Not Crop')}</span>
+                <span>Do Not Crop</span>
               </>
             )}
           </button>
@@ -741,12 +739,12 @@ const ImageEditModal: React.FC<ImageEditModalProps> = ({
             {isProcessing ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span>{t('interface.processing', 'Processing...')}</span>
+                <span>Processing...</span>
               </>
             ) : (
               <>
                 <Check className="w-4 h-4" />
-                <span>{t('interface.confirmCrop', 'Confirm Crop')}</span>
+                <span>Confirm Crop</span>
               </>
             )}
           </button>

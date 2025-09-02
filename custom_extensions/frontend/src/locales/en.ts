@@ -615,6 +615,30 @@ export const en = {
       // Basic actions dropdown
       openAdvancedSettings: "Open Advanced Settings"
       },
+      
+      // AI Image Generation Modal
+      aiImageGeneration: {
+        title: "Generate AI Image",
+        promptLabel: "Describe the image you want to generate",
+        promptPlaceholder: "e.g., A modern business presentation slide with charts and graphs, professional style, clean design",
+        promptHelp: "Be specific and descriptive for better results",
+        qualityLabel: "Quality",
+        qualityStandard: "Standard",
+        qualityHD: "HD",
+        styleLabel: "Style",
+        styleVivid: "Vivid",
+        styleNatural: "Natural",
+        errorEmptyPrompt: "Please enter a prompt for image generation",
+        cancel: "Cancel",
+        generate: "Generate Image",
+        generating: "Generating...",
+        addImage: "Add Image",
+        chooseMethod: "Choose how you'd like to add an image to this placeholder",
+        uploadImage: "Upload Image",
+        uploadDescription: "Choose a file from your device",
+        generateWithAI: "Generate with AI",
+        generateDescription: "Create an image using DALL-E"
+      },
     
     // Quality tiers
     basic: "Basic",
@@ -859,43 +883,6 @@ export const en = {
       generate: "Generate",
       helpComingSoon: "Help (coming soon)",
       finalizingProduct: "Finalizing product...",
-      // AI Image Generation Modal
-      generateAIImage: "Generate AI Image",
-      describeImageToGenerate: "Describe the image you want to generate",
-      promptPlaceholder: "e.g., A modern business presentation slide with charts and graphs, professional style, clean design",
-      beSpecificForBetterResults: "Be specific and descriptive for better results",
-      quality: "Quality",
-      style: "Style",
-      standard: "Standard",
-      hd: "HD",
-      vivid: "Vivid",
-      natural: "Natural",
-      cancel: "Cancel",
-      generateImage: "Generate Image",
-      generating: "Generating...",
-      pleaseEnterPrompt: "Please enter a prompt for image generation",
-      // Image Choice Modal
-      addImage: "Add Image",
-      chooseHowToAddImage: "Choose how you'd like to add an image to this placeholder",
-      uploadImage: "Upload Image",
-      chooseFileFromDevice: "Choose a file from your device",
-      generateWithAI: "Generate with AI",
-      createImageUsingDalle: "Create an image using DALL-E",
-      // Image Upload Modal
-      uploadPresentationImage: "Upload Presentation Image",
-      dragAndDropImageHere: "Drag and drop an image here, or click to browse",
-      chooseFile: "Choose File",
-      uploading: "Uploading...",
-      supportedFormats: "Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)",
-      // Image Edit Modal
-      editImage: "Edit Image",
-      portraitTemplate: "Portrait template",
-      doNotCrop: "Do Not Crop",
-      processing: "Processing...",
-      confirmCrop: "Confirm Crop",
-      // Image Placeholder Actions
-      replaceImage: "Replace Image",
-      clickToUploadImage: "Click to upload image",
     },
 
     // Pipelines

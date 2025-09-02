@@ -571,6 +571,30 @@ export const ru = {
       // Basic actions dropdown
       openAdvancedSettings: "Открыть расширенные настройки"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Сгенерировать ИИ изображение",
+      promptLabel: "Опишите изображение, которое хотите сгенерировать",
+      promptPlaceholder: "например, Современный слайд бизнес-презентации с диаграммами и графиками, профессиональный стиль, чистый дизайн",
+      promptHelp: "Будьте конкретными и описательными для лучших результатов",
+      qualityLabel: "Качество",
+      qualityStandard: "Стандартное",
+      qualityHD: "HD",
+      styleLabel: "Стиль",
+      styleVivid: "Яркий",
+      styleNatural: "Естественный",
+      errorEmptyPrompt: "Пожалуйста, введите описание для генерации изображения",
+      cancel: "Отмена",
+      generate: "Сгенерировать изображение",
+      generating: "Генерация...",
+      addImage: "Добавить изображение",
+      chooseMethod: "Выберите, как вы хотите добавить изображение в этот заполнитель",
+      uploadImage: "Загрузить изображение",
+      uploadDescription: "Выберите файл с вашего устройства",
+      generateWithAI: "Сгенерировать с ИИ",
+      generateDescription: "Создать изображение с помощью DALL-E"
+    },
 
     // Quality tiers
     basic: "Базовый",
@@ -920,43 +944,6 @@ export const ru = {
       stableDiffusion: "Stable Diffusion 2.1",
       describeImprovements: "Опишите, что вы хотите улучшить...",
       total: "всего",
-      // AI Image Generation Modal
-      generateAIImage: "Сгенерировать ИИ изображение",
-      describeImageToGenerate: "Опишите изображение, которое хотите сгенерировать",
-      promptPlaceholder: "например, Современный слайд бизнес-презентации с диаграммами и графиками, профессиональный стиль, чистый дизайн",
-      beSpecificForBetterResults: "Будьте конкретными и описательными для лучших результатов",
-      quality: "Качество",
-      style: "Стиль",
-      standard: "Стандартное",
-      hd: "HD",
-      vivid: "Яркий",
-      natural: "Естественный",
-      cancel: "Отмена",
-      generateImage: "Сгенерировать изображение",
-      generating: "Генерация...",
-      pleaseEnterPrompt: "Пожалуйста, введите описание для генерации изображения",
-      // Image Choice Modal
-      addImage: "Добавить изображение",
-      chooseHowToAddImage: "Выберите, как вы хотите добавить изображение в этот плейсхолдер",
-      uploadImage: "Загрузить изображение",
-      chooseFileFromDevice: "Выберите файл с вашего устройства",
-      generateWithAI: "Сгенерировать с ИИ",
-      createImageUsingDalle: "Создать изображение с помощью DALL-E",
-      // Image Upload Modal
-      uploadPresentationImage: "Загрузить изображение презентации",
-      dragAndDropImageHere: "Перетащите изображение сюда или нажмите для выбора",
-      chooseFile: "Выбрать файл",
-      uploading: "Загрузка...",
-      supportedFormats: "Поддерживаемые форматы: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)",
-      // Image Edit Modal
-      editImage: "Редактировать изображение",
-      portraitTemplate: "Портретный шаблон",
-      doNotCrop: "Не обрезать",
-      processing: "Обработка...",
-      confirmCrop: "Подтвердить обрезку",
-      // Image Placeholder Actions
-      replaceImage: "Заменить изображение",
-      clickToUploadImage: "Нажмите, чтобы загрузить изображение",
     },
     // Generate Page
     generate: {
