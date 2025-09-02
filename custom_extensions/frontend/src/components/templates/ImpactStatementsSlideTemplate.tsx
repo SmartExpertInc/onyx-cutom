@@ -39,8 +39,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '645px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#252525',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -110,8 +110,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       }}>
         {/* Title */}
         <div style={{
-          maxWidth: '480px',
-          fontSize: '49px',
+          maxWidth: '537px',
+          fontSize: '45px',
           color: themeTitle,
           lineHeight: '1.2',
           marginBottom: '40px',
@@ -128,7 +128,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               className="impact-title-editor"
               style={{
                 maxWidth: '480px',
-                fontSize: '49px',
+                fontSize: '45px',
                 color: themeTitle,
                 lineHeight: '1.2',
                 width: '100%',
@@ -146,7 +146,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 height: '100%',
                 display: 'flex',
                 alignItems: 'flex-start',
-                fontSize: '49px',
+                fontSize: '45px',
                 color: themeTitle,
                 lineHeight: '1.2',
                 minHeight: '50px'
@@ -204,7 +204,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             <div
               key={index}
               style={{
-                backgroundColor: themeAccent,
+                backgroundColor: '#71B7F1',
                 borderRadius: '20px',
                 padding: '30px',
                 display: 'flex',
@@ -216,7 +216,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               {/* Number */}
               <div style={{
                 fontSize: '48px',
-                color: themeBg,
+                color: '#263644',
                 minHeight: '60px',
                 maxHeight: '60px',
                 display: 'flex',
@@ -231,7 +231,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     className="statement-number-editor"
                     style={{
                       fontSize: '48px',
-                      color: themeBg,
+                      color: '#263644',
                       width: '100%',
                       height: 'auto',
                       minHeight: '60px',
@@ -263,7 +263,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               {/* Description */}
               <div style={{
                 fontSize: '14px',
-                color: themeBg,
+                color: '#336188',
                 lineHeight: '1.4',
                 minHeight: '25px',
                 display: 'flex',
@@ -278,7 +278,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     className="statement-description-editor"
                     style={{
                       fontSize: '14px',
-                      color: themeBg,
+                      color: '#336188',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
@@ -291,7 +291,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '14px',
-                      color: themeBg,
+                      color: '#336188',
                       lineHeight: '1.4',
                       width: '100%'
                     }}
@@ -313,7 +313,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           {currentStatements[2] && (
             <div
               style={{
-                backgroundColor: themeAccent,
+                backgroundColor: '#71B7F1',
                 borderRadius: '20px',
                 padding: '30px',
                 paddingTop: '22px',
@@ -325,7 +325,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             >
               <div style={{
                 fontSize: '48px',
-                color: themeBg,
+                color: '#263644',
               }}>
                 {isEditable && editingNumbers === 2 ? (
                   <ImprovedInlineEditor
@@ -335,7 +335,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     className="statement-number-editor"
                     style={{
                       fontSize: '48px',
-                      color: themeBg,
+                      color: '#263644',
                       width: '100%',
                       height: 'auto'
                     }}
@@ -370,7 +370,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     className="statement-description-editor"
                     style={{
                       fontSize: '14px',
-                      color: themeBg,
+                      color: '#336188',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
@@ -383,7 +383,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '14px',
-                      color: themeBg,
+                      color: '#336188',
                       lineHeight: '1.4',
                       width: '100%'
                     }}

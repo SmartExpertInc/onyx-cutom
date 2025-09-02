@@ -149,8 +149,8 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#3F3395',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -197,7 +197,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
       <div style={{
         width: '600px',
         height: '336px',
-        backgroundColor: themeAccent,
+        backgroundColor: '#6955F3',
         borderRadius: '30px',
         padding: '40px',
         display: 'flex',
@@ -237,7 +237,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         {/* Title */}
         <div style={{
           fontSize: '30px',
-          color: themeBg,
+          color: '#FFFFFF',
           fontWeight: 'bold',
           lineHeight: '1.2',
           marginTop: '106px',
@@ -251,7 +251,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               className="psychological-safety-title-editor"
               style={{
                 fontSize: '30px',
-                color: themeBg,
+                color: '#FFFFFF',
                 fontWeight: 'bold',
                 lineHeight: '1.2'
               }}
@@ -272,7 +272,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         {/* Content */}
         <div style={{
           fontSize: '18px',
-          color: themeBg,
+          color: '#A496F3',
           lineHeight: '1.5',
           marginBottom: '5px'
         }}>
@@ -285,7 +285,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               className="psychological-safety-content-editor"
               style={{
                 fontSize: '18px',
-                color: themeBg,
+                color: '#A496F3',
                 lineHeight: '1.5'
               }}
             />
