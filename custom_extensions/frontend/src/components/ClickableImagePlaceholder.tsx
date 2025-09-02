@@ -8,6 +8,7 @@ import AIImageGenerationModal from './AIImageGenerationModal';
 import ImageChoiceModal from './ImageChoiceModal';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // ✅ REMOVED: Global context menu management - replaced with inline buttons!
 
@@ -76,6 +77,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   isGenerating, // New prop
   onGenerationStarted // New prop
 }) => {
+  const { t } = useLanguage();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -824,7 +826,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           onImageUploaded={handleImageUploaded}
-          title="Replace Image"
+          title={t('interface.replaceImage', 'Replace Image')}
         />
 
         <ImageEditModal
@@ -881,7 +883,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         <div className="text-center p-4">
           <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <div className="font-medium">{size} Image</div>
-          <div className="text-xs mt-1 opacity-75">{description}</div>
+          <div className="text-xs mt-1 opacity-75">{t('interface.clickToUploadImage', description)}</div>
           {prompt && (
             <div className="text-xs mt-1 opacity-60 italic">
               "{prompt}"
@@ -912,7 +914,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onImageUploaded={handleImageUploaded}
-        title="Upload Image"
+        title={t('interface.uploadImage', 'Upload Image')}
       />
 
       <ImageEditModal

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Image } from 'lucide-react';
 import { uploadPresentationImage } from '../lib/designTemplateApi';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -27,9 +28,10 @@ interface PresentationImageUploadProps {
 const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({ 
   isOpen, 
   onClose, 
-  onImageUploaded,
+ onImageUploaded,
   title = "Upload Presentation Image"
 }) => {
+  const { t } = useLanguage();
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -190,7 +192,7 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
         }}
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{title || t('interface.uploadPresentationImage', 'Upload Presentation Image')}</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -211,7 +213,7 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
           {uploading ? (
             <div className="flex flex-col items-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
-              <p className="text-sm text-gray-600">Uploading...</p>
+              <p className="text-sm text-gray-600">{t('interface.uploading', 'Uploading...')}</p>
             </div>
           ) : (
             <>
@@ -219,7 +221,7 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
                 <Image className="mx-auto h-12 w-12 text-gray-400" />
               </div>
               <p className="text-sm text-gray-600 mb-2">
-                Drag and drop an image here, or click to browse
+                {t('interface.dragAndDropImageHere', 'Drag and drop an image here, or click to browse')}
               </p>
               <input
                 type="file"
@@ -233,7 +235,7 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
                 htmlFor="presentation-image-upload"
                 className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Choose File
+                {t('interface.chooseFile', 'Choose File')}
               </label>
             </>
           )}
@@ -246,7 +248,7 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
         )}
         
         <div className="mt-4 text-xs text-gray-500">
-          Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)
+          {t('interface.supportedFormats', 'Supported formats: PNG, JPG, JPEG, GIF, WebP (max 10MB)')}
         </div>
       </div>
     </div>

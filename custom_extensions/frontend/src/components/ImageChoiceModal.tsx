@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, Sparkles } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -27,6 +28,7 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
   onChooseAI,
   title = "Add Image"
 }) => {
+  const { t } = useLanguage();
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
   log('ImageChoiceModal', 'render', { 
@@ -71,7 +73,7 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
         }}
       >
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{title || t('interface.addImage', 'Add Image')}</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -82,7 +84,7 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
         
         <div className="space-y-4">
           <p className="text-sm text-gray-600 text-center mb-6">
-            Choose how you'd like to add an image to this placeholder
+            {t('interface.chooseHowToAddImage', 'Choose how you\'d like to add an image to this placeholder')}
           </p>
           
           {/* Upload Option */}
@@ -97,8 +99,8 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
               <Upload className="w-6 h-6 text-blue-600" />
             </div>
             <div className="text-left">
-              <div className="font-medium text-gray-900">Upload Image</div>
-              <div className="text-sm text-gray-500">Choose a file from your device</div>
+              <div className="font-medium text-gray-900">{t('interface.uploadImage', 'Upload Image')}</div>
+              <div className="text-sm text-gray-500">{t('interface.chooseFileFromDevice', 'Choose a file from your device')}</div>
             </div>
           </button>
           
@@ -114,8 +116,8 @@ const ImageChoiceModal: React.FC<ImageChoiceModalProps> = ({
               <Sparkles className="w-6 h-6 text-purple-600" />
             </div>
             <div className="text-left">
-              <div className="font-medium text-gray-900">Generate with AI</div>
-              <div className="text-sm text-gray-500">Create an image using DALL-E</div>
+              <div className="font-medium text-gray-900">{t('interface.generateWithAI', 'Generate with AI')}</div>
+              <div className="text-sm text-gray-500">{t('interface.createImageUsingDalle', 'Create an image using DALL-E')}</div>
             </div>
           </button>
         </div>
