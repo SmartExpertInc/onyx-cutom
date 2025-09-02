@@ -180,7 +180,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   };
 
   return (
-    <div className="critical-thinking-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="critical-thinking-slide-template inter-theme" style={slideStyles}>
              {/* Profile Image - Top Left */}
        <div style={{
          position: 'absolute',

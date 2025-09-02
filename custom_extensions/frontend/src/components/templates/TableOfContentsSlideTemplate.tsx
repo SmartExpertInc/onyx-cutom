@@ -97,7 +97,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   };
 
   return (
-    <div className="table-of-contents-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="table-of-contents-slide-template inter-theme" style={slideStyles}>
       {/* Left section - Navigation buttons */}
       <div style={{
         flex: '2',

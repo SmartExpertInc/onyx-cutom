@@ -151,7 +151,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   };
 
   return (
-    <div className="thank-you-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="thank-you-slide-template inter-theme" style={slideStyles}>
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',

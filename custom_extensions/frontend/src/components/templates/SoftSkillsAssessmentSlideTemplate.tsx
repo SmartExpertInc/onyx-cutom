@@ -220,7 +220,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   };
 
   return (
-    <div className="soft-skills-assessment-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
       {/* Top section with title and profile image */}
       <div style={{
         display: 'flex',

@@ -110,7 +110,7 @@ export const OnlineSafetyTipsSlideTemplate: React.FC<OnlineSafetyTipsSlideProps 
   };
 
   return (
-    <div className="online-safety-tips-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="online-safety-tips-slide-template inter-theme" style={slideStyles}>
       {/* Left section - Tips content */}
       <div style={{
         flex: '2',

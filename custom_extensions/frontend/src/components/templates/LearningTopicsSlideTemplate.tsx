@@ -129,7 +129,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   };
 
   return (
-    <div className="learning-topics-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="learning-topics-slide-template inter-theme" style={slideStyles}>
       {/* Left section */}
       <div style={{
         width: '50%',

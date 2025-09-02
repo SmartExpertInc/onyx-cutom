@@ -127,7 +127,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   };
 
   return (
-    <div className="hybrid-work-best-practices-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="hybrid-work-best-practices-slide-template inter-theme" style={slideStyles}>
       {/* Main content with two columns */}
       <div style={{
         width: '100%',

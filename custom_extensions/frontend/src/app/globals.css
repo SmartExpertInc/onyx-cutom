@@ -269,36 +269,7 @@ body:has([aria-modal="true"]) [draggable="true"] {
 
 /* Base styles for code blocks */
 
-/* OpenSans-Semibold Font Classes for All Slides */
-.opensans-semibold-theme {
-  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif;
-  font-weight: 600;
-}
-
-.opensans-semibold-theme h1,
-.opensans-semibold-theme h2,
-.opensans-semibold-theme h3,
-.opensans-semibold-theme .slide-title,
-.opensans-semibold-theme .slide-title-text,
-.opensans-semibold-theme .slide-title-display {
-  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif !important;
-  font-weight: 600 !important;
-}
-
-.opensans-semibold-theme p,
-.opensans-semibold-theme .slide-content,
-.opensans-semibold-theme .slide-subtitle,
-.opensans-semibold-theme .slide-text,
-.opensans-semibold-theme li,
-.opensans-semibold-theme span,
-.opensans-semibold-theme .paragraph-text,
-.opensans-semibold-theme .bullet-text,
-.opensans-semibold-theme .number-text {
-  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif !important;
-  font-weight: 600 !important;
-}
-
-/* Apply OpenSans-Semibold to all slide templates by default */
+/* Apply Inter to all slide templates by default */
 .slide-content,
 .slide-title,
 .slide-text,
@@ -308,6 +279,35 @@ body:has([aria-modal="true"]) [draggable="true"] {
 .professional-headline .heading-text,
 .professional-bullet-item,
 .professional-numbered-item {
-  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Inter Font Classes for All Slides */
+.inter-theme {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
+}
+
+.inter-theme h1,
+.inter-theme h2,
+.inter-theme h3,
+.inter-theme .slide-title,
+.inter-theme .slide-title-text,
+.inter-theme .slide-title-display {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
   font-weight: 600 !important;
+}
+
+.inter-theme p,
+.inter-theme .slide-content,
+.inter-theme .slide-subtitle,
+.inter-theme .slide-text,
+.inter-theme li,
+.inter-theme span,
+.inter-theme .paragraph-text,
+.inter-theme .bullet-text,
+.inter-theme .number-text {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-weight: 500 !important;
 }

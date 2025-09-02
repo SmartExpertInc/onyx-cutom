@@ -192,7 +192,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   };
 
   return (
-    <div className="course-overview-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="course-overview-slide-template inter-theme" style={slideStyles}>
       {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
         width: '45%',

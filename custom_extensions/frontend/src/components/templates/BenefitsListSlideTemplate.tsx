@@ -258,7 +258,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   };
 
   return (
-    <div className="benefits-list-slide-template opensans-semibold-theme" style={slideStyles}>
+    <div className="benefits-list-slide-template inter-theme" style={slideStyles}>
       {/* Top section with green background */}
       <div style={{
         flex: '0 0 427px', // Фиксированная высота для верхней секции
