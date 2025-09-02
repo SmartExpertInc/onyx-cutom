@@ -290,6 +290,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   projectAdvancedRates,
   columnVisibility,
 }) => {
+    // --- MOCK DATA FOR DEMO PURPOSES ---
+    // These would be replaced by real data in production
+    const mockQuiz = true;
+    const mockOnePager = false;
+    const mockVideoPresentation = true;
+    const mockLessonPresentation = false;
   const router = useRouter();
   
   // Inline editing state management
@@ -1642,6 +1648,21 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   return (
     <div className="font-['Inter',_sans-serif] bg-gray-50">
+      {/* Mock Data Display for Demo */}
+      <div className="mb-4">
+        <div className="grid grid-cols-4 gap-2 text-gray-700 text-xs font-semibold items-center border-b border-gray-300 uppercase tracking-wider">
+          <div>Quiz</div>
+          <div>One-Pager</div>
+          <div>Video Presentation</div>
+          <div>Lesson Presentation</div>
+        </div>
+        <div className="grid grid-cols-4 gap-2 p-2 items-center border-b border-gray-100">
+          <div>{mockQuiz ? 'True' : 'False'}</div>
+          <div>{mockOnePager ? 'True' : 'False'}</div>
+          <div>{mockVideoPresentation ? 'True' : 'False'}</div>
+          <div>{mockLessonPresentation ? 'True' : 'False'}</div>
+        </div>
+      </div>
       <CreateContentTypeModal
         isOpen={contentModalState.isOpen}
         onClose={() => setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
