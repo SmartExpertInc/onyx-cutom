@@ -1481,7 +1481,7 @@ export default function ProjectInstanceViewPage() {
                             {customEmails.map((email) => (
                               <div key={email} className="flex items-center justify-between rounded">
                                 <div className="flex items-center">
-                                  <div className="w-8 h-8 bg-[#D9D9D9] rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
+                                  <div className="w-8 h-8 bg-[#D9D9D9] rounded-full flex items-center justify-center text-gray-900 text-sm font-medium mr-3">
                                     {email.charAt(0).toUpperCase()}
                                   </div>
                                   <span className="text-sm text-gray-900">{email}</span>
