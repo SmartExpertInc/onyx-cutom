@@ -196,7 +196,7 @@ export const CreateContentTypeModal = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          outlineProjectId: parseInt(outlineProjectId),
+          outlineProjectId,
           lessonTitle,
           moduleName,
           lessonNumber,
