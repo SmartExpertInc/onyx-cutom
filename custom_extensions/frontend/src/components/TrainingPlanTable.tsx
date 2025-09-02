@@ -35,6 +35,18 @@ const NewClockIcon = ({ color = '#FF1414', className = '' }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M4 0C1.79077 0 0 1.79077 0 4C0 6.20923 1.79077 8 4 8C6.20923 8 8 6.20923 8 4C8 1.79077 6.20923 0 4 0ZM4.30769 1.53846C4.30769 1.45686 4.27527 1.37859 4.21757 1.32089C4.15987 1.26319 4.0816 1.23077 4 1.23077C3.9184 1.23077 3.84013 1.26319 3.78243 1.32089C3.72473 1.37859 3.69231 1.45686 3.69231 1.53846V4C3.69231 4.16985 3.83015 4.30769 4 4.30769H5.84615C5.92776 4.30769 6.00602 4.27527 6.06373 4.21757C6.12143 4.15987 6.15385 4.0816 6.15385 4C6.15385 3.9184 6.12143 3.84013 6.06373 3.78243C6.00602 3.72473 5.92776 3.69231 5.84615 3.69231H4.30769V1.53846Z" fill={color}/></svg>
 );
 
+const CrossIcon = ({ className = '', color = '#ef4444' }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 5L11 11M11 5L5 11" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const TickIcon = ({ color = '#28a745', className = '' }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 8.5L7 11.5L12 5.5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 // Inline editing styles - matching original sizes
 const inlineEditingInputClass = "p-1 bg-yellow-50/5 border border-yellow-400/5 rounded text-black outline-none focus:ring-1 focus:ring-yellow-600/5 placeholder-gray-400 text-xs w-full";
 const inlineEditingInputSmallClass = `${inlineEditingInputClass} h-8`;
@@ -2271,13 +2283,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             </div>
                           );
                         case 'quiz':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`Quiz ${lessonIndex + 1}`}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockQuiz ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'onePager':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`One-Pager ${lessonIndex + 1}`}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockOnePager ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'videoPresentation':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`Video ${lessonIndex + 1}`}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockVideoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'lessonPresentation':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`Lesson Pres. ${lessonIndex + 1}`}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockLessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         default:
                           return <div key={col.key} className={commonCls}></div>;
                       }

@@ -160,10 +160,10 @@ export default function ProjectInstanceViewPage() {
     estCreationTime: true,
     estCompletionTime: true,
     qualityTier: false, // Hidden by default
-    quiz: true,
-    onePager: true,
-    videoPresentation: true,
-    lessonPresentation: true,
+    quiz: false,
+    onePager: false,
+    videoPresentation: false,
+    lessonPresentation: false,
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
