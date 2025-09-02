@@ -116,6 +116,12 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     }
   };
 
+  const handleBenefitsListIconUploaded = (newIconPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newIconPath });
+    }
+  };
+
   const handleLogoNewUploaded = (newLogoPath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
@@ -273,8 +279,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           gap: '10px',
           marginTop: '36px'
         }}>
-{logoNew ? (
-            // Show uploaded logo image
+          {logoNew ? (
             <ClickableImagePlaceholder
               imagePath={logoNew}
               onImageUploaded={handleLogoNewUploaded}
@@ -289,7 +294,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
               }}
             />
           ) : (
-            // Show default logo image
             <div 
               onClick={() => isEditable && setShowUploadModal(true)}
               style={{

@@ -142,7 +142,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   currentStep = 3,
   totalSteps = 4,
   companyName = 'Company name',
-  logoNew = '',
+  benefitsListIcon = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -182,7 +182,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
     }
   };
 
@@ -190,7 +190,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -198,7 +198,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentDescription(newDescription);
     setEditingDescription(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, description: newDescription });
     }
   };
 
@@ -208,7 +208,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentBenefits(newBenefits);
     setEditingBenefits(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, benefits: newBenefits });
     }
   };
 
@@ -236,7 +236,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
@@ -247,13 +247,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
     }
   };
 
-  const handleLogoNewUploaded = (newLogoPath: string) => {
+  const handleBenefitsListIconUploaded = (newIconPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, benefitsListIcon: newIconPath });
     }
   };
 
@@ -535,8 +535,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         {/* Horizontal line separator */}
         <hr style={{
           border: 'none',
-          height: '2px',
-          backgroundColor: themeContent,
+          height: '1px',
+          backgroundColor: '#252525',
           opacity: 0.3,
           margin: '20px 0',
           marginTop: '55px'
@@ -550,14 +550,14 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           marginTop: '-5px',
           marginBottom: '20px'
         }}>
-{logoNew ? (
+{benefitsListIcon ? (
             // Show uploaded logo image
             <ClickableImagePlaceholder
-              imagePath={logoNew}
-              onImageUploaded={handleLogoNewUploaded}
+              imagePath={benefitsListIcon}
+              onImageUploaded={handleBenefitsListIconUploaded}
               size="SMALL"
               position="CENTER"
-              description="Company logo"
+              description="Benefits List Icon"
               isEditable={isEditable}
               style={{
                 height: '24px',
@@ -577,8 +577,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               }}
             >
               <img
-                src="/custom-projects-ui/logoNew.png"
-                alt="Company Logo"
+                src="/custom-projects-ui/benefitsListIcon.png"
+                alt="Benefits List Icon"
                 style={{
                   width: '24px',
                   height: '24px',
@@ -627,11 +627,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <PresentationImageUpload
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleLogoNewUploaded(newLogoPath);
+          onImageUploaded={(newIconPath: string) => {
+            handleBenefitsListIconUploaded(newIconPath);
             setShowUploadModal(false);
           }}
-          title="Upload Company Logo"
+          title="Upload Benefits List Icon"
         />
       )}
     </div>

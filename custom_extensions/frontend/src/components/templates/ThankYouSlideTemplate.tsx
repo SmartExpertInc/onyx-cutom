@@ -428,8 +428,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             description="Company logo"
             isEditable={isEditable}
             style={{
-              height: '16px',
-              width: '16px',
+              height: '24px',
+              width: '24px',
               objectFit: 'contain'
             }}
           />
