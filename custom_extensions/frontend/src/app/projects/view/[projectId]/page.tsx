@@ -1440,7 +1440,7 @@ export default function ProjectInstanceViewPage() {
                     onClick={() => setRoleAccess(false)}
                   >
                     <div
-                      className="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4"
+                      className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
