@@ -463,7 +463,7 @@ export default function AuditPage() {
             </h3>
             
             {/* Card 1 */}
-            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden">
+            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
               {/* Card Top */}
               <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-1-mobile.png)' }}>
                 <span className="font-semibold text-[16px] text-white leading-[140%]">
@@ -526,7 +526,7 @@ export default function AuditPage() {
             </div>
 
             {/* Card 2 */}
-            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden">
+            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
               {/* Card Top */}
               <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-2-mobile.png)' }}>
                 <span className="font-semibold text-[16px] text-white leading-[140%]">
@@ -597,18 +597,18 @@ export default function AuditPage() {
             </div>
 
             {/* Card 3 */}
-            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden">
+            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
               {/* Card Top */}
               <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-3-mobile.png)' }}>
                 <span className="font-semibold text-[16px] text-white leading-[140%]">
-                  HVAC Installer
+                  Service / Inspection Technician
                 </span>
               </div>
               
               {/* Card Bottom */}
               <div className="p-[15px] flex flex-col gap-[6px]">
                 <h4 className="font-semibold text-[16px] text-[#09090B] leading-[140%]">
-                  HVAC Installer
+                  Service / Inspection Technician
                 </h4>
                 
                 <p className="font-normal text-[14px] text-[#71717A] leading-[140%] mb-[9px]">
@@ -660,18 +660,18 @@ export default function AuditPage() {
             </div>
 
             {/* Card 4 */}
-            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden">
+            <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
               {/* Card Top */}
               <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-4-mobile.png)' }}>
                 <span className="font-semibold text-[16px] text-white leading-[140%]">
-                  HVAC Installer
+                  Project Manager
                 </span>
               </div>
               
               {/* Card Bottom */}
               <div className="p-[15px] flex flex-col gap-[6px]">
                 <h4 className="font-semibold text-[16px] text-[#09090B] leading-[140%]">
-                  HVAC Installer
+                  Project Manager
                 </h4>
                 
                 <p className="font-normal text-[14px] text-[#71717A] leading-[140%] mb-[9px]">
@@ -720,6 +720,16 @@ export default function AuditPage() {
                   </div>
                 </div>
               </div>
+            </div>
+            
+            <div className="px-[18px] py-[8px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px]">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.726 14H1.274C0.574 14 0 13.426 0 12.726V1.274C0 0.573999 0.574 0 1.274 0H12.726C13.426 0 14 0.573999 14 1.274V12.726C14 13.426 13.426 14 12.726 14ZM2.548 10.822C2.548 11.018 2.674 11.144 2.87 11.144H6.048C6.244 11.144 6.37 11.018 6.37 10.822V7.644C6.37 7.448 6.244 7.322 6.048 7.322H2.87C2.674 7.322 2.548 7.448 2.548 7.644V10.822ZM10.178 2.548C10.178 2.352 10.052 2.226 9.856 2.226H2.856C2.66 2.226 2.534 2.352 2.534 2.548V3.178C2.534 3.374 2.66 3.5 2.856 3.5H9.856C10.052 3.5 10.178 3.374 10.178 3.178V2.548ZM11.452 5.096C11.452 4.9 11.326 4.774 11.13 4.774H2.87C2.674 4.774 2.548 4.9 2.548 5.096V5.726C2.548 5.922 2.674 6.048 2.87 6.048H11.144C11.34 6.048 11.466 5.922 11.466 5.726V5.096H11.452ZM11.452 7.63C11.452 7.434 11.326 7.308 11.13 7.308H7.952C7.756 7.308 7.63 7.434 7.63 7.63V8.26C7.63 8.456 7.756 8.582 7.952 8.582H11.13C11.326 8.582 11.452 8.456 11.452 8.26V7.63ZM11.452 10.178C11.452 9.982 11.326 9.856 11.13 9.856H7.952C7.756 9.856 7.63 9.982 7.63 10.178V10.808C7.63 11.004 7.756 11.13 7.952 11.13H11.13C11.326 11.13 11.452 11.004 11.452 10.808V10.178Z" fill="black"/>
+              </svg>
+              
+              <span className="font-semibold text-[14px] text-[#09090B] leading-[140%]">
+                Пример курса
+              </span>
             </div>
           </div>
 
