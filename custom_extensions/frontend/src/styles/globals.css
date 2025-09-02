@@ -1,4 +1,19 @@
 /* Global CSS Reset and Base Styles */
+
+/* OpenSans-Semibold Font Definition */
+@font-face {
+  font-family: 'OpenSans-Semibold';
+  src: url('../fonts/OpenSans-Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Global Font Class */
+.opensans-semibold {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

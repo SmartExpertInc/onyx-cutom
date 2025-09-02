@@ -258,7 +258,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
   };
 
   return (
-    <div className="bar-chart-slide-template" style={slideStyles}>
+    <div className="bar-chart-slide-template opensans-semibold-theme" style={slideStyles}>
              {/* Profile Image - Top Left */}
        <div style={{
          position: 'absolute',

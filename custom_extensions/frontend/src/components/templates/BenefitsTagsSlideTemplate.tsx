@@ -99,7 +99,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   };
 
   return (
-    <div className="benefits-tags-slide-template" style={slideStyles}>
+    <div className="benefits-tags-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Top section with title and profile image */}
       <div style={{
         display: 'flex',

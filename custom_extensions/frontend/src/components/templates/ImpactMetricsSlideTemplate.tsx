@@ -82,7 +82,7 @@ export const ImpactMetricsSlideTemplate: React.FC<ImpactMetricsSlideProps & {
   };
 
   return (
-    <div className="impact-metrics-slide-template" style={slideStyles}>
+    <div className="impact-metrics-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Left column - Dark teal background with metrics */}
       <div style={{
         flex: '2',

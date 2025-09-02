@@ -93,7 +93,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & {
   };
 
   return (
-    <div className="resources-slide-template" style={slideStyles}>
+    <div className="resources-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Header section with logo */}
       <div style={{
         position: 'absolute',

@@ -84,7 +84,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   };
 
   return (
-    <div className="two-column-slide-template" style={slideStyles}>
+    <div className="two-column-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Left section with avatar and text */}
       <div style={{
         width: '50%',

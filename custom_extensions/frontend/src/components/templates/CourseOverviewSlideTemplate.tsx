@@ -149,7 +149,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    aspectRatio: '16/9',
     backgroundColor: '#ffffff',
     display: 'flex',
     position: 'relative',
@@ -192,7 +192,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   };
 
   return (
-    <div className="course-overview-slide-template" style={slideStyles}>
+    <div className="course-overview-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
         width: '45%',
@@ -207,11 +207,11 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         <div style={{
           position: 'absolute',
           top: '30px',
-          left: '22px',
+          left: '23px',
           width: '20px',
           height: '20px',
           color: '#ffffff',
-          fontSize: '20px',
+          fontSize: '16px',
           fontWeight: 'bold'
         }}>
           ✦
@@ -231,9 +231,9 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         <div style={{
           position: 'absolute',
           bottom: '30px',
-          left: '22px',
+          left: '23px',
           color: '#979797',
-          fontSize: '14px',
+          fontSize: '11px',
           fontWeight: '300'
         }}>
           01
@@ -335,7 +335,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           style={{
             position: 'absolute',
             bottom: '-27px',
-            height: '530px',
+            height: '91%',
             borderRadius: '10px'
           }}
         />

@@ -205,7 +205,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   };
 
   return (
-    <div className="phishing-definition-slide-template" style={slideStyles}>
+    <div className="phishing-definition-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Left section with text */}
       <div style={{
         width: '50%',

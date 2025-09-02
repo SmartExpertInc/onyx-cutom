@@ -268,3 +268,46 @@ body:has([aria-modal="true"]) [draggable="true"] {
 }
 
 /* Base styles for code blocks */
+
+/* OpenSans-Semibold Font Classes for All Slides */
+.opensans-semibold-theme {
+  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+}
+
+.opensans-semibold-theme h1,
+.opensans-semibold-theme h2,
+.opensans-semibold-theme h3,
+.opensans-semibold-theme .slide-title,
+.opensans-semibold-theme .slide-title-text,
+.opensans-semibold-theme .slide-title-display {
+  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.opensans-semibold-theme p,
+.opensans-semibold-theme .slide-content,
+.opensans-semibold-theme .slide-subtitle,
+.opensans-semibold-theme .slide-text,
+.opensans-semibold-theme li,
+.opensans-semibold-theme span,
+.opensans-semibold-theme .paragraph-text,
+.opensans-semibold-theme .bullet-text,
+.opensans-semibold-theme .number-text {
+  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Apply OpenSans-Semibold to all slide templates by default */
+.slide-content,
+.slide-title,
+.slide-text,
+.paragraph-text,
+.bullet-text,
+.number-text,
+.professional-headline .heading-text,
+.professional-bullet-item,
+.professional-numbered-item {
+  font-family: 'OpenSans-Semibold', system-ui, -apple-system, sans-serif !important;
+  font-weight: 600 !important;
+}

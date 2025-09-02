@@ -99,7 +99,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   };
 
   return (
-    <div className="impact-statements-slide-template" style={slideStyles}>
+    <div className="impact-statements-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Left section with title and profile image */}
       <div style={{
         width: '75%',

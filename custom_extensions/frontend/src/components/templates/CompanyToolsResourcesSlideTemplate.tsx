@@ -112,7 +112,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   };
 
   return (
-    <div className="company-tools-resources-slide-template" style={slideStyles}>
+    <div className="company-tools-resources-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Header section */}
       <div style={{
         display: 'flex',

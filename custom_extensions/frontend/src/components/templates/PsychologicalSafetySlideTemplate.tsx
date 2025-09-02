@@ -192,7 +192,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   };
 
   return (
-    <div className="psychological-safety-slide-template" style={slideStyles}>
+    <div className="psychological-safety-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Main Card */}
       <div style={{
         width: '600px',

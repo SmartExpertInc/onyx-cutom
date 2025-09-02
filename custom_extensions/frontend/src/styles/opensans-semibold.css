@@ -1,0 +1,77 @@
+/* OpenSans-Semibold Font Styles for All Slides */
+
+/* Font Face Definition */
+@font-face {
+  font-family: 'OpenSans-Semibold';
+  src: url('../fonts/OpenSans-Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Global Font Application */
+* {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Specific Slide Elements */
+.slide-title,
+.slide-title-text,
+.slide-title-display,
+.slide-content,
+.slide-text,
+.paragraph-text,
+.bullet-text,
+.number-text,
+.professional-headline .heading-text,
+.professional-bullet-item,
+.professional-numbered-item,
+.inline-editor-input,
+.inline-editor-textarea,
+.content-block,
+.bullet-points-template,
+.component-based-slide {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6,
+.heading-text,
+.level-1 .heading-text,
+.level-2 .heading-text,
+.level-3 .heading-text,
+.level-4 .heading-text {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Lists */
+.bullet-items li,
+.numbered-items li,
+.professional-bullet-list,
+.professional-numbered-list {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Inline Editor */
+.inline-editor-input[data-block-type="headline"],
+.inline-editor-textarea[data-block-type="headline"],
+.inline-editor-input[data-block-type="paragraph"],
+.inline-editor-textarea[data-block-type="paragraph"],
+.inline-editor-input[data-block-type="bullet_list"],
+.inline-editor-textarea[data-block-type="bullet_list"],
+.inline-editor-input[data-block-type="numbered_list"],
+.inline-editor-textarea[data-block-type="numbered_list"] {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Force override for all text elements */
+.slide-content *,
+.slide-title *,
+.content-block * {
+  font-family: 'OpenSans-Semibold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-weight: 600 !important;
+} 
