@@ -2,8 +2,8 @@
 "use client";
 
 import React from 'react';
-import { BookText, Video, Film, X, HelpCircle } from 'lucide-react';
-import { locales } from '@/locales';
+import { Presentation, Video, Film, X, HelpCircle } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CreateLessonTypeModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface CreateLessonTypeModalProps {
 const lessonTypes = [
   { 
     name: "lessonPresentation", 
-    icon: <BookText className="w-6 h-6" />, 
+    icon: <Presentation className="w-6 h-6" />, 
     disabled: false 
   },
   { 
@@ -96,7 +96,7 @@ export const CreateLessonTypeModal = ({
   sourceChatSessionId,
   detectedLanguage = 'en'
 }: CreateLessonTypeModalProps) => {
-  const localized = locales[detectedLanguage as keyof typeof locales].modals.createLesson;
+  const { t } = useLanguage();
 
   const handleLessonCreate = (lessonType: string) => {
     if (lessonType === "quiz") {
@@ -121,7 +121,7 @@ export const CreateLessonTypeModal = ({
 
     // For other lesson types, use the existing chat flow
     if (!sourceChatSessionId) {
-      alert(localized.errorNoSessionId);
+      alert(t('modals.createLesson.errorNoSessionId'));
       onClose();
       return;
     }
@@ -139,7 +139,7 @@ export const CreateLessonTypeModal = ({
   }
 
   return (
-    <Modal title={localized.title} onClose={onClose}>
+    <Modal title={t('modals.createLesson.title')} onClose={onClose}>
       <div className="px-6 pb-6">
         <div className="text-center mb-4">
           <p className="text-2xl font-bold text-indigo-600 break-words">
@@ -152,16 +152,16 @@ export const CreateLessonTypeModal = ({
               key={type.name}
               onClick={() => handleLessonCreate(type.name)}
               disabled={type.disabled}
-              title={type.tooltipKey ? localized[type.tooltipKey as keyof typeof localized] : undefined}
+              title={type.tooltipKey ? t(`modals.createLesson.${type.tooltipKey}`) : undefined}
             >
                 <div className="w-1/4 flex justify-center items-center">
                     {type.icon}
                 </div>
                 <div className="w-3/4 text-left flex items-center gap-2">
-                    {type.name === "quiz" ? "Quiz" : localized[type.name as keyof typeof localized]}
+                    {type.name === "quiz" ? t('modals.createTest.quiz') : t(`modals.createLesson.${type.name}`)}
                     {(type as any).soon && (
                       <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
-                        Soon
+                        {t('modals.createLesson.comingSoon')}
                       </span>
                     )}
                 </div>

@@ -10,7 +10,7 @@ export interface PyramidTemplateProps {
   slideId: string;
   title: string;
   subtitle: string;
-  items: PyramidItem[];
+  steps: PyramidItem[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -144,7 +144,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   slideId,
   title,
   subtitle,
-  items = [],
+  steps = [],  // Changed from 'items' to 'steps'
   theme,
   onUpdate,
   isEditable = false
@@ -288,10 +288,10 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Handle item heading editing
   const handleItemHeadingSave = (index: number, newHeading: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], heading: newHeading };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
+      onUpdate({ steps: updatedSteps });
     }
     setEditingItemHeadings(editingItemHeadings.filter(i => i !== index));
   };
@@ -302,10 +302,10 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Handle item description editing
   const handleItemDescriptionSave = (index: number, newDescription: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], description: newDescription };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
+      onUpdate({ steps: updatedSteps });
     }
     setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
@@ -393,57 +393,19 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   return (
     <div className="pyramid-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
-
-      {/* Subtitle */}
-      {subtitle && (
-        isEditable && editingSubtitle ? (
+      {/* Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingTitle ? (
           <InlineEditor
-            initialValue={subtitle || ''}
-            onSave={handleSubtitleSave}
-            onCancel={handleSubtitleCancel}
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
             multiline={true}
-            placeholder="Enter subtitle..."
-            className="inline-editor-subtitle"
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
             style={{
-              ...subtitleStyles,
-              // Ensure subtitle behaves exactly like p element
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
               margin: '0',
               padding: '0',
               border: 'none',
@@ -457,108 +419,178 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             }}
           />
         ) : (
-          <p 
-            style={subtitleStyles}
-            onClick={() => {
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
-                setEditingSubtitle(true);
+                setEditingTitle(true);
               }
             }}
-            className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
           >
-            {subtitle}
-          </p>
-        )
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
+
+      {/* Subtitle - wrapped */}
+      {subtitle && (
+        <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle || ''}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                // Ensure subtitle behaves exactly like p element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <p 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+            >
+              {subtitle}
+            </p>
+          )}
+        </div>
       )}
 
       <div style={mainContentStyles}>
-        <div style={pyramidContainerStyles}>
+        <div style={pyramidContainerStyles} data-draggable="true">
           <PyramidSVG1 />
           <PyramidSVG2 />
           <PyramidSVG3 />
         </div>
-        <div style={itemsContainerStyles}>
-          {Array.isArray(items) && items.slice(0, 3).map((item, index: number) => (
+        <div style={itemsContainerStyles} >
+          {Array.isArray(steps) && steps.slice(0, 3).map((item, index: number) => (
             <div key={index} style={itemWrapperStyles(index)}>
               {/* Item Heading */}
-              {isEditable && editingItemHeadings.includes(index) ? (
-                <InlineEditor
-                  initialValue={item.heading || ''}
-                  onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
-                  onCancel={() => handleItemHeadingCancel(index)}
-                  multiline={true}
-                  placeholder="Enter heading..."
-                  className="inline-editor-item-heading"
-                  style={{
-                    ...itemHeadingStyles,
-                    // Ensure heading behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={itemHeadingStyles}
-                  onClick={() => {
-                    if (isEditable) {
-                      startEditingItemHeading(index);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.heading || 'Click to add heading'}
-                </div>
-              )}
+              <div data-draggable="true" style={{ width: '100%' }}>
+                {isEditable && editingItemHeadings.includes(index) ? (
+                  <InlineEditor
+                    initialValue={item.heading || ''}
+                    onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
+                    onCancel={() => handleItemHeadingCancel(index)}
+                    multiline={true}
+                    placeholder="Enter heading..."
+                    className="inline-editor-item-heading"
+                    style={{
+                      ...itemHeadingStyles,
+                      // Ensure heading behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={itemHeadingStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemHeading(index);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                  >
+                    {item.heading || 'Click to add heading'}
+                  </div>
+                )}
+              </div>
 
               {/* Item Description */}
-              {isEditable && editingItemDescriptions.includes(index) ? (
-                <InlineEditor
-                  initialValue={item.description || ''}
-                  onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
-                  onCancel={() => handleItemDescriptionCancel(index)}
-                  multiline={true}
-                  placeholder="Enter description..."
-                  className="inline-editor-item-description"
-                  style={{
-                    ...itemDescriptionStyles,
-                    // Ensure description behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={itemDescriptionStyles}
-                  onClick={() => {
-                    if (isEditable) {
-                      startEditingItemDescription(index);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.description || 'Click to add description'}
-                </div>
-              )}
+              <div data-draggable="true" style={{ width: '100%' }}>
+                {isEditable && editingItemDescriptions.includes(index) ? (
+                  <InlineEditor
+                    initialValue={item.description || ''}
+                    onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
+                    onCancel={() => handleItemDescriptionCancel(index)}
+                    multiline={true}
+                    placeholder="Enter description..."
+                    className="inline-editor-item-description"
+                    style={{
+                      ...itemDescriptionStyles,
+                      // Ensure description behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={itemDescriptionStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemDescription(index);
+                      }
+                    }}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                  >
+                    {item.description || 'Click to add description'}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
-          <div style={separatorLineStyles(0)}></div>
-          <div style={separatorLineStyles(1)}></div>
+          <div data-draggable="true" style={separatorLineStyles(0)}></div>
+          <div data-draggable="true" style={separatorLineStyles(1)}></div>
         </div>
       </div>
     </div>

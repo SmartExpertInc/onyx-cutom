@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, BookOpen, Zap, Award, Crown } from 'lucide-react';
+import { Check, BookOpen, Zap, Award, Crown, BookText, Video, HelpCircle, FileText, Clock, Calculator, Settings } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ProjectSettingsModalProps {
@@ -33,9 +33,71 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   onTierChange 
 }) => {
   const [selectedTier, setSelectedTier] = useState(currentTier);
-  const [customRate, setCustomRate] = useState<number>(200); // Default to interactive tier
+  const [customRate, setCustomRate] = useState(0); // Initialize to 0, will be set by fetch
   const [saving, setSaving] = useState(false);
+  const [advancedEnabled, setAdvancedEnabled] = useState(false); // Initialize to false, will be set by fetch
+  const [advancedTierOpen, setAdvancedTierOpen] = useState<string | null>(null); // Track which tier has advanced settings open
+  const [globalAdvancedOpen, setGlobalAdvancedOpen] = useState(false); // Track if any advanced settings are open
+  const [perProductRates, setPerProductRates] = useState({
+    presentation: 0, // Initialize to 0, will be set by fetch
+    onePager: 0,
+    quiz: 0,
+    videoLesson: 0,
+  });
+  const [perProductCompletionTimes, setPerProductCompletionTimes] = useState({
+    presentation: 8, // Default: 8 minutes for presentation
+    onePager: 3,    // Default: 3 minutes for one-pager
+    quiz: 6,        // Default: 6 minutes for quiz
+    videoLesson: 4  // Default: 4 minutes for video-lesson
+  });
   const { t } = useLanguage();
+  const [dataLoaded, setDataLoaded] = useState(false); // Track if we've loaded backend data
+
+  // Prefill from backend when modal opens
+  React.useEffect(() => {
+    if (!open) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/custom-projects-backend/projects/view/${projectId}`, { cache: 'no-store', credentials: 'same-origin' });
+        if (res.ok) {
+          const data = await res.json();
+          const cr = typeof data.custom_rate === 'number' ? data.custom_rate : 200;
+          const qt = data.quality_tier || currentTier || 'interactive';
+          setCustomRate(cr);
+          setSelectedTier(qt);
+          if (data.is_advanced) {
+            setAdvancedEnabled(true);
+            const ar = data.advanced_rates || {};
+            setPerProductRates({
+              presentation: typeof ar.presentation === 'number' ? ar.presentation : cr,
+              onePager: typeof ar.one_pager === 'number' ? ar.one_pager : cr,
+              quiz: typeof ar.quiz === 'number' ? ar.quiz : cr,
+              videoLesson: typeof ar.video_lesson === 'number' ? ar.video_lesson : cr,
+            });
+            // Load completion times if available
+            const ct = data.completion_times || {};
+            setPerProductCompletionTimes({
+              presentation: typeof ct.presentation === 'number' ? ct.presentation : 8,
+              onePager: typeof ct.one_pager === 'number' ? ct.one_pager : 3,
+              quiz: typeof ct.quiz === 'number' ? ct.quiz : 6,
+              videoLesson: typeof ct.video_lesson === 'number' ? ct.video_lesson : 4,
+            });
+          } else {
+            setAdvancedEnabled(false);
+            setPerProductRates({ presentation: cr, onePager: cr, quiz: cr, videoLesson: cr });
+            // Set default completion times
+            setPerProductCompletionTimes({
+              presentation: 8,
+              onePager: 3,
+              quiz: 6,
+              videoLesson: 4
+            });
+          }
+          setDataLoaded(true);
+        }
+      } catch {}
+    })();
+  }, [open, projectId]);
 
   const qualityTiers: QualityTier[] = [
     {
@@ -119,14 +181,11 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   }, [selectedTier]);
 
   if (!open) {
-    if (typeof window !== 'undefined') (window as any).__modalOpen = false;
     return null;
   }
-  if (typeof window !== 'undefined') (window as any).__modalOpen = true;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      if (typeof window !== 'undefined') (window as any).__modalOpen = false;
       onClose();
     }
   };
@@ -134,14 +193,30 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   const handleSave = async () => {
     setSaving(true);
     try {
+      const payload: any = {
+        quality_tier: selectedTier,
+        custom_rate: customRate,
+      };
+      if (advancedEnabled) {
+        payload.is_advanced = true;
+        payload.advanced_rates = {
+          presentation: perProductRates.presentation,
+          one_pager: perProductRates.onePager,
+          quiz: perProductRates.quiz,
+          video_lesson: perProductRates.videoLesson,
+        };
+        payload.completion_times = {
+          presentation: perProductCompletionTimes.presentation,
+          one_pager: perProductCompletionTimes.onePager,
+          quiz: perProductCompletionTimes.quiz,
+          video_lesson: perProductCompletionTimes.videoLesson,
+        };
+      }
       const response = await fetch(`/api/custom-projects-backend/projects/${projectId}/tier`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          quality_tier: selectedTier,
-          custom_rate: customRate
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -152,7 +227,6 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
         onTierChange(selectedTier);
       }
       
-      // Refresh the page to update project colors
       window.location.reload();
       
       onClose();
@@ -184,6 +258,16 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
           <p className="text-gray-600">{t('modals.projectSettings.subtitle', 'Configure production quality for')} <span className="font-semibold text-blue-600">{projectName}</span></p>
         </div>
 
+        {/* Loading Overlay */}
+        {!dataLoaded && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-xl">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-3"></div>
+              <div className="text-gray-600">Loading project settings...</div>
+            </div>
+          </div>
+        )}
+
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="mb-6">
@@ -196,11 +280,13 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                   <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.tier', 'Tier')}</h4>
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-3">
                     <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.contentExamples', 'Content Examples')}</h4>
                   </div>
-                  <div className="col-span-3">
-                    <h4 className="font-semibold text-gray-700 text-sm text-left">{t('modals.folderSettings.hoursRange', 'Hours Range')}</h4>
+                  <div className="col-span-6">
+                    <h4 className="font-semibold text-gray-700 text-sm text-left">
+                      {t('modals.folderSettings.hoursRange', 'Hours Range')}
+                    </h4>
                   </div>
                 </div>
               </div>
@@ -230,11 +316,46 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                               )}
                             </div>
                           </div>
+                          {/* Gear icon for advanced settings */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const isCurrentlyOpen = advancedTierOpen === tier.id;
+                              const willOpen = !isCurrentlyOpen;
+                              setAdvancedTierOpen(willOpen ? tier.id : null);
+                              setGlobalAdvancedOpen(willOpen);
+                              
+                              // CRITICAL FIX: Actually enable/disable advanced mode
+                              if (willOpen && !advancedEnabled) {
+                                setAdvancedEnabled(true);
+                                console.log('🔍 [PROJECT_MODAL] Gear clicked - enabling advanced mode');
+                                // If not already advanced, initialize sliders to current effective rate
+                                if (perProductRates.presentation === 0) {
+                                  const fallbackRate = customRate || 200;
+                                  setPerProductRates({
+                                    presentation: fallbackRate,
+                                    onePager: fallbackRate,
+                                    quiz: fallbackRate,
+                                    videoLesson: fallbackRate
+                                  });
+                                  console.log('🔍 [PROJECT_MODAL] Initialized advanced rates to:', fallbackRate);
+                                }
+                              }
+                            }}
+                            className={`p-2 rounded-lg transition-colors ${
+                              advancedEnabled || globalAdvancedOpen
+                                ? 'bg-blue-100 text-blue-600' 
+                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+                            }`}
+                            title="Advanced Settings"
+                          >
+                            <Settings size={16} />
+                          </button>
                         </div>
                       </div>
 
                       {/* Content Examples Column */}
-                      <div className="col-span-6">
+                      <div className="col-span-3">
                         <div className="flex flex-wrap gap-1">
                           {tier.features.map((feature, index) => (
                             <span
@@ -252,34 +373,114 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
                       </div>
 
                       {/* Hours Range Column */}
-                      <div className="col-span-3">
+                      <div className="col-span-6">
                         {selectedTier === tier.id ? (
                           <div className="space-y-3">
-                            {/* Slider */}
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">
-                                  {customRate}{t('modals.folderSettings.hours', 'h')}
-                                </span>
-                              </div>
-                              <div className="relative">
-                                <input
-                                  type="range"
-                                  min={tier.hoursRange.min}
-                                  max={tier.hoursRange.max}
-                                  value={customRate}
-                                  onChange={(e) => setCustomRate(parseInt(e.target.value))}
-                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                                  style={{
-                                    background: `linear-gradient(to right, ${tier.color.replace('text-', '')} 0%, ${tier.color.replace('text-', '')} ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
-                                  }}
-                                />
-                                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                  <span>{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
-                                  <span>{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                            {advancedTierOpen !== tier.id && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {customRate}{t('modals.folderSettings.hours', 'h')}
+                                  </span>
+                                </div>
+                                <div className="relative">
+                                  <input
+                                    type="range"
+                                    min={tier.hoursRange.min}
+                                    max={tier.hoursRange.max}
+                                    value={customRate}
+                                    onChange={(e) => setCustomRate(parseInt(e.target.value))}
+                                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                    style={{
+                                      background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((customRate - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                    }}
+                                  />
+                                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                                    <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.min}{t('modals.folderSettings.hours', 'h')}</span>
+                                    <span className="bg-gray-100 px-2 py-1 rounded">{tier.hoursRange.max}{t('modals.folderSettings.hours', 'h')}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
+                            {advancedTierOpen === tier.id && (
+                              <div className="space-y-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                {/* Two Column Layout: Creation Rates | Completion Times */}
+                                <div className="grid grid-cols-3 gap-6">
+                                  
+                                  {/* Left Column: Creation Rates (2/3 width) */}
+                                  <div className="col-span-2 space-y-3">
+                                    <div className="flex items-center gap-2 pb-2">
+                                      <Calculator size={16} className="text-blue-600" />
+                                      <h4 className="text-sm font-semibold text-blue-800">Creation Rates</h4>
+                                      <span className="text-xs text-blue-500">(hours per completion hour)</span>
+                                    </div>
+                                    {[
+                                      { key: 'presentation', label: t('modals.rates.presentation', 'Presentation'), value: perProductRates.presentation, setter: (v:number)=>setPerProductRates(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-blue-600" /> },
+                                      { key: 'onePager', label: t('modals.rates.onePager', 'One‑pager'), value: perProductRates.onePager, setter: (v:number)=>setPerProductRates(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-blue-600" /> },
+                                      { key: 'quiz', label: t('modals.rates.quiz', 'Quiz'), value: perProductRates.quiz, setter: (v:number)=>setPerProductRates(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-blue-600" /> },
+                                      { key: 'videoLesson', label: t('modals.rates.videoLesson', 'Video lesson'), value: perProductRates.videoLesson, setter: (v:number)=>setPerProductRates(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-blue-600" /> },
+                                    ].map((cfg) => (
+                                      <div key={cfg.key} className="bg-white rounded-md p-3 border border-blue-100 h-20 flex flex-col justify-between">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-sm text-gray-700 flex items-center gap-2">
+                                            {cfg.icon}
+                                            {cfg.label}
+                                          </span>
+                                          <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">
+                                            {cfg.value}h
+                                          </span>
+                                        </div>
+                                        <div className="mt-2">
+                                          <input
+                                            type="range"
+                                            min={tier.hoursRange.min}
+                                            max={tier.hoursRange.max}
+                                            value={cfg.value}
+                                            onChange={(e)=>cfg.setter(parseInt(e.target.value))}
+                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                            style={{
+                                              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb ${((cfg.value - tier.hoursRange.min) / (tier.hoursRange.max - tier.hoursRange.min)) * 100}%, #e5e7eb 100%)`
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {/* Right Column: Completion Times (1/3 width) */}
+                                  <div className="space-y-3">
+                                    <div className="flex items-center gap-2 pb-2">
+                                      <Clock size={16} className="text-green-600" />
+                                      <h4 className="text-sm font-semibold text-green-800">Completion Time</h4>
+                                    </div>
+                                    {[
+                                      { key: 'presentation', label: t('modals.completionTimes.presentation', 'Presentation'), value: perProductCompletionTimes.presentation, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, presentation:v})), icon: <BookText size={14} className="text-green-600" /> },
+                                      { key: 'onePager', label: t('modals.completionTimes.onePager', 'One‑pager'), value: perProductCompletionTimes.onePager, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, onePager:v})), icon: <FileText size={14} className="text-green-600" /> },
+                                      { key: 'quiz', label: t('modals.completionTimes.quiz', 'Quiz'), value: perProductCompletionTimes.quiz, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, quiz:v})), icon: <HelpCircle size={14} className="text-green-600" /> },
+                                      { key: 'videoLesson', label: t('modals.completionTimes.videoLesson', 'Video lesson'), value: perProductCompletionTimes.videoLesson, setter: (v:number)=>setPerProductCompletionTimes(p=>({...p, videoLesson:v})), icon: <Video size={14} className="text-green-600" /> },
+                                    ].map((cfg)=> (
+                                      <div key={cfg.key} className="bg-white rounded-md p-3 border border-green-100 h-20 flex flex-col justify-center">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          {cfg.icon}
+                                          <span className="text-xs text-gray-600 truncate">{cfg.label}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <input
+                                            type="number"
+                                            min="1"
+                                            max="60"
+                                            value={cfg.value}
+                                            onChange={(e)=>cfg.setter(parseInt(e.target.value) || 1)}
+                                            className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-center font-medium text-black"
+                                          />
+                                          <span className="text-xs text-gray-500">min</span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                             
                             {/* Rate Information */}
                             <div className="text-xs text-gray-600 space-y-1">
@@ -335,22 +536,34 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          height: 20px;
-          width: 20px;
+          height: 24px;
+          width: 24px;
           border-radius: 50%;
           background: #3b82f6;
           cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          border: 3px solid white;
+          box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+          background: #2563eb;
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6), 0 2px 4px rgba(0,0,0,0.1);
         }
         .slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
+          height: 24px;
+          width: 24px;
           border-radius: 50%;
           background: #3b82f6;
           cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          border: 3px solid white;
+          box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4), 0 1px 3px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+        }
+        .slider::-moz-range-thumb:hover {
+          background: #2563eb;
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6), 0 2px 4px rgba(0,0,0,0.1);
         }
         .line-clamp-2 {
           display: -webkit-box;
@@ -363,4 +576,4 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
   );
 };
 
-export default ProjectSettingsModal; 
+export default ProjectSettingsModal;

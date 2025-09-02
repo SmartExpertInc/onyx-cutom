@@ -1,33 +1,33 @@
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'deckgo-deck': {
+      "deckgo-deck": {
         embedded?: boolean;
         keyboard?: boolean;
         navigation?: boolean;
         children?: React.ReactNode;
       };
-      'deckgo-slide-content': {
+      "deckgo-slide-content": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
       };
-      'deckgo-slide-split': {
+      "deckgo-slide-split": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
       };
-      'deckgo-slide-title': {
+      "deckgo-slide-title": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
       };
       // Розширені DeckDeckGo компоненти
-      'deckgo-slide-chart': {
+      "deckgo-slide-chart": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
-        type?: 'line' | 'pie' | 'bar' | 'doughnut' | 'radar' | 'polarArea';
+        type?: "line" | "pie" | "bar" | "doughnut" | "radar" | "polarArea";
         src?: string;
         width?: number;
         height?: number;
@@ -36,7 +36,7 @@ declare global {
         marginLeft?: number;
         marginRight?: number;
       };
-      'deckgo-slide-gif': {
+      "deckgo-slide-gif": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
@@ -44,7 +44,7 @@ declare global {
         alt?: string;
         fullscreen?: boolean;
       };
-      'deckgo-slide-youtube': {
+      "deckgo-slide-youtube": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
@@ -53,16 +53,16 @@ declare global {
         height?: number;
         frameTitle?: string;
       };
-      'deckgo-slide-code': {
+      "deckgo-slide-code": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
         language?: string;
         highlightLines?: string;
         lineNumbers?: boolean;
-        terminal?: 'carbon' | 'ubuntu' | 'windows10';
+        terminal?: "carbon" | "ubuntu" | "windows10";
       };
-      'deckgo-slide-qrcode': {
+      "deckgo-slide-qrcode": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
@@ -71,7 +71,7 @@ declare global {
         imgSrc?: string;
         imgAlt?: string;
       };
-      'deckgo-slide-countdown': {
+      "deckgo-slide-countdown": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
@@ -79,14 +79,14 @@ declare global {
         minutes?: number;
         seconds?: number;
       };
-      'deckgo-slide-author': {
+      "deckgo-slide-author": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
         imgSrc?: string;
         imgAlt?: string;
       };
-      'deckgo-slide-poll': {
+      "deckgo-slide-poll": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
@@ -94,7 +94,7 @@ declare global {
         socketUrl?: string;
         connectPoll?: boolean;
       };
-      'deckgo-slide-aspect-ratio': {
+      "deckgo-slide-aspect-ratio": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
@@ -102,12 +102,12 @@ declare global {
         grid?: boolean;
         editable?: boolean;
       };
-      'deckgo-slide-playground': {
+      "deckgo-slide-playground": {
         key?: string | number;
         children?: React.ReactNode;
         slot?: string;
         src?: string;
-        theme?: 'default' | 'dark' | 'light';
+        theme?: "default" | "dark" | "light";
       };
       h1: {
         slot?: string;
@@ -170,4 +170,4 @@ declare global {
   }
 }
 
-export {}; 
+export {};

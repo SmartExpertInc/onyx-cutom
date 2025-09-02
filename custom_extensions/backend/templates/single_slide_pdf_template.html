@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Mont Font Family - Embedded Base64 Fonts for PDF Rendering */
+        {{ embedded_fonts_css|safe }}
         /* Reset and base styles */
         html, body {
             margin: 0;
@@ -27,6 +29,9 @@
             font-family: 'Martel Sans', sans-serif;
             line-height: 1.6;
             color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
         
         /* Dynamic page setup for PDF - HEIGHT IS SET BY PYTHON */
@@ -50,6 +55,23 @@
             display: block;
         }
         
+        /* Dynamic positioning support for PDF */
+        .positioned-element {
+            /* Keep elements in their natural flexbox flow while allowing transforms */
+            /* Removed position: absolute to prevent positioning conflicts */
+        }
+        
+        /* Hide empty content in PDF */
+        .hide-if-empty:empty {
+            display: none !important;
+        }
+        
+        /* Hide elements with only placeholder text */
+        .hide-placeholder {
+            display: none !important;
+        }
+        
+        /* Dynamic positioning container */
         .slide-content {
             width: 100%;
             height: 100%; /* Fill the page height */
@@ -60,6 +82,7 @@
             justify-content: center;
             align-items: center;
             background: transparent;
+            position: relative; /* Enable absolute positioning for children */
         }
         
         /* Theme color definitions - EXACT FRONTEND MATCH */
@@ -102,51 +125,53 @@
         /* Chudo Theme */
         .theme-chudo-theme {
             --bg-color: #ffffff;
-            --title-color: #d01510;
+            --title-color: #ed6c00;
             --subtitle-color: #3a3a3a;
             --content-color: #3a3a3a;
-            --accent-color: #ed6c00;
+            --accent-color: #d01510;
             --border-color: #d01510;
-            --title-font: 'Montserrat', sans-serif;
-            --content-font: 'Montserrat', sans-serif;
+            --title-font: 'Mont Bold', sans-serif;
+            --content-font: 'Mont Regular', sans-serif;
             --title-size: 40px;
             --content-size: 16px;
         }
         
         /* Chudo 2 Theme */
         .theme-chudo-2 {
-            --bg-color: #ed6c00;
-            --title-color: #ffffff;
+            --bg-color: #e8e9e3;
+            --title-color: #ed6c00;
             --subtitle-color: #3a3a3a;
-            --content-color: #ffffff;
+            --content-color: #3a3a3a;
             --accent-color: #d01510;
-            --border-color: #3a3a3a;
-            --title-font: 'Montserrat', sans-serif;
-            --content-font: 'Montserrat', sans-serif;
+            --border-color: #d01510;
+            --title-font: 'Mont Bold', sans-serif;
+            --content-font: 'Mont Regular', sans-serif;
             --title-size: 40px;
             --content-size: 16px;
         }
         
         /* Forta Theme */
         .theme-forta {
-            --bg-color: rgb(225, 211, 196);
-            --title-color: rgb(238, 118, 35);
-            --subtitle-color: rgb(0, 102, 79);
-            --content-color: rgb(65, 67, 73);
-            --accent-color: rgb(0, 102, 79);
-            --border-color: rgb(0, 102, 79);
+            --bg-color: #ffffff;
+            --title-color: #00664f;
+            --subtitle-color: #414349;
+            --content-color: #414349;
+            --accent-color: #ee7623;
+            --border-color: #ee7623;
             --title-font: 'Montserrat', sans-serif;
             --content-font: 'Montserrat', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
         }
         
         /* Forta 2 Theme */
         .theme-forta-2 {
-            --bg-color: rgb(0, 102, 79);
-            --title-color: rgb(238, 118, 35);
-            --subtitle-color: #ffffff;
-            --content-color: #ffffff;
-            --accent-color: rgb(225, 211, 196);
-            --border-color: rgb(238, 118, 35);
+            --bg-color: #e1d3c4;
+            --title-color: #00664f;
+            --subtitle-color: #414349;
+            --content-color: #414349;
+            --accent-color: #ee7623;
+            --border-color: #ee7623;
             --title-font: 'Montserrat', sans-serif;
             --content-font: 'Montserrat', sans-serif;
             --title-size: 40px;
@@ -166,6 +191,7 @@
             align-items: center;
             padding: 40px;
             position: relative;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         /* Content Slide Template - EXACT FRONTEND MATCH */
@@ -184,6 +210,7 @@
             padding: 80px;
             position: relative;
             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .content-slide .slide-title {
@@ -220,6 +247,7 @@
             padding-bottom: 50px;
             height: 100%;
             width: 100%;
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .big-image-top .image-container {
@@ -368,6 +396,7 @@
             min-height: 600px;
             width: 100%;
             height: 100%;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .pyramid-template .slide-title {
@@ -412,7 +441,8 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 400px;
+            flex: 1;                          /* FIXED: Changed from fixed height: 400px to flex: 1 to fill remaining space */
+            min-height: 400px;                /* Keep minimum height for content */
         }
         
         .pyramid-template .item-wrapper {
@@ -560,6 +590,7 @@
             width: 100%;
             height: 100%; /* Fill the entire slide content area */
             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .title-slide .slide-title {
@@ -602,6 +633,7 @@
             display: flex;
             align-items: stretch;
             padding: 0;
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .big-image-left .image-container {
@@ -612,6 +644,7 @@
             background-color: var(--bg-color);
             position: relative;
             min-width: 0;
+            overflow: visible; /* ALLOW images to move outside container bounds */
         }
         
         .big-image-left .image-placeholder {
@@ -671,6 +704,7 @@
             padding: 80px; /* Exact frontend match */
             position: relative;
             font-family: var(--content-font);
+            overflow: visible; /* ALLOW images to move outside original container bounds */
         }
         
         .bullet-points .slide-title {
@@ -700,6 +734,7 @@
             min-width: 0;
             width: 50%;
             height: 100%;
+            overflow: visible; /* ALLOW images to move outside container bounds */
         }
         
         .bullet-points .placeholder {
@@ -744,6 +779,7 @@
             padding: 80px;
             position: relative;
             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .bullet-points-right .slide-title {
@@ -846,6 +882,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .process-steps .slide-title {
@@ -900,6 +937,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .challenges-solutions .slide-title {
@@ -995,11 +1033,14 @@
         /* Two Column Template - EXACT FRONTEND MATCH */
         .two-column {
             width: 100%;
-            height: 100%;
-            padding: 40px;
-            min-height: 600px;
+             height: 100%; /* Fill the entire slide content area */
             background-color: var(--bg-color);
             font-family: var(--content-font);
+             display: flex;
+             flex-direction: column;
+             padding: 40px;
+             min-height: 600px;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .two-column .slide-title {
@@ -1065,14 +1106,16 @@
         /* Big Numbers Template - EXACT FRONTEND MATCH */
         .big-numbers {
             width: 100%;
-            height: 100%;
-            min-height: 600px;
+             height: 100%; /* Fill the entire slide content area */
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
+             justify-content: flex-start;
             align-items: center;
             padding: 40px;
+             position: relative;
             font-family: var(--content-font);
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .big-numbers .slide-title {
@@ -1137,6 +1180,7 @@
             padding: 40px;
             font-family: var(--content-font);
             height: 100%;
+             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
         }
         
         .four-box-grid .slide-title {
@@ -1218,18 +1262,506 @@
         }
         
         /* Timeline Template - EXACT FRONTEND MATCH */
+        /* Six Ideas List Template - EXACT FRONTEND MATCH */
+        .six-ideas-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        
+        .slide-title-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .ideas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px; /* Exact frontend match */
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        
+        .idea-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .idea-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px; /* Exact frontend match */
+            width: 100%;
+        }
+        
+        .idea-number {
+            font-size: 24px; /* Exact frontend match */
+            font-weight: 700;
+            color: var(--title-color);
+            margin-right: 12px; /* Exact frontend match */
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .idea-line {
+            flex: 1;
+            height: 2px;
+            background-color: var(--title-color);
+        }
+        
+        .idea-text {
+            font-size: 16px; /* Exact frontend match */
+            color: var(--content-color);
+            line-height: 1.4;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .image-section {
+            width: 100%;
+            height: 300px; /* Exact frontend match */
+            border-radius: 8px; /* Exact frontend match */
+            overflow: hidden;
+            border: 2px dashed #adb5bd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .image-placeholder {
+            text-align: center;
+        }
+        
+        /* Org Chart Template - EXACT FRONTEND MATCH */
+        .org-chart-template {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .org-chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            padding: 40px;
+            min-height: 500px;
+        }
+        
+        .chart-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin: 8px;
+        }
+        
+        .node-content {
+            padding: 16px 24px;
+            margin: 12px;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            min-width: 160px;
+            text-align: center;
+            font-size: 16px;
+            color: var(--content-color);
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .node-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+        
+        .node-content.ceo {
+            background-color: rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            min-width: 200px;
+            font-size: 20px;
+            font-weight: 700;
+            transform: scale(1.15);
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.2);
+        }
+        
+        .node-content.c-level {
+            background-color: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            min-width: 180px;
+            font-size: 18px;
+            font-weight: 600;
+            transform: scale(1.08);
+            box-shadow: 0 10px 36px rgba(0,0,0,0.15);
+        }
+        
+        .node-content.manager {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 160px;
+            font-size: 16px;
+            font-weight: 600;
+            transform: scale(1.02);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        }
+        
+        .node-content.employee {
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            min-width: 140px;
+            font-size: 14px;
+            font-weight: 600;
+            transform: scale(0.98);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        
+        .children-container {
+            padding-top: 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .children-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 3px;
+            height: 40px;
+            background-color: var(--content-color);
+            transform: translateX(-50%);
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+        
+        .children-grid {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1400px;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 20px 0;
+            position: relative;
+        }
+        
+        .children-grid::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background-color: var(--content-color);
+            opacity: 0.4;
+            border-radius: 1px;
+        }
+        
+        .child-node {
+            position: relative;
+        }
+        
+        .child-node::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            width: 3px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--content-color), transparent);
+            transform: translateX(-50%);
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+        
+        /* Космические стили для планет */
+        .planet-node {
+            border-radius: 50% !important;
+            min-width: 180px !important;
+            min-height: 180px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            position: relative !important;
+            overflow: hidden !important;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .planet-node.ceo {
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, rgba(255, 215, 0, 0.1) 70%, rgba(255, 215, 0, 0.05) 100%) !important;
+            border: 3px solid rgba(255, 215, 0, 0.6) !important;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.2) !important;
+            transform: scale(1.3) !important;
+            min-width: 220px !important;
+            min-height: 220px !important;
+        }
+        
+        .planet-node.c-level {
+            background: radial-gradient(circle, rgba(100, 149, 237, 0.25) 0%, rgba(100, 149, 237, 0.1) 70%, rgba(100, 149, 237, 0.05) 100%) !important;
+            border: 2px solid rgba(100, 149, 237, 0.5) !important;
+            box-shadow: 0 0 40px rgba(100, 149, 237, 0.3), inset 0 0 20px rgba(100, 149, 237, 0.15) !important;
+            transform: scale(1.15) !important;
+            min-width: 200px !important;
+            min-height: 200px !important;
+        }
+        
+        .planet-node.manager {
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.2) 0%, rgba(138, 43, 226, 0.08) 70%, rgba(138, 43, 226, 0.04) 100%) !important;
+            border: 2px solid rgba(138, 43, 226, 0.4) !important;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.25), inset 0 0 15px rgba(138, 43, 226, 0.1) !important;
+            transform: scale(1.05) !important;
+            min-width: 160px !important;
+            min-height: 160px !important;
+        }
+        
+        .planet-node.employee {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.06) 70%, rgba(255, 255, 255, 0.03) 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.08) !important;
+            transform: scale(0.95) !important;
+            min-width: 140px !important;
+            min-height: 140px !important;
+        }
+        
+        .planet-content {
+            text-align: center !important;
+            font-weight: 700 !important;
+            margin-bottom: 4px !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+        
+        .planet-role {
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            opacity: 0.8 !important;
+            text-align: center !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        
+        /* Contraindications and Indications Template - EXACT FRONTEND MATCH */
+        .contraindications-indications-template {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .contraindications-indications-container {
+            display: flex;
+            gap: 40px;
+            flex: 1;
+        }
+        
+        .contraindications-section,
+        .indications-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section-header h2 {
+            font-weight: 600;
+            font-size: 18px;
+            color: #6c757d;
+            margin: 0;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .section-content {
+            flex: 1;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .list-bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ff6b6b;
+            margin-right: 12px;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        
+        .list-text {
+            font-size: 16px;
+            color: var(--content-color);
+            line-height: 1.4;
+            flex: 1;
+        }
+        
+        /* Metrics Analytics Template - EXACT FRONTEND MATCH */
+        .metrics-analytics-template {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            flex: 1;
+            position: relative;
+        }
+        
+
+        
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .metric-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 16px;
+            font-family: 'Martel Sans', sans-serif;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .metric-text {
+            font-size: 16px;
+            color: var(--content-color);
+            line-height: 1.5;
+            font-family: 'Martel Sans', sans-serif;
+            font-weight: 500;
+        }
+        
+        /* Event List Template - EXACT FRONTEND MATCH */
+        .event-list-template {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            font-family: 'Martel Sans', sans-serif;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        .events-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .event-item {
+            margin: 24px 0;
+            text-align: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .event-item:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 1px;
+            background-color: var(--title-color);
+            opacity: 0.3;
+        }
+        
+        .event-date {
+            font-weight: 700;
+            font-size: 40px;
+            color: var(--title-color);
+            margin-bottom: 8px;
+            font-family: 'Martel Sans', sans-serif;
+            text-align: center;
+        }
+        
+        .event-description {
+            font-weight: 400;
+            font-size: 22px;
+            color: var(--content-color);
+            font-family: 'Martel Sans', sans-serif;
+            text-align: center;
+        }
+        
         /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
 .timeline {
-    min-height: 600px;
+     width: 100%;
+     height: 100%; /* Fill the entire slide content area */
     background-color: var(--bg-color);
     display: flex;
     flex-direction: column;
+     justify-content: flex-start;
+     align-items: stretch;
     padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
+     position: relative;
     font-family: var(--content-font);
-    align-items: stretch;
-    text-align: center;
-    height: 100%;
-    width: 100%;
+     overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
 }
 
 .timeline .slide-title {
@@ -1244,9 +1776,9 @@
 .timeline-container {
     position: relative;
     width: 100%;
-    height: 350px;                    /* FIXED: Changed from flex: 1 to fixed height: 350px */
+    flex: 1;                          /* FIXED: Changed from fixed height: 350px to flex: 1 to fill remaining space */
     display: flex;
-    /* REMOVED: min-height: 400px; */
+    min-height: 350px;                /* Keep minimum height for content */
 }
 
 .timeline-line {
@@ -1319,6 +1851,141 @@
     justify-content: center;
     font-size: 1.5rem;
 }
+        
+        /* Enhanced Image Placeholder System - EXACT FRONTEND MATCH */
+        
+        /* Image container positioning and sizing */
+        .enhanced-image-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* Image element with enhanced positioning support */
+        .positioned-image {
+            position: relative;
+            display: block;
+            transition: none; /* Disable transitions for PDF */
+        }
+        
+        /* Enhanced image positioning container */
+        .image-positioning-container {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Image with transform support */
+        .transformed-image {
+            position: relative;
+            display: block;
+            max-width: none;
+            max-height: none;
+            border-radius: 8px;
+        }
+        
+        /* Support for different crop modes */
+        .crop-cover {
+            object-fit: cover;
+        }
+        
+        .crop-contain {
+            object-fit: contain;
+        }
+        
+        .crop-fill {
+            object-fit: fill;
+        }
+        
+        /* Enhanced positioning for draggable elements */
+        .draggable-element {
+            position: absolute;
+            z-index: 1;
+        }
+        
+        /* Slide content with positioning support */
+        .slide-content-positioned {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        /* Image size variants */
+        .image-size-small {
+            width: 200px;
+            height: 150px;
+        }
+        
+        .image-size-medium {
+            width: 300px;
+            height: 200px;
+        }
+        
+        .image-size-large {
+            width: 400px;
+            height: 300px;
+        }
+        
+        /* Image position variants */
+        .image-position-left {
+            justify-self: start;
+            align-self: center;
+        }
+        
+        .image-position-right {
+            justify-self: end;
+            align-self: center;
+        }
+        
+        .image-position-center {
+            justify-self: center;
+            align-self: center;
+        }
+        
+        .image-position-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        /* EXACT FRONTEND MATCHING - Image Container System */
+        .frontend-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Container gets exact widthPx/heightPx from frontend */
+        }
+        
+        .frontend-image {
+            /* Image fills container and uses object-fit */
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 8px;
+            margin: 0;
+            padding: 0;
+            /* Transform applied for cropping/panning - imageOffset */
+            transform-origin: center center;
+        }
+        
+        /* Ensure container transforms are applied correctly for element positioning */
+        .frontend-container-positioned {
+            /* This gets element positioning transforms from metadata.elementPositions */
+            transform-origin: top left;
+        }
+
     </style>
 </head>
 <body>
@@ -1326,12 +1993,35 @@
         <div class="slide-content theme-{{ theme or 'dark-purple' }}">
             {% if slide.templateId == 'title-slide' %}
                 <div class="title-slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    {% if slide.props.subtitle %}
-                        <h2 class="slide-subtitle">{{ slide.props.subtitle }}</h2>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element" 
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
+                        <h2 class="slide-subtitle positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[subtitleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.subtitle }}</h2>
                     {% endif %}
                     {% if slide.props.author or slide.props.date %}
-                        <div class="metadata">
+                        <div class="metadata positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set metadataId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[metadataId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[metadataId].x }}px, {{ slide.metadata.elementPositions[metadataId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             {% if slide.props.author %}
                                 <div>{{ slide.props.author }}</div>
                             {% endif %}
@@ -1342,32 +2032,49 @@
                     {% endif %}
                 </div>
                 
-            {% elif slide.templateId == 'big-image-left' %}
+                {% elif slide.templateId == 'big-image-left' %}
                 <div class="big-image-left">
                     <div class="image-container">
-                        {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; margin: 0 auto;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                                    {% if slide.props.imagePath %}
+                                <!-- EXACT TWO-COLUMNS APPROACH: Direct image styling without container wrapper -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '500px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '660px' }};
+                                        margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
                                 <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'man sitting on a chair' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">500px × 350px</div>
+                                                                                                                                                                                                                                                                                   <div style="font-size: 12px; color: #868e96;">500px × 660px</div>
                             </div>
                         {% else %}
-                            <div class="image-placeholder">
-                                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'man sitting on a chair' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">500px × 350px</div>
+                            <!-- Placeholder when no image -->
+                                                                                                                                                                                                                                                   <div style="width: 500px; height: 660px; border: 2px dashed #e0e0e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                                <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% endif %}
                     </div>
                     <div class="content-container">
-                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                        <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                        {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                            <h1 class="slide-title positioned-element"
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[titleId] %}transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);{% endif %}"
+                            >{{ slide.props.title }}</h1>
+                        {% endif %}
+                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
+                            <div class="content-text positioned-element"
+                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                style="{% if slide.metadata and slide.metadata.elementPositions and slide.metadata.elementPositions[subtitleId] %}transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);{% endif %}"
+                            >{{ slide.props.subtitle }}</div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -1375,10 +2082,43 @@
                 <div class="big-image-top">
                     <div class="image-container">
                         {% if slide.props.imagePath %}
-                            <img src="{{ slide.props.imagePath }}" 
-                                 alt="Uploaded image" 
-                                 style="width: 100%; height: 240px; object-fit: cover; margin: 0 auto; margin-bottom: 24px !important; border-radius: 8px;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <!-- FRONTEND EXACT MATCH: Container with dimensions only (images don't use elementPositions) -->
+                            <div style="
+                                position: relative;
+                                overflow: hidden;
+                                border-radius: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: {{ ('{}px'.format(slide.props.widthPx|int)) if slide.props.widthPx else '100%' }};
+                                height: {{ (slide.props.heightPx|int) if slide.props.heightPx else 240 }}px;
+                                margin: 0 auto;
+                                margin-bottom: 24px !important;
+                            ">
+                                <!-- FRONTEND EXACT MATCH: Image with offset/scale -->
+                                <img src="{{ slide.props.imagePath }}" 
+                                     alt="Uploaded image" 
+                                     style="
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        {% if slide.props.imageOffset or slide.props.imageScale %}
+                                            transform: 
+                                            {% if slide.props.imageOffset %}
+                                                translate({{ slide.props.imageOffset.x|float|round(2) }}px, {{ slide.props.imageOffset.y|float|round(2) }}px)
+                                            {% endif %}
+                                            {% if slide.props.imageScale and slide.props.imageScale != 1 %}
+                                                {% if slide.props.imageOffset %} {% endif %}scale({{ slide.props.imageScale|float|round(3) }})
+                                            {% endif %};
+                                            transform-origin: center center;
+                                        {% endif %}
+                                        border-radius: 8px;
+                                        margin: 0;
+                                        padding: 0;
+                                        display: block;
+                                     "
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            </div>
                             <div class="image-placeholder" style="display: none;">
                                 <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
                                 <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
@@ -1386,66 +2126,100 @@
                                 <div style="font-size: 12px; color: #868e96;">100% × 240px</div>
                             </div>
                         {% else %}
-                            <div class="image-placeholder">
-                                <div style="font-size: 48px; margin-bottom: 16px;">🖼️</div>
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A high-quality illustration for the topic' }}"</div>
-                                <div style="font-size: 12px; color: #868e96;">100% × 240px</div>
+                            <!-- Placeholder when no image -->
+                            <div style="width: 100%; height: 240px; border: 2px dashed #e0e0e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; margin-bottom: 32px;">
+                                <span style="color: #6c757d; font-size: 16px;">Image Placeholder</span>
                             </div>
                         {% endif %}
                     </div>
                     <div class="content-container">
-                        <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                        <div class="content-text">{{ slide.props.subtitle or 'Click to add content' }}</div>
+                        {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                            <h1 class="slide-title positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set titleId = slide.slideId + '-0' %}
+                                    {% if slide.metadata.elementPositions[titleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[titleId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[titleId].y|float|round(2) }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >{{ slide.props.title }}</h1>
+                        {% endif %}
+                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
+                            <div class="content-text positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set subtitleId = slide.slideId + '-1' %}
+                                    {% if slide.metadata.elementPositions[subtitleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x|float|round(2) }}px, {{ slide.metadata.elementPositions[subtitleId].y|float|round(2) }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >{{ slide.props.subtitle }}</div>
+                        {% endif %}
                     </div>
                 </div>
                 
                 {% elif slide.templateId == 'bullet-points' %}
                 <div class="bullet-points">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="content-row">
                         <div class="placeholder-container">
                             {% if slide.props.imagePath %}
+                                <!-- EXACT TWO-COLUMNS APPROACH: Direct image styling without container wrapper -->
                                 <img src="{{ slide.props.imagePath }}" 
                                      alt="Uploaded image" 
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; margin: 0 auto; aspect-ratio: 1 / 1;"
+                                     style="
+                                        width: {{ (slide.props.widthPx|string + 'px') if slide.props.widthPx else '480px' }};
+                                        height: {{ (slide.props.heightPx|string + 'px') if slide.props.heightPx else '480px' }};
+                                        margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.objectFit if slide.props.objectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.imageOffset.x|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.x is defined else '0px' }}, {{ (slide.props.imageOffset.y|string + 'px') if slide.props.imageOffset and slide.props.imageOffset.y is defined else '0px' }}) scale({{ slide.props.imageScale if slide.props.imageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
                                     <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
                                     <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">50% × 50%</div>
+                                    <div style="font-size: 12px; color: #868e96;">480px × 480px</div>
                                 </div>
                             {% else %}
-                                <div class="placeholder">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'relevant illustration for the bullet points' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">50% × 50%</div>
+                                <div class="placeholder" style="width: 50%; height: 50%; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; aspect-ratio: 1 / 1;">
+                                    <!-- Empty placeholder - maintains layout -->
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="bullets-container">
+                        <div class="bullets-container positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set bulletsId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[bulletsId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             <ul class="bullet-list">
                                 {% for bullet in slide.props.bullets %}
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">
-                                            {% if slide.props.bulletStyle == 'arrow' %}→
-                                            {% elif slide.props.bulletStyle == 'check' %}✓
-                                            {% elif slide.props.bulletStyle == 'star' %}★
-                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                            {% else %}•
-                                            {% endif %}
-                                        </span>
-                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
-                                    </li>
+                                    {% if bullet and bullet != 'Click to add bullet point' %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">
+                                                {% if slide.props.bulletStyle == 'arrow' %}→
+                                                {% elif slide.props.bulletStyle == 'check' %}✓
+                                                {% elif slide.props.bulletStyle == 'star' %}★
+                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                                {% else %}•
+                                                {% endif %}
+                                            </span>
+                                            <span class="bullet-text">{{ bullet }}</span>
+                                        </li>
+                                    {% endif %}
                                 {% endfor %}
-                                {% if not slide.props.bullets or slide.props.bullets|length == 0 %}
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">•</span>
-                                        <span class="bullet-text" style="color: #9ca3af; font-style: italic;">Click to add bullet points...</span>
-                                    </li>
-                                {% endif %}
                             </ul>
                         </div>
                     </div>
@@ -1454,46 +2228,53 @@
                 
             {% elif slide.templateId == 'bullet-points-right' %}
                 <div class="bullet-points-right">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     
                     <div class="content-row">
                     
-                        <div class="bullets-container">
-                            {% if slide.props.subtitle %}
-                        <div class="content-text">{{ slide.props.subtitle }}</div>
-                    {% endif %}
+                        <div class="bullets-container positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set bulletsId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[bulletsId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[bulletsId].x }}px, {{ slide.metadata.elementPositions[bulletsId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
+                            {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
+                                <div class="content-text positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                        {% if slide.metadata.elementPositions[subtitleId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ slide.props.subtitle }}</div>
+                            {% endif %}
                             <ul class="bullet-list">
                                 {% for bullet in slide.props.bullets %}
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">
-                                            {% if slide.props.bulletStyle == 'arrow' %}→
-                                            {% elif slide.props.bulletStyle == 'check' %}✓
-                                            {% elif slide.props.bulletStyle == 'star' %}★
-                                            {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                            {% else %}•
-                                            {% endif %}
-                                        </span>
-                                        <span class="bullet-text">{{ bullet or 'Click to add bullet point' }}</span>
-                                    </li>
+                                    {% if bullet and bullet != 'Click to add bullet point' %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon">
+                                                {% if slide.props.bulletStyle == 'arrow' %}→
+                                                {% elif slide.props.bulletStyle == 'check' %}✓
+                                                {% elif slide.props.bulletStyle == 'star' %}★
+                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
+                                                {% else %}•
+                                                {% endif %}
+                                            </span>
+                                            <span class="bullet-text">{{ bullet }}</span>
+                                        </li>
+                                    {% endif %}
                                 {% endfor %}
-                                {% if not slide.props.bullets or slide.props.bullets is not iterable or slide.props.bullets is callable or slide.props.bullets|length == 0 %}
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">•</span>
-                                        <span class="bullet-text">Building Trust: Values create a foundation of trust among employees and with clients.</span>
-                                    </li>
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">•</span>
-                                        <span class="bullet-text">Guiding Decisions: They serve as a compass for decision-making at all levels.</span>
-                                    </li>
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">•</span>
-                                        <span class="bullet-text">Fostering Culture: Values shape our company culture and work environment.</span>
-                                    </li>
-                                    <li class="bullet-item">
-                                        <span class="bullet-icon">•</span>
-                                        <span class="bullet-text">Driving Success: Aligning with our values leads to greater success and fulfillment.</span>
-                                    </li>
-                                {% endif %}
                             </ul>
                         </div>
                         <div class="placeholder-container">
@@ -1503,11 +2284,8 @@
                                      style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; margin: 0 auto;"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                             {% else %}
-                                <div class="placeholder">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.imagePrompt or slide.props.imageAlt or 'A relevant illustration for the bullet points' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                <div class="placeholder" style="width: 320px; height: 320px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa;">
+                                    <!-- Empty placeholder - maintains layout -->
                                 </div>
                             {% endif %}
                         </div>
@@ -1516,22 +2294,57 @@
                 
             {% elif slide.templateId == 'process-steps' %}
                 <div class="process-steps">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="steps-container">
                         {% for step in slide.props.steps %}
-                            <div class="process-step">
-                                <div class="step-number">{{ loop.index }}</div>
-                                <p class="step-description">{{ step.description if step.description else (step if step is string else 'Click to add step description') }}</p>
-                            </div>
+                            {% set stepText = step.description if step.description else (step if step is string else '') %}
+                            {% if stepText and stepText != 'Click to add step description' %}
+                                <div class="process-step positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
+                                        {% if slide.metadata.elementPositions[stepId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >
+                                    <div class="step-number">{{ loop.index }}</div>
+                                    <p class="step-description">{{ stepText }}</p>
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'challenges-solutions' %}
                 <div class="challenges-solutions">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="grid">
-                        <div class="callout-box">
+                        <div class="callout-box positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set challengesId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[challengesId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[challengesId].x }}px, {{ slide.metadata.elementPositions[challengesId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             <div class="callout-header">
                                 <svg class="icon-xmark" viewBox="0 0 512 512">
                                     <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
@@ -1547,7 +2360,14 @@
                                 {% endfor %}
                             </ul>
                         </div>
-                        <div class="callout-box">
+                        <div class="callout-box positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set solutionsId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[solutionsId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[solutionsId].x }}px, {{ slide.metadata.elementPositions[solutionsId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             <div class="callout-header">
                                 <svg class="icon-check" viewBox="0 0 512 512">
                                     <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
@@ -1568,13 +2388,30 @@
                 
             {% elif slide.templateId == 'two-column' %}
                 <div class="two-column">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="two-column-layout">
                         <div class="column">
                             {% if slide.props.leftImagePath %}
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
-                                     style="width: 100%; max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; object-fit: cover; border-radius: 8px; "
+                                     style="
+                                        width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '100%' }};
+                                        height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else 'auto' }};
+                                        max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
@@ -1583,21 +2420,44 @@
                                     <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
                                 </div>
                             {% else %}
-                                <div class="placeholder">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImagePrompt or slide.props.leftImageAlt or 'man sitting on a chair' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                <div class="placeholder" style="width: 100%; max-height: 200px; max-width: 320px; height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-bottom: 24px;">
+                                    <!-- Empty placeholder - maintains layout -->
                                 </div>
                             {% endif %}
-                            <h2 class="column-title">{{ slide.props.leftTitle or 'Click to add left title' }}</h2>
-                            <p class="column-content">{{ slide.props.leftContent or 'Click to add left content' }}</p>
+                            {% if slide.props.leftTitle and slide.props.leftTitle != 'Click to add left title' %}
+                                <h2 class="column-title positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set leftTitleId = 'draggable-' + slide.slideId + '-1' %}
+                                        {% if slide.metadata.elementPositions[leftTitleId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[leftTitleId].x }}px, {{ slide.metadata.elementPositions[leftTitleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ slide.props.leftTitle }}</h2>
+                            {% endif %}
+                            {% if slide.props.leftContent and slide.props.leftContent != 'Click to add left content' %}
+                                <p class="column-content positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set leftContentId = 'draggable-' + slide.slideId + '-2' %}
+                                        {% if slide.metadata.elementPositions[leftContentId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[leftContentId].x }}px, {{ slide.metadata.elementPositions[leftContentId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ slide.props.leftContent }}</p>
+                            {% endif %}
                         </div>
                         <div class="column">
                             {% if slide.props.rightImagePath %}
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
-                                     style="width: 100%; max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; object-fit: cover; border-radius: 8px; "
+                                     style="
+                                        width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '100%' }};
+                                        height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else 'auto' }};
+                                        max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; 
+                                        object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
+                                        transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
+                                        transform-origin: center center;
+                                        border-radius: 8px; max-width: none; max-height: none;
+                                     "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
                                     <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
@@ -1606,65 +2466,115 @@
                                     <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
                                 </div>
                             {% else %}
-                                <div class="placeholder">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImagePrompt or slide.props.rightImageAlt or 'man sitting on a chair' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
+                                <div class="placeholder" style="width: 100%; max-height: 200px; max-width: 320px; height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-bottom: 24px;">
+                                    <!-- Empty placeholder - maintains layout -->
                                 </div>
                             {% endif %}
-                            <h2 class="column-title">{{ slide.props.rightTitle or 'Click to add right title' }}</h2>
-                            <p class="column-content">{{ slide.props.rightContent or 'Click to add right content' }}</p>
+                            {% if slide.props.rightTitle and slide.props.rightTitle != 'Click to add right title' %}
+                                <h2 class="column-title positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set rightTitleId = 'draggable-' + slide.slideId + '-3' %}
+                                        {% if slide.metadata.elementPositions[rightTitleId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ slide.props.rightTitle }}</h2>
+                            {% endif %}
+                            {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
+                                <p class="column-content positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set rightContentId = 'draggable-' + slide.slideId + '-4' %}
+                                        {% if slide.metadata.elementPositions[rightContentId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[rightContentId].x }}px, {{ slide.metadata.elementPositions[rightContentId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ slide.props.rightContent }}</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
                 
-            {% elif slide.templateId == 'big-numbers' %}
-                <!-- DEBUG: big-numbers template -->
+                {% elif slide.templateId == 'big-numbers' %}
                 <div class="big-numbers">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="numbers-grid">
-                        {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
-                            <!-- DEBUG: items is iterable, processing {{ slide.props.items|length if slide.props.items and slide.props.items is not callable else 0 }} items -->
-                            {% for item in slide.props.items %}
-                                <div class="number-item">
-                                    <div class="number-value">{{ item.value or 'Click to add value' }}</div>
-                                    <div class="number-label">{{ item.label or 'Click to add label' }}</div>
-                                    <div class="number-description">{{ item.description or 'Click to add description' }}</div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <!-- DEBUG: items is not iterable or is callable, using fallback -->
-                        {% endif %}
-                        {% if not slide.props.items or slide.props.items is not iterable or slide.props.items is callable or slide.props.items|length == 0 %}
+                        {% for item in slide.props.steps %}
                             <div class="number-item">
-                                <div class="number-value">100+</div>
-                                <div class="number-label">Countries Served</div>
-                                <div class="number-description">We have expanded our operations to over 100 countries worldwide.</div>
+                                {% if item.value %}
+                                    <div class="number-value positioned-element"
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set valueId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 1)|string %}
+                                            {% if slide.metadata.elementPositions[valueId] %}
+                                                style="transform: translate({{ slide.metadata.elementPositions[valueId].x }}px, {{ slide.metadata.elementPositions[valueId].y }}px);"
+                                            {% endif %}
+                                        {% endif %}
+                                    >{{ item.value }}</div>
+                                {% endif %}
+                                {% if item.label %}
+                                    <div class="number-label positioned-element"
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set labelId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 2)|string %}
+                                            {% if slide.metadata.elementPositions[labelId] %}
+                                                style="transform: translate({{ slide.metadata.elementPositions[labelId].x }}px, {{ slide.metadata.elementPositions[labelId].y }}px);"
+                                            {% endif %}
+                                        {% endif %}
+                                    >{{ item.label }}</div>
+                                {% endif %}
+                                {% if item.description %}
+                                    <div class="number-description positioned-element"
+                                        {% if slide.metadata and slide.metadata.elementPositions %}
+                                            {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 3 + 3)|string %}
+                                            {% if slide.metadata.elementPositions[descriptionId] %}
+                                                style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                            {% endif %}
+                                        {% endif %}
+                                    >{{ item.description }}</div>
+                                {% endif %}
                             </div>
-                            <div class="number-item">
-                                <div class="number-value">5</div>
-                                <div class="number-label">Years in Business</div>
-                                <div class="number-description">Celebrating over 5 years of successful operations.</div>
-                            </div>
-                            <div class="number-item">
-                                <div class="number-value">20%</div>
-                                <div class="number-label">Employee Satisfaction Rate</div>
-                                <div class="number-description">Our employee satisfaction rate stands at an impressive 20%.</div>
-                            </div>
-                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 
             {% elif slide.templateId == 'four-box-grid' %}
                 <div class="four-box-grid">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="grid-container">
                         {% for box in slide.props.boxes %}
-                            <div class="box-item">
-                                <div class="box-heading">{{ box.heading or 'Click to add heading' }}</div>
-                                <div class="box-text">{{ box.text or 'Click to add text' }}</div>
-                            </div>
+                            {% if (box.heading and box.heading != 'Click to add heading') or (box.text and box.text != 'Click to add text') %}
+                                <div class="box-item positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set boxId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
+                                        {% if slide.metadata.elementPositions[boxId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[boxId].x }}px, {{ slide.metadata.elementPositions[boxId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >
+                                    {% if box.heading and box.heading != 'Click to add heading' %}
+                                        <div class="box-heading">{{ box.heading }}</div>
+                                    {% endif %}
+                                    {% if box.text and box.text != 'Click to add text' %}
+                                        <div class="box-text">{{ box.text }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         {% endfor %}
                         {% if not slide.props.boxes or slide.props.boxes is not iterable or slide.props.boxes is callable or slide.props.boxes|length == 0 %}
                             <div class="box-item">
@@ -1691,24 +2601,44 @@
                 
             {% elif slide.templateId == 'timeline' %}
                 <div class="timeline">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="timeline-container">
                         <div class="timeline-line"></div>
                         {% for step in slide.props.steps %}
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
-                                    <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
-                                        <div class="step-heading">{{ step.heading or 'Click to add heading' }}</div>
-                                        {% if step.description %}
-                                            <div class="step-description">{{ step.description }}</div>
+                            {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
+                                <div class="step-wrapper positioned-element"
+                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
+                                        {% if slide.metadata.elementPositions[stepId] %}
+                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
                                         {% endif %}
-                                    </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
-                                        {{ loop.index }}
+                                    {% endif %}
+                                >
+                                    <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
+                                        <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
+                                            {% if step.heading and step.heading != 'Click to add heading' %}
+                                                <div class="step-heading">{{ step.heading }}</div>
+                                            {% endif %}
+                                            {% if step.description and step.description != 'Click to add description' %}
+                                                <div class="step-description">{{ step.description }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="vertical-line" style="order: 2;"></div>
+                                        <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
+                                            {{ loop.index }}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            {% endif %}
                         {% endfor %}
                         {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
                             <div class="step-wrapper">
@@ -1759,15 +2689,32 @@
                 
             {% elif slide.templateId == 'comparison-slide' %}
                 <div class="slide">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
                     <div class="two-column-layout">
                         <div class="column">
-                            <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.leftTitle or 'Left Side' }}</h2>
-                            <div class="content-text">{{ slide.props.leftContent or 'Left content' }}</div>
+                            {% if slide.props.leftTitle and slide.props.leftTitle != 'Left Side' %}
+                                <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.leftTitle }}</h2>
+                            {% endif %}
+                            {% if slide.props.leftContent and slide.props.leftContent != 'Left content' %}
+                                <div class="content-text">{{ slide.props.leftContent }}</div>
+                            {% endif %}
                         </div>
                         <div class="column">
-                            <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.rightTitle or 'Right Side' }}</h2>
-                            <div class="content-text">{{ slide.props.rightContent or 'Right content' }}</div>
+                            {% if slide.props.rightTitle and slide.props.rightTitle != 'Right Side' %}
+                                <h2 style="font-family: var(--title-font); font-size: 24px; color: var(--title-color); margin-bottom: 16px;">{{ slide.props.rightTitle }}</h2>
+                            {% endif %}
+                            {% if slide.props.rightContent and slide.props.rightContent != 'Right content' %}
+                                <div class="content-text">{{ slide.props.rightContent }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -1777,14 +2724,30 @@
                     background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
                     align-items: {% if slide.props.alignment == 'center' %}center{% elif slide.props.alignment == 'right' %}flex-end{% else %}flex-start{% endif %};
                 ">
-                    <h1 class="slide-title" style="
-                        text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                        text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
-                    ">{{ slide.props.title or 'Click to add title' }}</h1>
-                    <div class="content-text" style="
-                        text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                        text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
-                    ">{{ slide.props.content or 'Click to add content' }}</div>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element" style="
+                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
+                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);
+                                {% endif %}
+                            {% endif %}
+                        ">{{ slide.props.title }}</h1>
+                    {% endif %}
+                    {% if slide.props.content and slide.props.content != 'Click to add content' %}
+                        <div class="content-text positioned-element" style="
+                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
+                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set contentId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[contentId] %}
+                                    transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);
+                                {% endif %}
+                            {% endif %}
+                        ">{{ slide.props.content }}</div>
+                    {% endif %}
                 </div>
                 
             {% elif slide.templateId == 'hero-title-slide' %}
@@ -1798,25 +2761,66 @@
                     <div class="content-container" style="
                         align-items: {% if slide.props.textAlign == 'center' %}center{% elif slide.props.textAlign == 'right' %}flex-end{% else %}flex-start{% endif %};
                     ">
-                        <h1 class="slide-title" style="
-                            text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
-                        ">{{ slide.props.title or 'Click to add hero title' }}</h1>
-                        <div class="slide-subtitle" style="
-                            text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
-                        ">{{ slide.props.subtitle or 'Click to add subtitle' }}</div>
+                        {% if slide.props.title and slide.props.title != 'Click to add hero title' %}
+                            <h1 class="slide-title positioned-element" style="
+                                text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
+                                text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                    {% if slide.metadata.elementPositions[titleId] %}
+                                        transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);
+                                    {% endif %}
+                                {% endif %}
+                            ">{{ slide.props.title }}</h1>
+                        {% endif %}
+                        {% if slide.props.subtitle and slide.props.subtitle != 'Click to add subtitle' %}
+                            <div class="slide-subtitle positioned-element" style="
+                                text-align: {% if slide.props.textAlign %}{{ slide.props.textAlign }}{% else %}center{% endif %};
+                                text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                    {% if slide.metadata.elementPositions[subtitleId] %}
+                                        transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);
+                                    {% endif %}
+                                {% endif %}
+                            ">{{ slide.props.subtitle }}</div>
+                        {% endif %}
                     </div>
                 </div>
                 
+            
+                
             {% elif slide.templateId == 'pyramid' %}
                 <div class="pyramid-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
-                    {% if slide.props.subtitle %}
-                        <div class="slide-subtitle">{{ slide.props.subtitle }}</div>
+                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
+                        <h1 class="slide-title positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
+                                {% if slide.metadata.elementPositions[titleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.title }}</h1>
+                    {% endif %}
+                    {% if slide.props.subtitle and slide.props.subtitle != 'Click to add subtitle' %}
+                        <div class="slide-subtitle positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[subtitleId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >{{ slide.props.subtitle }}</div>
                     {% endif %}
                     <div class="main-content">
-                        <div class="pyramid-container">
+                        <div class="pyramid-container positioned-element"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set pyramidId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[pyramidId] %}
+                                    style="transform: translate({{ slide.metadata.elementPositions[pyramidId].x }}px, {{ slide.metadata.elementPositions[pyramidId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             <!-- Pyramid SVG 1 (Top Triangle) -->
                             <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
                                 <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path pyramid-path-1"/>
@@ -1834,12 +2838,30 @@
                             </svg>
                         </div>
                         <div class="items-container">
-                            {% if slide.props.items and slide.props.items is iterable and slide.props.items is not string and slide.props.items is not callable %}
-                                {% for item in slide.props.items %}
-                                    {% if loop.index0 < 3 %}
+                            {% if slide.props.steps and slide.props.steps is iterable and slide.props.steps is not string and slide.props.steps is not callable %}
+                                {% for item in slide.props.steps %}
+                                    {% if loop.index0 < 3 and ((item.heading and item.heading != 'Click to add heading') or (item.description and item.description != 'Click to add description')) %}
                                         <div class="item-wrapper level-{{ loop.index0 }}">
-                                            <div class="item-heading">{{ item.heading or 'Click to add heading' }}</div>
-                                            <div class="item-description">{{ item.description or 'Click to add description' }}</div>
+                                            {% if item.heading and item.heading != 'Click to add heading' %}
+                                                <div class="item-heading positioned-element"
+                                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                                        {% set headingId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 3)|string %}
+                                                        {% if slide.metadata.elementPositions[headingId] %}
+                                                            style="transform: translate({{ slide.metadata.elementPositions[headingId].x }}px, {{ slide.metadata.elementPositions[headingId].y }}px);"
+                                                        {% endif %}
+                                                    {% endif %}
+                                                >{{ item.heading }}</div>
+                                            {% endif %}
+                                            {% if item.description and item.description != 'Click to add description' %}
+                                                <div class="item-description positioned-element"
+                                                    {% if slide.metadata and slide.metadata.elementPositions %}
+                                                        {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 4)|string %}
+                                                        {% if slide.metadata.elementPositions[descriptionId] %}
+                                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
+                                                        {% endif %}
+                                                    {% endif %}
+                                                >{{ item.description }}</div>
+                                            {% endif %}
                                         </div>
                                     {% endif %}
                                 {% endfor %}
@@ -1863,6 +2885,535 @@
                     </div>
                 </div>
                 
+            {% elif slide.templateId == 'org-chart' %}
+                <!-- DEBUG: org-chart template -->
+                <!-- DEBUG: slide.props.chartData = {{ slide.props.chartData }} -->
+                <div class="org-chart-template">
+                    <h1 class="slide-title">{{ slide.props.title or 'Космическая галактика команд' }}</h1>
+                    <div class="org-chart-container">
+                        {% if slide.props.chartData %}
+                            {% for node in slide.props.chartData %}
+                                {% if not node.parentId %}
+                                    <div class="chart-node root-node">
+                                        <div class="planet-node ceo">
+                                            <div class="planet-content">{{ node.title or 'CEO' }}</div>
+                                            <div class="planet-role">{{ node.role or 'Галактический лидер' }}</div>
+                                        </div>
+                                        {% if slide.props.chartData | selectattr('parentId', 'equalto', node.id) | list | length > 0 %}
+                                            <div class="children-container">
+                                                <div class="children-grid">
+                                                    {% for child in slide.props.chartData | selectattr('parentId', 'equalto', node.id) %}
+                                                        <div class="chart-node child-node">
+                                                            <div class="planet-node c-level">
+                                                                <div class="planet-content">{{ child.title or 'CTO' }}</div>
+                                                                <div class="planet-role">{{ child.role or 'Технологический визионер' }}</div>
+                                                            </div>
+                                                                                                        {% if slide.props.chartData | selectattr('parentId', 'equalto', child.id) | list | length > 0 %}
+                                                <div class="children-container">
+                                                    <div class="children-grid">
+                                                                        {% for grandchild in slide.props.chartData | selectattr('parentId', 'equalto', child.id) %}
+                                                                            <div class="chart-node grandchild-node">
+                                                                                <div class="planet-node manager">
+                                                                                    <div class="planet-content">{{ grandchild.title or 'Dev Lead' }}</div>
+                                                                                    <div class="planet-role">{{ grandchild.role or 'Архитектор кода' }}</div>
+                                                                                </div>
+                                                                                                                                {% if slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) | list | length > 0 %}
+                                                    <div class="children-container">
+                                                        <div class="children-grid">
+                                                                                            {% for employee in slide.props.chartData | selectattr('parentId', 'equalto', grandchild.id) %}
+                                                                                                <div class="chart-node employee-node">
+                                                                                                    <div class="planet-node employee">
+                                                                                                        <div class="planet-content">{{ employee.title or 'Senior Dev' }}</div>
+                                                                                                        <div class="planet-role">{{ employee.role or 'Ветеран кодинга' }}</div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            {% endfor %}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="chart-node root-node">
+                                <div class="planet-node ceo">
+                                    <div class="planet-content">CEO</div>
+                                    <div class="planet-role">Галактический лидер</div>
+                                </div>
+                                <div class="children-container">
+                                    <div class="children-grid">
+                                        <div class="chart-node child-node">
+                                            <div class="planet-node c-level">
+                                                <div class="planet-content">CTO</div>
+                                                <div class="planet-role">Технологический визионер</div>
+                                            </div>
+                                        </div>
+                                        <div class="chart-node child-node">
+                                            <div class="planet-node c-level">
+                                                <div class="planet-content">CFO</div>
+                                                <div class="planet-role">Финансовый стратег</div>
+                                            </div>
+                                        </div>
+                                        <div class="chart-node child-node">
+                                            <div class="planet-node c-level">
+                                                <div class="planet-content">CMO</div>
+                                                <div class="planet-role">Маркетинговый маг</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'contraindications-indications' %}
+                <!-- DEBUG: contraindications-indications template -->
+                <!-- DEBUG: slide.props.contraindications = {{ slide.props.contraindications }} -->
+                <!-- DEBUG: slide.props.indications = {{ slide.props.indications }} -->
+                <div class="contraindications-indications-template">
+                    <h1 class="slide-title">{{ slide.props.title or 'Contraindications and indications' }}</h1>
+                    <div class="contraindications-indications-container">
+                        <div class="contraindications-section">
+                            <div class="section-header contraindications-header">
+                                <h2>You shouldn't</h2>
+                            </div>
+                            <div class="section-content">
+                                {% if slide.props.contraindications %}
+                                    {% for item in slide.props.contraindications %}
+                                        <div class="list-item">
+                                            <div class="list-bullet contraindications-bullet"></div>
+                                            <div class="list-text">{{ item or 'Click to add contraindication' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for i in range(5) %}
+                                        <div class="list-item">
+                                            <div class="list-bullet contraindications-bullet"></div>
+                                            <div class="list-text">Describe the things patients shouldn't do here</div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="indications-section">
+                            <div class="section-header indications-header">
+                                <h2>You should</h2>
+                            </div>
+                            <div class="section-content">
+                                {% if slide.props.indications %}
+                                    {% for item in slide.props.indications %}
+                                        <div class="list-item">
+                                            <div class="list-bullet indications-bullet"></div>
+                                            <div class="list-text">{{ item or 'Click to add indication' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {% for i in range(5) %}
+                                        <div class="list-item">
+                                            <div class="list-bullet indications-bullet"></div>
+                                            <div class="list-text">Describe the things patients should do here</div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'metrics-analytics' %}
+                <!-- DEBUG: metrics-analytics template -->
+                <!-- DEBUG: slide.props.metrics = {{ slide.props.metrics }} -->
+                <div class="metrics-analytics-template">
+                    <h1 class="slide-title">{{ slide.props.title or 'Metrics and analytics' }}</h1>
+                    <div class="metrics-grid">
+                        {% if slide.props.metrics %}
+                            {% for metric in slide.props.metrics %}
+                                <div class="metric-item">
+                                    <div class="metric-number">{{ metric.number or '01' }}</div>
+                                    <div class="metric-text">{{ metric.text or 'Click to add text' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for i in range(6) %}
+                                <div class="metric-item">
+                                    <div class="metric-number">{{ '%02d' % (i + 1) }}</div>
+                                    <div class="metric-text">Key performance indicators (KPIs)</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% elif slide.templateId == 'event-list' %}
+                <!-- DEBUG: event-list template -->
+                <!-- DEBUG: slide.props.events = {{ slide.props.events }} -->
+                <div class="event-list-template">
+                    <div class="events-container">
+                        {% if slide.props.events %}
+                            {% for event in slide.props.events %}
+                                <div class="event-item">
+                                    <div class="event-date">{{ event.date or 'Click to add date' }}</div>
+                                    <div class="event-description">{{ event.description or 'Click to add description' }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for i in range(3) %}
+                                <div class="event-item">
+                                    <div class="event-date">January {{ i + 1 }}, 2024</div>
+                                    <div class="event-description">Important milestone or event description</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% elif slide.templateId == 'market-share' %}
+                <div class="slide" style="background-color: var(--bg-color); min-height: 600px; font-family: sans-serif;">
+                    <!-- Main Content Container -->
+                    <div style="width: 100%; max-width: 72rem; margin: 0 auto; padding: 2rem; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                        
+                        <!-- Title -->
+                        <div style="text-align: center; margin-bottom: 4rem;">
+                            <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Market share' }}</h1>
+                        </div>
+
+                        <!-- Main Layout Container - Exactly matching frontend structure -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            
+                            <!-- Chart Section - Centered -->
+                            <div style="flex: 1; display: flex; justify-content: center;">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    
+                                    <!-- Chart Container with Grid -->
+                                    <div style="position: relative; margin-bottom: 2rem; height: 300px; width: {{ (slide.props.chartData | length) * 80 + 80 }}px;">
+                                        
+                                        <!-- Y-axis labels -->
+                                        <div style="position: absolute; left: 0; top: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; color: var(--content-color); width: 30px; font-size: 0.75rem; font-weight: 500;">
+                                            <div style="display: flex; align-items: center;">100</div>
+                                            <div style="display: flex; align-items: center;">75</div>
+                                            <div style="display: flex; align-items: center;">50</div>
+                                            <div style="display: flex; align-items: center;">25</div>
+                                            <div style="display: flex; align-items: center;">0</div>
+                                        </div>
+                                        
+                                        <!-- Grid lines -->
+                                        <div style="position: absolute; left: 40px; top: 0; height: 100%; width: calc(100% - 40px);">
+                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 0%;"></div>
+                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 25%;"></div>
+                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 50%;"></div>
+                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 75%;"></div>
+                                            <div style="position: absolute; width: 100%; border-top: 1px solid var(--content-color); opacity: 0.3; top: 100%;"></div>
+                                        </div>
+                                        
+                                        <!-- Chart bars container -->
+                                        <div style="position: absolute; left: 40px; top: 0; height: 100%; display: flex; align-items: end; gap: 2rem;">
+                                            {% for item in slide.props.chartData %}
+                                                {% set maxValue = slide.props.chartData | map(attribute='percentage') | max %}
+                                                {% set chartHeight = (item.percentage / maxValue) * 100 %}
+                                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                                    <!-- Main data bar -->
+                                                    <div 
+                                                        style="width: 4rem; border-radius: 4px; background-color: {{ item.color }}; height: {{ (chartHeight * 2.5) | int }}px; margin-bottom: 8px;"
+                                                    ></div>
+                                                    <!-- Year label -->
+                                                    <p style="color: var(--content-color); font-size: 0.875rem; font-weight: 500; text-align: center;">{{ item.year or '20XX' }}</p>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Bottom description -->
+                                    <div style="text-align: center; max-width: 28rem; margin-top: 2rem;">
+                                        <p style="color: var(--content-color); opacity: 0.8; font-size: 0.875rem; line-height: 1.5;">
+                                            {{ slide.props.bottomText or 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Legend Section - Right side -->
+                            <div style="display: flex; flex-direction: column; gap: 2rem; margin-left: 4rem;">
+                                {% for item in slide.props.chartData %}
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <!-- Color indicator circle -->
+                                        <div style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background-color: {{ item.color }}; flex-shrink: 0;"></div>
+                                        <div>
+                                            <!-- Label -->
+                                            <h3 style="color: var(--title-color); font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; line-height: 1.2;">{{ item.label }}</h3>
+                                            <!-- Description -->
+                                            <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.5; max-width: 20rem; margin-bottom: 0.5rem;">{{ item.description }}</p>
+                                            <!-- Percentage -->
+                                            <p style="color: {{ item.color }}; font-size: 1.5rem; font-weight: bold; margin-top: 0.5rem;">{{ item.percentage }}%</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif slide.templateId == 'table-dark' %}
+                <div class="slide" style="background-color: var(--bg-color);">
+                    <!-- Decorative curved element -->
+                    <div style="position: absolute; top: 0; right: 0; width: 16rem; height: 16rem; border-bottom-left-radius: 100%; background-color: var(--content-color); opacity: 0.2;"></div>
+                    
+                    <!-- Main Content Container -->
+                    <div style="width: 100%; max-width: 64rem; margin: 0 auto; position: relative; z-index: 10;">
+                        <!-- Title -->
+                        <div style="text-align: left; margin-bottom: 2rem;">
+                            <h1 style="color: var(--title-color); font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'This is a table' }}</h1>
+                        </div>
+                        
+                        <!-- Table Container -->
+                        <div style="overflow: hidden; border-radius: 0.5rem; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                            <table style="width: 100%; border-collapse: collapse; background-color: #2a2a2a;">
+                                <!-- Headers -->
+                                <thead>
+                                    <tr style="background-color: #3a3a3a;">
+                                        <th style="padding: 1rem; text-align: left; color: var(--title-color); font-weight: bold; border-right: 2px solid var(--content-color); font-size: 1.1rem;">
+                                            <!-- Empty corner cell -->
+                                        </th>
+                                        {% for header in slide.props.tableData.headers %}
+                                            <th style="padding: 1rem; text-align: center; color: var(--title-color); font-weight: bold; border-right: 2px solid var(--content-color); font-size: 1.1rem;">
+                                                {{ header }}
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                
+                                <!-- Body -->
+                                <tbody>
+                                    {% for row in slide.props.tableData.rows %}
+                                        <tr style="border-bottom: 2px solid var(--content-color); background-color: #2a2a2a;">
+                                            {% for cell in row %}
+                                                {% set isFirstColumn = loop.index == 1 %}
+                                                <td style="padding: 1rem; {% if isFirstColumn %}text-align: left; font-weight: bold;{% else %}text-align: center;{% endif %} color: #ffffff; border-right: 2px solid var(--content-color); font-size: 1rem;">
+                                                    {% if isFirstColumn %}
+                                                        {{ cell }}
+                                                    {% else %}
+                                                        {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}
+                                                            <div style="display: flex; justify-content: center;">
+                                                                <div style="width: 2rem; height: 2rem; background-color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.125rem;">✓</div>
+                                                            </div>
+                                                        {% elif cell == '✗' or cell.lower() == 'no' or cell.lower() == 'false' %}
+                                                            <div style="display: flex; justify-content: center;">
+                                                                <div style="width: 2rem; height: 2rem; background-color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.125rem;">✗</div>
+                                                            </div>
+                                                        {% else %}
+                                                            {{ cell }}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            {% elif slide.templateId == 'table-light' %}
+                <div class="slide" style="background-color: var(--bg-color);">
+                    <!-- Decorative gradient element -->
+                    <div style="position: absolute; top: 0; right: 0; width: 20rem; height: 20rem; border-bottom-left-radius: 100%; opacity: 0.1; background: linear-gradient(135deg, var(--accent-color), transparent);"></div>
+                    
+                    <!-- Main Content Container -->
+                    <div style="width: 100%; max-width: 72rem; margin: 0 auto; position: relative; z-index: 10;">
+                        <!-- Title -->
+                        <div style="text-align: left; margin-bottom: 2rem;">
+                            <h1 style="color: var(--title-color); font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'This is a table' }}</h1>
+                        </div>
+                        
+                        <!-- Table Container -->
+                        <div style="overflow: hidden; border-radius: 0.5rem; box-shadow: 0 12px 24px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <table style="width: 100%; border-collapse: collapse; background-color: white;">
+                                <!-- Headers -->
+                                <thead>
+                                    <tr style="background-color: #0ea5e9;">
+                                        <th style="padding: 1rem; text-align: left; color: white; font-weight: bold; border-right: 1px solid #e5e7eb; font-size: 1rem; background-color: transparent;">
+                                            <!-- Empty corner cell -->
+                                        </th>
+                                        {% for header in slide.props.tableData.headers %}
+                                            <th style="padding: 1rem; text-align: center; color: white; font-weight: bold; border-right: 1px solid #e5e7eb; font-size: 1rem;">
+                                                {{ header }}
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                
+                                <!-- Body -->
+                                <tbody>
+                                    {% for row in slide.props.tableData.rows %}
+                                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                                            {% for cell in row %}
+                                                {% set isFirstColumn = loop.index == 1 %}
+                                                <td style="padding: 1rem; {% if isFirstColumn %}text-align: left; font-weight: bold; background-color: rgba(0,0,0,0.02); color: #000000;{% else %}text-align: center; color: #000000;{% endif %} border-right: 1px solid #e5e7eb; font-size: 0.95rem;">
+                                                    {{ cell }}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                            {% elif slide.templateId == 'pie-chart-infographics' %}
+                    <div class="slide" style="background-color: var(--bg-color);">
+                        <!-- Main Content Container -->
+                        <div style="width: 100%; max-width: 80rem; margin: 0 auto;">
+                            <!-- Title -->
+                            <div style="text-align: center; margin-bottom: 3rem;">
+                                <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Pie Chart Infographics' }}</h1>
+                                <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
+                                    {{ slide.props.descriptionText or 'To modify this graph, click on it, follow the link, change the data and paste it here' }}
+                                </p>
+                            </div>
+                            
+                            <!-- Main Layout Container -->
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 4rem;">
+                                <!-- Left Column - Segments 1-3 -->
+                                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                                    {% for item in slide.props.monthlyData[:3] %}
+                                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <!-- Color indicator -->
+                                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background-color: {{ item.color or '#0ea5e9' }};"></div>
+                                                <!-- Segment name -->
+                                                <div style="background-color: {{ item.color or '#0ea5e9' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem; flex: 1;">
+                                                    {{ item.month }}
+                                                </div>
+                                            </div>
+                                            <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5; margin-left: 1.75rem;">{{ item.description }}</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Center - Pie Chart -->
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <!-- CSS Pie Chart Container -->
+                                    {% if pie_chart_css %}
+                                        <style>{{ pie_chart_css | safe }}</style>
+                                        {{ pie_chart_html | safe }}
+                                    {% else %}
+                                        <!-- Fallback to image if CSS not available -->
+                                        <div style="position: relative; width: 320px; height: 320px; margin: 0 auto;">
+                                            <img src="{{ pie_chart_image }}" alt="Pie Chart" style="width: 320px; height: 320px;" />
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Right Column - Segments 4-6 -->
+                                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                                    {% for item in slide.props.monthlyData[3:6] %}
+                                        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <!-- Color indicator -->
+                                                <div style="width: 1rem; height: 1rem; border-radius: 50%; background-color: {{ item.color or '#f97316' }};"></div>
+                                                <!-- Segment name -->
+                                                <div style="background-color: {{ item.color or '#f97316' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem; flex: 1;">
+                                                    {{ item.month }}
+                                                </div>
+                                            </div>
+                                            <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5; margin-left: 1.75rem;">{{ item.description }}</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+            {% elif slide.templateId == 'bar-chart-infographics' %}
+                <div class="slide" style="background-color: var(--bg-color);">
+                    <!-- Main Content Container -->
+                    <div style="width: 100%; max-width: 80rem; margin: 0 auto;">
+                        <!-- Title -->
+                        <div style="text-align: center; margin-bottom: 3rem;">
+                            <h1 style="color: var(--title-color); font-size: 3.5rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'Bar Chart Infographics' }}</h1>
+                            <p style="color: var(--content-color); font-size: 1.125rem; line-height: 1.6; opacity: 0.7; margin-top: 1rem;">
+                                {{ slide.props.descriptionText or 'To modify this graph, click on it, follow the link, change the data and paste it here' }}
+                            </p>
+                        </div>
+                        
+                        <!-- Main Layout Container -->
+                        <div style="display: flex; align-items: start; justify-content: center; gap: 4rem;">
+                            <!-- Left Column - Months 1-3 -->
+                            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                                {% for item in slide.props.monthlyData[:3] %}
+                                    <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
+                                        <div style="background-color: {{ item.color or '#0ea5e9' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem;">
+                                            {{ item.month }}
+                                        </div>
+                                        <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5;">{{ item.description }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Center - Bar Chart -->
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div style="padding: 2rem; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                                    <div style="width: 100%; max-width: 32rem; margin: 0 auto;">
+                                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                            {% set max_value = slide.props.chartData.categories | map(attribute='value') | max %}
+                                            {% for category in slide.props.chartData.categories %}
+                                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                                    <!-- Category Label -->
+                                                    <div style="width: 6rem; text-align: right; font-size: 0.875rem; font-weight: 500; color: var(--content-color);">
+                                                        {{ category.label }}
+                                                    </div>
+                                                    
+                                                    <!-- Bar -->
+                                                    <div style="flex: 1; position: relative;">
+                                                        <div style="height: 2rem; border-radius: 0.5rem; background-color: {{ category.color }}; width: {{ (category.value / max_value * 100) if max_value > 0 else 0 }}%; min-width: 1.25rem; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                            <!-- Value label on bar -->
+                                                            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+                                                                <span style="color: white; font-size: 0.875rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                                                                    {{ category.value }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Description -->
+                                                    <div style="width: 12rem; font-size: 0.875rem; color: var(--content-color); line-height: 1.4;">
+                                                        {{ category.description }}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column - Months 4-6 -->
+                            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                                {% for item in slide.props.monthlyData[3:6] %}
+                                    <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 20rem;">
+                                        <div style="background-color: {{ item.color or '#f97316' }}; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: bold; text-align: center; font-size: 1.125rem;">
+                                            {{ item.month }}
+                                        </div>
+                                        <p style="color: var(--content-color); font-size: 1rem; line-height: 1.5;">{{ item.description }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
             {% else %}
                 <div class="slide">
                     <h1 class="slide-title">{{ slide.props.title or 'Click to add title' }}</h1>
@@ -1872,4 +3423,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

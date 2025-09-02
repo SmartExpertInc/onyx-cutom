@@ -1,18 +1,29 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { locales } from '../locales';
+import { locales } from '@/locales';
 
 export type Language = 'en' | 'ru' | 'uk' | 'es';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string, fallback?: string) => string;
-  locale: any; // Using any for now to avoid complex type issues
+  t: (key: string, defaultValue?: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'en',
+  setLanguage: () => {},
+  t: (key: string, defaultValue?: string) => defaultValue || key,
+});
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+};
 
 interface LanguageProviderProps {
   children: ReactNode;
@@ -36,45 +47,34 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     document.documentElement.lang = lang;
   };
 
-  // Get current locale
-  const locale = locales[language] || locales.en;
+  const t = (key: string, defaultValue?: string) => {
+    // Get the current locale
+    const currentLocale = locales[language];
+    if (!currentLocale) {
+      return defaultValue || key;
+    }
 
-  // Enhanced translation function that uses locale files
-  const t = (key: string, fallback?: string): string => {
-    // Split the key by dots to navigate nested objects
+    // Split the key by dots to navigate the nested object
     const keys = key.split('.');
-    let value: any = locale;
-    
-    // Navigate through the nested object structure
+    let value: any = currentLocale;
+
+    // Navigate through the nested object
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        // If key not found, return fallback or the original key
-        return fallback || key;
+        // Key not found, return default value or key
+        return defaultValue || key;
       }
     }
-    
-    // If we found a string value, return it
-    if (typeof value === 'string') {
-      return value;
-    }
-    
-    // If not a string, return fallback or key
-    return fallback || key;
+
+    // Return the found value or fallback
+    return typeof value === 'string' ? value : (defaultValue || key);
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, locale }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
-};
-
-export const useLanguage = (): LanguageContextType => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
 }; 

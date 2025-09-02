@@ -40,17 +40,22 @@ export interface SectionBreakBlock {
 export interface ImageBlock {
   type: 'image';
   src: string;
-  alt?: string | null;
-  caption?: string | null;
-  width?: string | number | null;
-  height?: string | number | null;
-  alignment?: 'left' | 'center' | 'right' | null;
-  borderRadius?: string | null;
-  maxWidth?: string | null;
-  float?: 'left' | 'right' | null;
-  layoutMode?: 'standalone' | 'side-by-side-left' | 'side-by-side-right' | 'inline-left' | 'inline-right' | null;
-  layoutPartnerIndex?: number | null;
-  layoutProportion?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70' | null;
+  alt?: string;
+  caption?: string;
+  width?: string | number;
+  height?: string | number;
+  alignment?: 'left' | 'center' | 'right';
+  borderRadius?: string;
+  maxWidth?: string;
+  float?: 'left' | 'right';
+  layoutMode?: 'standalone' | 'side-by-side-left' | 'side-by-side-right' | 'inline-left' | 'inline-right';
+  layoutPartnerIndex?: number;
+  layoutProportion?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
+  // Visual effects properties
+  boxShadow?: string;
+  border?: string;
+  opacity?: number;
+  transform?: string;
 }
 
 // --- List Block Types ---

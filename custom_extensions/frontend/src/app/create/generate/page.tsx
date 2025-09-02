@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
@@ -118,12 +118,57 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
 
 function GenerateProductPicker() {
   const { t } = useLanguage();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isFromFiles = searchParams?.get('fromFiles') === 'true';
+  const isFromKnowledgeBase = searchParams?.get('fromKnowledgeBase') === 'true';
   const folderIds = searchParams?.get('folderIds')?.split(',').filter(Boolean) || [];
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
+  
+  // NEW: Connector context from URL parameters and sessionStorage
+  const isFromConnectors = searchParams?.get('fromConnectors') === 'true';
+  const connectorIds = searchParams?.get('connectorIds')?.split(',').filter(Boolean) || [];
+  const connectorSources = searchParams?.get('connectorSources')?.split(',').filter(Boolean) || [];
+  const [connectorContext, setConnectorContext] = useState<{
+    fromConnectors: boolean;
+    connectorIds: string[];
+    connectorSources: string[];
+  } | null>(null);
+
+  // Load connector context from sessionStorage
+  useEffect(() => {
+    if (isFromConnectors) {
+      try {
+        const storedConnectorContext = sessionStorage.getItem('connectorContext');
+        if (storedConnectorContext) {
+          const context = JSON.parse(storedConnectorContext);
+          // Check if data is recent (within 1 hour)
+          if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
+            setConnectorContext(context);
+          } else {
+            sessionStorage.removeItem('connectorContext');
+          }
+        } else {
+          // Use URL parameters if sessionStorage is not available
+          setConnectorContext({
+            fromConnectors: true,
+            connectorIds,
+            connectorSources
+          });
+        }
+      } catch (error) {
+        console.error('Error retrieving connector context:', error);
+        // Fallback to URL parameters
+        setConnectorContext({
+          fromConnectors: true,
+          connectorIds,
+          connectorSources
+        });
+      }
+    }
+  }, [isFromConnectors, connectorIds.join(','), connectorSources.join(',')]);
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -200,7 +245,7 @@ function GenerateProductPicker() {
     process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
   const handleCourseOutlineStart = async () => {
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
 
     let chatId: string | undefined;
     try {
@@ -222,6 +267,8 @@ function GenerateProductPicker() {
       finalPrompt = textMode === 'context' 
         ? "Create educational content using the provided text as context"
         : "Create educational content based on the provided text structure";
+    } else if (isFromKnowledgeBase && !finalPrompt) {
+      finalPrompt = "Create educational content by searching the Knowledge Base";
     }
 
     const params = new URLSearchParams({
@@ -243,6 +290,11 @@ function GenerateProductPicker() {
       if (fileIds.length > 0) params.set("fileIds", fileIds.join(','));
     }
     
+    // Add Knowledge Base context if coming from Knowledge Base
+    if (isFromKnowledgeBase) {
+      params.set("fromKnowledgeBase", "true");
+    }
+    
     // Add text context if coming from text
     if (isFromText) {
       params.set("fromText", "true");
@@ -250,10 +302,15 @@ function GenerateProductPicker() {
       // userText stays in sessionStorage - don't pass via URL
     }
 
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    }
+
     router.push(`/create/course-outline?${params.toString()}`);
   };
-
-  const router = useRouter();
 
   // Ref for auto-resizing the prompt textarea
   const promptRef = useRef<HTMLTextAreaElement>(null);
@@ -634,8 +691,8 @@ function GenerateProductPicker() {
     if (useExistingOutline === true) {
       if (!selectedOutlineId || !selectedLesson) return;
     } else {
-      // If standalone lesson, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone lesson, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -648,7 +705,7 @@ function GenerateProductPicker() {
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create lesson content from the provided files");
       params.set("fromFiles", "true");
@@ -661,11 +718,21 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create lesson content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
     }
     
     params.set("lang", language);
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
   };
@@ -675,8 +742,8 @@ function GenerateProductPicker() {
     if (useExistingQuizOutline === true) {
       if (!selectedQuizOutlineId || !selectedQuizLesson) return;
     } else {
-      // If standalone quiz, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone quiz, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -697,7 +764,7 @@ function GenerateProductPicker() {
     params.set("questionCount", String(quizQuestionCount));
     params.set("lang", quizLanguage);
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create quiz content from the provided files");
       params.set("fromFiles", "true");
@@ -710,8 +777,18 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create quiz content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
+    }
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
     router.push(`/create/quiz?${params.toString()}`);
@@ -846,8 +923,8 @@ function GenerateProductPicker() {
     if (useExistingTextOutline === true) {
       if (!selectedTextOutlineId || !selectedTextLesson) return;
     } else {
-      // If standalone text presentation, check if prompt entered or coming from files/text
-      if (!prompt.trim() && !isFromFiles && !isFromText) return;
+      // If standalone text presentation, check if prompt entered or coming from files/text/knowledge base
+      if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
     }
 
     const params = new URLSearchParams();
@@ -868,7 +945,7 @@ function GenerateProductPicker() {
     params.set("length", textLength);
     params.set("styles", textStyles.join(','));
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create text presentation content from the provided files");
       params.set("fromFiles", "true");
@@ -881,16 +958,26 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create text presentation content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
+    }
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
     router.push(`/create/text-presentation?${params.toString()}`);
   };
 
   const handleVideoLessonStart = () => {
-    // Check if prompt entered or coming from files/text
-    if (!prompt.trim() && !isFromFiles && !isFromText) return;
+    // Check if prompt entered or coming from files/text/knowledge base
+    if (!prompt.trim() && !isFromFiles && !isFromText && !isFromKnowledgeBase) return;
 
     const params = new URLSearchParams();
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
@@ -898,7 +985,7 @@ function GenerateProductPicker() {
     params.set("slidesCount", String(slidesCount));
     params.set("lang", language);
     
-    // Handle file-based prompts
+    // Handle different prompt sources
     if (isFromFiles) {
       params.set("prompt", prompt.trim() || "Create video lesson content from the provided files");
       params.set("fromFiles", "true");
@@ -911,8 +998,18 @@ function GenerateProductPicker() {
       params.set("fromText", "true");
       params.set("textMode", textMode || 'context');
       // userText stays in sessionStorage - don't pass via URL
+    } else if (isFromKnowledgeBase) {
+      params.set("prompt", prompt.trim() || "Create video lesson content from the Knowledge Base");
+      params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
       params.set("prompt", prompt.trim());
+    }
+
+    // Add connector context if coming from connectors
+    if (connectorContext?.fromConnectors) {
+      params.set("fromConnectors", "true");
+      params.set("connectorIds", connectorContext.connectorIds.join(','));
+      params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
@@ -939,6 +1036,8 @@ function GenerateProductPicker() {
         <p className="text-center text-gray-600 text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+           isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
+           isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
            t('interface.generate.subtitle', 'What would you like to create today?')}
         </p>
 
@@ -984,6 +1083,56 @@ function GenerateProductPicker() {
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Knowledge Base context indicator */}
+        {isFromKnowledgeBase && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
+                <Search className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-blue-900">
+                  {t('interface.generate.creatingFromKnowledgeBase', 'Creating from Knowledge Base')}
+                </h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  {t('interface.generate.aiWillSearchKnowledgeBase', 'The AI will search your entire Knowledge Base to find relevant information and create educational content.')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Connector context indicator */}
+        {isFromConnectors && connectorContext && (
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
+                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-purple-900">
+                  {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
+                </h3>
+                <p className="text-sm text-purple-700 mt-1">
+                  {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {connectorContext.connectorSources.map((source, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                >
+                  {source}
+                </span>
+              ))}
             </div>
           </div>
         )}
@@ -1722,7 +1871,9 @@ function GenerateProductPicker() {
               ref={promptRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+              placeholder={isFromKnowledgeBase 
+                ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
+                : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={3}
@@ -1771,14 +1922,14 @@ function GenerateProductPicker() {
         )}
 
         {/* Generate Button */}
-        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText)) ||
-          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText)) ||
+        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
-          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
-          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText)) ||
+          (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
-          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
+          (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {

@@ -1,19 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-
-export interface TimelineStep {
-  heading: string;
-  description: string;
-}
-
-export interface TimelineTemplateProps {
-  slideId: string;
-  title: string;
-  steps: TimelineStep[];
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
-}
+import { TimelineTemplateProps, TimelineStep } from '@/types/slideTemplates';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -155,6 +142,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const [editingStepHeadings, setEditingStepHeadings] = useState<number[]>([]);
   const [editingStepDescriptions, setEditingStepDescriptions] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -313,43 +305,56 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   return (
     <div className="timeline-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block' }}
+      >
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div style={timelineContainerStyles}>
         <div style={timelineLineStyles}></div>
@@ -357,7 +362,12 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
           const isTop = index % 2 !== 0; // 1, 3 on top
           
           return (
-            <div key={index} style={stepWrapperStyles}>
+            <div 
+              key={index} 
+              data-moveable-element={`${slideId}-step-${index}`}
+              data-draggable="true"
+              style={stepWrapperStyles}
+            >
               <div style={milestoneContentStyles(isTop)}>
                 <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
                   {/* Step Heading */}
@@ -392,7 +402,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                           startEditingStepHeading(index);
                         }
                       }}
-                      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                     >
                       {step.heading || 'Click to add heading'}
                     </div>
@@ -430,7 +440,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                           startEditingStepDescription(index);
                         }
                       }}
-                      className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                     >
                       {step.description || 'Click to add description'}
                     </div>

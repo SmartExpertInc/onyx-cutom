@@ -94,22 +94,75 @@ const slugify = (text: string | null | undefined): string => {
 const PdfExportLoadingModal: React.FC<{
   isOpen: boolean;
   projectName: string;
-}> = ({ isOpen, projectName }) => {
+  pdfDownloadReady: {url: string, filename: string} | null;
+  pdfProgress: {current: number, total: number, message: string} | null;
+  onDownload: () => void;
+  onClose: () => void;
+}> = ({ isOpen, projectName, pdfDownloadReady, pdfProgress, onDownload, onClose }) => {
   const { t } = useLanguage();
   
   if (!isOpen) return null;
 
+  // Calculate progress percentage
+  const progressPercentage = pdfProgress ? Math.round((pdfProgress.current / pdfProgress.total) * 100) : 0;
+
   return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
       <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
-        <p className="text-gray-600 text-center mb-4">
-          {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
-        </p>
-        <p className="text-sm text-gray-500 text-center">
-          {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
-        </p>
+        {!pdfDownloadReady ? (
+          <>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.generatingPdf', 'Generating PDF')}</h3>
+            <p className="text-gray-600 text-center mb-4">
+              {t('actions.creatingPresentationPdfExport', 'Creating PDF export for presentation')} <span className="font-semibold text-blue-600">"{projectName}"</span>
+            </p>
+            
+            {/* Progress Bar */}
+            {pdfProgress && (
+              <div className="w-full mb-4">
+                <div className="flex justify-end text-sm text-gray-600 mb-2">
+                  <span>{progressPercentage}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div 
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+            
+            <p className="text-sm text-gray-500 text-center">
+              {t('modals.pdfExport.description', 'This may take a few moments depending on the presentation size...')}
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="text-green-600 mb-6">
+              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('actions.pdfReady', 'PDF Ready!')}</h3>
+            <p className="text-gray-600 text-center mb-6">
+              {t('actions.pdfGenerationComplete', 'PDF generation completed successfully!')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={onDownload}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                {t('actions.downloadPdf', 'Download PDF')}
+              </button>
+              <button
+                onClick={onClose}
+                className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              >
+                {t('actions.close', 'Close')}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>,
     document.body
@@ -147,6 +200,8 @@ export default function ProjectInstanceViewPage() {
     qualityTier: false, // Hidden by default
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [pdfDownloadReady, setPdfDownloadReady] = useState<{url: string, filename: string} | null>(null);
+  const [pdfProgress, setPdfProgress] = useState<{current: number, total: number, message: string} | null>(null);
   
   // Smart editing state
   const [showSmartEditor, setShowSmartEditor] = useState(false);
@@ -693,9 +748,17 @@ export default function ProjectInstanceViewPage() {
                 if (typeof lesson.source !== 'string') {
                   lesson.source = '';
                 }
-                // Ensure completionTime is a string
+                // Ensure completionTime is normalized to English format before saving
                 if (typeof lesson.completionTime !== 'string') {
                   lesson.completionTime = '5m';
+                } else {
+                  // Normalize completion time to English format (extract numeric part and add 'm')
+                  const numbers = lesson.completionTime.match(/\d+/);
+                  if (numbers) {
+                    lesson.completionTime = `${numbers[0]}m`;
+                  } else {
+                    lesson.completionTime = '5m'; // Fallback
+                  }
                 }
               });
             }
@@ -779,6 +842,31 @@ export default function ProjectInstanceViewPage() {
         const responseData = await response.json();
         console.log('🔍 Auto-save response data:', JSON.stringify(responseData, null, 2));
         
+        // NEW: Refresh products list to update names after rename propagation
+        try {
+          const listRes = await fetch(`${CUSTOM_BACKEND_URL}/projects`, { cache: 'no-store', headers: saveOperationHeaders });
+          if (listRes.ok) {
+            const listData: ProjectListItem[] = await listRes.json();
+            setAllUserMicroproducts(listData);
+            const currentFromList = listData.find(mp => mp.id === projectInstanceData.project_id);
+            if (currentFromList?.projectName) {
+              setParentProjectNameForCurrentView(currentFromList.projectName);
+            } else if (responseData?.project_name || responseData?.microproduct_content?.mainTitle) {
+              setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
+            }
+          } else {
+            console.warn('Could not refresh projects list after auto-save');
+            if (responseData?.project_name || responseData?.microproduct_content?.mainTitle) {
+              setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
+            }
+          }
+        } catch (e) {
+          console.warn('Error refreshing projects list after auto-save', e);
+          if (responseData?.project_name || responseData?.microproduct_content?.mainTitle) {
+            setParentProjectNameForCurrentView(responseData.project_name || responseData.microproduct_content.mainTitle);
+          }
+        }
+        
         // Check if the response data matches what we sent
         if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
           const trainingPlanData = editableData as TrainingPlanData;
@@ -846,6 +934,25 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
+  // PDF download handlers
+  const handleDownloadPdf = () => {
+    if (pdfDownloadReady) {
+      console.log('User clicked download button, opening:', pdfDownloadReady.url);
+      window.open(pdfDownloadReady.url, '_blank');
+      // Close the modal after initiating download
+      setIsExportingPdf(false);
+      setPdfDownloadReady(null);
+      setPdfProgress(null);
+    }
+  };
+
+  const handleClosePdfModal = () => {
+    console.log('User closed PDF modal');
+    setIsExportingPdf(false);
+    setPdfDownloadReady(null);
+    setPdfProgress(null);
+  };
+
   const handlePdfDownload = async () => {
     if (!projectInstanceData || typeof projectInstanceData.project_id !== 'number') {
         alert(t('interface.projectView.projectDataOrIdNotAvailableForDownload', 'Project data or ID is not available for download.'));
@@ -858,37 +965,95 @@ export default function ProjectInstanceViewPage() {
         const slideDeckData = editableData as ComponentBasedSlideDeck;
         const theme = slideDeckData?.theme || 'dark-purple';
         
-        // Show loading modal
+        // Show loading modal with progress
         setIsExportingPdf(true);
+        setPdfProgress({ current: 0, total: 1, message: 'Initializing PDF generation...' });
         
         try {
-            const response = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}?theme=${theme}`, {
+            // Use streaming endpoint for large presentations
+            const streamResponse = await fetch(`${CUSTOM_BACKEND_URL}/pdf/slide-deck/${projectInstanceData.project_id}/stream?theme=${theme}`, {
                 method: 'GET',
                 credentials: 'same-origin'
             });
 
-            if (!response.ok) {
-                throw new Error(`PDF generation failed: ${response.status}`);
+            if (!streamResponse.ok) {
+                throw new Error(`PDF generation failed: ${streamResponse.status}`);
             }
 
-            // Get the blob from the response
-            const blob = await response.blob();
-            
-            // Create a download link
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            const reader = streamResponse.body?.getReader();
+            if (!reader) {
+                throw new Error('Failed to get stream reader');
+            }
+
+            const decoder = new TextDecoder();
+            let downloadUrl = '';
+            let filename = '';
+
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                console.log('Received stream data:', data);
+                                
+                                if (data.type === 'progress') {
+                                    console.log(`PDF Progress: ${data.message} (${data.current}/${data.total})`);
+                                    // Update progress UI with real-time progress
+                                    setPdfProgress({
+                                        current: data.current,
+                                        total: data.total,
+                                        message: data.message
+                                    });
+                                } else if (data.type === 'complete') {
+                                    console.log('PDF generation completed:', data.message);
+                                    console.log('Download URL received:', data.download_url);
+                                    console.log('Filename received:', data.filename);
+                                    downloadUrl = data.download_url;
+                                    filename = data.filename;
+                                } else if (data.type === 'error') {
+                                    throw new Error(data.message);
+                                }
+                            } catch (parseError) {
+                                // Ignore JSON parse errors for incomplete chunks
+                            }
+                        }
+                    }
+                }
+            } finally {
+                reader.releaseLock();
+            }
+
+            // Set the download ready state instead of trying to open window immediately
+            console.log('PDF generation completed, setting download ready state');
+            if (downloadUrl) {
+                const fullDownloadUrl = `${CUSTOM_BACKEND_URL}${downloadUrl}`;
+                console.log('Download URL ready:', fullDownloadUrl);
+                console.log('Filename ready:', filename);
+                
+                // Set the download ready state - this will update the modal to show download button
+                setPdfDownloadReady({
+                    url: fullDownloadUrl,
+                    filename: filename || `${projectInstanceData.name || 'presentation'}_${new Date().toISOString().split('T')[0]}.pdf`
+                });
+            } else {
+                console.error('No download URL received from server');
+                console.log('Variables state:', { downloadUrl, filename });
+                throw new Error('No download URL received from server');
+            }
         } catch (error) {
             console.error('Error generating PDF:', error);
             alert(t('interface.projectView.pdfGenerationError', 'Failed to generate PDF. Please try again.'));
-        } finally {
-            // Hide loading modal
+            // Reset states on error
             setIsExportingPdf(false);
+            setPdfDownloadReady(null);
+            setPdfProgress(null);
         }
         return;
     }
@@ -917,7 +1082,7 @@ export default function ProjectInstanceViewPage() {
         queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
         queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
         queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
-        queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
+        queryParams.append('time', columnVisibility.estCreationTime ? '1' : '0');
         queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
         queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
     }
@@ -1063,8 +1228,11 @@ export default function ProjectInstanceViewPage() {
               allUserMicroproducts={allUserMicroproducts}
               parentProjectName={parentProjectNameForCurrentView}
               theme={trainingPlanData?.theme || 'cherry'}
+              projectId={projectId ? parseInt(projectId) : undefined}
               projectCustomRate={projectInstanceData.custom_rate}
               projectQualityTier={projectInstanceData.quality_tier}
+              projectIsAdvanced={projectInstanceData.is_advanced}
+              projectAdvancedRates={projectInstanceData.advanced_rates}
               columnVisibility={columnVisibility}
             />
           </div>
@@ -1276,13 +1444,16 @@ export default function ProjectInstanceViewPage() {
               {t('interface.projectView.back', 'Back')}
             </button>
             
-            <Link
-                href="/projects"
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors"
-                >
-                <FolderOpen size={16} className="mr-2" />
-                {t('interface.projectView.openProducts', 'Open Products')}
-            </Link>
+            <button
+              onClick={() => {
+                console.log('Open Products button clicked - navigating to /projects');
+                window.location.href = '/projects';
+              }}
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+            >
+              <FolderOpen size={16} className="mr-2" />
+              {t('interface.projectView.openProducts', 'Open Products')}
+            </button>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -1455,6 +1626,10 @@ export default function ProjectInstanceViewPage() {
       <PdfExportLoadingModal 
         isOpen={isExportingPdf} 
         projectName={projectInstanceData?.name || 'Presentation'} 
+        pdfDownloadReady={pdfDownloadReady}
+        pdfProgress={pdfProgress}
+        onDownload={handleDownloadPdf}
+        onClose={handleClosePdfModal}
       />
     </main>
   );

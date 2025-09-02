@@ -145,6 +145,10 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
+
+
+
+
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
@@ -266,57 +270,19 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
 
   return (
     <div className="title-slide-template" style={slideStyles}>
-      {/* Main Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
-
-      {/* Subtitle */}
-      {subtitle && (
-        isEditable && editingSubtitle ? (
+      {/* Main Title - wrapped */}
+      <div data-draggable="true" style={{ display: 'inline-block' }}>
+        {isEditable && editingTitle ? (
           <InlineEditor
-            initialValue={subtitle || ''}
-            onSave={handleSubtitleSave}
-            onCancel={handleSubtitleCancel}
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
             multiline={true}
-            placeholder="Enter subtitle..."
-            className="inline-editor-subtitle"
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
             style={{
-              ...subtitleStyles,
-              // Ensure subtitle behaves exactly like h2 element
-              margin: '0',
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
               padding: '0',
               border: 'none',
               outline: 'none',
@@ -329,23 +295,77 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
             }}
           />
         ) : (
-          <h2 
-            style={subtitleStyles}
-            onClick={() => {
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
               if (isEditable) {
-                setEditingSubtitle(true);
+                setEditingTitle(true);
               }
             }}
             className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
           >
-            {subtitle}
-          </h2>
-        )
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
+
+      {/* Subtitle */}
+      {subtitle && (
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle || ''}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                // Ensure subtitle behaves exactly like h2 element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h2 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {subtitle}
+            </h2>
+          )}
+        </div>
       )}
 
       {/* Metadata */}
       {(author || date) && (
-        <div style={metadataStyles}>
+        <div style={metadataStyles} data-draggable="true">
           {author && (
             isEditable && editingAuthor ? (
               <InlineEditor

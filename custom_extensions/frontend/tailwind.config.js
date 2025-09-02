@@ -6,8 +6,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'brand-primary': '#0076FF', // richer primary blue from Figma
-        'brand-primary-hover': '#005FDD',
+        'brand-primary': '#000000', // Changed from blue to black
+        'brand-primary-hover': '#333333', // Darker black for hover
         'brand-accent': '#00A2FF',
       },
       backgroundImage: {
@@ -18,5 +18,14 @@ module.exports = {
       sans: ['Inter', 'ui-sans-serif', 'system-ui'],
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.placeholder-black::placeholder': {
+          color: '#000000',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }; 

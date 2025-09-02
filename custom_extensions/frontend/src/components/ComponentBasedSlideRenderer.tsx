@@ -4,6 +4,7 @@ import React from 'react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getTemplate } from './templates/registry';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import HybridTemplateBase from './templates/base/HybridTemplateBase';
 
 interface ComponentBasedSlideRendererProps {
   slide: ComponentBasedSlide;
@@ -11,6 +12,7 @@ interface ComponentBasedSlideRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -18,7 +20,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  getPlaceholderGenerationState
 }) => {
   const template = getTemplate(slide.templateId);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
@@ -82,6 +85,9 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     );
   }
 
+  // Always use positioning for editable slides - PowerPoint-like behavior
+  const shouldUsePositioning = isEditable;
+  
   // Render the template component with props and theme
   const TemplateComponent = template.component;
   const templateProps = {
@@ -89,13 +95,61 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     slideId: slide.slideId,
     isEditable,
     onUpdate: handlePropsUpdate,
-    theme: currentTheme
+    theme: currentTheme,
+    getPlaceholderGenerationState
   };
 
+  // Debug theme information for specific templates
+  if (slide.templateId === 'course-overview-slide' || slide.templateId === 'work-life-balance-slide' || slide.templateId === 'thank-you-slide') {
+    console.log('🎨 ComponentBasedSlideRenderer Theme Debug:', {
+      slideId: slide.slideId,
+      templateId: slide.templateId,
+      themeType: typeof theme,
+      themeValue: theme,
+      currentThemeId: currentTheme.id,
+      currentThemeBg: currentTheme.colors.backgroundColor,
+      templatePropsTheme: templateProps.theme.id
+    });
+  }
+
+
+
+  // Use HybridTemplateBase for all editable slides (positioning enabled by default)
+  if (shouldUsePositioning) {
+    return (
+      <div 
+        className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} positioning-enabled`}
+        data-theme={theme || DEFAULT_SLIDE_THEME}
+      >
+        <HybridTemplateBase
+          slideId={slide.slideId}
+          slide={slide}
+          items={slide.items}
+          canvasConfig={slide.canvasConfig}
+          positioningMode={slide.positioningMode || (isEditable ? 'hybrid' : 'template')}
+          theme={currentTheme}
+          isEditable={isEditable}
+          onUpdate={handlePropsUpdate}
+          onSlideUpdate={onSlideUpdate}
+        >
+          <TemplateComponent {...templateProps} />
+        </HybridTemplateBase>
+      </div>
+    );
+  }
+
+  // Default template rendering
   return (
     <div 
-      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME}`}
+      className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} w-full h-full`}
       data-theme={theme || DEFAULT_SLIDE_THEME}
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
     >
       <TemplateComponent {...templateProps} />
     </div>
@@ -110,6 +164,7 @@ interface ComponentBasedSlideDeckRendererProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   onTemplateChange?: (slideId: string, newTemplateId: string) => void;
   theme?: string;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -118,7 +173,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   isEditable = false,
   onSlideUpdate,
   onTemplateChange,
-  theme
+  theme,
+  getPlaceholderGenerationState
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -130,13 +186,15 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   }
 
   return (
-    <div className="component-based-slide-deck">
+    <div className="component-based-slide-deck w-full h-full">
       {slides.map((slide) => (
         <div 
           key={slide.slideId}
           className={`slide-container ${selectedSlideId === slide.slideId ? 'active' : ''}`}
           style={{
             display: selectedSlideId ? (selectedSlideId === slide.slideId ? 'block' : 'none') : 'block',
+            width: '100%',
+            height: '100%',
             marginBottom: selectedSlideId ? 0 : '40px'
           }}
         >
@@ -146,6 +204,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             onSlideUpdate={onSlideUpdate}
             onTemplateChange={onTemplateChange}
             theme={theme}
+            getPlaceholderGenerationState={getPlaceholderGenerationState}
           />
         </div>
       ))}

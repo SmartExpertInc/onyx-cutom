@@ -519,14 +519,23 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   imageAlt,
   theme,
   isEditable = false,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
+  // Add image ref for proper sizing
+  const imageRef = useRef<HTMLDivElement>(null);
+  
   // Inline editing state for title and subtitle only
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -623,18 +632,45 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     }
   };
 
+  // Handle size and transform changes for the placeholder
+  const handleSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      // Convert the payload to the expected format for the backend
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+        console.log('BulletPointsRightTemplate: objectFit update', { 
+          slideId, 
+          objectFit: payload.objectFit 
+        });
+      }
+      
+      onUpdate(updateData);
+    }
+  };
+
   // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    margin: '0 auto',
-    height: '100%',
-    aspectRatio: '1/1'
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
+    margin: '0 auto'
   };
 
   return (
-    <div className="bullet-points-right-template" style={slideStyles}>
+    <div ref={slideContainerRef} className="bullet-points-right-template" style={slideStyles}>
       {/* Title */}
       {isEditable && editingTitle ? (
         <InlineEditor
@@ -662,12 +698,18 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
       ) : (
         <h1 
           style={titleStyles}
-          onClick={() => {
+          onClick={(e) => {
+            if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
             if (isEditable) {
               setEditingTitle(true);
             }
           }}
           className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          data-draggable="true"
         >
           {title || 'Click to add title'}
         </h1>
@@ -677,65 +719,83 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
         {/* Left: Subtitle + Bullets */}
         <div style={leftColStyles}>
           {/* Subtitle */}
-          {subtitle && (
-            isEditable && editingSubtitle ? (
-              <InlineEditor
-                initialValue={subtitle || ''}
-                onSave={handleSubtitleSave}
-                onCancel={handleSubtitleCancel}
-                multiline={true}
-                placeholder="Enter subtitle..."
-                className="inline-editor-subtitle"
-                style={{
-                  ...subtitleStyles,
-                  // Ensure subtitle behaves exactly like div element
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
-              />
-            ) : (
-              <div 
-                style={subtitleStyles}
-                onClick={() => {
-                  if (isEditable) {
-                    setEditingSubtitle(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {subtitle}
-              </div>
-            )
-          )}
+          
+          <div data-draggable="true">
+            {subtitle && (
+              isEditable && editingSubtitle ? (
+                <InlineEditor
+                  initialValue={subtitle || ''}
+                  onSave={handleSubtitleSave}
+                  onCancel={handleSubtitleCancel}
+                  multiline={true}
+                  placeholder="Enter subtitle..."
+                  className="inline-editor-subtitle"
+                  style={{
+                    ...subtitleStyles,
+                    // Ensure subtitle behaves exactly like div element
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={subtitleStyles}
+                  onClick={(e) => {
+                    if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingSubtitle(true);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {subtitle || 'Click to add subtitle'}
+                </div>
+              )
+            )}
+          </div>
 
           {/* Unified bullet points editor */}
-          <UnifiedBulletEditor
-            bullets={bullets || []}
-            bulletStyle={bulletStyle}
-            onUpdate={handleBulletsUpdate}
-            theme={currentTheme}
-            isEditable={isEditable}
-          />
+          <div data-draggable="true">
+            <UnifiedBulletEditor
+              bullets={bullets || []}
+              bulletStyle={bulletStyle}
+              onUpdate={handleBulletsUpdate}
+              theme={currentTheme}
+              isEditable={isEditable}
+            />
+          </div>
         </div>
         {/* Right: Clickable Image Placeholder */}
-        <div style={rightColStyles}>
-          <ClickableImagePlaceholder
-            imagePath={imagePath}
-            onImageUploaded={handleImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload image"
-            prompt={displayPrompt}
-            isEditable={isEditable}
-            style={placeholderStyles}
-          />
+        <div style={rightColStyles} >
+            <ClickableImagePlaceholder
+              imagePath={imagePath}
+              onImageUploaded={handleImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt={displayPrompt}
+              isEditable={isEditable}
+              style={placeholderStyles}
+              onSizeTransformChange={handleSizeTransformChange}
+              elementId={`${slideId}-image`}
+              elementRef={imageRef}
+              cropMode={objectFit || 'contain'}
+              slideContainerRef={slideContainerRef}
+              savedImagePosition={imageOffset}
+              savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+              templateId="bullet-points-right"
+            />
         </div>
       </div>
     </div>

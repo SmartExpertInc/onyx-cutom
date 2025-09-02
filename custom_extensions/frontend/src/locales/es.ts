@@ -4,7 +4,8 @@ export const es = {
     lesson: "LECCIÓN",
     save: "Guardar",
     saving: "Guardando...",
-    confirmCancelEdit: "¿Estás seguro de que quieres cancelar? Cualquier cambio no guardado se perderá.",
+    confirmCancelEdit:
+      "¿Estás seguro de que quieres cancelar? Cualquier cambio no guardado se perderá.",
     errorDetails: "Detalles:",
     sourceChatTooltip: "Ir al chat donde se generó este contenido",
     sourceChat: "Chat de origen",
@@ -12,13 +13,13 @@ export const es = {
     edit: "Editar",
     downloadPdf: "Descargar PDF",
     saveErrorTitle: "Error al guardar:",
-    rendering: "Renderizando contenido..."
+    rendering: "Renderizando contenido...",
   },
   qualityTiers: {
     basic: "Básico",
     interactive: "Interactivo",
     advanced: "Avanzado",
-    immersive: "Inmersivo"
+    immersive: "Inmersivo",
   },
   // Action buttons and UI elements
   actions: {
@@ -60,8 +61,10 @@ export const es = {
     no: "No",
     // Create from files page
     uploadDocuments: "Subir Documentos",
-    dragAndDropFiles: "Arrastra y suelta archivos aquí, o haz clic para seleccionar archivos",
-    filesWillBeProcessed: "Los archivos se procesarán e indexarán automáticamente para la creación de contenido",
+    dragAndDropFiles:
+      "Arrastra y suelta archivos aquí, o haz clic para seleccionar archivos",
+    filesWillBeProcessed:
+      "Los archivos se procesarán e indexarán automáticamente para la creación de contenido",
     selectFiles: "Seleccionar Archivos",
     processingFiles: "Procesando Archivos",
     uploadingAndIndexing: "Subiendo e indexando: {fileName}",
@@ -72,7 +75,8 @@ export const es = {
     fetchingDocuments: "Obteniendo tus documentos",
     folderNotFound: "Carpeta no encontrada",
     filesInThisFolder: "Archivos en esta carpeta",
-    totalFilesReady: "{total} archivos totales, {ready} listos para crear contenido",
+    totalFilesReady:
+      "{total} archivos totales, {ready} listos para crear contenido",
     stillProcessing: "({processing} aún procesándose)",
     selectAll: "Seleccionar Todo",
     noFilesInFolder: "Aún no hay archivos en esta carpeta",
@@ -82,23 +86,33 @@ export const es = {
     createContent: "Crear Contenido",
     backToFolders: "Volver a Carpetas",
     selectFilesToCreate: "Selecciona archivos para crear contenido educativo desde tus documentos",
+    // Website/URL related
+    addWebsite: "Agregar un sitio web",
+    addWebsiteHelp: "Pega una URL para incluir el contenido de la página en esta carpeta",
+    enterUrl: "Ingresa URL (ej., https://ejemplo.com/articulo)",
+    addUrl: "Agregar URL",
+    adding: "Agregando...",
+    invalidUrl: "Por favor ingresa una URL válida (ej., https://ejemplo.com)",
+    failedToCreateFromUrl: "Error al crear desde URL",
     // 3-dots menu
     addToFavorites: "Agregar a favoritos",
     copyLink: "Copiar enlace",
     removeFromFolder: "Quitar de la Carpeta",
     sendToTrash: "Enviar a papelera",
     areYouSure: "¿Estás seguro?",
-    actionPermanent: "Esta acción es permanente y no se puede deshacer. El proyecto se eliminará para siempre.",
+    actionPermanent:
+      "Esta acción es permanente y no se puede deshacer. El proyecto se eliminará para siempre.",
     deletePermanentlyButton: "Eliminar Permanentemente",
     wantToEditInTrash: "¿Quieres editar esto? Está en la papelera.",
     restoreIt: "Restaurarlo",
     created: "Creado",
-    courseOutlineTrashMessage: "Este es un Esquema del Curso. ¿Quieres mover solo el esquema, o el esquema y todas sus lecciones?",
+    courseOutlineTrashMessage:
+      "Este es un Esquema del Curso. ¿Quieres mover solo el esquema, o el esquema y todas sus lecciones?",
     tokens: "tokens",
     ready: "Listo",
     failed: "Falló",
     processing: "Procesando",
-    pleaseWait: "Por favor espera..."
+    pleaseWait: "Por favor espera...",
   },
   videoLesson: {
     slide: "Diapositiva",
@@ -143,30 +157,45 @@ export const es = {
       videoLessonScript: "Guión de lección de video",
       videoLesson: "Lección de video",
       comingSoon: "¡Próximamente!",
-      errorNoSessionId: "Error: ID de sesión de chat no disponible. No se puede crear la lección."
+      errorNoSessionId:
+        "Error: ID de sesión de chat no disponible. No se puede crear la lección.",
     },
     createTest: {
       title: "Crear prueba",
       quiz: "Cuestionario",
       quizTooltip: "Crear un cuestionario para esta lección",
-      errorNoSessionId: "Error: ID de sesión de chat no disponible. No se puede crear la prueba."
+      errorNoSessionId:
+        "Error: ID de sesión de chat no disponible. No se puede crear la prueba.",
     },
     createContent: {
       title: "Crear contenido",
       lessonTypes: "Tipos de lecciones",
       assessmentTypes: "Tipos de evaluación",
       createNewLesson: "Crear nueva lección",
-      chooseContentType: "Elige el tipo de contenido que te gustaría crear para esta lección",
+      chooseContentType:
+        "Elige el tipo de contenido que te gustaría crear para esta lección",
       presentation: "Presentación",
-      presentationDescription: "Crear una presentación basada en diapositivas con contenido interactivo",
+      presentationDescription:
+        "Crear una presentación basada en diapositivas con contenido interactivo",
       onePager: "Resumen",
-      onePagerDescription: "Crear un documento de resumen completo basado en texto",
+      onePagerDescription:
+        "Crear un documento de resumen completo basado en texto",
       quiz: "Cuestionario",
-      quizDescription: "Crear un cuestionario interactivo para evaluar conocimientos",
+      quizDescription:
+        "Crear un cuestionario interactivo para evaluar conocimientos",
       videoLesson: "Lección de Video",
-      videoLessonDescription: "Crear una lección de video con narración y elementos visuales",
+      videoLessonDescription:
+        "Crear una lección de video con narración y elementos visuales",
       soon: "Pronto",
-      alreadyCreated: "Ya creado"
+      alreadyCreated: "Ya creado",
+      recommended: "Recomendado",
+      recommendedDescription: "Tipos de contenido sugeridos por IA perfectos para esta lección",
+      orExploreMore: "o explorar más opciones",
+      customizeRecommendations: "Personalizar Recomendaciones",
+      selectRecommendedProducts: "Selecciona qué productos deben mostrarse como recomendados para esta lección.",
+      allOptions: "Todos los tipos de contenido",
+      seeAllContentTypes: "Ver todos los tipos de contenido",
+      backToRecommended: "Volver a recomendados"
     },
     openContent: {
       title: "Abrir Contenido",
@@ -181,7 +210,7 @@ export const es = {
       videoLesson: "Lección de Video",
       videoLessonSoon: "Las lecciones de video llegarán pronto",
       noContentAvailable: "No hay contenido disponible para abrir.",
-      soon: "Pronto"
+      soon: "Pronto",
     },
     openOrCreate: {
       title: "Lección",
@@ -201,19 +230,23 @@ export const es = {
       createPresentationAndQuiz: "Crear presentación o cuestionario",
       createPresentationAndOnePager: "Crear presentación o resumen",
       createQuizAndOnePager: "Crear cuestionario o resumen",
-      createAll: "Crear presentación, cuestionario o resumen"
+      createAll: "Crear presentación, cuestionario o resumen",
     },
     folderSettings: {
       title: "Configuración de carpeta",
       subtitle: "Configurar calidad de producción para",
       basic: "Básico",
-      basicDescription: "Contenido de e-learning simple con funciones esenciales para necesidades de entrenamiento directas",
+      basicDescription:
+        "Contenido de e-learning simple con funciones esenciales para necesidades de entrenamiento directas",
       interactive: "Interactivo",
-      interactiveDescription: "Contenido atractivo con elementos interactivos para mejor compromiso y retención del aprendiz",
+      interactiveDescription:
+        "Contenido atractivo con elementos interactivos para mejor compromiso y retención del aprendiz",
       advanced: "Avanzado",
-      advancedDescription: "Experiencias de aprendizaje sofisticadas con contenido personalizado e interactividad avanzada",
+      advancedDescription:
+        "Experiencias de aprendizaje sofisticadas con contenido personalizado e interactividad avanzada",
       immersive: "Inmersivo",
-      immersiveDescription: "Experiencias de aprendizaje premium con tecnología de vanguardia para máximo compromiso",
+      immersiveDescription:
+        "Experiencias de aprendizaje premium con tecnología de vanguardia para máximo compromiso",
       features: "Características",
       hoursRange: "Rango de horas",
       customRate: "Tasa personalizada",
@@ -244,12 +277,13 @@ export const es = {
       hours: "h",
       saveChanges: "Guardar cambios",
       saving: "Guardando...",
-      failedToSave: "No se pudo guardar la configuración de la carpeta"
+      failedToSave: "No se pudo guardar la configuración de la carpeta",
     },
     projectSettings: {
       title: "Configuración del curso",
       subtitle: "Configurar calidad de producción para",
-      failedToSave: "No se pudo guardar la configuración del nivel del proyecto"
+      failedToSave:
+        "No se pudo guardar la configuración del nivel del proyecto",
     },
     clientName: {
       title: "Exportar a PDF",
@@ -262,48 +296,231 @@ export const es = {
       selected: "seleccionado",
       skip: "Omitir",
       generate: "Generar PDF",
-      generating: "Generando..."
+      generating: "Generando...",
     },
     folderExport: {
       title: "Generando PDF",
       subtitle: "Creando exportación PDF para carpeta",
       description: "Esto puede tomar unos momentos dependiendo del número de archivos..."
+    },
+    lessonSettings: {
+      title: 'Configuración de la lección',
+      subtitle: 'Configurar calidad de producción para',
+      tier: 'Nivel',
+      contentExamples: 'Ejemplos de contenido',
+      hoursRange: 'Rango de horas',
+      example: 'Ejemplo',
+      lessonQualityTier: 'Nivel de calidad de la lección establecido en',
+      perCompletionHour: 'h por hora de finalización',
+      cancel: 'Cancelar',
+      saveChanges: 'Guardar cambios',
+      saving: 'Guardando...',
+      failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
+      lessonTitle: 'Título de la lección',
+      advanced: 'Avanzado'
+    },
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video'
     }
   },
   projects: {
     loading: "Cargando productos...",
     error: "Error: {error}",
     noProductsSelected: "No hay productos válidos seleccionados para eliminar.",
-    confirmDelete: "¿Estás seguro de que quieres eliminar {count} productos seleccionados?",
+    confirmDelete:
+      "¿Estás seguro de que quieres eliminar {count} productos seleccionados?",
     deleteError: "Error al eliminar proyectos: {error}",
     updateError: "Error al actualizar nombre: {error}",
     errorLoadingProjectTitle: "Error al cargar proyecto",
-    errorLoadingProjectMessage: "Hubo un problema al obtener los datos del proyecto. Por favor, inténtalo de nuevo más tarde.",
+    errorLoadingProjectMessage:
+      "Hubo un problema al obtener los datos del proyecto. Por favor, inténtalo de nuevo más tarde.",
     returnToProjects: "Volver a la lista de proyectos",
     projectNotFoundTitle: "Proyecto no encontrado",
-    projectNotFoundMessage: "El proyecto que buscas no se pudo encontrar o no tienes permiso para verlo.",
+    projectNotFoundMessage:
+      "El proyecto que buscas no se pudo encontrar o no tienes permiso para verlo.",
     allProjects: "Todos los proyectos",
-    loadingProject: "Cargando proyecto..."
+    loadingProject: "Cargando proyecto...",
   },
   // New translations for the projects page interface
   interface: {
     // Header
     products: "Productos",
+    smartDrive: "Disco Inteligente",
+    offers: "Ofertas",
     trash: "Papelera",
     getUnlimitedAI: "Obtener IA ilimitada",
     credits: "créditos",
     loading: "Cargando...",
-    
+
     // Sidebar
     jumpTo: "Ir a",
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Compartido contigo",
     folders: "Carpetas",
     createOrJoinFolder: "Crear o unirse a una carpeta",
-    organizeProducts: "Organiza tus productos por tema y compártelos con tu equipo",
+    organizeProducts:
+      "Organiza tus productos por tema y compártelos con tu equipo",
     templates: "Plantillas",
     themes: "Temas",
-    
+
+    // Smart Drive content
+    smartDriveBrowser: "Navegador de Disco Inteligente",
+    browseAndManageFiles: "Explora y gestiona tus archivos en la nube",
+    browseAndSelectFiles: "Explora y selecciona archivos de tu almacenamiento en la nube",
+    connectors: "Conectores",
+    popularConnectors: "Conectores populares",
+    allConnectors: "Todos los conectores",
+    showAll: "Mostrar todo",
+    hideAll: "Ocultar todo",
+    connect: "Conectar",
+    manage: "Gestionar",
+    active: "Activo",
+    hideBrowser: "Ocultar navegador",
+    showBrowser: "Mostrar navegador",
+    selectConnectors: "Seleccionar conectores",
+    chooseDataSources: "Elige fuentes de datos para incluir en tu contenido",
+    searchConnectors: "Buscar conectores...",
+    noConnectorsFound: "No se encontraron conectores que coincidan con tu búsqueda.",
+    noConnectorsAvailable: "No hay conectores disponibles.",
+    tryAdjustingSearch: "Intenta ajustar tus términos de búsqueda.",
+    connectFirstDataSource: "Conecta tu primera fuente de datos para comenzar.",
+    loadingConnectors: "Cargando conectores...",
+    contentCreationNotImplemented: "La funcionalidad de creación de contenido se implementará en el backend",
+    contentCreation: "Creación de contenido",
+    transformFilesToContent: "Transforma tus archivos en contenido con IA",
+    selectedConnectors: "Conectores seleccionados",
+    selectedFiles: "Archivos seleccionados",
+    filesFromSmartDrive: "Archivos del Disco Inteligente",
+    connector: "conector",
+    connectorPlural: "conectores",
+    file: "archivo",
+    filePlural: "archivos",
+    docs: "docs",
+    createContentFromSelected: "Crear contenido desde {count} fuente seleccionada",
+    connectorStatusLabels: {
+      active: "activo",
+      syncing: "sincronizando",
+      error: "error",
+      paused: "pausado"
+    },
+
+    // Offers page
+    searchOffers: "Buscar ofertas...",
+    allStatuses: "Todos los estados",
+    draft: "Borrador",
+    internalReview: "Revisión interna",
+    approved: "Aprobado",
+    sentToClient: "Enviado al cliente",
+    viewedByClient: "Visto por el cliente",
+    negotiation: "Negociación",
+    accepted: "Aceptado",
+    rejected: "Rechazado",
+    archived: "Archivado",
+    createOffer: "Crear oferta",
+    offerName: "Nombre de la oferta",
+    createdOn: "Creado en",
+    manager: "Gerente",
+    status: "Estado",
+    totalHours: "Horas totales",
+    link: "Enlace",
+    noOffers: "No se encontraron ofertas",
+    createYourFirstOffer: "Crea tu primera oferta para comenzar",
+    retry: "Reintentar",
+    shareError: "Error al generar enlace para compartir",
+    copyError: "Error al copiar enlace",
+    shareOffer: "Compartir oferta",
+    shareOfferDescription: "Comparte esta oferta con cualquiera, incluso sin una cuenta",
+    shareOfferSubtext: "Los destinatarios pueden ver los detalles completos de la oferta sin crear una cuenta",
+    generatingLink: "Generando enlace...",
+    shareableLink: "Enlace compartible",
+    copied: "¡Copiado!",
+    copyLink: "Copiar enlace",
+    linkCopied: "¡Enlace copiado al portapapeles!",
+    editOffer: "Editar oferta",
+    company: "Empresa",
+    updating: "Actualizando...",
+    deleteOfferConfirmation: "¿Estás seguro de que quieres eliminar esta oferta? Esta acción no se puede deshacer.",
+    locale: "es-ES",
+
+    // Connector Management
+    connectorStatus: "Estado",
+    documentsIndexed: "Documentos indexados",
+    lastIndexed: "Último indexado",
+    never: "Nunca",
+    connectorInvalidState: "El conector está en un estado inválido",
+    checkConfigurationAndRetry: "Por favor, verifica tu configuración e inténtalo de nuevo.",
+    index: "Indexar",
+    fullReindex: "Re-indexado completo",
+    pause: "Pausar",
+    resume: "Reanudar",
+    connectorMustBePaused: "El conector debe estar pausado antes de eliminarlo",
+    configuration: "Configuración",
+    connectorName: "Nombre del conector",
+    source: "Fuente",
+    credential: "Credencial",
+    accessType: "Tipo de acceso",
+    refreshFrequency: "Frecuencia de actualización",
+    pruneFrequency: "Frecuencia de limpieza",
+
+    // Create Offer Modal
+    loadingClients: "Cargando clientes...",
+    selectClient: "Selecciona un cliente...",
+
+    // Workspace Members
+    workspace: "Espacio de trabajo",
+    workspaceMembers: "Miembros del espacio de trabajo",
+    workspaceMembersDescription: "Gestiona los miembros del equipo y su acceso al espacio de trabajo",
+    addMember: "Agregar miembro",
+    inviteMember: "Invitar miembro",
+    memberName: "Nombre",
+    memberEmail: "Email",
+    memberRole: "Rol",
+    memberStatus: "Estado",
+    memberInvitationDate: "Fecha de invitación",
+    memberActions: "Acciones",
+    roles: {
+      admin: "Administrador",
+      member: "Miembro",
+      viewer: "Observador"
+    },
+    statuses: {
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado",
+      pending: "Pendiente"
+    },
+    workspaceActions: {
+      delete: "Eliminar",
+      suspend: "Suspender",
+      activate: "Activar",
+      unblock: "Desbloquear",
+      resendInvitation: "Reenviar invitación"
+    },
+    filters: {
+      allStatuses: "Todos los estados",
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado"
+    },
+    addMemberModal: {
+      title: "Agregar miembro",
+      description: "Invitar a un nuevo miembro al espacio de trabajo",
+      emailLabel: "Email",
+      emailPlaceholder: "Ingrese dirección de email",
+      roleLabel: "Rol",
+      rolePlaceholder: "Seleccionar rol",
+      sendInvitation: "Enviar invitación",
+      cancel: "Cancelar"
+    },
+    noMembers: "No se encontraron miembros del espacio de trabajo",
+    searchPlaceholder: "Buscar miembros...",
+    enterOfferName: "Ingresa el nombre de la oferta...",
+    enterManager: "Ingresa el nombre del gerente...",
+    creating: "Creando...",
+
     // Main content
     all: "Todos",
     trainingPlans: "Planes de entrenamiento",
@@ -316,16 +533,17 @@ export const es = {
     grid: "Cuadrícula",
     list: "Lista",
     noProjectsFound: "No se encontraron productos.",
-    
+
     // Table headers
     title: "Título",
+    type: "Tipo",
     created: "Creado",
     creator: "Creador",
     numberOfLessons: "Número de lecciones",
     estCreationTime: "Tiempo est. creación",
     estCompletionTime: "Tiempo est. finalización",
     actions: "Acciones",
-    
+
     // Project actions
     rename: "Renombrar",
     duplicate: "Duplicar",
@@ -337,63 +555,113 @@ export const es = {
     deletePermanently: "Eliminar permanentemente",
     moveToFolder: "Mover a carpeta",
     settings: "Configuración",
-    
+
     // Folder actions
     folderSettings: "Configuración de carpeta",
     renameFolder: "Renombrar carpeta",
     deleteFolder: "Eliminar carpeta",
     moveFolder: "Mover carpeta",
-    
+
     // Modals
     createFolder: "Crear o unirse a una carpeta",
-    createFolderDescription: "Puedes unirte a una carpeta para hacer seguimiento de lo que está trabajando la gente.",
+    createFolderDescription:
+      "Puedes unirte a una carpeta para hacer seguimiento de lo que está trabajando la gente.",
     findOrCreateFolder: "Buscar o crear una nueva carpeta",
     createFolderButton: "Crear carpeta",
     createAtTopLevel: "Crear en el nivel superior (sin carpeta padre)",
     allFolders: "Todas las carpetas",
     noFoldersFound: "No se encontraron carpetas.",
     done: "Hecho",
-    
+
     // Image Upload Modal
     imageUpload: {
       title: "Subir imagen",
       uploadingText: "Subiendo...",
-      dragAndDropText: "Arrastra y suelta una imagen aquí, o haz clic para navegar",
+      dragAndDropText:
+        "Arrastra y suelta una imagen aquí, o haz clic para navegar",
       chooseFileButton: "Elegir archivo",
-      supportedFormatsText: "Formatos compatibles: PNG, JPG, JPEG, GIF, WebP (máx. 10MB)"
+      supportedFormatsText:
+        "Formatos compatibles: PNG, JPG, JPEG, GIF, WebP (máx. 10MB)",
     },
-    
+
     // Block Settings Modal
     blockSettings: {
       customizeContent: "Personaliza tu contenido",
       headlineSettings: "Configuración de encabezado",
-      paragraphSettings: "Configuración de párrafo", 
+      paragraphSettings: "Configuración de párrafo",
       bulletListSettings: "Configuración de lista con viñetas",
       numberedListSettings: "Configuración de lista numerada",
       alertSettings: "Configuración de alerta",
-      imageSettings: "Configuración de imagen"
+      imageSettings: "Configuración de imagen",
+      // Block settings fields
+      importantSection: "Sección importante",
+      importantSectionDescription: "Marcar esta sección como importante para énfasis",
+      icon: "Icono",
+      noIcon: "Sin icono",
+      infoIcon: "Información",
+      goalIcon: "Objetivo",
+      starIcon: "Estrella",
+      appleIcon: "Manzana",
+      awardIcon: "Premio",
+      boxesIcon: "Cajas",
+      calendarIcon: "Calendario",
+      chartIcon: "Gráfico",
+      clockIcon: "Reloj",
+      globeIcon: "Globo",
+      headingLevel: "Nivel de encabezado",
+      large: "Grande",
+      medium: "Mediano",
+      small: "Pequeño",
+      extraSmall: "Muy pequeño",
+      extraLarge: "Muy grande",
+      fontSize: "Tamaño de fuente",
+      textSize: "Tamaño de texto",
+      recommendation: "Recomendación",
+      recommendationDescription: "Marcar este párrafo como una recomendación",
+      blockSettings: "Configuración de bloque",
+      // Alert settings
+      alertType: "Tipo de alerta",
+      success: "Éxito",
+      warning: "Advertencia",
+      danger: "Peligro",
+      customIcon: "Icono personalizado",
+      useDefaultForAlertType: "Usar predeterminado para tipo de alerta",
+      check: "Verificar",
+      error: "Error",
+      backgroundColor: "Color de fondo",
+      borderColor: "Color del borde",
+      textColor: "Color del texto",
+      iconColor: "Color del icono"
     },
-    
+
     // Modal common
     modal: {
-      customizeContent: "Personaliza tu contenido"
+      customizeContent: "Personaliza tu contenido",
+      cancel: "Cancelar",
+      applyChanges: "Aplicar cambios",
     },
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Configuración de imagen",
+      format: "Formato",
+      size: "Tamaño",
+      layout: "Diseño",
+      effects: "Efectos",
       imagePreview: "Vista previa de imagen",
       preview: "Vista previa",
       noImageLoaded: "No hay imagen cargada",
       altText: "Texto alternativo",
       forAccessibility: "para accesibilidad",
       altTextPlaceholder: "Describe lo que muestra esta imagen...",
-      altTextHelp: "Esto ayuda a los lectores de pantalla a describir la imagen a los usuarios",
+      altTextHelp:
+        "Esto ayuda a los lectores de pantalla a describir la imagen a los usuarios",
       caption: "Leyenda",
       captionPlaceholder: "Agrega una leyenda para esta imagen...",
       captionHelp: "Las leyendas aparecen debajo de la imagen",
       maxWidth: "Ancho máximo",
       maxWidthHelp: "Ancho máximo que puede ocupar la imagen",
-      width: "Ancho", 
+      width: "Ancho",
       widthHelp: "Ancho específico para la imagen",
       height: "Alto",
       heightHelp: "Alto específico para la imagen",
@@ -402,15 +670,18 @@ export const es = {
       alignment: "Alineación",
       alignmentHelp: "Cómo se posiciona la imagen",
       layoutMode: "Modo de diseño",
-      layoutModeHelp: "Cómo se relaciona la imagen con el contenido circundante",
+      layoutModeHelp:
+        "Cómo se relaciona la imagen con el contenido circundante",
       standalone: "Independiente",
       sideBySideLeft: "Lado a lado (imagen a la izquierda)",
       sideBySideRight: "Lado a lado (imagen a la derecha)",
-      inlineLeft: "En línea (imagen a la izquierda, texto envuelve)",
-      inlineRight: "En línea (imagen a la derecha, texto envuelve)",
-      layoutModeDescription: "Lado a lado: La imagen y el contenido tienen la misma altura. En línea: El texto fluye alrededor de la imagen.",
+      inlineLeft: "A la izquierda del texto",
+      inlineRight: "A la derecha del texto",
+      layoutModeDescription:
+        "Lado a lado: La imagen y el contenido tienen la misma altura. En línea: El texto fluye alrededor de la imagen.",
       layoutPartner: "Compañero de diseño",
-      layoutPartnerHelp: "Elige qué bloque de contenido emparejar con esta imagen",
+      layoutPartnerHelp:
+        "Elige qué bloque de contenido emparejar con esta imagen",
       layoutProportion: "Proporción del diseño",
       layoutProportionHelp: "Cuánto espacio ocupa la imagen en el diseño",
       layoutPreview: "Vista previa del diseño",
@@ -423,19 +694,95 @@ export const es = {
       proportionImageLarger: "60% - 40% (Imagen más grande)",
       proportionImageSmaller: "40% - 60% (Imagen más pequeña)",
       proportionImageMuchLarger: "70% - 30% (Imagen mucho más grande)",
-      proportionImageMuchSmaller: "30% - 70% (Imagen mucho más pequeña)"
+      proportionImageMuchSmaller: "30% - 70% (Imagen mucho más pequeña)",
+      // Quick size controls
+              quickSizeControls: "Tamaño",
+              quickSettings: "Configuración",
+      smaller: "Más pequeño",
+      larger: "Más grande",
+      resetToDefaultSize: "Restablecer al tamaño predeterminado",
+      currentWidth: "Ancho actual",
+      auto: "automático",
+      maintainAspectRatio: "mantener proporción",
+      scale: "Escala",
+      // Layout options
+      layoutOptions: "Posición",
+      partnerContent: "Contenido asociado",
+      partnerContentHelp: "contenido para colocar junto a la imagen",
+      block1: "Bloque 1: Encabezado/Párrafo",
+      block2: "Bloque 2: Lista/Contenido",
+      block3: "Bloque 3: Otro bloque de contenido",
+      partnerContentDescription: "Elige qué bloque de contenido debe aparecer junto a esta imagen.",
+      spaceDistribution: "Distribución del espacio",
+      spaceDistributionHelp: "cuánto espacio obtiene cada elemento",
+      equal: "Igual (50% cada uno)",
+      imageLarger: "Imagen más grande (60% imagen, 40% contenido)",
+      contentLarger: "Contenido más grande (40% imagen, 60% contenido)",
+      imageDominant: "Imagen dominante (70% imagen, 30% contenido)",
+      contentDominant: "Contenido dominante (30% imagen, 70% contenido)",
+      spaceDistributionDescription: "Controla cuánto espacio horizontal ocupan la imagen y el contenido.",
+      // Corner rounding options
+      cornerRounding: "Redondeo de esquinas",
+      sharp: "Agudo",
+      slightlyRounded: "Ligeramente redondeado",
+      rounded: "Redondeado",
+      veryRounded: "Muy redondeado",
+      // Alignment options
+      left: "Izquierda",
+      center: "Centro",
+      right: "Derecha",
+      // Size options
+      small: "Pequeño",
+      medium: "Mediano",
+      large: "Grande",
+      extraLarge: "Muy grande",
+      // Layout descriptions
+      imageOnOwnLine: "Imagen en su propia línea",
+      sideBySideDescription: "Imagen y texto lado a lado",
+      // Visual effects
+      visualEffects: "Efectos visuales",
+      // Additional image settings
+      textWrapping: "Ajuste de texto",
+      position: "Posición",
+      shadow: "Sombra",
+      border: "Borde",
+      none: "Ninguno",
+      subtle: "Sutil",
+      strong: "Fuerte",
+      livePreview: "Vista previa en vivo",
+      changesApplyInRealTime: "Los cambios se aplican en tiempo real",
+      documentPreview: "Vista previa del documento",
+      livePreviewDescription: "Esto muestra cómo aparecerá tu imagen en el documento. Los cambios se aplican en tiempo real mientras ajustas la configuración.",
+      resetToDefault: "Restablecer a predeterminado",
+      // Additional layout messages
+      unavailableForInline: "no disponible para inline",
+      alignmentUnavailableForInlineModes: "Alineación no disponible para modos inline",
+      // Border options
+      solid: "Sólido",
+      dashed: "Discontinuo",
+      dotted: "Punteado",
+      // Advanced options
+      advanced: "Avanzado",
+      opacity: "Opacidad",
+      rotation: "Rotación",
+      // Preview placeholders
+      noDocumentContent: "No hay contenido del documento disponible para la vista previa",
+      additionalContentPlaceholder: "El contenido adicional de tu documento continuaría aquí, mostrando cómo la imagen se integra con el texto y diseño circundantes.",
+      previewDescription: "La vista previa demuestra los cambios en tiempo real al estilo de tu imagen y cómo afecta la presentación general del documento.",
+      // Basic actions dropdown
+      openAdvancedSettings: "Abrir configuración avanzada"
     },
-    
+
     // Quality tiers
     basic: "Básico",
     interactive: "Interactivo",
     advanced: "Avanzado",
     immersive: "Inmersivo",
-    
+
     // Time units
     hours: "h",
     minutes: "min",
-    
+
     // Status
     private: "Privado",
     createdByYou: "Creado por ti",
@@ -443,17 +790,17 @@ export const es = {
     item: "elemento",
     items: "elementos",
     loadingProjects: "Cargando proyectos...",
-    
+
     // Help button
     help: "Ayuda",
-    
+
     // Language selector
     language: "Idioma",
     english: "Inglés",
     ukrainian: "Ucraniano",
     spanish: "Español",
     russian: "Ruso",
-    
+
     // Date formatting
     today: "Hoy",
     yesterday: "Ayer",
@@ -466,10 +813,12 @@ export const es = {
     howToGetStarted: "¿Cómo te gustaría comenzar?",
     home: "Inicio",
     pasteInText: "Pegar texto",
-    pasteInTextDescription: "Crear desde notas, un esquema o contenido existente",
+    pasteInTextDescription:
+      "Crear desde notas, un esquema o contenido existente",
     generateDescription: "Crear desde un prompt de una línea en segundos",
-    importFileOrUrl: "Importar archivo o URL",
-    importFileOrUrlDescription: "Mejorar documentos, presentaciones o páginas web existentes",
+    importFileOrUrl: "Crear desde archivos",
+    importFileOrUrlDescription:
+      "Mejorar documentos, presentaciones o páginas web existentes",
     popular: "POPULAR",
 
     // Projects table toolbar
@@ -482,11 +831,13 @@ export const es = {
 
     // PDF Download Modal
     customizePDF: "Personalizar PDF",
-    customizePDFDescription: "Ingrese un nombre de cliente y seleccione qué carpetas/productos incluir en el PDF.",
+    customizePDFDescription:
+      "Ingrese un nombre de cliente y seleccione qué carpetas/productos incluir en el PDF.",
     clientNameOptional: "Nombre del cliente (opcional)",
     enterClientName: "Ingrese nombre del cliente",
     selectFoldersAndProducts: "Seleccionar carpetas y productos",
     selected: "seleccionado",
+    selectAll: "Seleccionar todo",
     pdfFolders: "Carpetas",
     pdfUnassignedProducts: "Productos sin asignar",
     noFoldersOrProductsAvailable: "No hay carpetas o productos disponibles",
@@ -501,63 +852,65 @@ export const es = {
     checkingAuthentication: "Verificando autenticación...",
 
     // Block settings
-    noSettingsAvailable: "No hay configuraciones disponibles para este tipo de bloque.",
+    noSettingsAvailable:
+      "No hay configuraciones disponibles para este tipo de bloque.",
     close: "Cerrar",
     // Analytics page
     analytics: {
-      title: 'Panel de Análisis de Solicitudes',
-      subtitle: 'Seguimiento integral de todas las solicitudes API en todas las cuentas',
-      loadingData: 'Cargando datos de análisis...',
-      errorLoading: 'Error al cargar análisis',
-      retry: 'Reintentar',
-      noDataAvailable: 'No hay datos de análisis disponibles',
-      refreshData: 'Actualizar datos',
-      exportCsv: 'Exportar CSV',
-      exportJson: 'Exportar JSON',
-      activeFilters: 'Filtros activos:',
-      clearAllFilters: 'Limpiar todos los filtros',
-      filters: 'Filtros',
-      dateRange: 'Rango de fechas',
-      to: 'a',
-      endpoint: 'Endpoint',
-      filterEndpoint: 'Filtrar endpoint...',
-      httpMethod: 'Método HTTP',
-      allMethods: 'Todos los métodos',
-      statusCode: 'Código de estado',
-      statusCodePlaceholder: 'ej., 200, 404',
-      totalRequests: 'Total de solicitudes',
-      successRate: 'Tasa de éxito',
-      avgResponseTime: 'Tiempo de respuesta promedio',
-      performancePercentiles: 'Percentiles de rendimiento',
-      p50Median: 'P50 (Mediana)',
-      p95: 'P95',
-      p99: 'P99',
-      dataTransfer: 'Transferencia de datos',
-      totalTransferred: 'Total transferido',
-      failedRequests: 'Solicitudes fallidas',
-      errorRequests: 'Solicitudes con error',
-      responseTimeRange: 'Rango de tiempo de respuesta',
-      fastest: 'Más rápido',
-      average: 'Promedio',
-      slowest: 'Más lento',
-      aiModelUsage: 'Uso del modelo AI',
-      totalAiRequests: 'Total de solicitudes',
-      avgTokens: 'Promedio de tokens',
-      totalTokens: 'Total de tokens',
-      tokenRange: 'Rango de tokens',
-      topEndpoints: 'Endpoints principales',
-      requests: 'solicitudes',
-      avg: 'prom',
-      error: 'error',
-      recentErrors: 'Errores recientes',
-      time: 'Tiempo',
-      method: 'Método',
-      status: 'Estado',
-      responseTime: 'Tiempo de respuesta',
-      user: 'Usuario',
-      errorMessage: 'Error',
-      anonymous: 'Anónimo',
-      noErrorMessage: 'Sin mensaje de error'
+      title: "Panel de Análisis de Solicitudes",
+      subtitle:
+        "Seguimiento integral de todas las solicitudes API en todas las cuentas",
+      loadingData: "Cargando datos de análisis...",
+      errorLoading: "Error al cargar análisis",
+      retry: "Reintentar",
+      noDataAvailable: "No hay datos de análisis disponibles",
+      refreshData: "Actualizar datos",
+      exportCsv: "Exportar CSV",
+      exportJson: "Exportar JSON",
+      activeFilters: "Filtros activos:",
+      clearAllFilters: "Limpiar todos los filtros",
+      filters: "Filtros",
+      dateRange: "Rango de fechas",
+      to: "a",
+      endpoint: "Endpoint",
+      filterEndpoint: "Filtrar endpoint...",
+      httpMethod: "Método HTTP",
+      allMethods: "Todos los métodos",
+      statusCode: "Código de estado",
+      statusCodePlaceholder: "ej., 200, 404",
+      totalRequests: "Total de solicitudes",
+      successRate: "Tasa de éxito",
+      avgResponseTime: "Tiempo de respuesta promedio",
+      performancePercentiles: "Percentiles de rendimiento",
+      p50Median: "P50 (Mediana)",
+      p95: "P95",
+      p99: "P99",
+      dataTransfer: "Transferencia de datos",
+      totalTransferred: "Total transferido",
+      failedRequests: "Solicitudes fallidas",
+      errorRequests: "Solicitudes con error",
+      responseTimeRange: "Rango de tiempo de respuesta",
+      fastest: "Más rápido",
+      average: "Promedio",
+      slowest: "Más lento",
+      aiModelUsage: "Uso del modelo AI",
+      totalAiRequests: "Total de solicitudes",
+      avgTokens: "Promedio de tokens",
+      totalTokens: "Total de tokens",
+      tokenRange: "Rango de tokens",
+      topEndpoints: "Endpoints principales",
+      requests: "solicitudes",
+      avg: "prom",
+      error: "error",
+      recentErrors: "Errores recientes",
+      time: "Tiempo",
+      method: "Método",
+      status: "Estado",
+      responseTime: "Tiempo de respuesta",
+      user: "Usuario",
+      errorMessage: "Error",
+      anonymous: "Anónimo",
+      noErrorMessage: "Sin mensaje de error",
     },
     // Project View Page
     projectView: {
@@ -582,101 +935,130 @@ export const es = {
       qualityTier: "Nivel de calidad",
       loadingContentDisplay: "Cargando visualización de contenido...",
       contentDetails: "Detalles del contenido",
-      utilizesDesignComponent: "Esta instancia del proyecto utiliza el componente de diseño:",
+      utilizesDesignComponent:
+        "Esta instancia del proyecto utiliza el componente de diseño:",
       unknownComponent: "Desconocido",
-      specificUIForDirectViewing: "Una interfaz específica para ver o editar directamente este tipo de componente podría no estar completamente implementada en esta página.",
-      editGeneralDetails: "Normalmente puedes editar los detalles generales del proyecto (como nombre o plantilla de diseño) a través de la página principal de edición del proyecto.",
-      toggleRawContentPreview: "Alternar vista previa de contenido sin procesar",
+      specificUIForDirectViewing:
+        "Una interfaz específica para ver o editar directamente este tipo de componente podría no estar completamente implementada en esta página.",
+      editGeneralDetails:
+        "Normalmente puedes editar los detalles generales del proyecto (como nombre o plantilla de diseño) a través de la página principal de edición del proyecto.",
+      toggleRawContentPreview:
+        "Alternar vista previa de contenido sin procesar",
       noSlideDeckData: "No hay datos de presentación disponibles",
       projectDataNotLoaded: "Los datos del proyecto aún no se han cargado.",
-      contentEditingNotSupported: "La edición de contenido actualmente es compatible con tipos {types} en esta página.",
-      projectDataOrIdNotAvailable: "Los datos del proyecto o ID no están disponibles para descargar.",
+      contentEditingNotSupported:
+        "La edición de contenido actualmente es compatible con tipos {types} en esta página.",
+      projectDataOrIdNotAvailable:
+        "Los datos del proyecto o ID no están disponibles para descargar.",
       errorProjectIdOrDataMissing: "Error: ID del proyecto o datos faltantes.",
-      errorProjectInstanceDataNotLoaded: "Error: Los datos de la instancia del proyecto no se han cargado.",
-      errorCannotSaveComponentType: "Error: No se puede guardar. La edición de contenido para este tipo de componente no es compatible aquí.",
+      errorProjectInstanceDataNotLoaded:
+        "Error: Los datos de la instancia del proyecto no se han cargado.",
+      errorCannotSaveComponentType:
+        "Error: No se puede guardar. La edición de contenido para este tipo de componente no es compatible aquí.",
       contentSavedSuccessfully: "¡Contenido guardado exitosamente!",
       saveFailed: "Error al guardar: {error}",
-      errorProjectIdOrEditableDataMissing: "ID del proyecto o datos editables faltantes.",
-      errorProjectInstanceDataNotLoadedForSave: "Los datos de la instancia del proyecto no se han cargado.",
-      errorContentEditingNotSupportedForSave: "La edición de contenido no es compatible para este tipo de componente en esta página.",
-      errorFailedToSaveModuleTierSetting: "Error al guardar la configuración del nivel del módulo",
-      errorFailedToSaveLessonTierSetting: "Error al guardar la configuración del nivel de la lección",
+      errorProjectIdOrEditableDataMissing:
+        "ID del proyecto o datos editables faltantes.",
+      errorProjectInstanceDataNotLoadedForSave:
+        "Los datos de la instancia del proyecto no se han cargado.",
+      errorContentEditingNotSupportedForSave:
+        "La edición de contenido no es compatible para este tipo de componente en esta página.",
+      errorFailedToSaveModuleTierSetting:
+        "Error al guardar la configuración del nivel del módulo",
+      errorFailedToSaveLessonTierSetting:
+        "Error al guardar la configuración del nivel de la lección",
       // Additional missing translations
       invalidProjectIdFormat: "Formato de ID de proyecto inválido.",
-      couldNotFetchFullProjectsList: "No se pudo obtener la lista completa de proyectos para determinar el nombre del proyecto padre.",
+      couldNotFetchFullProjectsList:
+        "No se pudo obtener la lista completa de proyectos para determinar el nombre del proyecto padre.",
       newTrainingPlanTitle: "Nuevo plan de entrenamiento",
       newPdfLessonTitle: "Nueva lección PDF",
       newSlideDeckTitle: "Nueva presentación",
       newVideoLessonTitle: "Nueva lección de video",
       newQuizTitle: "Nuevo cuestionario",
       newTextPresentationTitle: "Nueva presentación de texto",
-      unknownErrorOccurred: "Ocurrió un error desconocido al obtener los datos del proyecto.",
+      unknownErrorOccurred:
+        "Ocurrió un error desconocido al obtener los datos del proyecto.",
       projectIdMissing: "ID del proyecto falta en la URL.",
-      projectIdOrEditableDataMissing: "ID del proyecto o datos editables faltantes.",
+      projectIdOrEditableDataMissing:
+        "ID del proyecto o datos editables faltantes.",
       validationError: "Error de validación",
       validationErrors: "Errores de validación",
       couldNotSaveData: "No se pudieron guardar los datos.",
-      contentEditingSupported: "La edición de contenido actualmente es compatible con",
+      contentEditingSupported:
+        "La edición de contenido actualmente es compatible con",
       typesOnThisPage: "tipos en esta página.",
-      projectDataOrIdNotAvailableForDownload: "Los datos del proyecto o ID no están disponibles para descargar.",
+      projectDataOrIdNotAvailableForDownload:
+        "Los datos del proyecto o ID no están disponibles para descargar.",
       failedToMoveToTrash: "No se pudo mover a la papelera",
       project: "Proyecto",
       configureVisibleColumns: "Configurar columnas visibles",
-      moveToTrashTooltip: "Mover este producto a la papelera"
+      moveToTrashTooltip: "Mover este producto a la papelera",
     },
     // Pipelines page
     pipelines: {
-      title: 'Productos',
-      loadingProducts: 'Cargando productos...',
-      error: 'Error',
-      addNewProduct: 'Agregar nuevo producto',
-      noProductsConfigured: 'Aún no hay productos configurados. Haga clic en "Agregar nuevo producto" para comenzar.',
-      productName: 'Nombre del producto',
-      discoveryPhase: 'Fase de descubrimiento',
-      structuringPhase: 'Fase de estructuración',
-      actions: 'Acciones',
-      editProduct: 'Editar producto',
-      deleteProduct: 'Eliminar producto',
-      deleteConfirmation: '¿Está seguro de que desea eliminar el producto "{name}"? Esta acción no se puede deshacer.',
-      productDeleted: '¡Producto eliminado exitosamente!',
-      failedToDelete: 'No se pudo eliminar el producto.',
-      loadingProductsPage: 'Cargando página de productos...'
+      title: "Productos",
+      loadingProducts: "Cargando productos...",
+      error: "Error",
+      addNewProduct: "Agregar nuevo producto",
+      noProductsConfigured:
+        'Aún no hay productos configurados. Haga clic en "Agregar nuevo producto" para comenzar.',
+      productName: "Nombre del producto",
+      discoveryPhase: "Fase de descubrimiento",
+      structuringPhase: "Fase de estructuración",
+      actions: "Acciones",
+      editProduct: "Editar producto",
+      deleteProduct: "Eliminar producto",
+      deleteConfirmation:
+        '¿Está seguro de que desea eliminar el producto "{name}"? Esta acción no se puede deshacer.',
+      productDeleted: "¡Producto eliminado exitosamente!",
+      failedToDelete: "No se pudo eliminar el producto.",
+      loadingProductsPage: "Cargando página de productos...",
     },
     // Add to project page
     addToProject: {
-      title: 'Crear nueva instancia de producto',
-      error: 'Error',
-      selectProductType: '1. Seleccionar tipo de producto',
-      noProductTypes: 'No hay tipos de productos disponibles. Por favor, agregue algunas plantillas de diseño en el panel de administración.',
-      configureProject: '2. Configurar proyecto',
-      addToProject: 'Agregar al proyecto:',
-      selectOrCreateProject: '-- Seleccionar o crear proyecto --',
-      loadingProjects: 'Cargando proyectos...',
-      createNewProject: '--- Crear nuevo proyecto ---',
-      newProjectName: 'Nombre del nuevo proyecto:',
-      enterNewProjectName: 'Ingrese el nombre para el nuevo proyecto',
-      advancedOptions: 'Opciones avanzadas',
-      instanceName: 'Nombre de la instancia (opcional):',
-      instanceNamePlaceholder: 'Por defecto "{name}" o título de respuesta de IA',
-      instanceNameHelp: 'Si se deja en blanco, se usará el nombre del producto (o título de IA).',
-      createProductInstance: 'Crear instancia de producto',
-      creating: 'Creando...',
-      loadingPageDetails: 'Cargando detalles de la página...'
+      title: "Crear nueva instancia de producto",
+      error: "Error",
+      selectProductType: "1. Seleccionar tipo de producto",
+      noProductTypes:
+        "No hay tipos de productos disponibles. Por favor, agregue algunas plantillas de diseño en el panel de administración.",
+      configureProject: "2. Configurar proyecto",
+      addToProject: "Agregar al proyecto:",
+      selectOrCreateProject: "-- Seleccionar o crear proyecto --",
+      loadingProjects: "Cargando proyectos...",
+      createNewProject: "--- Crear nuevo proyecto ---",
+      newProjectName: "Nombre del nuevo proyecto:",
+      enterNewProjectName: "Ingrese el nombre para el nuevo proyecto",
+      advancedOptions: "Opciones avanzadas",
+      instanceName: "Nombre de la instancia (opcional):",
+      instanceNamePlaceholder:
+        'Por defecto "{name}" o título de respuesta de IA',
+      instanceNameHelp:
+        "Si se deja en blanco, se usará el nombre del producto (o título de IA).",
+      createProductInstance: "Crear instancia de producto",
+      creating: "Creando...",
+      loadingPageDetails: "Cargando detalles de la página...",
     },
     // Paste Text Page
     pasteText: {
       title: "Pega tu texto",
-      subtitle: "Ingresa o pega tu contenido de texto a continuación y elige cómo te gustaría usarlo",
-      textPlaceholder: "Pega tu texto, notas, esquema o cualquier contenido con el que te gustaría trabajar...",
+      subtitle:
+        "Ingresa o pega tu contenido de texto a continuación y elige cómo te gustaría usarlo",
+      textPlaceholder:
+        "Pega tu texto, notas, esquema o cualquier contenido con el que te gustaría trabajar...",
       characters: "{count} caracteres",
-      textVeryLarge: "El texto es muy grande y será procesado como un archivo. Esto puede tomar un tiempo.",
-      textLarge: "El texto es grande y será comprimido para un procesamiento óptimo.",
+      textVeryLarge:
+        "El texto es muy grande y será procesado como un archivo. Esto puede tomar un tiempo.",
+      textLarge:
+        "El texto es grande y será comprimido para un procesamiento óptimo.",
       howToUseText: "¿Cómo te gustaría usar este texto?",
       useAsContext: "Usar como contexto",
-      useAsContextDescription: "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo. Mejor para notas, investigación o información de fondo.",
+      useAsContextDescription:
+        "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo. Mejor para notas, investigación o información de fondo.",
       useAsBase: "Usar como base",
-      useAsBaseDescription: "La IA mejorará y formateará tu estructura de texto existente, preservando tu contenido mientras lo convierte en un producto educativo apropiado. Mejor para borradores o esquemas existentes.",
-      continueToGenerate: "Continuar a generar"
+      useAsBaseDescription:
+        "La IA mejorará y formateará tu estructura de texto existente, preservando tu contenido mientras lo convierte en un producto educativo apropiado. Mejor para borradores o esquemas existentes.",
+      continueToGenerate: "Continuar a generar",
     },
     // From Files Page
     fromFiles: {
@@ -686,7 +1068,8 @@ export const es = {
       browseFiles: "Explorar archivos",
       backToCreate: "Volver a crear",
       browseYourFiles: "Explorar tus archivos",
-      browseDescription: "Selecciona carpetas que contengan los documentos que quieres usar para crear contenido educativo",
+      browseDescription:
+        "Selecciona carpetas que contengan los documentos que quieres usar para crear contenido educativo",
       searchFolders: "Buscar carpetas...",
       newFolder: "Nueva carpeta",
       filesTotal: "{count} archivo{plural} en total",
@@ -707,7 +1090,18 @@ export const es = {
       createFolder: "Crear carpeta",
       select: "Seleccionar",
       selected: "Seleccionado",
-      file: "archivo"
+      file: "archivo",
+      chooseMethod: "Elige tu método preferido para crear contenido desde tus archivos",
+      createFromKnowledgeBase: "Crear desde la Base de Conocimientos",
+      knowledgeBaseDescription: "Genera contenido buscando en toda tu Base de Conocimientos información relevante. Perfecto para la creación integral de contenido.",
+      createFromSpecificFiles: "Crear desde Archivos Específicos",
+      specificFilesDescription: "Selecciona archivos y carpetas específicos para usar como material fuente. Ideal para la creación dirigida de contenido.",
+      whyChooseMethods: "¿Por qué elegir estos métodos?",
+      knowledgeBaseSearch: "Búsqueda en Base de Conocimientos",
+      knowledgeBaseSearchDesc: "Aprovecha toda tu colección de documentos para encontrar la información más relevante para tus necesidades de creación de contenido.",
+      specificFileSelection: "Selección de Archivos Específicos",
+      specificFileSelectionDesc: "Elige exactamente qué archivos incluir, dándote control preciso sobre tu material fuente.",
+      backToCreateFromFiles: "Volver a Crear desde Archivos",
     },
     // Course Outline Page
     courseOutline: {
@@ -745,7 +1139,7 @@ export const es = {
       fluxKontextHQ: "Flux Kontext HQ",
       stableDiffusion: "Stable Diffusion 2.1",
       describeImprovements: "Describe lo que te gustaría mejorar...",
-      total: "total"
+      total: "total",
     },
     // Generate Page
     generate: {
@@ -760,19 +1154,17 @@ export const es = {
       foldersSelectedPlural: "{count} carpetas seleccionadas",
       filesSelected: "{count} archivo seleccionado",
       filesSelectedPlural: "{count} archivos seleccionados",
-      aiWillUseDocuments: "La IA usará tus documentos seleccionados como material fuente para crear contenido educativo.",
+      aiWillUseDocuments:
+        "La IA usará tus documentos seleccionados como material fuente para crear contenido educativo.",
       modeUsingAsContext: "Modo: Usar como contexto",
       modeUsingAsBaseStructure: "Modo: Usar como estructura base",
       // Additional keys for themes and content sections
       setupContentBuilder: "Configura tu Constructor de Contenido",
-      // Language options
-      english: "Inglés",
-      ukrainian: "Ucraniano",
-      spanish: "Español",
-      russian: "Ruso",
 
-      aiWillUseTextAsContext: "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
-      aiWillBuildUponText: "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
+      aiWillUseTextAsContext:
+        "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
+      aiWillBuildUponText:
+        "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
       courseOutline: "Plan del curso",
       videoLesson: "Lección de video",
       presentation: "Presentación",
@@ -780,8 +1172,10 @@ export const es = {
       onePager: "Una página",
       prompt: "Prompt",
       promptPlaceholder: "Describe lo que te gustaría crear...",
-      promptPlaceholderFromFiles: "Describe lo que quieres crear desde tus archivos...",
-      promptPlaceholderFromText: "Describe lo que quieres crear desde tu texto...",
+      promptPlaceholderFromFiles:
+        "Describe lo que quieres crear desde tus archivos...",
+      promptPlaceholderFromText:
+        "Describe lo que quieres crear desde tu texto...",
       examples: "Ejemplos",
       examplePrompts: "Ejemplos de prompts",
       shuffleExamples: "Mezclar",
@@ -823,11 +1217,14 @@ export const es = {
       // One-pager specific translations
       onePagerContent: "Contenido de Una Página",
       generatingOnePagerContent: "Generando contenido de una página...",
-      onePagerContentPlaceholder: "El contenido de una página aparecerá aquí...",
+      onePagerContentPlaceholder:
+        "El contenido de una página aparecerá aquí...",
       finalizingOnePager: "Finalizando una página...",
-      failedToGenerateOnePager: "Error al generar una página – por favor inténtalo de nuevo más tarde.",
+      failedToGenerateOnePager:
+        "Error al generar una página – por favor inténtalo de nuevo más tarde.",
       untitledOnePager: "Una Página Sin Título",
-      adjustTextAndImageStyles: "Ajusta los estilos de texto e imagen para tu una página",
+      adjustTextAndImageStyles:
+        "Ajusta los estilos de texto e imagen para tu una página",
       // Theme options
       wine: "Vino",
       default: "Predeterminado",
@@ -842,19 +1239,23 @@ export const es = {
       noPromptEntered: "Por favor ingresa un prompt para continuar",
       noOutlineSelected: "Por favor selecciona un plan para continuar",
       noLessonSelected: "Por favor selecciona una lección para continuar",
-      presentationQuestion: "¿Quieres crear una presentación desde un plan de curso existente?",
+      presentationQuestion:
+        "¿Quieres crear una presentación desde un plan de curso existente?",
       yesContentFromOutline: "Sí, contenido para la presentación desde el plan",
       noStandalone: "No, quiero una presentación independiente",
-      quizQuestion: "¿Quieres crear un cuestionario desde un plan de curso existente?",
+      quizQuestion:
+        "¿Quieres crear un cuestionario desde un plan de curso existente?",
       yesContentForQuiz: "Sí, contenido para el cuestionario desde el plan",
       noStandaloneQuiz: "No, quiero un cuestionario independiente",
-      onePagerQuestion: "¿Quieres crear una página desde un plan de curso existente?",
+      onePagerQuestion:
+        "¿Quieres crear una página desde un plan de curso existente?",
       yesContentForOnePager: "Sí, contenido para la página desde el plan",
       noStandaloneOnePager: "No, quiero una página independiente",
       backButton: "← Atrás",
       // Additional keys for preview pages
       loading: "Generando...",
-      lessonQuestion: "¿Quieres crear una lección desde un plan de curso existente?",
+      lessonQuestion:
+        "¿Quieres crear una lección desde un plan de curso existente?",
       yesContentForLesson: "Sí, contenido para la lección desde el plan",
       noStandaloneLesson: "No, quiero una lección independiente",
       generatingLessonContent: "Generando contenido de lección...",
@@ -865,7 +1266,8 @@ export const es = {
       themes: "Temas",
       themesDescription: "Usa uno de nuestros temas populares o explora otros",
       viewMore: "Ver más",
-      contentDescription: "Ajusta los estilos de texto e imagen para tu lección",
+      contentDescription:
+        "Ajusta los estilos de texto e imagen para tu lección",
       amountOfTextPerCard: "Cantidad de texto por tarjeta",
       generatingQuiz: "Generando cuestionario...",
       retryGeneration: "Reintentar generación",
@@ -875,49 +1277,59 @@ export const es = {
       words: "palabras",
       short: "Corto",
       medium: "Medio",
-      long: "Largo"
+      long: "Largo",
     },
-
 
     // Module and Lesson Settings Modals
     modals: {
-      // ... existing code ...
+
       moduleSettings: {
-        title: 'Configuración del módulo',
-        subtitle: 'Configurar calidad de producción para',
-        tier: 'Nivel',
-        contentExamples: 'Ejemplos de contenido',
-        hoursRange: 'Rango de horas',
-        example: 'Ejemplo',
-        moduleQualityTier: 'Nivel de calidad del módulo establecido en',
-        perCompletionHour: 'h por hora de finalización',
-        cancel: 'Cancelar',
-        saveChanges: 'Guardar cambios',
-        saving: 'Guardando...',
-        failedToSave: 'No se pudo guardar la configuración del nivel del módulo'
+        title: "Configuración del módulo",
+        subtitle: "Configurar calidad de producción para",
+        tier: "Nivel",
+        contentExamples: "Ejemplos de contenido",
+        hoursRange: "Rango de horas",
+        example: "Ejemplo",
+        moduleQualityTier: "Nivel de calidad del módulo establecido en",
+        perCompletionHour: "h por hora de finalización",
+        cancel: "Cancelar",
+        saveChanges: "Guardar cambios",
+        saving: "Guardando...",
+        failedToSave:
+          "No se pudo guardar la configuración del nivel del módulo",
       },
       lessonSettings: {
-        title: 'Configuración de la lección',
-        subtitle: 'Configurar calidad de producción para',
-        tier: 'Nivel',
-        contentExamples: 'Ejemplos de contenido',
-        hoursRange: 'Rango de horas',
-        example: 'Ejemplo',
-        lessonQualityTier: 'Nivel de calidad de la lección establecido en',
-        perCompletionHour: 'h por hora de finalización',
-        cancel: 'Cancelar',
-        saveChanges: 'Guardar cambios',
-        saving: 'Guardando...',
-        failedToSave: 'No se pudo guardar la configuración del nivel de la lección'
-      }
+        title: "Configuración de la lección",
+        subtitle: "Configurar calidad de producción para",
+        tier: "Nivel",
+        contentExamples: "Ejemplos de contenido",
+        hoursRange: "Rango de horas",
+        example: "Ejemplo",
+        lessonQualityTier: "Nivel de calidad de la lección establecido en",
+        perCompletionHour: "h por hora de finalización",
+        cancel: "Cancelar",
+        saveChanges: "Guardar cambios",
+        saving: "Guardando...",
+        failedToSave:
+          "No se pudo guardar la configuración del nivel de la lección",
+      },
+    },
+
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video',
     },
 
     // Theme picker translations
     themePicker: {
       title: "Temas de Presentación",
-      description: "Elige un tema para cambiar el estilo visual de tu presentación. Los cambios se aplicarán inmediatamente.",
+      description:
+        "Elige un tema para cambiar el estilo visual de tu presentación. Los cambios se aplicarán inmediatamente.",
       applying: "Aplicando...",
-      footerInfo: "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF."
-    }
-  }
-}; 
+      footerInfo:
+        "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
+    },
+  },
+};

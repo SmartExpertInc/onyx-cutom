@@ -30,7 +30,7 @@ export default function TextPresentationClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
-  
+
   // State for dropdowns
   const [outlines, setOutlines] = useState<{ id: number; name: string }[]>([]);
   const [modulesForOutline, setModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
@@ -63,12 +63,20 @@ export default function TextPresentationClient() {
   const isFromFiles = params?.get("fromFiles") === "true";
   const folderIds = params?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = params?.get("fileIds")?.split(",").filter(Boolean) || [];
-  
+
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
-  const [userText, setUserText] = useState('');
   
+  // Knowledge Base context for creation from Knowledge Base search
+  const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
+  const [userText, setUserText] = useState('');
+
+  // Connector context for creation from selected connectors
+  const isFromConnectors = params?.get("fromConnectors") === "true";
+  const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
@@ -88,7 +96,7 @@ export default function TextPresentationClient() {
       console.error('Error retrieving folder context:', error);
     }
   }, []);
-  
+
   // Retrieve user text from sessionStorage
   useEffect(() => {
     if (isFromText) {
@@ -127,6 +135,345 @@ export default function TextPresentationClient() {
   const [aiModel, setAiModel] = useState("flux-fast");
   // Footer/finalize
   const [isFinalizing, setIsFinalizing] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
+
+  // Display mode state
+  const [displayMode, setDisplayMode] = useState<'cards' | 'text'>('cards');
+
+  // State for editing lesson titles
+  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
+  const [editedTitles, setEditedTitles] = useState<{ [key: number]: string }>({});
+  const [editedTitleIds, setEditedTitleIds] = useState<Set<number>>(new Set());
+  const [originalTitles, setOriginalTitles] = useState<{ [key: number]: string }>({});
+  const nextEditingIdRef = useRef<number | null>(null);
+
+  // Smart change handling states (similar to QuizClient)
+  const [hasUserEdits, setHasUserEdits] = useState(false);
+  const [originalContent, setOriginalContent] = useState<string>("");
+  const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
+  const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
+
+  // Parse content into lessons/sections
+  const parseContentIntoLessons = (content: string) => {
+    if (!content.trim()) return [];
+
+    const lessons = [];
+
+    // Find all headers (H1-H6) with their positions
+    const headerMatches = [];
+    const headerRegex = /(?:^|\n)(#{1,6})\s+(.+?)(?=\n|$)/gm;
+    let match;
+    while ((match = headerRegex.exec(content)) !== null) {
+      headerMatches.push({
+        index: match.index,
+        level: match[1],
+        title: match[2].trim(),
+        fullMatch: match[0]
+      });
+    }
+
+    // Process each header to extract its content
+    for (let i = 0; i < headerMatches.length; i++) {
+      const currentHeader = headerMatches[i];
+      let title = currentHeader.title;
+
+      // Clean title - remove {isImportant} and other unwanted patterns
+      title = title
+        .replace(/\{[^}]*\}/g, '') // Remove {isImportant} and similar patterns
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove **bold** formatting
+        .replace(/[^\w\s]|[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis and other non-word chars
+        .trim();
+
+      // Skip emoji/icon headers
+      if (!title || title.match(/^[📚🛠️💡🚀📞]/) || title === 'Introduction to AI Tools for High School Teachers') {
+        continue;
+      }
+
+      // Find the end of this section (start of next header or end of content)
+      const nextHeaderIndex = i < headerMatches.length - 1 ? headerMatches[i + 1].index : content.length;
+      const sectionStart = currentHeader.index + currentHeader.fullMatch.length;
+      const sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
+
+      // Clean up the content - remove markdown formatting but keep structure
+      const cleanedContent = sectionContent
+        .replace(/^\s*---\s*$/gm, '') // Remove section breaks
+        .replace(/^\s*\n+/g, '') // Remove leading newlines
+        .replace(/\n+\s*$/g, '') // Remove trailing newlines
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove ** bold formatting
+        .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
+        .trim();
+
+      if (title && cleanedContent) {
+        lessons.push({
+          title: title,
+          content: cleanedContent
+        });
+      }
+    }
+
+    // If no structured content found, create manual sections based on your specific content
+    if (lessons.length === 0) {
+      const manualSections = [
+        {
+          title: "Benefits of AI Tools in Education",
+          content: "AI tools offer numerous advantages for high school teachers, including personalized learning, enhanced engagement, time efficiency, and data-driven insights."
+        },
+        {
+          title: "Popular AI Tools for High School Teachers",
+          content: "Kahoot!, Grammarly, Socrative, Google Classroom, and Edmodo are widely used AI tools that benefit high school education."
+        },
+        {
+          title: "Recommendations for Implementing AI Tools",
+          content: "Start small, provide training, monitor progress, and encourage feedback to effectively integrate AI tools into teaching practice."
+        },
+        {
+          title: "Training and Development",
+          content: "Professional development and ongoing training help teachers maximize the benefits of AI tools in their classrooms."
+        },
+        {
+          title: "Resources and Support",
+          content: "Access to resources, technical support, and community networks ensures successful AI tool implementation."
+        }
+      ];
+
+      return manualSections;
+    }
+
+    return lessons;
+  };
+
+  // Use useMemo to recalculate lessonList when content changes
+  const lessonList = React.useMemo(() => parseContentIntoLessons(content), [content]);
+
+  // Handle lesson title editing
+  const handleTitleEdit = (lessonIndex: number, newTitle: string) => {
+    setEditedTitles(prev => ({
+      ...prev,
+      [lessonIndex]: newTitle
+    }));
+
+    // Store original title if not already stored
+    if (!originalTitles[lessonIndex] && lessonIndex < lessonList.length) {
+      setOriginalTitles(prev => ({
+        ...prev,
+        [lessonIndex]: lessonList[lessonIndex].title
+      }));
+    }
+
+    // Add to edited titles list if title is different from original
+    const originalTitle = originalTitles[lessonIndex] || (lessonIndex < lessonList.length ? lessonList[lessonIndex].title : '');
+    if (newTitle !== originalTitle) {
+      setEditedTitleIds(prev => new Set([...prev, lessonIndex]));
+      setOriginallyEditedTitles(prev => new Set([...prev, lessonIndex]));
+      setEditedTitleNames(prev => new Set([...prev, newTitle]));
+      setHasUserEdits(true); // NEW: Mark that user has made edits
+    } else {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(lessonIndex);
+        return newSet;
+      });
+    }
+  };
+
+  const handleTitleSave = (lessonIndex: number, finalTitle?: string) => {
+    setEditingLessonId(null);
+
+    // If we're switching to another title, don't save
+    if (nextEditingIdRef.current !== null) {
+      nextEditingIdRef.current = null;
+      return;
+    }
+
+    // Keep the item in edited titles list to maintain permanent blur
+    // Only remove if the title is back to original
+    const newTitle = (finalTitle ?? editedTitles[lessonIndex]);
+    if (!newTitle) {
+      return;
+    }
+    const originalTitle = originalTitles[lessonIndex] || lessonList[lessonIndex].title;
+    if (newTitle === originalTitle) {
+      setEditedTitleIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(lessonIndex);
+        return newSet;
+      });
+    }
+    // Update the original content with new title
+    updateContentWithNewTitle(lessonIndex, newTitle);
+  };
+
+  const updateContentWithNewTitle = (lessonIndex: number, newTitle: string) => {
+    if (!newTitle) return;
+
+    const lessons = parseContentIntoLessons(content);
+    if (lessonIndex >= lessons.length) return;
+
+    const oldTitle = lessons[lessonIndex].title;
+
+    // Find and replace the old title with new title in content
+    // Look for markdown headers (## or ###) or plain text titles
+    const patterns = [
+      // Support H1-H6 headers
+      new RegExp(`^(#{1,6}\\s*)${escapeRegExp(oldTitle)}`, 'gm'),
+      new RegExp(`^${escapeRegExp(oldTitle)}$`, 'gm')
+    ];
+
+    let updatedContent = content;
+    for (const pattern of patterns) {
+      if (pattern.test(updatedContent)) {
+        updatedContent = updatedContent.replace(pattern, (match) => {
+          // Preserve markdown formatting if it exists
+          const headerMatch = match.match(/^(#{1,6}\s*)/);
+          return headerMatch ? headerMatch[1] + newTitle : newTitle;
+        });
+        break;
+      }
+    }
+
+    console.log("DEBUG: updateContentWithNewTitle - oldTitle:", oldTitle);
+    console.log("DEBUG: updateContentWithNewTitle - newTitle:", newTitle);
+    console.log("DEBUG: updateContentWithNewTitle - content changed:", updatedContent !== content);
+    console.log("DEBUG: updateContentWithNewTitle - content preview:", content.substring(0, 200));
+    console.log("DEBUG: updateContentWithNewTitle - updatedContent preview:", updatedContent.substring(0, 200));
+
+    setContent(updatedContent);
+
+    // Clear the edited title since it's now part of the main content
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[lessonIndex];
+      return newTitles;
+    });
+
+    // Remove from editedTitleIds since the title is now part of the main content
+    // But keep it in originallyEditedTitles to track that it was edited
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
+
+    // NEW: Update editedTitleNames to reflect the new title
+    setEditedTitleNames(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(oldTitle); // Remove old title
+      newSet.add(newTitle);    // Add new title
+      console.log("DEBUG: updateContentWithNewTitle - updated editedTitleNames:", Array.from(newSet));
+      return newSet;
+    });
+
+    // NEW: Mark that content has been updated
+    if (updatedContent !== content) {
+      setHasUserEdits(true);
+    }
+  };
+
+  // Helper function to escape special regex characters
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  // NEW: Create clean content - if title changed send only title without context, if not changed send with context
+  // Also handles the case where a large heading gets broken down into subheadings
+  const createCleanTitlesContent = (content: string) => {
+    const lessons = parseContentIntoLessons(content);
+    if (lessons.length === 0) return content;
+
+    console.log("DEBUG: createCleanTitlesContent called");
+    console.log("DEBUG: editedTitleNames:", Array.from(editedTitleNames));
+    console.log("DEBUG: lessons:", lessons.map(l => ({ title: l.title, contentLength: l.content.length })));
+
+    let cleanContent = "";
+
+    lessons.forEach((lesson, index) => {
+      // Check if this title was edited by the user (by name, not by index)
+      if (editedTitleNames.has(lesson.title)) {
+        console.log(`DEBUG: Title "${lesson.title}" was edited - sending only title`);
+        // For edited titles, send only the title without context
+        // This allows AI to focus on the title change and regenerate appropriate content
+        cleanContent += `## ${lesson.title}\n\n`;
+      } else {
+        console.log(`DEBUG: Title "${lesson.title}" was not edited - sending with content`);
+        // For unedited titles, send with full context
+        // This preserves the original content structure and context
+        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+      }
+    });
+
+    console.log("DEBUG: Final clean content length:", cleanContent.length);
+    return cleanContent.trim();
+  };
+
+  // NEW: Alternative approach - create clean content based on current UI state
+  const createCleanTitlesContentFromUI = () => {
+    console.log("DEBUG: createCleanTitlesContentFromUI called");
+    console.log("DEBUG: lessonList:", lessonList.map(l => ({ title: l.title, contentLength: l.content.length })));
+    console.log("DEBUG: editedTitles:", editedTitles);
+    console.log("DEBUG: editedTitleIds:", Array.from(editedTitleIds));
+
+    let cleanContent = "";
+
+    lessonList.forEach((lesson, index) => {
+      // Check if this lesson has an edited title
+      const hasEditedTitle = editedTitles[index] && editedTitles[index] !== lesson.title;
+      const isInEditedIds = editedTitleIds.has(index);
+
+      if (hasEditedTitle || isInEditedIds) {
+        const titleToUse = editedTitles[index] || lesson.title;
+        console.log(`DEBUG: Title "${titleToUse}" was edited - sending only title`);
+        cleanContent += `## ${titleToUse}\n\n`;
+      } else {
+        console.log(`DEBUG: Title "${lesson.title}" was not edited - sending with content`);
+        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+      }
+    });
+
+    console.log("DEBUG: Final clean content length:", cleanContent.length);
+    return cleanContent.trim();
+  };
+
+  // NEW: Create clean content for finalization - similar to QuizClient logic
+  const createCleanFinalizationContent = (content: string) => {
+    const lessons = parseContentIntoLessons(content);
+    if (lessons.length === 0) return content;
+
+    let cleanContent = "";
+
+    lessons.forEach((lesson, index) => {
+      // Check if this title was edited by the user (by name, not by index)
+      if (editedTitleNames.has(lesson.title)) {
+        // For edited titles, send only the title without context
+        // This allows AI to focus on the title change and regenerate appropriate content
+        cleanContent += `## ${lesson.title}\n\n`;
+      } else {
+        // For unedited titles, send with full context
+        // This preserves the original content structure and context
+        cleanContent += `## ${lesson.title}\n\n${lesson.content}\n\n`;
+      }
+    });
+
+    return cleanContent.trim();
+  };
+
+  const handleTitleCancel = (lessonIndex: number) => {
+    setEditedTitles(prev => {
+      const newTitles = { ...prev };
+      delete newTitles[lessonIndex];
+      return newTitles;
+    });
+    setEditingLessonId(null);
+    // Remove from edited titles list since changes are canceled
+    setEditedTitleIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(lessonIndex);
+      return newSet;
+    });
+  };
+
+  const getTitleForLesson = (lesson: any, index: number) => {
+    return editedTitles[index] || lesson.title;
+  };
 
   // Example prompts for advanced mode
   const onePagerExamples = [
@@ -186,9 +533,27 @@ export default function TextPresentationClient() {
     setLoadingEdit(true);
     setError(null);
     try {
+      // NEW: Determine what content to send based on user edits
+      let contentToSend = content;
+      let isCleanContent = false;
+
+      if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
+        // If titles were changed, send only titles without context
+        contentToSend = createCleanTitlesContentFromUI();
+        isCleanContent = true;
+      } else {
+        // If no titles changed, send full content with context
+        contentToSend = content;
+        isCleanContent = false;
+      }
+
       const payload: any = {
-        content,
+        content: contentToSend,
         editPrompt,
+        language, // Include the current language in the edit request
+        hasUserEdits: hasUserEdits,
+        originalContent: originalContent,
+        isCleanContent: isCleanContent,
       };
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/edit`, {
         method: "POST",
@@ -197,62 +562,65 @@ export default function TextPresentationClient() {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-        const reader = response.body?.getReader();
-        if (!reader) {
-          throw new Error("No response body");
-        }
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body");
+      }
 
-        const decoder = new TextDecoder();
-        let buffer = "";
+      const decoder = new TextDecoder();
+      let buffer = "";
       let accumulatedText = "";
 
-        while (true) {
-          const { done, value } = await reader.read();
-          
-          if (done) {
-            // Process any remaining buffer
-            if (buffer.trim()) {
-              try {
-                const pkt = JSON.parse(buffer.trim());
-                if (pkt.type === "delta") {
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          // Process any remaining buffer
+          if (buffer.trim()) {
+            try {
+              const pkt = JSON.parse(buffer.trim());
+              if (pkt.type === "delta") {
                 accumulatedText += pkt.text;
                 setContent(accumulatedText);
-                }
-              } catch (e) {
-                // If not JSON, treat as plain text
+              }
+            } catch (e) {
+              // If not JSON, treat as plain text
               accumulatedText += buffer;
               setContent(accumulatedText);
             }
           }
           break;
-          }
+        }
 
-          buffer += decoder.decode(value, { stream: true });
-          
-          // Split by newlines and process complete chunks
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ""; // Keep incomplete line in buffer
-          
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            
-            try {
-              const pkt = JSON.parse(line);
-              if (pkt.type === "delta") {
+        buffer += decoder.decode(value, { stream: true });
+
+        // Split by newlines and process complete chunks
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          try {
+            const pkt = JSON.parse(line);
+            if (pkt.type === "delta") {
               accumulatedText += pkt.text;
               setContent(accumulatedText);
-              } else if (pkt.type === "done") {
+            } else if (pkt.type === "done") {
               break;
-              } else if (pkt.type === "error") {
-                throw new Error(pkt.text || "Unknown error");
-              }
-            } catch (e) {
-              // If not JSON, treat as plain text
+            } else if (pkt.type === "error") {
+              throw new Error(pkt.text || "Unknown error");
+            }
+          } catch (e) {
+            // If not JSON, treat as plain text
             accumulatedText += line;
             setContent(accumulatedText);
           }
         }
       }
+
+      // NEW: Mark that content has been edited by AI
+      setHasUserEdits(true);
 
       setEditPrompt("");
       setSelectedExamples([]);
@@ -282,8 +650,9 @@ export default function TextPresentationClient() {
 
       const fetchPreview = async () => {
         setLoading(true);
-      setError(null);
+        setError(null);
         setContent(""); // Clear previous content
+        setTextareaVisible(true);
         let gotFirstChunk = false;
 
         try {
@@ -313,6 +682,18 @@ export default function TextPresentationClient() {
             requestBody.userText = userText;
           }
 
+          // Add Knowledge Base context if creating from Knowledge Base
+          if (isFromKnowledgeBase) {
+            requestBody.fromKnowledgeBase = true;
+          }
+
+          // Add connector context if creating from connectors
+          if (isFromConnectors) {
+            requestBody.fromConnectors = true;
+            requestBody.connectorIds = connectorIds.join(',');
+            requestBody.connectorSources = connectorSources.join(',');
+          }
+
           const res = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -324,15 +705,18 @@ export default function TextPresentationClient() {
             throw new Error(`Failed to generate presentation: ${res.status}`);
           }
 
+          const headerChat = res.headers.get("X-Chat-Session-Id");
+          if (headerChat) setChatId(headerChat);
+
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
-          
+
           let buffer = "";
           let accumulatedText = "";
 
           while (true) {
             const { done, value } = await reader.read();
-            
+
             if (done) {
               // Process any remaining buffer
               if (buffer.trim()) {
@@ -353,18 +737,18 @@ export default function TextPresentationClient() {
             }
 
             buffer += decoder.decode(value, { stream: true });
-            
+
             // Split by newlines and process complete chunks
             const lines = buffer.split('\n');
             buffer = lines.pop() || ""; // Keep incomplete line in buffer
-            
+
             for (const line of lines) {
               if (!line.trim()) continue;
-              
+
               try {
                 const pkt = JSON.parse(line);
                 gotFirstChunk = true;
-                
+
                 if (pkt.type === "delta") {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
@@ -376,7 +760,7 @@ export default function TextPresentationClient() {
                 }
               } catch (e) {
                 // If not JSON, treat as plain text
-                accumulatedText += line;
+                accumulatedText += line + '\n';
                 setContent(accumulatedText);
               }
             }
@@ -386,10 +770,15 @@ export default function TextPresentationClient() {
 
             if (hasMeaningfulText && !textareaVisible) {
               setTextareaVisible(true);
-              setLoading(false); // Hide spinner & show textarea
+
+            }
+
+            // Force state update to ensure UI reflects content changes
+            if (accumulatedText && accumulatedText !== content) {
+              setContent(accumulatedText);
             }
           }
-              } catch (e: any) {
+        } catch (e: any) {
           if (e.name === "AbortError") return;
 
           // Retry logic
@@ -401,14 +790,12 @@ export default function TextPresentationClient() {
               if (e.message.includes("The user aborted a request")) return;
             }
             setError(e.message);
-        }
-      } finally {
-          if (!abortController.signal.aborted) {
-            // If the stream ended but we never displayed content, remove spinner anyway
-            if (loading) setLoading(false);
-            if (!gotFirstChunk && attempt >= 3) {
-              setError("Failed to generate presentation – please try again later.");
-            }
+          }
+        } finally {
+          // Always set loading to false when stream completes or is aborted
+          setLoading(false);
+          if (!abortController.signal.aborted && !gotFirstChunk && attempt >= 3) {
+            setError("Failed to generate presentation – please try again later.");
           }
         }
       };
@@ -449,6 +836,93 @@ export default function TextPresentationClient() {
     };
   }, [showStylesDropdown]);
 
+  const makeThoughts = () => {
+    const list: string[] = [];
+    list.push(`Analyzing presentation request for "${prompt.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Detected language: ${language.toUpperCase()}`);
+    list.push(`Planning ${length} presentation with ${selectedStyles.length} style${selectedStyles.length > 1 ? "s" : ""}...`);
+    // shuffle little filler line
+    list.push("Consulting presentation knowledge base...");
+
+    // Add a diverse set of informative yet playful status lines for presentation generation
+    const extra = [
+      "Crafting engaging content...",
+      "Balancing information density...",
+      "Selecting visual elements...",
+      "Integrating presentation styles...",
+      "Cross-checking content flow...",
+      "Curating presentation variety...",
+      "Weaving narrative structure...",
+      "Injecting visual appeal...",
+      "Sequencing content logically...",
+      "Optimizing audience engagement...",
+      "Aligning with presentation goals...",
+      "Ensuring clear messaging...",
+      "Connecting ideas cohesively...",
+      "Drafting compelling sections...",
+      "Incorporating visual hierarchy...",
+      "Adding contextual elements...",
+      "Scanning content relevance...",
+      "Validating presentation clarity...",
+      "Polishing visual design...",
+      "Finalizing presentation structure...",
+    ];
+    list.push(...extra);
+    return list;
+  };
+
+  const [thoughts, setThoughts] = useState<string[]>(makeThoughts());
+  const [thoughtIdx, setThoughtIdx] = useState(0);
+  const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+  const delayForThought = (text: string): number => {
+    if (text.startsWith("Analyzing")) return rand(2500, 5000);
+    if (text.startsWith("Detected language")) return rand(1200, 2000);
+    if (text.startsWith("Planning")) return rand(4000, 7000);
+    if (text.startsWith("Consulting")) return rand(3500, 6000);
+    if (text.startsWith("Finalizing")) return rand(3000, 5000);
+    return rand(2000, 4000);
+  };
+
+  useEffect(() => {
+    if (loading) {
+      setThoughts(makeThoughts());
+      setThoughtIdx(0);
+
+      const scheduleNext = (index: number) => {
+        const txt = thoughts[index];
+        const delay = delayForThought(txt);
+        if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+        if (txt.startsWith("Finalizing presentation")) return; // keep until loading finishes
+        thoughtTimerRef.current = setTimeout(() => {
+          setThoughtIdx((prev) => {
+            const next = prev + 1;
+            if (next < thoughts.length) {
+              scheduleNext(next);
+              return next;
+            }
+            // reached end, stay on last (finalizing)
+            return prev;
+          });
+        }, delay);
+      };
+
+      scheduleNext(0);
+    } else {
+      if (thoughtTimerRef.current) {
+        clearTimeout(thoughtTimerRef.current);
+        thoughtTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, length, selectedStyles, prompt, language]);
+
+
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
@@ -463,6 +937,13 @@ export default function TextPresentationClient() {
     }
   }, [streamDone, firstLineRemoved, content]);
 
+  // NEW: Store original content after stream completion
+  useEffect(() => {
+    if (streamDone && firstLineRemoved && content && !originalContent) {
+      setOriginalContent(content);
+    }
+  }, [streamDone, firstLineRemoved, content, originalContent]);
+
   // Finalize/save one-pager
   const handleFinalize = async () => {
     if (!content.trim()) {
@@ -473,47 +954,99 @@ export default function TextPresentationClient() {
     setIsGenerating(true);
     setError(null);
 
+    // Create AbortController for this request
+    const abortController = new AbortController();
+
     // Add timeout safeguard to prevent infinite loading
     const timeoutId = setTimeout(() => {
+      abortController.abort();
       setIsGenerating(false);
       setError("Presentation finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
     try {
+      console.log("DEBUG: handleFinalize - hasUserEdits:", hasUserEdits);
+      console.log("DEBUG: handleFinalize - editedTitleNames:", Array.from(editedTitleNames));
+
+      // NEW: Determine what content to send based on user edits
+      let contentToSend = content;
+      let isCleanContent = false;
+
+      if (hasUserEdits && (editedTitleNames.size > 0 || editedTitleIds.size > 0)) {
+        console.log("DEBUG: handleFinalize - using clean content from UI");
+        // If titles were changed, send only titles without context
+        contentToSend = createCleanTitlesContentFromUI();
+        isCleanContent = true;
+      } else {
+        console.log("DEBUG: handleFinalize - using full content");
+        // If no titles changed, send full content with context
+        contentToSend = content;
+        isCleanContent = false;
+      }
+
+      console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
+      console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          aiResponse: content,
+          aiResponse: contentToSend,
+          hasUserEdits: hasUserEdits,
+          originalContent: originalContent,
+          isCleanContent: isCleanContent,
           outlineId: selectedOutlineId || undefined,
           lesson: selectedLesson,
           courseName: params?.get("courseName"),
           language: language,
           folderId: folderContext?.folderId || undefined,
+          chatSessionId: chatId || undefined,
+          // Add connector context if creating from connectors
+          ...(isFromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
+        signal: abortController.signal
       });
 
       // Clear timeout since request completed
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+
+      // Validate response
+      if (!data || !data.id) {
+        throw new Error("Invalid response from server: missing project ID");
+      }
+
       setFinalProjectId(data.id);
-      
-      // Small delay to ensure state is properly reset before navigation
-      setTimeout(() => {
+
+      // Navigate immediately without delay to prevent cancellation
       router.push(`/projects/view/${data.id}`);
-      }, 100);
-    } catch (error) {
+
+    } catch (error: any) {
       // Clear timeout on error
       clearTimeout(timeoutId);
-      console.error('Finalization failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to finalize presentation');
+
+      // Handle specific error types
+      if (error.name === 'AbortError') {
+        console.log('Request was aborted');
+        setError("Request was canceled. Please try again.");
+      } else if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
+        setError("Network error occurred. Please check your connection and try again.");
+      } else {
+        console.error('Finalization failed:', error);
+        setError(error instanceof Error ? error.message : 'Failed to finalize presentation');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -529,7 +1062,7 @@ export default function TextPresentationClient() {
         const data = await res.json();
         const onlyOutlines = data.filter((p: any) => (p?.design_microproduct_type || p?.product_type) === "Training Plan");
         setOutlines(onlyOutlines.map((p: any) => ({ id: p.id, name: p.projectName })));
-      } catch (_) {}
+      } catch (_) { }
     };
     fetchOutlines();
   }, [useExistingOutline]);
@@ -572,7 +1105,7 @@ export default function TextPresentationClient() {
           setSelectedModuleIndex(null);
           setLessonsForModule([]);
         }
-      } catch (_) {}
+      } catch (_) { }
     };
     fetchLessons();
   }, [selectedOutlineId, useExistingOutline]);
@@ -605,385 +1138,581 @@ export default function TextPresentationClient() {
     { value: "long", label: t('interface.generate.long', 'Long') },
   ];
 
+  // Theme configuration for outline colors (matching CourseOutlineClient)
+  const themeConfig = {
+    cherry: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    lunaria: {
+      headerBg: "bg-[#85749E]",
+      numberColor: "text-white",
+      accentBg: "bg-[#85749E]",
+      accentBgHover: "hover:bg-[#6b5d7a]",
+      accentText: "text-[#85749E]",
+    },
+    wine: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+    vanilla: {
+      headerBg: "bg-[#C4B5D6]",
+      numberColor: "text-white",
+      accentBg: "bg-[#8776A0]",
+      accentBgHover: "hover:bg-[#7a6b92]",
+      accentText: "text-[#8776A0]",
+    },
+    terracotta: {
+      headerBg: "bg-[#C4D6B5]",
+      numberColor: "text-white",
+      accentBg: "bg-[#2D7C21]",
+      accentBgHover: "hover:bg-[#26701e]",
+      accentText: "text-[#2D7C21]",
+    },
+    zephyr: {
+      headerBg: "bg-[#E5EEFF]",
+      numberColor: "text-gray-600",
+      accentBg: "bg-[#0540AB]",
+      accentBgHover: "hover:bg-[#043a99]",
+      accentText: "text-[#0540AB]",
+    },
+  };
+
+  const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
+
   return (
     <>
-    <main className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center" style={{ background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)" }}>
-      <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
-        <Link href="/create/generate" className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20">
-                      <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
-        </Link>
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
-        <div className="flex flex-col items-center gap-4 mb-4">
-          {/* Step 1: Choose source */}
-          {useExistingOutline === null && (
-            <div className="flex flex-col items-center gap-3">
-              <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
-              <div className="flex gap-3">
-                <button onClick={() => setUseExistingOutline(true)} className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium">{t('interface.generate.yesContentForPresentation', 'Yes, content for the presentation from the outline')}</button>
-                <button onClick={() => setUseExistingOutline(false)} className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium">{t('interface.generate.noStandalonePresentation', 'No, I want standalone presentation')}</button>
+      <main
+        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
+        style={{
+          background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+        }}
+      >
+        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+          <Link
+            href="/create/generate"
+            className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
+          >
+            <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
+          </Link>
+
+          <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
+
+          {/* Step-by-step process */}
+          <div className="flex flex-col items-center gap-4 mb-4">
+            {/* Step 1: Choose source */}
+            {useExistingOutline === null && (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setUseExistingOutline(true)}
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
+                  >
+                    {t('interface.generate.yesContentForPresentation', 'Yes, content for the presentation from the outline')}
+                  </button>
+                  <button
+                    onClick={() => setUseExistingOutline(false)}
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                  >
+                    {t('interface.generate.noStandalonePresentation', 'No, I want standalone presentation')}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-          {/* Step 2+: Show dropdowns based on choice */}
-          {useExistingOutline !== null && (
-            <div className="flex flex-wrap justify-center gap-2">
-              {/* Show outline flow if user chose existing outline */}
-              {useExistingOutline === true && (
-                <>
-                  {/* Outline dropdown */}
-                  <div className="relative">
-                    <select value={selectedOutlineId ?? ""} onChange={(e) => {
-                      const val = e.target.value;
-                      setSelectedOutlineId(val ? Number(val) : null);
-                      setSelectedModuleIndex(null);
-                      setLessonsForModule([]);
-                      setSelectedLesson("");
-                    }} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
-                      {outlines.map((o) => (
-                        <option key={o.id} value={o.id}>{o.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
-                  {/* Module dropdown – appears once outline is selected */}
-                  {selectedOutlineId && (
+            )}
+
+            {/* Step 2+: Show dropdowns based on choice */}
+            {useExistingOutline !== null && (
+              <div className="flex flex-wrap justify-center gap-2">
+                {/* Show outline flow if user chose existing outline */}
+                {useExistingOutline === true && (
+                  <>
+                    {/* Outline dropdown */}
                     <div className="relative">
-                      <select value={selectedModuleIndex ?? ""} onChange={(e) => {
-                        const idx = e.target.value ? Number(e.target.value) : null;
-                        setSelectedModuleIndex(idx);
-                        setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                        setSelectedLesson("");
-                      }} disabled={modulesForOutline.length === 0} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
-                        {modulesForOutline.map((m, idx) => (
-                          <option key={idx} value={idx}>{m.name}</option>
+                      <select
+                        value={selectedOutlineId ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSelectedOutlineId(val ? Number(val) : null);
+                          setSelectedModuleIndex(null);
+                          setLessonsForModule([]);
+                          setSelectedLesson("");
+                        }}
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
+                        {outlines.map((o) => (
+                          <option key={o.id} value={o.id}>{o.name}</option>
                         ))}
                       </select>
                       <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                     </div>
-                  )}
-                  {/* Lesson dropdown – appears when module chosen */}
-                  {selectedModuleIndex !== null && (
-                    <div className="relative">
-                      <select value={selectedLesson} onChange={(e) => setSelectedLesson(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
-                        {lessonsForModule.map((l) => (
-                          <option key={l} value={l}>{l}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                  )}
-                  {/* Show final dropdowns when lesson is selected */}
-                  {selectedLesson && (
-                    <>
+
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedOutlineId && (
                       <div className="relative">
-                        <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <option value="en">{t('interface.generate.english', 'English')}</option>
-                          <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-                          <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-                          <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
-                      <div className="relative">
-                        <select value={length} onChange={(e) => setLength(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          {lengthOptions.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
+                        <select
+                          value={selectedModuleIndex ?? ""}
+                          onChange={(e) => {
+                            const idx = e.target.value ? Number(e.target.value) : null;
+                            setSelectedModuleIndex(idx);
+                            setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                            setSelectedLesson("");
+                          }}
+                          disabled={modulesForOutline.length === 0}
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        >
+                          <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
+                          {modulesForOutline.map((m, idx) => (
+                            <option key={idx} value={idx}>{m.name}</option>
                           ))}
                         </select>
                         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
-                      <div className="relative styles-dropdown">
-                        <button
-                          type="button"
-                          onClick={() => setShowStylesDropdown(!showStylesDropdown)}
-                          className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                    )}
+
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedModuleIndex !== null && (
+                      <div className="relative">
+                        <select
+                          value={selectedLesson}
+                          onChange={(e) => setSelectedLesson(e.target.value)}
+                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                         >
-                          <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                          <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
-                        </button>
-                        {showStylesDropdown && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                            {styleOptions.map((option) => (
-                              <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedStyles.includes(option.value)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedStyles([...selectedStyles, option.value]);
-                                    } else {
-                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                    }
-                                  }}
-                                  className="mr-3"
-                                />
-                                <span className="text-sm">{option.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-              {/* Show standalone one-pager dropdowns if user chose standalone */}
-              {useExistingOutline === false && (
-                <>
-                  <div className="relative">
-                    <select value={language} onChange={(e) => setLanguage(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-              <option value="en">English</option>
-              <option value="uk">Ukrainian</option>
-              <option value="es">Spanish</option>
-              <option value="ru">Russian</option>
-            </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
-                  <div className="relative">
-                    <select value={length} onChange={(e) => setLength(e.target.value)} className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                      {lengthOptions.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
-                  <div className="relative styles-dropdown">
-                    <button
-                      type="button"
-                      onClick={() => setShowStylesDropdown(!showStylesDropdown)}
-                      className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
-                    >
-                      <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
-                      <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
-                    </button>
-                    {showStylesDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                        {styleOptions.map((option) => (
-                          <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={selectedStyles.includes(option.value)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedStyles([...selectedStyles, option.value]);
-                                } else {
-                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                }
-                              }}
-                              className="mr-3"
-                            />
-                            <span className="text-sm">{option.label}</span>
-                          </label>
-                        ))}
+                          <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
+                          {lessonsForModule.map((l) => (
+                            <option key={l} value={l}>{l}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                       </div>
                     )}
-                  </div>
-                </>
-              )}
-              {/* Reset button */}
-              <button onClick={() => {
-                setUseExistingOutline(null);
-                setSelectedOutlineId(null);
-                setSelectedModuleIndex(null);
-                setLessonsForModule([]);
-                setSelectedLesson("");
-              }} className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100">← Back</button>
-          </div>
-          )}
-        </div>
-        {/* Prompt input for standalone presentation */}
-        {useExistingOutline === false && (
-          <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")} rows={1} className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]" />
-        )}
-        {/* Content/preview section */}
-        <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
-          {loading && <LoadingAnimation message={t('interface.generate.generatingPresentationContent', 'Generating presentation content...')} />}
-          {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
-          {textareaVisible && (
-            <div style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-              {loadingEdit && (
-                <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
-                  <LoadingAnimation message="Applying edit..." />
-                </div>
-              )}
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={t('interface.generate.onePagerContentPlaceholder', 'One-pager content will appear here...')}
-                className="w-full border border-gray-200 rounded-md p-4 resize-y bg-white/90 min-h-[70vh]"
-                disabled={loadingEdit}
-              />
-          </div>
-        )}
-        </section>
-        {/* Advanced Mode */}
-        {streamDone && content && (
-          <>
-            {showAdvanced && (
-              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <textarea
-                  value={editPrompt}
-                  onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder="Describe what you'd like to improve..."
-                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
-                />
-                {/* Example prompts */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
-                  {onePagerExamples.map((ex) => (
-                  <button
-                      key={ex.short}
-                      type="button"
-                      onClick={() => toggleExample(ex)}
-                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'}`}
-                    >
-                      {ex.short}
-                      <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
-                  </button>
-                  ))}
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    disabled={loadingEdit || !editPrompt.trim()}
-                    onClick={handleApplyEdit}
-                    className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
-                  >
-                    {loadingEdit ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
-                  </button>
-                </div>
-                </div>
-              )}
-            <div className="w-full flex justify-center mt-2 mb-6">
-              <button
-                type="button"
-                onClick={() => setShowAdvanced((prev) => !prev)}
-                className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
-              >
-                Advanced Mode
-                <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
-              </button>
-            </div>
-          </>
-        )}
-        {streamDone && content && (
-          <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <h2 className="text-xl font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
-              </div>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
-              >
-                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg>
-                <span>{t('interface.generate.viewMore', 'View more')}</span>
-              </button>
-            </div>
-            
-            <div className="flex flex-col gap-5">
-              {/* Themes grid */}
-              <div className="grid grid-cols-3 gap-5 justify-items-center">
-                {themeOptions.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setSelectedTheme(t.id)}
-                    className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
-                  >
-                    <div className="w-[214px] h-[116px] flex items-center justify-center">
-                      {(() => {
-                        const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                        return <Svg />;
-                      })()}
-                    </div>
-                    <div className="flex items-center gap-1 px-2">
-                      <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
-                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
 
-              {/* Content section */}
-              <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
-                  <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
-                    {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
-                      <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
-                        {opt.icon} {opt.label}
+                    {/* Show final dropdowns when lesson is selected */}
+                    {selectedLesson && (
+                      <>
+                        <div className="relative">
+                          <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value)}
+                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                          >
+                            <option value="en">{t('interface.english', 'English')}</option>
+                            <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                            <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                            <option value="ru">{t('interface.russian', 'Russian')}</option>
+                          </select>
+                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                        </div>
+                        <div className="relative">
+                          <select
+                            value={length}
+                            onChange={(e) => setLength(e.target.value)}
+                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                          >
+                            {lengthOptions.map((option) => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                          </select>
+                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                        </div>
+                        <div className="relative styles-dropdown">
+                          <button
+                            type="button"
+                            onClick={() => setShowStylesDropdown(!showStylesDropdown)}
+                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                          >
+                            <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                            <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showStylesDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                              {styleOptions.map((option) => (
+                                <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedStyles.includes(option.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedStyles([...selectedStyles, option.value]);
+                                      } else {
+                                        setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                      }
+                                    }}
+                                    className="mr-3"
+                                  />
+                                  <span className="text-sm">{option.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Show standalone one-pager dropdowns if user chose standalone */}
+                {useExistingOutline === false && (
+                  <>
+                    <div className="relative">
+                      <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        <option value="en">{t('interface.english', 'English')}</option>
+                        <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
+                        <option value="es">{t('interface.spanish', 'Spanish')}</option>
+                        <option value="ru">{t('interface.russian', 'Russian')}</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                    <div className="relative">
+                      <select
+                        value={length}
+                        onChange={(e) => setLength(e.target.value)}
+                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      >
+                        {lengthOptions.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    </div>
+                    <div className="relative styles-dropdown">
+                      <button
+                        type="button"
+                        onClick={() => setShowStylesDropdown(!showStylesDropdown)}
+                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                      >
+                        <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                        <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showStylesDropdown && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                          {styleOptions.map((option) => (
+                            <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedStyles.includes(option.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedStyles([...selectedStyles, option.value]);
+                                  } else {
+                                    setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                  }
+                                }}
+                                className="mr-3"
+                              />
+                              <span className="text-sm">{option.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Reset button */}
+                <button
+                  onClick={() => {
+                    setUseExistingOutline(null);
+                    setSelectedOutlineId(null);
+                    setSelectedModuleIndex(null);
+                    setLessonsForModule([]);
+                    setSelectedLesson("");
+                  }}
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  {t('interface.generate.backButton', '← Back')}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Prompt input for standalone presentation */}
+          {useExistingOutline === false && (
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
+              rows={1}
+              className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
+            />
+          )}
+
+          <section className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
+              {hasUserEdits && (
+                <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                  User edits detected
+                </span>
+              )}
+            </div>
+            {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+            {error && <p className="text-red-600 bg-white/50 rounded-md p-4 text-center">{error}</p>}
+
+            {/* Main content display - Custom slide titles display matching course outline format */}
+            {textareaVisible && (
+              <div
+                className="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 relative"
+                style={{ animation: 'fadeInDown 0.25s ease-out both' }}
+              >
+                {loadingEdit && (
+                  <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                    <LoadingAnimation message={t('interface.generate.applyingEdit', 'Applying edit...')} />
+                  </div>
+                )}
+
+                {/* Display content in card format if lessons are available, otherwise show textarea */}
+                {lessonList.length > 0 && (
+                  <div className="flex flex-col gap-4">
+                    {lessonList.map((lesson, idx: number) => (
+                      <div key={idx} className="flex rounded-xl shadow-sm overflow-hidden">
+                        {/* Left colored bar with index - matching course outline styling */}
+                        <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
+                          <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{idx + 1}</span>
+                        </div>
+
+                        {/* Main card - matching course outline styling */}
+                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                          <div className="mb-2">
+                            {editingLessonId === idx ? (
+                              <input
+                                type="text"
+                                value={editedTitles[idx] || lesson.title}
+                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                                className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
+                                autoFocus
+                                onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                  if (e.key === 'Escape') handleTitleCancel(idx);
+                                }}
+                              />
+                            ) : (
+                              <h4
+                                className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3 cursor-pointer"
+                                onMouseDown={() => {
+                                  // Set the next editing ID before the blur event fires
+                                  nextEditingIdRef.current = idx;
+                                }}
+                                onClick={() => {
+                                  setEditingLessonId(idx);
+                                }}
+                              >
+                                {getTitleForLesson(lesson, idx)}
+                              </h4>
+                            )}
+                          </div>
+                          {lesson.content && (
+                            <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                              {lesson.content.substring(0, 100)}
+                              {lesson.content.length > 100 && '...'}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Inline Advanced section & button */}
+          {streamDone && content && (
+            <>
+              {showAdvanced && (
+                <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <textarea
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
+                    className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                  />
+
+                  {/* Example prompts */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                    {onePagerExamples.map((ex) => (
+                      <button
+                        key={ex.short}
+                        type="button"
+                        onClick={() => toggleExample(ex)}
+                        className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                          }`}
+                      >
+                        {ex.short}
+                        <Plus size={14} className="absolute right-2 top-2 text-gray-600 opacity-60" />
                       </button>
                     ))}
                   </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                  <div className="relative w-full">
-                    <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      disabled={loadingEdit || !editPrompt.trim()}
+                      onClick={handleApplyEdit}
+                      className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
+                    >
+                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
+                    </button>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
-                  <div className="relative w-full">
-                    <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                      <option value="flux-fast">{t('interface.generate.fluxKontextFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxKontextHQ', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+              )}
+              <div className="w-full flex justify-center mt-2 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                >
+                  {t('interface.generate.advancedMode', 'Advanced Mode')}
+                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                </button>
+              </div>
+            </>
+          )}
+
+          {streamDone && content && (
+            <section className="flex flex-col gap-3">
+              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
+              <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                    <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+                    <span>{t('interface.generate.viewMore', 'View more')}</span>
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-5">
+                  {/* Themes grid */}
+                  <div className="grid grid-cols-3 gap-5 justify-items-center">
+                    {themeOptions.map((theme) => {
+                      const isSelected = selectedTheme === theme.id;
+
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => setSelectedTheme(theme.id)}
+                          className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${isSelected
+                            ? 'bg-[#cee2fd]'
+                            : ''
+                            }`}
+                        >
+                          <div className="w-[214px] h-[116px] flex items-center justify-center">
+                            {(() => {
+                              const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                              return <Svg />;
+                            })()}
+                          </div>
+                          <div className="flex items-center gap-1 px-2">
+                            <span className={`w-4 ${currentTheme.accentText} ${isSelected ? '' : 'opacity-0'}`}>
+                              ✔
+                            </span>
+                            <span className="text-sm text-[#20355D] font-medium select-none">
+                              {theme.label}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Content section */}
+                  <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
+                    <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
+                    <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
+                      <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
+                        {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
+                          <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
+                            {opt.icon} {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                      <div className="relative w-full">
+                        <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                          <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
+                      <div className="relative w-full">
+                        <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                          <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
+                        </select>
+                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-          </div>
-          </section>
-        )}
-        {/* Footer */}
-        {streamDone && content && (
-          <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>5 {t('interface.generate.credits', 'credits')}</span>
+            </section>
+          )}
+
+          {streamDone && content && (
+            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
+                {/* Credits calculated based on slide count */}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <span>5 {t('interface.generate.credits', 'credits')}</span>
+              </div>
+              <div className="flex items-center gap-[7.5rem]">
+                <span className="text-lg text-gray-700 font-medium select-none">
+                  {/* This can be word count or removed */}
+                  {content.split(/\s+/).length} {t('interface.generate.words', 'words')}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleFinalize}
+                  className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
+                  disabled={loading || isGenerating || isCreatingFinal}
+                >
+                  <Sparkles size={18} />
+                  <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
+                </button>
+              </div>
+              <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
             </div>
-            <div className="flex items-center gap-[7.5rem]">
-              <span className="text-lg text-gray-700 font-medium select-none">
-                {content.split(/^---\s*$/m).filter(slide => slide.trim()).length} {t('interface.generate.slides', 'slides')}
-              </span>
-              <button
-                type="button"
-                onClick={handleFinalize}
-                className="px-24 py-3 rounded-full bg-[#0540AB] text-white text-lg font-semibold hover:bg-[#043a99] active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                disabled={loading || isGenerating || isCreatingFinal}
-              >
-                <Sparkles size={18} />
-                <span className="select-none font-semibold">{t('interface.generate.generate', 'Generate')}</span>
-              </button>
-            </div>
-            <button type="button" disabled className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold" aria-label="Help (coming soon)">?</button>
-          </div>
-        )}
-      </div>
-    </main>
-    <style jsx global>{`
+          )}
+        </div>
+      </main>
+      <style jsx global>{`
       @keyframes fadeInDown {
         from { opacity: 0; transform: translateY(-8px); }
         to { opacity: 1; transform: translateY(0); }
       }
       button, select, input[type="checkbox"], label[role="button"], label[for] { cursor: pointer; }
     `}</style>
-    {isGenerating && (
-      <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
-        <LoadingAnimation message={t('interface.generate.finalizingPresentation', 'Finalizing presentation...')} />
-      </div>
-    )}
+      {isGenerating && (
+        <div className="fixed inset-0 bg-white/70 flex flex-col items-center justify-center z-50">
+          <LoadingAnimation message={t('interface.generate.finalizingPresentation', 'Finalizing presentation...')} />
+        </div>
+      )}
     </>
   );
 } 

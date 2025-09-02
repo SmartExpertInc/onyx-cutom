@@ -16,10 +16,13 @@ python-dotenv
 python-multipart
 tiktoken
 openai
+Pillow # For pie chart image generation
+sqlalchemy
+cryptography
+psutil
 aiohttp
 ffmpeg-python
 playwright
-Pillow
 asyncio-mqtt
 pathlib2
 structlog

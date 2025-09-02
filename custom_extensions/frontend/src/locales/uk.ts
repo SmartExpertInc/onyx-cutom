@@ -4,7 +4,8 @@ export const uk = {
     lesson: "УРОК",
     save: "Зберегти",
     saving: "Збереження...",
-    confirmCancelEdit: "Ви впевнені, що хочете скасувати? Всі незбережені зміни будуть втрачені.",
+    confirmCancelEdit:
+      "Ви впевнені, що хочете скасувати? Всі незбережені зміни будуть втрачені.",
     errorDetails: "Деталі:",
     sourceChatTooltip: "Перейти до чату, де був створений цей контент",
     sourceChat: "Вихідний чат",
@@ -12,13 +13,13 @@ export const uk = {
     edit: "Редагувати",
     downloadPdf: "Завантажити PDF",
     saveErrorTitle: "Помилка збереження:",
-    rendering: "Рендеринг контенту..."
+    rendering: "Рендеринг контенту...",
   },
   qualityTiers: {
     basic: "Базовий",
     interactive: "Інтерактивний",
     advanced: "Просунутий",
-    immersive: "Імерсивний"
+    immersive: "Імерсивний",
   },
   // Action buttons and UI elements
   actions: {
@@ -61,7 +62,8 @@ export const uk = {
     // Create from files page
     uploadDocuments: "Завантажити Документи",
     dragAndDropFiles: "Перетягніть файли сюди або натисніть для вибору файлів",
-    filesWillBeProcessed: "Файли будуть автоматично оброблені та проіндексовані для створення контенту",
+    filesWillBeProcessed:
+      "Файли будуть автоматично оброблені та проіндексовані для створення контенту",
     selectFiles: "Вибрати Файли",
     processingFiles: "Обробка Файлів",
     uploadingAndIndexing: "Завантаження та індексація: {fileName}",
@@ -72,7 +74,8 @@ export const uk = {
     fetchingDocuments: "Отримання ваших документів",
     folderNotFound: "Папку не знайдено",
     filesInThisFolder: "Файли в цій папці",
-    totalFilesReady: "{total} файлів всього, {ready} готово для створення контенту",
+    totalFilesReady:
+      "{total} файлів всього, {ready} готово для створення контенту",
     stillProcessing: "({processing} ще обробляється)",
     selectAll: "Вибрати Всі",
     noFilesInFolder: "У цій папці поки немає файлів",
@@ -82,23 +85,33 @@ export const uk = {
     createContent: "Створити Контент",
     backToFolders: "Повернутися до Папок",
     selectFilesToCreate: "Виберіть файли для створення освітнього контенту з ваших документів",
+    // Website/URL related
+    addWebsite: "Додати веб-сайт",
+    addWebsiteHelp: "Вставте URL, щоб включити вміст сторінки в цю папку",
+    enterUrl: "Введіть URL (наприклад, https://example.com/article)",
+    addUrl: "Додати URL",
+    adding: "Додавання...",
+    invalidUrl: "Будь ласка, введіть дійсний URL (наприклад, https://example.com)",
+    failedToCreateFromUrl: "Не вдалося створити з URL",
     // 3-dots menu
     addToFavorites: "Додати до вибраного",
     copyLink: "Копіювати посилання",
     removeFromFolder: "Видалити з Папки",
     sendToTrash: "Відправити в кошик",
     areYouSure: "Ви впевнені?",
-    actionPermanent: "Ця дія незворотна і не може бути скасована. Проект буде видалений назавжди.",
+    actionPermanent:
+      "Ця дія незворотна і не може бути скасована. Проект буде видалений назавжди.",
     deletePermanentlyButton: "Видалити Назавжди",
     wantToEditInTrash: "Хочете відредагувати це? Це в кошику.",
     restoreIt: "Відновити",
     created: "Створено",
-    courseOutlineTrashMessage: "Це План Курсу. Ви хочете перемістити тільки план або план і всі його уроки?",
+    courseOutlineTrashMessage:
+      "Це План Курсу. Ви хочете перемістити тільки план або план і всі його уроки?",
     tokens: "токенів",
     ready: "Готово",
     failed: "Помилка",
     processing: "Обробка",
-    pleaseWait: "Будь ласка, зачекайте..."
+    pleaseWait: "Будь ласка, зачекайте...",
   },
   videoLesson: {
     slide: "Слайд",
@@ -143,30 +156,43 @@ export const uk = {
       videoLessonScript: "Сценарій відео-уроку",
       videoLesson: "Відео-урок",
       comingSoon: "Незабаром!",
-      errorNoSessionId: "Помилка: ID сесії чату недоступний. Неможливо створити урок."
+      errorNoSessionId:
+        "Помилка: ID сесії чату недоступний. Неможливо створити урок.",
     },
     createTest: {
       title: "Створити тест",
       quiz: "Тест",
       quizTooltip: "Створити тест для цього уроку",
-      errorNoSessionId: "Помилка: ID сесії чату недоступний. Неможливо створити тест."
+      errorNoSessionId:
+        "Помилка: ID сесії чату недоступний. Неможливо створити тест.",
     },
     createContent: {
       title: "Створити контент",
       lessonTypes: "Типи уроків",
       assessmentTypes: "Типи оцінювання",
       createNewLesson: "Створити новий урок",
-      chooseContentType: "Виберіть тип контенту, який ви хочете створити для цього уроку",
+      chooseContentType:
+        "Виберіть тип контенту, який ви хочете створити для цього уроку",
       presentation: "Презентація",
-      presentationDescription: "Створити презентацію на основі слайдів з інтерактивним контентом",
+      presentationDescription:
+        "Створити презентацію на основі слайдів з інтерактивним контентом",
       onePager: "Односторінка",
       onePagerDescription: "Створити комплексний текстовий документ-резюме",
       quiz: "Тест",
       quizDescription: "Створити інтерактивний тест для перевірки знань",
       videoLesson: "Відео-урок",
-      videoLessonDescription: "Створити відео-урок з озвучкою та візуальними елементами",
+      videoLessonDescription:
+        "Створити відео-урок з озвучкою та візуальними елементами",
       soon: "Незабаром",
-      alreadyCreated: "Вже створено"
+      alreadyCreated: "Вже створено",
+      recommended: "Рекомендовані",
+      recommendedDescription: "Типи контенту, запропоновані ШІ, ідеально підходять для цього уроку",
+      orExploreMore: "або дослідити більше варіантів",
+      customizeRecommendations: "Налаштувати рекомендації",
+      selectRecommendedProducts: "Виберіть, які продукти повинні відображатися як рекомендовані для цього уроку.",
+      allOptions: "Всі типи контенту",
+      seeAllContentTypes: "Переглянути всі типи контенту",
+      backToRecommended: "Повернутися до рекомендованих"
     },
     openContent: {
       title: "Відкрити контент",
@@ -181,7 +207,7 @@ export const uk = {
       videoLesson: "Відео-урок",
       videoLessonSoon: "Відео-уроки з'являться незабаром",
       noContentAvailable: "Немає доступного контенту для відкриття.",
-      soon: "Незабаром"
+      soon: "Незабаром",
     },
     openOrCreate: {
       title: "Урок",
@@ -201,19 +227,23 @@ export const uk = {
       createPresentationAndQuiz: "Створити презентацію або тест",
       createPresentationAndOnePager: "Створити презентацію або односторінку",
       createQuizAndOnePager: "Створити тест або односторінку",
-      createAll: "Створити презентацію, тест або односторінку"
+      createAll: "Створити презентацію, тест або односторінку",
     },
     folderSettings: {
       title: "Налаштування папки",
       subtitle: "Налаштування якості виробництва для",
       basic: "Базовий",
-      basicDescription: "Простий контент електронного навчання з основними функціями для простих потреб у навчанні",
+      basicDescription:
+        "Простий контент електронного навчання з основними функціями для простих потреб у навчанні",
       interactive: "Інтерактивний",
-      interactiveDescription: "Захоплюючий контент з інтерактивними елементами для кращого залучення та запам'ятовування",
+      interactiveDescription:
+        "Захоплюючий контент з інтерактивними елементами для кращого залучення та запам'ятовування",
       advanced: "Поглиблений",
-      advancedDescription: "Складні навчальні процеси з персоналізованим контентом та поглибленою інтерактивністю",
+      advancedDescription:
+        "Складні навчальні процеси з персоналізованим контентом та поглибленою інтерактивністю",
       immersive: "Іммерсивний",
-      immersiveDescription: "Преміальні навчальні процеси з передовими технологіями для максимального залучення",
+      immersiveDescription:
+        "Преміальні навчальні процеси з передовими технологіями для максимального залучення",
       features: "Функції",
       hoursRange: "Діапазон годин",
       customRate: "Користувацька ставка",
@@ -244,12 +274,12 @@ export const uk = {
       hours: "год",
       saveChanges: "Зберегти зміни",
       saving: "Збереження...",
-      failedToSave: "Не вдалося зберегти налаштування папки"
+      failedToSave: "Не вдалося зберегти налаштування папки",
     },
     projectSettings: {
       title: "Налаштування курсу",
       subtitle: "Налаштування якості виробництва для",
-      failedToSave: "Не вдалося зберегти налаштування рівня проекту"
+      failedToSave: "Не вдалося зберегти налаштування рівня проекту",
     },
     clientName: {
       title: "Експорт у PDF",
@@ -262,41 +292,225 @@ export const uk = {
       selected: "вибрано",
       skip: "Пропустити",
       generate: "Створити PDF",
-      generating: "Створення..."
+      generating: "Створення...",
     },
     folderExport: {
       title: "Створення PDF",
       subtitle: "Створення PDF експорту для папки",
       description: "Це може зайняти кілька хвилин залежно від кількості файлів..."
+    },
+    lessonSettings: {
+      title: 'Налаштування уроку',
+      subtitle: 'Налаштуйте якість виробництва для',
+      tier: 'Рівень',
+      contentExamples: 'Приклади контенту',
+      hoursRange: 'Діапазон годин',
+      example: 'Приклад',
+      lessonQualityTier: 'Рівень якості уроку встановлено на',
+      perCompletionHour: 'год за годину завершення',
+      cancel: 'Скасувати',
+      saveChanges: 'Зберегти зміни',
+      saving: 'Збереження...',
+      failedToSave: 'Не вдалося зберегти налаштування рівня уроку',
+      lessonTitle: 'Назва уроку',
+      advanced: 'Розширений'
+    },
+    rates: {
+      presentation: 'Ставка презентації',
+      onePager: 'Ставка односторінки',
+      quiz: 'Ставка тесту',
+      videoLesson: 'Ставка відео-уроку'
     }
   },
   projects: {
     loading: "Завантаження продуктів...",
     error: "Помилка: {error}",
     noProductsSelected: "Немає вибраних продуктів для видалення.",
-    confirmDelete: "Ви впевнені, що хочете видалити {count} вибраних продуктів?",
+    confirmDelete:
+      "Ви впевнені, що хочете видалити {count} вибраних продуктів?",
     deleteError: "Помилка видалення продуктів: {error}",
-    updateError: "Помилка оновлення імені: {error}"
+    updateError: "Помилка оновлення імені: {error}",
   },
   // New translations for the projects page interface
   interface: {
     // Header
     products: "Продукти",
+    smartDrive: "Розумний диск",
+    offers: "Пропозиції",
     trash: "Кошик",
     getUnlimitedAI: "Отримати необмежений ШІ",
     credits: "кредитів",
     loading: "Завантаження...",
-    
+
     // Sidebar
     jumpTo: "Перейти до",
     keyboardShortcut: "⌘+K",
     sharedWithYou: "Поділилися з вами",
     folders: "Папки",
+    clients: "Клієнти",
+    noClientsYet: "Поки немає клієнтів",
+    showMoreClients: "Введіть для пошуку інших клієнтів...",
     createOrJoinFolder: "Створити або приєднатися до папки",
-    organizeProducts: "Організуйте свої продукти за темами та діліться ними з командою",
+    organizeProducts:
+      "Організуйте свої продукти за темами та діліться ними з командою",
     templates: "Шаблони",
     themes: "Теми",
-    
+
+    // Smart Drive content
+    smartDriveBrowser: "Браузер Розумного диска",
+    browseAndManageFiles: "Переглядайте та керуйте хмарними файлами",
+    browseAndSelectFiles: "Переглядайте та вибирайте файли з хмарного сховища",
+    connectors: "З'єднувачі",
+    popularConnectors: "Популярні з'єднувачі",
+    allConnectors: "Всі з'єднувачі",
+    showAll: "Показати все",
+    hideAll: "Приховати все",
+    connect: "Підключити",
+    manage: "Керувати",
+    active: "Активний",
+    hideBrowser: "Приховати браузер",
+    showBrowser: "Показати браузер",
+    selectConnectors: "Вибрати з'єднувачі",
+    chooseDataSources: "Виберіть джерела даних для включення у ваш контент",
+    searchConnectors: "Пошук з'єднувачів...",
+    noConnectorsFound: "З'єднувачі не знайдено за вашим запитом.",
+    noConnectorsAvailable: "З'єднувачі недоступні.",
+    tryAdjustingSearch: "Спробуйте змінити пошукові запити.",
+    connectFirstDataSource: "Підключіть ваше перше джерело даних для початку роботи.",
+    loadingConnectors: "Завантаження з'єднувачів...",
+    contentCreationNotImplemented: "Функція створення контенту буде реалізована в бекенді",
+    contentCreation: "Створення контенту",
+    transformFilesToContent: "Перетворіть ваші файли в контент з ШІ",
+    selectedConnectors: "Вибрані з'єднувачі",
+    selectedFiles: "Вибрані файли",
+    filesFromSmartDrive: "Файли з Розумного диска",
+    connector: "з'єднувач",
+    connectorPlural: "з'єднувачі",
+    file: "файл",
+    filePlural: "файли",
+    docs: "док",
+    createContentFromSelected: "Створити контент з {count} вибраного джерела",
+    connectorStatusLabels: {
+      active: "активний",
+      syncing: "синхронізація",
+      error: "помилка",
+      paused: "призупинений"
+    },
+
+    // Offers page
+    searchOffers: "Пошук пропозицій...",
+    allStatuses: "Усі статуси",
+    draft: "Чернетка",
+    internalReview: "Внутрішня перевірка",
+    approved: "Схвалено",
+    sentToClient: "Відправлено клієнту",
+    viewedByClient: "Переглянуто клієнтом",
+    negotiation: "Переговори",
+    accepted: "Прийнято",
+    rejected: "Відхилено",
+    archived: "Архівовано",
+    createOffer: "Створити пропозицію",
+    offerName: "Назва пропозиції",
+    createdOn: "Створено",
+    manager: "Менеджер",
+    status: "Статус",
+    totalHours: "Загальний час",
+    link: "Посилання",
+    noOffers: "Пропозиції не знайдено",
+    createYourFirstOffer: "Створіть вашу першу пропозицію для початку",
+    retry: "Повторити",
+    shareError: "Не вдалося створити посилання для обміну",
+    copyError: "Не вдалося скопіювати посилання",
+    shareOffer: "Поділитися пропозицією",
+    shareOfferDescription: "Поділіться цією пропозицією з ким завгодно, навіть без облікового запису",
+    shareOfferSubtext: "Отримувачі можуть переглядати повні деталі пропозиції без створення облікового запису",
+    generatingLink: "Створення посилання...",
+    shareableLink: "Посилання для обміну",
+    copied: "Скопійовано!",
+    copyLink: "Скопіювати посилання",
+    linkCopied: "Посилання скопійовано в буфер обміну!",
+    editOffer: "Редагувати пропозицію",
+    company: "Компанія",
+    updating: "Оновлення...",
+    deleteOfferConfirmation: "Ви впевнені, що хочете видалити цю пропозицію? Цю дію неможливо скасувати.",
+    locale: "uk-UA",
+
+    // Connector Management
+    connectorStatus: "Статус",
+    documentsIndexed: "Проіндексовані документи",
+    lastIndexed: "Останнє індексування",
+    never: "Ніколи",
+    connectorInvalidState: "Конектор у несправному стані",
+    checkConfigurationAndRetry: "Будь ласка, перевірте конфігурацію та спробуйте знову.",
+    index: "Індексувати",
+    fullReindex: "Повне переіндексування",
+    pause: "Призупинити",
+    resume: "Відновити",
+    connectorMustBePaused: "Конектор повинен бути призупинений перед видаленням",
+    configuration: "Конфігурація",
+    connectorName: "Ім'я конектора",
+    source: "Джерело",
+    credential: "Облікові дані",
+    accessType: "Тип доступу",
+    refreshFrequency: "Частота оновлення",
+    pruneFrequency: "Частота очищення",
+
+    // Create Offer Modal
+    loadingClients: "Завантаження клієнтів...",
+    selectClient: "Виберіть клієнта...",
+
+    // Workspace Members
+    workspace: "Робочий простір",
+    workspaceMembers: "Учасники робочого простору",
+    workspaceMembersDescription: "Керуйте учасниками команди та їх доступом до робочого простору",
+    addMember: "Додати учасника",
+    inviteMember: "Запросити учасника",
+    memberName: "Ім'я",
+    memberEmail: "Email",
+    memberRole: "Роль",
+    memberStatus: "Статус",
+    memberInvitationDate: "Дата запрошення",
+    memberActions: "Дії",
+    roles: {
+      admin: "Адміністратор",
+      member: "Учасник",
+      viewer: "Спостерігач"
+    },
+    statuses: {
+      active: "Активний",
+      suspended: "Призупинений",
+      blocked: "Заблокований",
+      pending: "Очікує"
+    },
+    workspaceActions: {
+      delete: "Видалити",
+      suspend: "Призупинити",
+      activate: "Активувати",
+      unblock: "Розблокувати",
+      resendInvitation: "Надіслати запрошення повторно"
+    },
+    filters: {
+      allStatuses: "Всі статуси",
+      active: "Активний",
+      suspended: "Призупинений",
+      blocked: "Заблокований"
+    },
+    addMemberModal: {
+      title: "Додати учасника",
+      description: "Запросити нового учасника до робочого простору",
+      emailLabel: "Email",
+      emailPlaceholder: "Введіть email адресу",
+      roleLabel: "Роль",
+      rolePlaceholder: "Виберіть роль",
+      sendInvitation: "Надіслати запрошення",
+      cancel: "Скасувати"
+    },
+    noMembers: "Учасники робочого простору не знайдені",
+    searchPlaceholder: "Пошук учасників...",
+    enterOfferName: "Введіть назву пропозиції...",
+    enterManager: "Введіть ім'я менеджера...",
+    creating: "Створення...",
+
     // Main content
     all: "Всі",
     trainingPlans: "Плани навчання",
@@ -309,16 +523,17 @@ export const uk = {
     grid: "Сітка",
     list: "Список",
     noProjectsFound: "Продукти не знайдено.",
-    
+
     // Table headers
     title: "Назва",
+    type: "Тип",
     created: "Створено",
     creator: "Створив",
     numberOfLessons: "Кількість уроків",
     estCreationTime: "Оц. час створення",
     estCompletionTime: "Оц. час завершення",
     actions: "Дії",
-    
+
     // Project actions
     rename: "Перейменувати",
     duplicate: "Дублювати",
@@ -330,63 +545,112 @@ export const uk = {
     deletePermanently: "Видалити назавжди",
     moveToFolder: "Перемістити в папку",
     settings: "Налаштування",
-    
+
     // Folder actions
     folderSettings: "Налаштування папки",
     renameFolder: "Перейменувати папку",
     deleteFolder: "Видалити папку",
     moveFolder: "Перемістити папку",
-    
+
     // Modals
     createFolder: "Створити або приєднатися до папки",
-    createFolderDescription: "Ви можете приєднатися до папки, щоб відстежувати, над чим працюють люди.",
+    createFolderDescription:
+      "Ви можете приєднатися до папки, щоб відстежувати, над чим працюють люди.",
     findOrCreateFolder: "Знайти або створити нову папку",
     createFolderButton: "Створити папку",
     createAtTopLevel: "Створити на верхньому рівні (без батьківської папки)",
     allFolders: "Всі папки",
     noFoldersFound: "Папки не знайдено.",
     done: "Готово",
-    
+
     // Image Upload Modal
     imageUpload: {
       title: "Завантажити зображення",
       uploadingText: "Завантаження...",
       dragAndDropText: "Перетягніть зображення сюди або натисніть для вибору",
       chooseFileButton: "Обрати файл",
-      supportedFormatsText: "Підтримувані формати: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)"
+      supportedFormatsText:
+        "Підтримувані формати: PNG, JPG, JPEG, GIF, WebP (макс. 10МБ)",
     },
-    
+
     // Block Settings Modal
     blockSettings: {
       customizeContent: "Налаштуйте ваш контент",
       headlineSettings: "Налаштування заголовка",
-      paragraphSettings: "Налаштування абзацу", 
+      paragraphSettings: "Налаштування абзацу",
       bulletListSettings: "Налаштування маркованого списку",
       numberedListSettings: "Налаштування нумерованого списку",
       alertSettings: "Налаштування попередження",
-      imageSettings: "Налаштування зображення"
+      imageSettings: "Налаштування зображення",
+      // Block settings fields
+      importantSection: "Важливий розділ",
+      importantSectionDescription: "Позначити цей розділ як важливий для виділення",
+      icon: "Іконка",
+      noIcon: "Без іконки",
+      infoIcon: "Інформація",
+      goalIcon: "Ціль",
+      starIcon: "Зірка",
+      appleIcon: "Яблуко",
+      awardIcon: "Нагорода",
+      boxesIcon: "Коробки",
+      calendarIcon: "Календар",
+      chartIcon: "Графік",
+      clockIcon: "Годинник",
+      globeIcon: "Глобус",
+      headingLevel: "Рівень заголовка",
+      large: "Великий",
+      medium: "Середній",
+      small: "Малий",
+      extraSmall: "Дуже малий",
+      extraLarge: "Дуже великий",
+      fontSize: "Розмір шрифту",
+      textSize: "Розмір тексту",
+      recommendation: "Рекомендація",
+      recommendationDescription: "Позначити цей абзац як рекомендацію",
+      blockSettings: "Налаштування блоку",
+      // Alert settings
+      alertType: "Тип попередження",
+      success: "Успіх",
+      warning: "Попередження",
+      danger: "Небезпека",
+      customIcon: "Власна іконка",
+      useDefaultForAlertType: "Використовувати за замовчуванням для типу попередження",
+      check: "Перевірка",
+      error: "Помилка",
+      backgroundColor: "Колір фону",
+      borderColor: "Колір межі",
+      textColor: "Колір тексту",
+      iconColor: "Колір іконки"
     },
-    
+
     // Modal common
     modal: {
-      customizeContent: "Налаштуйте ваш контент"
+      customizeContent: "Налаштуйте ваш контент",
+      cancel: "Скасувати",
+      applyChanges: "Застосувати зміни",
     },
 
     // Image Settings
     imageSettings: {
+      imageSettings: "Налаштування зображення",
+      format: "Формат",
+      size: "Розмір",
+      layout: "Макет",
+      effects: "Ефекти",
       imagePreview: "Попередній перегляд зображення",
       preview: "Попередній перегляд",
       noImageLoaded: "Зображення не завантажено",
       altText: "Альтернативний текст",
       forAccessibility: "для доступності",
       altTextPlaceholder: "Опишіть, що показує це зображення...",
-      altTextHelp: "Це допомагає програмам читання з екрана описувати зображення користувачам",
+      altTextHelp:
+        "Це допомагає програмам читання з екрана описувати зображення користувачам",
       caption: "Підпис",
       captionPlaceholder: "Додайте підпис до зображення...",
       captionHelp: "Підписи з'являються під зображенням",
       maxWidth: "Максимальна ширина",
       maxWidthHelp: "Максимальна ширина, яку може займати зображення",
-      width: "Ширина", 
+      width: "Ширина",
       widthHelp: "Конкретна ширина зображення",
       height: "Висота",
       heightHelp: "Конкретна висота зображення",
@@ -399,11 +663,13 @@ export const uk = {
       standalone: "Окремо",
       sideBySideLeft: "Поруч (зображення ліворуч)",
       sideBySideRight: "Поруч (зображення праворуч)",
-      inlineLeft: "Вбудоване (зображення ліворуч, текст обтікає)",
-      inlineRight: "Вбудоване (зображення праворуч, текст обтікає)",
-      layoutModeDescription: "Поруч: Зображення та контент однакової висоти. Вбудоване: Текст обтікає зображення.",
+      inlineLeft: "Зліва від тексту",
+      inlineRight: "Справа від тексту",
+      layoutModeDescription:
+        "Поруч: Зображення та контент однакової висоти. Вбудоване: Текст обтікає зображення.",
       layoutPartner: "Партнер по макету",
-      layoutPartnerHelp: "Виберіть, який блок контенту пов'язати з цим зображенням",
+      layoutPartnerHelp:
+        "Виберіть, який блок контенту пов'язати з цим зображенням",
       layoutProportion: "Пропорції макета",
       layoutProportionHelp: "Скільки місця займає зображення в макеті",
       layoutPreview: "Попередній перегляд макета",
@@ -416,19 +682,95 @@ export const uk = {
       proportionImageLarger: "60% - 40% (Зображення більше)",
       proportionImageSmaller: "40% - 60% (Зображення менше)",
       proportionImageMuchLarger: "70% - 30% (Зображення набагато більше)",
-      proportionImageMuchSmaller: "30% - 70% (Зображення набагато менше)"
+      proportionImageMuchSmaller: "30% - 70% (Зображення набагато менше)",
+      // Quick size controls
+              quickSizeControls: "Розмір",
+              quickSettings: "Налаштування",
+      smaller: "Менше",
+      larger: "Більше",
+      resetToDefaultSize: "Скинути до розміру за замовчуванням",
+      currentWidth: "Поточна ширина",
+      auto: "авто",
+      maintainAspectRatio: "зберегти пропорції",
+      scale: "Масштаб",
+      // Layout options
+      layoutOptions: "Розташування",
+      partnerContent: "Партнерський контент",
+      partnerContentHelp: "контент для розміщення поруч з зображенням",
+      block1: "Блок 1: Заголовок/Абзац",
+      block2: "Блок 2: Список/Контент",
+      block3: "Блок 3: Інший блок контенту",
+      partnerContentDescription: "Виберіть, який блок контенту повинен з'являтися поруч з цим зображенням.",
+      spaceDistribution: "Розподіл простору",
+      spaceDistributionHelp: "скільки місця отримує кожен елемент",
+      equal: "Рівні (50% кожен)",
+      imageLarger: "Зображення більше (60% зображення, 40% контенту)",
+      contentLarger: "Контент більше (40% зображення, 60% контенту)",
+      imageDominant: "Зображення домінує (70% зображення, 30% контенту)",
+      contentDominant: "Контент домінує (30% зображення, 70% контенту)",
+      spaceDistributionDescription: "Контролює, скільки горизонтального простору займає зображення та контент.",
+      // Corner rounding options
+      cornerRounding: "Округлення кутів",
+      sharp: "Гострі",
+      slightlyRounded: "Трохи округлені",
+      rounded: "Округлені",
+      veryRounded: "Дуже округлені",
+      // Alignment options
+      left: "Ліворуч",
+      center: "По центру",
+      right: "Праворуч",
+      // Size options
+      small: "Малий",
+      medium: "Середній",
+      large: "Великий",
+      extraLarge: "Дуже великий",
+      // Layout descriptions
+      imageOnOwnLine: "Зображення на власному рядку",
+      sideBySideDescription: "Зображення та текст поруч",
+      // Visual effects
+      visualEffects: "Візуальні ефекти",
+      // Additional image settings
+      textWrapping: "Обтікання тексту",
+      position: "Позиція",
+      shadow: "Тінь",
+      border: "Межа",
+      none: "Немає",
+      subtle: "Легка",
+      strong: "Сильна",
+      livePreview: "Живий перегляд",
+      changesApplyInRealTime: "Зміни застосовуються в реальному часі",
+      documentPreview: "Перегляд документа",
+      livePreviewDescription: "Це показує, як ваше зображення з'явиться в документі. Зміни застосовуються в реальному часі під час налаштування параметрів.",
+      resetToDefault: "Скинути до за замовчуванням",
+      // Additional layout messages
+      unavailableForInline: "недоступно для inline",
+      alignmentUnavailableForInlineModes: "Вирівнювання недоступне для inline режимів",
+      // Border options
+      solid: "Суцільна",
+      dashed: "Пунктирна",
+      dotted: "Крапкова",
+      // Advanced options
+      advanced: "Розширені",
+      opacity: "Прозорість",
+      rotation: "Поворот",
+      // Preview placeholders
+      noDocumentContent: "Контент документа недоступний для перегляду",
+      additionalContentPlaceholder: "Додатковий контент з вашого документа продовжиться тут, показуючи як зображення інтегрується з навколишнім текстом та макетом.",
+      previewDescription: "Попередній перегляд демонструє зміни стилю зображення в реальному часі та як це впливає на загальну презентацію документа.",
+      // Basic actions dropdown
+      openAdvancedSettings: "Відкрити розширені налаштування"
     },
-    
+
     // Quality tiers
     basic: "Базовий",
     interactive: "Інтерактивний",
     advanced: "Поглиблений",
     immersive: "Іммерсивний",
-    
+
     // Time units
     hours: "год",
     minutes: "хв",
-    
+
     // Status
     private: "Приватний",
     createdByYou: "Створено Вами",
@@ -436,17 +778,17 @@ export const uk = {
     item: "елемент",
     items: "елементів",
     loadingProjects: "Завантаження проектів...",
-    
+
     // Help button
     help: "Допомога",
-    
+
     // Language selector
     language: "Мова",
     english: "Англійська",
     ukrainian: "Українська",
     spanish: "Іспанська",
     russian: "Російська",
-    
+
     // Date formatting
     today: "Сьогодні",
     yesterday: "Вчора",
@@ -461,8 +803,9 @@ export const uk = {
     pasteInText: "Вставити текст",
     pasteInTextDescription: "Створити з нотаток, плану або існуючого контенту",
     generateDescription: "Створити з однострочного запиту за кілька секунд",
-    importFileOrUrl: "Імпортувати файл або URL",
-    importFileOrUrlDescription: "Покращити існуючі документи, презентації або веб-сторінки",
+    importFileOrUrl: "Створити з файлів",
+    importFileOrUrlDescription:
+      "Покращити існуючі документи, презентації або веб-сторінки",
     popular: "ПОПУЛЯРНО",
 
     // Projects table toolbar
@@ -475,11 +818,13 @@ export const uk = {
 
     // PDF Download Modal
     customizePDF: "Налаштувати PDF",
-    customizePDFDescription: "Введіть ім'я клієнта та виберіть, які папки/продукти включити в PDF.",
+    customizePDFDescription:
+      "Введіть ім'я клієнта та виберіть, які папки/продукти включити в PDF.",
     clientNameOptional: "Ім'я клієнта (необов'язково)",
     enterClientName: "Введіть ім'я клієнта",
     selectFoldersAndProducts: "Вибрати папки та продукти",
     selected: "вибрано",
+    selectAll: "Вибрати все",
     pdfFolders: "Папки",
     pdfUnassignedProducts: "Непризначені продукти",
     noFoldersOrProductsAvailable: "Папки або продукти недоступні",
@@ -498,59 +843,59 @@ export const uk = {
     close: "Закрити",
     // Analytics page
     analytics: {
-      title: 'Панель аналітики запитів',
-      subtitle: 'Комплексний моніторинг всіх API запитів по всіх акаунтах',
-      loadingData: 'Завантаження даних аналітики...',
-      errorLoading: 'Помилка завантаження аналітики',
-      retry: 'Повторити',
-      noDataAvailable: 'Дані аналітики недоступні',
-      refreshData: 'Оновити дані',
-      exportCsv: 'Експорт CSV',
-      exportJson: 'Експорт JSON',
-      activeFilters: 'Активні фільтри:',
-      clearAllFilters: 'Очистити всі фільтри',
-      filters: 'Фільтри',
-      dateRange: 'Діапазон дат',
-      to: 'до',
-      endpoint: 'Ендпоінт',
-      filterEndpoint: 'Фільтр ендпоінта...',
-      httpMethod: 'HTTP метод',
-      allMethods: 'Всі методи',
-      statusCode: 'Код статусу',
-      statusCodePlaceholder: 'наприклад, 200, 404',
-      totalRequests: 'Всього запитів',
-      successRate: 'Відсоток успіху',
-      avgResponseTime: 'Середній час відповіді',
-      performancePercentiles: 'Процентилі продуктивності',
-      p50Median: 'P50 (Медіана)',
-      p95: 'P95',
-      p99: 'P99',
-      dataTransfer: 'Передача даних',
-      totalTransferred: 'Всього передано',
-      failedRequests: 'Невдалі запити',
-      errorRequests: 'Запити з помилками',
-      responseTimeRange: 'Діапазон часу відповіді',
-      fastest: 'Найшвидший',
-      average: 'Середній',
-      slowest: 'Найповільніший',
-      aiModelUsage: 'Використання AI моделі',
-      totalAiRequests: 'Всього запитів',
-      avgTokens: 'Середнє токенів',
-      totalTokens: 'Всього токенів',
-      tokenRange: 'Діапазон токенів',
-      topEndpoints: 'Топ ендпоінти',
-      requests: 'запитів',
-      avg: 'середнє',
-      error: 'помилка',
-      recentErrors: 'Останні помилки',
-      time: 'Час',
-      method: 'Метод',
-      status: 'Статус',
-      responseTime: 'Час відповіді',
-      user: 'Користувач',
-      errorMessage: 'Помилка',
-      anonymous: 'Анонімний',
-      noErrorMessage: 'Немає повідомлення про помилку'
+      title: "Панель аналітики запитів",
+      subtitle: "Комплексний моніторинг всіх API запитів по всіх акаунтах",
+      loadingData: "Завантаження даних аналітики...",
+      errorLoading: "Помилка завантаження аналітики",
+      retry: "Повторити",
+      noDataAvailable: "Дані аналітики недоступні",
+      refreshData: "Оновити дані",
+      exportCsv: "Експорт CSV",
+      exportJson: "Експорт JSON",
+      activeFilters: "Активні фільтри:",
+      clearAllFilters: "Очистити всі фільтри",
+      filters: "Фільтри",
+      dateRange: "Діапазон дат",
+      to: "до",
+      endpoint: "Ендпоінт",
+      filterEndpoint: "Фільтр ендпоінта...",
+      httpMethod: "HTTP метод",
+      allMethods: "Всі методи",
+      statusCode: "Код статусу",
+      statusCodePlaceholder: "наприклад, 200, 404",
+      totalRequests: "Всього запитів",
+      successRate: "Відсоток успіху",
+      avgResponseTime: "Середній час відповіді",
+      performancePercentiles: "Процентилі продуктивності",
+      p50Median: "P50 (Медіана)",
+      p95: "P95",
+      p99: "P99",
+      dataTransfer: "Передача даних",
+      totalTransferred: "Всього передано",
+      failedRequests: "Невдалі запити",
+      errorRequests: "Запити з помилками",
+      responseTimeRange: "Діапазон часу відповіді",
+      fastest: "Найшвидший",
+      average: "Середній",
+      slowest: "Найповільніший",
+      aiModelUsage: "Використання AI моделі",
+      totalAiRequests: "Всього запитів",
+      avgTokens: "Середнє токенів",
+      totalTokens: "Всього токенів",
+      tokenRange: "Діапазон токенів",
+      topEndpoints: "Топ ендпоінти",
+      requests: "запитів",
+      avg: "середнє",
+      error: "помилка",
+      recentErrors: "Останні помилки",
+      time: "Час",
+      method: "Метод",
+      status: "Статус",
+      responseTime: "Час відповіді",
+      user: "Користувач",
+      errorMessage: "Помилка",
+      anonymous: "Анонімний",
+      noErrorMessage: "Немає повідомлення про помилку",
     },
     // Project View Page
     projectView: {
@@ -575,101 +920,129 @@ export const uk = {
       qualityTier: "Рівень якості",
       loadingContentDisplay: "Завантаження відображення контенту...",
       contentDetails: "Деталі контенту",
-      utilizesDesignComponent: "Цей екземпляр проекту використовує компонент дизайну:",
+      utilizesDesignComponent:
+        "Цей екземпляр проекту використовує компонент дизайну:",
       unknownComponent: "Невідомо",
-      specificUIForDirectViewing: "Спеціальний інтерфейс для прямого перегляду або редагування цього типу компонента може бути ще не повністю реалізований на цій сторінці.",
-      editGeneralDetails: "Зазвичай ви можете редагувати загальні деталі проекту (наприклад, ім'я або шаблон дизайну) через основну сторінку редагування проекту.",
-      toggleRawContentPreview: "Переключити попередній перегляд вихідного вмісту",
+      specificUIForDirectViewing:
+        "Спеціальний інтерфейс для прямого перегляду або редагування цього типу компонента може бути ще не повністю реалізований на цій сторінці.",
+      editGeneralDetails:
+        "Зазвичай ви можете редагувати загальні деталі проекту (наприклад, ім'я або шаблон дизайну) через основну сторінку редагування проекту.",
+      toggleRawContentPreview:
+        "Переключити попередній перегляд вихідного вмісту",
       noSlideDeckData: "Дані слайд-деку недоступні",
       projectDataNotLoaded: "Дані проекту ще не завантажені.",
-      contentEditingNotSupported: "Редагування контенту в даний час підтримується для типів {types} на цій сторінці.",
-      projectDataOrIdNotAvailable: "Дані проекту або ID недоступні для завантаження.",
+      contentEditingNotSupported:
+        "Редагування контенту в даний час підтримується для типів {types} на цій сторінці.",
+      projectDataOrIdNotAvailable:
+        "Дані проекту або ID недоступні для завантаження.",
       errorProjectIdOrDataMissing: "Помилка: ID проекту або дані відсутні.",
-      errorProjectInstanceDataNotLoaded: "Помилка: Дані екземпляра проекту не завантажені.",
-      errorCannotSaveComponentType: "Помилка: Не вдається зберегти. Редагування контенту для цього типу компонента не підтримується тут.",
+      errorProjectInstanceDataNotLoaded:
+        "Помилка: Дані екземпляра проекту не завантажені.",
+      errorCannotSaveComponentType:
+        "Помилка: Не вдається зберегти. Редагування контенту для цього типу компонента не підтримується тут.",
       contentSavedSuccessfully: "Контент успішно збережено!",
       saveFailed: "Збереження не вдалося: {error}",
-      errorProjectIdOrEditableDataMissing: "ID проекту або редаговані дані відсутні.",
-      errorProjectInstanceDataNotLoadedForSave: "Дані екземпляра проекту не завантажені.",
-      errorContentEditingNotSupportedForSave: "Редагування контенту не підтримується для цього типу компонента на цій сторінці.",
-      errorFailedToSaveModuleTierSetting: "Не вдалося зберегти налаштування рівня модуля",
-      errorFailedToSaveLessonTierSetting: "Не вдалося зберегти налаштування рівня уроку",
+      errorProjectIdOrEditableDataMissing:
+        "ID проекту або редаговані дані відсутні.",
+      errorProjectInstanceDataNotLoadedForSave:
+        "Дані екземпляра проекту не завантажені.",
+      errorContentEditingNotSupportedForSave:
+        "Редагування контенту не підтримується для цього типу компонента на цій сторінці.",
+      errorFailedToSaveModuleTierSetting:
+        "Не вдалося зберегти налаштування рівня модуля",
+      errorFailedToSaveLessonTierSetting:
+        "Не вдалося зберегти налаштування рівня уроку",
       // Additional missing translations
       invalidProjectIdFormat: "Невірний формат ID проекту.",
-      couldNotFetchFullProjectsList: "Не вдалося отримати повний список проектів для визначення імені батьківського проекту.",
+      couldNotFetchFullProjectsList:
+        "Не вдалося отримати повний список проектів для визначення імені батьківського проекту.",
       newTrainingPlanTitle: "Новий план навчання",
       newPdfLessonTitle: "Новий PDF урок",
       newSlideDeckTitle: "Новий слайд-дек",
       newVideoLessonTitle: "Новий відео урок",
       newQuizTitle: "Новий тест",
       newTextPresentationTitle: "Нова текстова презентація",
-      unknownErrorOccurred: "Сталася невідома помилка при отриманні даних проекту.",
+      unknownErrorOccurred:
+        "Сталася невідома помилка при отриманні даних проекту.",
       projectIdMissing: "ID проекту відсутній в URL.",
-      projectIdOrEditableDataMissing: "ID проекту або редаговані дані відсутні.",
+      projectIdOrEditableDataMissing:
+        "ID проекту або редаговані дані відсутні.",
       validationError: "Помилка валідації",
       validationErrors: "Помилки валідації",
       couldNotSaveData: "Не вдалося зберегти дані.",
-      contentEditingSupported: "Редагування контенту в даний час підтримується для",
+      contentEditingSupported:
+        "Редагування контенту в даний час підтримується для",
       typesOnThisPage: "типів на цій сторінці.",
-      projectDataOrIdNotAvailableForDownload: "Дані проекту або ID недоступні для завантаження.",
+      projectDataOrIdNotAvailableForDownload:
+        "Дані проекту або ID недоступні для завантаження.",
       failedToMoveToTrash: "Не вдалося перемістити в кошик",
       project: "Проект",
       configureVisibleColumns: "Налаштувати видимі стовпці",
-      moveToTrashTooltip: "Перемістити цей продукт в кошик"
+      moveToTrashTooltip: "Перемістити цей продукт в кошик",
     },
     // Pipelines page
     pipelines: {
-      title: 'Продукти',
-      loadingProducts: 'Завантаження продуктів...',
-      error: 'Помилка',
-      addNewProduct: 'Додати новий продукт',
-      noProductsConfigured: 'Продукти ще не налаштовані. Натисніть "Додати новий продукт" для початку.',
-      productName: 'Назва продукту',
-      discoveryPhase: 'Фаза дослідження',
-      structuringPhase: 'Фаза структурування',
-      actions: 'Дії',
-      editProduct: 'Редагувати продукт',
-      deleteProduct: 'Видалити продукт',
-      deleteConfirmation: 'Ви впевнені, що хочете видалити продукт "{name}"? Цю дію не можна скасувати.',
-      productDeleted: 'Продукт успішно видалено!',
-      failedToDelete: 'Не вдалося видалити продукт.',
-      loadingProductsPage: 'Завантаження сторінки продуктів...'
+      title: "Продукти",
+      loadingProducts: "Завантаження продуктів...",
+      error: "Помилка",
+      addNewProduct: "Додати новий продукт",
+      noProductsConfigured:
+        'Продукти ще не налаштовані. Натисніть "Додати новий продукт" для початку.',
+      productName: "Назва продукту",
+      discoveryPhase: "Фаза дослідження",
+      structuringPhase: "Фаза структурування",
+      actions: "Дії",
+      editProduct: "Редагувати продукт",
+      deleteProduct: "Видалити продукт",
+      deleteConfirmation:
+        'Ви впевнені, що хочете видалити продукт "{name}"? Цю дію не можна скасувати.',
+      productDeleted: "Продукт успішно видалено!",
+      failedToDelete: "Не вдалося видалити продукт.",
+      loadingProductsPage: "Завантаження сторінки продуктів...",
     },
     // Add to project page
     addToProject: {
-      title: 'Створити новий екземпляр продукту',
-      error: 'Помилка',
-      selectProductType: '1. Виберіть тип продукту',
-      noProductTypes: 'Типи продуктів недоступні. Будь ласка, додайте шаблони дизайну в панелі адміністратора.',
-      configureProject: '2. Налаштуйте проект',
-      addToProject: 'Додати до проекту:',
-      selectOrCreateProject: '-- Виберіть або створіть проект --',
-      loadingProjects: 'Завантаження проектів...',
-      createNewProject: '--- Створити новий проект ---',
-      newProjectName: 'Назва нового проекту:',
-      enterNewProjectName: 'Введіть назву для нового проекту',
-      advancedOptions: 'Додаткові опції',
-      instanceName: 'Назва екземпляру (необов\'язково):',
-      instanceNamePlaceholder: 'За замовчуванням "{name}" або заголовок відповіді AI',
-      instanceNameHelp: 'Якщо залишити порожнім, буде використовуватися назва продукту (або заголовок AI).',
-      createProductInstance: 'Створити екземпляр продукту',
-      creating: 'Створення...',
-      loadingPageDetails: 'Завантаження деталей сторінки...'
+      title: "Створити новий екземпляр продукту",
+      error: "Помилка",
+      selectProductType: "1. Виберіть тип продукту",
+      noProductTypes:
+        "Типи продуктів недоступні. Будь ласка, додайте шаблони дизайну в панелі адміністратора.",
+      configureProject: "2. Налаштуйте проект",
+      addToProject: "Додати до проекту:",
+      selectOrCreateProject: "-- Виберіть або створіть проект --",
+      loadingProjects: "Завантаження проектів...",
+      createNewProject: "--- Створити новий проект ---",
+      newProjectName: "Назва нового проекту:",
+      enterNewProjectName: "Введіть назву для нового проекту",
+      advancedOptions: "Додаткові опції",
+      instanceName: "Назва екземпляру (необов'язково):",
+      instanceNamePlaceholder:
+        'За замовчуванням "{name}" або заголовок відповіді AI',
+      instanceNameHelp:
+        "Якщо залишити порожнім, буде використовуватися назва продукту (або заголовок AI).",
+      createProductInstance: "Створити екземпляр продукту",
+      creating: "Створення...",
+      loadingPageDetails: "Завантаження деталей сторінки...",
     },
     // Paste Text Page
     pasteText: {
       title: "Вставте ваш текст",
-      subtitle: "Введіть або вставте ваш текстовий контент нижче та виберіть, як ви хочете його використовувати",
-      textPlaceholder: "Вставте ваш текст, нотатки, план або будь-який контент, з яким ви хочете працювати...",
+      subtitle:
+        "Введіть або вставте ваш текстовий контент нижче та виберіть, як ви хочете його використовувати",
+      textPlaceholder:
+        "Вставте ваш текст, нотатки, план або будь-який контент, з яким ви хочете працювати...",
       characters: "{count} символів",
-      textVeryLarge: "Текст дуже великий і буде оброблений як файл. Це може зайняти деякий час.",
+      textVeryLarge:
+        "Текст дуже великий і буде оброблений як файл. Це може зайняти деякий час.",
       textLarge: "Текст великий і буде стиснутий для оптимальної обробки.",
       howToUseText: "Як ви хочете використовувати цей текст?",
       useAsContext: "Використовувати як контекст",
-      useAsContextDescription: "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту. Найкраще підходить для нотаток, досліджень або довідкової інформації.",
+      useAsContextDescription:
+        "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту. Найкраще підходить для нотаток, досліджень або довідкової інформації.",
       useAsBase: "Використовувати як основу",
-      useAsBaseDescription: "ШІ покращить та відформатує вашу існуючу текстову структуру, зберігаючи ваш контент та перетворюючи його на належний навчальний продукт. Найкраще підходить для чернеток або існуючих планів.",
-      continueToGenerate: "Продовжити до генерації"
+      useAsBaseDescription:
+        "ШІ покращить та відформатує вашу існуючу текстову структуру, зберігаючи ваш контент та перетворюючи його на належний навчальний продукт. Найкраще підходить для чернеток або існуючих планів.",
+      continueToGenerate: "Продовжити до генерації",
     },
     // From Files Page
     fromFiles: {
@@ -679,7 +1052,8 @@ export const uk = {
       browseFiles: "Перегляд файлів",
       backToCreate: "Назад до створення",
       browseYourFiles: "Перегляд ваших файлів",
-      browseDescription: "Виберіть папки, що містять документи, які ви хочете використовувати для створення навчального контенту",
+      browseDescription:
+        "Виберіть папки, що містять документи, які ви хочете використовувати для створення навчального контенту",
       searchFolders: "Пошук папок...",
       newFolder: "Нова папка",
       filesTotal: "{count} файл{plural} всього",
@@ -689,7 +1063,8 @@ export const uk = {
       created: "Створено",
       files: "Файли",
       noFoldersFound: "Папки не знайдено",
-      noFoldersDescription: "Створіть папку та завантажте документи для початку роботи",
+      noFoldersDescription:
+        "Створіть папку та завантажте документи для початку роботи",
       createNewFolder: "Створити нову папку",
       folderName: "Назва папки *",
       enterFolderName: "Введіть назву папки",
@@ -700,7 +1075,18 @@ export const uk = {
       createFolder: "Створити папку",
       select: "Вибрати",
       selected: "Вибрано",
-      file: "файл"
+      file: "файл",
+      chooseMethod: "Виберіть бажаний метод створення контенту з ваших файлів",
+      createFromKnowledgeBase: "Створити з бази знань",
+      knowledgeBaseDescription: "Створюйте контент, виконуючи пошук по всій базі знань для отримання відповідної інформації. Ідеально підходить для комплексного створення контенту.",
+      createFromSpecificFiles: "Створити з конкретних файлів",
+      specificFilesDescription: "Виберіть конкретні файли та папки для використання як вихідний матеріал. Ідеально підходить для цілеспрямованого створення контенту.",
+      whyChooseMethods: "Чому вибирати ці методи?",
+      knowledgeBaseSearch: "Пошук по базі знань",
+      knowledgeBaseSearchDesc: "Використовуйте всю колекцію документів для пошуку найбільш релевантної інформації для ваших потреб у створенні контенту.",
+      specificFileSelection: "Вибір конкретних файлів",
+      specificFileSelectionDesc: "Виберіть точно, які файли включити, даючи вам точний контроль над вихідним матеріалом.",
+      backToCreateFromFiles: "Назад до створення з файлів",
     },
     // Course Outline Page
     courseOutline: {
@@ -738,7 +1124,7 @@ export const uk = {
       fluxKontextHQ: "Flux Kontext HQ",
       stableDiffusion: "Stable Diffusion 2.1",
       describeImprovements: "Опишіть, що ви хочете покращити...",
-      total: "всього"
+      total: "всього",
     },
     // Generate Page
     generate: {
@@ -753,19 +1139,17 @@ export const uk = {
       foldersSelectedPlural: "папки вибрані",
       filesSelected: "файл вибраний",
       filesSelectedPlural: "файлів вибрано",
-      aiWillUseDocuments: "ШІ буде використовувати ваші вибрані документи як вихідний матеріал для створення навчального контенту.",
+      aiWillUseDocuments:
+        "ШІ буде використовувати ваші вибрані документи як вихідний матеріал для створення навчального контенту.",
       modeUsingAsContext: "Режим: Використання як контекст",
       modeUsingAsBaseStructure: "Режим: Використання як базова структура",
       // Additional keys for themes and content sections
       setupContentBuilder: "Налаштуйте ваш Конструктор Контенту",
-      // Language options
-      english: "Англійська",
-      ukrainian: "Українська",
-      spanish: "Іспанська",
-      russian: "Російська",
 
-      aiWillUseTextAsContext: "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту.",
-      aiWillBuildUponText: "ШІ буде розвивати вашу існуючу структуру контенту для створення навчальних матеріалів.",
+      aiWillUseTextAsContext:
+        "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту.",
+      aiWillBuildUponText:
+        "ШІ буде розвивати вашу існуючу структуру контенту для створення навчальних матеріалів.",
       courseOutline: "План курсу",
       videoLesson: "Відеоурок",
       presentation: "Презентація",
@@ -773,8 +1157,10 @@ export const uk = {
       onePager: "Односторінка",
       prompt: "Запит",
       promptPlaceholder: "Опишіть, що ви хочете створити...",
-      promptPlaceholderFromFiles: "Опишіть, що ви хочете створити з ваших файлів...",
-      promptPlaceholderFromText: "Опишіть, що ви хочете створити з вашого тексту...",
+      promptPlaceholderFromFiles:
+        "Опишіть, що ви хочете створити з ваших файлів...",
+      promptPlaceholderFromText:
+        "Опишіть, що ви хочете створити з вашого тексту...",
       examples: "Приклади",
       examplePrompts: "Приклади запитів",
       shuffleExamples: "Перемішати",
@@ -818,9 +1204,11 @@ export const uk = {
       generatingOnePagerContent: "Генерація контенту однієї сторінки...",
       onePagerContentPlaceholder: "Контент однієї сторінки з'явиться тут...",
       finalizingOnePager: "Фіналізація однієї сторінки...",
-      failedToGenerateOnePager: "Помилка генерації однієї сторінки – спробуйте ще раз пізніше.",
+      failedToGenerateOnePager:
+        "Помилка генерації однієї сторінки – спробуйте ще раз пізніше.",
       untitledOnePager: "Одна Сторінка Без Назви",
-      adjustTextAndImageStyles: "Налаштуйте стилі тексту та зображень для вашої однієї сторінки",
+      adjustTextAndImageStyles:
+        "Налаштуйте стилі тексту та зображень для вашої однієї сторінки",
       // Theme options
       wine: "Вино",
       default: "За замовчуванням",
@@ -835,13 +1223,15 @@ export const uk = {
       noPromptEntered: "Будь ласка, введіть запит для продовження",
       noOutlineSelected: "Будь ласка, виберіть план для продовження",
       noLessonSelected: "Будь ласка, виберіть урок для продовження",
-      presentationQuestion: "Чи хочете ви створити презентацію з існуючого плану курсу?",
+      presentationQuestion:
+        "Чи хочете ви створити презентацію з існуючого плану курсу?",
       yesContentFromOutline: "Так, контент для презентації з плану",
       noStandalone: "Ні, я хочу окрему презентацію",
       quizQuestion: "Чи хочете ви створити тест з існуючого плану курсу?",
       yesContentForQuiz: "Так, контент для тесту з плану",
       noStandaloneQuiz: "Ні, я хочу окремий тест",
-      onePagerQuestion: "Чи хочете ви створити односторінку з існуючого плану курсу?",
+      onePagerQuestion:
+        "Чи хочете ви створити односторінку з існуючого плану курсу?",
       yesContentForOnePager: "Так, контент для односторінки з плану",
       noStandaloneOnePager: "Ні, я хочу окрему односторінку",
       backButton: "← Назад",
@@ -856,9 +1246,11 @@ export const uk = {
       applying: "Застосування...",
       advancedMode: "Розширений режим",
       themes: "Теми",
-      themesDescription: "Використовуйте одну з наших популярних тем або перегляньте інші",
+      themesDescription:
+        "Використовуйте одну з наших популярних тем або перегляньте інші",
       viewMore: "Показати більше",
-      contentDescription: "Налаштуйте стилі тексту та зображень для вашого уроку",
+      contentDescription:
+        "Налаштуйте стилі тексту та зображень для вашого уроку",
       amountOfTextPerCard: "Кількість тексту на картку",
       generatingQuiz: "Генерування тесту...",
       retryGeneration: "Повторити генерацію",
@@ -868,49 +1260,57 @@ export const uk = {
       words: "слів",
       short: "Короткий",
       medium: "Середній",
-      long: "Довгий"
+      long: "Довгий",
     },
-
 
     // Module and Lesson Settings Modals
     modals: {
       // ... existing code ...
       moduleSettings: {
-        title: 'Налаштування модуля',
-        subtitle: 'Налаштуйте якість виробництва для',
-        tier: 'Рівень',
-        contentExamples: 'Приклади контенту',
-        hoursRange: 'Діапазон годин',
-        example: 'Приклад',
-        moduleQualityTier: 'Рівень якості модуля встановлено на',
-        perCompletionHour: 'год за годину завершення',
-        cancel: 'Скасувати',
-        saveChanges: 'Зберегти зміни',
-        saving: 'Збереження...',
-        failedToSave: 'Не вдалося зберегти налаштування рівня модуля'
+        title: "Налаштування модуля",
+        subtitle: "Налаштуйте якість виробництва для",
+        tier: "Рівень",
+        contentExamples: "Приклади контенту",
+        hoursRange: "Діапазон годин",
+        example: "Приклад",
+        moduleQualityTier: "Рівень якості модуля встановлено на",
+        perCompletionHour: "год за годину завершення",
+        cancel: "Скасувати",
+        saveChanges: "Зберегти зміни",
+        saving: "Збереження...",
+        failedToSave: "Не вдалося зберегти налаштування рівня модуля",
       },
       lessonSettings: {
-        title: 'Налаштування уроку',
-        subtitle: 'Налаштуйте якість виробництва для',
-        tier: 'Рівень',
-        contentExamples: 'Приклади контенту',
-        hoursRange: 'Діапазон годин',
-        example: 'Приклад',
-        lessonQualityTier: 'Рівень якості уроку встановлено на',
-        perCompletionHour: 'год за годину завершення',
-        cancel: 'Скасувати',
-        saveChanges: 'Зберегти зміни',
-        saving: 'Збереження...',
-        failedToSave: 'Не вдалося зберегти налаштування рівня уроку'
-      }
+        title: "Налаштування уроку",
+        subtitle: "Налаштуйте якість виробництва для",
+        tier: "Рівень",
+        contentExamples: "Приклади контенту",
+        hoursRange: "Діапазон годин",
+        example: "Приклад",
+        lessonQualityTier: "Рівень якості уроку встановлено на",
+        perCompletionHour: "год за годину завершення",
+        cancel: "Скасувати",
+        saveChanges: "Зберегти зміни",
+        saving: "Збереження...",
+        failedToSave: "Не вдалося зберегти налаштування рівня уроку",
+      },
+    },
+
+    rates: {
+      presentation: 'Ставка презентації',
+      onePager: 'Ставка односторінки',
+      quiz: 'Ставка тесту',
+      videoLesson: 'Ставка відео-уроку',
     },
 
     // Theme picker translations
     themePicker: {
       title: "Теми презентації",
-      description: "Виберіть тему для зміни візуального стилю вашої презентації. Зміни будуть застосовані одразу.",
+      description:
+        "Виберіть тему для зміни візуального стилю вашої презентації. Зміни будуть застосовані одразу.",
       applying: "Застосування...",
-      footerInfo: "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень."
-    }
-  }
-}; 
+      footerInfo:
+        "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень.",
+    },
+  },
+};

@@ -66,5 +66,24 @@ export const basicTemplates: SlideTemplate[] = [
       { type: 'headline', text: 'Чотири ключові пункти', level: 1 } as HeadlineBlock,
       { type: 'bullet_list', items: ['Перший пункт', 'Другий пункт', 'Третій пункт', 'Четвертий пункт'] } as BulletListBlock
     ]
+  },
+  {
+    id: 'event-list',
+    name: 'Event Dates',
+    category: 'basic',
+    icon: '📅',
+    description: 'List of event dates with descriptions',
+    layout: 'event-list',
+    aiKeywords: ['event', 'date', 'schedule', 'timeline', 'calendar', 'milestone', 'important date', 'key date', 'event list'],
+    contextTags: ['event', 'schedule', 'calendar'],
+    interactivity: 'medium',
+    blocks: [
+      { type: 'headline', text: 'April 14', level: 1 },
+      { type: 'paragraph', text: 'You can insert here the title of the event or a small description' },
+      { type: 'headline', text: 'June 6', level: 1 },
+      { type: 'paragraph', text: 'You can insert here the title of the event or a small description' },
+      { type: 'headline', text: 'July 12', level: 1 },
+      { type: 'paragraph', text: 'You can insert here the title of the event or a small description' },
+    ]
   }
 ]; 

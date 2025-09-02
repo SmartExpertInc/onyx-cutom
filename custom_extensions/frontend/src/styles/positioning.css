@@ -1,0 +1,52 @@
+/* styles/positioning.css */
+/* Styles for the positioning system */
+
+/* Positioning enabled slide styles */
+.positioning-enabled-slide {
+  background: inherit; /* Ensure background is inherited from template */
+}
+
+/* ONLY target elements with explicit data-draggable="true" attribute */
+.positioning-enabled-slide [data-draggable="true"] {
+  /* FIXED: Don't set position: relative by default to avoid layout issues */
+  /* position: relative; */ /* Removed to prevent flex layout interference */
+  transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+  cursor: move;
+  border-radius: 4px;
+  /* Prevent initial flicker by ensuring transform is applied immediately */
+  transform: translate(0px, 0px); /* Default transform to prevent layout shift */
+}
+
+/* Prevent transitions during initial render to avoid flicker */
+.positioning-enabled-slide.initializing [data-draggable="true"] {
+  transition: none !important;
+}
+
+/* Hover effects for draggable elements */
+.positioning-enabled-slide [data-draggable="true"]:hover {
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  z-index: 10;
+}
+
+/* Dragging state - only apply position: relative when actually dragging */
+.positioning-enabled-slide .dragging {
+  position: relative !important; /* Only set position when dragging */
+  z-index: 1000 !important;
+  cursor: grabbing !important;
+  user-select: none !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Prevent flickering after drag */
+.positioning-enabled-slide [data-just-dragged="true"] {
+  pointer-events: none; /* Temporarily disable pointer events */
+  transition: none !important; /* Disable transitions to prevent flicker */
+}
+
+/* Preserve text editing capabilities */
+.positioning-enabled-slide [contenteditable="true"]:focus,
+.positioning-enabled-slide input:focus,
+.positioning-enabled-slide textarea:focus {
+  cursor: text !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}

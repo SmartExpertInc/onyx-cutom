@@ -93,6 +93,8 @@ export interface ProjectInstanceDetail {
   sourceChatSessionId?: string | null;
   custom_rate?: number | null; // Project-level custom rate
   quality_tier?: string | null; // Project-level quality tier
+  is_advanced?: boolean | null;
+  advanced_rates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
 }
 
 // Type for Design Template API Response

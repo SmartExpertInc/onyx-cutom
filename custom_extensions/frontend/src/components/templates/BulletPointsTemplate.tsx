@@ -508,13 +508,24 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   imagePrompt,
   imageAlt,
   theme,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset,
+  objectFit
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
   // Inline editing state for title only
   const [editingTitle, setEditingTitle] = useState(false);
+  
+  // Refs for MoveableManager integration
+  const imageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const bulletsRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
   
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -538,9 +549,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     minWidth: 0
   };
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    aspectRatio: '1 / 1',
-    height: '100%',
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', aspectRatio: '1 / 1', height: '100%' }),
     margin: '0 auto'
   };
 
@@ -592,52 +602,93 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     }
   };
 
+  const handleSizeTransformChange = (payload: any) => {
+    if (onUpdate) {
+      // Convert the payload to the expected format for the backend
+      const updateData: any = {};
+      
+      if (payload.imagePosition) {
+        updateData.imageOffset = payload.imagePosition;
+      }
+      
+      if (payload.imageSize) {
+        updateData.widthPx = payload.imageSize.width;
+        updateData.heightPx = payload.imageSize.height;
+      }
+      
+      // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+      if (payload.objectFit) {
+        updateData.objectFit = payload.objectFit;
+        console.log('BulletPointsTemplate: objectFit update', { 
+          slideId, 
+          objectFit: payload.objectFit 
+        });
+      }
+      
+      onUpdate(updateData);
+    }
+  };
+
   // AI prompt logic
   const displayPrompt = imagePrompt || imageAlt || 'relevant illustration for the bullet points';
 
   return (
-    <div className="bullet-points-template" style={slideStyles}>
+    <div ref={slideContainerRef} className="bullet-points-template" style={slideStyles}>
       {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block',
-            lineHeight: '1.2'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block' }}
+      >
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block',
+              lineHeight: '1.2'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              // Check the wrapper for just-dragged flag
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
         {/* Left: Clickable Image Placeholder */}
-        <div style={placeholderContainerStyles}>
+        <div style={placeholderContainerStyles} >
           <ClickableImagePlaceholder
             imagePath={imagePath}
             onImageUploaded={handleImageUploaded}
@@ -647,10 +698,24 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             prompt={displayPrompt}
             isEditable={isEditable}
             style={placeholderStyles}
+            onSizeTransformChange={handleSizeTransformChange}
+            elementId={`${slideId}-image`}
+            elementRef={imageRef}
+            cropMode={objectFit || 'contain'}
+            slideContainerRef={slideContainerRef}
+            savedImagePosition={imageOffset}
+            savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+            templateId="bullet-points"
           />
         </div>
+        
         {/* Right: Unified bullet points editor */}
-        <div style={bulletsContainerStyles}>
+        <div 
+          ref={bulletsRef}
+          data-moveable-element={`${slideId}-bullets`}
+          style={bulletsContainerStyles} 
+          data-draggable="true"
+        >
           <UnifiedBulletEditor
             bullets={bullets || []}
             bulletStyle={bulletStyle}

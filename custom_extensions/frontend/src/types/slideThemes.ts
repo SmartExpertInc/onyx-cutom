@@ -81,10 +81,10 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     name: 'Chudo Theme',
      colors: {
     backgroundColor: '#ffffff',
-    titleColor: '#d01510',
+    titleColor: '#ed6c00',
     subtitleColor: '#3a3a3a',
     contentColor: '#3a3a3a',
-    accentColor: '#ed6c00',
+    accentColor: '#d01510',
     borderColor: '#d01510'
   },
   fonts: {
@@ -99,12 +99,12 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     id: 'chudo-2',
     name: 'Chudo 2',
     colors: {
-      backgroundColor: '#ed6c00',
-      titleColor: '#ffffff',
+      backgroundColor: '#e8e9e3',
+      titleColor: '#ed6c00',
       subtitleColor: '#3a3a3a',
-      contentColor: '#ffffff',
+      contentColor: '#3a3a3a',
       accentColor: '#d01510',
-      borderColor: '#3a3a3a'
+      borderColor: '#d01510'
     },
     fonts: {
       titleFont: 'Mont Bold, sans-serif',
@@ -117,12 +117,12 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     id: 'forta',
     name: 'Forta',
     colors: {
-      backgroundColor: 'rgb(225, 211, 196)',
-      titleColor: 'rgb(238, 118, 35)',
-      subtitleColor: '#00664f',
-      contentColor: 'rgb(65,67,73)',
-      accentColor: '#00664f',
-      borderColor: '#00664f'
+      backgroundColor: '#ffffff',
+      titleColor: '#00664f',
+      subtitleColor: '#414349',
+      contentColor: '#414349',
+      accentColor: '#ee7623',
+      borderColor: '#ee7623'
     },
     fonts: {
       titleFont: 'Montserrat, sans-serif',
@@ -135,12 +135,12 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     id: 'forta-2',
     name: 'Forta 2',
     colors: {
-      backgroundColor: 'rgb(0, 102, 79)',      
-      titleColor: 'rgb(238, 118, 35)',         
-      subtitleColor: '#ffffff',              
-      contentColor: '#ffffff',               
-      accentColor: '#e1d3c4',        
-      borderColor: 'rgb(238, 118, 35)'        
+      backgroundColor: '#e1d3c4',      
+      titleColor: '#00664f',         
+      subtitleColor: '#414349',              
+      contentColor: '#414349',               
+      accentColor: '#ee7623',        
+      borderColor: '#ee7623'        
     },
     fonts: {
       titleFont: 'Montserrat, sans-serif',

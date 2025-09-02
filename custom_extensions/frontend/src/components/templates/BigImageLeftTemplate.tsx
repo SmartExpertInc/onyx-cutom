@@ -5,6 +5,14 @@ import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+// Debug logging utility
+const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[${source}] ${event}`, { ts: Date.now(), ...data });
+  }
+};
+
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -95,6 +103,7 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
+          lineHeight: '1.6'
         }}
         rows={1}
       />
@@ -122,8 +131,7 @@ function InlineEditor({
         wordWrap: 'break-word',
         whiteSpace: 'pre-wrap',
         boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
+        display: 'block'
       }}
     />
   );
@@ -144,7 +152,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   onUpdate,
   theme,
   isEditable = false,
-  imagePath
+  imagePath,
+  widthPx,
+  heightPx,
+  imageScale,
+  imageOffset,
+  objectFit,
+  getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -155,11 +169,97 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for MoveableManager integration
+  const imageRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
+  
+  // ✅ NEW: Debug logging to see what props are received
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Received props', {
+      slideId,
+      objectFit,
+      imagePath,
+      widthPx,
+      heightPx,
+      imageScale,
+      imageOffset,
+      hasOnUpdate: !!onUpdate
+    });
+  }, [slideId, objectFit, imagePath, widthPx, heightPx, imageScale, imageOffset, onUpdate]);
+  
+  // ✅ NEW: Text positioning logging
+  useEffect(() => {
+    console.log('🔍 BigImageLeftTemplate: Text positioning analysis', {
+      slideId,
+      title: title || 'NOT SET',
+      subtitle: subtitle || 'NOT SET',
+      hasOnUpdate: !!onUpdate,
+      isEditable
+    });
+  }, [slideId, title, subtitle, onUpdate, isEditable]);
+  
+  // ✅ NEW: Log when text elements are rendered
+  useEffect(() => {
+    if (titleRef.current) {
+      console.log('🔍 BigImageLeftTemplate: Title element rendered', {
+        slideId,
+        elementId: `${slideId}-title`,
+        element: titleRef.current,
+        hasOnUpdate: !!onUpdate
+      });
+    }
+    if (subtitleRef.current) {
+      console.log('🔍 BigImageLeftTemplate: Subtitle element rendered', {
+        slideId,
+        elementId: `${slideId}-subtitle`,
+        element: subtitleRef.current,
+        hasOnUpdate: !!onUpdate
+      });
+    }
+  }, [slideId, onUpdate]);
+  
+  // Debounced update function to prevent infinite autosaves
+  const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
+  const handleUpdate = (updates: any) => {
+    if (debouncedUpdate.current) {
+      clearTimeout(debouncedUpdate.current);
+    }
+    
+    debouncedUpdate.current = setTimeout(() => {
+      log('BigImageLeftTemplate', 'debouncedUpdate', { 
+        slideId, 
+        updates,
+        hasOnUpdate: !!onUpdate
+      });
+      
+      if (onUpdate) {
+        onUpdate(updates);
+      }
+    }, 300); // 300ms debounce
+  };
+  
+  log('BigImageLeftTemplate', 'render', { 
+    slideId, 
+    isEditable, 
+    hasImagePath: !!imagePath,
+    imageRefExists: !!imageRef.current,
+    titleRefExists: !!titleRef.current,
+    subtitleRefExists: !!subtitleRef.current
+  });
+  
+  // Simple refs for elements (no complex MoveableManager needed)
+  // The ClickableImagePlaceholder now handles its own drag/resize with official react-moveable patterns
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
+      }
+      if (debouncedUpdate.current) {
+        clearTimeout(debouncedUpdate.current);
       }
     };
   }, []);
@@ -195,8 +295,8 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
+    // Only apply default dimensions if no saved size exists
+    ...(widthPx && heightPx ? {} : { width: '100%', height: '100%' }),
     margin: '0 auto'
   };
 
@@ -229,6 +329,13 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {
+    console.log('🔍 BigImageLeftTemplate: Title save triggered', {
+      slideId,
+      oldTitle: title,
+      newTitle,
+      hasOnUpdate: !!onUpdate
+    });
+    
     if (onUpdate) {
       onUpdate({ title: newTitle });
     }
@@ -236,11 +343,22 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const handleTitleCancel = () => {
+    console.log('🔍 BigImageLeftTemplate: Title edit cancelled', {
+      slideId,
+      currentTitle: title
+    });
     setEditingTitle(false);
   };
 
   // Handle subtitle editing
   const handleSubtitleSave = (newSubtitle: string) => {
+    console.log('🔍 BigImageLeftTemplate: Subtitle save triggered', {
+      slideId,
+      oldSubtitle: subtitle,
+      newSubtitle,
+      hasOnUpdate: !!onUpdate
+    });
+    
     if (onUpdate) {
       onUpdate({ subtitle: newSubtitle });
     }
@@ -248,21 +366,81 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const handleSubtitleCancel = () => {
+    console.log('🔍 BigImageLeftTemplate: Subtitle edit cancelled', {
+      slideId,
+      currentSubtitle: subtitle
+    });
     setEditingSubtitle(false);
   };
 
   // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
+    log('BigImageLeftTemplate', 'handleImageUploaded', { 
+      slideId, 
+      newImagePath: !!newImagePath,
+      imageRefExists: !!imageRef.current
+    });
+
+    // Use immediate update for image upload to prevent delays
     if (onUpdate) {
       onUpdate({ imagePath: newImagePath });
     }
   };
 
+  const handleSizeTransformChange = (payload: any) => {
+    log('BigImageLeftTemplate', 'handleSizeTransformChange', { 
+      slideId, 
+      payload,
+      imageRefExists: !!imageRef.current
+    });
+
+    // Convert the payload to the expected format for the backend
+    const updateData: any = {};
+    
+    if (payload.imagePosition) {
+      updateData.imageOffset = payload.imagePosition;
+    }
+    
+    if (payload.imageSize) {
+      updateData.widthPx = payload.imageSize.width;
+      updateData.heightPx = payload.imageSize.height;
+    }
+    
+    // ✅ NEW: Handle objectFit property from ClickableImagePlaceholder
+    if (payload.objectFit) {
+      updateData.objectFit = payload.objectFit;
+      log('BigImageLeftTemplate', 'objectFit_update', { 
+        slideId, 
+        objectFit: payload.objectFit 
+      });
+    }
+    
+    // Use debounced update for size/transform changes
+    handleUpdate(updateData);
+  };
+
+  // Handle crop mode change
+  const handleCropModeChange = (mode: 'cover' | 'contain' | 'fill') => {
+    log('BigImageLeftTemplate', 'handleCropModeChange', { 
+      slideId, 
+      mode,
+      imageRefExists: !!imageRef.current
+    });
+    // Crop mode is now handled directly by ClickableImagePlaceholder
+  };
+
   // Use imagePrompt if provided, otherwise fallback to imageAlt or default
   const displayPrompt = imagePrompt || imageAlt || "man sitting on a chair";
 
+  log('BigImageLeftTemplate', 'rendering', { 
+    slideId, 
+    isEditable,
+    hasImagePath: !!imagePath
+  });
+
   return (
-    <div style={slideStyles}>
+    <div ref={slideContainerRef} style={slideStyles}>
+      
       {/* Left side - Clickable Image Placeholder */}
       <div style={imageContainerStyles}>
         <ClickableImagePlaceholder
@@ -274,87 +452,134 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
           prompt={displayPrompt}
           isEditable={isEditable}
           style={placeholderStyles}
+          onSizeTransformChange={handleSizeTransformChange}
+          elementId={`${slideId}-image`}
+          elementRef={imageRef}
+          cropMode={objectFit || 'contain'}
+          onCropModeChange={handleCropModeChange}
+          slideContainerRef={slideContainerRef}
+          savedImagePosition={imageOffset}
+          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          templateId="big-image-left"
+          aiGeneratedPrompt={imagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
         />
       </div>
 
       {/* Right side - Content */}
       <div style={contentContainerStyles}>
-        {/* Title */}
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block',
-              lineHeight: '1.2'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={() => {
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
+        {/* Title - wrapped */}
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || ''}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                // Ensure title behaves exactly like h1 element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  console.log('🔍 BigImageLeftTemplate: Title clicked for editing', {
+                    slideId,
+                    currentTitle: title,
+                    elementId: `${slideId}-title`
+                  });
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || 'Click to add title'}
+            </h1>
+          )}
+        </div>
 
-        {/* Subtitle */}
-        {isEditable && editingSubtitle ? (
-          <InlineEditor
-            initialValue={subtitle || ''}
-            onSave={handleSubtitleSave}
-            onCancel={handleSubtitleCancel}
-            multiline={true}
-            placeholder="Enter slide content..."
-            className="inline-editor-subtitle"
-            style={{
-              ...subtitleStyles,
-              // Ensure subtitle behaves exactly like div element
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block',
-              lineHeight: '1.6'
-            }}
-          />
-        ) : (
-          <div 
-            style={subtitleStyles}
-            onClick={() => {
-              if (isEditable) {
-                setEditingSubtitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {subtitle || 'Click to add content'}
-          </div>
-        )}
+        {/* Subtitle - wrapped */}
+        <div 
+          ref={subtitleRef}
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true" 
+          style={{ display: 'inline-block' }}
+        >
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle || ''}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter slide content..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                // Ensure subtitle behaves exactly like div element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <div 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  console.log('🔍 BigImageLeftTemplate: Subtitle clicked for editing', {
+                    slideId,
+                    currentSubtitle: subtitle,
+                    elementId: `${slideId}-subtitle`
+                  });
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {subtitle || 'Click to add content'}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

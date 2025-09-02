@@ -16,6 +16,16 @@ export interface Lesson {
   completionTime: string; // Estimated completion time in minutes (e.g., "5m", "6m", "7m", "8m")
   custom_rate?: number; // Individual lesson-level custom rate override
   quality_tier?: string; // Individual lesson-level quality tier override
+  recommended_content_types?: {
+    primary: string[];
+    reasoning?: string;
+    last_updated?: string;
+    quality_tier_used?: string;
+  };
+  // Advanced mode support
+  advanced?: boolean;
+  advancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
+  completion_breakdown?: { [key: string]: number };
 }
 
 export interface Section {
@@ -26,6 +36,9 @@ export interface Section {
   autoCalculateHours?: boolean; // Keep for TrainingPlanTable editor
   custom_rate?: number; // Module-level custom rate override
   quality_tier?: string; // Module-level quality tier override
+  // Advanced mode support
+  advanced?: boolean;
+  advancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
 }
 
 export interface DisplayOptions {
@@ -86,4 +99,7 @@ export interface ProjectInstanceDetail {
   details?: TrainingPlanData | null; // The actual content
   custom_rate?: number | null; // Project-level custom rate
   quality_tier?: string | null; // Project-level quality tier
+  // Advanced mode support
+  is_advanced?: boolean | null;
+  advanced_rates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
 }

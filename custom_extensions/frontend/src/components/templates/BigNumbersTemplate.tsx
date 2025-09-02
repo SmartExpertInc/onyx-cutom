@@ -10,7 +10,7 @@ export interface BigNumberItem {
 export interface BigNumbersTemplateProps {
   slideId: string;
   title: string;
-  items: BigNumberItem[];
+  steps: BigNumberItem[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -143,7 +143,7 @@ function InlineEditor({
 export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   slideId,
   title,
-  items,
+  steps,  // Changed from 'items' to 'steps'
   theme,
   onUpdate,
   isEditable = false
@@ -157,6 +157,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   const [editingItemLabels, setEditingItemLabels] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -243,44 +248,44 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   // Handle item value editing
   const handleItemValueSave = (index: number, newValue: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], value: newValue };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], value: newValue };
+      onUpdate({ steps: updatedSteps });
     }
     setEditingItemValues(editingItemValues.filter(i => i !== index));
   };
 
   const handleItemValueCancel = (index: number) => {
-    setEditingItemValues(editingItemValues.filter((i: number) => i !== index));
+    setEditingItemValues(editingItemValues.filter(i => i !== index));
   };
 
   // Handle item label editing
   const handleItemLabelSave = (index: number, newLabel: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], label: newLabel };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], label: newLabel };
+      onUpdate({ steps: updatedSteps });
     }
-    setEditingItemLabels(editingItemLabels.filter((i: number) => i !== index));
+    setEditingItemLabels(editingItemLabels.filter(i => i !== index));
   };
 
   const handleItemLabelCancel = (index: number) => {
-    setEditingItemLabels(editingItemLabels.filter((i: number) => i !== index));
+    setEditingItemLabels(editingItemLabels.filter(i => i !== index));
   };
 
   // Handle item description editing
   const handleItemDescriptionSave = (index: number, newDescription: string) => {
-    if (onUpdate && items) {
-      const updatedItems = [...items];
-      updatedItems[index] = { ...updatedItems[index], description: newDescription };
-      onUpdate({ items: updatedItems });
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
+      onUpdate({ steps: updatedSteps });
     }
-    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
 
   const handleItemDescriptionCancel = (index: number) => {
-    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
 
   const startEditingItemValue = (index: number) => {
@@ -297,175 +302,297 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   return (
     <div className="big-numbers-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block', width: '100%' }}
+      >
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div style={gridStyles}>
-        {Array.isArray(items) && items.length >= 3 ? (
-          items.slice(0, 3).map((item: BigNumberItem, idx: number) => (
+        {Array.isArray(steps) && steps.length >= 3 ? (
+          steps.slice(0, 3).map((item: BigNumberItem, idx: number) => (
             <div key={idx} style={itemStyles}>
               {/* Item Value */}
-              {isEditable && editingItemValues.includes(idx) ? (
-                <InlineEditor
-                  initialValue={item.value || ''}
-                  onSave={(newValue) => handleItemValueSave(idx, newValue)}
-                  onCancel={() => handleItemValueCancel(idx)}
-                  multiline={false}
-                  placeholder="Enter value..."
-                  className="inline-editor-item-value"
-                  style={{
-                    ...valueStyles,
-                    // Ensure value behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={valueStyles}
-                  onClick={() => {
-                    if (isEditable) {
-                      startEditingItemValue(idx);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.value || 'Click to add value'}
-                </div>
-              )}
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-value`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
+                {isEditable && editingItemValues.includes(idx) ? (
+                  <InlineEditor
+                    initialValue={item.value || ''}
+                    onSave={(newValue) => handleItemValueSave(idx, newValue)}
+                    onCancel={() => handleItemValueCancel(idx)}
+                    multiline={false}
+                    placeholder="Enter value..."
+                    className="inline-editor-item-value"
+                    style={{
+                      ...valueStyles,
+                      // Ensure value behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={valueStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemValue(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {item.value || 'Click to add value'}
+                  </div>
+                )}
+              </div>
 
               {/* Item Label */}
-              {isEditable && editingItemLabels.includes(idx) ? (
-                <InlineEditor
-                  initialValue={item.label || ''}
-                  onSave={(newLabel) => handleItemLabelSave(idx, newLabel)}
-                  onCancel={() => handleItemLabelCancel(idx)}
-                  multiline={true}
-                  placeholder="Enter label..."
-                  className="inline-editor-item-label"
-                  style={{
-                    ...labelStyles,
-                    // Ensure label behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={labelStyles}
-                  onClick={() => {
-                    if (isEditable) {
-                      startEditingItemLabel(idx);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.label || 'Click to add label'}
-                </div>
-              )}
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-label`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
+                {isEditable && editingItemLabels.includes(idx) ? (
+                  <InlineEditor
+                    initialValue={item.label || ''}
+                    onSave={(newLabel) => handleItemLabelSave(idx, newLabel)}
+                    onCancel={() => handleItemLabelCancel(idx)}
+                    multiline={true}
+                    placeholder="Enter label..."
+                    className="inline-editor-item-label"
+                    style={{
+                      ...labelStyles,
+                      // Ensure label behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={labelStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemLabel(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {item.label || 'Click to add label'}
+                  </div>
+                )}
+              </div>
 
               {/* Item Description */}
-              {isEditable && editingItemDescriptions.includes(idx) ? (
-                <InlineEditor
-                  initialValue={item.description || ''}
-                  onSave={(newDescription) => handleItemDescriptionSave(idx, newDescription)}
-                  onCancel={() => handleItemDescriptionCancel(idx)}
-                  multiline={true}
-                  placeholder="Enter description..."
-                  className="inline-editor-item-description"
-                  style={{
-                    ...descriptionStyles,
-                    // Ensure description behaves exactly like div element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={descriptionStyles}
-                  onClick={() => {
-                    if (isEditable) {
-                      startEditingItemDescription(idx);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {item.description || 'Click to add description'}
-                </div>
-              )}
+              <div 
+                data-moveable-element={`${slideId}-item-${idx}-description`}
+                data-draggable="true" 
+                style={{ width: '100%' }}
+              >
+                {isEditable && editingItemDescriptions.includes(idx) ? (
+                  <InlineEditor
+                    initialValue={item.description || ''}
+                    onSave={(newDescription) => handleItemDescriptionSave(idx, newDescription)}
+                    onCancel={() => handleItemDescriptionCancel(idx)}
+                    multiline={true}
+                    placeholder="Enter description..."
+                    className="inline-editor-item-description"
+                    style={{
+                      ...descriptionStyles,
+                      // Ensure description behaves exactly like div element
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={descriptionStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        startEditingItemDescription(idx);
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {item.description || 'Click to add description'}
+                  </div>
+                )}
+              </div>
             </div>
           ))
         ) : (
-          <div style={{
-            color: '#ff6b6b',
-            fontWeight: 600,
-            padding: '20px',
-            textAlign: 'center',
-            gridColumn: '1 / -1'
-          }}>
-            Error: This slide requires exactly 3 items with "value", "label", and "description" fields.
-            {!Array.isArray(items) && <div>Found: {typeof items}</div>}
-            {Array.isArray(items) && <div>Found {items.length} items (need 3)</div>}
-          </div>
+          // Fallback: Display available items or placeholder content
+          Array.isArray(steps) && steps.length > 0 ? (
+            steps.slice(0, 3).map((item: BigNumberItem, idx: number) => {
+              // Fill missing fields with defaults
+              const safeItem = {
+                value: item.value || '0',
+                label: item.label || `Item ${idx + 1}`,
+                description: item.description || 'No description available'
+              };
+              
+              return (
+                <div key={idx} style={{
+                  textAlign: 'center',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                                     <div style={{
+                     fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+                     fontWeight: 'bold',
+                     color: currentTheme.colors.accentColor,
+                     marginBottom: '8px',
+                     textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                   }}>
+                     {safeItem.value}
+                   </div>
+                   <div style={{
+                     fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+                     fontWeight: '600',
+                     color: currentTheme.colors.titleColor,
+                     marginBottom: '8px'
+                   }}>
+                     {safeItem.label}
+                   </div>
+                   <div style={{
+                     fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
+                     color: currentTheme.colors.contentColor,
+                     lineHeight: '1.4'
+                   }}>
+                     {safeItem.description}
+                   </div>
+                </div>
+              );
+            })
+          ) : (
+            // Ultimate fallback: Show placeholder content
+            [1, 2, 3].map((idx) => (
+              <div key={idx} style={{
+                textAlign: 'center',
+                padding: '20px',
+                borderRadius: '12px',
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                                 <div style={{
+                   fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+                   fontWeight: 'bold',
+                   color: currentTheme.colors.accentColor,
+                   marginBottom: '8px',
+                   textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                 }}>
+                   {idx * 25}%
+                 </div>
+                 <div style={{
+                   fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+                   fontWeight: '600',
+                   color: currentTheme.colors.titleColor,
+                   marginBottom: '8px'
+                 }}>
+                   Key Metric {idx}
+                 </div>
+                 <div style={{
+                   fontSize: 'clamp(0.8rem, 1.5vw, 1rem)',
+                   color: currentTheme.colors.contentColor,
+                   lineHeight: '1.4'
+                 }}>
+                   Important statistic for your presentation
+                 </div>
+              </div>
+            ))
+          )
         )}
       </div>
     </div>

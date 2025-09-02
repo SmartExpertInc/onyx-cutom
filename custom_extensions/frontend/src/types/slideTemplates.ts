@@ -1,15 +1,17 @@
 // custom_extensions/frontend/src/types/slideTemplates.ts
 
-import React from 'react';
+import * as React from 'react';
 import { SlideTheme } from '@/types/slideThemes';
+import { PositionableItem, CanvasConfig, PositioningMode } from '@/types/positioning';
 
-// --- Base Template System Types ---
+// --- Base Template System Types! ---
 
 export interface BaseTemplateProps {
   slideId: string;
   isEditable?: boolean;
   onUpdate?: (props: any) => void;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }
 
 export interface TemplateComponentInfo {
@@ -25,7 +27,7 @@ export interface TemplateComponentInfo {
 }
 
 export interface PropDefinition {
-  type: 'text' | 'richtext' | 'image' | 'color' | 'number' | 'boolean' | 'select' | 'array';
+  type: 'text' | 'richtext' | 'image' | 'color' | 'number' | 'boolean' | 'select' | 'array' | 'object';
   label: string;
   description?: string;
   required?: boolean;
@@ -49,11 +51,20 @@ export interface ComponentBasedSlide {
   templateId: string;
   props: Record<string, any>;
   voiceoverText?: string; // Optional voiceover text for video lessons
+  
+  // NEW: Positioning support
+  items?: PositionableItem[]; // Dynamic positioning data
+  positioningMode?: PositioningMode; // How items are positioned
+  canvasConfig?: CanvasConfig; // Canvas dimensions and settings
+  
   metadata?: {
     createdAt?: string;
     updatedAt?: string;
     version?: string;
     notes?: string;
+    hasCustomPositioning?: boolean; // Flag for custom positions
+    originalTemplateId?: string; // Track original template if converted
+    elementPositions?: Record<string, { x: number; y: number }>; // Element drag positions
   };
 }
 
@@ -111,6 +122,12 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   backgroundColor?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string; // Path to uploaded image
+  // New optional size/transform fields for placeholder/image
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
 }
 
 export interface BigImageTopProps extends BigImageLeftProps {}
@@ -138,6 +155,12 @@ export interface BulletPointsProps extends BaseTemplateProps {
   imageAlt?: string;
   voiceoverText?: string; // Optional voiceover text for video lessons
   imagePath?: string;
+  // Optional size/transform fields for left placeholder image
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
 }
 
 export interface BulletPointsRightProps extends BulletPointsProps {
@@ -152,12 +175,24 @@ export interface TwoColumnProps extends BaseTemplateProps {
   leftImageAlt?: string;
   leftImagePrompt?: string;
   leftImagePath?: string; // Path to uploaded image for left column
+  // Optional size/transform fields for left placeholder image
+  leftWidthPx?: number;
+  leftHeightPx?: number;
+  leftObjectFit?: 'contain' | 'cover' | 'fill';
+  leftImageScale?: number;
+  leftImageOffset?: { x: number; y: number };
   rightTitle: string;
   rightContent: string;
   rightImageUrl?: string;
   rightImageAlt?: string;
   rightImagePrompt?: string;
   rightImagePath?: string; // Path to uploaded image for right column
+  // Optional size/transform fields for right placeholder image
+  rightWidthPx?: number;
+  rightHeightPx?: number;
+  rightObjectFit?: 'contain' | 'cover' | 'fill';
+  rightImageScale?: number;
+  rightImageOffset?: { x: number; y: number };
   columnRatio?: '50-50' | '60-40' | '40-60' | '70-30' | '30-70';
   backgroundColor?: string;
   titleColor?: string;
@@ -211,9 +246,73 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
   voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
+export interface EventListTemplateProps extends BaseTemplateProps {
+  events: Array<{
+    date: string;
+    description: string;
+  }>;
+  titleColor?: string;
+  descriptionColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
 
-export interface FourBoxGridProps {
-  slideId: string;
+export interface SixIdeasListTemplateProps extends BaseTemplateProps {
+  title: string;
+  ideas: Array<{
+    number: string;
+    text: string;
+  }>;
+  imageUrl?: string;
+  imageAlt?: string;
+  imagePrompt?: string;
+  imagePath?: string;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface ContraindicationsIndicationsTemplateProps extends BaseTemplateProps {
+  title: string;
+  contraindications: string[];
+  indications: string[];
+  titleColor?: string;
+  contraindicationsColor?: string;
+  indicationsColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface MetricsAnalyticsTemplateProps extends BaseTemplateProps {
+  title: string;
+  metrics: Array<{
+    number: string;
+    text: string;
+  }>;
+  titleColor?: string;
+  numberColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+export interface OrgChartTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: Array<{
+    id: string;
+    title: string;
+    level: number;
+    parentId?: string;
+  }>;
+  titleColor?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  theme?: SlideTheme;
+}
+
+
+export interface FourBoxGridProps extends BaseTemplateProps {
   title: string;
   boxes: Array<{
     heading: string;
@@ -227,18 +326,16 @@ export interface TimelineStep {
   description: string;
 }
 
-export interface TimelineTemplateProps {
-  slideId: string;
+export interface TimelineTemplateProps extends BaseTemplateProps {
   title: string;
   steps: TimelineStep[];
   theme?: SlideTheme;
 }
 
-export interface PyramidTemplateProps {
-  slideId: string;
+export interface PyramidTemplateProps extends BaseTemplateProps {
   title: string;
   subtitle: string;
-  items: { heading: string; description: string }[];
+  steps: { heading: string; description: string }[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
 }
 
@@ -248,10 +345,72 @@ export interface BigNumberItem {
   description: string;
 }
 
-export interface BigNumbersTemplateProps {
-  slideId: string;
+export interface BigNumbersTemplateProps extends BaseTemplateProps {
   title: string;
-  items: BigNumberItem[];
+  steps: BigNumberItem[];
+  theme?: SlideTheme;
+}
+
+export interface PieChartInfographicsTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: {
+    segments: Array<{
+      label: string;
+      percentage: number;
+      color: string;
+      description?: string;
+    }>;
+  };
+  monthlyData: Array<{
+    month: string;
+    description: string;
+    color: string;
+    percentage: string;
+  }>;
+  descriptionText?: string;
+  theme?: SlideTheme;
+}
+
+export interface BarChartInfographicsTemplateProps extends BaseTemplateProps {
+  title: string;
+  chartData: {
+    categories: Array<{
+      label: string;
+      value: number;
+      color: string;
+      description: string;
+    }>;
+  };
+  monthlyData: Array<{
+    month: string;
+    description: string;
+    color?: string;
+  }>;
+  descriptionText?: string;
+  theme?: SlideTheme;
+}
+
+export interface MarketShareTemplateProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  chartData: Array<{
+    label: string;
+    description: string;
+    percentage: number;
+    color: string;
+    year?: string;
+  }>;
+  bottomText?: string;
+  theme?: SlideTheme;
+}
+
+export interface ComparisonSlideTemplateProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  tableData: {
+    headers: string[];
+    rows: string[][];
+  };
   theme?: SlideTheme;
 }
 
@@ -348,6 +507,237 @@ export interface AvatarWithQuoteProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
+// New slide templates based on provided images
+export interface CourseOverviewSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle?: string;
+  imagePath?: string;
+  imageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  imagePath?: string;
+  imageAlt?: string;
+  logoPath?: string;
+  logoAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface ThankYouSlideProps extends BaseTemplateProps {
+  title: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  companyName: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  textColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+// New slide templates based on images
+export interface BenefitsListSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  description: string;
+  benefits: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  currentStep?: number;
+  totalSteps?: number;
+  companyName?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  mainStatement: string;
+  practices: Array<{
+    number: number;
+    title: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  teamImagePath?: string;
+  teamImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface BenefitsTagsSlideProps extends BaseTemplateProps {
+  title: string;
+  tags: Array<{
+    text: string;
+    isHighlighted?: boolean;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  companyLogoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface LearningTopicsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  topics: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
+  title: string;
+  tips: Array<{
+    text: string;
+    isHighlighted?: boolean;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface TwoColumnSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
+  title: string;
+  definitions: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface ImpactStatementsSlideProps extends BaseTemplateProps {
+  title: string;
+  statements: Array<{
+    number: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface BarChartSlideProps extends BaseTemplateProps {
+  title?: string;
+  bars: Array<{
+    percentage: string;
+    description: string;
+    height: number; // Height in pixels or percentage
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  website?: string;
+  date?: string;
+  pageNumber?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface CriticalThinkingSlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  highlightedPhrases: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  companyLogoAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface PsychologicalSafetySlideProps extends BaseTemplateProps {
+  title: string;
+  content: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+export interface DataAnalysisSlideProps extends BaseTemplateProps {
+  title: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  excelIconPath?: string;
+  excelIconAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+  voiceoverText?: string;
+}
+
+
+
 export type TemplateId = 
   | 'title-slide'
   | 'content-slide'
@@ -364,11 +754,35 @@ export type TemplateId =
   | 'timeline'
   | 'big-numbers'
   | 'pyramid'
+  | 'event-list'
+  | 'six-ideas-list'
+  | 'contraindications-indications'
+  | 'metrics-analytics'
+  | 'org-chart'
+  | 'pie-chart-infographics'
+  | 'bar-chart-infographics'
+  | 'market-share'
+  | 'comparison-slide'
   | 'avatar-service-slide'
   | 'avatar-with-buttons'
   | 'avatar-checklist'
   | 'avatar-steps'
-  | 'avatar-crm';
+  | 'avatar-crm'
+  | 'course-overview-slide'
+  | 'work-life-balance-slide'
+  | 'thank-you-slide'
+  | 'benefits-list-slide'
+  | 'hybrid-work-best-practices-slide'
+  | 'benefits-tags-slide'
+  | 'learning-topics-slide'
+  | 'soft-skills-assessment-slide'
+  | 'two-column-slide'
+  | 'phishing-definition-slide'
+  | 'impact-statements-slide'
+  | 'bar-chart-slide'
+  | 'critical-thinking-slide'
+  | 'psychological-safety-slide'
+  | 'data-analysis-slide';
 
 export interface TemplatePreview {
   templateId: string;

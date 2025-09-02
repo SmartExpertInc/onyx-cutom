@@ -1,16 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { FourBoxGridProps } from '@/types/slideTemplates';
 
-export interface FourBoxGridProps {
-  slideId: string;
-  title: string;
-  boxes: Array<{
-    heading: string;
-    text: string;
-  }>;
-  theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
-  isEditable?: boolean;
+interface BoxItem {
+  heading: string;
+  text: string;
 }
 
 interface InlineEditorProps {
@@ -153,6 +147,11 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   const [editingBoxTexts, setEditingBoxTexts] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -269,48 +268,66 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
 
   return (
     <div className="four-box-grid-template" style={slideStyles}>
-      {/* Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Title - wrapped */}
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block' }}
+      >
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       <div style={gridStyles}>
         {Array.isArray(boxes) && boxes.length >= 4 ? (
           boxes.slice(0, 4).map((box: any, idx: number) => (
-            <div key={idx} style={boxStyles}>
+            <div 
+              key={idx} 
+              data-moveable-element={`${slideId}-box-${idx}`}
+              data-draggable="true"
+              style={boxStyles}
+            >
               {/* Box Heading */}
               {isEditable && editingBoxHeadings.includes(idx) ? (
                 <InlineEditor
@@ -338,12 +355,18 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
               ) : (
                 <div 
                   style={headingStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingBoxHeading(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                 >
                   {box.heading || 'Click to add heading'}
                 </div>
@@ -376,12 +399,18 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
               ) : (
                 <div 
                   style={textStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingBoxText(idx);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                 >
                   {box.text || 'Click to add text'}
                 </div>

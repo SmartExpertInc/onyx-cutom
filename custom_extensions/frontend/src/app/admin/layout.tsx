@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Admin Panel - Credits Management',
-  description: 'Admin interface for managing user credits',
+  title: 'Admin Panel - Dashboard',
+  description: 'Admin interface for managing user credits, analytics, and features',
 }
 
 export default function AdminLayout({

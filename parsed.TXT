@@ -1,0 +1,270 @@
+{
+custom_backend-1  |   "theme": "dark-purple",
+custom_backend-1  |   "slides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "content": "Pricing strategies are essential for businesses to maximize profits and market share. They involve setting prices based on various factors, including costs, competition, and customer demand. Understanding the different pricing strategies available can help businesses make informed decisions that align with their overall objectives.",
+custom_backend-1  |         "imageAlt": "Visual representation of various pricing strategies with icons",
+custom_backend-1  |         "imageUrl": "",
+custom_backend-1  |         "subtitle": "Pricing strategies are essential for businesses to maximize profits and market share. They involve setting prices based on various factors, including costs, competition, and customer demand. Understanding the different pricing strategies available can help businesses make informed decisions that align with their overall objectives.",
+custom_backend-1  |         "imagePrompt": "Visual representation of various pricing strategies with icons"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_1_understanding_pricing_strategies",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Understanding Pricing Strategies",
+custom_backend-1  |       "templateId": "big-image-left",
+custom_backend-1  |       "slideNumber": 1
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Cost-Plus Pricing",
+custom_backend-1  |         "bullets": [
+custom_backend-1  |           "Advantages: Simple to calculate and ensures costs are covered.",
+custom_backend-1  |           "Disadvantages: Ignores market demand and competitor pricing, which can lead to overpricing or underpricing."
+custom_backend-1  |         ],
+custom_backend-1  |         "imageAlt": "",
+custom_backend-1  |         "maxColumns": 2,
+custom_backend-1  |         "bulletStyle": "number",
+custom_backend-1  |         "imagePrompt": ""
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_2_cost_plus_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Cost-Plus Pricing",
+custom_backend-1  |       "templateId": "bullet-points",
+custom_backend-1  |       "slideNumber": 2
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Value-Based Pricing",
+custom_backend-1  |         "leftTitle": "Benefits",
+custom_backend-1  |         "rightTitle": "Challenges",
+custom_backend-1  |         "leftContent": "Aligns pricing with customer willingness to pay.\nCan lead to higher profit margins if customers perceive high value.",
+custom_backend-1  |         "rightContent": "Requires extensive market research to gauge customer perceptions accurately.\nRisk of misjudging value can lead to pricing errors."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_3_value_based_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Value-Based Pricing",
+custom_backend-1  |       "templateId": "two-column",
+custom_backend-1  |       "slideNumber": 3
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Competitive Pricing",
+custom_backend-1  |         "content": "Competitive pricing involves setting prices based on what competitors are charging for similar products. This strategy is common in markets with many similar offerings and helps businesses remain competitive.",
+custom_backend-1  |         "imageAlt": "Graph showing price comparisons among competitors",
+custom_backend-1  |         "imageUrl": "",
+custom_backend-1  |         "subtitle": "Competitive pricing involves setting prices based on what competitors are charging for similar products. This strategy is common in markets with many similar offerings and helps businesses remain competitive.",
+custom_backend-1  |         "imagePrompt": "Graph showing price comparisons among competitors"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_4_competitive_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Competitive Pricing",
+custom_backend-1  |       "templateId": "big-image-top",
+custom_backend-1  |       "slideNumber": 4
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           "Set Low Initial Price: Attract customers and encourage trial.",
+custom_backend-1  |           "Increase Market Share: Build a loyal customer base.",
+custom_backend-1  |           "Gradually Raise Prices: Adjust pricing once market presence is established."
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Penetration Pricing"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_5_penetration_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Penetration Pricing",
+custom_backend-1  |       "templateId": "process-steps",
+custom_backend-1  |       "slideNumber": 5
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Capture maximum revenue from early adopters",
+custom_backend-1  |             "value": "High Initial Price",
+custom_backend-1  |             "description": ""
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Attract more price-sensitive customers over time",
+custom_backend-1  |             "value": "Gradual Price Reduction",
+custom_backend-1  |             "description": ""
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "label": "Item 3",
+custom_backend-1  |             "value": "0",
+custom_backend-1  |             "description": "No description available"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Skimming Pricing"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_6_skimming_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Skimming Pricing",
+custom_backend-1  |       "templateId": "big-numbers",
+custom_backend-1  |       "slideNumber": 6
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Psychological Pricing",
+custom_backend-1  |         "bullets": [
+custom_backend-1  |           "Perceived Value: Consumers perceive prices ending in .99 as significantly lower.",
+custom_backend-1  |           "Sales Boost: Can lead to increased sales volume due to perceived bargains."
+custom_backend-1  |         ],
+custom_backend-1  |         "imageAlt": "",
+custom_backend-1  |         "bulletStyle": "dot",
+custom_backend-1  |         "imagePrompt": ""
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_7_psychological_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Psychological Pricing",
+custom_backend-1  |       "templateId": "bullet-points-right",
+custom_backend-1  |       "slideNumber": 7
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Dynamic Pricing",
+custom_backend-1  |         "solutions": [
+custom_backend-1  |           "Transparent Communication: Clearly explain pricing changes to customers.",
+custom_backend-1  |           "Data-Driven Decisions: Use analytics to optimize pricing strategies effectively."
+custom_backend-1  |         ],
+custom_backend-1  |         "challenges": [
+custom_backend-1  |           "Customer Perception: Frequent price changes can frustrate customers.",
+custom_backend-1  |           "Complexity: Requires sophisticated algorithms and data analysis."
+custom_backend-1  |         ],
+custom_backend-1  |         "solutionsTitle": "Solutions",
+custom_backend-1  |         "challengesTitle": "Challenges"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_8_dynamic_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Dynamic Pricing",
+custom_backend-1  |       "templateId": "challenges-solutions",
+custom_backend-1  |       "slideNumber": 8
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "boxes": [
+custom_backend-1  |           {
+custom_backend-1  |             "text": "$29.99 - Attracts budget-conscious customers",
+custom_backend-1  |             "heading": "Basic Package"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "text": "$49.99 - Appeals to value-seeking customers",
+custom_backend-1  |             "heading": "Premium Package"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "text": "$79.99 - Encourages larger purchases",
+custom_backend-1  |             "heading": "Family Bundle"
+custom_backend-1  |           },
+custom_backend-1  |           {
+custom_backend-1  |             "text": "$39.99 - Drives sales during holidays",
+custom_backend-1  |             "heading": "Seasonal Bundle"
+custom_backend-1  |           }
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Bundle Pricing"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_9_bundle_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Bundle Pricing",
+custom_backend-1  |       "templateId": "four-box-grid",
+custom_backend-1  |       "slideNumber": 9
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Geographic Pricing",
+custom_backend-1  |         "content": "Geographic pricing involves setting different prices for the same product in different locations. This strategy considers factors like local market conditions, competition, and shipping costs.",
+custom_backend-1  |         "imageAlt": "Map showing different pricing strategies across regions",
+custom_backend-1  |         "imageUrl": "",
+custom_backend-1  |         "subtitle": "Geographic pricing involves setting different prices for the same product in different locations. This strategy considers factors like local market conditions, competition, and shipping costs.",
+custom_backend-1  |         "imagePrompt": "Map showing different pricing strategies across regions"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_10_geographic_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Geographic Pricing",
+custom_backend-1  |       "templateId": "big-image-top",
+custom_backend-1  |       "slideNumber": 10
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Price Discrimination",
+custom_backend-1  |         "leftTitle": "Types",
+custom_backend-1  |         "rightTitle": "Considerations",
+custom_backend-1  |         "leftContent": "First-Degree: Personalized pricing based on individual willingness to pay.\nSecond-Degree: Pricing based on quantity purchased (e.g., bulk discounts).\nThird-Degree: Different prices for different demographic groups (e.g., student discounts).",
+custom_backend-1  |         "rightContent": "Ensure compliance with legal regulations regarding pricing practices.\nBe transparent to maintain customer trust."
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_11_price_discrimination",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Price Discrimination",
+custom_backend-1  |       "templateId": "two-column",
+custom_backend-1  |       "slideNumber": 11
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "steps": [
+custom_backend-1  |           "Set Recurring Fee: Determine pricing based on value provided.",
+custom_backend-1  |           "Offer Flexible Plans: Provide options for different customer needs.",
+custom_backend-1  |           "Focus on Retention: Implement strategies to keep subscribers engaged."
+custom_backend-1  |         ],
+custom_backend-1  |         "title": "Subscription Pricing"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_12_subscription_pricing",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Subscription Pricing",
+custom_backend-1  |       "templateId": "process-steps",
+custom_backend-1  |       "slideNumber": 12
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Pricing Strategy Evaluation",
+custom_backend-1  |         "metrics": [
+custom_backend-1  |           "Sales Growth: Measure the impact of pricing changes on overall sales.",
+custom_backend-1  |           "Customer Acquisition Cost: Analyze how pricing affects customer acquisition.",
+custom_backend-1  |           "Profit Margins: Monitor profit margins to ensure sustainability."
+custom_backend-1  |         ]
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_13_pricing_strategy_evaluation",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Pricing Strategy Evaluation",
+custom_backend-1  |       "templateId": "metrics-analytics",
+custom_backend-1  |       "slideNumber": 13
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Adapting to Market Changes",
+custom_backend-1  |         "solutions": [
+custom_backend-1  |           "Regular Market Analysis: Continuously monitor market trends and adjust pricing accordingly.",
+custom_backend-1  |           "Customer Feedback: Gather insights from customers to inform pricing decisions."
+custom_backend-1  |         ],
+custom_backend-1  |         "challenges": [
+custom_backend-1  |           "Market Volatility: Rapid changes can disrupt established pricing strategies.",
+custom_backend-1  |           "Consumer Expectations: Keeping up with evolving customer preferences."
+custom_backend-1  |         ],
+custom_backend-1  |         "solutionsTitle": "Solutions",
+custom_backend-1  |         "challengesTitle": "Challenges"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_14_adapting_to_market_changes",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Adapting to Market Changes",
+custom_backend-1  |       "templateId": "challenges-solutions",
+custom_backend-1  |       "slideNumber": 14
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Key Takeaways on Pricing Strategies",
+custom_backend-1  |         "author": "By evaluating different approaches and adapting to market conditions, businesses can optimize their pricing to maximize profitability and customer satisfaction.",
+custom_backend-1  |         "subtitle": "Understanding and implementing the right pricing strategy is vital for business success.",
+custom_backend-1  |         "titleColor": "",
+custom_backend-1  |         "subtitleColor": "",
+custom_backend-1  |         "backgroundColor": ""
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide_15_conclusion",
+custom_backend-1  |       "metadata": {},
+custom_backend-1  |       "slideTitle": "Conclusion",
+custom_backend-1  |       "templateId": "title-slide",
+custom_backend-1  |       "slideNumber": 15
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "lessonTitle": "Understanding Pricing Strategies",
+custom_backend-1  |   "currentSlideId": "slide_1_understanding_pricing_strategies",
+custom_backend-1  |   "detectedLanguage": "en"
+custom_backend-1  | }

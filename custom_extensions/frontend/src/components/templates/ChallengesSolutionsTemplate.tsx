@@ -153,6 +153,11 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   const [editingSolutions, setEditingSolutions] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs for draggable elements (following Big Image Left pattern)
+  const titleRef = useRef<HTMLDivElement>(null);
+  
+  // Use existing slideId for element positioning (following Big Image Left pattern)
+  
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -341,48 +346,65 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
 
   return (
     <div className="challenges-solutions-template" style={slideStyles}>
-      {/* Main Title */}
-      {isEditable && editingTitle ? (
-        <InlineEditor
-          initialValue={title || ''}
-          onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
-          multiline={true}
-          placeholder="Enter slide title..."
-          className="inline-editor-title"
-          style={{
-            ...titleStyles,
-            // Ensure title behaves exactly like h1 element
-            margin: '0 auto 50px auto',
-            padding: '0',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            overflow: 'hidden',
-            wordWrap: 'break-word',
-            whiteSpace: 'pre-wrap',
-            boxSizing: 'border-box',
-            display: 'block'
-          }}
-        />
-      ) : (
-        <h1 
-          style={titleStyles}
-          onClick={() => {
-            if (isEditable) {
-              setEditingTitle(true);
-            }
-          }}
-          className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-        >
-          {title || 'Click to add title'}
-        </h1>
-      )}
+      {/* Main Title - wrapped */}
+      <div 
+        ref={titleRef}
+        data-moveable-element={`${slideId}-title`}
+        data-draggable="true" 
+        style={{ display: 'inline-block', width: '100%' }}
+      >
+        {isEditable && editingTitle ? (
+          <InlineEditor
+            initialValue={title || ''}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            placeholder="Enter slide title..."
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              // Ensure title behaves exactly like h1 element
+              margin: '0 auto 50px auto',
+              padding: '0',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              overflow: 'hidden',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1 
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
+          >
+            {title || 'Click to add title'}
+          </h1>
+        )}
+      </div>
 
       {/* Two Column Grid */}
       <div style={gridStyles}>
         {/* Challenges Column */}
-        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
+        <div 
+          data-moveable-element={`${slideId}-challenges`}
+          data-draggable="true"
+          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
+        >
           <div style={headerStyles}>
             <XMarkIcon />
             {isEditable && editingChallengesTitle ? (
@@ -411,12 +433,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             ) : (
               <h2 
                 style={sectionTitleStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingChallengesTitle(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
               >
                 {challengesTitle || 'Click to add challenges title'}
               </h2>
@@ -456,12 +484,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                   />
                 ) : (
                   <span 
-                    onClick={() => {
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
                       if (isEditable) {
                         startEditingChallenge(index);
                       }
                     }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
                   >
                     {challenge || 'Click to add challenge'}
                   </span>
@@ -472,7 +506,11 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
         </div>
 
         {/* Solutions Column */}
-        <div style={calloutBoxStyles(currentTheme.colors.backgroundColor)}>
+        <div 
+          data-moveable-element={`${slideId}-solutions`}
+          data-draggable="true"
+          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
+        >
           <div style={headerStyles}>
             <CheckIcon />
             {isEditable && editingSolutionsTitle ? (
@@ -501,12 +539,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             ) : (
               <h2 
                 style={sectionTitleStyles}
-                onClick={() => {
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isEditable) {
                     setEditingSolutionsTitle(true);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
               >
                 {solutionsTitle || 'Click to add solutions title'}
               </h2>
@@ -546,12 +590,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                   />
                 ) : (
                   <span 
-                    onClick={() => {
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
                       if (isEditable) {
                         startEditingSolution(index);
                       }
                     }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                   >
                     {solution || 'Click to add solution'}
                   </span>
