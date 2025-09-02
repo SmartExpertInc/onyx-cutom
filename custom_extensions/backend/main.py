@@ -73,6 +73,7 @@ COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
 COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay"  # New component for lesson plans
 
 # --- LLM Configuration for JSON Parsing ---
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
@@ -11992,6 +11993,29 @@ Return ONLY the JSON object.
 
             Return ONLY the JSON object.
             """
+
+        elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            # For lesson plans, preserve the original structure without parsing
+            logger.info(f"Lesson plan detected for project {project_data.projectName}. Preserving original structure.")
+            # Store the raw lesson plan data without parsing
+            content_to_store_for_db = json.loads(project_data.aiResponse) if isinstance(project_data.aiResponse, str) else project_data.aiResponse
+            derived_product_type = "lesson-plan"
+            derived_microproduct_type = "Lesson Plan"
+            
+            # Skip the LLM parsing for lesson plans
+            logger.info("Skipping LLM parsing for lesson plan - using raw data directly")
+            return ProjectDB(
+                id=0,  # Will be set by database
+                onyx_user_id=onyx_user_id,
+                project_name=project_data.projectName,
+                product_type=derived_product_type,
+                microproduct_type=derived_microproduct_type,
+                microproduct_name=db_microproduct_name_to_store,
+                microproduct_content=content_to_store_for_db,
+                design_template_id=project_data.design_template_id,
+                created_at=datetime.utcnow()
+            )
+            
         else:
             logger.warning(f"Unknown component_name '{selected_design_template.component_name}' for DT ID {selected_design_template.id}. Defaulting to TrainingPlanDetails for parsing.")
             target_content_model = TrainingPlanDetails
@@ -12146,6 +12170,10 @@ Return ONLY the JSON object.
                         db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
+                elif component_name_from_db == COMPONENT_NAME_LESSON_PLAN:
+                    # For lesson plans, preserve the original structure without parsing
+                    logger.info("Re-parsing lesson plan - preserving original structure.")
+                    final_content_for_response = db_content_dict
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
