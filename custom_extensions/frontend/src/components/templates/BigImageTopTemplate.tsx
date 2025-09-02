@@ -233,8 +233,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    // Only apply default dimensions if no saved size exists
-    ...(widthPx && heightPx ? {} : { width: '100%', height: '240px' }),
+    // FIXED: Always maintain full width consistency between display and saved dimensions
+    width: '100%',
+    // Only apply default height if no saved height exists, but keep full width
+    ...(heightPx ? { height: `${heightPx}px` } : { height: '240px' }),
     margin: '0 auto'
   };
 
