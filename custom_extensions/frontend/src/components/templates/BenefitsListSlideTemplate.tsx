@@ -170,8 +170,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '656px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -262,8 +261,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     <div className="benefits-list-slide-template opensans-semibold-theme" style={slideStyles}>
       {/* Top section with green background */}
       <div style={{
-        flex: '0 0 396px', // Фиксированная высота для верхней секции
-        backgroundColor: themeAccent,
+        flex: '0 0 427px', // Фиксированная высота для верхней секции
+        backgroundColor: '#68AB7F',
         position: 'relative',
         padding: '40px 60px',
         paddingTop: '56px',
@@ -275,9 +274,9 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <div>
           {/* Subtitle */}
           <div style={{
-            fontSize: '14px',
-            color: themeBg,
-            marginBottom: '10px',
+            fontSize: '12px',
+            color: '#3a6549',
+            marginBottom: '25px',
             fontWeight: '300',
             minHeight: '20px',
             maxHeight: '20px',
@@ -292,8 +291,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleSubtitleCancel}
                 className="benefits-subtitle-editor"
                 style={{
-                  fontSize: '25px',
-                  color: themeBg,
+                  fontSize: '12px',
+                  color: '#3a6549',
                   fontWeight: '300',
                   width: '100%',
                   height: '100%',
@@ -311,8 +310,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   height: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  fontSize: '14px',
-                  color: themeBg,
+                  fontSize: '12px',
+                  color: '#3a6549',
                   fontWeight: '300',
                   minHeight: '20px',
                   maxHeight: '20px',
@@ -327,7 +326,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           {/* Main title */}
           <div style={{
             fontSize: '65px',
-            color: themeBg,
+            color: '#2A3E30',
             marginBottom: '20px',
             lineHeight: '1.1',
             minHeight: '65px',
@@ -344,7 +343,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 className="benefits-title-editor"
                 style={{
                   fontSize: '65px',
-                  color: themeBg,
+                  color: '#2A3E30',
                   lineHeight: '1.1',
                   width: '100%',
                   height: '100%',
@@ -377,8 +376,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '28px',
-            color: themeBg,
+            fontSize: '26px',
+            color: '#2F553A',
             lineHeight: '1.4',
             maxWidth: '643px',
             minHeight: '30px',
@@ -393,8 +392,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 multiline={true}
                 className="benefits-description-editor"
                 style={{
-                  fontSize: '28px',
-                  color: themeBg,
+                  fontSize: '26px',
+                  color: '#2F553A',
                   lineHeight: '1.4',
                   width: '100%'
                 }}
@@ -437,7 +436,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: i + 1 === currentStep ? themeBg : themeBg,
+                color: '#264A32',
                 fontSize: '25px',
                 fontWeight: ''
               }}
@@ -477,7 +476,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        backgroundColor: themeBg,
+        backgroundColor: '#ffffff',
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -499,7 +498,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 alignItems: 'center',
                 gap: '10px',
                 fontSize: '20px',
-                color: themeContent
+                color: '#5E5E5E'
               }}
             >
               <span style={{ fontSize: '18px' }}>→</span>
@@ -511,7 +510,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   className="benefit-editor"
                   style={{
                     fontSize: '20px',
-                    color: themeContent,
+                    color: '#5E5E5E',
                     flex: '1'
                   }}
                 />
@@ -523,7 +522,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                     userSelect: 'none',
                     flex: '1',
                     fontSize: '20px',
-                    color: themeContent
+                    color: '#5E5E5E'
                   }}
                 >
                   {benefit}
@@ -540,7 +539,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           backgroundColor: themeContent,
           opacity: 0.3,
           margin: '20px 0',
-          marginTop: '74px'
+          marginTop: '55px'
         }} />
 
         {/* Footer */}
@@ -548,7 +547,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          marginTop: 'auto',
+          marginTop: '-5px',
           marginBottom: '20px'
         }}>
 {logoNew ? (
@@ -601,7 +600,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 className="company-name-editor"
                 style={{
                   fontSize: '12px',
-                  color: themeContent,
+                  color: '#8c8c8c',
                   fontWeight: '300'
                 }}
               />
@@ -612,7 +611,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   fontSize: '12px',
-                  color: themeContent,
+                  color: '#8c8c8c',
                   fontWeight: '300'
                 }}
               >
