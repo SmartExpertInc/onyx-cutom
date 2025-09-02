@@ -827,11 +827,13 @@ export default function AuditPage() {
                   <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
                     Корпоративная культура и стандарты работы в Vogue Lashes & Spa
                   </h5>
-                </div>
 
-                {/* Module 1 Expandable Content */}
-                {expandedModules['module1'] && (
-                  <div className="mt-[15px]">
+                  {/* Module 1 Expandable Content */}
+                  <div 
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      expandedModules['module1'] ? 'max-h-[200px] opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                    }`}
+                  >
                     <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px]">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Основные этапы открытия салона
@@ -859,7 +861,7 @@ export default function AuditPage() {
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Module 2*/}
                 <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
