@@ -794,39 +794,9 @@ export default function AuditPage() {
                 <h4 className="font-medium text-[18px] text-[#09090B] leading-[140%]">
                   План обучения
                 </h4>
-                
-                {/* Module 1*/}
-                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
-                      Модуль 02:
-                    </span>
-                    
-                    <button 
-                      onClick={() => toggleModule('module1')}
-                      className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                        expandedModules['module1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
-                      }`}
-                    >
-                      {expandedModules['module1'] ? (
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      ) : (
-                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                  
-                  <h5 className="font-medium text-[16px] text-[#09090B] leading-[140%]">
-                    Подбор и управление персоналом
-                  </h5>
-                </div>
 
-                {/* Module 2*/}
-                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                {/* Module 1*/}
+                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 01:
@@ -855,8 +825,8 @@ export default function AuditPage() {
                   </h5>
                 </div>
 
-                {/* Module 3*/}
-                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                {/* Module 2*/}
+                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 02:
@@ -885,8 +855,8 @@ export default function AuditPage() {
                   </h5>
                 </div>
 
-                {/* Module 4*/}
-                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                {/* Module 3*/}
+                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 03:
@@ -915,8 +885,8 @@ export default function AuditPage() {
                   </h5>
                 </div>
 
-                {/* Module 5*/}
-                <div className="flex gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                {/* Module 4*/}
+                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 04:
