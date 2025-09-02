@@ -12396,6 +12396,16 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     
     web_link_path = None
     pdf_link_path = None
+    
+    # Parse lesson_plan_data if it exists and is a JSON string
+    lesson_plan_data = row_dict.get("lesson_plan_data")
+    if lesson_plan_data and isinstance(lesson_plan_data, str):
+        try:
+            lesson_plan_data = json.loads(lesson_plan_data)
+        except (json.JSONDecodeError, TypeError) as e:
+            logger.error(f"Failed to parse lesson_plan_data JSON for project {project_id}: {e}")
+            lesson_plan_data = None
+    
     return MicroProductApiResponse(
         name=project_instance_name, slug=project_slug, project_id=project_id,
         design_template_id=row_dict["design_template_id"], component_name=component_name,
@@ -12406,7 +12416,7 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         quality_tier=row_dict.get("quality_tier"),
         is_advanced=row_dict.get("is_advanced"),
         advanced_rates=row_dict.get("advanced_rates"),
-        lesson_plan_data=row_dict.get("lesson_plan_data")
+        lesson_plan_data=lesson_plan_data
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
 
