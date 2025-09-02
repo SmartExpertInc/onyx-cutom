@@ -225,7 +225,6 @@ export default function ProjectInstanceViewPage() {
       setCustomEmails(prev => [...prev, emailToAdd]);
       setSelectedEmails(prev => [...prev, emailToAdd]);
       setNewEmail('');
-      setRoleAccess(false);
     }
   };
 
@@ -1421,13 +1420,13 @@ export default function ProjectInstanceViewPage() {
               <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-violet-200 border border-violet-300 hover:bg-violet-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-sky-300 border border-sky-400 hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
                   title={t('interface.projectView.configureAccessControl', 'Configure access control')}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  {t('interface.projectView.Role', 'Role')}
+                  {t('interface.projectView.ManageAccess', 'Manage Access')}
                 </button>
 
                 {/* Role Access Modal */}
@@ -1437,7 +1436,7 @@ export default function ProjectInstanceViewPage() {
                     onClick={() => setRoleAccess(false)}
                   >
                     <div
-                      className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4"
+                      className="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
@@ -1454,11 +1453,11 @@ export default function ProjectInstanceViewPage() {
                       </div>
 
                       {/* Content */}
-                      <div className="p-4">
-                        <p className="text-sm text-gray-600 mb-4 border-b pb-2 border-gray-200">{t('interface.projectView.manageAccessToWorkspace', 'Manage access to product')}</p>
+                      <div className="p-4 pt-0">
+                        <p className="text-sm text-gray-600 mb-3 border-b pb-2 border-gray-200">{t('interface.projectView.manageAccessToWorkspace', 'Manage access to product')}</p>
 
                         {/* Roles that have access */}
-                        <div className="mb-2">
+                        <div className="mb-6">
                           <h3 className="text-sm font-medium text-gray-700 mb-4">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
                           <div className="grid grid-cols-2 gap-x-8 gap-y-2 border-b pb-2 border-gray-200">
                             {predefinedRoles.map((role) => (
@@ -1482,7 +1481,7 @@ export default function ProjectInstanceViewPage() {
                             {customEmails.map((email) => (
                               <div key={email} className="flex items-center justify-between rounded">
                                 <div className="flex items-center">
-                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
+                                  <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
                                     {email.charAt(0).toUpperCase()}
                                   </div>
                                   <span className="text-sm text-gray-900">{email}</span>

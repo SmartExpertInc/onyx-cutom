@@ -809,7 +809,7 @@ export const uk = {
       errorLoadingProject: "Помилка: {error}",
       projectNotFound: "Проект не знайдено або дані недоступні.",
       back: "Назад",
-      role: "Роль",
+      ManageAccess: "Керувати доступом",
       openProducts: "Відкрити продукти",
       downloadPdf: "Завантажити PDF",
       smartEdit: "Розумне редагування",
