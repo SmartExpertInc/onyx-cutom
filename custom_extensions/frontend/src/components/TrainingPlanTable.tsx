@@ -2252,14 +2252,14 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                               )}
                             </div>
                           );
-                          case 'quiz':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>Quiz</div>;
+                        case 'quiz':
+                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`Quiz ${lessonIndex + 1}`}</div>;
                         case 'onePager':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>One-Pager</div>;
+                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`One-Pager ${lessonIndex + 1}`}</div>;
                         case 'videoPresentation':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>Video Presentation</div>;
+                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`Video ${lessonIndex + 1}`}</div>;
                         case 'lessonPresentation':
-                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>Lesson Presentation</div>;
+                          return <div key={col.key} className={`text-gray-600 ${commonCls}`}>{`Lesson Pres. ${lessonIndex + 1}`}</div>;
                         default:
                           return <div key={col.key} className={commonCls}></div>;
                       }
