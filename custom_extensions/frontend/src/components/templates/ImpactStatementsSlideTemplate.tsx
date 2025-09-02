@@ -160,7 +160,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         {/* Profile image in orange container */}
         <div style={{
           width: '440px',
-          height: '225px',
+          height: '255px',
           backgroundColor: themeAccent,
           borderRadius: '24px',
           overflow: 'hidden',
@@ -210,7 +210,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                minHeight: index === 1 ? '195.5px' : '325px'
+                minHeight: index === 1 ? '210.5px' : '325px'
               }}
             >
               {/* Number */}
@@ -320,7 +320,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
-                height: '550px'
+                height: '566px'
               }}
             >
               <div style={{
