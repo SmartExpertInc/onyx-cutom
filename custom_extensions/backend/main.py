@@ -9748,116 +9748,153 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
 
 async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
-    Extract relevant context from specific connectors using Onyx's capabilities.
-    Returns structured context that can be used with OpenAI, filtered by connector sources.
+    Extract context from specific connectors using the Search persona with connector filtering.
+    This function performs a comprehensive search within selected connectors only.
+    Uses the same approach as Knowledge Base search but with connector source filtering.
     """
     try:
-        logger.info(f"[CONNECTOR_CONTEXT] Extracting context from connectors: {connector_sources}")
+        logger.info(f"[CONNECTOR_CONTEXT] Starting connector search for sources: {connector_sources}")
         
         # Parse connector sources
         connector_list = [source.strip() for source in connector_sources.split(',') if source.strip()]
         logger.info(f"[CONNECTOR_CONTEXT] Parsed connector sources: {connector_list}")
         
-        extracted_context = {
-            "connector_summaries": [],
-            "connector_contents": [],
-            "key_topics": [],
-            "metadata": {
-                "connector_sources": connector_list,
-                "extraction_time": time.time(),
-                "filtering_method": "connector_based"
-            }
+        # Create a temporary chat session with the Search persona (ID 0)
+        search_persona_id = 0
+        temp_chat_id = await create_onyx_chat_session(search_persona_id, cookies)
+        logger.info(f"[CONNECTOR_CONTEXT] Created search chat session: {temp_chat_id}")
+        
+        # Create a comprehensive search prompt (similar to Knowledge Base approach)
+        search_prompt = f"""
+        Please search within the following connector sources for information relevant to this topic: "{prompt}"
+        
+        Search only within these specific sources: {', '.join(connector_list)}
+        
+        I need you to:
+        1. Search within the specified connector sources only
+        2. Find the most relevant information related to this topic
+        3. Provide a comprehensive summary of what you find
+        4. Extract key topics, concepts, and important details
+        5. Identify any specific examples, case studies, or practical applications
+        
+        Please format your response as:
+        SUMMARY: [comprehensive summary of relevant information found]
+        KEY_TOPICS: [comma-separated list of key topics and concepts]
+        IMPORTANT_DETAILS: [specific details, examples, or practical information]
+        RELEVANT_SOURCES: [mention of any specific documents or sources that were particularly relevant]
+        
+        Focus only on content from these connector sources: {', '.join(connector_list)}
+        Be thorough and comprehensive in your search and analysis.
+        """
+        
+        # Use the Search persona to perform the connector-filtered search
+        logger.info(f"[CONNECTOR_CONTEXT] Sending search request to Search persona with connector filters")
+        search_result = await enhanced_stream_chat_message_with_filters(temp_chat_id, search_prompt, cookies, connector_list)
+        logger.info(f"[CONNECTOR_CONTEXT] Received search result ({len(search_result)} chars)")
+        
+        # Log the full response for debugging
+        logger.info(f"[CONNECTOR_CONTEXT] Full search response: {search_result}")
+        
+        if len(search_result) == 0:
+            logger.warning(f"[CONNECTOR_CONTEXT] Search result is empty! This might indicate no documents in connectors or search failed")
+        
+        # Parse the search result - handle Onyx response format (same as Knowledge Base)
+        summary = ""
+        key_topics = []
+        important_details = ""
+        relevant_sources = ""
+        
+        # Extract content flexibly using string searching
+        logger.info(f"[CONNECTOR_CONTEXT] Starting content extraction from search result")
+        
+        if "SUMMARY:" in search_result:
+            summary_start = search_result.find("SUMMARY:") + 8
+            summary_end = search_result.find("KEY_TOPICS:", summary_start)
+            if summary_end == -1:
+                summary_end = search_result.find("IMPORTANT_DETAILS:", summary_start)
+            if summary_end == -1:
+                summary_end = search_result.find("RELEVANT_SOURCES:", summary_start)
+            if summary_end == -1:
+                summary_end = len(search_result)
+            summary = search_result[summary_start:summary_end].strip()
+            logger.info(f"[CONNECTOR_CONTEXT] Extracted summary: {len(summary)} chars")
+        
+        if "KEY_TOPICS:" in search_result:
+            topics_start = search_result.find("KEY_TOPICS:") + 11
+            topics_end = search_result.find("IMPORTANT_DETAILS:", topics_start)
+            if topics_end == -1:
+                topics_end = search_result.find("RELEVANT_SOURCES:", topics_start)
+            if topics_end == -1:
+                # Look for next section marker or end of text
+                next_section = search_result.find("\n\n", topics_start)
+                topics_end = next_section if next_section != -1 else len(search_result)
+            topics_text = search_result[topics_start:topics_end].strip()
+            key_topics = [t.strip() for t in topics_text.split(',') if t.strip()]
+            logger.info(f"[CONNECTOR_CONTEXT] Extracted {len(key_topics)} key topics")
+        
+        if "IMPORTANT_DETAILS:" in search_result:
+            details_start = search_result.find("IMPORTANT_DETAILS:") + 18
+            details_end = search_result.find("RELEVANT_SOURCES:", details_start)
+            if details_end == -1:
+                details_end = len(search_result)
+            important_details = search_result[details_start:details_end].strip()
+            logger.info(f"[CONNECTOR_CONTEXT] Extracted important details: {len(important_details)} chars")
+        
+        if "RELEVANT_SOURCES:" in search_result:
+            sources_start = search_result.find("RELEVANT_SOURCES:") + 17
+            relevant_sources = search_result[sources_start:].strip()
+            logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {len(relevant_sources)} chars")
+        
+        # Final fallback if still no content
+        if not summary and not key_topics:
+            summary = search_result[:1000] + "..." if len(search_result) > 1000 else search_result
+            key_topics = ["connector search"]
+            logger.info(f"[CONNECTOR_CONTEXT] Using fallback summary from raw response")
+        
+        # Log the extracted information
+        logger.info(f"[CONNECTOR_CONTEXT] Extracted summary: {summary[:200]}...")
+        logger.info(f"[CONNECTOR_CONTEXT] Extracted key topics: {key_topics}")
+        logger.info(f"[CONNECTOR_CONTEXT] Extracted important details: {important_details[:200]}...")
+        logger.info(f"[CONNECTOR_CONTEXT] Extracted relevant sources: {relevant_sources[:200]}...")
+        
+        # Return context in the same format as knowledge base context
+        return {
+            "connector_search": True,
+            "topic": prompt,
+            "connector_sources": connector_list,
+            "summary": summary,
+            "key_topics": key_topics,
+            "important_details": important_details,
+            "relevant_sources": relevant_sources,
+            "full_search_result": search_result,
+            "file_summaries": [{
+                "file_id": "connector_search",
+                "name": f"Connector Search: {', '.join(connector_list)}",
+                "summary": summary,
+                "topics": key_topics,
+                "key_info": important_details
+            }]
         }
-        
-        # Use Onyx's chat endpoint to search within specific connectors
-        async with httpx.AsyncClient(timeout=300.0) as client:
-            # Create a search query that focuses on the prompt within the specified connectors
-            search_message = f"Search for information about: {prompt}"
-            
-            # Construct retrieval options with connector filtering
-            retrieval_options = {
-                "run_search": "always",
-                "real_time": False,
-                "filters": {
-                    "connectorSources": connector_list
-                }
-            }
-            
-            payload = {
-                "chat_session_id": str(uuid.uuid4()),  # Create a temporary session
-                "message": search_message,
-                "parent_message_id": None,
-                "file_descriptors": [],
-                "user_file_ids": [],
-                "user_folder_ids": [],
-                "prompt_id": None,
-                "search_doc_ids": None,
-                "retrieval_options": retrieval_options,
-                "stream_response": False,  # We want the complete response
-            }
-            
-            logger.info(f"[CONNECTOR_CONTEXT] Sending search request to Onyx with connector filters: {connector_list}")
-            
-            try:
-                resp = await client.post(
-                    f"{ONYX_API_SERVER_URL}/chat/send-message",
-                    json=payload,
-                    cookies=cookies,
-                    timeout=300.0
-                )
-                
-                if resp.status_code == 200:
-                    response_data = resp.json()
-                    
-                    # Extract relevant information from the response
-                    if "message" in response_data and "content" in response_data["message"]:
-                        content = response_data["message"]["content"]
-                        
-                        # Extract key topics and content
-                        extracted_context["connector_contents"].append(content)
-                        
-                        # Extract topics from the content (basic extraction)
-                        # This could be enhanced with more sophisticated topic extraction
-                        words = content.lower().split()
-                        potential_topics = [word for word in words if len(word) > 4 and word.isalpha()]
-                        extracted_context["key_topics"].extend(potential_topics[:20])  # Limit to 20 topics
-                        
-                        logger.info(f"[CONNECTOR_CONTEXT] Successfully extracted context from connectors: {len(content)} chars, {len(extracted_context['key_topics'])} topics")
-                    else:
-                        logger.warning(f"[CONNECTOR_CONTEXT] No content found in Onyx response")
-                        # Provide fallback context
-                        extracted_context["connector_contents"] = [f"Content from connectors: {', '.join(connector_list)}"]
-                        extracted_context["key_topics"] = ["connector-based content", "filtered information"]
-                        extracted_context["metadata"]["fallback_used"] = True
-                        
-                else:
-                    logger.warning(f"[CONNECTOR_CONTEXT] Onyx search failed with status {resp.status_code}")
-                    # Provide fallback context
-                    extracted_context["connector_contents"] = [f"Content from connectors: {', '.join(connector_list)}"]
-                    extracted_context["key_topics"] = ["connector-based content", "filtered information"]
-                    extracted_context["metadata"]["fallback_used"] = True
-                    
-            except Exception as e:
-                logger.warning(f"[CONNECTOR_CONTEXT] Error during Onyx search: {e}")
-                # Provide fallback context
-                extracted_context["connector_contents"] = [f"Content from connectors: {', '.join(connector_list)}"]
-                extracted_context["key_topics"] = ["connector-based content", "filtered information"]
-                extracted_context["metadata"]["fallback_used"] = True
-        
-        # Remove duplicate topics
-        extracted_context["key_topics"] = list(set(extracted_context["key_topics"]))
-        
-        logger.info(f"[CONNECTOR_CONTEXT] Successfully extracted connector context: {len(extracted_context['connector_contents'])} content pieces, {len(extracted_context['key_topics'])} key topics")
-        
-        return extracted_context
         
     except Exception as e:
         logger.error(f"[CONNECTOR_CONTEXT] Error extracting connector context: {e}", exc_info=True)
+        # Return fallback context
         return {
-            "connector_summaries": [],
-            "connector_contents": [],
-            "key_topics": [],
-            "metadata": {"error": str(e), "filtering_method": "connector_based"}
+            "connector_search": True,
+            "topic": prompt,
+            "connector_sources": connector_sources.split(','),
+            "summary": f"Connector search failed for sources: {connector_sources}",
+            "key_topics": ["search error"],
+            "important_details": "Unable to search connectors",
+            "relevant_sources": "",
+            "full_search_result": "",
+            "file_summaries": [{
+                "file_id": "connector_search_error",
+                "name": f"Connector Search Error: {connector_sources}",
+                "summary": "Search failed",
+                "topics": ["error"],
+                "key_info": str(e)
+            }]
         }
 
 def _save_section_content(section_name: str, content_lines: list, local_vars: dict):
@@ -10045,6 +10082,101 @@ async def enhanced_stream_chat_message(chat_session_id: str, message: str, cooki
                 return result
             except Exception as e:
                 logger.error(f"[enhanced_stream_chat_message] Failed to parse non-streaming response: {e}")
+                return resp.text.strip()
+
+async def enhanced_stream_chat_message_with_filters(chat_session_id: str, message: str, cookies: Dict[str, str], connector_sources: list) -> str:
+    """Enhanced version of stream_chat_message for connector searches with source filtering."""
+    logger.info(f"[enhanced_stream_chat_message_with_filters] Starting connector search - chat_id={chat_session_id} sources={connector_sources} len(message)={len(message)}")
+
+    async with httpx.AsyncClient(timeout=600.0) as client:  # Longer timeout for searches
+        retrieval_options = {
+            "run_search": "always",  # Always search for connectors
+            "real_time": False,
+            "filters": {
+                "connectorSources": connector_sources  # Filter by specific connector sources
+            }
+        }
+        payload = {
+            "chat_session_id": chat_session_id,
+            "message": message,
+            "parent_message_id": None,
+            "file_descriptors": [],
+            "user_file_ids": [],
+            "user_folder_ids": [],
+            "prompt_id": None,
+            "search_doc_ids": None,
+            "retrieval_options": retrieval_options,
+            "stream_response": True,  # Force streaming for better control
+        }
+        
+        logger.info(f"[enhanced_stream_chat_message_with_filters] Sending request to {ONYX_API_SERVER_URL}/chat/send-message with connector filters: {connector_sources}")
+        resp = await client.post(
+            f"{ONYX_API_SERVER_URL}/chat/send-message",
+            json=payload,
+            cookies=cookies,
+        )
+        
+        logger.info(f"[enhanced_stream_chat_message_with_filters] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
+        resp.raise_for_status()
+        
+        # Handle the response (same logic as enhanced_stream_chat_message)
+        ctype = resp.headers.get("content-type", "")
+        if ctype.startswith("text/event-stream"):
+            logger.info(f"[enhanced_stream_chat_message_with_filters] Processing streaming response...")
+            full_answer = ""
+            line_count = 0
+            done_received = False
+            last_log_length = 0
+            import time
+            start_time = time.time()
+            
+            async for line in resp.aiter_lines():
+                line_count += 1
+                if not line or not line.strip():
+                    continue
+                    
+                try:
+                    if line.startswith("data: "):
+                        data_str = line[6:]  # Remove "data: " prefix
+                        if data_str.strip() == "[DONE]":
+                            done_received = True
+                            logger.info(f"[enhanced_stream_chat_message_with_filters] Received [DONE] signal after {line_count} lines")
+                            break
+                            
+                        packet = json.loads(data_str)
+                        
+                        # Look for answer content
+                        if isinstance(packet, dict) and "answer" in packet:
+                            answer_chunk = packet["answer"]
+                            if answer_chunk:
+                                full_answer += answer_chunk
+                                
+                        # Log progress every 200 chars
+                        if len(full_answer) - last_log_length >= 200:
+                            logger.info(f"[enhanced_stream_chat_message_with_filters] Accumulated {len(full_answer)} chars so far...")
+                            last_log_length = len(full_answer)
+                            
+                except json.JSONDecodeError:
+                    continue
+                except Exception as e:
+                    logger.debug(f"[enhanced_stream_chat_message_with_filters] Error processing line {line_count}: {e}")
+                    continue
+            
+            final_elapsed = time.time() - start_time
+            logger.info(f"[enhanced_stream_chat_message_with_filters] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}, Elapsed: {final_elapsed:.1f}s")
+            
+            return full_answer.strip()
+            
+        else:
+            # Non-streaming response
+            logger.info(f"[enhanced_stream_chat_message_with_filters] Processing non-streaming response")
+            try:
+                data = resp.json()
+                result = data.get("answer") or data.get("answer_citationless") or ""
+                logger.info(f"[enhanced_stream_chat_message_with_filters] Non-streaming result: {len(result)} chars")
+                return result
+            except Exception as e:
+                logger.error(f"[enhanced_stream_chat_message_with_filters] Failed to parse non-streaming response: {e}")
                 return resp.text.strip()
 
 async def extract_knowledge_base_context(topic: str, cookies: Dict[str, str]) -> Dict[str, Any]:
