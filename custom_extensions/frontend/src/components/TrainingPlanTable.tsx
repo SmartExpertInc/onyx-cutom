@@ -119,6 +119,10 @@ interface TrainingPlanTableProps {
     estCreationTime: boolean;
     estCompletionTime: boolean;
     qualityTier: boolean;
+    quiz?: boolean;
+    onePager?: boolean;
+    videoPresentation?: boolean;
+    lessonPresentation?: boolean;
   };
 }
 
