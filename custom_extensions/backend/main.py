@@ -1557,7 +1557,7 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     logger.info(f"Event-List Raw Items: {items}")
                 
                 logger.info(f"=== END RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
-            
+                
             # Fix big-numbers template props
             if template_id == 'big-numbers':
                 # FIXED: Accept 'items', 'numbers', or 'steps' as the source array
@@ -1577,8 +1577,8 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                             logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'steps' → 'items'")
                             source_list = steps_list
                             source_type = 'steps'
-                        else:
-                            source_list = []
+                    else:
+                        source_list = []
 
                 # Validate and coerce each item
                 fixed_items = []
@@ -1625,8 +1625,8 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     logger.info(f"Preserving big-numbers template instead of converting to bullet-points to prevent mixed language issues")
                 
                 # Always preserve big-numbers template and add image prompt if needed
-                if not normalized_props.get('imagePrompt'):
-                    slide_title = normalized_props.get('title', 'concepts')
+                    if not normalized_props.get('imagePrompt'):
+                        slide_title = normalized_props.get('title', 'concepts')
                     # Generate language-neutral image prompt for big-numbers
                     normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern data analytics environment. The scene features a professional analyst working at a clean desk with multiple monitors displaying charts, graphs, and numerical data visualizations (no readable text or numbers). The workspace includes a laptop, tablet, and organized documents. Large windows provide natural light to the modern office space. The data visualizations and analytics displays are [COLOR1], the analyst's attire and equipment are [COLOR2], and the office environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
                     normalized_props['imageAlt'] = f"Professional data visualization illustration for {slide_title}"

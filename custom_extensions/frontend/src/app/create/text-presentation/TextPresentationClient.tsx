@@ -148,6 +148,72 @@ export default function TextPresentationClient() {
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
+  // FIXED: Alternative parsing method for when header-based parsing fails
+  const parseContentAlternatively = (content: string) => {
+    const lessons = [];
+    
+    // Method 1: Try splitting by double line breaks (paragraph-based sections)
+    const paragraphSections = content.split(/\n\s*\n/).filter(section => section.trim().length > 0);
+    
+    if (paragraphSections.length > 1) {
+      for (let i = 0; i < paragraphSections.length && i < 10; i++) { // Limit to 10 sections
+        const section = paragraphSections[i].trim();
+        if (section.length < 20) continue; // Skip very short sections
+        
+        // Extract title from first line or first sentence
+        const lines = section.split('\n');
+        const firstLine = lines[0].trim();
+        const title = firstLine.length < 100 ? firstLine : firstLine.substring(0, 50) + '...';
+        const content = lines.length > 1 ? lines.slice(1).join('\n').trim() : section;
+        
+        lessons.push({
+          title: title,
+          content: content || section
+        });
+      }
+    }
+    
+    // Method 2: Try splitting by numbered items (1., 2., 3., etc.)
+    if (lessons.length === 0) {
+      const numberedSections = content.split(/(?:\n|^)\s*\d+\.\s+/);
+      if (numberedSections.length > 2) { // First split is usually empty or intro
+        for (let i = 1; i < numberedSections.length && i < 11; i++) {
+          const section = numberedSections[i].trim();
+          if (section.length < 20) continue;
+          
+          const firstSentence = section.split('.')[0] + '.';
+          const title = firstSentence.length < 100 ? firstSentence : `Section ${i}`;
+          
+          lessons.push({
+            title: title,
+            content: section
+          });
+        }
+      }
+    }
+    
+    // Method 3: Try splitting by bullet points (-, *, •)
+    if (lessons.length === 0) {
+      const bulletSections = content.split(/(?:\n|^)\s*[-*•]\s+/);
+      if (bulletSections.length > 2) {
+        for (let i = 1; i < bulletSections.length && i < 11; i++) {
+          const section = bulletSections[i].trim();
+          if (section.length < 20) continue;
+          
+          const firstSentence = section.split('.')[0] + '.';
+          const title = firstSentence.length < 100 ? firstSentence : `Point ${i}`;
+          
+          lessons.push({
+            title: title,
+            content: section
+          });
+        }
+      }
+    }
+    
+    return lessons;
+  };
+
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
     if (!content.trim()) return [];
@@ -172,15 +238,15 @@ export default function TextPresentationClient() {
       const currentHeader = headerMatches[i];
       let title = currentHeader.title;
 
-      // Clean title - remove {isImportant} and other unwanted patterns
+      // FIXED: More gentle title cleaning - preserve meaningful content
       title = title
         .replace(/\{[^}]*\}/g, '') // Remove {isImportant} and similar patterns
         .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove **bold** formatting
-        .replace(/[^\w\s]|[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis and other non-word chars
+        .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis but keep other punctuation
         .trim();
 
-      // Skip emoji/icon headers
-      if (!title || title.match(/^[📚🛠️💡🚀📞]/) || title === 'Introduction to AI Tools for High School Teachers') {
+      // FIXED: Less restrictive filtering - only skip completely empty titles
+      if (!title || title.length < 2) {
         continue;
       }
 
@@ -189,7 +255,7 @@ export default function TextPresentationClient() {
       const sectionStart = currentHeader.index + currentHeader.fullMatch.length;
       const sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
 
-      // Clean up the content - remove markdown formatting but keep structure
+      // FIXED: More comprehensive content cleaning while preserving structure
       const cleanedContent = sectionContent
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/^\s*\n+/g, '') // Remove leading newlines
@@ -198,34 +264,38 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
 
-      if (title && cleanedContent) {
+      // FIXED: Accept content even if it's shorter, and accept titles without requiring content
+      if (title && (cleanedContent || sectionContent.trim())) {
         lessons.push({
           title: title,
-          content: cleanedContent
+          content: cleanedContent || sectionContent.trim() || title // Use title as content if no content found
         });
       }
     }
 
-    // FIXED: If no structured content found, create a single section with the raw content
-    // This prevents showing hardcoded "AI Tools in Education" fallback instead of user's actual content
+    // FIXED: If no structured content found, try alternative parsing methods instead of hardcoded fallback
     if (lessons.length === 0) {
-      // If there's content but no structured headers, show it as a single section
-      if (content.trim()) {
-        const cleanedContent = content
-          .replace(/^\s*---\s*$/gm, '') // Remove section breaks
-          .replace(/^\s*\n+/g, '') // Remove leading newlines
-          .replace(/\n+\s*$/g, '') // Remove trailing newlines
-          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove ** bold formatting
-          .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
-          .trim();
-        
+      // Try parsing by paragraph breaks or bullet points
+      const alternativeParsing = parseContentAlternatively(content);
+      if (alternativeParsing.length > 0) {
+        return alternativeParsing;
+      }
+      
+      // Last resort: return single section with all content
+      const cleanedContent = content
+        .replace(/^\s*---\s*$/gm, '') // Remove section breaks
+        .replace(/#{1,6}\s*/gm, '') // Remove markdown headers that failed to parse
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove ** bold formatting
+        .trim();
+      
+      if (cleanedContent) {
         return [{
-          title: "Content", // Generic title since no structure was found
+          title: "Document Content",
           content: cleanedContent
         }];
       }
       
-      // If truly no content, return empty array (will show "no content" message)
+      // If absolutely no content, return empty array
       return [];
     }
 
