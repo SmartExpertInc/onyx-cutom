@@ -10119,7 +10119,7 @@ async def enhanced_stream_chat_message_with_filters(chat_session_id: str, messag
         logger.info(f"[enhanced_stream_chat_message_with_filters] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
         resp.raise_for_status()
         
-        # Handle the response (same logic as enhanced_stream_chat_message)
+        # Handle the response (EXACT same logic as enhanced_stream_chat_message for Knowledge Base)
         ctype = resp.headers.get("content-type", "")
         if ctype.startswith("text/event-stream"):
             logger.info(f"[enhanced_stream_chat_message_with_filters] Processing streaming response...")
@@ -10129,41 +10129,117 @@ async def enhanced_stream_chat_message_with_filters(chat_session_id: str, messag
             last_log_length = 0
             import time
             start_time = time.time()
+            last_activity_time = start_time
+            max_idle_time = 120.0  # Wait up to 2 minutes without new content
+            max_total_time = 600.0  # Maximum 10 minutes total
             
+            logger.info(f"[enhanced_stream_chat_message_with_filters] Starting to read lines from stream...")
             async for line in resp.aiter_lines():
                 line_count += 1
-                if not line or not line.strip():
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                idle_time = current_time - last_activity_time
+                
+                # Log progress every 25 lines to track what's happening
+                if line_count % 25 == 0:
+                    logger.info(f"[enhanced_stream_chat_message_with_filters] Progress: Line {line_count}, Elapsed: {elapsed_time:.1f}s, Idle: {idle_time:.1f}s, Chars: {len(full_answer)}")
+                
+                # Check for timeouts - but be more patient
+                if elapsed_time > max_total_time:
+                    logger.warning(f"[enhanced_stream_chat_message_with_filters] Maximum total time ({max_total_time}s) exceeded after {line_count} lines, {len(full_answer)} chars")
+                    break
+                    
+                # Only timeout on idle if we have NO content after significant time
+                if idle_time > max_idle_time and len(full_answer) == 0 and elapsed_time > 60.0:
+                    logger.warning(f"[enhanced_stream_chat_message_with_filters] Maximum idle time ({max_idle_time}s) exceeded since last content, still no answer content after {line_count} lines, elapsed: {elapsed_time:.1f}s")
+                    break
+
+                if not line:
+                    if line_count <= 5:  # Log first few empty lines
+                        logger.debug(f"[enhanced_stream_chat_message_with_filters] Line {line_count}: Empty line")
+                    continue
+                    
+                # Onyx doesn't use "data: " prefix - each line is a direct JSON object  
+                # Skip empty lines but process all non-empty lines as JSON
+                payload_text = line.strip()
+                if not payload_text:
+                    if line_count <= 5:  # Log first few empty lines
+                        logger.debug(f"[enhanced_stream_chat_message_with_filters] Line {line_count}: Empty line")
                     continue
                     
                 try:
-                    if line.startswith("data: "):
-                        data_str = line[6:]  # Remove "data: " prefix
-                        if data_str.strip() == "[DONE]":
-                            done_received = True
-                            logger.info(f"[enhanced_stream_chat_message_with_filters] Received [DONE] signal after {line_count} lines")
-                            break
-                            
-                        packet = json.loads(data_str)
-                        
-                        # Look for answer content
-                        if isinstance(packet, dict) and "answer" in packet:
-                            answer_chunk = packet["answer"]
-                            if answer_chunk:
-                                full_answer += answer_chunk
-                                
-                        # Log progress every 200 chars
-                        if len(full_answer) - last_log_length >= 200:
-                            logger.info(f"[enhanced_stream_chat_message_with_filters] Accumulated {len(full_answer)} chars so far...")
-                            last_log_length = len(full_answer)
-                            
-                except json.JSONDecodeError:
-                    continue
+                    packet = json.loads(payload_text)
                 except Exception as e:
-                    logger.debug(f"[enhanced_stream_chat_message_with_filters] Error processing line {line_count}: {e}")
+                    logger.debug(f"[enhanced_stream_chat_message_with_filters] Failed to parse JSON line {line_count}: {str(e)} | Line: {payload_text[:100]}")
                     continue
+
+                # For the first 10 packets, log full content to understand structure
+                if line_count <= 10:
+                    packet_str = str(packet)[:500] if packet else "empty"
+                    logger.info(f"[enhanced_stream_chat_message_with_filters] Packet {line_count} content: {packet_str}")
+
+                # Log packet structure for debugging (every 50 lines to avoid spam)
+                if line_count % 50 == 0:
+                    packet_keys = list(packet.keys()) if isinstance(packet, dict) else "not-dict"
+                    logger.info(f"[enhanced_stream_chat_message_with_filters] Line {line_count} packet keys: {packet_keys}")
+
+                # Handle different Onyx packet types (EXACT same as Knowledge Base)
+                answer_content = None
+                
+                # Check for OnyxAnswerPiece
+                if "answer_piece" in packet:
+                    answer_piece = packet["answer_piece"]
+                    if answer_piece is None:
+                        # OnyxAnswerPiece with None signals end of answer
+                        logger.info(f"[enhanced_stream_chat_message_with_filters] Received answer termination signal (answer_piece=None) after {line_count} lines")
+                        done_received = True
+                        break
+                    elif answer_piece:
+                        answer_content = answer_piece
+                        
+                # Check for AgentAnswerPiece (agent search responses)
+                elif packet.get("answer_type") and packet.get("answer_piece"):
+                    answer_content = packet["answer_piece"]
+                    logger.info(f"[enhanced_stream_chat_message_with_filters] Received agent answer piece: {packet.get('answer_type')}")
+                    
+                # Check for QADocsResponse (search results)
+                elif packet.get("top_documents") or packet.get("rephrased_query"):
+                    logger.info(f"[enhanced_stream_chat_message_with_filters] Received search results packet")
+                    last_activity_time = current_time  # Reset timer for search activity
+                    
+                # Check for StreamStopInfo
+                elif packet.get("stop_reason"):
+                    if packet["stop_reason"] == "finished":
+                        logger.info(f"[enhanced_stream_chat_message_with_filters] Received stream stop signal: finished")
+                        done_received = True
+                        break
+                    
+                if answer_content:
+                    full_answer += answer_content
+                    last_activity_time = current_time  # Reset activity timer on content
+                    
+                    # Log progress every 200 chars to track streaming
+                    if len(full_answer) - last_log_length >= 200:
+                        logger.info(f"[enhanced_stream_chat_message_with_filters] Accumulated {len(full_answer)} chars so far...")
+                        last_log_length = len(full_answer)
+                else:
+                    # Log what we're getting for non-answer packets
+                    if line_count <= 10 or line_count % 100 == 0:  # Log first 10 and every 100th
+                        packet_preview = str(packet)[:200] if packet else "empty"
+                        logger.debug(f"[enhanced_stream_chat_message_with_filters] Line {line_count} - non-answer packet: {packet_preview}")
             
+            # Stream ended - determine why
+            logger.info(f"[enhanced_stream_chat_message_with_filters] Stream reading loop ended naturally")
             final_elapsed = time.time() - start_time
             logger.info(f"[enhanced_stream_chat_message_with_filters] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}, Elapsed: {final_elapsed:.1f}s")
+            
+            # Log full raw response for debugging
+            logger.info(f"[enhanced_stream_chat_message_with_filters] Full raw response: {full_answer}")
+            
+            # If we got no content and stream ended quickly, something went wrong
+            if len(full_answer) == 0 and final_elapsed < 60.0 and not done_received:
+                logger.error(f"[enhanced_stream_chat_message_with_filters] Stream ended prematurely! Only {final_elapsed:.1f}s elapsed, {line_count} lines processed, no content received")
+                logger.error(f"[enhanced_stream_chat_message_with_filters] This suggests an issue with the Onyx search or streaming connection")
             
             return full_answer.strip()
             
