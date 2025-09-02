@@ -159,8 +159,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
         {/* Profile image in orange container */}
         <div style={{
-          width: '300px',
-          height: '200px',
+          width: '440px',
+          height: '225px',
           backgroundColor: themeAccent,
           borderRadius: '24px',
           overflow: 'hidden',
@@ -180,7 +180,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               height: '92%',
               objectFit: 'cover',
               position: 'relative',
-              bottom: '-21px',
+              bottom: '-22px',
             }}
           />
         </div>
