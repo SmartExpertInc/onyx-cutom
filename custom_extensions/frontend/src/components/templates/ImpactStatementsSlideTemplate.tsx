@@ -128,7 +128,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               className="impact-title-editor"
               style={{
                 maxWidth: '480px',
-                fontSize: '45px',
+                fontSize: '48px',
                 color: themeTitle,
                 lineHeight: '1.2',
                 width: '100%',
@@ -146,7 +146,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 height: '100%',
                 display: 'flex',
                 alignItems: 'flex-start',
-                fontSize: '45px',
+                fontSize: '48px',
                 color: themeTitle,
                 lineHeight: '1.2',
                 minHeight: '50px'
