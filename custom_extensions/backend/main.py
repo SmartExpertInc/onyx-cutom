@@ -7612,6 +7612,7 @@ class MicroProductApiResponse(BaseModel):
     quality_tier: Optional[str] = None
     is_advanced: Optional[bool] = None
     advanced_rates: Optional[Dict[str, float]] = None
+    lesson_plan_data: Optional[Dict[str, Any]] = None  # Add lesson plan data field
     model_config = {"from_attributes": True}
 
 class ProjectApiResponse(BaseModel):
@@ -12404,7 +12405,8 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         custom_rate=row_dict.get("custom_rate"),
         quality_tier=row_dict.get("quality_tier"),
         is_advanced=row_dict.get("is_advanced"),
-        advanced_rates=row_dict.get("advanced_rates")
+        advanced_rates=row_dict.get("advanced_rates"),
+        lesson_plan_data=row_dict.get("lesson_plan_data")
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
 
