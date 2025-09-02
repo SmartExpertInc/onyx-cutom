@@ -12002,19 +12002,13 @@ Return ONLY the JSON object.
             derived_product_type = "lesson-plan"
             derived_microproduct_type = "Lesson Plan"
             
-            # Skip the LLM parsing for lesson plans
+            # Skip the LLM parsing for lesson plans but continue with normal flow
             logger.info("Skipping LLM parsing for lesson plan - using raw data directly")
-            return ProjectDB(
-                id=0,  # Will be set by database
-                onyx_user_id=onyx_user_id,
-                project_name=project_data.projectName,
-                product_type=derived_product_type,
-                microproduct_type=derived_microproduct_type,
-                microproduct_name=db_microproduct_name_to_store,
-                microproduct_content=content_to_store_for_db,
-                design_template_id=project_data.design_template_id,
-                created_at=datetime.utcnow()
-            )
+            # Set these variables to be used in the normal flow below
+            target_content_model = None  # Not used for lesson plans
+            default_error_instance = None  # Not used for lesson plans
+            llm_json_example = ""  # Not used for lesson plans
+            component_specific_instructions = ""  # Not used for lesson plans
             
         else:
             logger.warning(f"Unknown component_name '{selected_design_template.component_name}' for DT ID {selected_design_template.id}. Defaulting to TrainingPlanDetails for parsing.")
@@ -12036,8 +12030,11 @@ Return ONLY the JSON object.
             target_json_example=llm_json_example
         )
 
-        logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
-        logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
+        if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            logger.info("Lesson plan detected - using raw data without parsing")
+        else:    
+            logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
+            logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
 
         # Inject theme for slide decks from the finalize request
         if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
