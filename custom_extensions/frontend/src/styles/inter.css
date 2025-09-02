@@ -1,4 +1,4 @@
-/* Inter Font Styles for All Slides */
+/* Inter Font Styles for All Slides - ONLY INTER */
 
 /* Font Face Definitions */
 @font-face {
@@ -33,12 +33,12 @@
   font-display: swap;
 }
 
-/* Global Font Application */
+/* Global Font Application - ONLY INTER */
 * {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
-/* Specific Slide Elements */
+/* Specific Slide Elements - ONLY INTER */
 .slide-title,
 .slide-title-text,
 .slide-title-display,
@@ -55,31 +55,31 @@
 .content-block,
 .bullet-points-template,
 .component-based-slide {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500 !important;
 }
 
-/* Headings */
+/* Headings - ONLY INTER */
 h1, h2, h3, h4, h5, h6,
 .heading-text,
 .level-1 .heading-text,
 .level-2 .heading-text,
 .level-3 .heading-text,
 .level-4 .heading-text {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 600 !important;
 }
 
-/* Lists */
+/* Lists - ONLY INTER */
 .bullet-items li,
 .numbered-items li,
 .professional-bullet-list,
 .professional-numbered-list {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500 !important;
 }
 
-/* Inline Editor */
+/* Inline Editor - ONLY INTER */
 .inline-editor-input[data-block-type="headline"],
 .inline-editor-textarea[data-block-type="headline"],
 .inline-editor-input[data-block-type="paragraph"],
@@ -88,14 +88,14 @@ h1, h2, h3, h4, h5, h6,
 .inline-editor-textarea[data-block-type="bullet_list"],
 .inline-editor-input[data-block-type="numbered_list"],
 .inline-editor-textarea[data-block-type="numbered_list"] {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500 !important;
 }
 
-/* Force override for all text elements */
+/* Force override for all text elements - ONLY INTER */
 .slide-content *,
 .slide-title *,
 .content-block * {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 500 !important;
 } 

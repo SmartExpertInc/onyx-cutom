@@ -1,7 +1,7 @@
-# Inter Font Setup Documentation
+# Inter Font Setup Documentation - ONLY INTER
 
 ## Overview
-This document describes the implementation of the Inter font family across all slide templates in the Content Builder AI application.
+This document describes the implementation of the Inter font family across all slide templates in the Content Builder AI application. **ONLY INTER FONT IS USED - NO OTHER FONTS**.
 
 ## Font Files Added
 The following Inter font files have been copied to `custom_extensions/frontend/src/fonts/`:
@@ -48,20 +48,26 @@ Added to `custom_extensions/frontend/src/styles/globals.css`:
 }
 ```
 
-### 2. Global Font Class
+### 2. Global Font Class - ONLY INTER
 ```css
 .inter-font {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Force Inter everywhere */
+* {
+  font-family: 'Inter', sans-serif !important;
 }
 ```
 
-### 3. CSS Variables Updated
+### 3. CSS Variables Updated - ONLY INTER
 In `custom_extensions/frontend/src/styles/slideDeck.css`:
 ```css
---font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+--font-primary: 'Inter', sans-serif;
+--font-mono: 'Inter', sans-serif;
 ```
 
-### 4. Specific Element Styles
+### 4. Specific Element Styles - ONLY INTER
 Updated all slide-related text elements to use Inter:
 - `.slide-title-text`, `.slide-title-display` - font-weight: 600
 - `.paragraph-text` - font-weight: 500
@@ -70,15 +76,15 @@ Updated all slide-related text elements to use Inter:
 - `.professional-headline .heading-text` - font-weight: 600 for levels 1-3, 500 for level 4
 - `.inline-editor-input`, `.inline-editor-textarea` - font-weight: 500
 
-### 5. Comprehensive Inter CSS File
+### 5. Comprehensive Inter CSS File - ONLY INTER
 Created `custom_extensions/frontend/src/styles/inter.css` with:
 - Complete font face definitions
-- Global font application with `!important`
-- Specific targeting of all slide elements
-- Force override for maximum compatibility
+- Global font application with `!important` - ONLY INTER
+- Specific targeting of all slide elements - ONLY INTER
+- Force override for maximum compatibility - ONLY INTER
 
 ## Slide Templates Updated
-All 19 specified slide templates now use the `inter-theme` class instead of `opensans-semibold-theme`:
+All 19 specified slide templates now use the `inter-theme` class:
 
 1. CourseOverviewSlideTemplate
 2. WorkLifeBalanceSlideTemplate  
@@ -104,9 +110,10 @@ All 19 specified slide templates now use the `inter-theme` class instead of `ope
 Updated `custom_extensions/frontend/src/app/layout.tsx`:
 - Imported `../styles/inter.css`
 - Added preload for `Inter_18pt-Regular.ttf`
-- Removed OpenSans-Semibold preload
+- **REMOVED ALL EXTERNAL FONTS** - Only Inter remains
+- No Google Fonts, no CDN fonts, no system fonts
 
-## Font Weights Used
+## Font Weights Used - ONLY INTER
 - **Regular (400)**: Base text, paragraphs
 - **Medium (500)**: Most slide content, bullet points, numbered lists
 - **SemiBold (600)**: Slide titles, headings level 1-3
@@ -114,12 +121,13 @@ Updated `custom_extensions/frontend/src/app/layout.tsx`:
 
 ## Browser Support
 - Modern browsers: Full support via `@font-face`
-- Fallback: System fonts (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto)
+- **NO FALLBACK FONTS** - Only Inter is used
 - Font display: `swap` for better performance
 
 ## Maintenance Notes
 - All font files are stored in `custom_extensions/frontend/src/fonts/`
 - CSS classes use `!important` to ensure font override
+- **ONLY INTER FONT IS USED** - No other fonts
 - Font weights are optimized for readability across different screen sizes
 - Regular (non-italic) versions only to maintain clean appearance
 
@@ -127,4 +135,4 @@ Updated `custom_extensions/frontend/src/app/layout.tsx`:
 - Font files are preloaded for better loading performance
 - `font-display: swap` ensures text remains visible during font loading
 - Multiple weights available for design flexibility
-- Fallback fonts ensure content is always readable 
+- **NO EXTERNAL FONT REQUESTS** - All fonts are local Inter files 
