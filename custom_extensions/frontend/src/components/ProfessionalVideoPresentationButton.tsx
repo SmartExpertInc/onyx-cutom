@@ -192,6 +192,12 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
             setProgress(currentProgress);
             
             console.log('🎬 [PROFESSIONAL_VIDEO] Job progress:', currentProgress);
+            
+            // Show progress-based messages to user
+            if (currentProgress > 50 && currentProgress < 90) {
+              // During the longest phase (avatar generation), reassure user
+              setStatus('generating'); // Keep showing generating status with helpful message
+            }
 
             if (statusData.status === 'completed') {
               clearInterval(pollInterval);
@@ -214,14 +220,15 @@ const ProfessionalVideoPresentationButton: React.FC<ProfessionalVideoPresentatio
         }
       }, 2000);
 
-      // Set a timeout to stop polling after 5 minutes
+      // Set a timeout to stop polling after 10 minutes (increased from 5 minutes)
+      // This accounts for longer processing times in multi-slide presentations
       setTimeout(() => {
         clearInterval(pollInterval);
         if (status === 'generating') {
           setStatus('error');
-          onError?.('Video generation timed out. Please check the status manually.');
+          onError?.('Video generation timed out after 10 minutes. This may indicate a backend issue. Please check the status manually.');
         }
-      }, 300000);
+      }, 600000);
 
     } catch (error) {
       console.error('🎬 [PROFESSIONAL_VIDEO] Video generation failed:', error);

@@ -241,6 +241,10 @@ class ProfessionalPresentationService:
                 # Stop heartbeat for failed job (run in the main event loop)
                 main_loop = asyncio.new_event_loop()
                 main_loop.run_until_complete(self._stop_heartbeat(job_id))
+                # CRITICAL FIX: Schedule cleanup for failed jobs too
+                main_loop.run_until_complete(
+                    self._schedule_job_cleanup(job_id, delay_minutes=5)
+                )
                 main_loop.close()
             finally:
                 try:
@@ -421,6 +425,10 @@ class ProfessionalPresentationService:
                 logger.info(f"🎬 [FINAL_COMPLETION] Job {job_id} marked as completed with all URLs set")
                 logger.info(f"🎬 [FINAL_COMPLETION] Frontend should now receive completion status and trigger download")
                 logger.info(f"🎬 [FINAL_COMPLETION] *** COMPLETION PROCESS FINISHED FOR JOB {job_id} ***")
+                
+                # CRITICAL FIX: Schedule job cleanup after completion to prevent resource buildup
+                # Clean up completed job from memory after a delay to allow frontend to download
+                asyncio.create_task(self._schedule_job_cleanup(job_id, delay_minutes=30))
                 
             except Exception as e:
                 logger.error(f"Presentation processing failed: {e}")
@@ -1383,6 +1391,46 @@ class ProfessionalPresentationService:
             
         except Exception as e:
             logger.error(f"Job cleanup failed: {e}")
+    
+    async def _schedule_job_cleanup(self, job_id: str, delay_minutes: int = 30):
+        """
+        Schedule cleanup of a completed job after a delay.
+        
+        Args:
+            job_id: Job ID to clean up
+            delay_minutes: Minutes to wait before cleanup (default: 30)
+        """
+        try:
+            # Wait for the specified delay
+            await asyncio.sleep(delay_minutes * 60)
+            
+            # Check if job still exists and is completed
+            if job_id in self.jobs:
+                job = self.jobs[job_id]
+                if job.status in ["completed", "failed"]:
+                    logger.info(f"🧹 [CLEANUP] Starting scheduled cleanup for completed job: {job_id}")
+                    
+                    # Stop any remaining heartbeat tasks
+                    if job_id in self.heartbeat_tasks:
+                        self.heartbeat_tasks[job_id].cancel()
+                        del self.heartbeat_tasks[job_id]
+                        logger.info(f"🧹 [CLEANUP] Cleaned up heartbeat task for job {job_id}")
+                    
+                    # Remove job from memory
+                    del self.jobs[job_id]
+                    logger.info(f"🧹 [CLEANUP] Job {job_id} removed from memory after {delay_minutes} minutes")
+                    
+                    # Log current memory usage
+                    active_jobs = len(self.jobs)
+                    active_heartbeats = len(self.heartbeat_tasks)
+                    logger.info(f"🧹 [CLEANUP] Memory state: {active_jobs} active jobs, {active_heartbeats} heartbeat tasks")
+                else:
+                    logger.info(f"🧹 [CLEANUP] Job {job_id} is still {job.status}, skipping cleanup")
+            else:
+                logger.info(f"🧹 [CLEANUP] Job {job_id} already cleaned up")
+                
+        except Exception as e:
+            logger.error(f"🧹 [CLEANUP] Failed to clean up job {job_id}: {e}")
 
 # Global instance
 presentation_service = ProfessionalPresentationService()
