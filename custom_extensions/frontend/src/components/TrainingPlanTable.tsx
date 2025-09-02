@@ -1555,18 +1555,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Dynamic column widths based on quality tier visibility
   const getColumnOrder = (): Array<{key: string; width: number}> => {
     const qualityTierVisible = visibleColumns.qualityTier;
+    
     return [
-      { key: 'moduleAndLessons', width: 2 },
-      { key: 'quiz', width: 1 },
-      { key: 'onePager', width: 1 },
-      { key: 'videoPresentation', width: 1 },
-      { key: 'lessonPresentation', width: 1 },
-      { key: 'knowledgeCheck', width: 1 },
-      { key: 'contentAvailability', width: 1 },
-      { key: 'informationSource', width: 1 },
-      { key: 'estCreationTime', width: 1 },
-      { key: 'estCompletionTime', width: 1 },
-      { key: 'qualityTier', width: 1 },
+      { key: 'module', width: 7 },  // modules_span in PDF = 20 - (2+2+3+4+2+2) = 5 when qt visible, or 20 - (4+2+3+0+2+2) = 7 when qt hidden
+      { key: 'knowledgeCheck', width: qualityTierVisible ? 2 : 4 },  // span_kc = 2 when qt visible, 4 when qt hidden (matching PDF)
+      { key: 'contentAvailability', width: 2 },  // span_ca = 2 (matching PDF)
+      { key: 'informationSource', width: 3 },  // span_src = 3 (matching PDF)
+      { key: 'qualityTier', width: qualityTierVisible ? 4 : 0 },  // span_qt = 4 when visible, 0 when hidden (matching PDF)
+      { key: 'estCreationTime', width: 2 },  // span_time = 2 (matching PDF)
+      { key: 'estCompletionTime', width: 2 },  // span_ct = 2 (matching PDF)
+      { key: 'quiz', width: 2 },
+      { key: 'onePager', width: 2 },
+      { key: 'videoPresentation', width: 2 },
+      { key: 'lessonPresentation', width: 2 },
     ];
   };
 
