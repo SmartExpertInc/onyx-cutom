@@ -12021,14 +12021,19 @@ Return ONLY the JSON object.
         if hasattr(default_error_instance, 'detectedLanguage'):
                 default_error_instance.detectedLanguage = detect_language(project_data.aiResponse)
 
-        parsed_content_model_instance = await parse_ai_response_with_llm(
-            ai_response=project_data.aiResponse,
-            project_name=project_data.projectName,
-            target_model=target_content_model,
-            default_error_model_instance=default_error_instance,
-            dynamic_instructions=component_specific_instructions,
-            target_json_example=llm_json_example
-        )
+        # Skip LLM parsing for lesson plans
+        if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            logger.info("Lesson plan detected - skipping LLM parsing entirely")
+            parsed_content_model_instance = None  # Will not be used
+        else:
+            parsed_content_model_instance = await parse_ai_response_with_llm(
+                ai_response=project_data.aiResponse,
+                project_name=project_data.projectName,
+                target_model=target_content_model,
+                default_error_model_instance=default_error_instance,
+                dynamic_instructions=component_specific_instructions,
+                target_json_example=llm_json_example
+            )
 
         if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
             logger.info("Lesson plan detected - using raw data without parsing")
@@ -12038,6 +12043,7 @@ Return ONLY the JSON object.
 
         # Inject theme for slide decks from the finalize request
         if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
+            parsed_content_model_instance and
             hasattr(parsed_content_model_instance, 'theme') and 
             hasattr(project_data, 'theme') and 
             project_data.theme):
@@ -12045,7 +12051,8 @@ Return ONLY the JSON object.
             logger.info(f"Injected theme '{project_data.theme}' into slide deck")
 
         # Post-process module IDs for training plans to ensure № character is preserved
-        if hasattr(parsed_content_model_instance, 'sections') and parsed_content_model_instance.sections:
+        if (parsed_content_model_instance and
+            hasattr(parsed_content_model_instance, 'sections') and parsed_content_model_instance.sections):
             for section in parsed_content_model_instance.sections:
                 if hasattr(section, 'id') and section.id:
                     # Fix module IDs that lost the № character
@@ -12069,6 +12076,7 @@ Return ONLY the JSON object.
 
         # Apply slide prop normalization for slide decks and video lesson presentations
         if (selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION] and 
+            parsed_content_model_instance and
             hasattr(parsed_content_model_instance, 'slides') and 
             parsed_content_model_instance.slides):
             
@@ -12089,6 +12097,9 @@ Return ONLY the JSON object.
             content_to_store_for_db = content_dict
             
             logger.info(f"Applied slide prop normalization for {len(normalized_slides)} slides")
+        elif selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
+            # For lesson plans, content_to_store_for_db was already set earlier - don't overwrite it
+            logger.info("Lesson plan - using pre-set content_to_store_for_db")
         else:
             content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             
