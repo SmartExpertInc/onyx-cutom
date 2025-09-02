@@ -421,6 +421,8 @@ export const es = {
     archived: "Archivado",
     createOffer: "Crear oferta",
     offerName: "Nombre de la oferta",
+    offer: "Oferta",
+    name: "Nombre",
     createdOn: "Creado en",
     manager: "Gerente",
     status: "Estado",
@@ -484,7 +486,9 @@ export const es = {
     roles: {
       admin: "Administrador",
       member: "Miembro",
-      viewer: "Observador"
+      viewer: "Observador",
+      manager: "Gerente",
+      editor: "Editor"
     },
     statuses: {
       active: "Activo",
@@ -512,11 +516,39 @@ export const es = {
       emailPlaceholder: "Ingrese dirección de email",
       roleLabel: "Rol",
       rolePlaceholder: "Seleccionar rol",
+      statusLabel: "Estado",
       sendInvitation: "Enviar invitación",
       cancel: "Cancelar"
     },
     noMembers: "No se encontraron miembros del espacio de trabajo",
     searchPlaceholder: "Buscar miembros...",
+    manageRoles: "Gestionar roles",
+
+    // Role Management
+    roleManager: {
+      title: "Gestionar roles personalizados",
+      description: "Crear roles personalizados con permisos y colores específicos",
+      addNewRole: "Agregar nuevo rol",
+      roleNamePlaceholder: "Ingrese nombre del rol",
+      permissions: "Permisos",
+      addRole: "Agregar rol",
+      existingRoles: "Roles existentes",
+      close: "Cerrar"
+    },
+
+    // Permissions
+    permissions: {
+      fullAccess: "Acceso completo",
+      manageUsers: "Gestionar usuarios",
+      manageSettings: "Gestionar configuración",
+      viewProjects: "Ver proyectos",
+      editOwnWork: "Editar trabajo propio",
+      viewOnly: "Solo ver",
+      manageProjects: "Gestionar proyectos",
+      assignTasks: "Asignar tareas",
+      editContent: "Editar contenido",
+      reviewWork: "Revisar trabajo"
+    },
     enterOfferName: "Ingresa el nombre de la oferta...",
     enterManager: "Ingresa el nombre del gerente...",
     creating: "Creando...",
@@ -918,6 +950,7 @@ export const es = {
       errorLoadingProject: "Error: {error}",
       projectNotFound: "Proyecto no encontrado o datos no disponibles.",
       back: "Atrás",
+      ManageAccess: "Administrar acceso",
       openProducts: "Abrir productos",
       downloadPdf: "Descargar PDF",
       smartEdit: "Edición inteligente",

@@ -411,6 +411,8 @@ export const uk = {
     archived: "Архівовано",
     createOffer: "Створити пропозицію",
     offerName: "Назва пропозиції",
+    offer: "Пропозиція",
+    name: "Назва",
     createdOn: "Створено",
     manager: "Менеджер",
     status: "Статус",
@@ -474,7 +476,9 @@ export const uk = {
     roles: {
       admin: "Адміністратор",
       member: "Учасник",
-      viewer: "Спостерігач"
+      viewer: "Спостерігач",
+      manager: "Менеджер",
+      editor: "Редактор"
     },
     statuses: {
       active: "Активний",
@@ -502,11 +506,35 @@ export const uk = {
       emailPlaceholder: "Введіть email адресу",
       roleLabel: "Роль",
       rolePlaceholder: "Виберіть роль",
+      statusLabel: "Статус",
       sendInvitation: "Надіслати запрошення",
       cancel: "Скасувати"
     },
     noMembers: "Учасники робочого простору не знайдені",
     searchPlaceholder: "Пошук учасників...",
+    manageRoles: "Керування ролями",
+    roleManager: {
+      title: "Керування користувацькими ролями",
+      description: "Створюйте користувацькі ролі з певними дозволами та кольорами",
+      addNewRole: "Додати нову роль",
+      roleNamePlaceholder: "Введіть назву ролі",
+      permissions: "Дозволи",
+      addRole: "Додати роль",
+      existingRoles: "Існуючі ролі",
+      close: "Закрити"
+    },
+    permissions: {
+      fullAccess: "Повний доступ",
+      manageUsers: "Керування користувачами",
+      manageSettings: "Керування налаштуваннями",
+      viewProjects: "Перегляд проектів",
+      editOwnWork: "Редагування власної роботи",
+      viewOnly: "Тільки перегляд",
+      manageProjects: "Керування проектами",
+      assignTasks: "Призначення завдань",
+      editContent: "Редагування контенту",
+      reviewWork: "Перевірка роботи"
+    },
     enterOfferName: "Введіть назву пропозиції...",
     enterManager: "Введіть ім'я менеджера...",
     creating: "Створення...",
@@ -903,6 +931,7 @@ export const uk = {
       errorLoadingProject: "Помилка: {error}",
       projectNotFound: "Проект не знайдено або дані недоступні.",
       back: "Назад",
+      ManageAccess: "Керувати доступом",
       openProducts: "Відкрити продукти",
       downloadPdf: "Завантажити PDF",
       smartEdit: "Розумне редагування",

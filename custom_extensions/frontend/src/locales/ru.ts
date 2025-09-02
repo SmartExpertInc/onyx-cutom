@@ -425,6 +425,8 @@ export const ru = {
     archived: "Архивировано",
     createOffer: "Создать предложение",
     offerName: "Название предложения",
+    offer: "Предложение",
+    name: "Название",
     createdOn: "Создано",
     manager: "Менеджер",
     status: "Статус",
@@ -488,7 +490,9 @@ export const ru = {
     roles: {
       admin: "Администратор",
       member: "Участник",
-      viewer: "Наблюдатель"
+      viewer: "Наблюдатель",
+      manager: "Менеджер",
+      editor: "Редактор"
     },
     statuses: {
       active: "Активный",
@@ -516,11 +520,35 @@ export const ru = {
       emailPlaceholder: "Введите email адрес",
       roleLabel: "Роль",
       rolePlaceholder: "Выберите роль",
+      statusLabel: "Статус",
       sendInvitation: "Отправить приглашение",
       cancel: "Отмена"
     },
     noMembers: "Участники рабочего пространства не найдены",
     searchPlaceholder: "Поиск участников...",
+    manageRoles: "Управление ролями",
+    roleManager: {
+      title: "Управление пользовательскими ролями",
+      description: "Создавайте пользовательские роли с определенными разрешениями и цветами",
+      addNewRole: "Добавить новую роль",
+      roleNamePlaceholder: "Введите название роли",
+      permissions: "Разрешения",
+      addRole: "Добавить роль",
+      existingRoles: "Существующие роли",
+      close: "Закрыть"
+    },
+    permissions: {
+      fullAccess: "Полный доступ",
+      manageUsers: "Управление пользователями",
+      manageSettings: "Управление настройками",
+      viewProjects: "Просмотр проектов",
+      editOwnWork: "Редактирование собственной работы",
+      viewOnly: "Только просмотр",
+      manageProjects: "Управление проектами",
+      assignTasks: "Назначение задач",
+      editContent: "Редактирование контента",
+      reviewWork: "Проверка работы"
+    },
     enterOfferName: "Введите название предложения...",
     enterManager: "Введите имя менеджера...",
     creating: "Создание...",
@@ -918,6 +946,7 @@ export const ru = {
       errorLoadingProject: "Ошибка: {error}",
       projectNotFound: "Проект не найден или данные недоступны.",
       back: "Назад",
+      ManageAccess: "Управление доступом",
       openProducts: "Открыть продукты",
       downloadPdf: "Скачать PDF",
       smartEdit: "Умное редактирование",

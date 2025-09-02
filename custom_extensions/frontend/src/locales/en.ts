@@ -447,6 +447,8 @@ export const en = {
     archived: "Archived",
     createOffer: "Create Offer",
     offerName: "Offer Name",
+    offer: "Offer",
+    name: "Name",
     createdOn: "Created On",
     manager: "Manager",
     status: "Status",
@@ -512,7 +514,9 @@ export const en = {
     roles: {
       admin: "Admin",
       member: "Member",
-      viewer: "Viewer"
+      viewer: "Viewer",
+      manager: "Manager",
+      editor: "Editor"
     },
     statuses: {
       active: "Active",
@@ -540,16 +544,41 @@ export const en = {
       emailPlaceholder: "Enter email address",
       roleLabel: "Role",
       rolePlaceholder: "Select role",
+      statusLabel: "Status",
       sendInvitation: "Send Invitation",
       cancel: "Cancel"
     },
     noMembers: "No workspace members found",
     searchPlaceholder: "Search members...",
-    enterOfferName: "Enter offer name...",
+    manageRoles: "Manage Roles",
+
+    // Role Management
+    roleManager: {
+      title: "Manage Custom Roles",
+      description: "Create custom roles with specific permissions and colors",
+      addNewRole: "Add New Role",
+      roleNamePlaceholder: "Enter role name",
+      permissions: "Permissions",
+      addRole: "Add Role",
+      existingRoles: "Existing Roles",
+      close: "Close"
+    },
+
+    // Permissions
+    permissions: {
+      fullAccess: "Full Access",
+      manageUsers: "Manage Users",
+      manageSettings: "Manage Settings",
+      viewProjects: "View Projects",
+      editOwnWork: "Edit Own Work",
+      viewOnly: "View Only",
+      manageProjects: "Manage Projects",
+      assignTasks: "Assign Tasks",
+      editContent: "Edit Content",
+      reviewWork: "Review Work"
+    },
     enterManager: "Enter manager name...",
     creating: "Creating...",
-
-
 
     // Main content
     all: "All",
@@ -597,7 +626,7 @@ export const en = {
     creatingClient: "Creating Client...",
     createClient: "Create Client",
     deleteClient: "Delete client",
-    
+
     // Folder actions
     folderSettings: "Folder Settings",
     renameFolder: "Rename Folder",
@@ -1107,6 +1136,7 @@ export const en = {
     projectView: {
       loadingProjectDetails: "Loading project details...",
       backButton: "Back",
+      ManageAccess: "Manage Access",
       openProducts: "Open Products",
       downloadPdf: "Download PDF",
       downloadSlideDeckPdf: "Download PDF",

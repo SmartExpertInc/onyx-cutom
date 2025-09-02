@@ -63,7 +63,7 @@ export function ClientLayout({
   };
   const { llmProviders } = useChatContext();
   const { popup, setPopup } = usePopup();
-  
+
   if (
     (pathname && pathname.startsWith("/admin/connectors")) ||
     (pathname && pathname.startsWith("/admin/embeddings"))
@@ -94,7 +94,7 @@ export function ClientLayout({
     ),
     link: "/custom-projects-ui/admin/design-templates",
   });
-  
+
   if (user?.preferences?.shortcut_enabled) {
     contentBuilderAdminItems.push({
       name: (
@@ -127,140 +127,211 @@ export function ClientLayout({
     {
       name: "Connectors",
       items: [
-          {
-            name: (
-              <div className="flex">
-                <NotebookIconSkeleton
-                  className="text-text-700"
-                  size={18}
-                />
-                <div className="ml-1">Existing Connectors</div>
-              </div>
-            ),
-            link: "/admin/indexing/status",
-          },
-          {
-            name: (
-              <div className="flex">
-                <ConnectorIconSkeleton
-                  className="text-text-700"
-                  size={18}
-                />
-                <div className="ml-1.5">Add Connector</div>
-              </div>
-            ),
-            link: "/admin/add-connector",
-          },
+        {
+          name: (
+            <div className="flex">
+              <NotebookIconSkeleton
+                className="text-text-700"
+                size={18}
+              />
+              <div className="ml-1">Existing Connectors</div>
+            </div>
+          ),
+          link: "/admin/indexing/status",
+        },
+        {
+          name: (
+            <div className="flex">
+              <ConnectorIconSkeleton
+                className="text-text-700"
+                size={18}
+              />
+              <div className="ml-1.5">Add Connector</div>
+            </div>
+          ),
+          link: "/admin/add-connector",
+        },
       ],
     },
     {
       name: "Document Management",
       items: [
-          {
-            name: (
-              <div className="flex">
-                <DocumentSetIconSkeleton
-                  className="text-text-700"
-                  size={18}
-                />
-                <div className="ml-1">Document Sets</div>
-              </div>
-            ),
-            link: "/admin/documents/sets",
-          },
-          {
-            name: (
-              <div className="flex">
-                <ZoomInIconSkeleton
-                  className="text-text-700"
-                  size={18}
-                />
-                <div className="ml-1">Explorer</div>
-              </div>
-            ),
-            link: "/admin/documents/explorer",
-          },
-          {
-            name: (
-              <div className="flex">
-                <ThumbsUpIconSkeleton
-                  className="text-text-700"
-                  size={18}
-                />
-                <div className="ml-1">Feedback</div>
-              </div>
-            ),
-            link: "/admin/documents/feedback",
-          },
+        {
+          name: (
+            <div className="flex">
+              <DocumentSetIconSkeleton
+                className="text-text-700"
+                size={18}
+              />
+              <div className="ml-1">Document Sets</div>
+            </div>
+          ),
+          link: "/admin/documents/sets",
+        },
+        {
+          name: (
+            <div className="flex">
+              <ZoomInIconSkeleton
+                className="text-text-700"
+                size={18}
+              />
+              <div className="ml-1">Explorer</div>
+            </div>
+          ),
+          link: "/admin/documents/explorer",
+        },
+        {
+          name: (
+            <div className="flex">
+              <ThumbsUpIconSkeleton
+                className="text-text-700"
+                size={18}
+              />
+              <div className="ml-1">Feedback</div>
+            </div>
+          ),
+          link: "/admin/documents/feedback",
+        },
       ],
     },
     ...(contentBuilderAdminItems.length > 0 ? [{
-        name: "ContentBuilder Admin",
-        items: contentBuilderAdminItems,
+      name: "ContentBuilder Admin",
+      items: contentBuilderAdminItems,
     }] : []),
     {
       name: "Custom Assistants",
       items: [
-          {
-            name: (
-              <div className="flex">
-                <AssistantsIconSkeleton
-                  className="text-text-700"
-                  size={18}
-                />
-                <div className="ml-1">Assistants</div>
-              </div>
-            ),
-            link: "/admin/assistants",
-          },
-          ...(!isCurator
-            ? [
-                {
-                  name: (
-                    <div className="flex">
-                      <SlackIconSkeleton className="text-text-700" />
-                      <div className="ml-1">Slack Bots</div>
-                    </div>
-                  ),
-                  link: "/admin/bots",
-                },
-                {
-                  name: (
-                    <div className="flex">
-                      <ToolIconSkeleton
-                        className="text-text-700"
-                        size={18}
-                      />
-                      <div className="ml-1">Actions</div>
-                    </div>
-                  ),
-                  link: "/admin/actions",
-                },
-              ]
-            : []),
-          ...(enableEnterprise
-            ? [
-                {
-                  name: (
-                    <div className="flex">
-                      <ClipboardIcon
-                        className="text-text-700"
-                        size={18}
-                      />
-                      <div className="ml-1">Standard Answers</div>
-                    </div>
-                  ),
-                  link: "/admin/standard-answer",
-                },
-              ]
-            : []),
+        {
+          name: (
+            <div className="flex">
+              <AssistantsIconSkeleton
+                className="text-text-700"
+                size={18}
+              />
+              <div className="ml-1">Assistants</div>
+            </div>
+          ),
+          link: "/admin/assistants",
+        },
+        ...(!isCurator
+          ? [
+            {
+              name: (
+                <div className="flex">
+                  <SlackIconSkeleton className="text-text-700" />
+                  <div className="ml-1">Slack Bots</div>
+                </div>
+              ),
+              link: "/admin/bots",
+            },
+            {
+              name: (
+                <div className="flex">
+                  <ToolIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">Actions</div>
+                </div>
+              ),
+              link: "/admin/actions",
+            },
+          ]
+          : []),
+        ...(enableEnterprise
+          ? [
+            {
+              name: (
+                <div className="flex">
+                  <ClipboardIcon
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">Standard Answers</div>
+                </div>
+              ),
+              link: "/admin/standard-answer",
+            },
+          ]
+          : []),
       ],
     },
-      ...(isCurator
-        ? [
+    ...(isCurator
+      ? [
+        {
+          name: "User Management",
+          items: [
             {
-              name: "User Management",
-              items: [
+              name: (
+                <div className="flex">
+                  <GroupsIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">Groups</div>
+                </div>
+              ),
+              link: "/admin/groups",
+            },
+          ],
+        },
+      ]
+      : []),
+    ...(!isCurator
+      ? [
+        {
+          name: "Configuration",
+          items: [
+            {
+              name: (
+                <div className="flex">
+                  <CpuIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">LLM</div>
+                </div>
+              ),
+              link: "/admin/configuration/llm",
+            },
+            {
+              error: settings?.settings.needs_reindexing,
+              name: (
+                <div className="flex">
+                  <SearchIcon className="text-text-700" />
+                  <div className="ml-1">Search Settings</div>
+                </div>
+              ),
+              link: "/admin/configuration/search",
+            },
+            {
+              name: (
+                <div className="flex">
+                  <DocumentIcon2 className="text-text-700" />
+                  <div className="ml-1">Document Processing</div>
+                </div>
+              ),
+              link: "/admin/configuration/document-processing",
+            },
+          ],
+        },
+        {
+          name: "User Management",
+          items: [
+            {
+              name: (
+                <div className="flex">
+                  <UsersIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">Users</div>
+                </div>
+              ),
+              link: "/admin/users",
+            },
+            ...(enableEnterprise
+              ? [
                 {
                   name: (
                     <div className="flex">
@@ -273,214 +344,143 @@ export function ClientLayout({
                   ),
                   link: "/admin/groups",
                 },
+              ]
+              : []),
+            {
+              name: (
+                <div className="flex">
+                  <KeyIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">API Keys</div>
+                </div>
+              ),
+              link: "/admin/api-key",
+            },
+            {
+              name: (
+                <div className="flex">
+                  <ShieldIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">Token Rate Limits</div>
+                </div>
+              ),
+              link: "/admin/token-rate-limits",
+            },
+          ],
+        },
+        ...(enableEnterprise
+          ? [
+            {
+              name: "Performance",
+              items: [
+                {
+                  name: (
+                    <div className="flex">
+                      <FiActivity
+                        className="text-text-700"
+                        size={18}
+                      />
+                      <div className="ml-1">Usage Statistics</div>
+                    </div>
+                  ),
+                  link: "/admin/performance/usage",
+                },
+                ...(settings?.settings.query_history_type !==
+                  "disabled"
+                  ? [
+                    {
+                      name: (
+                        <div className="flex">
+                          <DatabaseIconSkeleton
+                            className="text-text-700"
+                            size={18}
+                          />
+                          <div className="ml-1">
+                            Query History
+                          </div>
+                        </div>
+                      ),
+                      link: "/admin/performance/query-history",
+                    },
+                  ]
+                  : []),
+                ...(!enableCloud
+                  ? [
+                    {
+                      name: (
+                        <div className="flex">
+                          <FiBarChart2
+                            className="text-text-700"
+                            size={18}
+                          />
+                          <div className="ml-1">
+                            Custom Analytics
+                          </div>
+                        </div>
+                      ),
+                      link: "/admin/performance/custom-analytics",
+                    },
+                  ]
+                  : []),
               ],
             },
           ]
-        : []),
-        ...(!isCurator
-        ? [
+          : []),
+        {
+          name: "Settings",
+          items: [
             {
-              name: "Configuration",
-              items: [
-                {
-                  name: (
-                    <div className="flex">
-                      <CpuIconSkeleton
-                        className="text-text-700"
-                        size={18}
-                      />
-                      <div className="ml-1">LLM</div>
-                    </div>
-                  ),
-                  link: "/admin/configuration/llm",
-                },
-                {
-                  error: settings?.settings.needs_reindexing,
-                  name: (
-                    <div className="flex">
-                      <SearchIcon className="text-text-700" />
-                      <div className="ml-1">Search Settings</div>
-                    </div>
-                  ),
-                  link: "/admin/configuration/search",
-                },
-                {
-                  name: (
-                    <div className="flex">
-                      <DocumentIcon2 className="text-text-700" />
-                      <div className="ml-1">Document Processing</div>
-                    </div>
-                  ),
-                  link: "/admin/configuration/document-processing",
-                },
-              ],
-            },
-            {
-              name: "User Management",
-              items: [
-                {
-                  name: (
-                    <div className="flex">
-                      <UsersIconSkeleton
-                        className="text-text-700"
-                        size={18}
-                      />
-                      <div className="ml-1">Users</div>
-                    </div>
-                  ),
-                  link: "/admin/users",
-                },
-                ...(enableEnterprise
-                  ? [
-                      {
-                        name: (
-                          <div className="flex">
-                            <GroupsIconSkeleton
-                              className="text-text-700"
-                              size={18}
-                            />
-                            <div className="ml-1">Groups</div>
-                          </div>
-                        ),
-                        link: "/admin/groups",
-                      },
-                    ]
-                  : []),
-                {
-                  name: (
-                    <div className="flex">
-                      <KeyIconSkeleton
-                        className="text-text-700"
-                        size={18}
-                      />
-                      <div className="ml-1">API Keys</div>
-                    </div>
-                  ),
-                  link: "/admin/api-key",
-                },
-                {
-                  name: (
-                    <div className="flex">
-                      <ShieldIconSkeleton
-                        className="text-text-700"
-                        size={18}
-                      />
-                      <div className="ml-1">Token Rate Limits</div>
-                    </div>
-                  ),
-                  link: "/admin/token-rate-limits",
-                },
-              ],
+              name: (
+                <div className="flex">
+                  <SettingsIconSkeleton
+                    className="text-text-700"
+                    size={18}
+                  />
+                  <div className="ml-1">Workspace Settings</div>
+                </div>
+              ),
+              link: "/admin/settings",
             },
             ...(enableEnterprise
               ? [
-                  {
-                    name: "Performance",
-                    items: [
-                      {
-                        name: (
-                          <div className="flex">
-                            <FiActivity
-                              className="text-text-700"
-                              size={18}
-                            />
-                            <div className="ml-1">Usage Statistics</div>
-                          </div>
-                        ),
-                        link: "/admin/performance/usage",
-                      },
-                      ...(settings?.settings.query_history_type !==
-                      "disabled"
-                        ? [
-                            {
-                              name: (
-                                <div className="flex">
-                                  <DatabaseIconSkeleton
-                                    className="text-text-700"
-                                    size={18}
-                                  />
-                                  <div className="ml-1">
-                                    Query History
-                                  </div>
-                                </div>
-                              ),
-                              link: "/admin/performance/query-history",
-                            },
-                          ]
-                        : []),
-                      ...(!enableCloud
-                        ? [
-                            {
-                              name: (
-                                <div className="flex">
-                                  <FiBarChart2
-                                    className="text-text-700"
-                                    size={18}
-                                  />
-                                  <div className="ml-1">
-                                    Custom Analytics
-                                  </div>
-                                </div>
-                              ),
-                              link: "/admin/performance/custom-analytics",
-                            },
-                          ]
-                        : []),
-                    ],
-                  },
-                ]
-              : []),
-            {
-              name: "Settings",
-              items: [
                 {
                   name: (
                     <div className="flex">
-                      <SettingsIconSkeleton
+                      <PaintingIconSkeleton
                         className="text-text-700"
                         size={18}
                       />
-                      <div className="ml-1">Workspace Settings</div>
+                      <div className="ml-1">Whitelabeling</div>
                     </div>
                   ),
-                  link: "/admin/settings",
+                  link: "/admin/whitelabeling",
                 },
-                ...(enableEnterprise
-                  ? [
-                      {
-                        name: (
-                          <div className="flex">
-                            <PaintingIconSkeleton
-                              className="text-text-700"
-                              size={18}
-                            />
-                            <div className="ml-1">Whitelabeling</div>
-                          </div>
-                        ),
-                        link: "/admin/whitelabeling",
-                      },
-                    ]
-                  : []),
-                ...(enableCloud
-                  ? [
-                      {
-                        name: (
-                          <div className="flex">
-                            <MdOutlineCreditCard
-                              className="text-text-700"
-                              size={18}
-                            />
-                            <div className="ml-1">Billing</div>
-                          </div>
-                        ),
-                        link: "/admin/billing",
-                      },
-                    ]
-                  : []),
-              ],
-            },
-          ]
-        : []),
+              ]
+              : []),
+            ...(enableCloud
+              ? [
+                {
+                  name: (
+                    <div className="flex">
+                      <MdOutlineCreditCard
+                        className="text-text-700"
+                        size={18}
+                      />
+                      <div className="ml-1">Billing</div>
+                    </div>
+                  ),
+                  link: "/admin/billing",
+                },
+              ]
+              : []),
+          ],
+        },
+      ]
+      : []),
   ];
 
   return (
@@ -506,21 +506,21 @@ export function ClientLayout({
         )}
         */}
         {showAssistantsModal && (
-            <div 
-                style={{ 
-                    position: 'fixed', 
-                    top: '50%', 
-                    left: '50%', 
-                    transform: 'translate(-50%, -50%)', 
-                    background: 'white', 
-                    padding: '20px', 
-                    zIndex: 100,
-                    border: '1px solid black'
-                }}
-            >
-                <p>Assistants Modal Placeholder</p>
-                <button onClick={() => setShowAssistantsModal(false)}>Close</button>
-            </div>
+          <div
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'white',
+              padding: '20px',
+              zIndex: 100,
+              border: '1px solid black'
+            }}
+          >
+            <p>Assistants Modal Placeholder</p>
+            <button onClick={() => setShowAssistantsModal(false)}>Close</button>
+          </div>
         )}
 
 
@@ -540,11 +540,11 @@ export function ClientLayout({
                 </Link>
               </div>
             </div>
-        )}
+          )}
 
         <div className="default-scrollbar flex-none text-text-settings-sidebar bg-background-sidebar dark:bg-[#000] w-[250px] overflow-x-hidden z-20 pt-2 pb-8 h-full border-r border-border dark:border-none miniscroll overflow-auto">
           <AdminSidebar
-            collections={sidebarCollections}  
+            collections={sidebarCollections}
           />
         </div>
         <div className="relative h-full overflow-y-hidden w-full">

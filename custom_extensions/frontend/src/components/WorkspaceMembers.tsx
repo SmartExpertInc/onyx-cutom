@@ -3,42 +3,185 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   Plus, Search, Filter, MoreHorizontal, UserPlus, Mail, Shield,
-  RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users
+  RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users,
+  Settings, Palette, FolderPlus, Tag
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+// Types for custom role system
+interface CustomRole {
+  id: string;
+  name: string;
+  color: string;
+  textColor: string;
+  permissions: string[];
+}
 
 interface WorkspaceMember {
   id: number;
   name: string;
   email: string;
-  role: 'Admin' | 'Member' | 'Viewer';
+  role: string; // Now can be any custom role name
+  roleId?: string; // Reference to custom role
   status: 'Active' | 'Suspended' | 'Blocked' | 'Pending';
   invitationDate: string;
 }
 
+// Predefined color options for roles (pale backgrounds with darker text)
+const ROLE_COLORS = [
+  { bg: '#EFF6FF', text: '#1E40AF' }, // Pale Blue
+  { bg: '#ECFDF5', text: '#047857' }, // Pale Green
+  { bg: '#FFFBEB', text: '#D97706' }, // Pale Yellow
+  { bg: '#FEF2F2', text: '#DC2626' }, // Pale Red
+  { bg: '#F3E8FF', text: '#7C3AED' }, // Pale Purple
+  { bg: '#ECFEFF', text: '#0891B2' }, // Pale Cyan
+  { bg: '#FFF7ED', text: '#EA580C' }, // Pale Orange
+  { bg: '#FDF2F8', text: '#DB2777' }, // Pale Pink
+  { bg: '#F9FAFB', text: '#374151' }, // Pale Gray
+  { bg: '#F7FEE7', text: '#65A30D' }, // Pale Lime
+];
+
 const WorkspaceMembers: React.FC = () => {
   const { t } = useLanguage();
+
+  // Use useMemo to recalculate custom roles whenever language changes
+  const customRoles = useMemo<CustomRole[]>(() => [
+    {
+      id: 'admin',
+      name: t('interface.roles.admin', 'Admin'),
+      color: '#F3E8FF',
+      textColor: '#7C3AED',
+      permissions: [
+        t('interface.permissions.fullAccess', 'Full Access'),
+        t('interface.permissions.manageUsers', 'Manage Users'),
+        t('interface.permissions.manageSettings', 'Manage Settings')
+      ]
+    },
+    {
+      id: 'member',
+      name: t('interface.roles.member', 'Member'),
+      color: '#EFF6FF',
+      textColor: '#1E40AF',
+      permissions: [
+        t('interface.permissions.viewProjects', 'View Projects'),
+        t('interface.permissions.editOwnWork', 'Edit Own Work')
+      ]
+    },
+    {
+      id: 'viewer',
+      name: t('interface.roles.viewer', 'Viewer'),
+      color: '#F9FAFB',
+      textColor: '#374151',
+      permissions: [
+        t('interface.permissions.viewOnly', 'View Only')
+      ]
+    },
+    {
+      id: 'manager',
+      name: t('interface.roles.manager', 'Manager'),
+      color: '#ECFDF5',
+      textColor: '#047857',
+      permissions: [
+        t('interface.permissions.manageProjects', 'Manage Projects'),
+        t('interface.permissions.assignTasks', 'Assign Tasks')
+      ]
+    },
+    {
+      id: 'editor',
+      name: t('interface.roles.editor', 'Editor'),
+      color: '#FFFBEB',
+      textColor: '#D97706',
+      permissions: [
+        t('interface.permissions.editContent', 'Edit Content'),
+        t('interface.permissions.reviewWork', 'Review Work')
+      ]
+    },
+  ], [t]);
+
+  // State for custom roles that can be added by users
+  const [userCustomRoles, setUserCustomRoles] = useState<CustomRole[]>([]);
+
+  // Combine predefined roles with user custom roles
+  const allCustomRoles = useMemo(() => [...customRoles, ...userCustomRoles], [customRoles, userCustomRoles]);
+
+  // Initialize members with translated role names
   const [members, setMembers] = useState<WorkspaceMember[]>([
-    { id: 1, name: "Marina Ivanova", email: "marina@company.com", role: "Admin", status: "Active", invitationDate: "2025-08-10" },
-    { id: 2, name: "Oleg Smirnov", email: "oleg@company.com", role: "Member", status: "Suspended", invitationDate: "2025-08-12" },
-    { id: 3, name: "Sergey Li", email: "sergey@company.com", role: "Viewer", status: "Blocked", invitationDate: "2025-08-09" },
-    { id: 4, name: "Viktoria Koval", email: "viktoria@company.com", role: "Member", status: "Active", invitationDate: "2025-08-05" }
+    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: "Admin", roleId: "admin", status: "Active", invitationDate: "2025-08-10" },
+    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: "Member", roleId: "member", status: "Suspended", invitationDate: "2025-08-12" },
+    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: "Viewer", roleId: "viewer", status: "Blocked", invitationDate: "2025-08-09" },
+    { id: 4, name: "James Whitaker", email: "james@company.com", role: "Manager", roleId: "manager", status: "Active", invitationDate: "2025-08-05" },
+    { id: 5, name: "Emma Davis", email: "emma@company.com", role: "Editor", roleId: "editor", status: "Active", invitationDate: "2025-08-08" },
   ]);
+
+  // Update member role names when language changes
+  const membersWithTranslatedRoles = useMemo(() => {
+    return members.map((member: WorkspaceMember) => {
+      const role = allCustomRoles.find((r: CustomRole) => r.id === member.roleId);
+      return {
+        ...member,
+        role: role?.name || member.role
+      };
+    });
+  }, [members, allCustomRoles]);
+
+  // UI State
   const [showAddMember, setShowAddMember] = useState(false);
+  const [showRoleManager, setShowRoleManager] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [newMemberEmail, setNewMemberEmail] = useState('');
-  const [newMemberRole, setNewMemberRole] = useState<'Admin' | 'Member' | 'Viewer'>('Member');
+  const [newMemberRole, setNewMemberRole] = useState<string>('member');
+  const [newMemberStatus, setNewMemberStatus] = useState<'Active' | 'Suspended' | 'Blocked' | 'Pending'>('Pending');
 
-  // Filter members based on search term and status filter
-  const filteredMembers = useMemo(() => {
-    return members.filter(member => {
-      const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          member.email.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === '' || member.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [members, searchTerm, statusFilter]);
+  // Role management state
+  const [newRoleName, setNewRoleName] = useState('');
+  const [newRoleColor, setNewRoleColor] = useState(ROLE_COLORS[0].bg);
+  const [newRoleTextColor, setNewRoleTextColor] = useState(ROLE_COLORS[0].text);
+  const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
+  const [showColorPalette, setShowColorPalette] = useState(false);
+
+  const formatDate = (dateInput: string): string => {
+    const date = new Date(dateInput);
+    if (Number.isNaN(date.getTime())) return dateInput;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  // Get role by ID
+  const getRoleById = useCallback((roleId: string) => {
+    return allCustomRoles.find((role: CustomRole) => role.id === roleId);
+  }, [allCustomRoles]);
+
+  // Get role color
+  const getRoleColor = useCallback((role: string, roleId?: string) => {
+    if (roleId) {
+      const foundRole = getRoleById(roleId);
+      if (foundRole) return foundRole.color;
+    }
+
+    // Fallback to hardcoded colors for backward compatibility
+    switch (role) {
+      case 'Admin': return '#F3E8FF';
+      case 'Member': return '#EFF6FF';
+      case 'Viewer': return '#F9FAFB';
+      default: return '#F9FAFB';
+    }
+  }, [getRoleById]);
+
+  // Get role text color
+  const getRoleTextColor = useCallback((role: string, roleId?: string) => {
+    if (roleId) {
+      const foundRole = getRoleById(roleId);
+      if (foundRole) return foundRole.textColor;
+    }
+
+    // Fallback to hardcoded colors for backward compatibility
+    switch (role) {
+      case 'Admin': return '#7C3AED';
+      case 'Member': return '#1E40AF';
+      case 'Viewer': return '#374151';
+      default: return '#374151';
+    }
+  }, [getRoleById]);
 
   // Get status color
   const getStatusColor = (status: string) => {
@@ -51,25 +194,35 @@ const WorkspaceMembers: React.FC = () => {
     }
   };
 
+  // Filter members based on search term and status filter
+  const filteredMembers = useMemo(() => {
+    return membersWithTranslatedRoles.filter((member: WorkspaceMember) => {
+      const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === '' || member.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [membersWithTranslatedRoles, searchTerm, statusFilter]);
+
   // Handle member actions
   const handleDeleteMember = useCallback((memberId: number) => {
     setMembers(prev => prev.filter(member => member.id !== memberId));
   }, []);
 
   const handleSuspendMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member => 
+    setMembers(prev => prev.map(member =>
       member.id === memberId ? { ...member, status: 'Suspended' as const } : member
     ));
   }, []);
 
   const handleActivateMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member => 
+    setMembers(prev => prev.map(member =>
       member.id === memberId ? { ...member, status: 'Active' as const } : member
     ));
   }, []);
 
   const handleUnblockMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member => 
+    setMembers(prev => prev.map(member =>
       member.id === memberId ? { ...member, status: 'Active' as const } : member
     ));
   }, []);
@@ -77,59 +230,116 @@ const WorkspaceMembers: React.FC = () => {
   // Handle add member
   const handleAddMember = useCallback(() => {
     if (newMemberEmail.trim()) {
+      const selectedRole = getRoleById(newMemberRole);
       const newMember: WorkspaceMember = {
         id: Math.max(...members.map(m => m.id)) + 1,
         name: newMemberEmail.split('@')[0], // Simple name generation
         email: newMemberEmail.trim(),
-        role: newMemberRole,
-        status: 'Pending',
-        invitationDate: new Date().toISOString().split('T')[0]
+        role: selectedRole?.name || 'Member',
+        roleId: selectedRole?.id,
+        status: newMemberStatus,
+        invitationDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       };
       setMembers(prev => [...prev, newMember]);
       setNewMemberEmail('');
-      setNewMemberRole('Member');
+      setNewMemberRole('member');
+      setNewMemberStatus('Pending');
       setShowAddMember(false);
     }
-  }, [newMemberEmail, newMemberRole, members]);
+  }, [newMemberEmail, newMemberRole, newMemberStatus, members, getRoleById]);
+
+  // Role management functions
+  const handleAddRole = useCallback(() => {
+    if (newRoleName.trim()) {
+      const newRole: CustomRole = {
+        id: `role-${Date.now()}`,
+        name: newRoleName.trim(),
+        color: newRoleColor,
+        textColor: newRoleTextColor,
+        permissions: newRolePermissions
+      };
+      setUserCustomRoles(prev => [...prev, newRole]);
+      setNewRoleName('');
+      setNewRoleColor(ROLE_COLORS[0].bg);
+      setNewRoleTextColor(ROLE_COLORS[0].text);
+      setNewRolePermissions([]);
+    }
+  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions]);
+
+  const handleDeleteRole = useCallback((roleId: string) => {
+    if (roleId !== 'admin' && roleId !== 'member' && roleId !== 'viewer') {
+      setUserCustomRoles(prev => prev.filter(role => role.id !== roleId));
+    }
+  }, []);
+
+  const handleTogglePermission = useCallback((permission: string) => {
+    setNewRolePermissions(prev =>
+      prev.includes(permission)
+        ? prev.filter(p => p !== permission)
+        : [...prev, permission]
+    );
+  }, []);
+
+  const handleRoleChange = (memberId: number, newRoleId: string) => {
+    const selectedRole = getRoleById(newRoleId);
+    if (!selectedRole) return;
+
+    setMembers(prev =>
+      prev.map(m =>
+        m.id === memberId
+          ? { ...m, roleId: newRoleId, role: selectedRole.name }
+          : m
+      )
+    );
+  };
 
   return (
     <div className="space-y-6">
       {/* Header with Search, Filter, and Create Button */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-        {/* Search and Filter Row */}
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-            <input
-              type="text"
-              placeholder={t('interface.searchPlaceholder', 'Search members...')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
-            />
+          {/* Search and Filter Row */}
+          <div className="flex flex-col sm:flex-row gap-4 flex-1">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <input
+                type="text"
+                placeholder={t('interface.searchPlaceholder', 'Search members...')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
+            >
+              <option value="" className="text-black">{t('interface.filters.allStatuses', 'All Statuses')}</option>
+              <option value="Active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
+              <option value="Suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
+              <option value="Blocked" className="text-black">{t('interface.statuses.blocked', 'Blocked')}</option>
+              <option value="Pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
+            </select>
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
-          >
-            <option value="" className="text-black">{t('interface.filters.allStatuses', 'All Statuses')}</option>
-            <option value="Active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
-            <option value="Suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
-            <option value="Blocked" className="text-black">{t('interface.statuses.blocked', 'Blocked')}</option>
-            <option value="Pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
-          </select>
-        </div>
-        
-        {/* Create Button */}
-        <button
-          onClick={() => setShowAddMember(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
-        >
-          <UserPlus size={16} />
-          {t('interface.addMember', 'Add Member')}
-        </button>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowRoleManager(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors whitespace-nowrap"
+            >
+              <Settings size={16} />
+              {t('interface.manageRoles', 'Manage Roles')}
+            </button>
+            <button
+              onClick={() => setShowAddMember(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+            >
+              <UserPlus size={16} />
+              {t('interface.addMember', 'Add Member')}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -185,12 +395,25 @@ const WorkspaceMembers: React.FC = () => {
                       {member.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        member.role === 'Admin' ? 'bg-purple-100 text-purple-800' :
-                        member.role === 'Member' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {t(`interface.roles.${member.role.toLowerCase()}`, member.role)}
+                      <span
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: getRoleColor(member.role, member.roleId),
+                          color: getRoleTextColor(member.role, member.roleId)
+                        }}
+                      >
+                        <select
+                          value={member.roleId}
+                          onChange={(e) => handleRoleChange(member.id, e.target.value)}
+                          className="px-1 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
+                          required
+                        >
+                          {allCustomRoles.map((role) => (
+                            <option key={role.id} value={role.id} style={{ color: role.textColor }}>
+                              {role.name}
+                            </option>
+                          ))}
+                        </select>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -202,7 +425,7 @@ const WorkspaceMembers: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {member.invitationDate}
+                      {formatDate(member.invitationDate)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="relative group">
@@ -265,15 +488,15 @@ const WorkspaceMembers: React.FC = () => {
       {showAddMember && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowAddMember(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10" 
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
               onClick={() => setShowAddMember(false)}
             >
               <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            
+
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {t('interface.addMemberModal.title', 'Add Member')}
@@ -282,7 +505,7 @@ const WorkspaceMembers: React.FC = () => {
                 {t('interface.addMemberModal.description', 'Invite a new member to the workspace')}
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -296,23 +519,41 @@ const WorkspaceMembers: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t('interface.addMemberModal.roleLabel', 'Role')}
                 </label>
                 <select
                   value={newMemberRole}
-                  onChange={(e) => setNewMemberRole(e.target.value as 'Admin' | 'Member' | 'Viewer')}
+                  onChange={(e) => setNewMemberRole(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
-                  <option value="Admin">{t('interface.roles.admin', 'Admin')}</option>
-                  <option value="Member">{t('interface.roles.member', 'Member')}</option>
-                  <option value="Viewer">{t('interface.roles.viewer', 'Viewer')}</option>
+                  {allCustomRoles.map(role => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('interface.addMemberModal.statusLabel', 'Status')}
+                </label>
+                <select
+                  value={newMemberStatus}
+                  onChange={(e) => setNewMemberStatus(e.target.value as 'Active' | 'Suspended' | 'Blocked' | 'Pending')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                >
+                  <option value="Pending">{t('interface.statuses.pending', 'Pending')}</option>
+                  <option value="Active">{t('interface.statuses.active', 'Active')}</option>
+                  <option value="Suspended">{t('interface.statuses.suspended', 'Suspended')}</option>
+                  <option value="Blocked">{t('interface.statuses.blocked', 'Blocked')}</option>
                 </select>
               </div>
             </div>
-            
+
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowAddMember(false)}
@@ -326,6 +567,160 @@ const WorkspaceMembers: React.FC = () => {
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t('interface.addMemberModal.sendInvitation', 'Send Invitation')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Manager Modal */}
+      {showRoleManager && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowRoleManager(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+              onClick={() => setShowRoleManager(false)}
+            >
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {t('interface.roleManager.title', 'Manage Custom Roles')}
+              </h3>
+              <p className="text-gray-600">
+                {t('interface.roleManager.description', 'Create custom roles with specific permissions and colors')}
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {/* Add New Role */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="text-lg font-medium text-gray-900 mb-3">{t('interface.roleManager.addNewRole', 'Add New Role')}</h4>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={newRoleName}
+                      onChange={(e) => setNewRoleName(e.target.value)}
+                      placeholder={t('interface.roleManager.roleNamePlaceholder', 'Enter role name')}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                    />
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowColorPalette(!showColorPalette)}
+                        className="w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center"
+                        style={{ backgroundColor: newRoleColor }}
+                      >
+                        <Palette size={16} className="text-gray-600" />
+                      </button>
+                      {showColorPalette && (
+                        <div className="absolute top-0 right-full mr-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-5 gap-1 w-48 z-50">
+                          {ROLE_COLORS.map((colorOption) => (
+                            <button
+                              key={colorOption.bg}
+                              onClick={() => {
+                                setNewRoleColor(colorOption.bg);
+                                setNewRoleTextColor(colorOption.text);
+                                setShowColorPalette(false);
+                              }}
+                              className="w-8 h-8 rounded border border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
+                              style={{ backgroundColor: colorOption.bg }}
+                            >
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorOption.text }}></div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.roleManager.permissions', 'Permissions')}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        t('interface.permissions.fullAccess', 'Full Access'),
+                        t('interface.permissions.manageUsers', 'Manage Users'),
+                        t('interface.permissions.manageSettings', 'Manage Settings'),
+                        t('interface.permissions.viewProjects', 'View Projects'),
+                        t('interface.permissions.editOwnWork', 'Edit Own Work'),
+                        t('interface.permissions.viewOnly', 'View Only'),
+                        t('interface.permissions.manageProjects', 'Manage Projects'),
+                        t('interface.permissions.assignTasks', 'Assign Tasks'),
+                        t('interface.permissions.editContent', 'Edit Content'),
+                        t('interface.permissions.reviewWork', 'Review Work')
+                      ].map((permission) => (
+                        <label key={permission} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={newRolePermissions.includes(permission)}
+                            onChange={() => handleTogglePermission(permission)}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">{permission}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleAddRole}
+                    disabled={!newRoleName.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                  >
+                    <Tag size={16} />
+                    {t('interface.roleManager.addRole', 'Add Role')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Existing Roles */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-medium text-gray-900">{t('interface.roleManager.existingRoles', 'Existing Roles')}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {allCustomRoles.map((role) => (
+                    <div key={role.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                          style={{
+                            backgroundColor: role.color,
+                            color: role.textColor
+                          }}
+                        >
+                          {role.name}
+                        </span>
+                        {role.id !== 'admin' && role.id !== 'member' && role.id !== 'viewer' && (
+                          <button
+                            onClick={() => handleDeleteRole(role.id)}
+                            className="text-red-600 hover:text-red-800 text-sm"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        {role.permissions.map((permission) => (
+                          <div key={permission} className="text-xs text-gray-600 flex items-center">
+                            <CheckCircle size={12} className="mr-1 text-green-500" />
+                            {permission}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowRoleManager(false)}
+                className="px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors"
+              >
+                {t('interface.roleManager.close', 'Close')}
               </button>
             </div>
           </div>
