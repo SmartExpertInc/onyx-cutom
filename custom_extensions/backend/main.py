@@ -1577,8 +1577,8 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                             logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'steps' → 'items'")
                             source_list = steps_list
                             source_type = 'steps'
-                    else:
-                        source_list = []
+                        else:
+                            source_list = []
 
                 # Validate and coerce each item
                 fixed_items = []
