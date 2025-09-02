@@ -20429,6 +20429,10 @@ class TextPresentationWizardFinalize(BaseModel):
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     isCleanContent: Optional[bool] = False
+    # Connector context fields
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None
+    connectorSources: Optional[str] = None
 
 class TextPresentationEditRequest(BaseModel):
     content: str
