@@ -225,6 +225,7 @@ export default function ProjectInstanceViewPage() {
       setCustomEmails(prev => [...prev, emailToAdd]);
       setSelectedEmails(prev => [...prev, emailToAdd]);
       setNewEmail('');
+      setRoleAccess(false);
     }
   };
 
@@ -1435,21 +1436,12 @@ export default function ProjectInstanceViewPage() {
                     className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
                     onClick={() => setRoleAccess(false)}
                   >
-                    <style jsx>{`
-                       .scrollbar-hide {
-                         -ms-overflow-style: none;
-                         scrollbar-width: none;
-                       }
-                       .scrollbar-hide::-webkit-scrollbar {
-                         display: none;
-                       }
-                     `}</style>
                     <div
                       className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
-                      <div className="flex items-center justify-between pb-1">
+                      <div className="flex items-center justify-between p-4">
                         <h2 className="text-xl font-semibold text-gray-900">{t('interface.projectView.addMember', 'Add Member')}</h2>
                         <button
                           onClick={() => setRoleAccess(false)}
@@ -1466,9 +1458,9 @@ export default function ProjectInstanceViewPage() {
                         <p className="text-sm text-gray-600 mb-4 border-b pb-2 border-gray-200">{t('interface.projectView.manageAccessToWorkspace', 'Manage access to product')}</p>
 
                         {/* Roles that have access */}
-                        <div className="mb-6">
+                        <div className="mb-2">
                           <h3 className="text-sm font-medium text-gray-700 mb-4">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
-                          <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                          <div className="grid grid-cols-2 gap-x-8 gap-y-2 border-b pb-2 border-gray-200">
                             {predefinedRoles.map((role) => (
                               <label key={role.id} className="flex items-center">
                                 <input
@@ -1484,9 +1476,9 @@ export default function ProjectInstanceViewPage() {
                         </div>
 
                         {/* People with access */}
-                        <div className="mb-2">
+                        <div className="mb-6">
                           <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.peopleWithAccess', 'People with access')}</h3>
-                          <div className="space-y-2 max-h-32 overflow-y-auto border-b pb-2 border-gray-200 scrollbar-hide">
+                          <div className="space-y-2 max-h-32 overflow-y-auto">
                             {customEmails.map((email) => (
                               <div key={email} className="flex items-center justify-between rounded">
                                 <div className="flex items-center">
@@ -1510,7 +1502,7 @@ export default function ProjectInstanceViewPage() {
                         </div>
 
                         {/* Invite members */}
-                        <div className="mb-6">
+                        <div className="mb-3">
                           <h3 className="text-sm font-medium text-gray-900 mb-2">{t('interface.projectView.inviteMembers', 'Invite members')}</h3>
                           <div className="relative">
                             <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
@@ -1529,7 +1521,7 @@ export default function ProjectInstanceViewPage() {
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
                               placeholder={t('interface.projectView.addWorkspaceMember', 'Add product member')}
-                              className="w-full pl-10 pr-3 py-2 text-sm border text-gray-600 placeholder-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full pl-10 pr-3 py-2.5 text-sm border text-gray-600 placeholder-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
                           </div>
@@ -1538,8 +1530,9 @@ export default function ProjectInstanceViewPage() {
                         {/* Action Button */}
                         <div className="flex justify-center">
                           <button
-                            onClick={() => setRoleAccess(false)}
-                            className="w-full pl-10 pr-3 px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                            onClick={handleAddEmail}
+                            disabled={!newEmail.trim()}
+                            className="w-full px-4 py-2.5 text-m font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                           >
                             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
