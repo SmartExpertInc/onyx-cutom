@@ -190,7 +190,7 @@ export const CreateContentTypeModal = ({
     try {
       // Use the outlineProjectId prop directly
 
-      const response = await fetch('/api/custom/lesson-plan/generate', {
+      const response = await fetch('/api/custom-projects-backend/lesson-plan/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
