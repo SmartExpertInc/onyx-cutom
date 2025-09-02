@@ -6606,6 +6606,12 @@ async def startup_event():
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_chat_session_id UUID;")
             logger.info("'projects' table ensured and updated with 'source_chat_session_id'.")
 
+            # --- Add source context tracking columns ---
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_context_type TEXT;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_context_data JSONB;")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_source_context_type ON projects(source_context_type);")
+            logger.info("'projects' table updated with source context tracking columns.")
+
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
@@ -7540,6 +7546,9 @@ class ProjectCreateRequest(BaseModel):
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     folder_id: Optional[int] = None  # Add folder_id for automatic folder assignment
     theme: Optional[str] = None      # Selected theme for presentations
+    # Source context tracking
+    source_context_type: Optional[str] = None  # 'files', 'connectors', 'knowledge_base', 'text', 'prompt'
+    source_context_data: Optional[dict] = None  # JSON data about the source
     model_config = {"from_attributes": True}
 
 class ProjectDB(BaseModel):
@@ -10945,6 +10954,50 @@ async def get_allowed_microproduct_types_list_for_design_templates():
 
 # --- Project and MicroProduct Endpoints ---
 @app.post("/api/custom/projects/add", response_model=ProjectDB, status_code=status.HTTP_201_CREATED)
+def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
+    """
+    Build source context type and data from a finalize payload.
+    Returns (context_type, context_data) tuple.
+    """
+    context_type = None
+    context_data = {}
+    
+    # Check for connector context
+    if hasattr(payload, 'fromConnectors') and payload.fromConnectors:
+        context_type = 'connectors'
+        context_data = {
+            'connector_ids': payload.connectorIds.split(',') if payload.connectorIds else [],
+            'connector_sources': payload.connectorSources.split(',') if payload.connectorSources else []
+        }
+    # Check for Knowledge Base context
+    elif hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase:
+        context_type = 'knowledge_base'
+        context_data = {'search_query': payload.prompt if hasattr(payload, 'prompt') else None}
+    # Check for file context
+    elif hasattr(payload, 'fromFiles') and payload.fromFiles:
+        context_type = 'files'
+        context_data = {
+            'folder_ids': payload.folderIds.split(',') if payload.folderIds else [],
+            'file_ids': payload.fileIds.split(',') if payload.fileIds else []
+        }
+    # Check for text context
+    elif hasattr(payload, 'fromText') and payload.fromText:
+        context_type = 'text'
+        context_data = {
+            'text_mode': payload.textMode if hasattr(payload, 'textMode') else None,
+            'user_text': payload.userText if hasattr(payload, 'userText') and payload.userText else None,
+            'user_text_length': len(payload.userText) if hasattr(payload, 'userText') and payload.userText else 0
+        }
+    # Default to prompt-based
+    else:
+        context_type = 'prompt'
+        context_data = {
+            'prompt': payload.prompt if hasattr(payload, 'prompt') else None,
+            'prompt_length': len(payload.prompt) if hasattr(payload, 'prompt') and payload.prompt else 0
+        }
+    
+    return context_type, context_data
+
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
     lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
@@ -12003,11 +12056,13 @@ Return ONLY the JSON object.
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id,
+            source_context_type, source_context_data
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10, $11, $12)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id,
+                  source_context_type, source_context_data;
     """
 
         async with pool.acquire() as conn:
@@ -12022,7 +12077,9 @@ Return ONLY the JSON object.
                 project_data.design_template_id,
                 project_data.chatSessionId,
                 is_standalone_product,
-                project_data.folder_id
+                project_data.folder_id,
+                project_data.source_context_type,
+                project_data.source_context_data
             )
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create project entry.")
@@ -15306,6 +15363,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             
             logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
             
+            # Build source context from payload
+            source_context_type, source_context_data = build_source_context(payload)
+            
             project_request = ProjectCreateRequest(
                 projectName=project_name_detected,
                 design_template_id=template_id,
@@ -15313,6 +15373,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 aiResponse=raw_outline_cached,
                 chatSessionId=uuid.UUID(chat_id) if chat_id else None,
                 folder_id=int(payload.folderId) if payload.folderId else None,
+                source_context_type=source_context_type,
+                source_context_data=source_context_data,
             )
             onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -15580,6 +15642,9 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 
                 logger.info(f"Assistant + parser path: Creating project with {len(assistant_reply)} characters")
                 
+                # Build source context from payload
+                source_context_type, source_context_data = build_source_context(payload)
+                
                 project_request = ProjectCreateRequest(
                     projectName=project_name_detected,
                     design_template_id=template_id,
@@ -15587,6 +15652,8 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                     aiResponse=assistant_reply,
                     chatSessionId=uuid.UUID(chat_id) if chat_id else None,
                     folder_id=int(payload.folderId) if payload.folderId else None,
+                    source_context_type=source_context_type,
+                    source_context_data=source_context_data,
                 )
                 onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -16252,6 +16319,9 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
 
+        # Build source context from payload
+        source_context_type, source_context_data = build_source_context(payload)
+        
         # Create project data
         project_data = ProjectCreateRequest(
             projectName=project_name,
@@ -16261,7 +16331,9 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
-            theme=payload.theme  # Pass selected theme
+            theme=payload.theme,  # Pass selected theme
+            source_context_type=source_context_type,
+            source_context_data=source_context_data
         )
         
         # Create project with proper error handling
