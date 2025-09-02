@@ -1513,7 +1513,7 @@ export default function ProjectInstanceViewPage() {
                         <div className="mb-6">
                           <h3 className="text-sm font-medium text-gray-900 mb-2">{t('interface.projectView.inviteMembers', 'Invite members')}</h3>
                           <div className="relative">
-                            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
+                            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
                               viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path
                                 d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
