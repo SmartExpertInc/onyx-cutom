@@ -218,7 +218,8 @@ export const CreateContentTypeModal = ({
       }
     } catch (error) {
       console.error('Error generating lesson plan:', error);
-      alert(`Failed to generate lesson plan: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Failed to generate lesson plan: ${errorMessage}`);
     } finally {
       setIsGeneratingLessonPlan(false);
     }
