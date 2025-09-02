@@ -27,11 +27,6 @@ export default function AuditPage() {
           body, html {
             color: #09090B;
           }
-          
-          /* Ensure all text elements inherit the default color unless explicitly styled */
-          * {
-            color: inherit;
-          }
         `}</style>
       <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
