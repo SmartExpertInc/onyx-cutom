@@ -150,7 +150,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    backgroundColor: '#ffffff',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -197,7 +197,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '45%',
         height: '100%',
-        backgroundColor: themeAccent,
+        backgroundColor: '#483DA6',
         position: 'relative',
         borderTopRightRadius: '50px',
         borderBottomRightRadius: '50px',
@@ -207,10 +207,10 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         <div style={{
           position: 'absolute',
           top: '30px',
-          left: '30px',
+          left: '22px',
           width: '20px',
           height: '20px',
-          color: themeBg,
+          color: '#ffffff',
           fontSize: '20px',
           fontWeight: 'bold'
         }}>
@@ -220,19 +220,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         {/* Vertical line on left edge */}
         <div style={{
           position: 'absolute',
-          left: '0',
+          left: '58px',
           top: '0',
-          width: '2px',
+          width: '1px',
           height: '100%',
-          backgroundColor: themeBg
+          backgroundColor: '#D3CEFF'
         }} />
 
         {/* Page number */}
         <div style={{
           position: 'absolute',
           bottom: '30px',
-          left: '30px',
-          color: themeBg,
+          left: '22px',
+          color: '#979797',
           fontSize: '14px',
           fontWeight: '300'
         }}>
@@ -243,7 +243,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         <div style={{
           position: 'absolute',
           top: '50%',
-          left: '50px',
+          left: '120px',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
@@ -256,26 +256,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleTitleCancel}
               className="course-overview-title-editor"
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '63px',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                userSelect: 'none',
+                position: 'relative'
               }}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '63px',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -295,26 +288,19 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               onCancel={handleSubtitleCancel}
               className="course-overview-subtitle-editor"
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '63px',
                 color: 'white',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                margin: '0',
-                padding: '0'
+                userSelect: 'none',
+                position: 'relative'
               }}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingSubtitle(true)}
               style={{
-                fontSize: '48px',
-                fontWeight: 'bold',
+                fontSize: '63px',
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
@@ -333,7 +319,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '55%',
         height: '100%',
-        backgroundColor: themeBg,
+        backgroundColor: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
