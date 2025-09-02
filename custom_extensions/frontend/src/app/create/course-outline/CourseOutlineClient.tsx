@@ -9,7 +9,6 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { extractPrompt } from "../../../utils/promptExtractor";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -198,26 +197,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 export default function CourseOutlineClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
-  
-  // Handle prompt extraction with sessionStorage fallback for long prompts
-  const extractPrompt = (urlPrompt: string | null) => {
-    if (!urlPrompt) return "";
-    
-    // Check if this is a prompt reference (long prompt stored in sessionStorage)
-    if (urlPrompt.startsWith('[PROMPT_REF:') && urlPrompt.endsWith(']')) {
-      const promptKey = urlPrompt.slice(12, -1); // Extract key from [PROMPT_REF:key]
-      const storedPrompt = sessionStorage.getItem(promptKey);
-      if (storedPrompt) {
-        // Clean up the stored prompt after retrieving it
-        sessionStorage.removeItem(promptKey);
-        return storedPrompt;
-      }
-    }
-    
-    return urlPrompt;
-  };
-  
-  const [prompt, setPrompt] = useState(extractPrompt(params?.get("prompt") || null));
+  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
