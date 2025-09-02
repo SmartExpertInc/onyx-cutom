@@ -836,11 +836,11 @@ export default function AuditPage() {
                   {/* Module 1 Expandable Content */}
                   <div 
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      expandedModules['module1'] ? 'max-h-[200px] opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                      expandedModules['module1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
                     }`}
                   >
                     {/* Lesson 1 */}
-                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Основные этапы открытия салона
                       </span>
@@ -868,7 +868,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Lesson 2 */}
-                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Локация и планировка: требования к помещению
                       </span>
@@ -896,7 +896,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Lesson 3 */}
-                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Финансовая модель и управление бюджетом
                       </span>
@@ -924,7 +924,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Lesson 4 */}
-                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Работа с поставщиками и закупка материалов
                       </span>
@@ -952,7 +952,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Lesson 5 */}
-                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Требования к оборудованию и его размещение
                       </span>
@@ -980,7 +980,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Lesson 6 */}
-                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                       <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                         Тест по запуску и организации салона
                       </span>
