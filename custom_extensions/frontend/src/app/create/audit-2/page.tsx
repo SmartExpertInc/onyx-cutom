@@ -445,14 +445,14 @@ export default function AuditPage() {
         </section>
 
         {/* Fifth Section */}
-        <section className="bg-[#FAFAFA] pt-[50px] pb-[60px] px-[20px] xl:px-[120px]">
+        <section className="bg-[#FAFAFA] pt-[50px] pb-[60px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
           <h2 className="font-medium text-[32px] text-black leading-[120%]">
             Предлагаем три готовых решения:
           </h2>
 
           {/* Service 1 */}
-          <div className="bg-white rounded-[4px] flex flex-col gap-[15px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-            <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+          <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] px-[10px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] py-[4px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
               <span className="font-medium text-[16.8px] text-white leading-[120%]">
                 Услуга 1:
               </span>
@@ -480,7 +480,7 @@ export default function AuditPage() {
                   Обучение установке, обслуживанию и ремонту систем HVAC оборудования.
                 </p>
                 
-                <div className="flex gap-[10px]">
+                <div className="flex gap-[10px] items-center">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
                     <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
@@ -498,7 +498,7 @@ export default function AuditPage() {
                   </span>
                 </div>
                 
-                <div className="flex gap-[6px]">
+                <div className="flex gap-[6px] items-center">
                   <span className="font-medium text-[12px] text-[#09090B] leading-[140%]">
                     5.0
                   </span>
