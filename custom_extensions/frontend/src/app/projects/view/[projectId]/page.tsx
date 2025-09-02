@@ -22,6 +22,7 @@ import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
+import { LessonPlanView } from '@/components/LessonPlanView';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
@@ -77,6 +78,7 @@ const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
+const COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay";
 
 type ProjectViewParams = {
   projectId: string;
@@ -1468,6 +1470,19 @@ export default function ProjectInstanceViewPage() {
             lessonNumber={lessonNumber}
           />
         );
+      case COMPONENT_NAME_LESSON_PLAN:
+        // For lesson plans, we need to extract the lesson plan data from the project
+        const lessonPlanData = projectInstanceData?.lesson_plan_data;
+        if (!lessonPlanData) {
+          return (
+            <div className="text-center py-10">
+              <p className="text-gray-500">No lesson plan data available.</p>
+            </div>
+          );
+        }
+        return (
+          <LessonPlanView lessonPlanData={lessonPlanData} />
+        );
       default:
         return <DefaultDisplayComponent instanceData={projectInstanceData} t={t} />;
     }
@@ -1475,7 +1490,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';

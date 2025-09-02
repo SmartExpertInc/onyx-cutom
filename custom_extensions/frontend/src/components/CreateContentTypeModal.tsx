@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings } from 'lucide-react';
+import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AllContentTypesModal } from './AllContentTypesModal';
@@ -59,6 +59,7 @@ export const CreateContentTypeModal = ({
   const { t } = useLanguage();
   const [showAllOptions, setShowAllOptions] = useState(false);
   const [showSettings, setShowSettings] = useState(false); // NEW: track if showing settings instead of recommendations
+  const [isGeneratingLessonPlan, setIsGeneratingLessonPlan] = useState(false);
 
   // Local recommended state (so UI updates immediately)
   const [recommendedState, setRecommendedState] = useState<RecommendedContentTypes | undefined>(recommendedContentTypes);
@@ -170,6 +171,59 @@ export const CreateContentTypeModal = ({
     onClose();
   };
 
+  const handleLessonPlanGeneration = async () => {
+    if (!parentProjectName) {
+      console.error('No parent project name available for lesson plan generation');
+      return;
+    }
+
+    setIsGeneratingLessonPlan(true);
+    
+    try {
+      // Get the parent project ID from the URL or props
+      const urlParams = new URLSearchParams(window.location.search);
+      const outlineProjectId = urlParams.get('outlineId') || urlParams.get('outlineProjectId');
+      
+      if (!outlineProjectId) {
+        throw new Error('No outline project ID found');
+      }
+
+      const response = await fetch('/api/custom/lesson-plan/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          outlineProjectId: parseInt(outlineProjectId),
+          lessonTitle,
+          moduleName,
+          lessonNumber,
+          recommendedProducts: ['lesson', 'quiz', 'one-pager', 'video-lesson'] // Default recommended products
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to generate lesson plan');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Redirect to the newly created lesson plan
+        router.push(`/projects/view/${result.project_id}`);
+        onClose();
+      } else {
+        throw new Error(result.message || 'Lesson plan generation failed');
+      }
+    } catch (error) {
+      console.error('Error generating lesson plan:', error);
+      alert(`Failed to generate lesson plan: ${error.message}`);
+    } finally {
+      setIsGeneratingLessonPlan(false);
+    }
+  };
+
   // Preferences state
   const allKeys = ["presentation", "one-pager", "quiz", "video-lesson"];
   const [selectedPrefs, setSelectedPrefs] = useState<Record<string, boolean>>({});
@@ -249,26 +303,39 @@ export const CreateContentTypeModal = ({
 
         <div className="mb-1 sm:mb-2">
           <button
-            onClick={() => handleContentCreate('lessonPlan')}
-            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-2 sm:p-3 lg:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01]"
+            onClick={handleLessonPlanGeneration}
+            disabled={isGeneratingLessonPlan}
+            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-2 sm:p-3 lg:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
               <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+                {isGeneratingLessonPlan ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                )}
               </div>
               <div className="text-left flex-1">
                 <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
-                  <span className="text-sm sm:text-base font-semibold text-gray-900">Lesson Plan</span>
+                  <span className="text-sm sm:text-base font-semibold text-gray-900">
+                    {isGeneratingLessonPlan ? 'Generating Lesson Plan...' : 'Lesson Plan'}
+                  </span>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Technical specification with lesson objectives</p>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  {isGeneratingLessonPlan ? 'Please wait while we generate your lesson plan...' : 'Technical specification with lesson objectives'}
+                </p>
               </div>
             </div>
             <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              {isGeneratingLessonPlan ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
             </div>
           </button>
         </div>

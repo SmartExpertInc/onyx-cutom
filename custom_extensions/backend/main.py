@@ -738,6 +738,28 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
+# Lesson Plan Generation Models
+class LessonPlanGenerationRequest(BaseModel):
+    outlineProjectId: int
+    lessonTitle: str
+    moduleName: str
+    lessonNumber: int
+    recommendedProducts: List[str]
+
+class LessonPlanData(BaseModel):
+    lessonTitle: str
+    lessonObjectives: List[str]
+    shortDescription: str
+    recommendedProductTypes: Dict[str, str]
+    materials: List[str]
+    suggestedPrompts: List[str]
+
+class LessonPlanResponse(BaseModel):
+    success: bool
+    project_id: int
+    lesson_plan_data: LessonPlanData
+    message: str
+
 # custom_extensions/backend/main.py
 from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -6611,6 +6633,12 @@ async def startup_event():
             await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS source_context_data JSONB;")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_source_context_type ON projects(source_context_type);")
             logger.info("'projects' table updated with source context tracking columns.")
+
+            # --- Add lesson plan specific columns ---
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS lesson_plan_data JSONB;")
+            await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS parent_outline_id INTEGER REFERENCES projects(id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_parent_outline_id ON projects(parent_outline_id);")
+            logger.info("'projects' table updated with lesson plan columns.")
 
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
@@ -16380,6 +16408,261 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         )
 
 # --- New endpoint: list trashed projects for user ---
+
+@app.post("/api/custom/lesson-plan/generate", response_model=LessonPlanResponse)
+async def generate_lesson_plan(
+    payload: LessonPlanGenerationRequest, 
+    request: Request, 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Generate a lesson plan directly from a course outline using the hybrid approach.
+    """
+    logger.info(f"Generating lesson plan for outline project {payload.outlineProjectId}")
+    
+    try:
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Retrieve the source context from the course outline project
+        async with pool.acquire() as conn:
+            outline_row = await conn.fetchrow(
+                """
+                SELECT id, project_name, source_context_type, source_context_data, 
+                       microproduct_content, microproduct_type
+                FROM projects 
+                WHERE id = $1 AND onyx_user_id = $2
+                """,
+                payload.outlineProjectId, onyx_user_id
+            )
+            
+            if not outline_row:
+                raise HTTPException(
+                    status_code=404, 
+                    detail="Course outline project not found"
+                )
+            
+            if outline_row["microproduct_type"] not in ["Training Plan", "Course Outline"]:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Specified project is not a course outline"
+                )
+        
+        # Extract source context
+        source_context_type = outline_row["source_context_type"]
+        source_context_data = outline_row["source_context_data"]
+        
+        # Prepare context for OpenAI
+        context_for_openai = ""
+        
+        if source_context_type == "files" and source_context_data:
+            # Extract file context using hybrid approach
+            file_ids = source_context_data.get("file_ids", [])
+            folder_ids = source_context_data.get("folder_ids", [])
+            
+            if file_ids or folder_ids:
+                # Get cookies from request for Onyx API calls
+                cookies = dict(request.cookies)
+                
+                # Extract context using the existing hybrid approach
+                file_context = await extract_file_context_from_onyx(
+                    file_ids, folder_ids, cookies
+                )
+                
+                # Build context string for OpenAI
+                if file_context.get("file_summaries"):
+                    context_for_openai += "File Content:\n" + "\n".join(file_context["file_summaries"]) + "\n\n"
+                if file_context.get("key_topics"):
+                    context_for_openai += "Key Topics:\n" + ", ".join(file_context["key_topics"]) + "\n\n"
+        
+        elif source_context_type == "connectors" and source_context_data:
+            # Extract connector context
+            connector_ids = source_context_data.get("connector_ids", [])
+            connector_sources = source_context_data.get("connector_sources", [])
+            
+            if connector_ids:
+                context_for_openai += f"Connector Sources: {', '.join(connector_sources)}\n\n"
+        
+        elif source_context_type == "text" and source_context_data:
+            # Extract text context
+            user_text = source_context_data.get("user_text", "")
+            if user_text:
+                context_for_openai += f"Source Text:\n{user_text}\n\n"
+        
+        elif source_context_type == "knowledge_base" and source_context_data:
+            # Extract knowledge base context
+            search_query = source_context_data.get("search_query", "")
+            if search_query:
+                context_for_openai += f"Knowledge Base Query: {search_query}\n\n"
+        
+        # Add course outline content if available
+        if outline_row["microproduct_content"]:
+            try:
+                outline_content = outline_row["microproduct_content"]
+                if isinstance(outline_content, dict):
+                    # Extract relevant information from outline
+                    if "sections" in outline_content:
+                        sections_text = []
+                        for section in outline_content["sections"]:
+                            if isinstance(section, dict):
+                                section_title = section.get("title", "")
+                                section_content = section.get("content", "")
+                                if section_title and section_content:
+                                    sections_text.append(f"{section_title}: {section_content}")
+                        
+                        if sections_text:
+                            context_for_openai += "Course Outline Content:\n" + "\n".join(sections_text) + "\n\n"
+            except Exception as e:
+                logger.warning(f"Failed to parse outline content: {e}")
+        
+        # Prepare OpenAI prompt
+        openai_prompt = f"""
+You are an expert educational content creator. Based on the following source context, create a comprehensive lesson plan.
+
+Source Context:
+{context_for_openai}
+
+Lesson Information:
+- Lesson Title: {payload.lessonTitle}
+- Module Name: {payload.moduleName}
+- Lesson Number: {payload.lessonNumber}
+- Recommended Products: {', '.join(payload.recommendedProducts)}
+
+Create a detailed lesson plan that includes:
+1. Clear lesson objectives
+2. A concise description
+3. Specific product recommendations (ONLY include descriptions for products in the recommendedProducts list)
+4. Required materials
+5. Suggested prompts for further content creation
+
+IMPORTANT: Only include descriptions for products that are explicitly listed in the recommendedProducts array. Do not add any additional products.
+
+Return your response as a valid JSON object with this exact structure:
+{{
+  "lessonTitle": "string",
+  "lessonObjectives": ["string"],
+  "shortDescription": "string",
+  "recommendedProductTypes": {{
+    "productName": "productDescription"
+  }},
+  "materials": ["string"],
+  "suggestedPrompts": ["string"]
+}}
+
+Ensure the JSON is valid and follows the exact structure specified.
+"""
+        
+        # Generate lesson plan using OpenAI
+        openai_client = get_openai_client()
+        
+        response = await openai_client.chat.completions.create(
+            model=LLM_DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": "You are an expert educational content creator. Always respond with valid JSON."},
+                {"role": "user", "content": openai_prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2000
+        )
+        
+        # Parse OpenAI response
+        ai_response = response.choices[0].message.content.strip()
+        
+        try:
+            lesson_plan_data = json.loads(ai_response)
+            # Validate the structure
+            required_fields = ["lessonTitle", "lessonObjectives", "shortDescription", "recommendedProductTypes", "materials", "suggestedPrompts"]
+            for field in required_fields:
+                if field not in lesson_plan_data:
+                    raise ValueError(f"Missing required field: {field}")
+            
+            # Validate recommendedProductTypes only contains products from the request
+            for product_name in lesson_plan_data["recommendedProductTypes"]:
+                if product_name not in payload.recommendedProducts:
+                    raise ValueError(f"Product {product_name} not in recommended products list")
+                    
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Failed to parse OpenAI response: {e}")
+            logger.error(f"Raw AI response: {ai_response}")
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate valid lesson plan structure"
+            )
+        
+        # Create the lesson plan project in database
+        project_name = f"{outline_row['project_name']}: {payload.lessonTitle}"
+        
+        # Get a design template for lesson plans
+        async with pool.acquire() as conn:
+            template_row = await conn.fetchrow(
+                "SELECT id FROM design_templates WHERE component_name = 'LessonPlanDisplay' LIMIT 1"
+            )
+            
+            if not template_row:
+                # Create a basic template if none exists
+                template_id = await conn.fetchval(
+                    """
+                    INSERT INTO design_templates 
+                    (template_name, component_name, microproduct_type, template_structuring_prompt)
+                    VALUES ($1, $2, $3, $4) RETURNING id
+                    """,
+                    "Lesson Plan Template",
+                    "LessonPlanDisplay",
+                    "Lesson Plan",
+                    "Generate a lesson plan with objectives, materials, and product recommendations."
+                )
+            else:
+                template_id = template_row["id"]
+        
+        # Create project data
+        project_data = ProjectCreateRequest(
+            projectName=project_name,
+            design_template_id=template_id,
+            microProductName="Lesson Plan",
+            aiResponse=json.dumps(lesson_plan_data),
+            chatSessionId=None,
+            outlineId=payload.outlineProjectId,
+            folder_id=None,
+            theme="default",
+            source_context_type=source_context_type,
+            source_context_data=source_context_data
+        )
+        
+        # Add the project to database
+        created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        
+        # Update the project with lesson plan specific data
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE projects 
+                SET product_type = 'lesson-plan',
+                   lesson_plan_data = $1,
+                   parent_outline_id = $2
+                WHERE id = $3
+                """,
+                json.dumps(lesson_plan_data),
+                payload.outlineProjectId,
+                created_project.id
+            )
+        
+        logger.info(f"Successfully created lesson plan project {created_project.id}")
+        
+        return LessonPlanResponse(
+            success=True,
+            project_id=created_project.id,
+            lesson_plan_data=LessonPlanData(**lesson_plan_data),
+            message="Lesson plan generated successfully"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in lesson plan generation: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred during lesson plan generation"
+        )
 
 @app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
 async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):

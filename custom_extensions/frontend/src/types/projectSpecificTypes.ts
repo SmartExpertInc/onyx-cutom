@@ -16,6 +16,16 @@ import {
 import { VideoLessonData } from './videoLessonTypes'; // <-- Import the new VideoLessonData type
 import { QuizData } from './quizTypes';
 
+// Lesson Plan Types
+export interface LessonPlanData {
+  lessonTitle: string;
+  lessonObjectives: string[];
+  shortDescription: string;
+  recommendedProductTypes: Record<string, string>;
+  materials: string[];
+  suggestedPrompts: string[];
+}
+
 // --- TrainingPlan Specific Types (existing) ---
 export interface StatusInfo {
   type: string;
@@ -95,6 +105,7 @@ export interface ProjectInstanceDetail {
   quality_tier?: string | null; // Project-level quality tier
   is_advanced?: boolean | null;
   advanced_rates?: { presentation?: number; one_pager?: number; quiz?: number; video_lesson?: number } | null;
+  lesson_plan_data?: LessonPlanData; // Lesson plan specific data
 }
 
 // Type for Design Template API Response
