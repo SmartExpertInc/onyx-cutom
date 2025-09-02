@@ -144,6 +144,10 @@ export default function ProjectInstanceViewPage() {
     estCreationTime: true,
     estCompletionTime: true,
     qualityTier: false, // Hidden by default
+    quiz: true,
+    onePager: true,
+    videoPresentation: true,
+    lessonPresentation: true,
   });
   const [isExportingPdf, setIsExportingPdf] = useState(false);
 
@@ -1617,6 +1621,42 @@ export default function ProjectInstanceViewPage() {
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
                         <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.quiz}
+                          onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Quiz</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.onePager}
+                          onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">One-Pager</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.videoPresentation}
+                          onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Video Presentation</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.lessonPresentation}
+                          onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
+                          className="mr-2 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Lesson Presentation</span>
                       </label>
                     </div>
                   </div>
