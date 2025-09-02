@@ -1539,6 +1539,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         estCreationTime: columnVisibility.estCreationTime !== false,
         estCompletionTime: columnVisibility.estCompletionTime !== false,
         qualityTier: columnVisibility.qualityTier !== undefined ? columnVisibility.qualityTier : false,
+        quiz: columnVisibility.quiz !== false,
+        onePager: columnVisibility.onePager !== false,
+        videoPresentation: columnVisibility.videoPresentation !== false,
+        lessonPresentation: columnVisibility.lessonPresentation !== false,
       };
     }
 
@@ -1549,6 +1553,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       estCreationTime: true,
       estCompletionTime: true,
       qualityTier: fromQuery('qualityTier') ?? storedOpts?.qualityTier ?? def.qualityTier,
+      quiz: true,
+      onePager: true,
+      videoPresentation: true,
+      lessonPresentation: true,
     };
   }, [searchParams, storedOpts, columnVisibility]);
 
