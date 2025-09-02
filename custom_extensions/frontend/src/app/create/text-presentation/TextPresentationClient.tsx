@@ -206,32 +206,27 @@ export default function TextPresentationClient() {
       }
     }
 
-    // If no structured content found, create manual sections based on your specific content
+    // FIXED: If no structured content found, create a single section with the raw content
+    // This prevents showing hardcoded "AI Tools in Education" fallback instead of user's actual content
     if (lessons.length === 0) {
-      const manualSections = [
-        {
-          title: "Benefits of AI Tools in Education",
-          content: "AI tools offer numerous advantages for high school teachers, including personalized learning, enhanced engagement, time efficiency, and data-driven insights."
-        },
-        {
-          title: "Popular AI Tools for High School Teachers",
-          content: "Kahoot!, Grammarly, Socrative, Google Classroom, and Edmodo are widely used AI tools that benefit high school education."
-        },
-        {
-          title: "Recommendations for Implementing AI Tools",
-          content: "Start small, provide training, monitor progress, and encourage feedback to effectively integrate AI tools into teaching practice."
-        },
-        {
-          title: "Training and Development",
-          content: "Professional development and ongoing training help teachers maximize the benefits of AI tools in their classrooms."
-        },
-        {
-          title: "Resources and Support",
-          content: "Access to resources, technical support, and community networks ensures successful AI tool implementation."
-        }
-      ];
-
-      return manualSections;
+      // If there's content but no structured headers, show it as a single section
+      if (content.trim()) {
+        const cleanedContent = content
+          .replace(/^\s*---\s*$/gm, '') // Remove section breaks
+          .replace(/^\s*\n+/g, '') // Remove leading newlines
+          .replace(/\n+\s*$/g, '') // Remove trailing newlines
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove ** bold formatting
+          .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
+          .trim();
+        
+        return [{
+          title: "Content", // Generic title since no structure was found
+          content: cleanedContent
+        }];
+      }
+      
+      // If truly no content, return empty array (will show "no content" message)
+      return [];
     }
 
     return lessons;
