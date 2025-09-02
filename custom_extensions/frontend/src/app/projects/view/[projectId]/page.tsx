@@ -1420,7 +1420,7 @@ export default function ProjectInstanceViewPage() {
               <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-sky-300 border border-sky-400 hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-sky-200 border border-sky-300 hover:bg-sky-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center"
                   title={t('interface.projectView.configureAccessControl', 'Configure access control')}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1458,7 +1458,7 @@ export default function ProjectInstanceViewPage() {
 
                         {/* Roles that have access */}
                         <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-700 mb-4">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
+                          <h3 className="text-sm font-medium text-gray-900 mb-4">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
                           <div className="grid grid-cols-2 gap-x-8 gap-y-2 border-b pb-2 border-gray-200">
                             {predefinedRoles.map((role) => (
                               <label key={role.id} className="flex items-center">
@@ -1481,7 +1481,7 @@ export default function ProjectInstanceViewPage() {
                             {customEmails.map((email) => (
                               <div key={email} className="flex items-center justify-between rounded">
                                 <div className="flex items-center">
-                                  <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
+                                  <div className="w-8 h-8 bg-[#D9D9D9] rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
                                     {email.charAt(0).toUpperCase()}
                                   </div>
                                   <span className="text-sm text-gray-900">{email}</span>
