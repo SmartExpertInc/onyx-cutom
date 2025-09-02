@@ -395,7 +395,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      fontSize: '32px',
                      color: themeTitle,
                      fontWeight: 'bold',
-                     textAlign: 'center',
                      minHeight: '40px',
                      maxHeight: '40px',
                      overflow: 'hidden'
