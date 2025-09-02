@@ -1337,7 +1337,7 @@ export default function AuditPage() {
               }}
             ></div>
 
-            <div className="py-[20px] px-[15px] bg-[#F5F8FF] rounded-[6px]">
+            <div className="py-[20px] px-[15px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px]">
               <h4 className="font-semibold text-[20px] leading-[140%] mb-[15px]">
                 Возможности платформы:
               </h4>
