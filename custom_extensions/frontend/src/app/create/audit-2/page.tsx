@@ -16,9 +16,13 @@ export default function AuditPage() {
 
   return (
     <>
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-      `}</style>
+        <style jsx global>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+          
+          .module-item:last-child {
+            border-bottom: none !important;
+          }
+        `}</style>
       <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Header */}
       <header className="h-[50px] xl:h-[81px] mb-[33px]">
@@ -796,19 +800,19 @@ export default function AuditPage() {
                 </h4>
 
                 {/* Module 1*/}
-                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 01:
                     </span>
                     
                     <button 
-                      onClick={() => toggleModule('module2')}
+                      onClick={() => toggleModule('module1')}
                       className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                        expandedModules['module2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
+                        expandedModules['module1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF]'
                       }`}
                     >
-                      {expandedModules['module2'] ? (
+                      {expandedModules['module1'] ? (
                         <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -825,8 +829,40 @@ export default function AuditPage() {
                   </h5>
                 </div>
 
+                {/* Module 1 Expandable Content */}
+                {expandedModules['module1'] && (
+                  <div className="mt-[15px]">
+                    <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px]">
+                      <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                        Основные этапы открытия салона
+                      </span>
+                      <div className="flex items-center justify-between">
+                        <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                          </svg>
+
+                          <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                            Проверка знаний: нет
+                          </span>
+                        </div>
+                        
+                        <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                          </svg>
+
+                          <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                            5 мин
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Module 2*/}
-                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 02:
@@ -856,7 +892,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Module 3*/}
-                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 03:
@@ -886,7 +922,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Module 4*/}
-                <div className="flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                   <div className="flex items-center justify-between">
                     <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                       Модуль 04:
