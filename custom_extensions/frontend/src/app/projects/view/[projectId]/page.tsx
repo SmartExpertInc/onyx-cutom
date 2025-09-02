@@ -38,7 +38,11 @@ const columnLabelLocalization = {
     source: "Источник",
     estCreationTime: "Оц. время создания",
     estCompletionTime: "Оц. время завершения",
-    qualityTier: "Уровень качества"
+    qualityTier: "Уровень качества",
+    quiz: "Викторина",
+    onePager: "Одностраничный",
+    videoPresentation: "Видео презентация",
+    lessonPresentation: "Презентация урока"
   },
   uk: {
     assessmentType: "Тип оцінки",
@@ -46,7 +50,11 @@ const columnLabelLocalization = {
     source: "Джерело",
     estCreationTime: "Оц. час створення",
     estCompletionTime: "Оц. час завершення",
-    qualityTier: "Рівень якості"
+    qualityTier: "Рівень якості",
+    quiz: "Вікторина",
+    onePager: "Односторінковий",
+    videoPresentation: "Відеопрезентація",
+    lessonPresentation: "Презентація уроку"
   },
   es: {
     assessmentType: "Tipo de evaluación",
@@ -54,7 +62,11 @@ const columnLabelLocalization = {
     source: "Fuente",
     estCreationTime: "Tiempo Est. Creación",
     estCompletionTime: "Tiempo Est. Finalización",
-    qualityTier: "Nivel de Calidad"
+    qualityTier: "Nivel de Calidad",
+    quiz: "Prueba",
+    onePager: "Una página",
+    videoPresentation: "Presentación en vídeo",
+    lessonPresentation: "Presentación de la lección"
   },
   en: {
     assessmentType: "Assessment Type",
@@ -62,7 +74,11 @@ const columnLabelLocalization = {
     source: "Source",
     estCreationTime: "Est. Creation Time",
     estCompletionTime: "Est. Completion Time",
-    qualityTier: "Quality Tier"
+    qualityTier: "Quality Tier",
+    quiz: "Quiz",
+    onePager: "One-Pager",
+    videoPresentation: "Video Presentation",
+    lessonPresentation: "Lesson Presentation"
   }
 };
 
