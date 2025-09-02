@@ -1435,18 +1435,27 @@ export default function ProjectInstanceViewPage() {
                     className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
                     onClick={() => setRoleAccess(false)}
                   >
+                    <style jsx>{`
+                       .scrollbar-hide {
+                         -ms-overflow-style: none;
+                         scrollbar-width: none;
+                       }
+                       .scrollbar-hide::-webkit-scrollbar {
+                         display: none;
+                       }
+                     `}</style>
                     <div
                       className="bg-white rounded-lg shadow-2xl max-w-xl w-full mx-4"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
-                      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                        <h2 className="text-lg font-semibold text-gray-900">{t('interface.projectView.addMember', 'Add Member')}</h2>
+                      <div className="flex items-center justify-between pb-1">
+                        <h2 className="text-xl font-semibold text-gray-900">{t('interface.projectView.addMember', 'Add Member')}</h2>
                         <button
                           onClick={() => setRoleAccess(false)}
                           className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
@@ -1454,11 +1463,11 @@ export default function ProjectInstanceViewPage() {
 
                       {/* Content */}
                       <div className="p-4">
-                        <p className="text-sm text-gray-600 mb-6">{t('interface.projectView.manageAccessToWorkspace', 'Manage access to workspace')}</p>
+                        <p className="text-sm text-gray-600 mb-4 border-b pb-2 border-gray-200">{t('interface.projectView.manageAccessToWorkspace', 'Manage access to product')}</p>
 
                         {/* Roles that have access */}
                         <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-700 mb-3">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
+                          <h3 className="text-sm font-medium text-gray-700 mb-4">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
                           <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                             {predefinedRoles.map((role) => (
                               <label key={role.id} className="flex items-center">
@@ -1466,7 +1475,7 @@ export default function ProjectInstanceViewPage() {
                                   type="checkbox"
                                   checked={selectedRoles.includes(role.id)}
                                   onChange={() => handleRoleToggle(role.id)}
-                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                  className="h-4 w-4 text-blue-700 focus:ring-blue-600 border-gray-200 rounded"
                                 />
                                 <span className="ml-3 text-sm font-medium text-gray-900">{role.label}</span>
                               </label>
@@ -1475,11 +1484,11 @@ export default function ProjectInstanceViewPage() {
                         </div>
 
                         {/* People with access */}
-                        <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-700 mb-3">{t('interface.projectView.peopleWithAccess', 'People with access')}</h3>
-                          <div className="space-y-2 max-h-32 overflow-y-auto">
+                        <div className="mb-2">
+                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.peopleWithAccess', 'People with access')}</h3>
+                          <div className="space-y-2 max-h-32 overflow-y-auto border-b pb-2 border-gray-200 scrollbar-hide">
                             {customEmails.map((email) => (
-                              <div key={email} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                              <div key={email} className="flex items-center justify-between rounded">
                                 <div className="flex items-center">
                                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium mr-3">
                                     {email.charAt(0).toUpperCase()}
@@ -1502,16 +1511,24 @@ export default function ProjectInstanceViewPage() {
 
                         {/* Invite members */}
                         <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-700 mb-3">{t('interface.projectView.inviteMembers', 'Invite members')}</h3>
+                          <h3 className="text-sm font-medium text-gray-900 mb-2">{t('interface.projectView.inviteMembers', 'Invite members')}</h3>
                           <div className="relative">
-                            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
+                              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                fill="gray"
+                                stroke="white"
+                                stroke-width="1"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
                             </svg>
                             <input
                               type="email"
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
-                              placeholder={t('interface.projectView.addWorkspaceMember', 'Add workspace member')}
+                              placeholder={t('interface.projectView.addWorkspaceMember', 'Add product member')}
                               className="w-full pl-10 pr-3 py-2 text-sm border text-gray-600 placeholder-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
@@ -1522,9 +1539,9 @@ export default function ProjectInstanceViewPage() {
                         <div className="flex justify-center">
                           <button
                             onClick={() => setRoleAccess(false)}
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                            className="w-full pl-10 pr-3 px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                           >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                             {t('interface.projectView.addMember', 'Add Member')}
