@@ -1645,6 +1645,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz={!!findExistingQuiz(contentModalState.lessonTitle)}
         hasOnePager={!!findExistingOnePager(contentModalState.lessonTitle)}
         parentProjectName={parentProjectName}
+        outlineProjectId={projectId}
         recommendedContentTypes={contentModalState.recommended}
         existingContent={{
           hasLesson: !!findExistingLesson(contentModalState.lessonTitle),

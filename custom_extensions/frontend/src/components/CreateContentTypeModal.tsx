@@ -32,6 +32,7 @@ interface CreateContentTypeModalProps {
   hasQuiz?: boolean;
   hasOnePager?: boolean;
   parentProjectName?: string;
+  outlineProjectId?: number; // NEW: ID of the parent outline project
   recommendedContentTypes?: RecommendedContentTypes;
   existingContent?: ExistingContentFlags;
   onUpdateRecommendations?: (newPrimary: string[]) => void; // NEW
@@ -50,6 +51,7 @@ export const CreateContentTypeModal = ({
   hasQuiz = false,
   hasOnePager = false,
   parentProjectName,
+  outlineProjectId,
   recommendedContentTypes,
   existingContent,
   onUpdateRecommendations,
@@ -177,16 +179,16 @@ export const CreateContentTypeModal = ({
       return;
     }
 
+    if (!outlineProjectId) {
+      console.error('No outline project ID available for lesson plan generation');
+      alert('Unable to generate lesson plan: No outline project ID found');
+      return;
+    }
+
     setIsGeneratingLessonPlan(true);
     
     try {
-      // Get the parent project ID from the URL or props
-      const urlParams = new URLSearchParams(window.location.search);
-      const outlineProjectId = urlParams.get('outlineId') || urlParams.get('outlineProjectId');
-      
-      if (!outlineProjectId) {
-        throw new Error('No outline project ID found');
-      }
+      // Use the outlineProjectId prop directly
 
       const response = await fetch('/api/custom/lesson-plan/generate', {
         method: 'POST',
