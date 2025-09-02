@@ -1268,10 +1268,13 @@ export default function AuditPage() {
                   </h5>
                 </div>
                 <div className="p-[10px] border-b border-[#E0E0E0]">
-                  <img 
+                  <Image 
                     src="/custom-projects-ui/images/audit-section-5-service-2-image-3-mobile.png"
-                    alt="Service 2 step 1"
-                    className="h-[175px] w-full object-cover"
+                    alt="Upload"
+                    width={280}
+                    height={175}
+                    className="w-full"
+                    // style={{ height: '339.39px' }}
                   />
                 </div>
               </div>
