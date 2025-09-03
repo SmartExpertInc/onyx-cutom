@@ -1590,7 +1590,7 @@ export default function AuditPage() {
 
           {/* Section 6 */}
           <section className="bg-[#3E3AD9] pt-[60px] px-[20px] xl:px-[120px]">
-            <div className="relative bg-white rounded-t-lg px-8 pt-[30px] pb-[100px] mb-8 flex flex-col justify-center">
+            <div className="relative bg-white rounded-t-lg px-8 pt-[30px] pb-[100px] mb-8 flex flex-col items-center justify-center overflow-hidden">
               <svg 
                 className="absolute"
                 style={{
@@ -1621,20 +1621,30 @@ export default function AuditPage() {
                 </h2>
                 
                 <button 
-                  className="text-white font-semibold text-[16px] rounded-lg w-fit relative overflow-hidden"
+                  className="text-white font-semibold text-[16px] rounded-lg w-fit relative"
                   style={{
                     background: '#0F58F9',
                     paddingInline: '48px',
                     paddingBlock: '14px',
-                    borderRadius: '6px'
+                    borderRadius: '6px',
+                    border: '2px solid transparent',
+                    backgroundClip: 'padding-box',
+                    position: 'relative',
+                    boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
                   }}
                 >
                   <div 
-                    className="absolute inset-0 rounded-lg"
+                    className="absolute top-0 left-0 w-2 h-full rounded-l-lg"
                     style={{
-                      background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                      margin: '2px',
-                      borderRadius: '4px'
+                      background: 'linear-gradient(180deg, #00C8FF 0%, #5CFFC3 50%, #18FFF0 100%)',
+                      zIndex: -1
+                    }}
+                  />
+                  <div 
+                    className="absolute top-0 left-0 w-full h-2 rounded-t-lg"
+                    style={{
+                      background: 'linear-gradient(90deg, #00C8FF 0%, #5CFFC3 50%, #18FFF0 100%)',
+                      zIndex: -1
                     }}
                   />
                   <span className="relative z-10">Забронировать</span>
