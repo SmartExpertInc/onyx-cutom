@@ -11,7 +11,7 @@ import workspaceService, {
   WorkspaceRole, WorkspaceMember, WorkspaceMemberCreate, 
   WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace
 } from '../services/workspaceService';
-import { getCurrentUserId } from '../services/userService';
+import { getCurrentUserId, initializeUser } from '../services/userService';
 // Import test utilities for development
 import '../utils/testUserIds';
 
@@ -70,9 +70,16 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
   const [showColorPalette, setShowColorPalette] = useState(false);
 
-  // Load user's workspaces
+  // Load user's workspaces and initialize user data
   useEffect(() => {
-    loadUserWorkspaces();
+    const initializeAndLoad = async () => {
+      // Initialize user data first
+      await initializeUser();
+      // Then load workspaces
+      loadUserWorkspaces();
+    };
+    
+    initializeAndLoad();
   }, []);
 
   // Set target workspace ID and load data when workspaceId changes or workspace is selected

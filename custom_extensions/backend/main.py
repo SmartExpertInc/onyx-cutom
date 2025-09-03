@@ -12382,6 +12382,66 @@ async def get_user_projects_list_from_db(
             logger.info(f"   - Owned project IDs: {[row['id'] for row in owned_rows]}")
         if shared_rows:
             logger.info(f"   - Shared project IDs: {[row['id'] for row in shared_rows]}")
+        else:
+            # Debug why no shared projects found
+            logger.info(f"🔍 [WORKSPACE DEBUG] No shared projects found for user {onyx_user_id}. Investigating...")
+            
+            # Check workspace memberships
+            membership_check = await conn.fetch("""
+                SELECT wm.*, w.name as workspace_name, wr.name as role_name
+                FROM workspace_members wm
+                JOIN workspaces w ON wm.workspace_id = w.id
+                JOIN workspace_roles wr ON wm.role_id = wr.id
+                WHERE wm.user_id = $1
+            """, onyx_user_id)
+            
+            logger.info(f"   - User workspace memberships: {len(membership_check)}")
+            for membership in membership_check:
+                logger.info(f"     * Workspace: {membership['workspace_name']} (ID: {membership['workspace_id']})")
+                logger.info(f"       Role: {membership['role_name']} (ID: {membership['role_id']})")
+                logger.info(f"       Status: {membership['status']}")
+            
+            if not membership_check:
+                logger.info(f"   ❌ User {onyx_user_id} is not a member of any workspace!")
+                logger.info(f"   💡 Add user to a workspace to enable shared project access")
+        else:
+            # Debug why no shared projects found
+            logger.info(f"🔍 [WORKSPACE DEBUG] Checking why no shared projects found for user {onyx_user_id}:")
+            
+            # Check workspace memberships
+            membership_check = await conn.fetch("""
+                SELECT wm.*, w.name as workspace_name, wr.name as role_name
+                FROM workspace_members wm
+                JOIN workspaces w ON wm.workspace_id = w.id
+                JOIN workspace_roles wr ON wm.role_id = wr.id
+                WHERE wm.user_id = $1
+            """, onyx_user_id)
+            
+            logger.info(f"   - User workspace memberships: {len(membership_check)}")
+            for membership in membership_check:
+                logger.info(f"     * Workspace: {membership['workspace_name']} (ID: {membership['workspace_id']})")
+                logger.info(f"       Role: {membership['role_name']} (ID: {membership['role_id']})")
+                logger.info(f"       Status: {membership['status']}")
+            
+            # Check product access records
+            if membership_check:
+                workspace_ids = [m['workspace_id'] for m in membership_check]
+                access_check = await conn.fetch("""
+                    SELECT pa.*, p.project_name, w.name as workspace_name
+                    FROM product_access pa
+                    JOIN projects p ON pa.product_id = p.id
+                    JOIN workspaces w ON pa.workspace_id = w.id
+                    WHERE pa.workspace_id = ANY($1::int[])
+                """, workspace_ids)
+                
+                logger.info(f"   - Product access records in user's workspaces: {len(access_check)}")
+                for access in access_check:
+                    logger.info(f"     * Project: {access['project_name']} (ID: {access['product_id']})")
+                    logger.info(f"       Workspace: {access['workspace_name']} (ID: {access['workspace_id']})")
+                    logger.info(f"       Access Type: {access['access_type']}")
+                    logger.info(f"       Target ID: {access['target_id']}")
+            else:
+                logger.info(f"   - No workspace memberships found - user needs to be added to a workspace")
         
         # Combine and deduplicate projects
         all_projects = {}
