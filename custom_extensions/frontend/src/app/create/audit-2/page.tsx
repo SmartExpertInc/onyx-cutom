@@ -74,7 +74,7 @@ export default function AuditPage() {
         <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
           {/* First Section */}
           <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:h-[660px] xl:relative xl:overflow-hidden">
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 xl:w-[551px]">
               {/* Pill-shaped div */}
               <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
                 {/* Circle with gradient background */}
@@ -110,13 +110,13 @@ export default function AuditPage() {
               />
               {/* Desktop Image */}
               <Image 
-                src="/images/audit-section-1-desktop.png"
+                src="/custom-projects-ui/images/audit-section-1-desktop.png"
                 alt="Audit"
                 width={1030}
                 height={660}
                 className="hidden xl:block"
                 style={{ 
-                  width: '1030.04345703125px',
+                  width: '1030px',
                   height: '660px'
                 }}
               />
