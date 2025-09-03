@@ -16747,7 +16747,7 @@ Ensure the JSON is valid and follows the exact structure specified.
     except HTTPException:
         raise
     except Exception as e:
-                logger.error(f"Unexpected error in lesson plan generation: {e}", exc_info=True)
+        logger.error(f"Unexpected error in lesson plan generation: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, 
             detail="An unexpected error occurred during lesson plan generation"
