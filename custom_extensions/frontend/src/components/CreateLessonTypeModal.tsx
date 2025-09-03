@@ -5,6 +5,13 @@ import React from 'react';
 import { Presentation, Video, Film, X, HelpCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
+interface LessonType {
+  name: string;
+  icon: React.ReactElement;
+  disabled: boolean;
+  tooltipKey?: string;
+}
+
 interface CreateLessonTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,26 +22,30 @@ interface CreateLessonTypeModalProps {
   detectedLanguage?: 'en' | 'ru' | 'uk';
 }
 
-const lessonTypes = [
+const lessonTypes: LessonType[] = [
   { 
     name: "lessonPresentation", 
     icon: <Presentation className="w-6 h-6" />, 
-    disabled: false 
+    disabled: false,
+    tooltipKey: undefined
   },
   { 
     name: "quiz", 
     icon: <HelpCircle className="w-6 h-6" />, 
-    disabled: false 
+    disabled: false,
+    tooltipKey: undefined
   },
   { 
     name: "videoLessonScript", 
     icon: <Video className="w-6 h-6" />, 
-    disabled: false 
+    disabled: false,
+    tooltipKey: undefined
   },
   { 
     name: "videoLesson", 
     icon: <Film className="w-6 h-6" />, 
-    disabled: false
+    disabled: false,
+    tooltipKey: undefined
   },
 ];
 
