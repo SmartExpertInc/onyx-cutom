@@ -1223,7 +1223,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       moduleName, 
       lessonNumber,
       recommended,
-      lessonRecommendations: extractLessonRecommendations(lessonObj)
+      lessonRecommendations: lessonObj ? extractLessonRecommendations(lessonObj) : []
     });
     
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false, hasLessonPlan: false });
