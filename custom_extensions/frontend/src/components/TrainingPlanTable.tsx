@@ -2283,13 +2283,19 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             </div>
                           );
                         case 'quiz':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockQuiz ? <TickIcon /> : <CrossIcon />}</div>;
+                            const hasQuiz = !!findExistingQuiz(lesson.title);
+                            return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasQuiz ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'onePager':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockOnePager ? <TickIcon /> : <CrossIcon />}</div>;
+                            const hasOnePager = !!findExistingOnePager(lesson.title);
+                            return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasOnePager ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'videoPresentation':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockVideoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
+                            // Placeholder: implement actual check for video presentation if available
+                            const hasVideoPresentation = false; // TODO: replace with real check
+                            return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasVideoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'lessonPresentation':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockLessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
+                            // Placeholder: implement actual check for lesson presentation if available
+                            const hasLessonPresentation = !!findExistingLesson(lesson.title);
+                            return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasLessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         default:
                           return <div key={col.key} className={commonCls}></div>;
                       }
