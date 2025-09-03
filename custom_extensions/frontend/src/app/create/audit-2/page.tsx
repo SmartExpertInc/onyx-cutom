@@ -1578,7 +1578,7 @@ export default function AuditPage() {
                 className="flex gap-[5px] py-[10px] px-[15px] rounded-[6px] items-start"
                 style={{ background: '#EBF2FF87' }}
               >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-0.5">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1">
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] text-[#71717A] font-normal font-[400] leading-[140%]">
@@ -1620,7 +1620,12 @@ export default function AuditPage() {
                   Записаться на демонстрацию
                 </h2>
                 
-                <div className="relative w-fit mx-auto block pl-[2px] pt-[2px]">
+                <div 
+                  className="relative w-fit mx-auto block pl-[2px] pt-[2px]"
+                  style={{
+                    boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
+                  }}
+                >
                   <div 
                     className="absolute inset-0 px-12 py-3.5 rounded-md"
                     style={{
@@ -1628,7 +1633,7 @@ export default function AuditPage() {
                     }}
                   ></div>
                   <button 
-                    className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 rounded-md shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1),0px_1px_3px_0px_rgba(0,0,0,0.1)] relative z-10"
+                    className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 rounded-md relative z-10"
                   >
                     <span className="text-white font-semibold text-[16px]">Забронировать</span>
                   </button>
