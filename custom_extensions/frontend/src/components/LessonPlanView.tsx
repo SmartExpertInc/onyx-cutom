@@ -56,24 +56,75 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             <h2 className="text-2xl font-bold text-gray-900">Content Development Specifications</h2>
           </div>
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
-            <div className={`grid gap-6 ${Object.keys(lessonPlanData.recommendedProductTypes).length === 1
-              ? 'grid-cols-1 max-w-2xl mx-auto'
-              : Object.keys(lessonPlanData.recommendedProductTypes).length === 2
-                ? 'grid-cols-1 md:grid-cols-2'
-                : Object.keys(lessonPlanData.recommendedProductTypes).length === 3
-                  ? 'grid-cols-1 md:grid-cols-3'
-                  : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
-              }`}>
-              {Object.entries(lessonPlanData.recommendedProductTypes).map(([productName, description]) => (
-                <div key={productName} className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
-                    <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
-                    {productName.replace(/-/g, ' ')}
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">{description}</p>
-                </div>
-              ))}
-            </div>
+            {(() => {
+              const itemCount = Object.keys(lessonPlanData.recommendedProductTypes).length;
+              const entries = Object.entries(lessonPlanData.recommendedProductTypes);
+
+              if (itemCount === 1) {
+                return (
+                  <div className="max-w-4xl mx-auto">
+                    <div className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
+                        <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                        {entries[0][0].replace(/-/g, ' ')}
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed">{entries[0][1]}</p>
+                    </div>
+                  </div>
+                );
+              } else if (itemCount === 2) {
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {entries.map(([productName, description]) => (
+                      <div key={productName} className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
+                          <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                          {productName.replace(/-/g, ' ')}
+                        </h3>
+                        <p className="text-gray-700 leading-relaxed">{description}</p>
+                      </div>
+                    ))}
+                  </div>
+                );
+              } else if (itemCount === 3) {
+                return (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {entries.slice(0, 2).map(([productName, description]) => (
+                        <div key={productName} className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                          <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
+                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                            {productName.replace(/-/g, ' ')}
+                          </h3>
+                          <p className="text-gray-700 leading-relaxed">{description}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                      <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
+                        <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                        {entries[2][0].replace(/-/g, ' ')}
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed">{entries[2][1]}</p>
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {entries.map(([productName, description]) => (
+                      <div key={productName} className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                        <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
+                          <div className="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
+                          {productName.replace(/-/g, ' ')}
+                        </h3>
+                        <p className="text-gray-700 leading-relaxed">{description}</p>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+            })()}
           </div>
         </div>
 
