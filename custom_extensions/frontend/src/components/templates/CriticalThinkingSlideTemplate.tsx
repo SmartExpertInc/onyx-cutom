@@ -56,8 +56,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   // Content block styles
   const contentBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '200px', // Below the profile image and title
-    left: '60px',
+    top: '180px', // Below the profile image and title
+    left: '200px', // Aligned with title
     right: '60px',
     bottom: '80px', // Leave space for logo at bottom
     backgroundColor: '#E0E0E0', // Darker grey for content block
@@ -65,7 +65,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -228,119 +228,109 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         />
       </div>
 
-      {/* Main Content */}
+      {/* Title - to the right of profile image */}
       <div style={{
+        position: 'absolute',
+        top: '50px',
+        left: '200px',
+        fontSize: '38px',
+        color: '#4A4A4A', // Dark grey color as per screenshot
+        lineHeight: '1.2',
+        whiteSpace: 'pre-line',
+        minHeight: '60px',
+        maxHeight: '120px',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100%',
-        marginLeft: '200px',
-        marginRight: '100px'
+        alignItems: 'flex-start',
+        overflow: 'hidden',
       }}>
-        {/* Title */}
+        {isEditable && editingTitle ? (
+          <ImprovedInlineEditor
+            initialValue={currentTitle}
+            onSave={handleTitleSave}
+            onCancel={handleTitleCancel}
+            multiline={true}
+            className="critical-thinking-title-editor"
+            style={{
+              fontSize: '38px',
+              color: '#4A4A4A',
+              lineHeight: '1.2',
+              whiteSpace: 'pre-line',
+              width: '100%',
+              height: 'auto',
+              minHeight: '60px',
+              maxHeight: '120px'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingTitle(true)}
+            style={{
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'flex-start',
+              fontSize: '38px',
+              color: '#4A4A4A',
+              lineHeight: '1.2',
+              whiteSpace: 'pre-line',
+              minHeight: '60px',
+              maxHeight: '120px',
+              overflow: 'hidden'
+            }}
+          >
+            {currentTitle}
+          </div>
+        )}
+      </div>
+
+      {/* Content Block */}
+      <div style={contentBlockStyles}>
+        {/* Content */}
         <div style={{
-          fontSize: '38px',
+          fontSize: '36px',
           color: '#4A4A4A', // Dark grey color as per screenshot
-          lineHeight: '1.2',
-          marginBottom: '40px',
-          whiteSpace: 'pre-line',
-          minHeight: '60px',
-          maxHeight: '120px',
+          lineHeight: '1.6',
+          maxWidth: '640px',
+          minHeight: '40px',
           display: 'flex',
           alignItems: 'flex-start',
-          overflow: 'hidden',
-          position: 'absolute',
-          top: '50px',
         }}>
-          {isEditable && editingTitle ? (
+          {isEditable && editingContent ? (
             <ImprovedInlineEditor
-              initialValue={currentTitle}
-              onSave={handleTitleSave}
-              onCancel={handleTitleCancel}
+              initialValue={currentContent}
+              onSave={handleContentSave}
+              onCancel={handleContentCancel}
               multiline={true}
-              className="critical-thinking-title-editor"
+              className="critical-thinking-content-editor"
               style={{
-                fontSize: '38px',
+                fontSize: '36px',
                 color: '#4A4A4A',
-                lineHeight: '1.2',
-                whiteSpace: 'pre-line',
+                lineHeight: '1.6',
+                maxWidth: '600px',
                 width: '100%',
                 height: 'auto',
-                minHeight: '60px',
-                maxHeight: '120px'
+                minHeight: '40px'
               }}
             />
           ) : (
             <div
-              onClick={() => isEditable && setEditingTitle(true)}
+              onClick={() => isEditable && setEditingContent(true)}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'flex-start',
-                fontSize: '38px',
+                fontSize: '36px',
                 color: '#4A4A4A',
-                lineHeight: '1.2',
-                whiteSpace: 'pre-line',
-                minHeight: '60px',
-                maxHeight: '120px',
-                overflow: 'hidden'
+                lineHeight: '1.6',
+                maxWidth: '600px',
+                minHeight: '40px',
+                width: '100%'
               }}
             >
-              {currentTitle}
+              {renderContentWithHighlights()}
             </div>
           )}
-        </div>
-
-        {/* Content Block */}
-        <div style={contentBlockStyles}>
-          {/* Content */}
-          <div style={{
-            fontSize: '36px',
-            color: '#4A4A4A', // Dark grey color as per screenshot
-            lineHeight: '1.6',
-            maxWidth: '640px',
-            minHeight: '40px',
-            display: 'flex',
-            alignItems: 'flex-start',
-          }}>
-            {isEditable && editingContent ? (
-              <ImprovedInlineEditor
-                initialValue={currentContent}
-                onSave={handleContentSave}
-                onCancel={handleContentCancel}
-                multiline={true}
-                className="critical-thinking-content-editor"
-                style={{
-                  fontSize: '36px',
-                  color: '#4A4A4A',
-                  lineHeight: '1.6',
-                  maxWidth: '600px',
-                  width: '100%',
-                  height: 'auto',
-                  minHeight: '40px'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingContent(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none',
-                  fontSize: '36px',
-                  color: '#4A4A4A',
-                  lineHeight: '1.6',
-                  maxWidth: '600px',
-                  minHeight: '40px',
-                  width: '100%'
-                }}
-              >
-                {renderContentWithHighlights()}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 

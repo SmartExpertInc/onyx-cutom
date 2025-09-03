@@ -52,27 +52,26 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     backgroundColor: '#F5F5F5', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'end',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
+    padding: '40px 60px',
     border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
   // Tags block styles
   const tagsBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '200px', // Below the profile image and title
-    left: '80px',
-    right: '80px',
+    top: '180px', // Below the profile image and title
+    left: '200px', // Aligned with title
+    right: '60px',
     bottom: '80px', // Leave space for logo at bottom
     backgroundColor: '#E0E0E0', // Darker grey for tags block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -131,7 +130,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.1',
           marginTop: '40px',
-          marginLeft: '-332%'
+          position: 'absolute',
+          top: '50px',
+          left: '200px',
         }}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
@@ -162,12 +163,13 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
         {/* Profile image with orange background */}
         <div style={{
-          width: '155px',
-          height: '155px',
+          width: '120px',
+          height: '120px',
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'absolute',
           left: '60px',
+          top: '40px',
           backgroundColor: '#FF6B35', // Orange background as per screenshot
         }}>
           <ClickableImagePlaceholder
@@ -194,155 +196,153 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           display: 'flex',
           flexDirection: 'column',
           gap: '20px',
-          maxWidth: '645px',
-          position: 'relative',
-          left: '-23%'
+          width: '100%',
         }}>
-        {/* First row */}
-        <div style={{
-          display: 'flex',
-          gap: '20px'
-        }}>
-          {currentTags.slice(0, 2).map((tag: TagType, index: number) => (
-            <div
-              key={index}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
-                border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
-                borderRadius: '8px',
-                fontSize: '34px',
-                color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
-                fontWeight: '500',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                width: index === 0 ? '334px' : '180px'
-              }}
-              onClick={() => isEditable && setEditingTags(index)}
-            >
-              {isEditable && editingTags === index ? (
-                <ImprovedInlineEditor
-                  initialValue={tag.text}
-                  onSave={(value) => handleTagSave(index, value)}
-                  onCancel={handleTagCancel}
-                  className="tag-editor"
-                  style={{
-                    fontSize: '34px',
-                    color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
-                    fontWeight: '500',
-                    width: '100%',
-                    height: 'auto',
-                    textAlign: 'center'
-                  }}
-                />
-              ) : (
-                tag.text
-              )}
-            </div>
-          ))}
-        </div>
+          {/* First row */}
+          <div style={{
+            display: 'flex',
+            gap: '20px'
+          }}>
+            {currentTags.slice(0, 2).map((tag: TagType, index: number) => (
+              <div
+                key={index}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
+                  border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
+                  borderRadius: '8px',
+                  fontSize: '34px',
+                  color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: index === 0 ? '334px' : '180px'
+                }}
+                onClick={() => isEditable && setEditingTags(index)}
+              >
+                {isEditable && editingTags === index ? (
+                  <ImprovedInlineEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '34px',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
 
-        {/* Second row */}
-        <div style={{
-          display: 'flex',
-          gap: '20px'
-        }}>
-          {currentTags.slice(2, 5).map((tag: TagType, index: number) => (
-            <div
-              key={index + 2}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
-                border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
-                borderRadius: '8px',
-                fontSize: '34px',
-                color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
-                fontWeight: '500',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                width: index === 0 ? '150px' : index === 1 ? '165px' : '180px'
-              }}
-              onClick={() => isEditable && setEditingTags(index + 2)}
-            >
-              {isEditable && editingTags === index + 2 ? (
-                <ImprovedInlineEditor
-                  initialValue={tag.text}
-                  onSave={(value) => handleTagSave(index + 2, value)}
-                  onCancel={handleTagCancel}
-                  className="tag-editor"
-                  style={{
-                    fontSize: '34px',
-                    color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
-                    fontWeight: '500',
-                    width: '100%',
-                    height: 'auto',
-                    textAlign: 'center'
-                  }}
-                />
-              ) : (
-                tag.text
-              )}
-            </div>
-          ))}
-        </div>
+          {/* Second row */}
+          <div style={{
+            display: 'flex',
+            gap: '20px'
+          }}>
+            {currentTags.slice(2, 5).map((tag: TagType, index: number) => (
+              <div
+                key={index + 2}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
+                  border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
+                  borderRadius: '8px',
+                  fontSize: '34px',
+                  color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: index === 0 ? '150px' : index === 1 ? '165px' : '180px'
+                }}
+                onClick={() => isEditable && setEditingTags(index + 2)}
+              >
+                {isEditable && editingTags === index + 2 ? (
+                  <ImprovedInlineEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index + 2, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '34px',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
 
-        {/* Third row (single tag) */}
-        <div style={{
-          display: 'flex',
-          gap: '20px',
-        }}>
-          {currentTags.slice(5).map((tag: TagType, index: number) => (
-            <div
-              key={index + 5}
-              style={{
-                padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
-                border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
-                borderRadius: '8px',
-                fontSize: '34px',
-                color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
-                fontWeight: '500',
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                display: 'flex',
-                justifyContent: 'center',
-                width: '354px'
-              }}
-              onClick={() => isEditable && setEditingTags(index + 5)}
-            >
-              {isEditable && editingTags === index + 5 ? (
-                <ImprovedInlineEditor
-                  initialValue={tag.text}
-                  onSave={(value) => handleTagSave(index + 5, value)}
-                  onCancel={handleTagCancel}
-                  className="tag-editor"
-                  style={{
-                    fontSize: '30px',
-                    color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
-                    fontWeight: '500',
-                    width: '100%',
-                    height: 'auto',
-                    textAlign: 'center'
-                  }}
-                />
-              ) : (
-                tag.text
-              )}
-            </div>
-          ))}
-        </div>
+          {/* Third row (single tag) */}
+          <div style={{
+            display: 'flex',
+            gap: '20px',
+          }}>
+            {currentTags.slice(5).map((tag: TagType, index: number) => (
+              <div
+                key={index + 5}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
+                  border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
+                  borderRadius: '8px',
+                  fontSize: '34px',
+                  color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '354px'
+                }}
+                onClick={() => isEditable && setEditingTags(index + 5)}
+              >
+                {isEditable && editingTags === index + 5 ? (
+                  <ImprovedInlineEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index + 5, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '30px',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Footer - below tags block */}
       <div style={{
         position: 'absolute',
-        bottom: '25px',
-        left: '80px',
+        bottom: '40px',
+        left: '60px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
