@@ -2,31 +2,37 @@
 
 import { useState, useEffect } from 'react';
 import { Gem } from 'lucide-react';
-import { AvatarSelector, Avatar, AvatarVariant } from '../../../../components/AvatarSelector';
-import { startVideoGeneration, VideoGenerationState } from '../../../../utils/videoGenerationUtils';
+import AvatarSelector, { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 
 interface GenerateModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  onGenerationStart?: (jobId: string) => void;
+  onGenerationStart?: () => void;
+  selectedAvatar?: Avatar;
+  selectedVariant?: AvatarVariant;
+  onAvatarSelect?: (avatar: Avatar, variant?: AvatarVariant) => void;
+  generationStatus?: 'idle' | 'generating' | 'completed' | 'error';
+  generationError?: string | null;
 }
 
-export default function GenerateModal({ isOpen, onClose, title, onGenerationStart }: GenerateModalProps) {
+export default function GenerateModal({ 
+  isOpen, 
+  onClose, 
+  title, 
+  onGenerationStart,
+  selectedAvatar,
+  selectedVariant,
+  onAvatarSelect,
+  generationStatus = 'idle',
+  generationError
+}: GenerateModalProps) {
   const [videoTitle, setVideoTitle] = useState(title);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isSubtitleDropdownOpen, setIsSubtitleDropdownOpen] = useState(false);
   const [selectedSubtitleOption, setSelectedSubtitleOption] = useState('Select subtitle option');
   const [isResolutionDropdownOpen, setIsResolutionDropdownOpen] = useState(false);
   const [selectedResolution, setSelectedResolution] = useState('1080p HD');
-  
-  // Video generation state
-  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
-  const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
-  const [generationStatus, setGenerationStatus] = useState<VideoGenerationState['status']>('idle');
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [generationJobId, setGenerationJobId] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -53,52 +59,6 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isSubtitleDropdownOpen, isResolutionDropdownOpen]);
-  
-  // Avatar selection handler
-  const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
-    setSelectedAvatar(avatar);
-    setSelectedVariant(variant || undefined);
-    setErrorMessage(null); // Clear any previous errors
-    console.log('🎬 [VIDEO_DOWNLOAD] Avatar selected:', {
-      avatar: avatar.name,
-      variant: variant?.name,
-      code: variant ? `${avatar.code}.${variant.code}` : avatar.code
-    });
-  };
-
-  // Video generation handler
-  const handleStartGeneration = async () => {
-    if (!selectedAvatar) {
-      setErrorMessage('Please select an avatar first');
-      return;
-    }
-
-    try {
-      setErrorMessage(null);
-      
-      await startVideoGeneration(
-        videoTitle,
-        selectedAvatar,
-        selectedVariant,
-        (progress) => setGenerationProgress(progress),
-        (status) => setGenerationStatus(status),
-        (error) => setErrorMessage(error),
-        (jobId) => {
-          // Job created - transition to completion modal
-          setGenerationJobId(jobId);
-          onClose();
-          onGenerationStart?.(jobId);
-        },
-        (jobId) => {
-          // Job completed - this will be handled by the completion modal
-          console.log('🎬 [VIDEO_DOWNLOAD] Video generation completed for job:', jobId);
-        }
-      );
-    } catch (error) {
-      console.error('🎬 [VIDEO_DOWNLOAD] Generation failed:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'Unknown error occurred');
-    }
-  };
   
   if (!isOpen) return null;
 
@@ -135,46 +95,6 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               placeholder="Enter video title"
             />
           </div>
-          
-          {/* Avatar Selection */}
-          <div className="mb-4">
-            <label className="block text-xs text-gray-700 mb-2">AI Avatar</label>
-            <AvatarSelector
-              onAvatarSelect={handleAvatarSelect}
-              selectedAvatar={selectedAvatar}
-              selectedVariant={selectedVariant}
-              className="w-full"
-            />
-            {selectedAvatar && (
-              <p className="text-xs text-gray-500 mt-1">
-                Selected: {selectedAvatar.name}
-                {selectedVariant && ` - ${selectedVariant.name}`}
-              </p>
-            )}
-          </div>
-          
-          {/* Error Message */}
-          {errorMessage && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{errorMessage}</p>
-            </div>
-          )}
-          
-          {/* Generation Progress */}
-          {generationStatus === 'generating' && (
-            <div className="mb-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-700">Generating video...</span>
-                <span className="text-sm text-gray-700">{generationProgress}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${generationProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
           
           {/* Horizontal line */}
           <div className="border-t-2 border-gray-300 mb-6"></div>
@@ -332,6 +252,26 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               </div>
             </button>
           </div>
+
+          {/* Avatar Selection - transferred from VideoDownloadButton */}
+          <div className="mb-6">
+            <label className="block text-sm text-gray-700 mb-2">AI Avatar</label>
+            <AvatarSelector
+              onAvatarSelect={onAvatarSelect || (() => {})}
+              selectedAvatar={selectedAvatar}
+              selectedVariant={selectedVariant}
+              className="w-full"
+            />
+            {selectedAvatar && (
+              <p className="text-xs text-gray-500 mt-1">
+                Selected: {selectedAvatar.name}
+                {selectedVariant && ` - ${selectedVariant.name}`}
+              </p>
+            )}
+            {generationError && (
+              <p className="text-xs text-red-600 mt-1">{generationError}</p>
+            )}
+          </div>
           
           {/* Summary section */}
           <div className="mb-6">
@@ -368,25 +308,24 @@ export default function GenerateModal({ isOpen, onClose, title, onGenerationStar
               Cancel
             </button>
             <button 
-              onClick={handleStartGeneration}
+              onClick={() => {
+                onGenerationStart?.();
+              }}
               disabled={generationStatus === 'generating' || !selectedAvatar}
               className={`flex-1 px-4 py-2 rounded-full transition-colors font-medium text-sm ${
                 generationStatus === 'generating' || !selectedAvatar
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800'
               }`}
+              title={
+                !selectedAvatar 
+                  ? 'Please select an avatar first'
+                  : generationStatus === 'generating' 
+                    ? 'Generation in progress...' 
+                    : 'Start video generation'
+              }
             >
-              {generationStatus === 'generating' ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Generating... {generationProgress}%
-                </>
-              ) : (
-                'Start generation'
-              )}
+              {generationStatus === 'generating' ? 'Starting generation...' : 'Start generation'}
             </button>
           </div>
         </div>

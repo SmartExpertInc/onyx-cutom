@@ -6,33 +6,23 @@ interface GenerationCompletedModalProps {
   isOpen: boolean;
   onClose: () => void;
   videoTitle: string;
-  jobId?: string;
   generationStatus?: 'idle' | 'generating' | 'completed' | 'error';
   generationProgress?: number;
-  errorMessage?: string;
+  generationJobId?: string | null;
+  generationError?: string | null;
 }
 
 export default function GenerationCompletedModal({ 
   isOpen, 
   onClose, 
-  videoTitle, 
-  jobId, 
+  videoTitle,
   generationStatus = 'idle',
   generationProgress = 0,
-  errorMessage
+  generationJobId,
+  generationError
 }: GenerationCompletedModalProps) {
   const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
-  const [localGenerationStatus, setLocalGenerationStatus] = useState(generationStatus);
-  const [localGenerationProgress, setLocalGenerationProgress] = useState(generationProgress);
-  const [localErrorMessage, setLocalErrorMessage] = useState(errorMessage);
-
-  // Sync local state with props changes
-  useEffect(() => {
-    setLocalGenerationStatus(generationStatus);
-    setLocalGenerationProgress(generationProgress);
-    setLocalErrorMessage(errorMessage);
-  }, [generationStatus, generationProgress, errorMessage]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -81,10 +71,12 @@ export default function GenerationCompletedModal({
               {videoTitle}
             </h2>
             
-            {/* Buttons on the right */}
+            {/* Buttons on the right - only show when generation is completed */}
             <div className="flex items-center gap-2">
-              {/* Download dropdown button */}
-              <div className="relative" data-download-dropdown>
+              {generationStatus === 'completed' && (
+                <>
+                  {/* Download dropdown button */}
+                  <div className="relative" data-download-dropdown>
                 <button 
                   onClick={() => setIsDownloadDropdownOpen(!isDownloadDropdownOpen)}
                   className="bg-white text-gray-700 border border-gray-300 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2"
@@ -192,96 +184,64 @@ export default function GenerationCompletedModal({
                   </div>
                 )}
               </div>
+                </>
+              )}
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 px-6 py-6 bg-gray-50 flex items-center justify-center">
-          {localGenerationStatus === 'generating' ? (
-            /* Generation in progress */
-            <div className="w-80 text-center">
-              <div className="mb-4">
-                <svg className="animate-spin mx-auto h-12 w-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Generating Video</h3>
-              <p className="text-sm text-gray-600 mb-4">Please wait while we create your professional video...</p>
-              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                <div 
-                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                  style={{ width: `${localGenerationProgress}%` }}
-                />
-              </div>
-              <p className="text-sm text-gray-600">{localGenerationProgress}% complete</p>
+        <div className="flex-1 px-6 py-6 bg-gray-50 flex flex-col items-center justify-center">
+          {/* Generation Status Content */}
+          {generationStatus === 'generating' && (
+            <div className="w-80 h-48 bg-gray-200 rounded-lg flex flex-col items-center justify-center">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <span className="text-gray-700 text-sm font-medium mb-2">Generating your video...</span>
+              <span className="text-gray-500 text-xs">{generationProgress}% complete</span>
             </div>
-          ) : localGenerationStatus === 'error' ? (
-            /* Generation error */
-            <div className="w-80 text-center">
-              <div className="mb-4">
-                <svg className="mx-auto h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Generation Failed</h3>
-              <p className="text-sm text-gray-600 mb-4">{localErrorMessage || 'An error occurred during video generation.'}</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
-              >
-                Try Again
-              </button>
+          )}
+          
+          {generationStatus === 'completed' && (
+            <div className="w-80 h-48 bg-green-100 rounded-lg flex flex-col items-center justify-center border-2 border-green-300">
+              <svg className="w-12 h-12 text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-green-800 text-sm font-medium mb-2">Video generated successfully!</span>
+              <span className="text-green-600 text-xs">Your video has been downloaded</span>
             </div>
-          ) : localGenerationStatus === 'completed' ? (
-            /* Video completed - show download options */
-            <div className="w-80 text-center">
-              <div className="mb-4">
-                <svg className="mx-auto h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Video Ready!</h3>
-              <p className="text-sm text-gray-600 mb-4">Your professional video has been generated successfully.</p>
-              <div className="space-y-2">
-                <button 
-                  onClick={() => {
-                    // Auto-download the video
-                    if (jobId) {
-                      const videoUrl = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/presentations/${jobId}/video`;
-                      // Create a temporary link and trigger download
-                      const link = document.createElement('a');
-                      link.href = videoUrl;
-                      link.download = `professional_presentation_${jobId}.mp4`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }
-                  }}
-                  className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
-                >
-                  Download Video
-                </button>
-                <button 
-                  onClick={() => {
-                    // Copy the video link
-                    if (jobId) {
-                      const videoUrl = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/presentations/${jobId}/video`;
-                      navigator.clipboard.writeText(videoUrl);
-                      // You could add a toast notification here
-                    }
-                  }}
-                  className="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm"
-                >
-                  Copy Video Link
-                </button>
-              </div>
+          )}
+          
+          {generationStatus === 'error' && (
+            <div className="w-80 h-48 bg-red-100 rounded-lg flex flex-col items-center justify-center border-2 border-red-300">
+              <svg className="w-12 h-12 text-red-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span className="text-red-800 text-sm font-medium mb-2">Generation failed</span>
+              {generationError && (
+                <span className="text-red-600 text-xs text-center px-4">{generationError}</span>
+              )}
             </div>
-          ) : (
-            /* Default state - video placeholder */
+          )}
+          
+          {generationStatus === 'idle' && (
             <div className="w-80 h-48 bg-gray-300 rounded-lg flex items-center justify-center">
               <span className="text-gray-500 text-sm">Video will be displayed here</span>
+            </div>
+          )}
+
+          {/* Progress Bar - show during generation */}
+          {generationStatus === 'generating' && (
+            <div className="w-80 mt-4">
+              <div className="w-full bg-gray-300 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${generationProgress}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Processing...</span>
+                <span>{generationProgress}%</span>
+              </div>
             </div>
           )}
         </div>
@@ -289,12 +249,14 @@ export default function GenerationCompletedModal({
         {/* Footer */}
         <div className="p-6 pt-3 border-t border-gray-200">
           <div className="flex justify-end">
-            <button className="bg-white text-black border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-black">
-                <path fill="currentColor" fillRule="evenodd" d="M9.929 3.132a2.078 2.078 0 1 1 2.94 2.94l-.65.648a.75.75 0 0 0 1.061 1.06l.649-.648a3.579 3.579 0 0 0-5.06-5.06L6.218 4.72a3.578 3.578 0 0 0 0 5.06a.75.75 0 0 0 1.061-1.06a2.078 2.078 0 0 1 0-2.94L9.93 3.132Zm-.15 3.086a.75.75 0 0 0-1.057 1.064c.816.81.818 2.13.004 2.942l-2.654 2.647a2.08 2.08 0 0 1-2.94-2.944l.647-.647a.75.75 0 0 0-1.06-1.06l-.648.647a3.58 3.58 0 0 0 5.06 5.066l2.654-2.647a3.575 3.575 0 0 0-.007-5.068Z" clipRule="evenodd"/>
-              </svg>
-              Copy invite link
-            </button>
+            {generationStatus === 'completed' && (
+              <button className="bg-white text-black border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-black">
+                  <path fill="currentColor" fillRule="evenodd" d="M9.929 3.132a2.078 2.078 0 1 1 2.94 2.94l-.65.648a.75.75 0 0 0 1.061 1.06l.649-.648a3.579 3.579 0 0 0-5.06-5.06L6.218 4.72a3.578 3.578 0 0 0 0 5.06a.75.75 0 0 0 1.061-1.06a2.078 2.078 0 0 1 0-2.94L9.93 3.132Zm-.15 3.086a.75.75 0 0 0-1.057 1.064c.816.81.818 2.13.004 2.942l-2.654 2.647a2.08 2.08 0 0 1-2.94-2.944l.647-.647a.75.75 0 0 0-1.06-1.06l-.648.647a3.58 3.58 0 0 0 5.06 5.066l2.654-2.647a3.575 3.575 0 0 0-.007-5.068Z" clipRule="evenodd"/>
+                </svg>
+                Copy invite link
+              </button>
+            )}
           </div>
         </div>
       </div>
