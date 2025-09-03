@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 
 export default function AuditPage() {
@@ -27,6 +26,7 @@ export default function AuditPage() {
         body, html {
           color: #09090B;
           line-height: 140%;
+          font-weight: 400;
         }
       `}</style>
       
@@ -1575,13 +1575,13 @@ export default function AuditPage() {
               </div>
               
               <div 
-                className="flex gap-[5px] py-[10px] px-[15px] rounded-[6px]"
+                className="flex gap-[5px] py-[10px] px-[15px] rounded-[6px] items-start"
                 style={{ background: '#EBF2FF87' }}
               >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-0.5">
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
-                <span className="text-[14px] text-[#71717A] font-normal font-[400]">
+                <span className="text-[14px] text-[#71717A] font-normal font-[400] leading-[140%]">
                   Вы приобретаете <span className="text-[14px] text-[#09090B] font-semibold font-[600]">почасовой доступ к профессиональному методологу</span> по предоплаченной модели. Методолог — это ваша «правая рука», которая берёт на себя всю операционную работу: от структурирования знаний до подготовки обучающих материалов и загрузки их в систему.
                 </span>
               </div> 
@@ -1590,11 +1590,11 @@ export default function AuditPage() {
 
           {/* Section 6 */}
           <section className="bg-[#3E3AD9] pt-[60px] px-[20px] xl:px-[120px]">
-            <div className="relative bg-white rounded-lg p-8 h-96 mb-8 flex flex-col items-center justify-center">
+            <div className="relative bg-white rounded-t-lg p-8 h-96 mb-8 flex flex-col items-center justify-center">
               <svg 
                 className="absolute bottom-0 left-0 w-1/4 h-1/4"
-                width="162" 
-                height="165" 
+                width="204" 
+                height="195" 
                 viewBox="0 0 162 165" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
@@ -1608,7 +1608,7 @@ export default function AuditPage() {
                 </defs>
               </svg>
               
-              <div className="flex flex-col items-center gap-[30px] z-10 relative">
+              <div className="flex flex-col gap-[30px] z-10 relative">
                 <h2 className="font-medium text-[32px] leading-[120%] text-[#09090B]">
                   Записаться на демонстрацию
                 </h2>
@@ -1622,7 +1622,8 @@ export default function AuditPage() {
                     borderWidth: '2px 0px 0px 2px',
                     borderStyle: 'solid',
                     borderImageSource: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                    borderImageSlice: '1'
+                    borderImageSlice: '1',
+                    borderRadius: '8px'
                   }}
                 >
                   Забронировать
