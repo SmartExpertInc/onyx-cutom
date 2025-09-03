@@ -430,10 +430,10 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   // Function to find existing lesson for a given lesson title
   const findExistingLesson = (lessonTitle: string): ProjectListItem | undefined => {
     console.log(`🔍 [LESSON_DISCOVERY] Starting lesson discovery for lesson: "${lessonTitle}"`);
-    console.log(`🔍 [LESSON_DISCOVERY] Excluding component types: ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation"]`);
+    console.log(`🔍 [LESSON_DISCOVERY] Excluding component types: ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation", "LessonPlanDisplay", "LessonPlan", "Lesson Plan"]`);
     
-    // Find presentations/lessons but exclude quizzes and text presentations to avoid double-matching
-    const result = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation"]);
+    // Find presentations/lessons but exclude quizzes, text presentations, and lesson plans to avoid double-matching
+    const result = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation", "LessonPlanDisplay", "LessonPlan", "Lesson Plan"]);
     
     if (result) {
       console.log(`✅ [LESSON_DISCOVERY] Found lesson:`, {
