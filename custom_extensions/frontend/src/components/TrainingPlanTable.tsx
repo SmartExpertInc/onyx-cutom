@@ -1850,6 +1850,41 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         parentProjectName={parentProjectName}
         outlineProjectId={projectId}
         lessonRecommendations={contentModalState.lessonRecommendations}
+        hasLessonPlan={!!findExistingLessonPlan(contentModalState.lessonTitle)}
+        lessonPlanId={findExistingLessonPlan(contentModalState.lessonTitle)?.id}
+        onOpenLessonPlan={() => {
+          const lp = findExistingLessonPlan(contentModalState.lessonTitle);
+          if (lp) router.push(`/projects/view/${lp.id}`);
+          setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, lessonRecommendations: [] });
+        }}
+        onRefreshLessonPlan={async () => {
+          const lp = findExistingLessonPlan(contentModalState.lessonTitle);
+          if (!lp) return;
+          try {
+            setIsRefreshingLessonPlan(true);
+            await fetch(`/api/custom-projects-backend/projects/${lp.id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+            const resp = await fetch('/api/custom-projects-backend/lesson-plan/generate', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                outlineProjectId: projectId,
+                lessonTitle: contentModalState.lessonTitle,
+                moduleName: contentModalState.moduleName,
+                lessonNumber: contentModalState.lessonNumber,
+                recommendedProducts: contentModalState.lessonRecommendations && contentModalState.lessonRecommendations.length > 0 ? contentModalState.lessonRecommendations : ["quiz", "lesson", "one-pager", "video-lesson"]
+              })
+            });
+            const data = await resp.json();
+            if (data?.project_id) {
+              router.push(`/projects/view/${data.project_id}`);
+              setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, lessonRecommendations: [] });
+            }
+          } catch (e) {
+            console.error('Failed to refresh lesson plan from Create modal', e);
+          } finally {
+            setIsRefreshingLessonPlan(false);
+          }
+        }}
+        isRefreshingLessonPlan={isRefreshingLessonPlan}
         recommendedContentTypes={contentModalState.recommended}
         existingContent={{
           hasLesson: !!findExistingLesson(contentModalState.lessonTitle),

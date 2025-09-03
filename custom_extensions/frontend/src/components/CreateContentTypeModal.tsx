@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings, Loader2 } from 'lucide-react';
+import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AllContentTypesModal } from './AllContentTypesModal';
@@ -38,6 +38,11 @@ interface CreateContentTypeModalProps {
   existingContent?: ExistingContentFlags;
   onUpdateRecommendations?: (newPrimary: string[]) => void; // NEW
   onOpenAllContentTypes?: () => void; // NEW: callback to open AllContentTypesModal
+  hasLessonPlan?: boolean; // NEW: whether lesson plan exists for this lesson
+  lessonPlanId?: number; // NEW: id to open
+  onOpenLessonPlan?: () => void; // NEW: open handler
+  onRefreshLessonPlan?: () => void; // NEW: refresh handler
+  isRefreshingLessonPlan?: boolean; // NEW: spinner state
 }
 
 export const CreateContentTypeModal = ({
@@ -57,7 +62,12 @@ export const CreateContentTypeModal = ({
   recommendedContentTypes,
   existingContent,
   onUpdateRecommendations,
-  onOpenAllContentTypes
+  onOpenAllContentTypes,
+  hasLessonPlan,
+  lessonPlanId,
+  onOpenLessonPlan,
+  onRefreshLessonPlan,
+  isRefreshingLessonPlan
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
   const { t } = useLanguage();
@@ -307,42 +317,78 @@ export const CreateContentTypeModal = ({
         </div>
 
         <div className="mb-1 sm:mb-2">
-          <button
-            onClick={handleLessonPlanGeneration}
-            disabled={isGeneratingLessonPlan}
-            className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-2 sm:p-3 lg:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-              <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
+          {hasLessonPlan ? (
+            <div className="group">
+              <div className="relative">
+                <button
+                  onClick={onOpenLessonPlan}
+                  className="w-full flex items-center p-3 lg:p-4 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-16"
+                >
+                  <div className="flex items-center space-x-3 flex-1">
+                    <div className="p-2 rounded-xl bg-purple-100">
+                      <FileText className="text-purple-700" size={20} />
+                    </div>
+                    <div className="text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-purple-900">Lesson Plan</span>
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full border border-purple-200">Already created</span>
+                      </div>
+                      <p className="text-xs text-purple-800">View lesson plan with objectives and materials</p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={onRefreshLessonPlan}
+                  disabled={!!isRefreshingLessonPlan}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg border border-purple-300 transition-all duration-300 ${isRefreshingLessonPlan ? 'bg-purple-200 cursor-not-allowed' : 'bg-purple-100 hover:bg-purple-200 hover:shadow-md'}`}
+                  title="Generate new lesson plan"
+                >
+                  {isRefreshingLessonPlan ? (
+                    <Loader2 size={18} className="animate-spin text-purple-700" />
+                  ) : (
+                    <RefreshCw size={18} className="text-purple-700 group-hover:scale-110 transition-transform duration-200" />
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handleLessonPlanGeneration}
+              disabled={isGeneratingLessonPlan}
+              className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-2 sm:p-3 lg:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+                <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
+                  {isGeneratingLessonPlan ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  )}
+                </div>
+                <div className="text-left flex-1">
+                  <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
+                    <span className="text-sm sm:text-base font-semibold text-gray-900">
+                      {isGeneratingLessonPlan ? 'Generating Lesson Plan...' : 'Lesson Plan'}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                    {isGeneratingLessonPlan ? 'Please wait while we generate your lesson plan...' : 'Technical specification with lesson objectives'}
+                  </p>
+                </div>
+              </div>
+              <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
                 {isGeneratingLessonPlan ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-6 h-6 animate-spin" />
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 )}
               </div>
-              <div className="text-left flex-1">
-                <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
-                  <span className="text-sm sm:text-base font-semibold text-gray-900">
-                    {isGeneratingLessonPlan ? 'Generating Lesson Plan...' : 'Lesson Plan'}
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  {isGeneratingLessonPlan ? 'Please wait while we generate your lesson plan...' : 'Technical specification with lesson objectives'}
-                </p>
-              </div>
-            </div>
-            <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
-              {isGeneratingLessonPlan ? (
-                <Loader2 className="w-6 h-6 animate-spin" />
-              ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              )}
-            </div>
-          </button>
+            </button>
+          )}
         </div>
 
         {/* Visual Separator */}
