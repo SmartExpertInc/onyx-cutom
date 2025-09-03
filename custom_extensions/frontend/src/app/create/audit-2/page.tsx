@@ -1616,7 +1616,7 @@ export default function AuditPage() {
               </svg>
               
               <div className="flex flex-col gap-[30px] z-10 relative">
-                <h2 className="font-medium text-[32px] leading-[120%] text-[#09090B]">
+                <h2 className="font-medium text-[32px] leading-[120%] text-[#09090B] text-center">
                   Записаться на демонстрацию
                 </h2>
                 
@@ -1627,14 +1627,25 @@ export default function AuditPage() {
                     paddingInline: '48px',
                     paddingBlock: '14px',
                     borderRadius: '6px',
-                    borderWidth: '2px 0px 0px 2px',
-                    borderStyle: 'solid',
-                    borderImageSource: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                    borderImageSlice: '1',
                     position: 'relative',
                     boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
                   }}
                 >
+                  {/* Gradient borders only on left and top */}
+                  <div 
+                    className="absolute top-0 left-0 w-2 h-full"
+                    style={{
+                      background: 'linear-gradient(180deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
+                      borderRadius: '6px 0 0 6px'
+                    }}
+                  />
+                  <div 
+                    className="absolute top-0 left-0 w-full h-2"
+                    style={{
+                      background: 'linear-gradient(90deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
+                      borderRadius: '6px 6px 0 0'
+                    }}
+                  />
                   <span className="relative z-10">Забронировать</span>
                 </button>
               </div>
