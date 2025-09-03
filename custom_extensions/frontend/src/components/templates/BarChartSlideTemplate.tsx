@@ -644,7 +644,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          justifyContent: 'space-between',
          alignItems: 'center',
          fontSize: '13px',
-         color: themeContent
+         color: '#A2ABB1'
        }}>
          {/* Website - left aligned */}
          <div>
@@ -656,7 +656,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                className="footer-website-editor"
                style={{
                  fontSize: '13px',
-                 color: themeContent
+                 color: '#A2ABB1'
                }}
              />
            ) : (
@@ -688,7 +688,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  className="footer-date-editor"
                  style={{
                    fontSize: '13px',
-                   color: themeContent
+                   color: '#A2ABB1'
                  }}
                />
              ) : (
@@ -698,7 +698,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    cursor: isEditable ? 'pointer' : 'default',
                    userSelect: 'none',
                    fontSize: '13px',
-                   color: themeContent
+                   color: '#A2ABB1'
                  }}
                >
                  {currentDate}
@@ -726,7 +726,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    cursor: isEditable ? 'pointer' : 'default',
                    userSelect: 'none',
                    fontSize: '13px',
-                   color: themeContent
+                   color: '#A2ABB1'
                  }}
                >
                  {currentPageNumber}

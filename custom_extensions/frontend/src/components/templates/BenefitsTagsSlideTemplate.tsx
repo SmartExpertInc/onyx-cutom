@@ -48,8 +48,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '650px',
-    backgroundColor: '#F5F5F5', // Light grey background as per screenshot
+    aspectRatio: '16/9',
+    backgroundColor: '#ffffff', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -62,11 +62,11 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   // Tags block styles
   const tagsBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '40px', // From the top of the slide
-    left: '60px',
-    right: '60px',
+    top: '15px', // From the top of the slide
+    left: '15px',
+    right: '15px',
     bottom: '80px', // Leave space for logo at bottom
-    backgroundColor: '#E0E0E0', // Darker grey for tags block
+    backgroundColor: '#EDEDED', // Darker grey for tags block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
@@ -128,9 +128,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'absolute',
-          left: '0px',
-          top: '0px',
-          backgroundColor: '#FF6B35', // Orange background as per screenshot
+          left: '75px',
+          top: '25px',
+          backgroundColor: '#E36957', // Orange background as per screenshot
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -150,12 +150,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
         {/* Title */}
         <div style={{
-          fontSize: '49px',
-          color: '#4A4A4A', // Dark grey color as per screenshot
+          fontSize: '44px',
+          color: '#626262', // Dark grey color as per screenshot
           lineHeight: '1.1',
           position: 'absolute',
-          top: '10px',
-          left: '140px',
+          top: '60px',
+          left: '300px',
         }}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
@@ -164,8 +164,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
-                fontSize: '49px',
-                color: '#4A4A4A',
+                fontSize: '44px',
+                color: '#626262',
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
@@ -191,8 +191,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           gap: '20px',
           width: '100%',
           position: 'absolute',
-          top: '140px',
-          left: '0px',
+          top: '205px',
+          left: '300px',
         }}>
           {/* First row */}
           <div style={{
@@ -204,11 +204,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 key={index}
                 style={{
                   padding: '12px 20px',
-                  backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
                   border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                   borderRadius: '8px',
                   fontSize: '34px',
-                  color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
+                  color: tag.isHighlighted ? '#FFFFFF' : '#727272', // White for highlighted, dark grey for others
                   fontWeight: '500',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
@@ -226,7 +225,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     className="tag-editor"
                     style={{
                       fontSize: '34px',
-                      color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#727272',
                       fontWeight: '500',
                       width: '100%',
                       height: 'auto',
@@ -250,11 +249,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 key={index + 2}
                 style={{
                   padding: '12px 20px',
-                  backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
                   border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                   borderRadius: '8px',
                   fontSize: '34px',
-                  color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
+                  color: tag.isHighlighted ? '#FFFFFF' : '#727272', // White for highlighted, dark grey for others
                   fontWeight: '500',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
@@ -272,7 +270,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     className="tag-editor"
                     style={{
                       fontSize: '34px',
-                      color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
+                      color: tag.isHighlighted ? '#FFFFFF' : '#727272',
                       fontWeight: '500',
                       width: '100%',
                       height: 'auto',
@@ -296,17 +294,17 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 key={index + 5}
                 style={{
                   padding: '12px 20px',
-                  backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
-                  border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
+                  backgroundColor: '#E16B53', // Orange for highlighted, darker grey for others (matching block)
+                  border: tag.isHighlighted ? 'none' : `1px solid #E16B53`, // Dark grey border for non-highlighted
                   borderRadius: '8px',
                   fontSize: '34px',
-                  color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
+                  color: '#F6DED6', // White for highlighted, dark grey for others
                   fontWeight: '500',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   display: 'flex',
                   justifyContent: 'center',
-                  width: '354px'
+                  width: '370px'
                 }}
                 onClick={() => isEditable && setEditingTags(index + 5)}
               >
@@ -337,8 +335,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       {/* Footer - below tags block */}
       <div style={{
         position: 'absolute',
-        bottom: '40px',
-        left: '60px',
+        bottom: '15px',
+        left: '15px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
