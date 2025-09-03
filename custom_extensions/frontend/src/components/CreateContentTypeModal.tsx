@@ -368,14 +368,19 @@ export const CreateContentTypeModal = ({
               return (
                 <div
                   key={type.name}
-                  className={`group w-full flex items-center p-2 sm:p-3 lg:p-4 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${isDisabled
-                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                    : isSelected
-                      ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
-                      : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                    }`}
+                  className={`group w-full flex items-center p-2 sm:p-3 lg:p-4 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
+                    isDisabled
+                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                      : isSelected
+                        ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
+                        : isRecommended
+                          ? 'border-blue-200 bg-blue-50 text-blue-600 cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:shadow-md'
+                          : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                  }`}
                   onClick={(e: React.MouseEvent) => {
-                    if (!isDisabled && isSelected && e.target === e.currentTarget) {
+                    // Allow clicking on recommended products regardless of checkbox state
+                    // Only allow clicking if not disabled and either selected or recommended
+                    if (!isDisabled && (isSelected || isRecommended) && e.target === e.currentTarget) {
                       handleContentCreate(type.name);
                     }
                   }}
@@ -395,15 +400,36 @@ export const CreateContentTypeModal = ({
                   </div>
 
                   <div className="flex items-center space-x-2 sm:space-x-2 lg:space-x-3 flex-1">
-                    <div className={`p-2 sm:p-2 lg:p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${isDisabled || !isSelected ? 'bg-gray-100' : iconColorClasses[type.color as keyof typeof iconColorClasses]
-                      }`}>
+                    <div className={`p-2 sm:p-2 lg:p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${
+                      isDisabled 
+                        ? 'bg-gray-100' 
+                        : isSelected 
+                          ? iconColorClasses[type.color as keyof typeof iconColorClasses]
+                          : isRecommended
+                            ? 'bg-blue-100'
+                            : 'bg-gray-100'
+                    }`}>
                       {React.cloneElement(type.icon, {
-                        className: `w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200 ${isDisabled || !isSelected ? 'text-gray-400' : ''}`
+                        className: `w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200 ${
+                          isDisabled 
+                            ? 'text-gray-400' 
+                            : isSelected 
+                              ? '' 
+                              : isRecommended
+                                ? 'text-blue-600'
+                                : 'text-gray-400'
+                        }`
                       })}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
-                        <h3 className={`text-sm sm:text-base lg:text-lg font-bold ${isSelected ? 'text-gray-900 group-hover:text-gray-800' : 'text-gray-400'}`}>
+                        <h3 className={`text-sm sm:text-base lg:text-lg font-bold ${
+                          isSelected 
+                            ? 'text-gray-900 group-hover:text-gray-800' 
+                            : isRecommended
+                              ? 'text-blue-900 group-hover:text-blue-800'
+                              : 'text-gray-400'
+                        }`}>
                           {type.label}
                         </h3>
                         {type.soon && (
@@ -422,13 +448,23 @@ export const CreateContentTypeModal = ({
                           </span>
                         )}
                       </div>
-                      <p className={`text-xs sm:text-sm leading-relaxed ${isSelected ? 'text-gray-600' : 'text-gray-400'}`}>
+                      <p className={`text-xs sm:text-sm leading-relaxed ${
+                        isSelected 
+                          ? 'text-gray-600' 
+                          : isRecommended
+                            ? 'text-blue-600'
+                            : 'text-gray-400'
+                      }`}>
                         {type.description}
                       </p>
                     </div>
                   </div>
-                  {isSelected && !isDisabled && (
-                    <div className="text-gray-400 group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1">
+                  {(isSelected || isRecommended) && !isDisabled && (
+                    <div className={`transition-all duration-200 group-hover:translate-x-1 ${
+                      isSelected 
+                        ? 'text-gray-400 group-hover:text-gray-600' 
+                        : 'text-blue-400 group-hover:text-blue-600'
+                    }`}>
                       <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>

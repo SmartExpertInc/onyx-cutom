@@ -90,10 +90,10 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
           {/* Lesson Plan Option - First Priority */}
           {hasLessonPlan && (
             <div className="group">
-              <div className="flex items-center space-x-2">
+              <div className="relative">
                 <button
                   onClick={onOpenLessonPlan}
-                  className="flex-1 flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02]"
+                  className="w-full flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-20"
                 >
                   <div className="flex items-center space-x-4 flex-1">
                     <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
@@ -116,24 +116,22 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                   </div>
                 </button>
                 
-                {/* Refresh Button */}
+                {/* Integrated Refresh Button */}
                 <button
                   onClick={onRefreshLessonPlan}
                   disabled={isRefreshingLessonPlan}
-                  className={`p-6 border-2 rounded-xl border-purple-200 transition-all duration-300 transform ${
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-lg border border-purple-300 transition-all duration-300 ${
                     isRefreshingLessonPlan 
-                      ? 'bg-purple-100 cursor-not-allowed' 
-                      : 'bg-purple-50 hover:bg-purple-100 hover:shadow-lg hover:scale-[1.02]'
+                      ? 'bg-purple-200 cursor-not-allowed' 
+                      : 'bg-purple-100 hover:bg-purple-200 hover:shadow-md'
                   } group`}
                   title="Generate new lesson plan"
                 >
-                  <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
-                    {isRefreshingLessonPlan ? (
-                      <Loader2 size={24} className="animate-spin" />
-                    ) : (
-                      <RefreshCw size={24} />
-                    )}
-                  </div>
+                  {isRefreshingLessonPlan ? (
+                    <Loader2 size={18} className="animate-spin text-purple-700" />
+                  ) : (
+                    <RefreshCw size={18} className="text-purple-700 group-hover:scale-110 transition-transform duration-200" />
+                  )}
                 </button>
               </div>
             </div>
