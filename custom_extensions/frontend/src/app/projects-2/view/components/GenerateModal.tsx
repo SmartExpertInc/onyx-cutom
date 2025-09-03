@@ -2,16 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Gem } from 'lucide-react';
-import AvatarSelector, { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 
 interface GenerateModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   onGenerationStart?: () => void;
-  selectedAvatar?: Avatar;
-  selectedVariant?: AvatarVariant;
-  onAvatarSelect?: (avatar: Avatar, variant?: AvatarVariant) => void;
   generationStatus?: 'idle' | 'generating' | 'completed' | 'error';
   generationError?: string | null;
 }
@@ -21,9 +17,6 @@ export default function GenerateModal({
   onClose, 
   title, 
   onGenerationStart,
-  selectedAvatar,
-  selectedVariant,
-  onAvatarSelect,
   generationStatus = 'idle',
   generationError
 }: GenerateModalProps) {
@@ -253,25 +246,7 @@ export default function GenerateModal({
             </button>
           </div>
 
-          {/* Avatar Selection - transferred from VideoDownloadButton */}
-          <div className="mb-6">
-            <label className="block text-sm text-gray-700 mb-2">AI Avatar</label>
-            <AvatarSelector
-              onAvatarSelect={onAvatarSelect || (() => {})}
-              selectedAvatar={selectedAvatar}
-              selectedVariant={selectedVariant}
-              className="w-full"
-            />
-            {selectedAvatar && (
-              <p className="text-xs text-gray-500 mt-1">
-                Selected: {selectedAvatar.name}
-                {selectedVariant && ` - ${selectedVariant.name}`}
-              </p>
-            )}
-            {generationError && (
-              <p className="text-xs text-red-600 mt-1">{generationError}</p>
-            )}
-          </div>
+
           
           {/* Summary section */}
           <div className="mb-6">
@@ -311,18 +286,16 @@ export default function GenerateModal({
               onClick={() => {
                 onGenerationStart?.();
               }}
-              disabled={generationStatus === 'generating' || !selectedAvatar}
+              disabled={generationStatus === 'generating'}
               className={`flex-1 px-4 py-2 rounded-full transition-colors font-medium text-sm ${
-                generationStatus === 'generating' || !selectedAvatar
+                generationStatus === 'generating'
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                   : 'bg-black text-white hover:bg-gray-800'
               }`}
               title={
-                !selectedAvatar 
-                  ? 'Please select an avatar first'
-                  : generationStatus === 'generating' 
-                    ? 'Generation in progress...' 
-                    : 'Start video generation'
+                generationStatus === 'generating' 
+                  ? 'Generation in progress...' 
+                  : 'Start video generation'
               }
             >
               {generationStatus === 'generating' ? 'Starting generation...' : 'Start generation'}

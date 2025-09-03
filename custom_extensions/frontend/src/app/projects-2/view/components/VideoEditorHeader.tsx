@@ -880,9 +880,6 @@ export default function VideoEditorHeader({
         onClose={() => setIsGenerateModalOpen(false)} 
         title={videoTitle}
         onGenerationStart={handleVideoGeneration}
-        selectedAvatar={selectedAvatar}
-        selectedVariant={selectedVariant}
-        onAvatarSelect={handleAvatarSelect}
         generationStatus={generationStatus}
         generationError={generationError}
       />
