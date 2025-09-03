@@ -25478,3 +25478,385 @@ async def get_shared_offer_details(share_token: str):
     except Exception as e:
         logger.error(f"Error fetching shared offer details: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch shared offer details")
+
+# ============================================================================
+# WORKSPACE MANAGEMENT API ENDPOINTS
+# ============================================================================
+
+# Dependency to get current user ID (placeholder - integrate with your auth system)
+async def get_current_user_id() -> str:
+    # TODO: Integrate with your authentication system
+    # For now, return a placeholder user ID
+    return "current_user_123"
+
+# Workspace Management Endpoints
+
+@app.post("/api/custom/workspaces", response_model=Workspace)
+async def create_workspace(workspace_data: WorkspaceCreate):
+    """Create a new workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        workspace = await WorkspaceService.create_workspace(workspace_data, current_user_id)
+        return workspace
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to create workspace")
+
+@app.get("/api/custom/workspaces", response_model=List[Workspace])
+async def get_workspaces():
+    """Get all workspaces where the current user is a member."""
+    try:
+        current_user_id = await get_current_user_id()
+        workspaces = await WorkspaceService.get_user_workspaces(current_user_id)
+        return workspaces
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspaces")
+
+@app.get("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
+async def get_workspace(workspace_id: int):
+    """Get a specific workspace by ID."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        workspace = await WorkspaceService.get_workspace(workspace_id)
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return workspace
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspace")
+
+@app.get("/api/custom/workspaces/{workspace_id}/full", response_model=WorkspaceWithMembers)
+async def get_workspace_with_members(workspace_id: int):
+    """Get a workspace with all its members and roles."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        workspace_data = await WorkspaceService.get_workspace_with_members(workspace_id)
+        if not workspace_data:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return workspace_data
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspace data")
+
+@app.put("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
+async def update_workspace(workspace_data: WorkspaceUpdate, workspace_id: int):
+    """Update a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        workspace = await WorkspaceService.update_workspace(workspace_id, workspace_data, current_user_id)
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return workspace
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to update workspace")
+
+@app.delete("/api/custom/workspaces/{workspace_id}")
+async def delete_workspace(workspace_id: int):
+    """Delete a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        success = await WorkspaceService.delete_workspace(workspace_id, current_user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return {"message": "Workspace deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to delete workspace")
+
+# Role Management Endpoints
+
+@app.post("/api/custom/workspaces/{workspace_id}/roles", response_model=WorkspaceRole)
+async def create_role(role_data: WorkspaceRoleCreate, workspace_id: int):
+    """Create a new custom role in a workspace."""
+    try:
+        # Ensure workspace_id matches path parameter
+        role_data.workspace_id = workspace_id
+        
+        role = await RoleService.create_custom_role(role_data, "current_user_123")
+        return role
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to create role")
+
+@app.get("/api/custom/workspaces/{workspace_id}/roles", response_model=List[WorkspaceRole])
+async def get_workspace_roles(workspace_id: int):
+    """Get all roles for a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        roles = await RoleService.get_workspace_roles(workspace_id)
+        return roles
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve roles")
+
+@app.get("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
+async def get_workspace_role(workspace_id: int, role_id: int):
+    """Get a specific role from a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        role = await RoleService.get_workspace_role(role_id, workspace_id)
+        if not role:
+            raise HTTPException(status_code=404, detail="Role not found")
+        
+        return role
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve role")
+
+@app.put("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
+async def update_role(role_data: WorkspaceRoleUpdate, workspace_id: int, role_id: int):
+    """Update a custom role in a workspace."""
+    try:
+        role = await RoleService.update_custom_role(role_id, workspace_id, role_data, "current_user_123")
+        if not role:
+            raise HTTPException(status_code=404, detail="Role not found")
+        
+        return role
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to update role")
+
+@app.delete("/api/custom/workspaces/{workspace_id}/roles/{role_id}")
+async def delete_role(workspace_id: int, role_id: int):
+    """Delete a custom role from a workspace."""
+    try:
+        success = await RoleService.delete_custom_role(role_id, workspace_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Role not found")
+        
+        return {"message": "Role deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to delete role")
+
+# Member Management Endpoints
+
+@app.post("/api/custom/workspaces/{workspace_id}/members", response_model=WorkspaceMember)
+async def add_member(member_data: WorkspaceMemberCreate, workspace_id: int):
+    """Add a new member to a workspace."""
+    try:
+        # Ensure workspace_id matches path parameter
+        member_data.workspace_id = workspace_id
+        
+        member = await WorkspaceService.add_member(workspace_id, member_data, "current_user_123")
+        return member
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to add member")
+
+@app.get("/api/custom/workspaces/{workspace_id}/members", response_model=List[WorkspaceMember])
+async def get_workspace_members(workspace_id: int):
+    """Get all members of a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        members = await WorkspaceService.get_workspace_members(workspace_id)
+        return members
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve members")
+
+@app.put("/api/custom/workspaces/{workspace_id}/members/{user_id}", response_model=WorkspaceMember)
+async def update_member(member_data: WorkspaceMemberUpdate, workspace_id: int, user_id: str):
+    """Update a workspace member."""
+    try:
+        member = await WorkspaceService.update_member(workspace_id, user_id, member_data, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=404, detail="Member not found")
+        
+        return member
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to update member")
+
+@app.delete("/api/custom/workspaces/{workspace_id}/members/{user_id}")
+async def remove_member(workspace_id: int, user_id: str):
+    """Remove a member from a workspace."""
+    try:
+        success = await WorkspaceService.remove_member(workspace_id, user_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Member not found")
+        
+        return {"message": "Member removed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to remove member")
+
+@app.post("/api/custom/workspaces/{workspace_id}/leave")
+async def leave_workspace(workspace_id: int):
+    """Leave a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        success = await WorkspaceService.leave_workspace(workspace_id, current_user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Member not found")
+        
+        return {"message": "Successfully left workspace"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to leave workspace")
+
+# Product Access Control Endpoints
+
+@app.post("/api/custom/products/{product_id}/access", response_model=ProductAccess)
+async def grant_product_access(access_data: ProductAccessCreate, product_id: int):
+    """Grant access to a product for a workspace, role, or individual."""
+    try:
+        # Ensure product_id matches path parameter
+        access_data.product_id = product_id
+        
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(access_data.workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        access = await ProductAccessService.grant_access(access_data, "current_user_123")
+        return access
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to grant product access")
+
+@app.get("/api/custom/products/{product_id}/access", response_model=List[ProductAccess])
+async def get_product_access_list(product_id: int):
+    """Get all access records for a specific product."""
+    try:
+        # TODO: Check if user has permission to view product access
+        # This might require checking if the user owns the product or has admin access
+        
+        access_list = await ProductAccessService.get_product_access_list(product_id)
+        return access_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve product access list")
+
+@app.delete("/api/custom/products/{product_id}/access/{access_id}")
+async def revoke_product_access(product_id: int, access_id: int):
+    """Revoke access to a product."""
+    try:
+        # Get the access record to find the workspace_id
+        access = await ProductAccessService.get_product_access(access_id)
+        if not access:
+            raise HTTPException(status_code=404, detail="Access record not found")
+        
+        if access.product_id != product_id:
+            raise HTTPException(status_code=400, detail="Access record does not match product")
+        
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(access.workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        success = await ProductAccessService.revoke_access(access_id, access.workspace_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Access record not found")
+        
+        return {"message": "Product access revoked successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to revoke product access")
+
+@app.get("/api/custom/products/{product_id}/access/check")
+async def check_user_product_access(product_id: int, workspace_id: int):
+    """Check if the current user has access to a specific product in a workspace."""
+    try:
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        has_access = await ProductAccessService.check_user_product_access(product_id, "current_user_123", workspace_id)
+        
+        return {
+            "product_id": product_id,
+            "workspace_id": workspace_id,
+            "user_id": "current_user_123",
+            "has_access": has_access
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to check product access")
+
+@app.get("/api/custom/products/workspace/{workspace_id}/access")
+async def get_workspace_product_access(workspace_id: int):
+    """Get all product access records for a specific workspace."""
+    try:
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        access_list = await ProductAccessService.get_workspace_product_access(workspace_id)
+        
+        return {
+            "workspace_id": workspace_id,
+            "access_records": access_list,
+            "count": len(access_list)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspace product access")
