@@ -13550,4 +13550,12589 @@ async def delete_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_u
                     outline_name: str = row["project_name"]
                     # Treat both 'Training Plan' and 'Course Outline' as outline types
                     if row["microproduct_type"] not in ("Training Plan", "Course Outline"):
-                        # Not an outline – no
+                        continue
+
+                    # Select IDs of all projects whose name equals outline_name OR starts with outline_name + ': '
+                    pattern = outline_name + ":%"
+                    lesson_rows = await conn.fetch(
+                        "SELECT id FROM projects WHERE onyx_user_id=$1 AND (project_name = $2 OR project_name LIKE $3)",
+                        onyx_user_id, outline_name, pattern
+                    )
+                    for lr in lesson_rows:
+                        project_ids_to_trash.add(lr["id"])
+
+            if not project_ids_to_trash:
+                 return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to move to trash."})
+
+            # First, fetch all the data we need to move to trash
+            projects_to_trash = await conn.fetch("""
+                SELECT 
+                    id, onyx_user_id, project_name, product_type, microproduct_type,
+                    microproduct_name, microproduct_content, design_template_id, created_at,
+                    source_chat_session_id, folder_id, "order", completion_time
+                FROM projects 
+                WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
+            """, list(project_ids_to_trash), onyx_user_id)
+
+            if not projects_to_trash:
+                return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to move to trash."})
+
+            async with conn.transaction():
+                # Process each project individually to handle data conversion safely
+                for project in projects_to_trash:
+                    # Safely convert order and completion_time to strings (never integers)
+                    order_value = "0"
+                    completion_time_value = "0"
+                    
+                    # Handle order field - always convert to string
+                    if project['order'] is not None:
+                        try:
+                            if isinstance(project['order'], str):
+                                if project['order'].strip() and project['order'].isdigit():
+                                    order_value = project['order'].strip()
+                                else:
+                                    order_value = "0"
+                            else:
+                                # Convert any non-string value to string
+                                order_value = str(project['order']) if project['order'] is not None else "0"
+                        except (ValueError, TypeError):
+                            order_value = "0"
+                    
+                    # Handle completion_time field - always convert to string
+                    if project['completion_time'] is not None:
+                        try:
+                            if isinstance(project['completion_time'], str):
+                                if project['completion_time'].strip() and project['completion_time'].isdigit():
+                                    completion_time_value = project['completion_time'].strip()
+                                else:
+                                    completion_time_value = "0"
+                            else:
+                                # Convert any non-string value to string
+                                completion_time_value = str(project['completion_time']) if project['completion_time'] is not None else "0"
+                        except (ValueError, TypeError):
+                            completion_time_value = "0"
+
+                    # Insert into trashed_projects with safe values
+                    await conn.execute("""
+                        INSERT INTO trashed_projects (
+                            id, onyx_user_id, project_name, product_type, microproduct_type, 
+                            microproduct_name, microproduct_content, design_template_id, created_at,
+                            source_chat_session_id, folder_id, "order", completion_time
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                    """,
+                        project['id'], project['onyx_user_id'], project['project_name'],
+                        project['product_type'], project['microproduct_type'], project['microproduct_name'],
+                        project['microproduct_content'], project['design_template_id'], project['created_at'],
+                        project['source_chat_session_id'], project['folder_id'], order_value, completion_time_value
+                    )
+
+                # Delete from projects table
+                result_status = await conn.execute(
+                    "DELETE FROM projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
+                    list(project_ids_to_trash), onyx_user_id
+                )
+        
+        deleted_count_match = re.search(r"DELETE\s+(\d+)", result_status)
+        deleted_count = int(deleted_count_match.group(1)) if deleted_count_match else 0
+        
+        logger.info(f"User {onyx_user_id} moved IDs {list(project_ids_to_trash)} to trash. Count: {deleted_count}.")
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully moved {deleted_count} project(s) to trash."})
+
+    except Exception as e:
+        logger.error(f"Error moving projects to trash for user {onyx_user_id}, IDs {delete_request.project_ids}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while sending projects to trash." if IS_PRODUCTION else f"Database error during trash operation: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+# --- Analytics Endpoints ---
+
+@app.get("/api/custom/analytics/dashboard", response_model=Dict[str, Any])
+async def get_analytics_dashboard(
+    date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    method: Optional[str] = Query(None, description="Filter by HTTP method"),
+    status_code: Optional[int] = Query(None, description="Filter by status code"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get comprehensive analytics dashboard data"""
+    import json
+    
+    print(f"=== DASHBOARD DEBUG: Incoming parameters ===")
+    print(f"date_from: {date_from}")
+    print(f"date_to: {date_to}")
+    print(f"=== END PARAMETERS ===")
+
+    try:
+        # DEBUG: Print the latest 10 rows from request_analytics
+        async with pool.acquire() as conn:
+            debug_rows = await conn.fetch(
+                "SELECT id, endpoint, method, status_code, created_at FROM request_analytics ORDER BY created_at DESC LIMIT 10"
+            )
+            print("=== DEBUG: Latest 10 rows from request_analytics ===")
+            for row in debug_rows:
+                print(dict(row))
+            print("=== END DEBUG ===")
+            
+            # DEBUG: Check specifically for AI parser records
+            ai_parser_rows = await conn.fetch(
+                "SELECT id, endpoint, method, status_code, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name, created_at FROM request_analytics WHERE is_ai_parser_request = true ORDER BY created_at DESC LIMIT 10"
+            )
+            print("=== DEBUG: AI Parser records from request_analytics ===")
+            for row in ai_parser_rows:
+                print(dict(row))
+            print(f"Total AI parser records found: {len(ai_parser_rows)}")
+            print("=== END AI PARSER DEBUG ===")
+            
+            # DEBUG: Check if the columns exist and have any data
+            column_check = await conn.fetch(
+                "SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = 'request_analytics' ORDER BY ordinal_position"
+            )
+            print("=== DEBUG: All request_analytics columns check ===")
+            for row in column_check:
+                print(dict(row))
+            print("=== END COLUMN CHECK ===")
+            
+            # DEBUG: Check for any records with non-null ai_parser fields
+            any_ai_parser_data = await conn.fetch(
+                "SELECT id, endpoint, is_ai_parser_request, ai_parser_tokens, ai_parser_model, ai_parser_project_name FROM request_analytics WHERE is_ai_parser_request IS NOT NULL OR ai_parser_tokens IS NOT NULL OR ai_parser_model IS NOT NULL OR ai_parser_project_name IS NOT NULL ORDER BY created_at DESC LIMIT 5"
+            )
+            print("=== DEBUG: Any AI parser data ===")
+            for row in any_ai_parser_data:
+                print(dict(row))
+            print(f"Total records with any AI parser data: {len(any_ai_parser_data)}")
+            print("=== END ANY AI PARSER DATA ===")
+    except Exception as e:
+        print(f"DEBUG ERROR: Could not fetch request_analytics: {e}")
+
+    try:
+        # Build comprehensive filter with proper datetime conversion including timezone
+        conditions = []
+        params = []
+        param_count = 0
+        
+        if date_from:
+            param_count += 1
+            conditions.append(f"created_at >= ${param_count}")
+            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+            params.append(start_datetime)
+        
+        if date_to:
+            param_count += 1
+            conditions.append(f"created_at <= ${param_count}")
+            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
+            params.append(end_datetime)
+        
+        if endpoint:
+            param_count += 1
+            conditions.append(f"endpoint ILIKE ${param_count}")
+            params.append(f"%{endpoint}%")
+        
+        if method:
+            param_count += 1
+            conditions.append(f"method = ${param_count}")
+            params.append(method.upper())
+        
+        if status_code is not None:
+            param_count += 1
+            conditions.append(f"status_code = ${param_count}")
+            params.append(status_code)
+        
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+        
+        print(f"=== DASHBOARD DEBUG: Filter and params ===")
+        print(f"where_clause: {where_clause}")
+        print(f"params: {params}")
+        print(f"=== END FILTER ===")
+
+        async with pool.acquire() as conn:
+            # Overall statistics
+            stats_query = f"""
+                SELECT 
+                    COUNT(*) as total_requests,
+                    COUNT(CASE WHEN status_code >= 200 AND status_code < 300 THEN 1 END) as successful_requests,
+                    COUNT(CASE WHEN status_code >= 400 THEN 1 END) as failed_requests,
+                    COUNT(CASE WHEN error_message IS NOT NULL THEN 1 END) as error_requests,
+                    AVG(response_time_ms) as avg_response_time,
+                    MAX(response_time_ms) as max_response_time,
+                    MIN(response_time_ms) as min_response_time,
+                    SUM(COALESCE(request_size_bytes, 0) + COALESCE(response_size_bytes, 0)) as total_data_transferred,
+                    COUNT(DISTINCT user_id) as unique_users,
+                    COUNT(DISTINCT endpoint) as unique_endpoints,
+                    COUNT(CASE WHEN is_ai_parser_request THEN 1 END) as ai_parser_requests,
+                    AVG(ai_parser_tokens) as avg_ai_parser_tokens,
+                    MAX(ai_parser_tokens) as max_ai_parser_tokens,
+                    MIN(ai_parser_tokens) as min_ai_parser_tokens,
+                    SUM(ai_parser_tokens) as total_ai_parser_tokens
+                FROM request_analytics
+                {where_clause}
+            """
+            print(f"=== DASHBOARD DEBUG: Stats query ===")
+            print(f"Query: {stats_query}")
+            print(f"Params: {params}")
+            stats_row = await conn.fetchrow(stats_query, *params)
+            print(f"Stats result: {dict(stats_row) if stats_row else 'None'}")
+            
+            # Debug AI parser specific data
+            if stats_row:
+                print(f"=== AI PARSER DEBUG ===")
+                print(f"ai_parser_requests: {stats_row['ai_parser_requests']}")
+                print(f"avg_ai_parser_tokens: {stats_row['avg_ai_parser_tokens']}")
+                print(f"max_ai_parser_tokens: {stats_row['max_ai_parser_tokens']}")
+                print(f"min_ai_parser_tokens: {stats_row['min_ai_parser_tokens']}")
+                print(f"total_ai_parser_tokens: {stats_row['total_ai_parser_tokens']}")
+                print(f"=== END AI PARSER DEBUG ===")
+            
+            print(f"=== END STATS ===")
+            
+            # Status code distribution
+            status_query = f"""
+                SELECT 
+                    status_code,
+                    COUNT(*) as count,
+                    AVG(response_time_ms) as avg_time
+                FROM request_analytics
+                {where_clause}
+                GROUP BY status_code
+                ORDER BY count DESC
+            """
+            print(f"=== DASHBOARD DEBUG: Status query ===")
+            print(f"Query: {status_query}")
+            print(f"Params: {params}")
+            status_rows = await conn.fetch(status_query, *params)
+            print(f"Status rows count: {len(status_rows)}")
+            print(f"Status results: {[dict(row) for row in status_rows]}")
+            print(f"=== END STATUS ===")
+            
+            # Top endpoints by request count
+            endpoints_query = f"""
+                SELECT 
+                    endpoint,
+                    method,
+                    COUNT(*) as request_count,
+                    AVG(response_time_ms) as avg_response_time,
+                    COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count,
+                    SUM(COALESCE(request_size_bytes, 0) + COALESCE(response_size_bytes, 0)) as total_data
+                FROM request_analytics
+                {where_clause}
+                GROUP BY endpoint, method
+                ORDER BY request_count DESC
+                LIMIT 20
+            """
+            endpoints_rows = await conn.fetch(endpoints_query, *params)
+            
+            # Top users by request count
+            users_query = f"""
+                SELECT 
+                    user_id,
+                    COUNT(*) as request_count,
+                    AVG(response_time_ms) as avg_response_time,
+                    COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count,
+                    MAX(created_at) as last_request
+                FROM request_analytics
+                {where_clause}
+                {"AND user_id IS NOT NULL" if where_clause else "WHERE user_id IS NOT NULL"}
+                GROUP BY user_id
+                ORDER BY request_count DESC
+                LIMIT 20
+            """
+            users_rows = await conn.fetch(users_query, *params)
+            
+            # Hourly distribution
+            hourly_query = f"""
+                SELECT 
+                    EXTRACT(HOUR FROM created_at) as hour,
+                    COUNT(*) as request_count,
+                    AVG(response_time_ms) as avg_response_time
+                FROM request_analytics
+                {where_clause}
+                GROUP BY EXTRACT(HOUR FROM created_at)
+                ORDER BY hour
+            """
+            hourly_rows = await conn.fetch(hourly_query, *params)
+            
+            # Daily distribution
+            daily_query = f"""
+                SELECT 
+                    DATE(created_at) as date,
+                    COUNT(*) as request_count,
+                    AVG(response_time_ms) as avg_response_time,
+                    COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count
+                FROM request_analytics
+                {where_clause}
+                GROUP BY DATE(created_at)
+                ORDER BY date DESC
+                LIMIT 30
+            """
+            daily_rows = await conn.fetch(daily_query, *params)
+            
+            # Method distribution
+            method_query = f"""
+                SELECT 
+                    method,
+                    COUNT(*) as request_count,
+                    AVG(response_time_ms) as avg_response_time,
+                    COUNT(CASE WHEN status_code >= 400 THEN 1 END) as error_count
+                FROM request_analytics
+                {where_clause}
+                GROUP BY method
+                ORDER BY request_count DESC
+            """
+            method_rows = await conn.fetch(method_query, *params)
+            
+            # Recent errors
+            errors_query = f"""
+                SELECT 
+                    id,
+                    endpoint,
+                    method,
+                    status_code,
+                    response_time_ms,
+                    error_message,
+                    user_id,
+                    created_at
+                FROM request_analytics
+                {where_clause}
+                {"AND (error_message IS NOT NULL OR status_code >= 400)" if where_clause else "WHERE error_message IS NOT NULL OR status_code >= 400"}
+                ORDER BY created_at DESC
+                LIMIT 50
+            """
+            errors_rows = await conn.fetch(errors_query, *params)
+            
+            # Performance percentiles
+            percentile_query = f"""
+                SELECT 
+                    percentile_cont(0.5) WITHIN GROUP (ORDER BY response_time_ms) as p50,
+                    percentile_cont(0.95) WITHIN GROUP (ORDER BY response_time_ms) as p95,
+                    percentile_cont(0.99) WITHIN GROUP (ORDER BY response_time_ms) as p99
+                FROM request_analytics
+                {where_clause}
+            """
+            percentile_row = await conn.fetchrow(percentile_query, *params)
+
+        response_data = {
+            "overview": {
+                "total_requests": stats_row["total_requests"],
+                "successful_requests": stats_row["successful_requests"],
+                "failed_requests": stats_row["failed_requests"],
+                "error_requests": stats_row["error_requests"],
+                "success_rate": round((stats_row["successful_requests"] / stats_row["total_requests"]) * 100, 2) if stats_row["total_requests"] > 0 else 0,
+                "avg_response_time": round(stats_row["avg_response_time"], 2) if stats_row["avg_response_time"] else 0,
+                "max_response_time": stats_row["max_response_time"],
+                "min_response_time": stats_row["min_response_time"],
+                "total_data_transferred": stats_row["total_data_transferred"],
+                "unique_users": stats_row["unique_users"],
+                "unique_endpoints": stats_row["unique_endpoints"],
+                "ai_parser_requests": stats_row["ai_parser_requests"] or 0,
+                "avg_ai_parser_tokens": round(stats_row["avg_ai_parser_tokens"], 2) if stats_row["avg_ai_parser_tokens"] else 0,
+                "max_ai_parser_tokens": stats_row["max_ai_parser_tokens"] or 0,
+                "min_ai_parser_tokens": stats_row["min_ai_parser_tokens"] or 0,
+                "total_ai_parser_tokens": stats_row["total_ai_parser_tokens"] or 0
+            },
+            "status_distribution": [{"status_code": row["status_code"], "count": row["count"], "avg_time": round(row["avg_time"], 2) if row["avg_time"] else 0} for row in status_rows],
+            "top_endpoints": [{
+                "endpoint": row["endpoint"],
+                "method": row["method"],
+                "request_count": row["request_count"],
+                "avg_response_time": round(row["avg_response_time"], 2) if row["avg_response_time"] else 0,
+                "error_count": row["error_count"],
+                "error_rate": round((row["error_count"] / row["request_count"]) * 100, 2) if row["request_count"] > 0 else 0,
+                "total_data": row["total_data"]
+            } for row in endpoints_rows],
+            "top_users": [{
+                "user_id": row["user_id"],
+                "request_count": row["request_count"],
+                "avg_response_time": round(row["avg_response_time"], 2) if row["avg_response_time"] else 0,
+                "error_count": row["error_count"],
+                "last_request": row["last_request"].isoformat() if row["last_request"] else None
+            } for row in users_rows],
+            "hourly_distribution": [{"hour": int(row["hour"]), "request_count": row["request_count"], "avg_response_time": round(row["avg_response_time"], 2) if row["avg_response_time"] else 0} for row in hourly_rows],
+            "daily_distribution": [{
+                "date": row["date"].isoformat(),
+                "request_count": row["request_count"],
+                "avg_response_time": round(row["avg_response_time"], 2) if row["avg_response_time"] else 0,
+                "error_count": row["error_count"]
+            } for row in daily_rows],
+            "method_distribution": [{
+                "method": row["method"],
+                "request_count": row["request_count"],
+                "avg_response_time": round(row["avg_response_time"], 2) if row["avg_response_time"] else 0,
+                "error_count": row["error_count"]
+            } for row in method_rows],
+            "recent_errors": [{
+                "id": row["id"],
+                "endpoint": row["endpoint"],
+                "method": row["method"],
+                "status_code": row["status_code"],
+                "response_time_ms": row["response_time_ms"],
+                "error_message": row["error_message"],
+                "user_id": row["user_id"],
+                "created_at": row["created_at"].isoformat()
+            } for row in errors_rows],
+            "performance_percentiles": {
+                "p50": round(percentile_row["p50"], 2) if percentile_row["p50"] else 0,
+                "p95": round(percentile_row["p95"], 2) if percentile_row["p95"] else 0,
+                "p99": round(percentile_row["p99"], 2) if percentile_row["p99"] else 0
+            }
+        }
+        
+        print(f"=== DASHBOARD DEBUG: Final response ===")
+        print(f"Response overview: {response_data['overview']}")
+        print(f"Status distribution count: {len(response_data['status_distribution'])}")
+        print(f"Top endpoints count: {len(response_data['top_endpoints'])}")
+        print(f"=== END FINAL RESPONSE ===")
+        
+        return response_data
+    except Exception as e:
+        logger.error(f"Error fetching analytics dashboard: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch analytics data")
+
+
+@app.get("/api/custom/analytics/requests", response_model=List[RequestAnalytics])
+async def get_analytics_requests(
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(50, ge=1, le=1000, description="Items per page"),
+    date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    status_code: Optional[int] = Query(None, description="Filter by status code"),
+    method: Optional[str] = Query(None, description="Filter by HTTP method"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    user_id: Optional[str] = Query(None, description="Filter by user ID"),
+    min_response_time: Optional[int] = Query(None, description="Minimum response time in ms"),
+    max_response_time: Optional[int] = Query(None, description="Maximum response time in ms"),
+    has_error: Optional[bool] = Query(None, description="Filter by error status"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get paginated request analytics with filters"""
+    try:
+        # Build WHERE clause
+        conditions = []
+        params = []
+        param_count = 0
+        
+        if date_from:
+            param_count += 1
+            conditions.append(f"created_at >= ${param_count}")
+            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+            params.append(start_datetime)
+        
+        if date_to:
+            param_count += 1
+            conditions.append(f"created_at <= ${param_count}")
+            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
+            params.append(end_datetime)
+        
+        if status_code is not None:
+            param_count += 1
+            conditions.append(f"status_code = ${param_count}")
+            params.append(status_code)
+        
+        if method:
+            param_count += 1
+            conditions.append(f"method = ${param_count}")
+            params.append(method)
+        
+        if endpoint:
+            param_count += 1
+            conditions.append(f"endpoint ILIKE ${param_count}")
+            params.append(f"%{endpoint}%")
+        
+        if user_id:
+            param_count += 1
+            conditions.append(f"user_id = ${param_count}")
+            params.append(user_id)
+        
+        if min_response_time is not None:
+            param_count += 1
+            conditions.append(f"response_time_ms >= ${param_count}")
+            params.append(min_response_time)
+        
+        if max_response_time is not None:
+            param_count += 1
+            conditions.append(f"response_time_ms <= ${param_count}")
+            params.append(max_response_time)
+        
+        if has_error is not None:
+            if has_error:
+                conditions.append("(error_message IS NOT NULL OR status_code >= 400)")
+            else:
+                conditions.append("(error_message IS NULL AND status_code < 400)")
+        
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+        
+        # Calculate offset
+        offset = (page - 1) * limit
+        
+        # Build query
+        query = f"""
+            SELECT 
+                id, endpoint, method, user_id, status_code, 
+                response_time_ms, request_size_bytes, response_size_bytes,
+                error_message, created_at
+            FROM request_analytics
+            {where_clause}
+            ORDER BY created_at DESC
+            LIMIT ${param_count + 1} OFFSET ${param_count + 2}
+        """
+        params.extend([limit, offset])
+        
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, *params)
+            
+            return [RequestAnalytics(**dict(row)) for row in rows]
+            
+    except Exception as e:
+        logger.error(f"Error fetching analytics requests: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch request data")
+
+
+@app.get("/api/custom/analytics/export")
+async def export_analytics_data(
+    date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
+    method: Optional[str] = Query(None, description="Filter by HTTP method"),
+    status_code: Optional[int] = Query(None, description="Filter by status code"),
+    format: str = Query("csv", description="Export format (csv or json)"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Export analytics data as CSV or JSON"""
+    try:
+        # Build comprehensive filter with proper datetime conversion including timezone
+        conditions = []
+        params = []
+        param_count = 0
+        
+        if date_from:
+            param_count += 1
+            conditions.append(f"created_at >= ${param_count}")
+            start_datetime = datetime.strptime(date_from, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
+            params.append(start_datetime)
+        
+        if date_to:
+            param_count += 1
+            conditions.append(f"created_at <= ${param_count}")
+            end_datetime = datetime.strptime(date_to, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=timezone.utc)
+            params.append(end_datetime)
+        
+        if endpoint:
+            param_count += 1
+            conditions.append(f"endpoint ILIKE ${param_count}")
+            params.append(f"%{endpoint}%")
+        
+        if method:
+            param_count += 1
+            conditions.append(f"method = ${param_count}")
+            params.append(method.upper())
+        
+        if status_code is not None:
+            param_count += 1
+            conditions.append(f"status_code = ${param_count}")
+            params.append(status_code)
+        
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+
+        async with pool.acquire() as conn:
+            query = f"""
+                SELECT 
+                    id, endpoint, method, user_id, status_code, 
+                    response_time_ms, request_size_bytes, response_size_bytes,
+                    error_message, created_at
+                FROM request_analytics
+                {where_clause}
+                ORDER BY created_at DESC
+            """
+            rows = await conn.fetch(query, *params)
+            
+            if format.lower() == "csv":
+                import csv
+                import io
+                
+                output = io.StringIO()
+                writer = csv.writer(output)
+                
+                # Write header
+                writer.writerow([
+                    "ID", "Endpoint", "Method", "User ID", "Status Code",
+                    "Response Time (ms)", "Request Size (bytes)", "Response Size (bytes)",
+                    "Error Message", "Created At"
+                ])
+                
+                # Write data
+                for row in rows:
+                    writer.writerow([
+                        row["id"], row["endpoint"], row["method"], row["user_id"],
+                        row["status_code"], row["response_time_ms"],
+                        row["request_size_bytes"], row["response_size_bytes"],
+                        row["error_message"], row["created_at"].isoformat()
+                    ])
+                
+                return StreamingResponse(
+                    io.BytesIO(output.getvalue().encode()),
+                    media_type="text/csv",
+                    headers={"Content-Disposition": f"attachment; filename=analytics_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"}
+                )
+            else:
+                # JSON format
+                data = [{
+                    "id": row["id"],
+                    "endpoint": row["endpoint"],
+                    "method": row["method"],
+                    "user_id": row["user_id"],
+                    "status_code": row["status_code"],
+                    "response_time_ms": row["response_time_ms"],
+                    "request_size_bytes": row["request_size_bytes"],
+                    "response_size_bytes": row["response_size_bytes"],
+                    "error_message": row["error_message"],
+                    "created_at": row["created_at"].isoformat()
+                } for row in rows]
+                
+                return JSONResponse(
+                    content=data,
+                    headers={"Content-Disposition": f"attachment; filename=analytics_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"}
+                )
+                
+    except Exception as e:
+        logger.error(f"Error exporting analytics data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to export analytics data")
+
+
+@app.get("/api/custom/health")
+async def health_check():
+    return {"status": "healthy"}
+
+HeadlineBlock.model_rebuild()
+ParagraphBlock.model_rebuild()
+AlertBlock.model_rebuild()
+SectionBreakBlock.model_rebuild()
+BulletListBlock.model_rebuild()
+NumberedListBlock.model_rebuild()
+PdfLessonDetails.model_rebuild()
+TextPresentationDetails.model_rebuild()
+QuizData.model_rebuild()
+ProjectDB.model_rebuild()
+MicroProductApiResponse.model_rebuild()
+ProjectDetailForEditResponse.model_rebuild()
+ProjectUpdateRequest.model_rebuild()
+TrainingPlanDetails.model_rebuild()
+
+# ========================= Wizard Course Outline Endpoints =========================
+
+class OutlineWizardPreview(BaseModel):
+    prompt: str
+    modules: int
+    lessonsPerModule: str
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+    # NEW: full markdown string of the current outline so the assistant can apply
+    # targeted changes when the user sends an incremental "edit" prompt.
+    originalOutline: Optional[str] = None
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+    theme: Optional[str] = None  # Selected theme from frontend
+
+class OutlineWizardFinalize(BaseModel):
+    prompt: str
+    modules: int
+    lessonsPerModule: str
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+    editedOutline: Dict[str, Any]
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+    theme: Optional[str] = None  # Selected theme from frontend
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+
+_CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
+
+async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
+    """Return persona id of the default ContentBuilder assistant (cached).
+    
+    Args:
+        cookies: Authentication cookies
+        use_search_persona: If True, return the Search persona (ID 0) instead of ContentBuilder
+    """
+    # If Knowledge Base search is requested, use Search persona (ID 0)
+    if use_search_persona:
+        logger.info(f"[PERSONA_SELECTION] Using Search persona (ID 0) for Knowledge Base search")
+        return 0
+    
+    global _CONTENTBUILDER_PERSONA_CACHE
+    if _CONTENTBUILDER_PERSONA_CACHE is not None:
+        return _CONTENTBUILDER_PERSONA_CACHE
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(f"{ONYX_API_SERVER_URL}/persona", cookies=cookies)
+        resp.raise_for_status()
+        personas = resp.json()
+        # naive: first persona marked is_default_persona and has name 'ContentBuilder'
+        for p in personas:
+            if p.get("is_default_persona") or "contentbuilder" in p.get("name", "").lower():
+                _CONTENTBUILDER_PERSONA_CACHE = p["id"]
+                return _CONTENTBUILDER_PERSONA_CACHE
+    raise HTTPException(status_code=500, detail="Could not locate ContentBuilder persona")
+
+async def create_onyx_chat_session(persona_id: int, cookies: Dict[str, str]) -> str:
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post(
+            f"{ONYX_API_SERVER_URL}/chat/create-chat-session",
+            json={"persona_id": persona_id, "description": None},
+            cookies=cookies,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("chat_session_id") or data.get("chatSessionId")
+
+async def stream_chat_message(chat_session_id: str, message: str, cookies: Dict[str, str], enable_search: bool = False) -> str:
+    """Send message via Onyx and return the full answer, handling both streaming and non-streaming responses."""
+    logger.info(f"[stream_chat_message] chat_id={chat_session_id} len(message)={len(message)} enable_search={enable_search}")
+
+    # Use longer timeout for Knowledge Base searches
+    timeout_duration = 600.0 if enable_search else 300.0
+    async with httpx.AsyncClient(timeout=timeout_duration) as client:
+        # Enable search when needed for Knowledge Base searches
+        retrieval_options = {
+            "run_search": "always" if enable_search else "never",
+            "real_time": False,
+        }
+        payload = {
+            "chat_session_id": chat_session_id,
+            "message": message,
+            "parent_message_id": None,
+            "file_descriptors": [],
+            "user_file_ids": [],
+            "user_folder_ids": [],
+            "prompt_id": None,
+            "search_doc_ids": None,
+            "retrieval_options": retrieval_options,
+            "stream_response": False,
+        }
+        # Prefer the non-streaming simplified endpoint if available (much faster and avoids nginx timeouts)
+        simple_url = f"{ONYX_API_SERVER_URL}/chat/send-message-simple-api"
+        logger.debug(f"[stream_chat_message] POST {simple_url} (preferred) ...")
+        try:
+            resp = await client.post(simple_url, json=payload, cookies=cookies)
+            if resp.status_code == 404:
+                raise HTTPStatusError("simple api not found", request=resp.request, response=resp)
+        except HTTPStatusError:
+            logger.debug("[stream_chat_message] simple-api not available, falling back to generic endpoint")
+            # Fallback to the generic endpoint (may stream)
+            resp = await client.post(
+                f"{ONYX_API_SERVER_URL}/chat/send-message",
+                json=payload,
+                cookies=cookies,
+            )
+        logger.info(f"[stream_chat_message] Response status={resp.status_code} ctype={resp.headers.get('content-type')}")
+        resp.raise_for_status()
+        # Depending on deployment, Onyx may return SSE stream or JSON.
+        ctype = resp.headers.get("content-type", "")
+        if ctype.startswith("text/event-stream"):
+            logger.info(f"[stream_chat_message] Processing streaming response...")
+            full_answer = ""
+            line_count = 0
+            done_received = False
+            
+            async for line in resp.aiter_lines():
+                line_count += 1
+                if not line:
+                    continue
+                    
+                if not line.startswith("data: "):
+                    logger.debug(f"[stream_chat_message] Skipping non-data line: {line[:100]}")
+                    continue
+                    
+                payload_text = line.removeprefix("data: ").strip()
+                if payload_text == "[DONE]":
+                    logger.info(f"[stream_chat_message] Received [DONE] signal after {line_count} lines")
+                    done_received = True
+                    break
+                    
+                try:
+                    packet = json.loads(payload_text)
+                except Exception as e:
+                    logger.debug(f"[stream_chat_message] Failed to parse JSON: {payload_text[:100]} - {e}")
+                    continue
+                    
+                if packet.get("answer_piece"):
+                    answer_piece = packet["answer_piece"]
+                    full_answer += answer_piece
+                    if len(full_answer) % 500 == 0:  # Log progress every 500 chars
+                        logger.debug(f"[stream_chat_message] Accumulated {len(full_answer)} chars so far...")
+                        
+            logger.info(f"[stream_chat_message] Streaming completed. Total chars: {len(full_answer)}, Lines processed: {line_count}, Done received: {done_received}")
+            return full_answer
+        # Fallback JSON response
+        try:
+            data = resp.json()
+            return data.get("answer") or data.get("answer_citationless") or ""
+        except Exception:
+            return resp.text.strip()
+
+# ------------ utility to parse markdown outline (very simple) -------------
+
+def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
+    """Parse the markdown outline produced by the assistant into a lightweight
+    list-of-modules representation expected by the wizard UI.
+
+    Enhanced to handle various markdown formats and create intelligent module divisions.
+    """
+    logger.info(f"[PARSE_OUTLINE] Starting parse with input length: {len(md)}")
+    logger.info(f"[PARSE_OUTLINE] Input preview: {md[:200]}{'...' if len(md) > 200 else ''}")
+    
+    modules: List[Dict[str, Any]] = []
+    current: Optional[Dict[str, Any]] = None
+
+    list_item_regex = re.compile(r"^(?:- |\* |\d+\.)")
+    _buf: List[str] = []  # buffer for current lesson lines
+
+    def flush_current_lesson(buf: List[str]) -> Optional[str]:
+        """Combine buffered lines into a single lesson string."""
+        if not buf:
+            return None
+        return "\n".join(buf)
+
+    lines_processed = 0
+    for raw_line in md.splitlines():
+        lines_processed += 1
+        if not raw_line.strip():
+            continue  # skip empty lines
+
+        indent = len(raw_line) - len(raw_line.lstrip())
+        line = raw_line.lstrip()
+
+        # Enhanced module detection - look for ## headers OR ### headers OR "Module" patterns
+        is_module_header = (
+            line.startswith("## ") or 
+            (line.startswith("# ") and "module" in line.lower()) or
+            line.startswith("**Module") or
+            re.match(r"^Module\s+\d+", line, re.IGNORECASE)
+        )
+        
+        if is_module_header:
+            # flush any buffered lesson into previous module before switching
+            if current:
+                last_lesson = flush_current_lesson(_buf)
+                if last_lesson:
+                    current["lessons"].append(last_lesson)
+                _buf = []
+
+            # Extract title from various formats
+            title_part = line.lstrip("#* ").strip()
+            if ":" in title_part:
+                title_part = title_part.split(":", 1)[-1].strip()
+            if title_part.lower().startswith("module"):
+                # Keep the "Module X:" format if present
+                pass
+            
+            current = {
+                "id": f"mod{len(modules) + 1}",
+                "title": title_part,
+                "totalHours": 0.0,
+                "lessons": [],
+            }
+            modules.append(current)
+            logger.debug(f"[PARSE_OUTLINE] Found module: {title_part}")
+            continue
+
+        # Lesson detection – only consider top-level list items (indent == 0)
+        if current:
+            # Note: Total Time lines are now auto-calculated from lesson creation times
+            # We still capture them for backward compatibility but will recalculate
+            m_time = re.match(r"(?:Total Time|Общее время|Загальний час)\s*:\s*([0-9]+(?:\.[0-9]+)?)", line, re.IGNORECASE)
+            if m_time:
+                try:
+                    # Store the original value for backward compatibility, but we'll recalculate
+                    current["originalTotalHours"] = float(m_time.group(1))
+                except ValueError:
+                    pass  # leave default 0.0 if parsing fails
+
+            if indent == 0 and list_item_regex.match(line):
+                # Starting a new top-level lesson → flush previous buffer
+                ls_string = flush_current_lesson(_buf) if '_buf' in locals() else None
+                if ls_string:
+                    current["lessons"].append(ls_string)
+                _buf = []  # reset buffer for new lesson
+
+                lesson_title = re.sub(r"^(?:- |\* |\d+\.\s*)", "", line).strip()
+                if lesson_title.startswith("**") and "**" in lesson_title[2:]:
+                    lesson_title = lesson_title.split("**", 2)[1].strip()
+                _buf.append(lesson_title)
+                logger.debug(f"[PARSE_OUTLINE] Found lesson: {lesson_title}")
+                continue
+            elif current.get('lessons') is not None and '_buf' in locals():
+                # inside a lesson details block (indented)
+                if indent > 0:
+                    _buf.append(line)
+                continue
+
+    # flush buffer after loop to whichever module is active
+    if current:
+        last_lesson = flush_current_lesson(_buf)
+        if last_lesson:
+            current["lessons"].append(last_lesson)
+
+    logger.info(f"[PARSE_OUTLINE] After main parsing: {len(modules)} modules found, {lines_processed} lines processed")
+
+    # Enhanced fallback when no module headings present
+    if not modules:
+        logger.warning(f"[PARSE_OUTLINE] No modules found, using intelligent fallback parsing")
+        
+        # Collect all lessons first
+        all_lessons = []
+        for raw_line in md.splitlines():
+            if not raw_line.strip():
+                continue
+            indent = len(raw_line) - len(raw_line.lstrip())
+            line = raw_line.lstrip()
+            if indent == 0 and list_item_regex.match(line):
+                txt = re.sub(r"^(?:- |\* |\d+\.\s*)", "", line).strip()
+                if txt.startswith("**") and "**" in txt[2:]:
+                    txt = txt.split("**", 2)[1].strip()
+                all_lessons.append(txt)
+        
+        # If we have lessons, try to intelligently divide them into modules
+        if all_lessons:
+            logger.info(f"[PARSE_OUTLINE] Found {len(all_lessons)} lessons for intelligent division")
+            
+            # Try to determine intended module count from lesson separators or natural breaks
+            separator_indices = []
+            for i, lesson in enumerate(all_lessons):
+                if "---" in lesson or lesson.strip() == "---":
+                    separator_indices.append(i)
+            
+            if separator_indices:
+                # Use separator-based division
+                logger.info(f"[PARSE_OUTLINE] Using separator-based division with {len(separator_indices)} separators")
+                start_idx = 0
+                for module_num, sep_idx in enumerate(separator_indices + [len(all_lessons)], 1):
+                    if start_idx < sep_idx:
+                        module_lessons = [l for l in all_lessons[start_idx:sep_idx] if "---" not in l]
+                        if module_lessons:  # Only create module if it has lessons
+                            module = {
+                                "id": f"mod{module_num}",
+                                "title": f"Module {module_num}",
+                                "totalHours": 0.0,
+                                "lessons": module_lessons
+                            }
+                            modules.append(module)
+                    start_idx = sep_idx + 1
+            else:
+                # Intelligently divide lessons into reasonable groups (3-5 lessons per module)
+                target_lessons_per_module = 4
+                num_modules = max(1, min(6, (len(all_lessons) + target_lessons_per_module - 1) // target_lessons_per_module))
+                lessons_per_module = len(all_lessons) // num_modules
+                remainder = len(all_lessons) % num_modules
+                
+                logger.info(f"[PARSE_OUTLINE] Dividing {len(all_lessons)} lessons into {num_modules} modules (~{lessons_per_module} lessons each)")
+                
+                start_idx = 0
+                for module_num in range(1, num_modules + 1):
+                    # Add one extra lesson to some modules to handle remainder
+                    current_module_size = lessons_per_module + (1 if module_num <= remainder else 0)
+                    end_idx = start_idx + current_module_size
+                    
+                    module_lessons = all_lessons[start_idx:end_idx]
+                    if module_lessons:  # Only create module if it has lessons
+                        module = {
+                            "id": f"mod{module_num}",
+                            "title": f"Module {module_num}",
+                            "totalHours": 0.0,
+                            "lessons": module_lessons
+                        }
+                        modules.append(module)
+                    start_idx = end_idx
+        
+        # Last resort fallback - create single module with all content
+        if not modules:
+            logger.warning(f"[PARSE_OUTLINE] No lessons found, dumping all non-empty lines")
+            tmp_module = {"id": "mod1", "title": "Course Content", "lessons": [], "totalHours": 0.0}
+            tmp_module["lessons"] = [l.strip() for l in md.splitlines() if l.strip()]
+            modules.append(tmp_module)
+        
+        logger.info(f"[PARSE_OUTLINE] Intelligent fallback created {len(modules)} modules")
+
+    logger.info(f"[PARSE_OUTLINE] Final result: {len(modules)} modules")
+    
+    # Auto-calculate total creation time for each module by summing lesson creation times
+    for i, module in enumerate(modules):
+        logger.info(f"[PARSE_OUTLINE] Module {i+1}: '{module.get('title', 'No title')}' with {len(module.get('lessons', []))} lessons")
+        
+        # Calculate total creation time from lesson creation times
+        total_creation_hours = 0.0
+        lessons = module.get('lessons', [])
+        
+        for lesson in lessons:
+            if isinstance(lesson, str):
+                # Parse lesson details from markdown format
+                lesson_lines = lesson.split('\n')
+                for line in lesson_lines:
+                    # Look for Time field in markdown format: "- **Time**: 17h" or "- **Время**: 17h" or "- **Час**: 17h"
+                    time_match = re.search(r'^\s*-\s*\*\*(?:Time|Время|Час)\*\*:\s*([0-9]+(?:\.[0-9]+)?)h?\s*$', line.strip())
+                    if time_match:
+                        try:
+                            hours = float(time_match.group(1))
+                            total_creation_hours += hours
+                            logger.debug(f"[PARSE_OUTLINE] Found lesson time: {hours}h")
+                        except (ValueError, TypeError):
+                            logger.warning(f"[PARSE_OUTLINE] Could not parse lesson time from line: {line}")
+        
+        # Set the auto-calculated total hours
+        module['totalHours'] = total_creation_hours
+        logger.info(f"[PARSE_OUTLINE] Module {i+1} auto-calculated totalHours: {total_creation_hours}")
+
+    return modules
+
+# ----------------------- ENDPOINTS ---------------------------------------
+
+@app.post("/api/custom/course-outline/preview")
+async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
+    logger.info(f"[PREVIEW_START] Course outline preview initiated")
+    logger.info(f"[PREVIEW_PARAMS] prompt='{payload.prompt[:50]}...' modules={payload.modules} lessonsPerModule={payload.lessonsPerModule} lang={payload.language}")
+    logger.info(f"[PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
+    logger.info(f"[PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    logger.info(f"[PREVIEW_PARAMS] chatSessionId={payload.chatSessionId}")
+    logger.info(f"[PREVIEW_PARAMS] originalOutline length={len(payload.originalOutline) if payload.originalOutline else 0}")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+    logger.info(f"[PREVIEW_AUTH] Cookie value: {cookies[ONYX_SESSION_COOKIE_NAME][:20] if cookies[ONYX_SESSION_COOKIE_NAME] else 'None'}...")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[PREVIEW_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[PREVIEW_CHAT] Creating new chat session")
+        try:
+            logger.info(f"[PREVIEW_CHAT] Attempting to get contentbuilder persona ID")
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
+            logger.info(f"[PREVIEW_CHAT] Attempting to create Onyx chat session")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[PREVIEW_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[PREVIEW_CHAT_ERROR] Failed to create chat session: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    logger.info(f"[PREVIEW_PAYLOAD] Building wizard payload")
+    wiz_payload = {
+        "product": "Course Outline",
+        "prompt": payload.prompt,
+        "language": payload.language,
+    }
+    logger.info(f"[PREVIEW_PAYLOAD] Base payload created with product={wiz_payload['product']}, language={wiz_payload['language']}")
+
+    # Add file context if provided
+    if payload.fromFiles:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding file context: fromFiles=True")
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+            logger.info(f"[PREVIEW_PAYLOAD] Added folderIds: {payload.folderIds}")
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+            logger.info(f"[PREVIEW_PAYLOAD] Added fileIds: {payload.fileIds}")
+
+    # Add connector context if provided
+    if payload.fromConnectors:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding connector context: fromConnectors=True")
+        wiz_payload["fromConnectors"] = True
+        if payload.connectorIds:
+            wiz_payload["connectorIds"] = payload.connectorIds
+            logger.info(f"[PREVIEW_PAYLOAD] Added connectorIds: {payload.connectorIds}")
+        if payload.connectorSources:
+            wiz_payload["connectorSources"] = payload.connectorSources
+            logger.info(f"[PREVIEW_PAYLOAD] Added connectorSources: {payload.connectorSources}")
+
+    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    if payload.fromText and payload.userText:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding text context: fromText=True, textMode={payload.textMode}")
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        
+        text_length = len(payload.userText)
+        logger.info(f"[PREVIEW_PAYLOAD] Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        if text_length > LARGE_TEXT_THRESHOLD:
+            # Use virtual file system for large texts to prevent AI memory issues
+            logger.info(f"[PREVIEW_PAYLOAD] Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            try:
+                logger.info(f"[PREVIEW_PAYLOAD] Attempting to create virtual file for large text")
+                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                wiz_payload["virtualFileId"] = virtual_file_id
+                wiz_payload["textCompressed"] = False
+                logger.info(f"[PREVIEW_PAYLOAD] Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+            except Exception as e:
+                logger.error(f"[PREVIEW_PAYLOAD] Failed to create virtual file for large text: {e}", exc_info=True)
+                # Fallback to chunking if virtual file creation fails
+                logger.info(f"[PREVIEW_PAYLOAD] Falling back to chunking for large text")
+                chunks = chunk_text(payload.userText)
+                if len(chunks) == 1:
+                    # Single chunk, use compression
+                    logger.info(f"[PREVIEW_PAYLOAD] Single chunk fallback: using compression")
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
+                    wiz_payload["textCompressed"] = True
+                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    # Multiple chunks, use first chunk with compression
+                    logger.info(f"[PREVIEW_PAYLOAD] Multiple chunks fallback: using first chunk with compression")
+                    first_chunk = chunks[0]
+                    compressed_chunk = compress_text(first_chunk)
+                    wiz_payload["userText"] = compressed_chunk
+                    wiz_payload["textCompressed"] = True
+                    wiz_payload["textChunked"] = True
+                    wiz_payload["totalChunks"] = len(chunks)
+                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
+        elif text_length > TEXT_SIZE_THRESHOLD:
+            # Compress medium text to reduce payload size
+            logger.info(f"[PREVIEW_PAYLOAD] Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
+            compressed_text = compress_text(payload.userText)
+            wiz_payload["userText"] = compressed_text
+            wiz_payload["textCompressed"] = True
+            logger.info(f"[PREVIEW_PAYLOAD] Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+        else:
+            # Use direct text for small content
+            logger.info(f"[PREVIEW_PAYLOAD] Using direct text for small content ({text_length} chars)")
+            wiz_payload["userText"] = payload.userText
+            wiz_payload["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding Knowledge Base context: fromKnowledgeBase=True")
+        wiz_payload["fromKnowledgeBase"] = True
+
+    if payload.originalOutline:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding originalOutline ({len(payload.originalOutline)} chars)")
+        wiz_payload["originalOutline"] = payload.originalOutline
+    else:
+        logger.info(f"[PREVIEW_PAYLOAD] Adding module configuration: modules={payload.modules}, lessonsPerModule={payload.lessonsPerModule}")
+        wiz_payload.update({
+            "modules": payload.modules,
+            "lessonsPerModule": payload.lessonsPerModule,
+        })
+
+    # Decompress text if it was compressed
+    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        logger.info(f"[PREVIEW_PAYLOAD] Decompressing text for assistant")
+        try:
+            decompressed_text = decompress_text(wiz_payload["userText"])
+            wiz_payload["userText"] = decompressed_text
+            wiz_payload["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"[PREVIEW_PAYLOAD] Decompressed text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"[PREVIEW_PAYLOAD] Failed to decompress text: {e}", exc_info=True)
+            # Continue with original text if decompression fails
+    
+    logger.info(f"[PREVIEW_PAYLOAD] Final payload keys: {list(wiz_payload.keys())}")
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    logger.info(f"[PREVIEW_PAYLOAD] Created wizard message ({len(wizard_message)} chars)")
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"[PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
+        logger.info(f"[PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[PREVIEW_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
+            
+            try:
+                # Step 1: Extract context from Onyx
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Course Outline"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # Cache full raw outline for later finalize step
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+                if not assistant_reply.strip():
+                    logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+                    error_packet = {"type": "error", "message": "No content received from AI service"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+
+                logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                try:
+                    modules_preview = _parse_outline_markdown(assistant_reply)
+                    logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
+                    logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+                    
+                    # Validate the parsed result meets basic requirements
+                    validation_passed = True
+                    validation_messages = []
+                    
+                    # Check if we have reasonable number of modules (not just 1 with many lessons)
+                    if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                        validation_passed = False
+                        validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+                    
+                    # Check if we have expected module count (if specified in payload)
+                    expected_modules = getattr(payload, 'modules', None)
+                    if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                        validation_passed = False
+                        validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+                    
+                    if not validation_passed:
+                        logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                        logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                        # Continue anyway but log the issue - the intelligent fallback should have handled it
+                    else:
+                        logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+                    
+                except Exception as e:
+                    logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
+                    logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                    error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    return
+                
+                # Send completion packet with the parsed outline
+                logger.info(f"[PREVIEW_DONE] Creating completion packet")
+                done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+                yield (json.dumps(done_packet) + "\n").encode()
+                logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
+            logger.info(f"[PREVIEW_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            # Enhance the wizard message with formatting requirements for course outlines
+            enhanced_wizard_message = wizard_message
+            if "Course Outline" in wizard_message:
+                enhanced_wizard_message += """
+
+CRITICAL FORMATTING REQUIREMENTS:
+1. Use exactly this structure: ## Module [Number]: [Module Title]
+2. Each module must be a separate H2 header starting with ##
+3. Lessons must be numbered list items (1. 2. 3.) under each module
+
+ENSURE: Create the requested number of modules, not a single module with all lessons.
+"""
+            
+            try:
+                async for chunk_data in stream_openai_response(enhanced_wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+                        logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+            except Exception as e:
+                logger.error(f"[OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+
+        # Cache full raw outline for later finalize step
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+        if not assistant_reply.strip():
+            logger.error(f"[PREVIEW_STREAM] CRITICAL: assistant_reply is empty or whitespace only!")
+            error_packet = {"type": "error", "message": "No content received from AI service"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
+
+        logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+        try:
+            modules_preview = _parse_outline_markdown(assistant_reply)
+            logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
+            logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
+            
+            # Validate the parsed result meets basic requirements
+            validation_passed = True
+            validation_messages = []
+            
+            # Check if we have reasonable number of modules (not just 1 with many lessons)
+            if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                validation_passed = False
+                validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+            
+            # Check if we have expected module count (if specified in payload)
+            expected_modules = getattr(payload, 'modules', None)
+            if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                validation_passed = False
+                validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+            
+            if not validation_passed:
+                logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                # Continue anyway but log the issue - the intelligent fallback should have handled it
+            else:
+                logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+            
+        except Exception as e:
+            logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
+            logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+            error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            return
+        
+                # Send completion packet with the parsed outline
+        logger.info(f"[PREVIEW_DONE] Creating completion packet")
+        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+        yield (json.dumps(done_packet) + "\n").encode()
+        logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
+        return
+                
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )
+
+async def _ensure_training_plan_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_TRAINING_PLAN)
+        if row:
+            return row["id"]
+        # create minimal template
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "Training Plan", DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM, "Training Plan", COMPONENT_NAME_TRAINING_PLAN
+        )
+        return row["id"]
+
+# After you get the parsed content from the AI parser, insert it like this:
+async def insert_ai_audit_onepager_to_db(
+    pool: asyncpg.Pool,
+    onyx_user_id: str,
+    project_name: str,
+    microproduct_content: dict,
+    chat_session_id: str = None
+) -> int:
+    """Insert AI-audit one-pager into database with correct template and component"""
+    
+    # First, ensure we have a Text Presentation template
+    template_id = await _ensure_text_presentation_template(pool)
+    
+    insert_query = """
+    INSERT INTO projects (
+        onyx_user_id, project_name, product_type, microproduct_type,
+        microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)
+    RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id;
+    """
+    
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            insert_query,
+            onyx_user_id,
+            project_name,
+            "Text Presentation",  # product_type
+            "Text Presentation",  # microproduct_type
+            project_name,  # microproduct_name
+            microproduct_content,  # parsed content from AI parser
+            template_id,  # design_template_id (from _ensure_text_presentation_template)
+            chat_session_id,  # source_chat_session_id
+            None,  # folder_id - AI audit doesn't support folder assignment yet
+        )
+    
+    if not row:
+        raise HTTPException(status_code=500, detail="Failed to create AI-audit one-pager project entry.")
+    
+    return row["id"]
+
+
+async def create_audit_folder(pool, onyx_user_id, company_name):
+    async with pool.acquire() as conn:
+        query = """
+        INSERT INTO project_folders (onyx_user_id, name)
+        VALUES ($1, $2)
+        RETURNING id;
+        """
+        row = await conn.fetchrow(query, onyx_user_id, f"AI-Аудит: {company_name}")
+        return row["id"]
+    
+
+async def assign_projects_to_folder(pool, folder_id, project_ids):
+    async with pool.acquire() as conn:
+        await conn.executemany(
+            "UPDATE projects SET folder_id = $1 WHERE id = $2",
+            [(folder_id, pid) for pid in project_ids]
+        )
+
+
+def set_progress(job_id, message):
+    AI_AUDIT_PROGRESS.setdefault(job_id, []).append(message)
+
+
+@app.get("/api/custom/ai-audit/progress")
+async def get_audit_progress(jobId: str):
+    return {"messages": AI_AUDIT_PROGRESS.get(jobId, [])}
+
+
+async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
+    try:
+        with open(example_text_path, encoding="utf-8") as f:
+            example_text = f.read()
+    except Exception as e:
+        logger.error(f"[AI-Audit] Error reading example: {e}")
+        example_text = "(Example not found)"
+    if not duckduckgo_summary or duckduckgo_summary.strip() == "" or duckduckgo_summary.strip().startswith("(Нет релевантных данных"):
+        duck_info = "(DuckDuckGo не дал информации. Используй только анкету.)"
+    else:
+        duck_info = duckduckgo_summary
+    prompt = f"""
+    Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
+
+    ТВОЯ ЗАДАЧА:
+    - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
+    - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
+    - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
+    - Если в примере 5 секций — в твоём ответе тоже должно быть 5 секций с теми же названиями и в том же порядке.
+    - ЗАМЕНИ только данные, относящиеся к компании, на новые из анкеты и поиска.
+    - НЕ сокращай, НЕ добавляй новых секций, НЕ меняй структуру, НЕ меняй форматирование, НЕ меняй количество строк, НЕ меняй количество столбцов в таблицах.
+    - Если не уверен — лучше скопируй больше из примера, чем меньше.
+    - Твой ответ должен быть на 90% буквальной копией примера, только с новыми данными.
+    - Если DuckDuckGo не дал информации, используй только анкету.
+    - Если в примере есть таблица, твоя таблица должна быть с тем же количеством строк и столбцов, только с новыми данными.
+    - Если в примере есть абзац, твой ответ должен содержать такой же абзац на том же месте.
+    - Если в примере есть список, твой ответ должен содержать такой же список с тем же количеством пунктов.
+    - Не меняй ни одну структуру, даже если кажется, что это не подходит — просто замени данные.
+
+    ---
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Сайт компании: {payload.companyWebsite}
+    - Количество сотрудников: {payload.employees}
+    - Франшиза: {payload.franchise}
+    - Проблемы онбординга: {payload.onboardingProblems}
+    - Документы: {', '.join(payload.documents)} {payload.documentsOther}
+    - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
+
+    ---
+    РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (DuckDuckGo):
+    {duck_info}
+
+    ---
+    СКОПИРУЙ ПРИМЕР НИЖЕ, ЗАМЕНИВ ТОЛЬКО ДАННЫЕ О КОМПАНИИ:
+    {example_text}
+
+    Ответь только текстом one-pager по этим правилам, без пояснений.
+    """
+    logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
+    client = get_openai_client()
+    try:
+        # Set a longer timeout for the OpenAI call
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4096,
+            temperature=0.2,
+            timeout=httpx.Timeout(180.0)  # 180 seconds
+        )
+    except Exception as e:
+        logger.error(f"[AI-Audit] OpenAI generation error: {e}", exc_info=True)
+        return {"error": f"Ошибка генерации AI-аудита: {e}"}
+    
+    result = response.choices[0].message.content
+    logger.info(f"[AI-Audit] OpenAI result (first 500 chars): {result[:500]}")
+
+    with open("custom_assistants/content_builder_ai.txt", encoding="utf-8") as f:
+        assistant_instructions = f.read()
+
+    # Compose the parsing prompt
+    parsing_prompt = (
+        f"{assistant_instructions}\n\n"
+        "WIZARD_REQUEST\n"
+        + json.dumps({
+            "product": "Text Presentation",
+            "microproduct": "One-Pager",
+            "prompt": "Приведи этот текст к нужному формату one-pager для ContentBuilder.ai",
+            "language": "ru",
+            "fromText": True,
+            "textMode": "context",
+            "userText": result,
+            "strict": True,
+            "parseMode": "onepager"
+        }, ensure_ascii=False)
+    )
+
+    # Call OpenAI again (use gpt-4o-mini or your preferred model)
+    parsed_response = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Ты профессиональный AI-ассистент для парсинга продуктов ContentBuilder.ai."},
+            {"role": "user", "content": parsing_prompt}
+        ],
+        max_tokens=4096,
+        temperature=0.1,
+        timeout=httpx.Timeout(120.0)
+    )
+    parsed_markdown = parsed_response.choices[0].message.content
+
+    parsed_json = await parse_ai_response_with_llm(
+        ai_response=parsed_markdown,
+        project_name=payload.companyName,
+        target_model=TextPresentationDetails,  # or your one-pager model
+        default_error_model_instance=TextPresentationDetails(textTitle="Parse error", contentBlocks=[]),
+        dynamic_instructions=f"""
+        You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+        This product is for general text like introductions, goal descriptions, etc.
+        Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+        **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
+
+        **Global Fields:**
+        1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+            - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+            - Extract ONLY the title part (the last part after the last "**")
+            - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+            - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+            - Do NOT include the course name or "Text Presentation" label in the title
+            - If no clear pattern is found, use the first meaningful title or heading
+        2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
+        3.  `detectedLanguage` (string): e.g., "en", "ru".
+
+        **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
+        1.  **`type: "headline"`**
+            * `level` (integer):
+                * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+            * `text` (string): Headline text.
+            * `iconName` (string, optional): Based on level and context as described above.
+            * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
+
+        2.  **`type: "paragraph"`**
+            * `text` (string): Full paragraph text.
+            * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
+
+        3.  **`type: "bullet_list"`**
+            * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+            * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
+
+        4.  **`type: "numbered_list"`**
+            * `items` (array of `ListItem`):
+                * Can be simple strings for basic numbered points.
+                * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                    * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                    * The `items` of this *inner* `bullet_list` should then be:
+                        1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                        2. A `paragraph` block (for the main descriptive text).
+                        3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
+
+        5.  **`type: "table"`**
+            * `headers` (array of strings): The column headers for the table.
+            * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+            * `caption` (string, optional): A short description or title for the table, if present in the source text.
+            * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
+
+
+        6.  **`type: "alert"`**
+            *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+            *   `title` (string, optional): The title of the alert.
+            *   `text` (string): The body text of the alert.
+            *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+        7.  **`type: "section_break"`**
+            * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+        **General Parsing Rules & Icon Names:**
+        * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+        * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+        * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+        * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+        * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+        * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+        Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+            • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+            • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+            • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+        Return ONLY the JSON object.
+        """,
+        target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+    )
+    return parsed_json
+
+    
+@app.post("/api/custom/ai-audit/generate")
+async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+    job_id = str(uuid.uuid4())
+    set_progress(job_id, "Starting AI-Audit generation...")
+    background_tasks.add_task(_run_audit_generation, payload, request, pool, job_id)
+    return {"jobId": job_id}
+
+
+async def _run_audit_generation(payload, request, pool, job_id):
+    try:
+        set_progress(job_id, "Researching company info...")
+        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        logger.info(f"[AI-Audit] SERPAPI summary: {duckduckgo_summary[:300]}")
+
+        set_progress(job_id, "Generating first one-pager...")
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        # After you get the parsed content from the AI parser:
+        project_id = await insert_ai_audit_onepager_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=f"AI-Аудит: {payload.companyName}",
+            microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
+            chat_session_id=None
+        )
+
+        logger.info(f"[AI-Audit] Successfully created project with ID: {project_id}")
+
+        set_progress(job_id, "Researching open positions...")
+        positions = extract_open_positions_from_table(parsed_json)
+
+        results = []
+        for position in positions:
+            set_progress(job_id, f"Generating onboarding for '{position.get('Позиция', 'New Position')}'")
+            project = await generate_and_finalize_course_outline_for_position(
+                payload.companyName, position, onyx_user_id, pool, request
+            )
+            results.append(project)
+
+        logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
+
+        set_progress(job_id, "Generating closing one-pager...")
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
+
+        # After you get the parsed content from the AI parser:
+        project_id_2 = await insert_ai_audit_onepager_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=f"AI-Аудит: {payload.companyName} (2)",
+            microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
+            chat_session_id=None
+        )
+
+        logger.info(f"[AI-Audit] Successfully created project with ID: {project_id_2}")
+
+        set_progress(job_id, "Finalizing and saving to folder...")
+        all_project_ids = [project_id] + [p.id for p in results] + [project_id_2]
+
+        # 1. Create a new folder
+        folder_id = await create_audit_folder(pool, onyx_user_id, payload.companyName)
+
+        # 2. Assign all projects to this folder
+        await assign_projects_to_folder(pool, folder_id, all_project_ids)
+
+        set_progress(job_id, "AI-Audit complete!")
+        logger.info(f"[AI-Audit] Finished the AI-Audit Generation")
+        return {
+            "id": project_id,
+            "id_2": project_id_2,
+            "name": f"AI-Аудит: {payload.companyName}",
+            "folderId": folder_id
+        }
+    
+    except Exception as e:
+        set_progress(job_id, f"Error: {str(e)}")
+    
+
+def extract_open_positions_from_table(parsed_json):
+    """
+    Extracts open positions from a TableBlock in parsed_json.contentBlocks.
+    Returns a list of dicts, one per position, with keys matching the table headers.
+    Removes trailing '*' from header keys.
+    """
+    def clean_key(key):
+        # Remove all trailing and leading '*' and whitespace
+        return key.strip().rstrip("*").lstrip("*").strip()
+
+    for block in getattr(parsed_json, "contentBlocks", []):
+        if getattr(block, "type", None) == "table":
+            headers = getattr(block, "headers", [])
+            rows = getattr(block, "rows", [])
+            # Normalize header names for easier matching
+            header_map = {clean_key(h).lower(): i for i, h in enumerate(headers)}
+            print("HEADER MAP:", header_map)
+            if "позиция" in header_map:
+                positions = []
+                for row in rows:
+                    position = {clean_key(headers[i]): row[i] for i in range(min(len(headers), len(row)))}
+                    positions.append(position)
+
+                return positions
+    return []
+
+
+async def generate_and_finalize_course_outline_for_position(
+    company_name: str,
+    position: dict,
+    onyx_user_id: str,
+    pool,
+    request: Request,
+    language: str = "ru"):
+    # 1. Build the prompt for the LLM
+    wizard_request = {
+        "product": "Course Outline",
+        "prompt": (
+            f"Создай курс аутлайн 'Онбординг для должности {position['Позиция']}' для новых сотрудников этой должности в компании '{company_name}'. \n"
+            f"Структура должна охватывать все аспекты работы сотрудника на этой должности в данной среде. Не включай аспекты работы других должностей, только то, что касается должности '{position['Позиция']}'. \n"
+        ),
+        "modules": 4,
+        "lessonsPerModule": "5-7",
+        "language": language
+    }
+    # Convert to JSON string for the LLM
+    prompt = json.dumps(wizard_request, ensure_ascii=False)
+
+    outline_text = ""
+    async for chunk_data in stream_openai_response(prompt):
+        if chunk_data.get("type") == "delta":
+            outline_text += chunk_data["text"]
+        elif chunk_data.get("type") == "error":
+            raise Exception(f"OpenAI error: {chunk_data['text']}")
+
+
+    # 4. Finalize/save the project (reuse add_project_to_custom_db)
+    template_id = await _ensure_training_plan_template(pool)
+
+    project_data = ProjectCreateRequest(
+        projectName=f"Онбординг: {position['Позиция']}",
+        design_template_id=template_id,
+        microProductName=f"Онбординг: {position['Позиция']}",
+        aiResponse=outline_text,
+        chatSessionId=None
+    )
+    project_db_candidate = await add_project_to_custom_db(
+        project_data=project_data,
+        onyx_user_id=onyx_user_id,
+        pool=pool
+    )
+
+    try:
+        async with pool.acquire() as conn:
+            # Convert Pydantic model to dictionary for processing
+            content = project_db_candidate.microproduct_content.model_dump(mode='json', exclude_none=True) if project_db_candidate.microproduct_content else {}
+            
+            if isinstance(content, dict) and content.get("sections"):
+                sections = content["sections"]
+                updated_sections = []
+                
+                for section in sections:
+                    if isinstance(section, dict) and section.get("lessons"):
+                        # Ensure each lesson has proper hours value and completionTime (default to 1 hour and 5m if missing)
+                        updated_lessons = []
+                        for lesson in section["lessons"]:
+                            if isinstance(lesson, dict):
+                                # Set default hours if missing or zero
+                                if lesson.get("hours", 0) == 0:
+                                    lesson["hours"] = 1
+                                # Set default completionTime if missing
+                                if not lesson.get("completionTime"):
+                                    lesson["completionTime"] = "5m"
+                                # Ensure all required lesson fields are present
+                                lesson.setdefault("check", {"type": "none", "text": ""})
+                                # Set content coverage based on source
+                                source = lesson.get("source", "Create from scratch")
+                                content_available = {"type": "yes", "text": "0%"} if source == "Create from scratch" else {"type": "yes", "text": "0%"}
+                                lesson.setdefault("contentAvailable", content_available)
+                                lesson.setdefault("source", source)
+                                # Populate recommended content types if missing
+                                try:
+                                    existing_flags = {
+                                        "presentation": False,
+                                        "one-pager": False,
+                                        "quiz": False,
+                                        "video-lesson": False,
+                                    }
+                                    recommendations = analyze_lesson_content_recommendations(
+                                        lesson.get("title", ""),
+                                        lesson.get("quality_tier") or section.get("quality_tier") or content.get("quality_tier"),
+                                        existing_flags
+                                    )
+                                    lesson.setdefault("recommended_content_types", recommendations)
+                                    # Update completionTime from recommendations
+                                    try:
+                                        lesson["completionTime"] = compute_completion_time_from_recommendations(recommendations.get("primary", []))
+                                        # Also generate completion_breakdown for advanced mode support
+                                        primary = recommendations.get("primary", [])
+                                        ranges = {
+                                            'one-pager': (2,3),
+                                            'presentation': (5,10),
+                                            'quiz': (5,7),
+                                            'video-lesson': (2,5),
+                                        }
+                                        breakdown = {}
+                                        total_m = 0
+                                        for p in primary:
+                                            r = ranges.get(p)
+                                            if r:
+                                                mid = int(round((r[0]+r[1])/2))
+                                                breakdown[p] = mid
+                                                total_m += mid
+                                        if total_m > 0:
+                                            lesson['completion_breakdown'] = breakdown
+                                    except Exception:
+                                        lesson.setdefault("completionTime", "5m")
+                                except Exception:
+                                    pass
+                                updated_lessons.append(lesson)
+                            else:
+                                # If lesson is just a string, convert to proper structure
+                                updated_lessons.append({
+                                    "title": str(lesson),
+                                    "check": {"type": "none", "text": ""},
+                                    "contentAvailable": {"type": "yes", "text": "0%"},
+                                    "source": "Create from scratch",
+                                    "hours": 1,
+                                    "recommended_content_types": analyze_lesson_content_recommendations(str(lesson), content.get("quality_tier"), {"presentation": False, "one-pager": False, "quiz": False, "video-lesson": False})
+                                })
+                        
+                        # Calculate total hours from lesson hours
+                        total_hours = sum(lesson.get("hours", 0) for lesson in updated_lessons)
+                        
+                        # Update section with calculated total hours and set autoCalculateHours to true
+                        updated_section = {
+                            **section,
+                            "lessons": updated_lessons,
+                            "totalHours": total_hours,
+                            "autoCalculateHours": True
+                        }
+                        # Ensure section has proper ID if missing
+                        if not updated_section.get("id"):
+                            updated_section["id"] = f"№{len(updated_sections) + 1}"
+                        updated_sections.append(updated_section)
+                    else:
+                        updated_sections.append(section)
+                
+                # Update the project with recalculated totals and ensure mainTitle and detectedLanguage
+                if updated_sections:
+                    updated_content = {
+                        **content, 
+                        "sections": updated_sections,
+                        "mainTitle": content.get("mainTitle") or f"Онбординг: {position['Позиция']}",
+                        "detectedLanguage": content.get("detectedLanguage") or language
+                    }
+                    await conn.execute(
+                        """
+                        UPDATE projects
+                        SET microproduct_content = $1::jsonb
+                        WHERE id = $2
+                        """,
+                        json.dumps(updated_content), project_db_candidate.id
+                    )
+                    logger.info(f"Recalculated module total hours for project {project_db_candidate.id}")
+    except Exception as e:
+        logger.warning(f"Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+
+
+    return project_db_candidate
+
+
+@app.post("/api/custom/course-outline/finalize")
+async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    if not cookies[ONYX_SESSION_COOKIE_NAME]:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Get user ID and deduct credits for course outline finalization
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        credits_needed = calculate_product_credits("course_outline")
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "Course outline finalization")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for course outline finalization")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for course outline: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+
+    # Ensure we have a chat session id (needed both for cache lookup and possible assistant fallback)
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+    else:
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+        chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    # Helper: check whether the user made ANY changes (structure or content)
+    def _any_changes_made(orig_modules: List[Dict[str, Any]], edited: Dict[str, Any]) -> bool:
+        try:
+            edited_sections = edited.get("sections") or edited.get("modules") or []
+            
+            # Debug logging to understand the data structures
+            logger.info(f"Comparing changes: orig_modules count={len(orig_modules)}, edited_sections count={len(edited_sections)}")
+            
+            # Check structural changes first (modules/lessons added/removed)
+            if len(orig_modules) != len(edited_sections):
+                logger.info(f"Structural change detected: module count changed from {len(orig_modules)} to {len(edited_sections)}")
+                return True
+            
+            # Check for content changes (titles modified)
+            for i, (o, e) in enumerate(zip(orig_modules, edited_sections)):
+                # Compare module titles
+                orig_title = str(o.get("title", "")).strip()
+                edited_title = str(e.get("title", "")).strip() if isinstance(e, dict) else str(e).strip()
+                
+                logger.debug(f"Module {i}: comparing titles '{orig_title}' vs '{edited_title}'")
+                if orig_title != edited_title:
+                    logger.info(f"Module title change detected at index {i}: '{orig_title}' -> '{edited_title}'")
+                    return True
+                
+                # Compare lesson structure and content
+                orig_lessons = o.get("lessons", [])
+                edited_lessons = e.get("lessons", []) if isinstance(e, dict) else []
+                
+                if len(orig_lessons) != len(edited_lessons):
+                    logger.info(f"Lesson count change detected in module {i}: {len(orig_lessons)} -> {len(edited_lessons)}")
+                    return True
+                
+                # Compare individual lesson titles
+                for j, (ol, el) in enumerate(zip(orig_lessons, edited_lessons)):
+                    # Handle different lesson formats
+                    if isinstance(ol, dict):
+                        orig_lesson = str(ol.get("title", ol.get("name", ""))).strip()
+                    else:
+                        orig_lesson = str(ol).strip()
+                    
+                    if isinstance(el, dict):
+                        edited_lesson = str(el.get("title", el.get("name", ""))).strip()
+                    else:
+                        edited_lesson = str(el).strip()
+                    
+                    logger.debug(f"Module {i}, Lesson {j}: comparing '{orig_lesson}' vs '{edited_lesson}'")
+                    if orig_lesson != edited_lesson:
+                        logger.info(f"Lesson change detected in module {i}, lesson {j}: '{orig_lesson}' -> '{edited_lesson}'")
+                        return True
+            
+            logger.info("No changes detected - outline is identical")
+            return False
+        except Exception as e:
+            # On any parsing issue assume changes were made so we use assistant
+            logger.warning(f"Error during change detection (assuming changes made): {e}")
+            return True
+
+
+
+    # ---------- 1) Decide strategy ----------
+    raw_outline_cached = OUTLINE_PREVIEW_CACHE.get(chat_id)
+    
+    # Debug cache lookup
+    logger.info(f"DEBUG: Cache lookup for chat_id='{chat_id}', found cached outline: {bool(raw_outline_cached)}")
+    if raw_outline_cached:
+        logger.info(f"DEBUG: Cached outline preview (first 200 chars): {raw_outline_cached[:200]}...")
+    else:
+        logger.info(f"DEBUG: Available cache keys: {list(OUTLINE_PREVIEW_CACHE.keys())}")
+    
+    if raw_outline_cached:
+        parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        
+        # Debug: Log the data structures being compared
+        logger.info(f"DEBUG: parsed_orig structure: {json.dumps(parsed_orig, indent=2)[:500]}...")
+        logger.info(f"DEBUG: payload.editedOutline structure: {json.dumps(payload.editedOutline, indent=2)[:500]}...")
+        
+        any_changes = _any_changes_made(parsed_orig, payload.editedOutline)
+        
+        if not any_changes:
+            # NO CHANGES: Use direct parser path (fastest)
+            use_direct_parser = True
+            use_assistant_then_parser = False
+            logger.info("No changes detected - using direct parser path")
+        else:
+            # CHANGES DETECTED: Use assistant first, then parser
+            use_direct_parser = False
+            use_assistant_then_parser = True
+            logger.info("Changes detected - using assistant + parser path")
+    else:
+        # No cached data available - use assistant + parser path
+        use_direct_parser = False
+        use_assistant_then_parser = True
+        logger.info("No cached outline - using assistant + parser path")
+
+    # ---------- 2) DIRECT PARSER PATH: No changes made, use cached data directly ----------
+    if use_direct_parser:
+        direct_path_project_id = None  # Track project ID for cleanup if needed
+        try:
+            # Use cached outline directly since no changes were made
+            template_id = await _ensure_training_plan_template(pool)
+            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            
+            logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
+            
+            # Build source context from payload
+            source_context_type, source_context_data = build_source_context(payload)
+            
+            project_request = ProjectCreateRequest(
+                projectName=project_name_detected,
+                design_template_id=template_id,
+                microProductName=None,
+                aiResponse=raw_outline_cached,
+                chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+                folder_id=int(payload.folderId) if payload.folderId else None,
+                source_context_type=source_context_type,
+                source_context_data=source_context_data,
+            )
+            onyx_user_id = await get_current_onyx_user_id(request)
+
+            project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+            direct_path_project_id = project_db_candidate.id  # Store for potential cleanup
+            
+            logger.info(f"Direct parser path: Created project {direct_path_project_id}")
+            logger.info(f"Direct parser path: Project content type: {type(project_db_candidate.microproduct_content)}")
+            
+            # Check if content was parsed successfully
+            content_valid = False
+            if project_db_candidate.microproduct_content:
+                if hasattr(project_db_candidate.microproduct_content, "sections"):
+                    sections = getattr(project_db_candidate.microproduct_content, "sections", [])
+                    content_valid = len(sections) > 0
+                    logger.info(f"Direct parser path: Found {len(sections)} sections in parsed content")
+                else:
+                    logger.warning(f"Direct parser path: Content does not have sections attribute")
+            else:
+                logger.warning(f"Direct parser path: microproduct_content is None")
+
+            # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+            if payload.theme and content_valid:
+                async with pool.acquire() as conn:
+                    design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
+                    if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                        await conn.execute(
+                            """
+                            UPDATE projects
+                            SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                            WHERE id = $2
+                            """,
+                            payload.theme, project_db_candidate.id
+                        )
+                        row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
+                        if row_patch and row_patch["microproduct_content"] is not None:
+                            project_db_candidate.microproduct_content = row_patch["microproduct_content"]
+
+            # --- Recalculate module total hours after creation ---
+            if content_valid and project_db_candidate.microproduct_content:
+                try:
+                    async with pool.acquire() as conn:
+                        content = project_db_candidate.microproduct_content
+                        if isinstance(content, dict) and content.get("sections"):
+                            sections = content["sections"]
+                            updated_sections = []
+                            
+                            for section in sections:
+                                if isinstance(section, dict) and section.get("lessons"):
+                                    # Calculate total hours from lesson hours
+                                    total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
+                                    # Update section with calculated total hours and set autoCalculateHours to true
+                                    updated_section = {
+                                        **section,
+                                        "totalHours": total_hours,
+                                        "autoCalculateHours": True
+                                    }
+                                    updated_sections.append(updated_section)
+                                else:
+                                    updated_sections.append(section)
+                            
+                            # Update the project with recalculated totals
+                            if updated_sections:
+                                updated_content = {**content, "sections": updated_sections}
+                                await conn.execute(
+                                    """
+                                    UPDATE projects
+                                    SET microproduct_content = $1::jsonb
+                                    WHERE id = $2
+                                    """,
+                                    json.dumps(updated_content), project_db_candidate.id
+                                )
+                                logger.info(f"Direct parser path: Recalculated module total hours for project {project_db_candidate.id}")
+                except Exception as e:
+                    logger.warning(f"Direct parser path: Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+
+            # Success when we have valid parsed content
+            if content_valid:
+                logger.info(f"Direct parser path successful for project {direct_path_project_id}")
+                logger.debug(f'Full content for project {direct_path_project_id}: {project_db_candidate.microproduct_content}')
+                return JSONResponse(content={"type": "done", "id": project_db_candidate.id})
+            else:
+                # Direct parser path validation failed - clean up the created project and fall back to assistant
+                logger.warning(f"Direct parser path validation failed for project {direct_path_project_id} - LLM parsing likely failed")
+                logger.warning(f"Content details: {project_db_candidate.microproduct_content}")
+                try:
+                    async with pool.acquire() as conn:
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
+                except Exception as cleanup_e:
+                    logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+                
+                # Fall back to assistant path
+                logger.info("Falling back to assistant + parser path due to direct parser failure")
+                use_direct_parser = False
+                use_assistant_then_parser = True
+                
+        except Exception as direct_e:
+            # Clean up any project created during direct parser path failure
+            if direct_path_project_id:
+                logger.warning(f"Direct parser path failed with project {direct_path_project_id}, attempting cleanup...")
+                try:
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    async with pool.acquire() as conn:
+                        await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", direct_path_project_id, onyx_user_id)
+                    logger.info(f"Successfully cleaned up failed direct parser project {direct_path_project_id}")
+                except Exception as cleanup_e:
+                    logger.error(f"Failed to cleanup direct parser project {direct_path_project_id}: {cleanup_e}")
+            
+            logger.error(f"Direct parser path failed with error: {direct_e}")
+            
+            # If another concurrent request already started creation we patiently wait for it instead of kicking off assistant again
+            if isinstance(direct_e, HTTPException) and direct_e.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+                logger.info("wizard_outline_finalize detected in-progress creation. Waiting for completion…")
+                max_wait_sec = 900  # 15 minutes
+                poll_every_sec = 1
+                waited = 0
+                while waited < max_wait_sec:
+                    async with pool.acquire() as conn:
+                        if chat_id:
+                            # Prefer locating the project by the wizard chat_session_id (unique identifier per outline wizard run)
+                            row = await conn.fetchrow(
+                                "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                                uuid.UUID(chat_id),
+                            )
+                        else:
+                            # Fallback to the previous behaviour when we have no chat_id information available
+                            row = await conn.fetchrow(
+                                "SELECT id, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2 ORDER BY created_at DESC LIMIT 1",
+                                onyx_user_id,
+                                payload.prompt,
+                            )
+                    if row and row["microproduct_content"] is not None:
+                        return JSONResponse(content={"type": "done", "id": row["id"]})
+                    await asyncio.sleep(poll_every_sec)
+                    waited += poll_every_sec
+                logger.warning("wizard_outline_finalize waited too long for existing creation – giving up")
+            else:
+                logger.warning(f"wizard_outline_finalize direct parser path failed – will use assistant path. Details: {direct_e}")
+            
+            # Fall back to assistant path
+            use_direct_parser = False
+            use_assistant_then_parser = True
+
+    # ---------- 3) ASSISTANT + PARSER PATH: Process changes with assistant, then parse ----------
+    if use_assistant_then_parser:
+        # Before starting assistant path, check if a project was already created successfully for this session
+        if chat_id:
+            try:
+                async with pool.acquire() as conn:
+                    existing_row = await conn.fetchrow(
+                        "SELECT id, microproduct_content FROM projects WHERE source_chat_session_id = $1 ORDER BY created_at DESC LIMIT 1",
+                        uuid.UUID(chat_id),
+                    )
+                    if existing_row and existing_row["microproduct_content"] is not None:
+                        # Check if the existing project has valid content
+                        try:
+                            content = existing_row["microproduct_content"]
+                            if isinstance(content, dict) and content.get("sections"):
+                                logger.info(f"Found existing valid project {existing_row['id']} for chat session, returning it")
+                                return JSONResponse(content={"type": "done", "id": existing_row["id"]})
+                        except Exception:
+                            pass  # Continue with assistant path if content validation fails
+            except Exception as e:
+                logger.warning(f"Failed to check for existing project: {e}")
+        
+        # Build wizard payload for assistant path - different structure for finalization
+        # CRITICAL: Don't send modules/lessonsPerModule during finalization as they conflict
+        # with user edits and cause the AI to ignore the actual edited structure
+        wiz_payload = {
+            "product": "Course Outline",
+            "action": "finalize",
+            "prompt": payload.prompt,
+            "language": payload.language,
+            "editedOutline": payload.editedOutline,
+        }
+        
+        # Only add structural parameters if no user edits exist (fallback case)
+        edited_sections = payload.editedOutline.get("sections", payload.editedOutline.get("modules", [])) if payload.editedOutline else []
+        user_edit_module_count = len(edited_sections)
+        
+        if not payload.editedOutline or user_edit_module_count == 0:
+            logger.info(f"[FINALIZE_PAYLOAD] No user edits found, adding structural parameters as fallback: modules={payload.modules}, lessonsPerModule={payload.lessonsPerModule}")
+            wiz_payload["modules"] = payload.modules
+            wiz_payload["lessonsPerModule"] = payload.lessonsPerModule
+        else:
+            logger.info(f"[FINALIZE_PAYLOAD] User edits present ({user_edit_module_count} modules) - omitting conflicting structural parameters (original: modules={payload.modules}, lessonsPerModule={payload.lessonsPerModule}) to preserve user structure")
+            # Log the first few modules to understand the structure
+            for i, section in enumerate(edited_sections[:3]):
+                if isinstance(section, dict):
+                    section_title = section.get("title", "Unknown")
+                    section_lessons = len(section.get("lessons", []))
+                    logger.info(f"[FINALIZE_PAYLOAD] User edit module {i+1}: '{section_title}' ({section_lessons} lessons)")
+                else:
+                    logger.info(f"[FINALIZE_PAYLOAD] User edit module {i+1}: {type(section)} - {str(section)[:50]}...")
+            if user_edit_module_count > 3:
+                logger.info(f"[FINALIZE_PAYLOAD] ... and {user_edit_module_count - 3} more modules")
+
+        # Add file context if provided
+        if payload.fromFiles:
+            wiz_payload["fromFiles"] = True
+            if payload.folderIds:
+                wiz_payload["folderIds"] = payload.folderIds
+            if payload.fileIds:
+                wiz_payload["fileIds"] = payload.fileIds
+
+        # Add text context if provided
+        if payload.fromText and payload.userText:
+            wiz_payload["fromText"] = True
+            wiz_payload["textMode"] = payload.textMode
+            wiz_payload["userText"] = payload.userText
+
+        wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        logger.info(f"[FINALIZE_PAYLOAD] Final wizard message structure: {list(wiz_payload.keys())}")
+        logger.info(f"[FINALIZE_PAYLOAD] Wizard message length: {len(wizard_message)} chars")
+
+        async def streamer():
+            assistant_reply: str = ""
+            last_send = asyncio.get_event_loop().time()
+            chunks_received = 0
+
+            # Use longer timeout for large text processing to prevent AI memory issues
+            timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+            logger.info(f"[FINALIZE_OPENAI_STREAM] Starting OpenAI finalization streamer with timeout: {timeout_duration} seconds")
+            logger.info(f"[FINALIZE_OPENAI_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+            
+            try:
+                # Use OpenAI streaming for finalization instead of Onyx
+                logger.info(f"[FINALIZE_OPENAI_STREAM] ✅ USING OPENAI DIRECT STREAMING for finalization")
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[FINALIZE_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[FINALIZE_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[FINALIZE_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[FINALIZE_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+            except Exception as e:
+                logger.error(f"[FINALIZE_OPENAI_STREAM_ERROR] Error in OpenAI finalization streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+
+            # Cache full raw outline for later finalize step
+            if chat_id:
+                OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+            # Create the project using the assistant response
+            try:
+                template_id = await _ensure_training_plan_template(pool)
+                project_name_detected = _extract_project_name_from_markdown(assistant_reply) or payload.prompt
+                
+                logger.info(f"Assistant + parser path: Creating project with {len(assistant_reply)} characters")
+                
+                # Build source context from payload
+                source_context_type, source_context_data = build_source_context(payload)
+                
+                project_request = ProjectCreateRequest(
+                    projectName=project_name_detected,
+                    design_template_id=template_id,
+                    microProductName=None,
+                    aiResponse=assistant_reply,
+                    chatSessionId=uuid.UUID(chat_id) if chat_id else None,
+                    folder_id=int(payload.folderId) if payload.folderId else None,
+                    source_context_type=source_context_type,
+                    source_context_data=source_context_data,
+                )
+                onyx_user_id = await get_current_onyx_user_id(request)
+
+                project_db_candidate = await add_project_to_custom_db(project_request, onyx_user_id, pool)  # type: ignore[arg-type]
+                
+                logger.info(f"Assistant + parser path: Created project {project_db_candidate.id}")
+                
+                # Check if content was parsed successfully
+                content_valid = False
+                if project_db_candidate.microproduct_content:
+                    if hasattr(project_db_candidate.microproduct_content, "sections"):
+                        sections = getattr(project_db_candidate.microproduct_content, "sections", [])
+                        content_valid = len(sections) > 0
+                        logger.info(f"Assistant + parser path: Found {len(sections)} sections in parsed content")
+                    else:
+                        logger.warning(f"Assistant + parser path: Content does not have sections attribute")
+                else:
+                    logger.warning(f"Assistant + parser path: microproduct_content is None")
+
+                # --- Patch theme into DB if provided (only for TrainingPlan components) ---
+                if payload.theme and content_valid:
+                    async with pool.acquire() as conn:
+                        design_template = await conn.fetchrow("SELECT component_name FROM design_templates WHERE id = $1", template_id)
+                        if design_template and design_template.get("component_name") == COMPONENT_NAME_TRAINING_PLAN:
+                            await conn.execute(
+                                """
+                                UPDATE projects
+                                SET microproduct_content = jsonb_set(COALESCE(microproduct_content::jsonb, '{}'), '{theme}', to_jsonb($1::text), true)
+                                WHERE id = $2
+                                """,
+                                payload.theme, project_db_candidate.id
+                            )
+                            row_patch = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id = $1", project_db_candidate.id)
+                            if row_patch and row_patch["microproduct_content"] is not None:
+                                project_db_candidate.microproduct_content = row_patch["microproduct_content"]
+
+                # --- Recalculate module total hours after creation ---
+                if content_valid and project_db_candidate.microproduct_content:
+                    try:
+                        async with pool.acquire() as conn:
+                            content = project_db_candidate.microproduct_content
+                            if isinstance(content, dict) and content.get("sections"):
+                                sections = content["sections"]
+                                updated_sections = []
+                                
+                                for section in sections:
+                                    if isinstance(section, dict) and section.get("lessons"):
+                                        # Calculate total hours from lesson hours
+                                        total_hours = sum(lesson.get("hours", 0) for lesson in section["lessons"])
+                                        # Update section with calculated total hours and set autoCalculateHours to true
+                                        updated_section = {
+                                            **section,
+                                            "totalHours": total_hours,
+                                            "autoCalculateHours": True
+                                        }
+                                        updated_sections.append(updated_section)
+                                    else:
+                                        updated_sections.append(section)
+                                
+                                # Update the project with recalculated totals
+                                if updated_sections:
+                                    updated_content = {**content, "sections": updated_sections}
+                                    await conn.execute(
+                                        """
+                                        UPDATE projects
+                                        SET microproduct_content = $1::jsonb
+                                        WHERE id = $2
+                                        """,
+                                        json.dumps(updated_content), project_db_candidate.id
+                                    )
+                                    logger.info(f"Recalculated module total hours for project {project_db_candidate.id}")
+                    except Exception as e:
+                        logger.warning(f"Failed to recalculate module total hours for project {project_db_candidate.id}: {e}")
+
+                if content_valid:
+                    logger.info(f"Assistant + parser path successful for project {project_db_candidate.id}")
+                    # Send completion packet with the project ID
+                    done_packet = {"type": "done", "id": project_db_candidate.id}
+                    yield (json.dumps(done_packet) + "\n").encode()
+                else:
+                    logger.error(f"Assistant + parser path: Project {project_db_candidate.id} created but content validation failed")
+                    # Clean up the failed project
+                    try:
+                        async with pool.acquire() as conn:
+                            await conn.execute("DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2", project_db_candidate.id, onyx_user_id)
+                        logger.info(f"Successfully cleaned up failed assistant + parser project {project_db_candidate.id}")
+                    except Exception as cleanup_e:
+                        logger.error(f"Failed to cleanup assistant + parser project {project_db_candidate.id}: {cleanup_e}")
+                    
+                    # Send error packet
+                    error_packet = {"type": "error", "message": "Failed to parse the generated outline"}
+                    yield (json.dumps(error_packet) + "\n").encode()
+                    
+            except Exception as create_e:
+                logger.error(f"Assistant + parser path: Failed to create project: {create_e}")
+                # Send error packet
+                error_packet = {"type": "error", "message": f"Failed to create project: {str(create_e)}"}
+                yield (json.dumps(error_packet) + "\n").encode()
+
+        return StreamingResponse(streamer(), media_type="application/json")
+
+@app.post("/api/custom/course-outline/init-chat")
+async def init_course_outline_chat(request: Request):
+    """Pre-create Chat Session & persona so subsequent preview calls are faster."""
+    cookies = request.cookies
+    # For init-chat, we'll use the default ContentBuilder persona
+    # The actual persona selection will happen in the preview endpoint based on the request payload
+    persona_id = await get_contentbuilder_persona_id(cookies)
+    chat_id = await create_onyx_chat_session(persona_id, cookies)
+    return {"personaId": persona_id, "chatSessionId": chat_id}
+
+# ======================= End Wizard Section ==============================
+
+# === Wizard Outline helpers & cache ===
+OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
+QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
+
+def _apply_title_edits_to_outline(original_md: str, edited_outline: Dict[str, Any]) -> str:
+    """Return a markdown outline that reflects the *structure* provided in
+    `edited_outline` (modules & lessons) while preserving the original header.
+
+    Instead of trying to patch-in titles at the old positions, we rebuild each
+    module's lesson list from scratch. This guarantees correctness even when
+    lessons were inserted, removed or reordered in the UI.
+    """
+
+    # ---- 1. Normalise `edited_outline` ----
+    sections: Optional[List[Any]] = None
+    if isinstance(edited_outline, dict):
+        sections = edited_outline.get("sections") or edited_outline.get("modules")
+    elif isinstance(edited_outline, list):
+        sections = edited_outline
+
+    if not sections:
+        return original_md  # nothing to merge -> return original untouched
+
+    # ---- 2. Preserve the very first non-empty line (usually Universal Header) ----
+    header_line = None
+    for line in original_md.splitlines():
+        if line.strip():
+            header_line = line.rstrip()
+            break
+
+    out_lines: List[str] = []
+    if header_line:
+        out_lines.append(header_line)
+        out_lines.append("")  # spacer line to match original formatting
+
+    # ---- 3. Rebuild modules & lessons ----
+    for idx, sec in enumerate(sections):
+        # Module title
+        title = sec.get("title") if isinstance(sec, dict) else str(sec)
+        out_lines.append(f"## Module {idx + 1}: {title.strip()}")
+
+        # Lessons
+        lessons_list: List[Any] = []
+        if isinstance(sec, dict):
+            lessons_list = sec.get("lessons", []) or []
+        elif isinstance(sec, list):
+            lessons_list = sec
+
+        for ls in lessons_list:
+            ls_raw = ls.get("title") if isinstance(ls, dict) else str(ls)
+            if not isinstance(ls_raw, str):
+                ls_raw = str(ls_raw)
+
+            segments = ls_raw.split("\n")
+            main_line = segments[0].strip()
+            out_lines.append(f"- **{main_line}**")
+
+            for extra in segments[1:]:
+                extra = extra.rstrip()
+                if extra:
+                    out_lines.append(f"  {extra}")
+
+        out_lines.append("")  # blank line between modules for readability
+
+    return "\n".join(out_lines).rstrip()  # drop trailing newline
+
+# ------------------- Utility: extract project name from AI markdown header -------------------
+
+_HEADER_RE = re.compile(r"^\*\*(?P<name>[^*]+)\*\*\s*:\s*\*\*.+")
+
+
+def _extract_project_name_from_markdown(md: str) -> Optional[str]:
+    """Return the first **Project Name** element found in the Universal Product Header.
+
+    The header line looks like:
+        **Project Name** : **Course Outline** : **Course Outline**
+    We return "Project Name" (stripped).
+    """
+    if not md:
+        return None
+    first_line = md.splitlines()[0].strip()
+    m = _HEADER_RE.match(first_line)
+    if m:
+        return m.group("name").strip()
+    return None
+
+# --- PDF Lesson helper and wizard endpoints ---
+
+# Ensure a design template for PDF Lesson exists, return its ID
+async def _ensure_pdf_lesson_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_PDF_LESSON)
+        if row:
+            return row["id"]
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "PDF Lesson", DEFAULT_PDF_LESSON_JSON_EXAMPLE_FOR_LLM, "PDF Lesson", COMPONENT_NAME_PDF_LESSON,
+        )
+        return row["id"]
+
+# Ensure a design template for Slide Deck exists, return its ID
+async def _ensure_slide_deck_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_SLIDE_DECK)
+        if row:
+            return row["id"]
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "Slide Deck", DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM, "Slide Deck", COMPONENT_NAME_SLIDE_DECK,
+        )
+        return row["id"]
+
+
+# Ensure a design template for Video Lesson Presentation exists, return its ID
+async def _ensure_video_lesson_presentation_template(pool: asyncpg.Pool) -> int:
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("SELECT id FROM design_templates WHERE component_name = $1 LIMIT 1", COMPONENT_NAME_VIDEO_LESSON_PRESENTATION)
+        if row:
+            return row["id"]
+        row = await conn.fetchrow(
+            """
+            INSERT INTO design_templates (template_name, template_structuring_prompt, microproduct_type, component_name)
+            VALUES ($1, $2, $3, $4) RETURNING id;
+            """,
+            "Video Lesson Presentation", DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM, "Video Lesson Presentation", COMPONENT_NAME_VIDEO_LESSON_PRESENTATION,
+        )
+        return row["id"]
+
+
+# Ensure a design template for Text Presentation exists, return its ID
+async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
+    """Ensure text presentation template exists and return its ID"""
+    try:
+        # Check if text presentation template exists
+        template_query = """
+            SELECT id FROM design_templates 
+            WHERE microproduct_type = 'Text Presentation' 
+            LIMIT 1
+        """
+        template_result = await pool.fetchval(template_query)
+        
+        if template_result:
+            return template_result
+        
+        # Create text presentation template if it doesn't exist
+        insert_query = """
+            INSERT INTO design_templates 
+            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        """
+        template_id = await pool.fetchval(
+            insert_query,
+            "Text Presentation Template",
+            "Create a comprehensive text presentation with clear structure, engaging content, and professional formatting.",
+            "Text Presentation",
+            COMPONENT_NAME_TEXT_PRESENTATION,
+            "/text-presentation.png"
+        )
+        return template_id
+        
+    except Exception as e:
+        logger.error(f"Error ensuring text presentation template: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure text presentation template")
+
+
+# -------- Lesson Presentation (PDF Lesson) Wizard ---------
+
+class LessonWizardPreview(BaseModel):
+    outlineProjectId: Optional[int] = None  # Parent Training Plan project id
+    lessonTitle: Optional[str] = None      # Specific lesson to generate, optional when prompt-based
+    lengthRange: Optional[str] = None      # e.g. "400-500 words"
+    prompt: Optional[str] = None           # Fallback free-form prompt
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+    slidesCount: Optional[int] = 5         # Number of slides to generate
+    productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
+    theme: Optional[str] = None            # Selected theme for presentation
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+
+
+class LessonWizardFinalize(BaseModel):
+    outlineProjectId: Optional[int] = None
+    lessonTitle: str
+    lengthRange: Optional[str] = None
+    aiResponse: str                        # User-edited markdown / plain text
+    chatSessionId: Optional[str] = None
+    slidesCount: Optional[int] = 5         # Number of slides to generate
+    productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
+    theme: Optional[str] = None            # Selected theme for presentation
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+
+
+@app.post("/api/custom/lesson-presentation/preview")
+async def wizard_lesson_preview(payload: LessonWizardPreview, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    if not cookies[ONYX_SESSION_COOKIE_NAME]:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Ensure chat session
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+    else:
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+        chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    # Build wizard request for assistant persona
+    is_video_lesson = payload.productType == "video_lesson_presentation"
+    wizard_dict: Dict[str, Any] = {
+        "product": "Video Lesson Slides Deck" if is_video_lesson else "Slides Deck",
+        "action": "preview",
+        "language": payload.language,
+        "slidesCount": payload.slidesCount or 5,
+        "generateVoiceover": is_video_lesson,  # Flag to indicate voiceover generation
+        "theme": payload.theme or "dark-purple",  # Use selected theme or default
+    }
+    if payload.outlineProjectId is not None:
+        wizard_dict["outlineProjectId"] = payload.outlineProjectId
+        
+        # Fetch outline name to include in wizard request
+        try:
+            # Get current user ID to fetch the outline
+            onyx_user_id = await get_current_onyx_user_id(request)
+            
+            # Fetch outline name from database
+            async with pool.acquire() as conn:
+                outline_row = await conn.fetchrow(
+                    "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                    payload.outlineProjectId, onyx_user_id
+                )
+                if outline_row:
+                    wizard_dict["outlineName"] = outline_row["project_name"]
+        except Exception as e:
+            logger.warning(f"Failed to fetch outline name for project {payload.outlineProjectId}: {e}")
+            # Continue without outline name - not critical for preview
+            
+    if payload.lessonTitle:
+        wizard_dict["lessonTitle"] = payload.lessonTitle
+    if payload.prompt:
+        wizard_dict["prompt"] = payload.prompt
+
+    wizard_dict["importantRules"] = "IMPORTANT: DO NOT CREATE CONCLUSION SLIDES. ONLY CREATE EDUCATIONAL SLIDES. DO NOT CREATE SLIDES WITH TITLES LIKE 'Conclusion', 'Summary', 'Wrap-Up', 'Thank You', 'Further Reading', 'Additional Resources', 'Questions', 'Open Floor for Questions', 'Feedback'. DO NOT MAKE SECOND SLIDE BE A TITLE SLIDE. DO NOT USE 'content-slide' SLIDES"
+    wizard_dict["importantRules"] += """
+CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
+1. After the Universal Product Header (**[Project Name]** : **Video Lesson Slides Deck** : **[Lesson Title]**), add exactly TWO blank lines
+2. Each slide MUST use this exact format: **Slide N: [Descriptive Title]** `[slide-type]`
+3. Use "---" separators between slides
+5. NEVER use markdown headers (##, ###) for slide titles - ONLY use **Slide N: Title** format
+6. Ensure slides are numbered sequentially: Slide 1, Slide 2, Slide 3, etc.
+    """
+    
+    # Add file context if provided
+    if payload.fromFiles:
+        wizard_dict["fromFiles"] = True
+        if payload.folderIds:
+            wizard_dict["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wizard_dict["fileIds"] = payload.fileIds
+
+    # Add connector context if provided
+    if payload.fromConnectors:
+        wizard_dict["fromConnectors"] = True
+        if payload.connectorIds:
+            wizard_dict["connectorIds"] = payload.connectorIds
+        if payload.connectorSources:
+            wizard_dict["connectorSources"] = payload.connectorSources
+
+    # Add text context if provided - use compression for large texts
+    if payload.fromText and payload.userText:
+        wizard_dict["fromText"] = True
+        wizard_dict["textMode"] = payload.textMode
+        
+        if len(payload.userText) > TEXT_SIZE_THRESHOLD:
+            # Compress large text to reduce payload size
+            compressed_text = compress_text(payload.userText)
+            wizard_dict["userText"] = compressed_text
+            wizard_dict["textCompressed"] = True
+            logger.info(f"Using compressed text for large lesson content ({len(payload.userText)} -> {len(compressed_text)} chars)")
+        else:
+            # Use direct text for smaller content
+            wizard_dict["userText"] = payload.userText
+            wizard_dict["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        wizard_dict["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for lesson generation")
+
+    # Decompress text if it was compressed
+    if wizard_dict.get("textCompressed") and wizard_dict.get("userText"):
+        try:
+            decompressed_text = decompress_text(wizard_dict["userText"])
+            wizard_dict["userText"] = decompressed_text
+            wizard_dict["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed lesson text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress lesson text: {e}")
+            # Continue with original text if decompression fails
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wizard_dict.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+        
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[LESSON_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
+            
+            try:
+                # Step 1: Extract context from Onyx
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wizard_dict.get("virtualFileId"):
+                        file_ids_list.append(wizard_dict["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                chunks_received = 0
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Video Lesson Presentation" if is_video_lesson else "Lesson Presentation"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
+            logger.info(f"[LESSON_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[LESSON_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            try:
+                chunks_received = 0
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[LESSON_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[LESSON_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+                        logger.debug(f"[LESSON_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[LESSON_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+
+        # Cache full raw outline for later finalize step
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+        modules_preview = _parse_outline_markdown(assistant_reply)
+        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
+        # Send completion packet with the parsed outline.
+        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+
+        print("FULL RESPOSE:", assistant_reply)
+
+        yield (json.dumps(done_packet) + "\n").encode()
+
+    return StreamingResponse(streamer(), media_type="text/plain")
+
+
+@app.post("/api/custom/lesson-presentation/finalize")
+async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    logger.info(f"Finalizing lesson presentation: {payload.lessonTitle}")
+    
+    # Validate required fields early
+    if not payload.lessonTitle or not payload.lessonTitle.strip():
+        raise HTTPException(status_code=400, detail="Lesson title is required")
+    
+    if not payload.aiResponse or not payload.aiResponse.strip():
+        raise HTTPException(status_code=400, detail="AI response content is required")
+
+    # Parse AI response to determine slide count for credit calculation
+    try:
+        slides_data = json.loads(payload.aiResponse)
+        credits_needed = calculate_product_credits("lesson_presentation", slides_data)
+    except:
+        # If parsing fails, use default credit cost
+        credits_needed = calculate_product_credits("lesson_presentation")
+
+    # Get user ID and deduct credits for lesson presentation
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "Lesson presentation finalization")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for lesson presentation")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for lesson presentation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+
+    try:
+        # Determine if this is a video lesson presentation
+        is_video_lesson = payload.productType == "video_lesson_presentation"
+        
+        # Get the appropriate template with retry mechanism
+        max_retries = 3
+        template_id = None
+        for attempt in range(max_retries):
+            try:
+                if is_video_lesson:
+                    template_id = await _ensure_video_lesson_presentation_template(pool)
+                else:
+                    template_id = await _ensure_slide_deck_template(pool)
+                break
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    logger.error(f"Failed to get template after {max_retries} attempts: {e}")
+                    raise HTTPException(status_code=500, detail="Unable to initialize template")
+                await asyncio.sleep(0.5)  # Brief delay before retry
+
+        if not template_id:
+            raise HTTPException(status_code=500, detail="Template initialization failed")
+
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Determine the project name - if connected to outline, use correct naming convention
+        project_name = payload.lessonTitle.strip()
+        if payload.outlineProjectId:
+            try:
+                # Fetch outline name from database
+                async with pool.acquire() as conn:
+                    outline_row = await conn.fetchrow(
+                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        payload.outlineProjectId, onyx_user_id
+                    )
+                    if outline_row:
+                        outline_name = outline_row["project_name"]
+                        project_name = f"{outline_name}: {payload.lessonTitle.strip()}"
+            except Exception as e:
+                logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
+                # Continue with plain lesson title if outline fetch fails
+
+        # Build source context from payload
+        source_context_type, source_context_data = build_source_context(payload)
+        
+        # Create project data
+        project_data = ProjectCreateRequest(
+            projectName=project_name,
+            design_template_id=template_id,
+            microProductName=None,
+            aiResponse=payload.aiResponse.strip(),
+            chatSessionId=payload.chatSessionId,
+            outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
+            folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment
+            theme=payload.theme,  # Pass selected theme
+            source_context_type=source_context_type,
+            source_context_data=source_context_data
+        )
+        
+        # Create project with proper error handling
+        try:
+            created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        except HTTPException as e:
+            # Re-raise HTTP exceptions as-is
+            raise e
+        except Exception as e:
+            logger.error(f"Failed to create project: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create lesson project")
+
+        # Validate the created project
+        if not created_project or not created_project.id:
+            logger.error("Project creation returned invalid result")
+            raise HTTPException(status_code=500, detail="Project creation failed - invalid response")
+
+        logger.info(f"Successfully finalized lesson presentation with project ID: {created_project.id}")
+
+        # Log full saved JSON for inspection
+        try:
+            async with pool.acquire() as conn:
+                row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                if row:
+                    logger.info(f"[LESSON_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(row['microproduct_content'], ensure_ascii=False)[:10000]}")
+        except Exception as log_e:
+            logger.warning(f"Failed to log saved presentation JSON for project {created_project.id}: {log_e}")
+
+        # Return simple JSON response (not streaming for now)
+        return {
+            "id": created_project.id,
+            "projectName": created_project.project_name,
+            "message": "Lesson presentation finalized successfully"
+        }
+    
+    except HTTPException:
+        # Re-raise HTTP exceptions without modification
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in lesson finalization: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An unexpected error occurred during finalization"
+        )
+
+# --- Delete single project endpoint ---
+@app.delete("/api/custom/projects/{project_id}", status_code=204)
+async def delete_project(
+    project_id: int,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Delete a single project by ID.
+    """
+    try:
+        async with pool.acquire() as conn:
+            # Check if project exists and belongs to user
+            project_row = await conn.fetchrow(
+                "SELECT id FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project_row:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Project not found"
+                )
+            
+            # Delete the project
+            await conn.execute(
+                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+        logger.info(f"Successfully deleted project {project_id}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error deleting project {project_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while deleting the project"
+        )
+
+# --- New endpoint: list trashed projects for user ---
+
+@app.post("/api/custom/lesson-plan/generate", response_model=LessonPlanResponse)
+async def generate_lesson_plan(
+    payload: LessonPlanGenerationRequest, 
+    request: Request, 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Generate a lesson plan directly from a course outline using the hybrid approach.
+    """
+    logger.info(f"Generating lesson plan for outline project {payload.outlineProjectId}")
+    
+    try:
+        # Get user ID
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Retrieve the source context from the course outline project
+        async with pool.acquire() as conn:
+            outline_row = await conn.fetchrow(
+                """
+                SELECT id, project_name, source_context_type, source_context_data, 
+                       microproduct_content, microproduct_type
+                FROM projects 
+                WHERE id = $1 AND onyx_user_id = $2
+                """,
+                payload.outlineProjectId, onyx_user_id
+            )
+            
+            if not outline_row:
+                raise HTTPException(
+                    status_code=404, 
+                    detail="Course outline project not found"
+                )
+            
+            if outline_row["microproduct_type"] not in ["Training Plan", "Course Outline"]:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Specified project is not a course outline"
+                )
+        
+        # Extract source context
+        source_context_type = outline_row["source_context_type"]
+        source_context_data = outline_row["source_context_data"]
+        
+        # Prepare context for OpenAI
+        context_for_openai = ""
+        
+        if source_context_type == "files" and source_context_data:
+            # Extract file context using hybrid approach
+            file_ids = source_context_data.get("file_ids", [])
+            folder_ids = source_context_data.get("folder_ids", [])
+            
+            if file_ids or folder_ids:
+                # Get cookies from request for Onyx API calls
+                cookies = dict(request.cookies)
+                
+                # Extract context using the existing hybrid approach
+                file_context = await extract_file_context_from_onyx(
+                    file_ids, folder_ids, cookies
+                )
+                
+                # Build context string for OpenAI
+                if file_context.get("file_summaries"):
+                    context_for_openai += "File Content:\n" + "\n".join(file_context["file_summaries"]) + "\n\n"
+                if file_context.get("key_topics"):
+                    context_for_openai += "Key Topics:\n" + ", ".join(file_context["key_topics"]) + "\n\n"
+        
+        elif source_context_type == "connectors" and source_context_data:
+            # Extract connector context
+            connector_ids = source_context_data.get("connector_ids", [])
+            connector_sources = source_context_data.get("connector_sources", [])
+            
+            if connector_ids:
+                context_for_openai += f"Connector Sources: {', '.join(connector_sources)}\n\n"
+        
+        elif source_context_type == "text" and source_context_data:
+            # Extract text context
+            user_text = source_context_data.get("user_text", "")
+            if user_text:
+                context_for_openai += f"Source Text:\n{user_text}\n\n"
+        
+        elif source_context_type == "knowledge_base" and source_context_data:
+            # Extract knowledge base context
+            search_query = source_context_data.get("search_query", "")
+            if search_query:
+                context_for_openai += f"Knowledge Base Query: {search_query}\n\n"
+        
+        # Add course outline content if available
+        if outline_row["microproduct_content"]:
+            try:
+                outline_content = outline_row["microproduct_content"]
+                if isinstance(outline_content, dict):
+                    # Extract relevant information from outline
+                    if "sections" in outline_content:
+                        sections_text = []
+                        for section in outline_content["sections"]:
+                            if isinstance(section, dict):
+                                section_title = section.get("title", "")
+                                section_content = section.get("content", "")
+                                if section_title and section_content:
+                                    sections_text.append(f"{section_title}: {section_content}")
+                        
+                        if sections_text:
+                            context_for_openai += "Course Outline Content:\n" + "\n".join(sections_text) + "\n\n"
+            except Exception as e:
+                logger.warning(f"Failed to parse outline content: {e}")
+        
+        # Prepare OpenAI prompt
+        openai_prompt = f"""
+You are an expert instructional designer and educational content developer. Based on the following source context, create a comprehensive lesson plan that serves as a complete task specification for Content Developers to create high-quality educational materials.
+
+Source Context:
+{context_for_openai}
+
+Lesson Information:
+- Lesson Title: {payload.lessonTitle}
+- Module Name: {payload.moduleName}
+- Lesson Number: {payload.lessonNumber}
+- Recommended Products: {', '.join(payload.recommendedProducts)}
+
+Create a detailed lesson plan following instructional design best practices:
+
+LESSON OBJECTIVES: Write 3-5 specific, measurable learning objectives using Bloom's Taxonomy action verbs. Each objective should specify what learners will be able to DO after completing the lesson (not what will be taught to them). Include the performance/behavior, conditions, and success criteria where applicable.
+
+SHORT DESCRIPTION: Write a compelling 2-3 sentence description that clearly communicates the lesson's value proposition to learners. Focus on practical outcomes and real-world applications they will gain, not just topics covered.
+
+RECOMMENDED PRODUCT TYPES: For each product type in the recommendedProducts list, provide detailed specifications that guide Content Developers in creating effective educational materials. Include:
+- Target learning outcomes for that product type
+- Specific content requirements and structure
+- Assessment criteria and success metrics
+- Technical specifications (duration, format, interaction types)
+
+MATERIALS: List specific, actionable resources and tools needed for content creation, including:
+- Primary source materials and references
+- Technical tools and software requirements
+- Assessment instruments and rubrics
+- Visual aids and multimedia specifications
+
+SUGGESTED PROMPTS: Provide 4-6 detailed content creation prompts that:
+- Align with different levels of Bloom's Taxonomy
+- Include specific scenarios and real-world applications
+- Specify target audience and context
+- Define expected deliverables and assessment criteria
+
+IMPORTANT: Only include descriptions for products that are explicitly listed in the recommendedProducts array. Focus on creating actionable specifications that enable Content Developers to produce effective, engaging educational materials.
+
+Return your response as a valid JSON object with this exact structure:
+{{
+  "lessonTitle": "string",
+  "lessonObjectives": ["string"],
+  "shortDescription": "string",
+  "recommendedProductTypes": {{
+    "productName": "productDescription"
+  }},
+  "materials": ["string"],
+  "suggestedPrompts": ["string"]
+}}
+
+Ensure the JSON is valid and follows the exact structure specified.
+"""
+        
+        # Generate lesson plan using OpenAI
+        openai_client = get_openai_client()
+        
+        response = await openai_client.chat.completions.create(
+            model=LLM_DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": "You are an expert educational content creator. Always respond with valid JSON."},
+                {"role": "user", "content": openai_prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2000
+        )
+        
+        # Parse OpenAI response
+        ai_response = response.choices[0].message.content.strip()
+        
+        try:
+            lesson_plan_data = json.loads(ai_response)
+            # Validate the structure
+            required_fields = ["lessonTitle", "lessonObjectives", "shortDescription", "recommendedProductTypes", "materials", "suggestedPrompts"]
+            for field in required_fields:
+                if field not in lesson_plan_data:
+                    raise ValueError(f"Missing required field: {field}")
+            
+            # Validate recommendedProductTypes only contains products from the request
+            for product_name in lesson_plan_data["recommendedProductTypes"]:
+                if product_name not in payload.recommendedProducts:
+                    raise ValueError(f"Product {product_name} not in recommended products list")
+                    
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Failed to parse OpenAI response: {e}")
+            logger.error(f"Raw AI response: {ai_response}")
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate valid lesson plan structure"
+            )
+        
+        # Create the lesson plan project in database
+        project_name = f"{outline_row['project_name']}: {payload.lessonTitle}"
+        
+        # Get a design template for lesson plans
+        async with pool.acquire() as conn:
+            template_row = await conn.fetchrow(
+                "SELECT id FROM design_templates WHERE component_name = 'LessonPlanDisplay' LIMIT 1"
+            )
+            
+            if not template_row:
+                # Create a basic template if none exists
+                template_id = await conn.fetchval(
+                    """
+                    INSERT INTO design_templates 
+                    (template_name, component_name, microproduct_type, template_structuring_prompt)
+                    VALUES ($1, $2, $3, $4) RETURNING id
+                    """,
+                    "Lesson Plan Template",
+                    "LessonPlanDisplay",
+                    "Lesson Plan",
+                    "Generate a lesson plan with objectives, materials, and product recommendations."
+                )
+            else:
+                template_id = template_row["id"]
+        
+        # Create project data
+        project_data = ProjectCreateRequest(
+            projectName=project_name,
+            design_template_id=template_id,
+            microProductName="Lesson Plan",
+            aiResponse=json.dumps(lesson_plan_data),
+            chatSessionId=None,
+            outlineId=payload.outlineProjectId,
+            folder_id=None,
+            theme="default",
+            source_context_type=source_context_type,
+            source_context_data=source_context_data
+        )
+        
+        # Add the project to database
+        created_project = await add_project_to_custom_db(project_data, onyx_user_id, pool)
+        
+        # Update the project with lesson plan specific data
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE projects 
+                SET product_type = 'lesson-plan',
+                   lesson_plan_data = $1,
+                   parent_outline_id = $2
+                WHERE id = $3
+                """,
+                json.dumps(lesson_plan_data),
+                payload.outlineProjectId,
+                created_project.id
+            )
+        
+        logger.info(f"Successfully created lesson plan project {created_project.id}")
+        
+        return LessonPlanResponse(
+            success=True,
+            project_id=created_project.id,
+            lesson_plan_data=LessonPlanData(**lesson_plan_data),
+            message="Lesson plan generated successfully"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in lesson plan generation: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An unexpected error occurred during lesson plan generation"
+        )
+
+@app.delete("/api/custom/projects/{project_id}", status_code=204)
+async def delete_project(
+    project_id: int,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Delete a single project by ID.
+    """
+    try:
+        async with pool.acquire() as conn:
+            # Check if project exists and belongs to user
+            project_row = await conn.fetchrow(
+                "SELECT id FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project_row:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Project not found"
+                )
+            
+            # Delete the project
+            await conn.execute(
+                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+        logger.info(f"Successfully deleted project {project_id}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error deleting project {project_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while deleting the project"
+        )
+
+@app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
+async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Return projects that were moved to trash (soft-deleted)."""
+    query = """
+        SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+               dt.template_name as design_template_name,
+               dt.microproduct_type as design_microproduct_type
+        FROM trashed_projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.onyx_user_id = $1 ORDER BY p.created_at DESC;
+    """
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, onyx_user_id)
+        resp: List[ProjectApiResponse] = []
+        for row in rows:
+            row_d = dict(row)
+            resp.append(ProjectApiResponse(
+                id=row_d["id"],
+                projectName=row_d["project_name"],
+                projectSlug=create_slug(row_d["project_name"]),
+                microproduct_name=row_d.get("microproduct_name"),
+                design_template_name=row_d.get("design_template_name"),
+                design_microproduct_type=row_d.get("design_microproduct_type"),
+                created_at=row_d["created_at"],
+                design_template_id=row_d.get("design_template_id")
+            ))
+        return resp
+    except Exception as e:
+        logger.error(f"Error fetching trashed projects list: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+# --- Restore trashed projects ---
+
+@app.post("/api/custom/projects/restore-multiple", status_code=status.HTTP_200_OK)
+async def restore_multiple_projects(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    if not delete_request.project_ids:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for restore."})
+
+    ids_to_restore: set[int] = set(delete_request.project_ids)
+
+    try:
+        async with pool.acquire() as conn:
+            # Expand scope to related lessons when requested
+            if delete_request.scope == 'all':
+                for pid in delete_request.project_ids:
+                    row = await conn.fetchrow(
+                        "SELECT project_name, microproduct_type FROM trashed_projects WHERE id=$1 AND onyx_user_id=$2",
+                        pid, onyx_user_id
+                    )
+                    if not row:
+                        continue
+                    pname: str = row["project_name"]
+                    if row["microproduct_type"] not in ("Training Plan", "Course Outline"):
+                        continue
+                    pattern = pname + ":%"
+                    lesson_rows = await conn.fetch(
+                        "SELECT id FROM trashed_projects WHERE onyx_user_id=$1 AND (project_name=$2 OR project_name LIKE $3)",
+                        onyx_user_id, pname, pattern
+                    )
+                    for lr in lesson_rows:
+                        ids_to_restore.add(lr["id"])
+
+            if not ids_to_restore:
+                return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to restore."})
+
+            # First, fetch all the data we need to restore
+            projects_to_restore = await conn.fetch("""
+                SELECT 
+                    id, onyx_user_id, project_name, product_type, microproduct_type,
+                    microproduct_name, microproduct_content, design_template_id, created_at,
+                    source_chat_session_id, folder_id, "order", completion_time
+                FROM trashed_projects 
+                WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2
+            """, list(ids_to_restore), onyx_user_id)
+
+            if not projects_to_restore:
+                return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "No projects found to restore."})
+
+            async with conn.transaction():
+                # Process each project individually to handle data conversion safely
+                for project in projects_to_restore:
+                    # Safely convert order and completion_time to strings (never integers)
+                    order_value = "0"
+                    completion_time_value = "0"
+                    
+                    # Handle order field - always convert to string
+                    if project['order'] is not None:
+                        try:
+                            if isinstance(project['order'], str):
+                                if project['order'].strip() and project['order'].isdigit():
+                                    order_value = project['order'].strip()
+                                else:
+                                    order_value = "0"
+                            else:
+                                # Convert any non-string value to string
+                                order_value = str(project['order']) if project['order'] is not None else "0"
+                        except (ValueError, TypeError):
+                            order_value = "0"
+                    
+                    # Handle completion_time field - always convert to string
+                    if project['completion_time'] is not None:
+                        try:
+                            if isinstance(project['completion_time'], str):
+                                if project['completion_time'].strip() and project['completion_time'].isdigit():
+                                    completion_time_value = project['completion_time'].strip()
+                                else:
+                                    completion_time_value = "0"
+                            else:
+                                # Convert any non-string value to string
+                                completion_time_value = str(project['completion_time']) if project['completion_time'] is not None else "0"
+                        except (ValueError, TypeError):
+                            completion_time_value = "0"
+
+                    # Insert into projects with safe values
+                    await conn.execute("""
+                        INSERT INTO projects (
+                            id, onyx_user_id, project_name, product_type, microproduct_type,
+                            microproduct_name, microproduct_content, design_template_id, created_at,
+                            source_chat_session_id, folder_id, "order", completion_time
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                    """,
+                        project['id'], project['onyx_user_id'], project['project_name'],
+                        project['product_type'], project['microproduct_type'], project['microproduct_name'],
+                        project['microproduct_content'], project['design_template_id'], project['created_at'],
+                        project['source_chat_session_id'], project['folder_id'], order_value, completion_time_value
+                    )
+
+                # Delete from trashed_projects table
+                await conn.execute(
+                    "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id = $2",
+                    list(ids_to_restore), onyx_user_id
+                )
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully restored {len(ids_to_restore)} project(s)."})
+
+    except Exception as e:
+        logger.error(f"Error restoring projects: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while restoring projects." if IS_PRODUCTION else f"DB error while restoring projects: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+
+# --- Permanently delete trashed projects ---
+
+@app.post("/api/custom/projects/delete-permanently", status_code=status.HTTP_200_OK)
+async def delete_permanently(delete_request: ProjectsDeleteRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    if not delete_request.project_ids:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": "No project IDs provided for permanent deletion."})
+
+    ids_to_delete: set[int] = set(delete_request.project_ids)
+
+    try:
+        async with pool.acquire() as conn:
+            for pid in delete_request.project_ids:
+                row = await conn.fetchrow(
+                    "SELECT project_name, microproduct_type FROM trashed_projects WHERE id=$1 AND onyx_user_id=$2",
+                    pid, onyx_user_id
+                )
+                if not row:
+                    continue
+                pname: str = row["project_name"]
+                # If this is an outline, cascade to its lessons
+                if row["microproduct_type"] in ("Training Plan", "Course Outline"):
+                    pattern = pname + ":%"
+                    lesson_rows = await conn.fetch(
+                        "SELECT id FROM trashed_projects WHERE onyx_user_id=$1 AND (project_name=$2 OR project_name LIKE $3)",
+                        onyx_user_id, pname, pattern
+                    )
+                    for lr in lesson_rows:
+                        ids_to_delete.add(lr["id"])
+
+            # Perform deletion of all collected ids
+            result = await conn.execute(
+                "DELETE FROM trashed_projects WHERE id = ANY($1::bigint[]) AND onyx_user_id=$2",
+                list(ids_to_delete), onyx_user_id
+            )
+
+        deleted_count = int(result.split(" ")[1]) if result else 0
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": f"Successfully deleted {deleted_count} project(s) permanently."})
+    except Exception as e:
+        logger.error(f"Error permanently deleting projects: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred during permanent deletion." if IS_PRODUCTION else f"DB error during permanent deletion: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+
+@app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
+async def get_user_trashed_projects(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Return projects that were moved to trash (soft-deleted)."""
+    query = """
+        SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+               dt.template_name as design_template_name,
+               dt.microproduct_type as design_microproduct_type
+        FROM trashed_projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        WHERE p.onyx_user_id = $1 ORDER BY p.created_at DESC;
+    """
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, onyx_user_id)
+        resp: List[ProjectApiResponse] = []
+        for row in rows:
+            row_d = dict(row)
+            resp.append(ProjectApiResponse(
+                id=row_d["id"],
+                projectName=row_d["project_name"],
+                projectSlug=create_slug(row_d["project_name"]),
+                microproduct_name=row_d.get("microproduct_name"),
+                design_template_name=row_d.get("design_template_name"),
+                design_microproduct_type=row_d.get("design_microproduct_type"),
+                created_at=row_d["created_at"],
+                design_template_id=row_d.get("design_template_id")
+            ))
+        return resp
+    except Exception as e:
+        logger.error(f"Error fetching trashed projects list: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while fetching trashed projects." if IS_PRODUCTION else f"DB error fetching trashed projects: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+# Add the new model for training plan editing
+class TrainingPlanEditRequest(BaseModel):
+    prompt: str
+    projectId: int
+    chatSessionId: Optional[str] = None
+    language: str = "en"
+    theme: Optional[str] = "cherry"  # Theme to preserve during edit
+    # File context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+
+@app.post("/api/custom/training-plan/edit")
+async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Edit an existing training plan using AI prompt"""
+    logger.info(f"[edit_training_plan_with_prompt] projectId={payload.projectId} prompt='{payload.prompt[:50]}...'")
+    
+    # Get current user
+    onyx_user_id = await get_current_onyx_user_id(request)
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    
+    # Get the existing project data
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT p.*, dt.component_name 
+            FROM projects p 
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+        """, payload.projectId, onyx_user_id)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
+            raise HTTPException(status_code=400, detail="Project is not a training plan")
+
+    # Get or create chat session
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+    else:
+        persona_id = await get_contentbuilder_persona_id(cookies)
+        chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    # Convert existing training plan to markdown format for AI processing
+    existing_content = row["microproduct_content"]
+    current_outline = ""
+    
+    if existing_content:
+        # Convert existing training plan to markdown format with full details
+        content_data = existing_content
+        if isinstance(content_data, dict):
+            main_title = content_data.get("mainTitle", "Training Plan")
+            current_outline = f"# {main_title}\n\n"
+            
+            sections = content_data.get("sections", [])
+            for section in sections:
+                section_id = section.get("id", "")
+                section_title = section.get("title", "")
+                total_hours = section.get("totalHours", 0.0)
+                # Get module quality tier information for preservation
+                section_quality_tier = section.get("quality_tier", "")
+                
+                # Convert special characters to safe ASCII for AI processing
+                # We'll convert back after AI response to preserve user-visible format
+                if section_id and section_title:
+                    # Replace № with # for AI processing (encoding-safe)
+                    safe_section_id = section_id.replace("№", "#")
+                    if section_id != safe_section_id:
+                        logger.info(f"[SMART_EDIT_ENCODING] Converted '{section_id}' to '{safe_section_id}' for AI processing")
+                    # Check if section_id already contains "Module" keyword
+                    if "Module" in safe_section_id or "Модуль" in safe_section_id:
+                        current_outline += f"## {safe_section_id}: {section_title}\n"
+                    else:
+                        # For other formats (#1, mod1, etc.), preserve them exactly as they are
+                        current_outline += f"## {safe_section_id}: {section_title}\n"
+                else:
+                    # Fallback for empty IDs
+                    current_outline += f"## {section_title}\n"
+                current_outline += f"**Total Hours:** {total_hours}\n"
+                if section_quality_tier:
+                    current_outline += f"**Module Quality Tier:** {section_quality_tier}\n"
+                current_outline += "\n"
+                
+                lessons = section.get("lessons", [])
+                if lessons:
+                    current_outline += "### Lessons:\n"
+                    for idx, lesson in enumerate(lessons, 1):
+                        lesson_title = lesson.get("title", "")
+                        lesson_hours = lesson.get("hours", 1.0)
+                        lesson_source = lesson.get("source", "Create from scratch")
+                        
+                        # Get check details
+                        check = lesson.get("check", {})
+                        check_type = check.get("type", "none")
+                        check_text = check.get("text", "No")
+                        
+                        # Get content availability
+                        content_available = lesson.get("contentAvailable", {})
+                        content_type = content_available.get("type", "yes")
+                        content_text = content_available.get("text", "100%")
+                        
+                        # Get quality tier information for preservation
+                        lesson_quality_tier = lesson.get("quality_tier", "")
+                        
+                        current_outline += f"{idx}. **{lesson_title}**\n"
+                        current_outline += f"   - Hours: {lesson_hours}\n"
+                        current_outline += f"   - Source: {lesson_source}\n"
+                        current_outline += f"   - Assessment: {check_type} ({check_text})\n"
+                        current_outline += f"   - Content Available: {content_type} ({content_text})\n"
+                        if lesson_quality_tier:
+                            current_outline += f"   - Quality Tier: {lesson_quality_tier}\n"
+                        current_outline += "\n"
+                else:
+                    current_outline += "*No lessons defined*\n\n"
+                current_outline += "\n"
+
+    # Prepare wizard payload
+    wiz_payload = {
+        "product": "Training Plan Edit",
+        "prompt": payload.prompt,
+        "language": payload.language,
+        "originalOutline": current_outline,
+        "editMode": True
+    }
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # Stream the response
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+        
+        # NEW: Check if we should use OpenAI directly instead of Onyx
+        if should_use_openai_direct(payload):
+            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[SMART_EDIT_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            try:
+                chunks_received = 0
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[SMART_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[SMART_EDIT_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[SMART_EDIT_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[SMART_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                
+            except Exception as e:
+                logger.error(f"[SMART_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # EXISTING: Use Onyx when file context is present
+        else:
+            logger.info(f"[SMART_EDIT_STREAM] ❌ USING ONYX API (file context detected)")
+            logger.info(f"[SMART_EDIT_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            
+            try:
+                async with httpx.AsyncClient(timeout=timeout_duration) as client:
+                    # Parse folder and file IDs for Onyx
+                    folder_ids_list = []
+                    file_ids_list = []
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    send_payload = {
+                        "chat_session_id": chat_id,
+                        "message": wizard_message,
+                        "parent_message_id": None,
+                        "file_descriptors": [],
+                        "user_file_ids": file_ids_list,
+                        "user_folder_ids": folder_ids_list,
+                        "prompt_id": None,
+                        "search_doc_ids": None,
+                        "retrieval_options": {"run_search": "never", "real_time": False},
+                        "stream_response": True,
+                    }
+                    logger.info(f"[PREVIEW_ONYX] Sending request to Onyx /chat/send-message with payload: user_file_ids={file_ids_list}, user_folder_ids={folder_ids_list}")
+                    async with client.stream("POST", f"{ONYX_API_SERVER_URL}/chat/send-message", json=send_payload, cookies=cookies) as resp:
+                        logger.info(f"[PREVIEW_ONYX] Response status: {resp.status_code}")
+                        async for raw_line in resp.aiter_lines():
+                            if not raw_line:
+                                continue
+                            line = raw_line.strip()
+                            if line.startswith("data:"):
+                                line = line.split("data:", 1)[1].strip()
+                            if line == "[DONE]":
+                                logger.info("[PREVIEW_ONYX] Received [DONE] from Onyx stream")
+                                break
+                            try:
+                                pkt = json.loads(line)
+                                if "answer_piece" in pkt:
+                                    delta_text = pkt["answer_piece"].replace("\\n", "\n")
+                                    assistant_reply += delta_text
+                                    logger.debug(f"[PREVIEW_ONYX] Received chunk: {delta_text[:80]}")
+                                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                            except Exception as e:
+                                logger.error(f"[PREVIEW_ONYX] Error parsing chunk: {e} | Raw: {line[:100]}")
+                                continue
+
+                            # send keep-alive every 8s
+                            now = asyncio.get_event_loop().time()
+                            if now - last_send > 8:
+                                yield b" "
+                                last_send = now
+            except Exception as e:
+                logger.error(f"[PREVIEW_ONYX] Exception in streaming: {e}")
+                raise
+
+        # Cache full raw outline for later finalize step
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[PREVIEW_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+
+        modules_preview = _parse_outline_markdown(assistant_reply)
+        logger.info(f"[PREVIEW_DONE] Parsed modules: {len(modules_preview)}")
+
+        # Convert back from safe ASCII characters to original special characters
+        # Replace # back to № to restore original format for user display
+        assistant_reply_restored = assistant_reply.replace("## #", "## №")
+        if assistant_reply_restored != assistant_reply:
+            logger.info(f"[SMART_EDIT_ENCODING] Restored special characters in AI response")
+        
+        # Update the cached version and the one used for parsing
+        if chat_id:
+            OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply_restored
+        
+        # Use the restored version for all subsequent processing
+        assistant_reply = assistant_reply_restored
+        
+        # NEW: Parse AI response into structured TrainingPlanDetails but DON'T save to database yet
+        # This is for preview - user will confirm before saving
+        updated_content_dict: Optional[Dict[str, Any]] = None
+        try:
+            # Use the proper LLM parser to convert AI response to TrainingPlanDetails
+            # Use the SAME parsing instructions as normal generation to ensure consistent ID handling
+            component_specific_instructions = """
+            You are an expert text-to-JSON parsing assistant for 'Training Plan' content.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into structured JSON that represents a multi-module training programme. Capture all information and hierarchical relationships. Preserve the original language for all textual fields.
+
+            **Global Fields:**
+            1.  `mainTitle` (string): Title of the whole programme. If the input lacks a clear title, use the project name given by the caller.
+            2.  `sections` (array): Ordered list of module objects.
+            3.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk", "es".
+
+            **Section Object (`sections` array items):**
+            * `id` (string): CRITICAL - Extract the exact module ID from the markdown headers. If you see "## №2: Title", extract "№2". If you see "## #2: Title", convert it to "№2". If you see "## Module 3: Title", convert it to "№3". Always preserve the original numbering but use "№X" format.
+            * `title` (string): Module name without the word "Module".
+            * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
+            * `quality_tier` (string, optional): Quality tier for this module. PRESERVE EXACTLY from source if mentioned as "Module Quality Tier: X". If not specified, omit this field entirely.
+            * `lessons` (array): List of lesson objects belonging to the module.
+            * `autoCalculateHours` (boolean, default true): Leave as `true` unless the source explicitly provides `totalHours`.
+
+            **Lesson Object (`lessons` array items):**
+            * `title` (string): Lesson title WITHOUT leading numeration like "Lesson 1.1".
+            * `hours` (number): Duration in hours. If absent, default to 1.
+            * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
+            * `completionTime` (string): Estimated completion time in minutes, randomly generated between 5-8 minutes. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
+            * `quality_tier` (string, optional): Quality tier for this lesson. PRESERVE EXACTLY from source if mentioned as "Quality Tier: X". If not specified, omit this field entirely.
+            * `check` (object):
+                - `type` (string): One of "test", "quiz", "practice", "none".
+                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
+            * `contentAvailable` (object):
+                - `type` (string): One of "yes", "no", "percentage".
+                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
+
+            **CRITICAL ID EXTRACTION RULES:**
+            • When you see "## #2: Technical Setup", extract the ID as "№2" (convert # to №)
+            • When you see "## №3: Advanced Topics", extract the ID as "№3" (preserve exactly)  
+            • When you see "## Module 5: Data Analysis", extract the ID as "№5" (extract number and convert to № format)
+            • NEVER generate sequential IDs like №1, №2, №3 - ALWAYS extract the actual number from the header
+            • ALWAYS use the № character (U+2116) in module IDs, never just plain numbers like "2" or "3"
+            • If you extract just a number like "2", format it as "№2"
+            
+            Return ONLY the JSON object.
+            """
+            
+            # Create a default TrainingPlanDetails instance for error handling
+            # Preserve theme from existing content or use payload theme
+            theme_to_use = "cherry"
+            if existing_content and isinstance(existing_content, dict):
+                theme_to_use = existing_content.get("theme", "cherry")
+            else:
+                theme_to_use = payload.theme or "cherry"
+                
+            default_training_plan = TrainingPlanDetails(
+                mainTitle=row["project_name"],
+                sections=[],
+                detectedLanguage=detect_language(assistant_reply),
+                theme=theme_to_use
+            )
+            
+            # Example JSON structure for the LLM parser
+            llm_json_example = json.dumps({
+                "mainTitle": "Example Training Plan",
+                "sections": [
+                    {
+                        "id": "№1",
+                        "title": "Introduction to Topic",
+                        "totalHours": 10,
+                        "quality_tier": "premium",
+                        "lessons": [
+                            {
+                                "title": "Lesson 1: Basics",
+                                "hours": 2,
+                                "source": "Create from scratch",
+                                "completionTime": "5m",
+                                "quality_tier": "interactive",
+                                "check": {"type": "test", "text": "Test"},
+                                "contentAvailable": {"type": "yes", "text": "100%"}
+                            }
+                        ],
+                        "autoCalculateHours": True
+                    }
+                ],
+                "detectedLanguage": "en",
+                "theme": theme_to_use
+            })
+            
+            logger.info(f"[SMART_EDIT_PARSER] Parsing AI response with length: {len(assistant_reply)}")
+            logger.info(f"[SMART_EDIT_PARSER] AI response preview: {assistant_reply[:300]}{'...' if len(assistant_reply) > 300 else ''}")
+            
+            parsed_training_plan = await parse_ai_response_with_llm(
+                ai_response=assistant_reply,
+                project_name=row["project_name"],
+                target_model=TrainingPlanDetails,
+                default_error_model_instance=default_training_plan,
+                dynamic_instructions=component_specific_instructions,
+                target_json_example=llm_json_example
+            )
+            
+            if parsed_training_plan:
+                # Preserve the original language and theme
+                if existing_content and isinstance(existing_content, dict):
+                    # Preserve original language
+                    original_language = existing_content.get("detectedLanguage", payload.language)
+                    parsed_training_plan.detectedLanguage = original_language
+                    logger.info(f"[SMART_EDIT_LANGUAGE] Preserved original language: {original_language}")
+                    
+                    # Preserve original theme
+                    original_theme = existing_content.get("theme", "cherry")
+                    parsed_training_plan.theme = original_theme
+                    logger.info(f"[SMART_EDIT_THEME] Preserved original theme: {original_theme}")
+                else:
+                    # Use the language and theme from the request payload if available
+                    parsed_training_plan.detectedLanguage = payload.language or "en"
+                    parsed_training_plan.theme = payload.theme or "cherry"
+                    logger.info(f"[SMART_EDIT_LANGUAGE] Using language from payload: {payload.language}")
+                    logger.info(f"[SMART_EDIT_THEME] Using theme from payload: {payload.theme}")
+                
+                # Post-process module IDs to ensure № character is preserved
+                for section in parsed_training_plan.sections:
+                    if section.id:
+                        # Fix module IDs that lost the № character
+                        if section.id.isdigit():
+                            # Plain number like "2" -> "№2"
+                            section.id = f"№{section.id}"
+                            logger.info(f"[SMART_EDIT_ID_FIX] Fixed plain number ID '{section.id[1:]}' to '{section.id}'")
+                        elif section.id.startswith("#"):
+                            # Hash format like "#2" -> "№2"
+                            number = section.id[1:]
+                            section.id = f"№{number}"
+                            logger.info(f"[SMART_EDIT_ID_FIX] Fixed hash ID '#{number}' to '{section.id}'")
+                        elif not section.id.startswith("№"):
+                            # Other formats without № - try to extract number and format correctly
+                            import re
+                            number_match = re.search(r'\d+', section.id)
+                            if number_match:
+                                number = number_match.group()
+                                section.id = f"№{number}"
+                                logger.info(f"[SMART_EDIT_ID_FIX] Fixed ID format to '{section.id}'")
+                
+                updated_content_dict = parsed_training_plan.model_dump(mode='json', exclude_none=True)
+                
+                logger.info(f"[SMART_EDIT_PREVIEW] Generated preview for training plan projectId={payload.projectId}")
+            
+        except Exception as e:
+            logger.error(f"[SMART_EDIT_ERROR] Error parsing training plan: {e}")
+            # Fall back to the preview-only mode if parsing fails
+            updated_content_dict = None
+
+        # Send completion packet with updatedContent for frontend preview
+        # Note: This is now a PREVIEW - user must confirm to save to database
+        if updated_content_dict:
+            done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
+        else:
+            # Fallback to old format if parsing failed
+            done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+        
+        yield (json.dumps(done_packet) + "\n").encode()
+
+    return StreamingResponse(streamer(), media_type="application/json")
+
+class SmartEditConfirmRequest(BaseModel):
+    projectId: int
+    updatedContent: dict
+    language: str = "en"
+    theme: Optional[str] = "cherry"  # Theme to preserve during confirmation
+
+@app.post("/api/custom/training-plan/confirm-edit")
+async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Confirm and save smart-edit changes to the database"""
+    logger.info(f"[confirm_training_plan_edit] projectId={payload.projectId}")
+    
+    # Get current user
+    onyx_user_id = await get_current_onyx_user_id(request)
+    
+    # Verify the project exists and belongs to the user
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT p.*, dt.component_name 
+            FROM projects p 
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+        """, payload.projectId, onyx_user_id)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
+            raise HTTPException(status_code=400, detail="Project is not a training plan")
+
+    try:
+        # Log the content structure for debugging
+        logger.info(f"[SMART_EDIT_CONFIRM_CONTENT] Content structure: {type(payload.updatedContent)}")
+        logger.info(f"[SMART_EDIT_CONFIRM_CONTENT] Content keys: {list(payload.updatedContent.keys()) if isinstance(payload.updatedContent, dict) else 'Not a dict'}")
+        
+        # Save the confirmed changes to the database
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                UPDATE projects 
+                SET microproduct_content = $1
+                WHERE id = $2 AND onyx_user_id = $3
+            """, payload.updatedContent, payload.projectId, onyx_user_id)
+        
+        logger.info(f"[SMART_EDIT_CONFIRMED] Successfully saved changes for training plan projectId={payload.projectId}")
+        
+        return {"success": True, "message": "Changes confirmed and saved successfully"}
+        
+    except Exception as e:
+        logger.error(f"[SMART_EDIT_CONFIRM_ERROR] Error saving confirmed changes: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save changes")
+
+# Add the finalize model for training plan editing
+class TrainingPlanEditFinalize(BaseModel):
+    prompt: str
+    projectId: int
+    chatSessionId: str
+    editedOutline: Dict[str, Any]
+    language: str = "en"
+
+@app.post("/api/custom/training-plan/finalize")
+async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Finalize and apply the edited training plan"""
+    logger.info(f"[finalize_training_plan_edit] projectId={payload.projectId} chatSessionId={payload.chatSessionId}")
+    
+    # Get current user
+    onyx_user_id = await get_current_onyx_user_id(request)
+    
+    # Get the cached preview
+    cached_preview = OUTLINE_PREVIEW_CACHE.get(payload.chatSessionId)
+    if not cached_preview:
+        raise HTTPException(status_code=400, detail="No preview found for this session. Please regenerate the preview.")
+    
+    # Get the existing project data
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT p.*, dt.component_name 
+            FROM projects p 
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id 
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+        """, payload.projectId, onyx_user_id)
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
+            raise HTTPException(status_code=400, detail="Project is not a training plan")
+    
+    # Parse the edited outline from the cached preview using LLM-based parsing
+    try:
+        # Create a default TrainingPlanDetails instance for error handling
+        default_training_plan = TrainingPlanDetails(
+            mainTitle=row["project_name"],
+            sections=[],
+            detectedLanguage=detect_language(cached_preview)
+        )
+        
+        # Component-specific instructions for TrainingPlanDetails parsing
+        component_specific_instructions = """
+            Parse the training plan outline into a structured JSON format. Extract all modules and their lessons with complete details.
+
+            **Main Object:**
+            * `mainTitle` (string): The main title of the training plan.
+            * `sections` (array): List of module objects.
+            3.  `detectedLanguage` (string): 2-letter code such as "en", "ru", "uk", "es".
+
+            **Section Object (`sections` array items):**
+            * `id` (string): CRITICAL - Extract the exact module ID from the markdown headers. If you see "## №2: Title", extract "№2". If you see "## #2: Title", convert it to "№2". If you see "## Module 3: Title", convert it to "№3". Always preserve the original numbering but use "№X" format.
+            * `title` (string): Module name without the word "Module".
+            * `totalHours` (number): Sum of all lesson hours in this module, rounded to one decimal. If not present in the source, set to 0 and rely on `autoCalculateHours`.
+            * `lessons` (array): List of lesson objects belonging to the module.
+            * `autoCalculateHours` (boolean, default true): Leave as `true` unless the source explicitly provides `totalHours`.
+
+            **Lesson Object (`lessons` array items):**
+            * `title` (string): Lesson title WITHOUT leading numeration like "Lesson 1.1".
+            * `hours` (number): Duration in hours. If absent, default to 1.
+            * `source` (string): Where the learning material comes from (e.g., "Internal Documentation"). "Create from scratch" if unknown.
+            * `completionTime` (string): Estimated completion time in minutes, randomly generated between 5-8 minutes. Format as "5m", "6m", "7m", or "8m". This should be randomly assigned for each lesson.
+            * `check` (object):
+                - `type` (string): One of "test", "quiz", "practice", "none".
+                - `text` (string): Description of the assessment. Must be in the original language. If `type` is not "none" and the description is missing, use "No".
+            * `contentAvailable` (object):
+                - `type` (string): One of "yes", "no", "percentage".
+                - `text` (string): Same information expressed as free text in original language. If not specified in the input, default to {"type": "yes", "text": "100%"}.
+
+            **CRITICAL ID EXTRACTION RULES:**
+            • When you see "## #2: Technical Setup", extract the ID as "№2" (convert # to №)
+            • When you see "## №3: Advanced Topics", extract the ID as "№3" (preserve exactly)  
+            • When you see "## Module 5: Data Analysis", extract the ID as "№5" (extract number and convert to № format)
+            • NEVER generate sequential IDs like №1, №2, №3 - ALWAYS extract the actual number from the header
+            • ALWAYS use the № character (U+2116) in module IDs, never just plain numbers like "2" or "3"
+            • If you extract just a number like "2", format it as "№2"
+            
+            Return ONLY the JSON object.
+            """
+        
+        # Example JSON structure for the LLM parser
+        llm_json_example = json.dumps({
+            "mainTitle": "Example Training Plan",
+            "sections": [
+                {
+                    "id": "№1",
+                    "title": "Introduction to Topic",
+                    "totalHours": 10,
+                    "lessons": [
+                        {
+                            "title": "Lesson 1: Basics",
+                            "hours": 2,
+                            "source": "Create from scratch",
+                            "completionTime": "5m",
+                            "check": {"type": "test", "text": "Test"},
+                            "contentAvailable": {"type": "yes", "text": "100%"}
+                        }
+                    ],
+                    "autoCalculateHours": True
+                }
+            ],
+            "detectedLanguage": "en",
+            "theme": "cherry"
+        })
+        
+        # First, parse the outline to get auto-calculated totalHours
+        parsed_orig = _parse_outline_markdown(cached_preview)
+        logger.info(f"[FINALIZE] Parsed outline with {len(parsed_orig)} modules")
+        
+        # Create a mapping of module titles to auto-calculated totalHours
+        auto_calculated_hours = {}
+        for module in parsed_orig:
+            title = module.get('title', '')
+            total_hours = module.get('totalHours', 0.0)
+            auto_calculated_hours[title] = total_hours
+            logger.info(f"[FINALIZE] Auto-calculated hours for '{title}': {total_hours}")
+        
+        training_plan_details = await parse_ai_response_with_llm(
+            ai_response=cached_preview,
+            project_name=row["project_name"],
+            target_model=TrainingPlanDetails,
+            default_error_model_instance=default_training_plan,
+            dynamic_instructions=component_specific_instructions,
+            target_json_example=llm_json_example
+        )
+        
+        if not training_plan_details:
+            raise HTTPException(status_code=400, detail="Failed to parse the edited training plan")
+        
+        # Override LLM-calculated totalHours with auto-calculated values
+        for section in training_plan_details.sections:
+            section_title = section.title
+            if section_title in auto_calculated_hours:
+                original_hours = section.totalHours
+                section.totalHours = auto_calculated_hours[section_title]
+                logger.info(f"[FINALIZE] Overrode totalHours for '{section_title}': {original_hours} -> {section.totalHours}")
+            else:
+                logger.warning(f"[FINALIZE] No auto-calculated hours found for section: '{section_title}'")
+        
+        # Post-process module IDs to ensure № character is preserved
+        for section in training_plan_details.sections:
+            if section.id:
+                # Fix module IDs that lost the № character
+                if section.id.isdigit():
+                    # Plain number like "2" -> "№2"
+                    section.id = f"№{section.id}"
+                    logger.info(f"[FINALIZE_ID_FIX] Fixed plain number ID '{section.id[1:]}' to '{section.id}'")
+                elif section.id.startswith("#"):
+                    # Hash format like "#2" -> "№2"
+                    number = section.id[1:]
+                    section.id = f"№{number}"
+                    logger.info(f"[FINALIZE_ID_FIX] Fixed hash ID '#{number}' to '{section.id}'")
+                elif not section.id.startswith("№"):
+                    # Other formats without № - try to extract number and format correctly
+                    import re
+                    number_match = re.search(r'\d+', section.id)
+                    if number_match:
+                        number = number_match.group()
+                        section.id = f"№{number}"
+                        logger.info(f"[FINALIZE_ID_FIX] Fixed ID format to '{section.id}'")
+        
+        # Update the project with the new content
+        await conn.execute("""
+            UPDATE projects 
+            SET microproduct_content = $1
+            WHERE id = $2 AND onyx_user_id = $3
+        """, json.dumps(training_plan_details.dict()), payload.projectId, onyx_user_id)
+        
+        logger.info(f"[FINALIZE_SUCCESS] Updated training plan projectId={payload.projectId}")
+        
+        # Clean up the cache
+        OUTLINE_PREVIEW_CACHE.pop(payload.chatSessionId, None)
+        
+        return {"success": True, "message": "Training plan updated successfully"}
+        
+    except Exception as e:
+        logger.error(f"[FINALIZE_ERROR] Error finalizing training plan: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to finalize training plan: {str(e)}")
+
+# --- Folders API Models ---
+class ProjectFolderCreateRequest(BaseModel):
+    name: str
+    parent_id: Optional[int] = None
+    quality_tier: Optional[str] = "medium"  # Default to medium tier
+    custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None  # { presentation, one_pager, quiz, video_lesson }
+
+class ProjectFolderResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    parent_id: Optional[int] = None
+    quality_tier: Optional[str] = "medium"  # Default to medium tier
+    custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
+
+class ProjectFolderListResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    order: int
+    parent_id: Optional[int] = None
+    quality_tier: Optional[str] = "medium"  # Default to medium tier
+    custom_rate: Optional[int] = 200  # Default to 200 custom rate
+    is_advanced: Optional[bool] = False
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
+    project_count: int
+    total_lessons: int
+    total_hours: int
+    total_completion_time: int
+    model_config = {"from_attributes": True}
+
+class ProjectFolderRenameRequest(BaseModel):
+    name: str
+
+class ProjectFolderMoveRequest(BaseModel):
+    parent_id: Optional[int] = None
+
+class ProjectFolderTierRequest(BaseModel):
+    quality_tier: str
+    custom_rate: int
+    is_advanced: Optional[bool] = None
+    advanced_rates: Optional[Dict[str, float]] = None
+    completion_times: Optional[Dict[str, int]] = None
+
+# --- Folders API Endpoints ---
+@app.get("/api/custom/projects/folders", response_model=List[ProjectFolderListResponse])
+async def list_folders(onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    query = """
+        SELECT 
+            pf.id, 
+            pf.name, 
+            pf.created_at, 
+            pf."order", 
+            pf.parent_id,
+            COALESCE(pf.quality_tier, 'medium') as quality_tier,
+            COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times,
+            COUNT(p.id) as project_count,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN p.microproduct_content IS NOT NULL 
+                        AND p.microproduct_content->>'sections' IS NOT NULL 
+                        THEN (
+                            SELECT COUNT(*)::int 
+                            FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        )
+                        ELSE 0 
+                    END
+                ), 0
+            ) as total_lessons,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN p.microproduct_content IS NOT NULL 
+                        AND p.microproduct_content->>'sections' IS NOT NULL 
+                        THEN (
+                            SELECT COALESCE(SUM(
+                                CASE 
+                                    WHEN lesson->>'hours' IS NOT NULL AND lesson->>'hours' != '' 
+                                    THEN (lesson->>'hours')::float
+                                    ELSE 0 
+                                END
+                            ), 0)
+                            FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        )
+                        ELSE 0 
+                    END
+                ), 0
+            ) as total_hours,
+            COALESCE(
+                SUM(
+                    CASE 
+                        WHEN p.microproduct_content IS NOT NULL 
+                        AND p.microproduct_content->>'sections' IS NOT NULL 
+                        THEN (
+                            SELECT COALESCE(SUM(
+                                CASE 
+                                    WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
+                                    THEN (
+                                        -- Extract numeric part using regex, handling all language units (m, м, хв)
+                                        CASE 
+                                            WHEN lesson->>'completionTime' ~ '^[0-9]+[mмхв]*$'
+                                            THEN CAST(regexp_replace(lesson->>'completionTime', '[^0-9]', '', 'g') AS INTEGER)
+                                            ELSE 5
+                                        END
+                                    )
+                                    ELSE 5 
+                                END
+                            ), 0)
+                            FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        )
+                        ELSE 0 
+                    END
+                ), 0
+            ) as total_completion_time
+        FROM project_folders pf
+        LEFT JOIN projects p ON pf.id = p.folder_id
+        WHERE pf.onyx_user_id = $1
+        GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.is_advanced, pf.advanced_rates
+        ORDER BY pf."order" ASC, pf.created_at ASC;
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(query, onyx_user_id)
+    return [ProjectFolderListResponse(**dict(row)) for row in rows]
+
+@app.get("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
+async def get_folder(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get a specific folder by ID"""
+    query = """
+        SELECT 
+            pf.id, 
+            pf.name, 
+            pf.created_at, 
+            pf.parent_id,
+            COALESCE(pf.quality_tier, 'medium') as quality_tier,
+            COALESCE(pf.custom_rate, 200) as custom_rate,
+            pf.is_advanced as is_advanced,
+            pf.advanced_rates as advanced_rates,
+            pf.completion_times as completion_times
+        FROM project_folders pf
+        WHERE pf.id = $1 AND pf.onyx_user_id = $2
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, folder_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return ProjectFolderResponse(**dict(row))
+
+@app.post("/api/custom/projects/folders", response_model=ProjectFolderResponse)
+async def create_folder(req: ProjectFolderCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    async with pool.acquire() as conn:
+        # If parent_id is provided, verify it exists and belongs to user
+        if req.parent_id is not None:
+            parent_folder = await conn.fetchrow(
+                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                req.parent_id, onyx_user_id
+            )
+            if not parent_folder:
+                raise HTTPException(status_code=404, detail="Parent folder not found")
+        
+        query = "INSERT INTO project_folders (onyx_user_id, name, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
+        row = await conn.fetchrow(query, onyx_user_id, req.name, req.parent_id, req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None)
+    return ProjectFolderResponse(**dict(row))
+
+@app.patch("/api/custom/projects/folders/{folder_id}", response_model=ProjectFolderResponse)
+async def rename_folder(folder_id: int, req: ProjectFolderRenameRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    query = "UPDATE project_folders SET name = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates;"
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(query, req.name, folder_id, onyx_user_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return ProjectFolderResponse(**dict(row))
+
+@app.delete("/api/custom/projects/folders/{folder_id}", status_code=204)
+async def delete_folder(folder_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    # Set folder_id to NULL for all projects in this folder (preserve projects)
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE projects SET folder_id = NULL WHERE folder_id = $1 AND onyx_user_id = $2;", folder_id, onyx_user_id)
+        result = await conn.execute("DELETE FROM project_folders WHERE id = $1 AND onyx_user_id = $2;", folder_id, onyx_user_id)
+    if result == "DELETE 0":
+        raise HTTPException(status_code=404, detail="Folder not found")
+    return JSONResponse(status_code=204, content={})
+
+@app.put("/api/custom/projects/folders/{folder_id}/move", response_model=ProjectFolderResponse)
+async def move_folder(folder_id: int, req: ProjectFolderMoveRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Move a folder to a different parent folder"""
+    async with pool.acquire() as conn:
+        # Verify the folder exists and belongs to user
+        folder = await conn.fetchrow(
+            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+            folder_id, onyx_user_id
+        )
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # If parent_id is provided, verify it exists and belongs to user
+        if req.parent_id is not None:
+            parent_folder = await conn.fetchrow(
+                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                req.parent_id, onyx_user_id
+            )
+            if not parent_folder:
+                raise HTTPException(status_code=404, detail="Parent folder not found")
+            
+            # Prevent circular references - check if the target parent is a descendant of this folder
+            if req.parent_id == folder_id:
+                raise HTTPException(status_code=400, detail="Cannot move folder into itself")
+            
+            # Check for circular references by traversing up the tree
+            current_parent_id = req.parent_id
+            while current_parent_id is not None:
+                if current_parent_id == folder_id:
+                    raise HTTPException(status_code=400, detail="Cannot move folder into its own descendant")
+                parent = await conn.fetchrow(
+                    "SELECT parent_id FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                    current_parent_id, onyx_user_id
+                )
+                if not parent:
+                    break
+                current_parent_id = parent['parent_id']
+        
+        # Update the folder's parent_id
+        updated_folder = await conn.fetchrow(
+            "UPDATE project_folders SET parent_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING id, name, created_at, parent_id",
+            req.parent_id, folder_id, onyx_user_id
+        )
+        
+        return ProjectFolderResponse(**dict(updated_folder))
+
+@app.patch("/api/custom/projects/folders/{folder_id}/tier", response_model=ProjectFolderResponse)
+async def update_folder_tier(folder_id: int, req: ProjectFolderTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update the quality tier of a folder and recalculate creation hours for all projects in the folder"""
+    async with pool.acquire() as conn:
+        # Verify the folder exists and belongs to user
+        folder = await conn.fetchrow(
+            "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+            folder_id, onyx_user_id
+        )
+        if not folder:
+            raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # Update the folder's quality_tier/custom_rate and advanced fields
+        updated_folder = await conn.fetchrow(
+            "UPDATE project_folders SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING id, name, created_at, parent_id, quality_tier, custom_rate, is_advanced, advanced_rates, completion_times",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, folder_id, onyx_user_id
+        )
+        
+        # Get all projects in this folder (including subfolders recursively)
+        projects_to_update = await conn.fetch("""
+            WITH RECURSIVE folder_tree AS (
+                -- Base case: the target folder
+                SELECT id, parent_id FROM project_folders WHERE id = $1
+                UNION ALL
+                -- Recursive case: child folders
+                SELECT pf.id, pf.parent_id 
+                FROM project_folders pf
+                INNER JOIN folder_tree ft ON pf.parent_id = ft.id
+            )
+            SELECT DISTINCT p.id, p.microproduct_content, p.folder_id
+            FROM projects p
+            INNER JOIN folder_tree ft ON p.folder_id = ft.id
+            WHERE p.microproduct_content IS NOT NULL 
+            AND p.microproduct_content->>'sections' IS NOT NULL
+        """, folder_id)
+        
+        # Update creation hours for each project based on the new tier and custom rate
+        for project in projects_to_update:
+            try:
+                content = project['microproduct_content']
+                if isinstance(content, dict) and 'sections' in content:
+                    sections = content['sections']
+                    total_completion_time = 0
+                    
+                    # Calculate total completion time and update tier names and hours
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            # Clear any existing module-level tier settings to ensure folder-level tier takes precedence
+                            if 'custom_rate' in section:
+                                del section['custom_rate']
+                            if 'quality_tier' in section:
+                                del section['quality_tier']
+                            
+                            # Update the module's tier name to match the new folder tier
+                            section['quality_tier'] = req.quality_tier
+                                
+                            section_total_hours = 0
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict):
+                                    # Clear any existing lesson-level tier settings to ensure folder-level tier takes precedence
+                                    if 'custom_rate' in lesson:
+                                        del lesson['custom_rate']
+                                    if 'quality_tier' in lesson:
+                                        del lesson['quality_tier']
+                                    
+                                    # Update the tier name to match the new folder tier
+                                    lesson['quality_tier'] = req.quality_tier
+
+                                    # Always update recommendations when tier changes to ensure they match the new tier
+                                    try:
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                                lesson.get('title', ''),
+                                                req.quality_tier,
+                                                {
+                                                    'presentation': False,
+                                                    'one-pager': False,
+                                                    'quiz': False,
+                                                    'video-lesson': False,
+                                                }
+                                            )
+                                        # Also record a deterministic completion_breakdown and completionTime
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
+                                    except Exception:
+                                        pass
+                                    
+                                    # Parse completion time - treat missing as 5 minutes
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Add to total completion time
+                                    total_completion_time += completion_time_minutes
+                                    
+                                    # Recalculate hours considering advanced per-product rates if enabled
+                                    try:
+                                        primary = []
+                                        if isinstance(lesson.get('recommended_content_types'), dict):
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                        is_adv = bool(updated_folder.get('is_advanced'))
+                                        adv_rates = updated_folder.get('advanced_rates') if is_adv else None
+                                        if is_adv and primary:
+                                            breakdown = lesson.get('completion_breakdown') if isinstance(lesson.get('completion_breakdown'), dict) else None
+                                            rates = {
+                                                'presentation': (adv_rates or {}).get('presentation') or req.custom_rate,
+                                                'one_pager': (adv_rates or {}).get('one_pager') or req.custom_rate,
+                                                'quiz': (adv_rates or {}).get('quiz') or req.custom_rate,
+                                                'video_lesson': (adv_rates or {}).get('video_lesson') or req.custom_rate,
+                                            }
+                                            total_hours = 0.0
+                                            if breakdown:
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    minutes = breakdown.get(p, 0)
+                                                    total_hours += (minutes / 60.0) * float(rates.get(key, req.custom_rate))
+                                            else:
+                                                per = max(1, int(round(completion_time_minutes / max(1, len(primary)))))
+                                                for p in primary:
+                                                    key = 'one_pager' if p == 'one-pager' else ('video_lesson' if p == 'video-lesson' else p)
+                                                    total_hours += (per / 60.0) * float(rates.get(key, req.custom_rate))
+                                            lesson_creation_hours = int(round(total_hours))
+                                        else:
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    except Exception:
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
+                            
+                            # Update the section's totalHours with sum of existing lesson hours
+                            if 'totalHours' in section:
+                                section['totalHours'] = round(section_total_hours)
+                    
+                    # Update the project in the database
+                    await conn.execute(
+                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                        content, project['id']
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project['id']} creation hours: {e}")
+                continue
+        
+        return ProjectFolderResponse(**dict(updated_folder))
+
+# --- Update project queries to support folder_id (backward compatible) ---
+# In all project list endpoints, add folder_id to SELECT and response models, and allow filtering by folder_id (optional)
+# ... existing code ...
+
+class ProjectFolderUpdateRequest(BaseModel):
+    folder_id: Optional[int] = None
+    model_config = {"from_attributes": True}
+
+@app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
+async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    try:
+        db_microproduct_name_to_store = project_update_data.microProductName
+        current_component_name = None
+        # Fetch current component_name, project_name and content to detect renames/diffs
+        old_project_name: Optional[str] = None
+        old_microproduct_content: Optional[dict] = None
+        async with pool.acquire() as conn:
+            project_row = await conn.fetchrow("SELECT p.project_name, p.microproduct_content, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2", project_id, onyx_user_id)
+            if not project_row:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
+            current_component_name = project_row["component_name"]
+            old_project_name = project_row["project_name"]
+            try:
+                old_microproduct_content = dict(project_row["microproduct_content"]) if project_row["microproduct_content"] else None
+            except Exception:
+                old_microproduct_content = project_row["microproduct_content"] if isinstance(project_row["microproduct_content"], dict) else None
+
+        if (not db_microproduct_name_to_store or not db_microproduct_name_to_store.strip()) and project_update_data.design_template_id:
+            async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+            if design_row: db_microproduct_name_to_store = design_row["template_name"]
+
+        content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
+        
+        # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
+        if content_to_store_for_db:
+            logger.info(f"💾 [BACKEND SAVE] Project {project_id} - Storing content to DB: {json.dumps(content_to_store_for_db, indent=2)}")
+            if 'contentBlocks' in content_to_store_for_db:
+                image_blocks = [block for block in content_to_store_for_db['contentBlocks'] if block.get('type') == 'image']
+                logger.info(f"💾 [BACKEND SAVE] Project {project_id} - Image blocks to store: {json.dumps(image_blocks, indent=2)}")
+        else:
+            logger.info(f"💾 [BACKEND SAVE] Project {project_id} - No content to store (content_to_store_for_db is None)")
+
+        derived_product_type = None; derived_microproduct_type = None
+        if project_update_data.design_template_id is not None:
+            async with pool.acquire() as conn: design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+            if design_template:
+                derived_product_type = design_template["microproduct_type"]
+                derived_microproduct_type = design_template["template_name"]
+                current_component_name = design_template["component_name"]
+
+        update_clauses = []; update_values = []; arg_idx = 1
+        
+        # Handle project name updates and sync with Training Plan mainTitle
+        project_name_updated = False
+        if project_update_data.projectName is not None: 
+            update_clauses.append(f"project_name = ${arg_idx}")
+            update_values.append(project_update_data.projectName)
+            arg_idx += 1
+            project_name_updated = True
+        if db_microproduct_name_to_store is not None: update_clauses.append(f"microproduct_name = ${arg_idx}"); update_values.append(db_microproduct_name_to_store); arg_idx +=1
+        if project_update_data.design_template_id is not None:
+            update_clauses.append(f"design_template_id = ${arg_idx}"); update_values.append(project_update_data.design_template_id); arg_idx +=1
+            if derived_product_type: update_clauses.append(f"product_type = ${arg_idx}"); update_values.append(derived_product_type); arg_idx += 1
+            if derived_microproduct_type: update_clauses.append(f"microproduct_type = ${arg_idx}"); update_values.append(derived_microproduct_type); arg_idx += 1
+        if project_update_data.microProductContent is not None: 
+            update_clauses.append(f"microproduct_content = ${arg_idx}")
+            update_values.append(content_to_store_for_db); arg_idx += 1
+            
+            # Ensure lessons have recommendations when storing training plan
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    for section in (content_to_store_for_db.get('sections') or []):
+                        lessons = section.get('lessons') or []
+                        for lesson in lessons:
+                            if isinstance(lesson, dict) and ('recommended_content_types' not in lesson or not lesson['recommended_content_types']):
+                                lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                    lesson.get('title', ''),
+                                    lesson.get('quality_tier') or section.get('quality_tier') or content_to_store_for_db.get('quality_tier'),
+                                    {'presentation': False, 'one-pager': False, 'quiz': False, 'video-lesson': False}
+                                )
+                                # Also generate completion_breakdown for advanced mode support
+                                try:
+                                    primary = lesson['recommended_content_types'].get('primary', [])
+                                    ranges = {
+                                        'one-pager': (2,3),
+                                        'presentation': (5,10),
+                                        'quiz': (5,7),
+                                        'video-lesson': (2,5),
+                                    }
+                                    breakdown = {}
+                                    total_m = 0
+                                    for p in primary:
+                                        r = ranges.get(p)
+                                        if r:
+                                            mid = int(round((r[0]+r[1])/2))
+                                            breakdown[p] = mid
+                                            total_m += mid
+                                    if total_m > 0:
+                                        lesson['completion_breakdown'] = breakdown
+                                        lesson['completionTime'] = f"{total_m}m"
+                                except Exception:
+                                    pass
+                except Exception:
+                    pass
+            
+            # SYNC TITLES: For Training Plans, keep project_name and mainTitle synchronized
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN and content_to_store_for_db:
+                try:
+                    # Extract mainTitle from the content
+                    main_title = content_to_store_for_db.get('mainTitle')
+                    if main_title and isinstance(main_title, str) and main_title.strip():
+                        # Update project_name to match mainTitle
+                        update_clauses.append(f"project_name = ${arg_idx}")
+                        update_values.append(main_title.strip())
+                        arg_idx += 1
+                        project_name_updated = True
+                except Exception as e:
+                    logger.warning(f"Could not sync mainTitle to project_name for project {project_id}: {e}")
+
+        # SYNC TITLES: If only project_name was updated (not content), sync it to mainTitle for Training Plans
+        if (project_name_updated and project_update_data.microProductContent is None and 
+            current_component_name == COMPONENT_NAME_TRAINING_PLAN):
+            try:
+                # Get current content to update mainTitle
+                async with pool.acquire() as conn:
+                    current_row = await conn.fetchrow(
+                        "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2", 
+                        project_id, onyx_user_id
+                    )
+                    if current_row and current_row["microproduct_content"]:
+                        current_content = dict(current_row["microproduct_content"])
+                        current_content["mainTitle"] = project_update_data.projectName
+                        update_clauses.append(f"microproduct_content = ${arg_idx}")
+                        update_values.append(current_content)
+                        arg_idx += 1
+            except Exception as e:
+                logger.warning(f"Could not sync project_name to mainTitle for project {project_id}: {e}")
+
+        if not update_clauses:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
+
+        update_values.extend([project_id, onyx_user_id])
+        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
+
+        async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
+        if not row:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
+
+        # --- Propagate outline/lesson renames to connected products (best-effort) ---
+        try:
+            # Only for Training Plans
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                new_project_name = row["project_name"]
+                # 1) If outline name changed, update prefix for all connected products
+                if project_name_updated and old_project_name and new_project_name and old_project_name.strip() != new_project_name.strip():
+                    old_prefix = f"{old_project_name.strip()}: "
+                    new_prefix = f"{new_project_name.strip()}: "
+                    async with pool.acquire() as conn:
+                        children = await conn.fetch(
+                            "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND is_standalone = FALSE AND project_name LIKE $2",
+                            onyx_user_id, old_prefix + "%"
+                        )
+                        for child in children:
+                            child_id = child["id"]
+                            child_pn = child["project_name"] or ""
+                            child_mpname = child["microproduct_name"]
+                            # Compute new names
+                            if ": " in child_pn:
+                                suffix = child_pn.split(": ", 1)[1]
+                                updated_project_name = new_prefix + suffix
+                            else:
+                                updated_project_name = child_pn  # unexpected, skip
+                            # Update microproduct_name if it matches the old full or is None
+                            updated_micro_name = child_mpname
+                            if isinstance(child_mpname, str):
+                                if child_mpname == child_pn:
+                                    updated_micro_name = updated_project_name
+                            elif child_mpname is None:
+                                updated_micro_name = updated_project_name
+                            await conn.execute(
+                                "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name) WHERE id = $3 AND onyx_user_id = $4",
+                                updated_project_name, updated_micro_name, child_id, onyx_user_id
+                            )
+                
+                # 2) If lesson titles changed inside outline content, rename exact-matching children
+                # Compute simple diff by position (module, lesson index)
+                def extract_titles(content: Optional[dict]) -> list[list[str]]:
+                    titles: list[list[str]] = []
+                    if not content or not isinstance(content, dict):
+                        return titles
+                    sections = content.get("sections") or []
+                    for sec in sections:
+                        sec_titles: list[str] = []
+                        lessons = sec.get("lessons") if isinstance(sec, dict) else []
+                        for les in lessons:
+                            if isinstance(les, dict):
+                                title = str(les.get("title") or les.get("name") or "").strip()
+                            else:
+                                title = str(les).strip()
+                            sec_titles.append(title)
+                        titles.append(sec_titles)
+                    return titles
+                old_titles_by_section = extract_titles(old_microproduct_content)
+                new_titles_by_section = extract_titles(content_to_store_for_db if project_update_data.microProductContent is not None else old_microproduct_content)
+                rename_pairs: list[tuple[str, str]] = []
+                if old_titles_by_section and new_titles_by_section and len(old_titles_by_section) == len(new_titles_by_section):
+                    for sec_idx in range(len(old_titles_by_section)):
+                        old_ls = old_titles_by_section[sec_idx]
+                        new_ls = new_titles_by_section[sec_idx]
+                        for li in range(min(len(old_ls), len(new_ls))):
+                            old_t = (old_ls[li] or "").strip()
+                            new_t = (new_ls[li] or "").strip()
+                            if old_t and new_t and old_t != new_t:
+                                rename_pairs.append((old_t, new_t))
+                if rename_pairs:
+                    async with pool.acquire() as conn:
+                        for (old_title, new_title) in rename_pairs:
+                            old_full = f"{(row['project_name'] or new_project_name).strip()}: {old_title}"
+                            new_full = f"{(row['project_name'] or new_project_name).strip()}: {new_title}"
+                            children = await conn.fetch(
+                                "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2",
+                                onyx_user_id, old_full
+                            )
+                            for child in children:
+                                child_id = child["id"]
+                                child_mpname = child["microproduct_name"]
+                                child_content = child["microproduct_content"]
+                                # Update microproduct_name smartly: replace exact matches or lesson-only
+                                updated_micro_name = child_mpname
+                                if isinstance(child_mpname, str):
+                                    if child_mpname == old_full:
+                                        updated_micro_name = new_full
+                                    elif child_mpname == old_title:
+                                        updated_micro_name = new_title
+                                elif child_mpname is None:
+                                    updated_micro_name = new_full
+                                # Update content titles if present
+                                updated_content = child_content
+                                try:
+                                    if isinstance(child_content, dict):
+                                        # Quiz
+                                        if 'quizTitle' in child_content and isinstance(child_content['quizTitle'], str):
+                                            if child_content['quizTitle'].strip() in (old_title, old_full):
+                                                child_content['quizTitle'] = new_title
+                                        # Text Presentation
+                                        if 'textTitle' in child_content and isinstance(child_content['textTitle'], str):
+                                            if child_content['textTitle'].strip() in (old_title, old_full):
+                                                child_content['textTitle'] = new_title
+                                        updated_content = child_content
+                                except Exception as e:
+                                    logger.warning(f"[RENAME_PROPAGATION] Failed to update content titles for child {child_id}: {e}")
+                                await conn.execute(
+                                    "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name), microproduct_content = COALESCE($3, microproduct_content) WHERE id = $4 AND onyx_user_id = $5",
+                                    new_full, updated_micro_name, updated_content, child_id, onyx_user_id
+                                )
+        except Exception as e:
+            logger.error(f"[RENAME_PROPAGATION] Error during rename propagation for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+
+        db_content = row["microproduct_content"]
+        
+        # 🔍 BACKEND RETRIEVE LOGGING: What we got back from database
+        logger.info(f"📥 [BACKEND RETRIEVE] Project {project_id} - Retrieved content from DB: {json.dumps(db_content, indent=2) if db_content else 'None'}")
+        if db_content and isinstance(db_content, dict) and 'contentBlocks' in db_content:
+            image_blocks = [block for block in db_content['contentBlocks'] if block.get('type') == 'image']
+            logger.info(f"📥 [BACKEND RETRIEVE] Project {project_id} - Image blocks retrieved: {json.dumps(image_blocks, indent=2)}")
+        
+        final_content_for_model: Optional[MicroProductContentType] = None
+        if db_content and isinstance(db_content, dict):
+            # Round hours to integers before parsing to prevent float validation errors
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                db_content = round_hours_in_content(db_content)
+            
+            try:
+                logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - About to validate with component: {current_component_name}")
+                if current_component_name == COMPONENT_NAME_PDF_LESSON:
+                    final_content_for_model = PdfLessonDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
+                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
+                    final_content_for_model = TextPresentationDetails(**db_content)
+                    logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
+                elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
+                    final_content_for_model = VideoLessonData(**db_content)
+                elif current_component_name == COMPONENT_NAME_QUIZ:
+                    final_content_for_model = QuizData(**db_content)
+                elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                    # Apply slide normalization before parsing
+                    if 'slides' in db_content and db_content['slides']:
+                        db_content['slides'] = normalize_slide_props(db_content['slides'], current_component_name)
+                    final_content_for_model = SlideDeckDetails(**db_content)
+                else:
+                    db_content = sanitize_training_plan_for_parse(db_content)
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+                
+                # 🔍 BACKEND VALIDATION RESULT LOGGING
+                if final_content_for_model and hasattr(final_content_for_model, 'contentBlocks'):
+                    result_dict = final_content_for_model.model_dump(mode='json', exclude_none=True)
+                    logger.info(f"✅ [BACKEND VALIDATION RESULT] Project {project_id} - Final validated content: {json.dumps(result_dict, indent=2)}")
+                    if 'contentBlocks' in result_dict:
+                        result_image_blocks = [block for block in result_dict['contentBlocks'] if block.get('type') == 'image']
+                        logger.info(f"✅ [BACKEND VALIDATION RESULT] Project {project_id} - Final image blocks: {json.dumps(result_image_blocks, indent=2)}")
+                
+            except Exception as e_parse:
+                logger.error(f"❌ [BACKEND VALIDATION ERROR] Project {project_id} - Error parsing updated content from DB: {e_parse}", exc_info=not IS_PRODUCTION)
+
+        return ProjectDB(
+            id=row["id"], onyx_user_id=row["onyx_user_id"], project_name=row["project_name"],
+            product_type=row["product_type"], microproduct_type=row["microproduct_type"],
+            microproduct_name=row["microproduct_name"], microproduct_content=final_content_for_model,
+            design_template_id=row["design_template_id"], created_at=row["created_at"],
+            custom_rate=row["custom_rate"], quality_tier=row["quality_tier"]
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while updating project." if IS_PRODUCTION else f"DB error on project update: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+
+@app.put("/api/custom/projects/{project_id}/folder", response_model=ProjectDB)
+async def update_project_folder(project_id: int, update_data: ProjectFolderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update a project's folder assignment and recalculate creation hours based on the new folder's tier"""
+    async with pool.acquire() as conn:
+        # Verify project belongs to user
+        project = await conn.fetchrow(
+            "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
+            project_id, onyx_user_id
+        )
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # If folder_id is provided, verify it exists and belongs to user
+        if update_data.folder_id is not None:
+            folder = await conn.fetchrow(
+                "SELECT * FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                update_data.folder_id, onyx_user_id
+            )
+            if not folder:
+                raise HTTPException(status_code=404, detail="Folder not found")
+        
+        # Update the project's folder_id
+        updated_project = await conn.fetchrow(
+            "UPDATE projects SET folder_id = $1 WHERE id = $2 AND onyx_user_id = $3 RETURNING *",
+            update_data.folder_id, project_id, onyx_user_id
+        )
+        
+        # If the project has content and is being moved to a folder, recalculate creation hours
+        if update_data.folder_id is not None and project['microproduct_content']:
+            try:
+                # Get the folder's custom rate
+                folder_custom_rate = await get_folder_custom_rate(update_data.folder_id, pool)
+                
+                content = project['microproduct_content']
+                if isinstance(content, dict) and 'sections' in content:
+                    content = sanitize_training_plan_for_parse(dict(content))
+                    sections = content['sections']
+                    
+                    # Update the hours in each lesson and recalculate section totals
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            section_total_hours = 0
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict):
+                                    # Parse completion time - treat missing as 5 minutes
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Calculate hours using completion time (or 5 minutes default)
+                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
+                            
+                            # Update the section's totalHours with tier-adjusted sum
+                            if 'totalHours' in section:
+                                section['totalHours'] = round(section_total_hours)
+                    
+                    # Round all hours in the content to ensure they are integers
+                    content = round_hours_in_content(content)
+                    
+                    # Update the project in the database with new hours
+                    await conn.execute(
+                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                        content, project_id
+                    )
+                    
+                    # Update the returned project data
+                    updated_project = await conn.fetchrow(
+                        "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        project_id, onyx_user_id
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project_id} creation hours after folder move: {e}")
+        
+        # Parse the content properly based on component type
+        db_content = updated_project["microproduct_content"]
+        final_content_for_model: Optional[MicroProductContentType] = None
+        
+        if db_content and isinstance(db_content, dict):
+            try:
+                # Get the component name to determine the content type
+                component_row = await conn.fetchrow(
+                    "SELECT dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1",
+                    project_id
+                )
+                current_component_name = component_row["component_name"] if component_row else COMPONENT_NAME_TRAINING_PLAN
+                
+                # Round hours to integers before parsing to prevent float validation errors
+                if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = round_hours_in_content(db_content)
+                
+                if current_component_name == COMPONENT_NAME_PDF_LESSON:
+                    final_content_for_model = PdfLessonDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
+                    final_content_for_model = TextPresentationDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    db_content = sanitize_training_plan_for_parse(db_content)
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
+                    final_content_for_model = VideoLessonData(**db_content)
+                elif current_component_name == COMPONENT_NAME_QUIZ:
+                    final_content_for_model = QuizData(**db_content)
+                elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                    final_content_for_model = SlideDeckDetails(**db_content)
+                else:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+            except Exception as e_parse:
+                logger.error(f"Error parsing updated content from DB (proj ID {updated_project['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
+        
+        return ProjectDB(
+            id=updated_project["id"], 
+            onyx_user_id=updated_project["onyx_user_id"], 
+            project_name=updated_project["project_name"],
+            product_type=updated_project["product_type"], 
+            microproduct_type=updated_project["microproduct_type"],
+            microproduct_name=updated_project["microproduct_name"], 
+            microproduct_content=final_content_for_model,
+            design_template_id=updated_project["design_template_id"], 
+            created_at=updated_project["created_at"],
+            custom_rate=updated_project.get("custom_rate"),
+            quality_tier=updated_project.get("quality_tier"),
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
+        )
+
+@app.patch("/api/custom/projects/{project_id}/tier", response_model=ProjectDB)
+async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update the quality tier, custom rate, and advanced rates of a project and recalculate creation hours"""
+    async with pool.acquire() as conn:
+        # Verify the project exists and belongs to user
+        project = await conn.fetchrow(
+            "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
+            project_id, onyx_user_id
+        )
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Update the project's quality_tier, custom_rate, and advanced fields
+        updated_project = await conn.fetchrow(
+            "UPDATE projects SET quality_tier = $1, custom_rate = $2, is_advanced = COALESCE($3, is_advanced), advanced_rates = COALESCE($4, advanced_rates), completion_times = COALESCE($5, completion_times) WHERE id = $6 AND onyx_user_id = $7 RETURNING *",
+            req.quality_tier, req.custom_rate, req.is_advanced, json.dumps(req.advanced_rates) if req.advanced_rates is not None else None, json.dumps(req.completion_times) if req.completion_times is not None else None, project_id, onyx_user_id
+        )
+        
+        # If the project has content, recalculate creation hours
+        if project['microproduct_content']:
+            try:
+                content = dict(project['microproduct_content'])
+                if isinstance(content, dict) and 'sections' in content:
+                    sections = content['sections']
+                    
+                    # Update tier names, update recommendations, and sum existing hours for section totals
+                    for section in sections:
+                        if isinstance(section, dict) and 'lessons' in section:
+                            if 'custom_rate' in section:
+                                del section['custom_rate']
+                            if 'quality_tier' in section:
+                                del section['quality_tier']
+                            section['quality_tier'] = req.quality_tier
+                            
+                            section_total_hours = 0
+                            for lesson in section['lessons']:
+                                if isinstance(lesson, dict):
+                                    if 'custom_rate' in lesson:
+                                        del lesson['custom_rate']
+                                    if 'quality_tier' in lesson:
+                                        del lesson['quality_tier']
+                                    lesson['quality_tier'] = req.quality_tier
+
+                                    try:
+                                        # Always update recommendations when tier changes to ensure they match the new tier
+                                        lesson['recommended_content_types'] = analyze_lesson_content_recommendations(
+                                            lesson.get('title', ''),
+                                            req.quality_tier,
+                                            {
+                                                'presentation': False,
+                                                'one-pager': False,
+                                                'quiz': False,
+                                                'video-lesson': False,
+                                            }
+                                        )
+                                        # Also generate completion_breakdown for advanced mode support
+                                        try:
+                                            primary = lesson['recommended_content_types'].get('primary', [])
+                                            ranges = {
+                                                'one-pager': (2,3),
+                                                'presentation': (5,10),
+                                                'quiz': (5,7),
+                                                'video-lesson': (2,5),
+                                            }
+                                            breakdown = {}
+                                            total_m = 0
+                                            for p in primary:
+                                                r = ranges.get(p)
+                                                if r:
+                                                    mid = int(round((r[0]+r[1])/2))
+                                                    breakdown[p] = mid
+                                                    total_m += mid
+                                            if total_m > 0:
+                                                lesson['completion_breakdown'] = breakdown
+                                                lesson['completionTime'] = f"{total_m}m"
+                                        except Exception:
+                                            pass
+                                    except Exception:
+                                        pass
+                                    
+                                    completion_time_str = lesson.get('completionTime', '')
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            if time_str.endswith('m'):
+                                                try:
+                                                    completion_time_minutes = int(time_str[:-1])
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.endswith('h'):
+                                                try:
+                                                    hours = int(time_str[:-1])
+                                                    completion_time_minutes = hours * 60
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            elif time_str.isdigit():
+                                                try:
+                                                    completion_time_minutes = int(time_str)
+                                                except ValueError:
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # Fallback to 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Recalculate hours with new project rate using completion time (or 5 minutes default)
+                                    lesson_creation_hours = calculate_creation_hours(completion_time_minutes, req.custom_rate)
+                                    lesson['hours'] = lesson_creation_hours
+                                    section_total_hours += lesson_creation_hours
+                            
+                            # Update the section's totalHours with sum of existing lesson hours
+                            if 'totalHours' in section:
+                                section['totalHours'] = round(section_total_hours)
+                    
+                    # Update the project in the database
+                    await conn.execute(
+                        "UPDATE projects SET microproduct_content = $1 WHERE id = $2",
+                        content, project['id']
+                    )
+                    
+                    # Re-fetch the updated project
+                    updated_project = await conn.fetchrow(
+                        "SELECT * FROM projects WHERE id = $1",
+                        project_id
+                    )
+                    
+            except Exception as e:
+                logger.error(f"Error updating project {project_id} creation hours: {e}")
+        
+        # Get current component name for proper content parsing
+        current_component_name = None
+        if updated_project["design_template_id"]:
+            design_template = await conn.fetchrow(
+                "SELECT component_name FROM design_templates WHERE id = $1", 
+                updated_project["design_template_id"]
+            )
+            if design_template:
+                current_component_name = design_template["component_name"]
+        
+        # Parse the content into the appropriate model
+        db_content = updated_project["microproduct_content"]
+        final_content_for_model: Optional[MicroProductContentType] = None
+        if db_content and isinstance(db_content, dict):
+            # Round hours to integers before parsing to prevent float validation errors
+            if current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                db_content = round_hours_in_content(db_content)
+            
+            try:
+                if current_component_name == COMPONENT_NAME_PDF_LESSON:
+                    final_content_for_model = PdfLessonDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
+                    final_content_for_model = TextPresentationDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
+                    final_content_for_model = VideoLessonData(**db_content)
+                elif current_component_name == COMPONENT_NAME_QUIZ:
+                    final_content_for_model = QuizData(**db_content)
+                elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
+                    final_content_for_model = SlideDeckDetails(**db_content)
+                else:
+                    final_content_for_model = TrainingPlanDetails(**db_content)
+            except Exception as e_parse:
+                logger.error(f"Error parsing updated content from DB (proj ID {updated_project['id']}): {e_parse}", exc_info=not IS_PRODUCTION)
+        
+        return ProjectDB(
+            id=updated_project["id"], 
+            onyx_user_id=updated_project["onyx_user_id"], 
+            project_name=updated_project["project_name"],
+            product_type=updated_project["product_type"], 
+            microproduct_type=updated_project["microproduct_type"],
+            microproduct_name=updated_project["microproduct_name"], 
+            microproduct_content=final_content_for_model,
+            design_template_id=updated_project["design_template_id"], 
+            created_at=updated_project["created_at"],
+            custom_rate=updated_project["custom_rate"],
+            quality_tier=updated_project["quality_tier"],
+            is_advanced=updated_project.get("is_advanced"),
+            advanced_rates=updated_project.get("advanced_rates")
+        )
+
+@app.get("/api/custom/projects/{project_id}/effective-rates")
+async def get_effective_rates(
+    project_id: int, 
+    section_index: Optional[int] = None, 
+    lesson_index: Optional[int] = None, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get effective advanced rates for a project/section/lesson following inheritance chain"""
+    async with pool.acquire() as conn:
+        # Get project and folder data
+        project_row = await conn.fetchrow(
+            """
+            SELECT p.*, pf.is_advanced as folder_is_advanced, pf.advanced_rates as folder_advanced_rates, 
+                   pf.custom_rate as folder_custom_rate, pf.completion_times as folder_completion_times
+            FROM projects p
+            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+            WHERE p.id = $1 AND p.onyx_user_id = $2
+            """,
+            project_id, onyx_user_id
+        )
+        if not project_row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        project = dict(project_row)
+        
+        # Extract section and lesson if specified
+        section = None
+        lesson = None
+        if project.get("microproduct_content"):
+            content = project["microproduct_content"]
+            if isinstance(content, dict) and isinstance(content.get('sections'), list):
+                sections = content['sections']
+                if section_index is not None and 0 <= section_index < len(sections):
+                    section = sections[section_index]
+                    if isinstance(section, dict) and isinstance(section.get('lessons'), list):
+                        lessons = section['lessons']
+                        if lesson_index is not None and 0 <= lesson_index < len(lessons):
+                            lesson = lessons[lesson_index]
+        
+        # Resolve effective advanced config following inheritance: lesson > section > project > folder
+        is_advanced = False
+        rates = {}
+        completion_times = {}
+        completion_times = {}
+        
+        # Start with folder defaults
+        if project.get('folder_is_advanced'):
+            is_advanced = True
+            if project.get('folder_advanced_rates'):
+                try:
+                    folder_rates = project['folder_advanced_rates']
+                    if isinstance(folder_rates, str):
+                        folder_rates = json.loads(folder_rates)
+                    rates.update(folder_rates)
+                except:
+                    pass
+            if project.get('folder_completion_times'):
+                try:
+                    folder_completion_times = project['folder_completion_times']
+                    if isinstance(folder_completion_times, str):
+                        folder_completion_times = json.loads(folder_completion_times)
+                    completion_times.update(folder_completion_times)
+                except:
+                    pass
+        folder_single_rate = project.get('folder_custom_rate') or 200
+        
+        # Override with project level
+        if project.get('is_advanced') is not None:
+            is_advanced = bool(project['is_advanced'])
+        if project.get('advanced_rates'):
+            try:
+                project_rates = project['advanced_rates']
+                if isinstance(project_rates, str):
+                    project_rates = json.loads(project_rates)
+                rates.update(project_rates)
+            except:
+                pass
+        if project.get('completion_times'):
+            try:
+                project_completion_times = project['completion_times']
+                if isinstance(project_completion_times, str):
+                    project_completion_times = json.loads(project_completion_times)
+                completion_times.update(project_completion_times)
+            except:
+                pass
+        project_single_rate = project.get('custom_rate') or folder_single_rate
+        
+        # Override with section level
+        if section:
+            if section.get('advanced') is not None:
+                is_advanced = bool(section['advanced'])
+            if section.get('advancedRates'):
+                section_rates = section['advancedRates']
+                if isinstance(section_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in section_rates:
+                        backend_rates['presentation'] = section_rates['presentation']
+                    if 'onePager' in section_rates:
+                        backend_rates['one_pager'] = section_rates['onePager']
+                    if 'quiz' in section_rates:
+                        backend_rates['quiz'] = section_rates['quiz']
+                    if 'videoLesson' in section_rates:
+                        backend_rates['video_lesson'] = section_rates['videoLesson']
+                    rates.update(backend_rates)
+            if section.get('completionTimes'):
+                section_completion_times = section['completionTimes']
+                if isinstance(section_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in section_completion_times:
+                        backend_completion_times['presentation'] = section_completion_times['presentation']
+                    if 'onePager' in section_completion_times:
+                        backend_completion_times['one_pager'] = section_completion_times['onePager']
+                    if 'quiz' in section_completion_times:
+                        backend_completion_times['quiz'] = section_completion_times['quiz']
+                    if 'videoLesson' in section_completion_times:
+                        backend_completion_times['video_lesson'] = section_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
+            section_single_rate = section.get('custom_rate') or project_single_rate
+        else:
+            section_single_rate = project_single_rate
+        
+        # Override with lesson level
+        if lesson:
+            if lesson.get('advanced') is not None:
+                is_advanced = bool(lesson['advanced'])
+            if lesson.get('advancedRates'):
+                lesson_rates = lesson['advancedRates']
+                if isinstance(lesson_rates, dict):
+                    # Convert frontend naming to backend naming
+                    backend_rates = {}
+                    if 'presentation' in lesson_rates:
+                        backend_rates['presentation'] = lesson_rates['presentation']
+                    if 'onePager' in lesson_rates:
+                        backend_rates['one_pager'] = lesson_rates['onePager']
+                    if 'quiz' in lesson_rates:
+                        backend_rates['quiz'] = lesson_rates['quiz']
+                    if 'videoLesson' in lesson_rates:
+                        backend_rates['video_lesson'] = lesson_rates['videoLesson']
+                    rates.update(backend_rates)
+            if lesson.get('completionTimes'):
+                lesson_completion_times = lesson['completionTimes']
+                if isinstance(lesson_completion_times, dict):
+                    # Convert frontend naming to backend naming
+                    backend_completion_times = {}
+                    if 'presentation' in lesson_completion_times:
+                        backend_completion_times['presentation'] = lesson_completion_times['presentation']
+                    if 'onePager' in lesson_completion_times:
+                        backend_completion_times['one_pager'] = lesson_completion_times['onePager']
+                    if 'quiz' in lesson_completion_times:
+                        backend_completion_times['quiz'] = lesson_completion_times['quiz']
+                    if 'videoLesson' in lesson_completion_times:
+                        backend_completion_times['video_lesson'] = lesson_completion_times['videoLesson']
+                    completion_times.update(backend_completion_times)
+            lesson_single_rate = lesson.get('custom_rate') or section_single_rate
+        else:
+            lesson_single_rate = section_single_rate
+        
+        fallback_single_rate = lesson_single_rate
+        
+        # Fill in missing rates with fallback
+        default_rates = {
+            'presentation': fallback_single_rate,
+            'one_pager': fallback_single_rate,
+            'quiz': fallback_single_rate,
+            'video_lesson': fallback_single_rate
+        }
+        for key in default_rates:
+            if key not in rates:
+                rates[key] = default_rates[key]
+        
+        return {
+            "is_advanced": is_advanced,
+            "rates": {
+                "presentation": rates.get('presentation', fallback_single_rate),
+                "one_pager": rates.get('one_pager', fallback_single_rate),
+                "quiz": rates.get('quiz', fallback_single_rate),
+                "video_lesson": rates.get('video_lesson', fallback_single_rate),
+            },
+            "completion_times": {
+                "presentation": completion_times.get('presentation', 8),  # Will be replaced with proper inheritance logic
+                "one_pager": completion_times.get('one_pager', 3),
+                "quiz": completion_times.get('quiz', 6),
+                "video_lesson": completion_times.get('video_lesson', 4),
+            },
+            "fallback_single_rate": fallback_single_rate
+        }
+
+class ProjectOrderUpdateRequest(BaseModel):
+    orders: List[Dict[str, int]]  # List of {projectId: int, order: int}
+
+@app.put("/api/custom/projects/update-order", status_code=status.HTTP_200_OK)
+async def update_project_order(order_data: ProjectOrderUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Update the order of multiple projects"""
+    try:
+        async with pool.acquire() as conn:
+            # Update each project's order
+            for order_item in order_data.orders:
+                project_id = order_item.get('projectId')
+                order = order_item.get('order')
+                
+                if project_id is not None and order is not None:
+                    # Verify project belongs to user and update order
+                    result = await conn.execute(
+                        "UPDATE projects SET \"order\" = $1 WHERE id = $2 AND onyx_user_id = $3",
+                        order, project_id, onyx_user_id
+                    )
+                    
+                    if result == "UPDATE 0":
+                        logger.warning(f"Project {project_id} not found or not owned by user {onyx_user_id}")
+        
+        return {"message": "Project order updated successfully"}
+    except Exception as e:
+        logger.error(f"Error updating project order: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update project order")
+
+@app.put("/api/custom/projects/folders/update-order")
+async def update_folder_order(
+    orders: List[Dict[str, int]], 
+    onyx_user_id: str = Depends(get_current_onyx_user_id), 
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Update the order of folders"""
+    async with pool.acquire() as conn:
+        for order_data in orders:
+            folder_id = order_data.get("folderId")
+            order = order_data.get("order")
+            if folder_id is not None and order is not None:
+                await conn.execute(
+                    "UPDATE project_folders SET \"order\" = $1 WHERE id = $2 AND onyx_user_id = $3",
+                    order, folder_id, onyx_user_id
+                )
+    return {"message": "Folder order updated successfully"}
+
+@app.get("/api/custom/projects/{project_id}/lesson-data")
+async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Get lesson data for a project with tier-adjusted creation hours"""
+    try:
+        async with pool.acquire() as conn:
+            # Get project details including folder_id
+            project = await conn.fetchrow(
+                "SELECT p.microproduct_content, p.folder_id, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project:
+                raise HTTPException(status_code=404, detail="Project not found")
+            
+            content = project["microproduct_content"]
+            component_name = project["component_name"]
+            folder_id = project["folder_id"]
+            
+            # Only Training Plans have lesson data
+            if component_name != COMPONENT_NAME_TRAINING_PLAN or not content:
+                return {"lessonCount": 0, "totalHours": 0, "completionTime": 0, "sections": []}
+            
+            # Get the folder's custom rate (with inheritance from parent)
+            folder_custom_rate = 200  # Default custom rate
+            if folder_id:
+                folder_custom_rate = await get_folder_custom_rate(folder_id, pool)
+            
+            # Parse the training plan content
+            try:
+                if isinstance(content, dict):
+                    sections = content.get("sections", [])
+                    total_lessons = 0
+                    total_hours = 0
+                    total_completion_time = 0
+                    sections_data = []
+                    
+                    for section in sections:
+                        if isinstance(section, dict):
+                            lessons = section.get("lessons", [])
+                            section_lessons = len(lessons)
+                            section_hours = 0
+                            section_completion_time = 0
+                            
+                            total_lessons += section_lessons
+                            
+                            # Sum up completion time and use existing lesson hours for this section
+                            for lesson in lessons:
+                                if isinstance(lesson, dict):
+                                    # Parse completion time (handles all language units: m, м, хв) - treat missing as 5 minutes
+                                    completion_time_str = lesson.get("completionTime", "")
+                                    completion_time_minutes = 5  # Default to 5 minutes
+                                    
+                                    if completion_time_str:
+                                        time_str = str(completion_time_str).strip()
+                                        if time_str and time_str != '':
+                                            # Extract numeric part using regex to handle all language units
+                                            import re
+                                            numbers = re.findall(r'\d+', time_str)
+                                            if numbers:
+                                                try:
+                                                    # If it contains 'h' (hour indicator), convert to minutes
+                                                    if 'h' in time_str.lower():
+                                                        completion_time_minutes = int(numbers[0]) * 60
+                                                    else:
+                                                        # For minutes (m, м, хв), just use the number
+                                                        completion_time_minutes = int(numbers[0])
+                                                except (ValueError, IndexError):
+                                                    completion_time_minutes = 5  # Fallback to 5 minutes
+                                            else:
+                                                completion_time_minutes = 5  # No numbers found, use 5 minutes
+                                        else:
+                                            completion_time_minutes = 5  # Empty string, use 5 minutes
+                                    else:
+                                        completion_time_minutes = 5  # No completion time, use 5 minutes
+                                    
+                                    # Add to totals
+                                    section_completion_time += completion_time_minutes
+                                    total_completion_time += completion_time_minutes
+                                    
+                                    # Use existing lesson hours if available, otherwise calculate with folder rate
+                                    if lesson.get('hours'):
+                                        try:
+                                            lesson_creation_hours = float(lesson['hours'])
+                                            section_hours += lesson_creation_hours
+                                            total_hours += lesson_creation_hours
+                                        except (ValueError, TypeError):
+                                            # If hours parsing fails, calculate with completion time
+                                            lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
+                                            section_hours += lesson_creation_hours
+                                            total_hours += lesson_creation_hours
+                                    else:
+                                        # No existing hours, calculate with completion time
+                                        lesson_creation_hours = calculate_creation_hours(completion_time_minutes, folder_custom_rate)
+                                        section_hours += lesson_creation_hours
+                                        total_hours += lesson_creation_hours
+                            
+                            # Add section data with tier-adjusted totals
+                            sections_data.append({
+                                "id": section.get("id", ""),
+                                "title": section.get("title", ""),
+                                "totalHours": round(section_hours),
+                                "totalCompletionTime": section_completion_time,
+                                "lessonCount": section_lessons
+                            })
+                    
+                    return {
+                        "lessonCount": total_lessons, 
+                        "totalHours": round(total_hours), 
+                        "completionTime": total_completion_time,
+                        "sections": sections_data
+                    }
+                else:
+                    return {"lessonCount": 0, "totalHours": 0, "completionTime": 0, "sections": []}
+            except Exception as e:
+                logger.warning(f"Error parsing lesson data for project {project_id}: {e}")
+                return {"lessonCount": 0, "totalHours": 0, "completionTime": 0, "sections": []}
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting lesson data for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to get lesson data")
+
+@app.get("/api/custom/pdf/projects-list", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+async def download_projects_list_pdf(
+    folder_id: Optional[int] = Query(None),
+    column_visibility: Optional[str] = Query(None),  # JSON string of column visibility settings
+    client_name: Optional[str] = Query(None),  # Client name for PDF header customization
+    selected_folders: Optional[str] = Query(None),  # JSON string of selected folder IDs
+    selected_projects: Optional[str] = Query(None),  # JSON string of selected project IDs
+    column_widths: Optional[str] = Query(None),  # JSON string of column width settings
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download projects list as PDF with all folders expanded, deduplicated like the products page."""
+    try:
+        # Parse column visibility settings
+        column_visibility_settings = {
+            'title': True,
+            'created': False,
+            'creator': False,
+            'numberOfLessons': True,
+            'estCreationTime': True,
+            'estCompletionTime': True
+        }
+        if column_visibility:
+            try:
+                parsed_settings = json.loads(column_visibility)
+                column_visibility_settings.update(parsed_settings)
+            except json.JSONDecodeError:
+                logger.warning("Invalid column_visibility JSON, using defaults")
+
+        # Parse selected projects first to use in the query
+        selected_project_ids = set()
+        if selected_projects:
+            try:
+                selected_project_ids = set(json.loads(selected_projects))
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing selected_projects: {e}")
+
+        # Fetch projects and folders data
+        async with pool.acquire() as conn:
+            # Fetch projects
+            projects_query = """
+                SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+                       dt.template_name as design_template_name,
+                       dt.microproduct_type as design_microproduct_type,
+                       p.folder_id, p."order", p.microproduct_content, p.quality_tier
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.onyx_user_id = $1
+            """
+            projects_params = [onyx_user_id]
+            param_count = 1
+            
+            if folder_id is not None:
+                projects_query += f" AND p.folder_id = ${param_count + 1}"
+                projects_params.append(folder_id)
+                param_count += 1
+            
+            # Add selected projects filter if provided
+            if selected_project_ids:
+                placeholders = ','.join([f'${i + param_count + 1}' for i in range(len(selected_project_ids))])
+                projects_query += f" AND p.id IN ({placeholders})"
+                projects_params.extend(selected_project_ids)
+            
+            projects_query += " ORDER BY p.\"order\" ASC, p.created_at DESC;"
+            
+            projects_rows = await conn.fetch(projects_query, *projects_params)
+            
+            # Fetch folders with hierarchical structure (only if not viewing a specific folder)
+            folders_data = []
+            if folder_id is None:
+                folders_query = """
+                    SELECT 
+                        pf.id, 
+                        pf.name, 
+                        pf.created_at, 
+                        pf."order", 
+                        pf.parent_id,
+                        pf.quality_tier,
+                        pf.custom_rate,
+                        COUNT(p.id) as project_count,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COUNT(*)::int 
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_lessons,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COALESCE(SUM((lesson->>'hours')::float), 0)
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_hours,
+                        COALESCE(
+                            SUM(
+                                CASE 
+                                    WHEN p.microproduct_content IS NOT NULL 
+                                    AND p.microproduct_content->>'sections' IS NOT NULL 
+                                    THEN (
+                                        SELECT COALESCE(SUM(
+                                            CASE 
+                                                WHEN lesson->>'completionTime' IS NOT NULL AND lesson->>'completionTime' != '' 
+                                                THEN (
+                                                    -- Extract numeric part using regex, handling all language units (m, м, хв)
+                                                    CASE 
+                                                        WHEN lesson->>'completionTime' ~ '^[0-9]+[mмхв]*$'
+                                                        THEN CAST(regexp_replace(lesson->>'completionTime', '[^0-9]', '', 'g') AS INTEGER)
+                                                        ELSE 5
+                                                    END
+                                                )
+                                                ELSE 5 
+                                            END
+                                        ), 0)
+                                        FROM jsonb_array_elements(p.microproduct_content->'sections') AS section
+                                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                                    )
+                                    ELSE 0 
+                                END
+                            ), 0
+                        ) as total_completion_time
+                    FROM project_folders pf
+                    LEFT JOIN projects p ON pf.id = p.folder_id
+                    WHERE pf.onyx_user_id = $1
+                    GROUP BY pf.id, pf.name, pf.created_at, pf."order", pf.parent_id, pf.quality_tier, pf.custom_rate
+                    ORDER BY pf."order" ASC, pf.created_at ASC;
+                """
+                folders_rows = await conn.fetch(folders_query, onyx_user_id)
+                folders_data = [dict(row) for row in folders_rows]
+
+        # Process projects data
+        projects_data = []
+        for row in projects_rows:
+            row_dict = dict(row)
+            
+            # Calculate individual project times
+            total_lessons = 0
+            total_hours = 0.0
+            total_completion_time = 0
+            
+            if row_dict.get('microproduct_content') and isinstance(row_dict['microproduct_content'], dict):
+                content = row_dict['microproduct_content']
+                if content.get('sections') and isinstance(content['sections'], list):
+                    for section in content['sections']:
+                        if section.get('lessons') and isinstance(section['lessons'], list):
+                            for lesson in section['lessons']:
+                                total_lessons += 1
+                                if lesson.get('hours'):
+                                    try:
+                                        total_hours += float(lesson['hours'])
+                                    except (ValueError, TypeError):
+                                        pass
+                                
+                                # Calculate completion time - treat missing completion time as 5 minutes
+                                completion_time_str = lesson.get('completionTime', '')
+                                if completion_time_str:
+                                    time_str = str(completion_time_str).strip()
+                                    if time_str and time_str != '':
+                                        if time_str.endswith('m'):
+                                            try:
+                                                minutes = int(time_str[:-1])
+                                                total_completion_time += minutes
+                                            except ValueError:
+                                                total_completion_time += 5  # Fallback to 5 minutes
+                                        elif time_str.endswith('h'):
+                                            try:
+                                                hours = int(time_str[:-1])
+                                                total_completion_time += (hours * 60)
+                                            except ValueError:
+                                                total_completion_time += 5  # Fallback to 5 minutes
+                                        elif time_str.isdigit():
+                                            try:
+                                                total_completion_time += int(time_str)
+                                            except ValueError:
+                                                total_completion_time += 5  # Fallback to 5 minutes
+                                        else:
+                                            total_completion_time += 5  # Fallback to 5 minutes
+                                    else:
+                                        total_completion_time += 5  # Empty string, use 5 minutes
+                                else:
+                                    total_completion_time += 5  # No completion time, use 5 minutes
+            
+            projects_data.append({
+                'id': row_dict['id'],
+                'title': row_dict.get('project_name') or row_dict.get('microproduct_name') or 'Untitled',
+                'created_at': row_dict['created_at'],
+                'created_by': 'You',
+                'design_microproduct_type': row_dict.get('design_microproduct_type'),
+                'folder_id': row_dict.get('folder_id'),
+                'order': row_dict.get('order', 0),
+                'microproduct_content': row_dict.get('microproduct_content'),
+                'total_lessons': total_lessons,
+                'total_hours': round(total_hours),
+                'total_completion_time': total_completion_time
+            })
+
+        # --- Deduplicate projects: only show top-level products and outlines, hide lessons/quizzes that belong to an outline ---
+        def deduplicate_projects(projects_arr):
+            outline_names = set()
+            filtered_projects = []
+            grouped = {}
+            # First pass: collect all outline names and group by title
+            for proj in projects_arr:
+                is_outline = (proj.get('design_microproduct_type') or '').lower() == 'training plan'
+                if is_outline:
+                    outline_names.add(proj['title'].strip())
+                if proj['title'] not in grouped:
+                    grouped[proj['title']] = {'outline': None, 'others': []}
+                if is_outline:
+                    if not grouped[proj['title']]['outline']:
+                        grouped[proj['title']]['outline'] = proj
+                else:
+                    grouped[proj['title']]['others'].append(proj)
+            # Second pass: filter projects
+            for proj in projects_arr:
+                is_outline = (proj.get('design_microproduct_type') or '').lower() == 'training plan'
+                if is_outline:
+                    filtered_projects.append(proj)
+                else:
+                    project_title = proj['title'].strip()
+                    belongs_to_outline = False
+                    group_for_this_title = grouped[proj['title']]
+                    if group_for_this_title and group_for_this_title['outline']:
+                        belongs_to_outline = True
+                    if not belongs_to_outline and ': ' in project_title:
+                        outline_part = project_title.split(': ')[0].strip()
+                        if outline_part in outline_names:
+                            belongs_to_outline = True
+                    if not belongs_to_outline:
+                        filtered_projects.append(proj)
+            return filtered_projects
+
+        projects_data = deduplicate_projects(projects_data)
+
+        # Build folder tree structure
+        def build_folder_tree(folders):
+            folder_map = {}
+            root_folders = []
+            
+            # Create folder map
+            for folder in folders:
+                folder['children'] = []
+                folder_map[folder['id']] = folder
+            
+            # Build tree structure
+            for folder in folders:
+                if folder['parent_id'] is None:
+                    root_folders.append(folder)
+                else:
+                    parent = folder_map.get(folder['parent_id'])
+                    if parent:
+                        parent['children'].append(folder)
+            
+            return root_folders
+
+        # Group projects by folder
+        folder_projects = {}
+        unassigned_projects = []
+        
+        for project in projects_data:
+            if project['folder_id']:
+                if project['folder_id'] not in folder_projects:
+                    folder_projects[project['folder_id']] = []
+                folder_projects[project['folder_id']].append(project)
+            else:
+                unassigned_projects.append(project)
+
+        # Build hierarchical folder structure
+        folder_tree = build_folder_tree(folders_data) if folders_data else []
+
+        # Calculate recursive totals for folders (including subfolder projects)
+        def calculate_recursive_totals(folder):
+            # Start with direct project totals
+            direct_projects = folder_projects.get(folder['id'], [])
+            total_lessons = sum(p['total_lessons'] for p in direct_projects)
+            total_hours = sum(p['total_hours'] for p in direct_projects)
+            total_completion_time = sum(p['total_completion_time'] for p in direct_projects)
+            total_items = len(direct_projects)
+            
+            # Add subfolder totals recursively
+            if folder.get('children'):
+                for child in folder['children']:
+                    child_totals = calculate_recursive_totals(child)
+                    total_lessons += child_totals['total_lessons']
+                    total_hours += child_totals['total_hours']
+                    total_completion_time += child_totals['total_completion_time']
+                    total_items += child_totals['total_items']
+            
+            # Update folder with recursive totals
+            folder['total_lessons'] = total_lessons
+            folder['total_hours'] = total_hours
+            folder['total_completion_time'] = total_completion_time
+            folder['project_count'] = total_items
+            
+            return {
+                'total_lessons': total_lessons,
+                'total_hours': total_hours,
+                'total_completion_time': total_completion_time,
+                'total_items': total_items
+            }
+
+        # Calculate recursive totals for all root folders
+        for folder in folder_tree:
+            calculate_recursive_totals(folder)
+
+        # Helper function to get tier color
+        def get_tier_color(tier):
+            tier_colors = {
+                'basic': '#22c55e',        # green-500
+                'interactive': '#f97316',  # orange-500
+                'advanced': '#a855f7',     # purple-500
+                'immersive': '#3b82f6',    # blue-500
+                # Legacy tier support
+                'starter': '#22c55e',      # green-500 (mapped to basic)
+                'medium': '#f97316',       # orange-500 (mapped to interactive)
+                'professional': '#3b82f6'  # blue-500 (mapped to immersive)
+            }
+            return tier_colors.get(tier, '#f97316')  # default to interactive
+
+        # Helper function to check if folder has course outlines
+        def has_course_outlines(folder_id):
+            projects = folder_projects.get(folder_id, [])
+            return any(p.get('design_microproduct_type', '').lower() == 'training plan' for p in projects)
+
+        # Helper function to check if folder or any subfolder has course outlines
+        def has_course_outlines_recursive(folder):
+            # Check direct projects
+            if has_course_outlines(folder['id']):
+                return True
+            
+            # Check subfolders recursively
+            if folder.get('children'):
+                for child in folder['children']:
+                    if has_course_outlines_recursive(child):
+                        return True
+            
+            return False
+
+        # Add tier information and check for course outlines
+        def add_tier_info(folder):
+            folder['tier_color'] = get_tier_color(folder.get('quality_tier', 'interactive'))
+            folder['has_course_outlines'] = has_course_outlines_recursive(folder)
+            
+            # Recursively process children
+            if folder.get('children'):
+                for child in folder['children']:
+                    add_tier_info(child)
+
+        # Add tier information to all folders
+        for folder in folder_tree:
+            add_tier_info(folder)
+
+        # Filter data based on selected folders (projects are already filtered in the query)
+        if selected_folders:
+            try:
+                selected_folder_ids = set()
+                
+                # Parse selected folders
+                if selected_folders:
+                    selected_folder_ids = set(json.loads(selected_folders))
+                
+                # Filter folders - only include selected folders and their children
+                def filter_folders_recursive(folders_list):
+                    filtered_folders = []
+                    for folder in folders_list:
+                        # Include folder if it's selected or if any of its children are selected
+                        if folder['id'] in selected_folder_ids:
+                            filtered_folders.append(folder)
+                        else:
+                            # Check if any children are selected
+                            if folder.get('children'):
+                                filtered_children = filter_folders_recursive(folder['children'])
+                                if filtered_children:
+                                    folder_copy = folder.copy()
+                                    folder_copy['children'] = filtered_children
+                                    filtered_folders.append(folder_copy)
+                    return filtered_folders
+                
+                filtered_folder_tree = filter_folders_recursive(folder_tree)
+                
+                # Filter folder projects - only include projects from selected folders
+                filtered_folder_projects = {}
+                for folder_id, projects in folder_projects.items():
+                    if folder_id in selected_folder_ids:
+                        filtered_folder_projects[folder_id] = projects
+                
+                # Use filtered data
+                folder_tree = filtered_folder_tree
+                folder_projects = filtered_folder_projects
+                # Note: unassigned_projects are already filtered by the query when selected_projects is provided
+                
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing selected folders: {e}. Using all data.")
+                # If parsing fails, use all data (fallback)
+
+        # Parse column widths if provided
+        column_widths_settings = {}
+        if column_widths:
+            try:
+                column_widths_settings = json.loads(column_widths)
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Error parsing column widths: {e}. Using default widths.")
+                column_widths_settings = {}
+
+        # Calculate summary statistics for the mini table
+        def calculate_summary_stats(folders, folder_projects, unassigned_projects):
+            total_projects = 0
+            total_lessons = 0
+            total_creation_time = 0
+            total_completion_time = 0
+            
+            # Calculate from folders and their projects
+            for folder in folders:
+                if folder['id'] in folder_projects:
+                    for project in folder_projects[folder['id']]:
+                        total_projects += 1
+                        total_lessons += project.get('total_lessons', 0) or 0
+                        total_creation_time += project.get('total_hours', 0) or 0
+                        total_completion_time += project.get('total_completion_time', 0) or 0
+                
+                # Recursively calculate from subfolders
+                if folder.get('children'):
+                    child_stats = calculate_summary_stats(folder['children'], folder_projects, [])
+                    total_projects += child_stats['total_projects']
+                    total_lessons += child_stats['total_lessons']
+                    total_creation_time += child_stats['total_creation_time']
+                    total_completion_time += child_stats['total_completion_time']
+            
+            # Add unassigned projects
+            for project in unassigned_projects:
+                total_projects += 1
+                total_lessons += project.get('total_lessons', 0) or 0
+                total_creation_time += project.get('total_hours', 0) or 0
+                total_completion_time += project.get('total_completion_time', 0) or 0
+            
+            return {
+                'total_projects': total_projects,
+                'total_lessons': total_lessons,
+                'total_creation_time': total_creation_time,
+                'total_completion_time': total_completion_time
+            }
+
+        # Calculate summary statistics
+        summary_stats = calculate_summary_stats(folder_tree, folder_projects, unassigned_projects)
+
+        # Collect all project IDs that are actually included in the filtered PDF data
+        included_project_ids = set()
+        
+        # Add projects from filtered folders
+        for folder_id_key, projects in folder_projects.items():
+            for project in projects:
+                included_project_ids.add(project['id'])
+        
+        # Add filtered unassigned projects
+        for project in unassigned_projects:
+            included_project_ids.add(project['id'])
+        
+        logger.info(f"[PDF_ANALYTICS] Found {len(included_project_ids)} projects included in PDF: {list(included_project_ids)}")
+
+        # Fetch real analytics data for pie charts using only the projects actually included in the PDF
+        product_distribution = None
+        quality_distribution = None
+        
+        logger.info(f"[PDF_ANALYTICS] Starting analytics data fetch for user: {onyx_user_id}, included projects: {len(included_project_ids)}")
+        
+        try:
+            # Use a new connection for analytics queries since the original conn might be released
+            async with pool.acquire() as analytics_conn:
+                # Get product distribution data - since lessons don't have pre-computed recommendations,
+                # we'll generate them on-the-fly using Python logic
+                if included_project_ids:
+                    # Convert project IDs to a format suitable for SQL IN clause
+                    project_ids_list = list(included_project_ids)
+                    project_ids_placeholder = ','.join(['$' + str(i+2) for i in range(len(project_ids_list))])
+                    
+                    lessons_query = f"""
+                        SELECT 
+                            p.id as project_id,
+                            lesson->>'title' as lesson_title,
+                            lesson->>'quality_tier' as lesson_quality_tier,
+                            p.quality_tier as project_quality_tier,
+                            pf.quality_tier as folder_quality_tier
+                        FROM projects p
+                        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                        LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                        CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                        CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                        WHERE p.onyx_user_id = $1
+                        AND p.id IN ({project_ids_placeholder})
+                        AND p.microproduct_content IS NOT NULL
+                        AND p.microproduct_content->>'sections' IS NOT NULL
+                        AND dt.component_name = 'TrainingPlanTable'
+                    """
+                    product_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    lessons_query = "SELECT NULL as project_id, NULL as lesson_title, NULL as lesson_quality_tier, NULL as project_quality_tier, NULL as folder_quality_tier WHERE FALSE"
+                    product_params = []
+                
+                logger.info(f"[PDF_ANALYTICS] Lessons query: {lessons_query}")
+                logger.info(f"[PDF_ANALYTICS] Lessons params: {product_params}")
+                
+                lessons_rows = await analytics_conn.fetch(lessons_query, *product_params)
+                logger.info(f"[PDF_ANALYTICS] Found {len(lessons_rows)} lessons for product analysis")
+                
+                # Generate recommendations for each lesson using the existing function
+                product_counts = {}
+                total_products = 0
+                
+                for row in lessons_rows:
+                    lesson_title = row['lesson_title'] or ''
+                    # Determine effective quality tier
+                    quality_tier = (
+                        row['lesson_quality_tier'] or 
+                        row['project_quality_tier'] or 
+                        row['folder_quality_tier'] or 
+                        'interactive'
+                    )
+                    
+                    logger.info(f"[PDF_ANALYTICS] Processing lesson: '{lesson_title}' (quality: {quality_tier})")
+                    
+                    # Generate recommendations using the existing function
+                    recommendations = analyze_lesson_content_recommendations(lesson_title, quality_tier)
+                    primary_types = recommendations.get('primary', [])
+                    
+                    logger.info(f"[PDF_ANALYTICS] Generated recommendations: {primary_types}")
+                    
+                    # Count each recommended product type
+                    for product_type_str in primary_types:
+                        total_products += 1
+                        
+                        # Map to our ProductType enum
+                        product_type_mapping = {
+                            'one-pager': ProductType.ONE_PAGER,
+                            'presentation': ProductType.PRESENTATION,
+                            'quiz': ProductType.QUIZ,
+                            'video-lesson': ProductType.VIDEO_LESSON
+                        }
+                        
+                        product_type = product_type_mapping.get(product_type_str)
+                        if product_type:
+                            if product_type not in product_counts:
+                                product_counts[product_type] = 0
+                            product_counts[product_type] += 1
+                            logger.info(f"[PDF_ANALYTICS] Added {product_type_str} -> {product_type}, count now: {product_counts[product_type]}")
+                        else:
+                            logger.warning(f"[PDF_ANALYTICS] Unknown product type: {product_type_str}")
+                
+                # We've already computed product_counts and total_products above using Python logic
+                
+                logger.info(f"[PDF_ANALYTICS] Total products: {total_products}")
+                logger.info(f"[PDF_ANALYTICS] Product counts: {product_counts}")
+                
+                # Create product distribution data for template
+                product_distribution = {
+                    'total_products': total_products,
+                    'one_pager_count': product_counts.get(ProductType.ONE_PAGER, 0),
+                    'presentation_count': product_counts.get(ProductType.PRESENTATION, 0),
+                    'quiz_count': product_counts.get(ProductType.QUIZ, 0),
+                    'video_lesson_count': product_counts.get(ProductType.VIDEO_LESSON, 0)
+                }
+                
+                logger.info(f"[PDF_ANALYTICS] Product distribution before percentages: {product_distribution}")
+                
+                # Calculate percentages
+                if total_products > 0:
+                    product_distribution['one_pager_percentage'] = round((product_distribution['one_pager_count'] / total_products * 100), 1)
+                    product_distribution['presentation_percentage'] = round((product_distribution['presentation_count'] / total_products * 100), 1)
+                    product_distribution['quiz_percentage'] = round((product_distribution['quiz_count'] / total_products * 100), 1)
+                    product_distribution['video_lesson_percentage'] = round((product_distribution['video_lesson_count'] / total_products * 100), 1)
+                else:
+                    product_distribution['one_pager_percentage'] = 0
+                    product_distribution['presentation_percentage'] = 0
+                    product_distribution['quiz_percentage'] = 0
+                    product_distribution['video_lesson_percentage'] = 0
+                
+                logger.info(f"[PDF_ANALYTICS] Final product distribution: {product_distribution}")
+                
+                # Get quality distribution data using the same project filtering
+                if included_project_ids:
+                    # Use the same project IDs that were included in the product analysis
+                    quality_query = f"""
+                        WITH lesson_quality_tiers AS (
+                            SELECT 
+                                COALESCE(
+                                    lesson->>'quality_tier',
+                                    section->>'quality_tier', 
+                                    p.quality_tier,
+                                    pf.quality_tier,
+                                    'interactive'
+                                ) as effective_quality_tier
+                            FROM projects p
+                            LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                            CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                            CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                            WHERE p.onyx_user_id = $1
+                            AND p.id IN ({project_ids_placeholder})
+                            AND p.microproduct_content IS NOT NULL
+                            AND p.microproduct_content->>'sections' IS NOT NULL
+                        )
+                        SELECT 
+                            LOWER(effective_quality_tier) as quality_tier,
+                            COUNT(*) as count
+                        FROM lesson_quality_tiers
+                        GROUP BY LOWER(effective_quality_tier)
+                        ORDER BY count DESC
+                    """
+                    quality_params = [onyx_user_id] + project_ids_list
+                else:
+                    # No projects included, use empty result set
+                    quality_query = "SELECT NULL as quality_tier, 0 as count WHERE FALSE"
+                    quality_params = []
+                
+                logger.info(f"[PDF_ANALYTICS] Quality query: {quality_query}")
+                logger.info(f"[PDF_ANALYTICS] Quality params: {quality_params}")
+                
+                quality_rows = await analytics_conn.fetch(quality_query, *quality_params)
+                logger.info(f"[PDF_ANALYTICS] Quality query returned {len(quality_rows)} rows")
+                
+                # Process quality distribution
+                tier_counts = {}
+                total_lessons = 0
+                
+                for row in quality_rows:
+                    tier_name = row['quality_tier'].lower()
+                    count = row['count']
+                    total_lessons += count
+                    logger.info(f"[PDF_ANALYTICS] Raw quality tier: {tier_name}, count: {count}")
+                    
+                    # Map tier names to enum values
+                    tier_mapping = {
+                        'basic': 'basic',
+                        'interactive': 'interactive',
+                        'advanced': 'advanced',
+                        'immersive': 'immersive',
+                        'medium': 'interactive',  # Map medium to interactive
+                        'premium': 'advanced',    # Map premium to advanced
+                    }
+                    
+                    tier = tier_mapping.get(tier_name, 'interactive')
+                    logger.info(f"[PDF_ANALYTICS] Mapped quality tier {tier_name} -> {tier}")
+                    if tier not in tier_counts:
+                        tier_counts[tier] = 0
+                    tier_counts[tier] += count
+                    logger.info(f"[PDF_ANALYTICS] Added {count} to {tier}, total now: {tier_counts[tier]}")
+                
+                logger.info(f"[PDF_ANALYTICS] Total lessons: {total_lessons}")
+                logger.info(f"[PDF_ANALYTICS] Tier counts: {tier_counts}")
+                
+                # Create quality distribution data for template
+                quality_distribution = {
+                    'total_lessons': total_lessons,
+                    'basic_count': tier_counts.get('basic', 0),
+                    'interactive_count': tier_counts.get('interactive', 0),
+                    'advanced_count': tier_counts.get('advanced', 0),
+                    'immersive_count': tier_counts.get('immersive', 0)
+                }
+                
+                logger.info(f"[PDF_ANALYTICS] Quality distribution before percentages: {quality_distribution}")
+                
+                # Calculate percentages
+                if total_lessons > 0:
+                    quality_distribution['basic_percentage'] = round((quality_distribution['basic_count'] / total_lessons * 100), 1)
+                    quality_distribution['interactive_percentage'] = round((quality_distribution['interactive_count'] / total_lessons * 100), 1)
+                    quality_distribution['advanced_percentage'] = round((quality_distribution['advanced_count'] / total_lessons * 100), 1)
+                    quality_distribution['immersive_percentage'] = round((quality_distribution['immersive_count'] / total_lessons * 100), 1)
+                else:
+                    quality_distribution['basic_percentage'] = 0
+                    quality_distribution['interactive_percentage'] = 0
+                    quality_distribution['advanced_percentage'] = 0
+                    quality_distribution['immersive_percentage'] = 0
+                
+                logger.info(f"[PDF_ANALYTICS] Final quality distribution: {quality_distribution}")
+                
+        except Exception as e:
+            logger.error(f"[PDF_ANALYTICS] Failed to fetch analytics data for PDF: {str(e)}", exc_info=True)
+            # Use fallback data if analytics fetch fails
+            product_distribution = {
+                'total_products': 0,
+                'one_pager_count': 0,
+                'presentation_count': 0,
+                'quiz_count': 0,
+                'video_lesson_count': 0,
+                'one_pager_percentage': 0,
+                'presentation_percentage': 0,
+                'quiz_percentage': 0,
+                'video_lesson_percentage': 0
+            }
+            quality_distribution = {
+                'total_lessons': 0,
+                'basic_count': 0,
+                'interactive_count': 0,
+                'advanced_count': 0,
+                'immersive_count': 0,
+                'basic_percentage': 0,
+                'interactive_percentage': 0,
+                'advanced_percentage': 0,
+                'immersive_percentage': 0
+            }
+            logger.info(f"[PDF_ANALYTICS] Using fallback data due to error")
+
+        # Prepare data for template
+        template_data = {
+            'folders': folder_tree,  # Use hierarchical structure
+            'folder_projects': folder_projects,
+            'unassigned_projects': unassigned_projects,
+            'column_visibility': column_visibility_settings,
+            'column_widths': column_widths_settings,
+            'folder_id': folder_id,
+            'client_name': client_name,  # Client name for header customization
+            'generated_at': datetime.now().isoformat(),
+            'summary_stats': summary_stats,  # Add summary statistics to template data
+            'product_distribution': product_distribution,  # Add real product distribution data
+            'quality_distribution': quality_distribution   # Add real quality distribution data
+        }
+        
+        logger.info(f"[PDF_ANALYTICS] Template data prepared:")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {product_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {quality_distribution}")
+        logger.info(f"[PDF_ANALYTICS] - summary_stats: {summary_stats}")
+
+        # Generate PDF
+        logger.info(f"[PDF_ANALYTICS] About to generate PDF with template data keys: {list(template_data.keys())}")
+        logger.info(f"[PDF_ANALYTICS] Template data summary:")
+        logger.info(f"[PDF_ANALYTICS] - folders count: {len(template_data.get('folders', []))}")
+        logger.info(f"[PDF_ANALYTICS] - folder_projects count: {len(template_data.get('folder_projects', {}))}")
+        logger.info(f"[PDF_ANALYTICS] - unassigned_projects count: {len(template_data.get('unassigned_projects', []))}")
+        logger.info(f"[PDF_ANALYTICS] - product_distribution: {template_data.get('product_distribution')}")
+        logger.info(f"[PDF_ANALYTICS] - quality_distribution: {template_data.get('quality_distribution')}")
+        
+        unique_output_filename = f"projects_list_{onyx_user_id}_{uuid.uuid4().hex[:12]}.pdf"
+        pdf_path = await generate_pdf_from_html_template("projects_list_pdf_template.html", template_data, unique_output_filename)
+        
+        if not os.path.exists(pdf_path):
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")
+        
+        user_friendly_filename = f"projects_list_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        return FileResponse(
+            path=pdf_path, 
+            filename=user_friendly_filename, 
+            media_type='application/pdf', 
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
+
+
+# Quiz endpoints
+class QuizWizardPreview(BaseModel):
+    outlineId: Optional[int] = None  # Parent Training Plan project id
+    lesson: Optional[str] = None      # Specific lesson to generate quiz for, optional when prompt-based
+    courseName: Optional[str] = None  # Course name (outline name) for proper course context
+    prompt: Optional[str] = None           # Fallback free-form prompt
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+    questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"  # comma-separated question types
+    questionCount: int = 10  # Number of questions to generate
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+
+class QuizWizardFinalize(BaseModel):
+    outlineId: Optional[int] = None
+    lesson: str
+    courseName: Optional[str] = None  # Course name (outline name) for proper course context
+    aiResponse: str                        # User-edited quiz data
+    chatSessionId: Optional[str] = None
+    questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"
+    questionCount: int = 10  # Number of questions to generate
+    language: str = "en"
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: user edits tracking (like in Course Outline)
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    # NEW: indicate if content is clean (questions only, no options/answers)
+    isCleanContent: Optional[bool] = False
+
+class QuizEditRequest(BaseModel):
+    currentContent: str
+    editPrompt: str
+    outlineId: Optional[int] = None
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    questionTypes: Optional[str] = None
+    language: str = "en"
+    fromFiles: bool = False
+    fromText: bool = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    textMode: Optional[str] = None
+    questionCount: int = 10
+    chatSessionId: Optional[str] = None
+    # NEW: indicate if content is clean (questions only, no options/answers)
+    isCleanContent: Optional[bool] = False
+
+async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
+    """Ensure quiz design template exists, return template ID"""
+    try:
+        # Check if quiz template exists
+        template_query = """
+            SELECT id FROM design_templates 
+            WHERE microproduct_type = 'Quiz' 
+            LIMIT 1
+        """
+        template_result = await pool.fetchval(template_query)
+        
+        if template_result:
+            return template_result
+        
+        # Create quiz template if it doesn't exist
+        insert_query = """
+            INSERT INTO design_templates 
+            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        """
+        template_id = await pool.fetchval(
+            insert_query,
+            "Quiz Template",
+            "Create an interactive quiz with various question types including multiple choice, multi-select, matching, sorting, and open answer questions.",
+            "Quiz",
+            COMPONENT_NAME_QUIZ,
+            "/quiz.png"
+        )
+        return template_id
+        
+    except Exception as e:
+        logger.error(f"Error ensuring quiz template: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure quiz template")
+
+@app.post("/api/custom/quiz/generate")
+async def quiz_generate(payload: QuizWizardPreview, request: Request):
+    """Generate quiz content with streaming response"""
+    logger.info(f"[QUIZ_PREVIEW_START] Quiz preview initiated")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] questionTypes={payload.questionTypes} lang={payload.language}")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
+    logger.info(f"[QUIZ_PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[QUIZ_PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[QUIZ_PREVIEW_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[QUIZ_PREVIEW_CHAT] Creating new chat session")
+        try:
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[QUIZ_PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[QUIZ_PREVIEW_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[QUIZ_PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Quiz",
+        "prompt": payload.prompt or "Create a quiz",
+        "language": payload.language,
+        "questionTypes": payload.questionTypes,
+        "questionCount": payload.questionCount,
+    }
+
+    # Add outline context if provided
+    if payload.outlineId:
+        wiz_payload["outlineId"] = payload.outlineId
+    if payload.lesson:
+        wiz_payload["lesson"] = payload.lesson
+    if payload.courseName:
+        wiz_payload["courseName"] = payload.courseName
+
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    if payload.fromText and payload.userText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        
+        text_length = len(payload.userText)
+        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        if text_length > LARGE_TEXT_THRESHOLD:
+            # Use virtual file system for large texts to prevent AI memory issues
+            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            try:
+                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                wiz_payload["virtualFileId"] = virtual_file_id
+                wiz_payload["textCompressed"] = False
+                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+            except Exception as e:
+                logger.error(f"Failed to create virtual file for large text: {e}")
+                # Fallback to chunking if virtual file creation fails
+                chunks = chunk_text(payload.userText)
+                if len(chunks) == 1:
+                    # Single chunk, use compression
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
+                    wiz_payload["textCompressed"] = True
+                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    # Multiple chunks, use first chunk with compression
+                    first_chunk = chunks[0]
+                    compressed_chunk = compress_text(first_chunk)
+                    wiz_payload["userText"] = compressed_chunk
+                    wiz_payload["textCompressed"] = True
+                    wiz_payload["textChunked"] = True
+                    wiz_payload["totalChunks"] = len(chunks)
+                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
+        elif text_length > TEXT_SIZE_THRESHOLD:
+            # Compress medium text to reduce payload size
+            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
+            compressed_text = compress_text(payload.userText)
+            wiz_payload["userText"] = compressed_text
+            wiz_payload["textCompressed"] = True
+            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+        else:
+            # Use direct text for small content
+            logger.info(f"Using direct text for small content ({text_length} chars)")
+            wiz_payload["userText"] = payload.userText
+            wiz_payload["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        wiz_payload["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for quiz generation")
+
+    # Decompress text if it was compressed
+    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        try:
+            decompressed_text = decompress_text(wiz_payload["userText"])
+            wiz_payload["userText"] = decompressed_text
+            wiz_payload["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress text: {e}")
+            # Continue with original text if decompression fails
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}"  
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"[QUIZ_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
+        logger.info(f"[QUIZ_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[QUIZ_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
+            
+            try:
+                # Step 1: Extract context from Onyx
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Quiz"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
+            logger.info(f"[QUIZ_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[QUIZ_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            try:
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[QUIZ_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[QUIZ_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[QUIZ_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[QUIZ_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                    
+            except Exception as e:
+                logger.error(f"[QUIZ_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+        }
+    )
+
+@app.post("/api/custom/quiz/edit")
+async def quiz_edit(payload: QuizEditRequest, request: Request):
+    """Edit quiz content with streaming response"""
+    logger.info(f"[QUIZ_EDIT_START] Quiz edit initiated")
+    logger.info(f"[QUIZ_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[QUIZ_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[QUIZ_EDIT_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[QUIZ_EDIT_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[QUIZ_EDIT_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[QUIZ_EDIT_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[QUIZ_EDIT_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Quiz Edit",
+        "prompt": payload.editPrompt,
+        "language": payload.language,
+        "originalContent": payload.currentContent,
+        "editMode": True,
+        "isCleanContent": payload.isCleanContent
+    }
+
+    # Add context if provided
+    if payload.outlineId:
+        wiz_payload["outlineId"] = payload.outlineId
+    if payload.lesson:
+        wiz_payload["lesson"] = payload.lesson
+    if payload.courseName:
+        wiz_payload["courseName"] = payload.courseName
+    if payload.questionTypes:
+        wiz_payload["questionTypes"] = payload.questionTypes
+    if payload.questionCount:
+        wiz_payload["questionCount"] = payload.questionCount
+
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided
+    if payload.fromText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+
+        logger.info(f"[QUIZ_EDIT_STREAM] Starting streamer")
+        logger.info(f"[QUIZ_EDIT_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        # NEW: Use OpenAI directly for quiz editing
+        logger.info(f"[QUIZ_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for quiz editing")
+        try:
+            async for chunk_data in stream_openai_response(wizard_message):
+                if chunk_data["type"] == "delta":
+                    delta_text = chunk_data["text"]
+                    assistant_reply += delta_text
+                    chunks_received += 1
+                    logger.debug(f"[QUIZ_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                elif chunk_data["type"] == "error":
+                    logger.error(f"[QUIZ_EDIT_OPENAI_ERROR] {chunk_data['text']}")
+                    yield (json.dumps(chunk_data) + "\n").encode()
+                    return
+                
+                # Send keep-alive every 8s
+                now = asyncio.get_event_loop().time()
+                if now - last_send > 8:
+                    yield b" "
+                    last_send = now
+                    logger.debug(f"[QUIZ_EDIT_OPENAI_STREAM] Sent keep-alive")
+            
+            logger.info(f"[QUIZ_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+            
+        except Exception as e:
+            logger.error(f"[QUIZ_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
+
+        logger.info(f"[QUIZ_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        
+        # NEW: Cache the quiz content for later finalization
+        if chat_id:
+            QUIZ_PREVIEW_CACHE[chat_id] = assistant_reply
+            logger.info(f"[QUIZ_PREVIEW_CACHE] Cached quiz content for chat_id={chat_id}, length={len(assistant_reply)}")
+        
+        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+@app.post("/api/custom/quiz/finalize")
+async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Finalize quiz creation by parsing AI response and saving to database"""
+    onyx_user_id = await get_current_onyx_user_id(request)
+    
+    # Get user ID and deduct credits for quiz creation
+    try:
+        credits_needed = calculate_product_credits("quiz")
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "Quiz creation")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for quiz creation")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for quiz creation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+    
+    # Create a unique key for this quiz finalization to prevent duplicates
+    quiz_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
+    
+    # Check if this quiz is already being processed
+    if quiz_key in ACTIVE_QUIZ_FINALIZE_KEYS:
+        logger.warning(f"[QUIZ_FINALIZE_DUPLICATE] Quiz finalization already in progress for key: {quiz_key}")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Quiz finalization already in progress")
+    
+    # Add to active set and track timestamp
+    ACTIVE_QUIZ_FINALIZE_KEYS.add(quiz_key)
+    QUIZ_FINALIZE_TIMESTAMPS[quiz_key] = time.time()
+    
+    # Clean up stale entries (older than 5 minutes)
+    current_time = time.time()
+    stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
+    for stale_key in stale_keys:
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
+        logger.info(f"[QUIZ_FINALIZE_CLEANUP] Cleaned up stale quiz key: {stale_key}")
+    
+    try:
+        # NEW: Check for user edits and decide strategy (like in Course Outline)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if payload.hasUserEdits and payload.originalContent:
+            # User has made edits - check if they're significant
+            any_changes = _any_quiz_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No quiz changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Quiz changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
+        
+        # Ensure quiz template exists
+        template_id = await _ensure_quiz_template(pool)
+        
+        # CONSISTENT NAMING: Use the same pattern as lesson presentations
+        # Determine the project name - if connected to outline, use correct naming convention
+        project_name = payload.lesson.strip()
+        if payload.outlineId:
+            try:
+                # Fetch outline name from database
+                async with pool.acquire() as conn:
+                    outline_row = await conn.fetchrow(
+                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        payload.outlineId, onyx_user_id
+                    )
+                    if outline_row:
+                        outline_name = outline_row["project_name"]
+                        project_name = f"{outline_name}: {payload.lesson.strip()}"
+                        logger.info(f"[QUIZ_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                    else:
+                        logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+            except Exception as e:
+                logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
+                # Continue with plain lesson title if outline fetch fails
+        else:
+            logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
+        
+        logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] lesson: {payload.lesson}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] outlineId: {payload.outlineId}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
+        
+        # NEW: Choose parsing strategy based on user edits
+        if use_direct_parser:
+            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+            logger.info("Using direct parser path for quiz finalization")
+            
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=content_to_parse,
+                project_name=project_name,
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content:
+                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+                   - Extract ONLY the quiz title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Quiz" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                
+                2. For each question in the content, create a structured question object with:
+                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+                   - "question_text": The actual question text
+                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+                   - "explanation": Explanation for the answer
+
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Every question MUST have "question_type" field
+                - Use exact field names as shown in the example
+                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+                - If content is unclear, infer question types based on structure
+                - Language: {payload.language}
+                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+                """,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
+            logger.info("Direct parser path completed successfully")
+        else:
+            # AI PARSER PATH: Use AI for parsing (original behavior)
+            logger.info("Using AI parser path for quiz finalization")
+            
+            # NEW: Handle clean content (questions only) differently
+            if payload.isCleanContent:
+                logger.info("Processing clean content (questions only) - will generate options and answers")
+                # For clean content, we need to generate complete quiz with options and answers
+                dynamic_instructions = f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains ONLY quiz questions without options or answers. You need to generate a complete quiz with:
+                1. Multiple choice options (A, B, C, D) for each question
+                2. Correct answers
+                3. Explanations for each answer
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content or use the lesson name
+                2. For each question, generate:
+                   - "question_type": "multiple-choice" (default)
+                   - "question_text": The question text
+                   - "options": Array with {{"id": "A", "text": "option text"}} for 4 options
+                   - "correct_option_id": "A" (or appropriate letter)
+                   - "explanation": Detailed explanation for the correct answer
+
+                CRITICAL RULES:
+                - Generate realistic and relevant options for each question
+                - Make sure only one option is correct
+                - Provide detailed explanations
+                - Language: {payload.language}
+                - Question types: {payload.questionTypes}
+                """
+            else:
+                # Regular content with options and answers
+                dynamic_instructions = f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content:
+                   - Look for patterns like "**Course Name** : **Quiz** : **Quiz Title**" or "**Quiz** : **Quiz Title**"
+                   - Extract ONLY the quiz title part (the last part after the last "**")
+                   - For example: "**Code Optimization Course** : **Quiz** : **Common Optimization Techniques**" → extract "Common Optimization Techniques"
+                   - For example: "**Quiz** : **JavaScript Basics**" → extract "JavaScript Basics"
+                   - Do NOT include the course name or "Quiz" label in the title
+                   - If no clear pattern is found, use the first meaningful title or heading
+                
+                2. For each question in the content, create a structured question object with:
+                   - "question_type": MUST be one of: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+                   - "question_text": The actual question text
+                   - For multiple-choice: "options" array with {{"id": "A", "text": "option text"}}, "correct_option_id": "A"
+                   - For multi-select: "options" array, "correct_option_ids": ["A", "B"] (array)
+                   - For matching: "prompts" array, "options" array, "correct_matches": {{"A": "1", "B": "2"}}
+                   - For sorting: "items_to_sort" array, "correct_order": ["step1", "step2"]
+                   - For open-answer: "acceptable_answers": ["answer1", "answer2"]
+                   - "explanation": Explanation for the answer
+
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Every question MUST have "question_type" field
+                - Use exact field names as shown in the example
+                - All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+                - If content is unclear, infer question types based on structure
+                - Language: {payload.language}
+                - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
+                """
+            
+                        # Parse the quiz data using LLM - only call once with consistent project name
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=payload.aiResponse,
+                project_name=project_name,  # Use consistent project name
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=dynamic_instructions,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
+        
+        logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
+        logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
+        logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
+        
+        # NEW: Hardcoded title extraction from first line of AI response
+        try:
+            extracted_title = project_name.split(":")[0].replace("Quiz - ", "").strip()
+        except Exception as e:
+            logger.error(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Error extracting title: {e}")
+            extracted_title = None
+        
+        # Use extracted title if available, otherwise use parsed title or fallback
+        if extracted_title:
+            parsed_quiz.quizTitle = project_name.split(":")[-1].strip()
+            logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Using hardcoded title: '{parsed_quiz.quizTitle}'")
+        
+        # Detect language if not provided
+        if not parsed_quiz.detectedLanguage:
+            parsed_quiz.detectedLanguage = detect_language(payload.aiResponse)
+        
+        # If parsing failed and we have no questions, create a basic quiz structure
+        if not parsed_quiz.questions:
+            logger.warning(f"[QUIZ_FINALIZE_FALLBACK] LLM parsing failed for quiz, creating fallback structure")
+            # Create a simple quiz with the AI response as content
+            parsed_quiz.quizTitle = project_name
+            parsed_quiz.questions = [
+                {
+                    "question_type": "open-answer",
+                    "question_text": "Please review the quiz content and answer the questions.",
+                    "acceptable_answers": ["See quiz content for answers"],
+                    "explanation": "This is a fallback quiz structure. The original content is preserved in the AI response."
+                }
+            ]
+        else:
+            # Validate that all questions have the required question_type field
+            valid_questions = []
+            for i, question in enumerate(parsed_quiz.questions):
+                if hasattr(question, 'question_type') and question.question_type:
+                    valid_questions.append(question)
+                else:
+                    logger.warning(f"[QUIZ_FINALIZE_VALIDATION] Question {i} missing question_type, converting to open-answer")
+                    # Convert to open-answer if question_type is missing
+                    if hasattr(question, 'question_text'):
+                        valid_questions.append({
+                            "question_type": "open-answer",
+                            "question_text": question.question_text,
+                            "acceptable_answers": ["See original content for answer"],
+                            "explanation": "This question was converted from the original format."
+                        })
+            
+            if not valid_questions:
+                logger.warning(f"[QUIZ_FINALIZE_VALIDATION] No valid questions found, creating fallback structure")
+                parsed_quiz.questions = [
+                    {
+                        "question_type": "open-answer",
+                        "question_text": "Please review the quiz content and answer the questions.",
+                        "acceptable_answers": ["See quiz content for answers"],
+                        "explanation": "This is a fallback quiz structure. The original content is preserved in the AI response."
+                    }
+                ]
+            else:
+                parsed_quiz.questions = valid_questions
+        
+        # Always use the consistent project name for database storage
+        # The quiz title from parsed_quiz.quizTitle is used for display purposes only
+        final_project_name = project_name
+        
+        logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
+        
+        # Determine if this is a standalone quiz or part of an outline
+        is_standalone_quiz = payload.outlineId is None
+        
+        # For quiz components, we need to insert directly to avoid double parsing
+        # since add_project_to_custom_db would call parse_ai_response_with_llm again
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                insert_query,
+                onyx_user_id,
+                final_project_name,  # Use final_project_name for project_name to match the expected pattern
+                "Quiz",  # product_type
+                COMPONENT_NAME_QUIZ,  # microproduct_type - use the correct component name
+                final_project_name,  # microproduct_name
+                parsed_quiz.model_dump(mode='json', exclude_none=True),  # microproduct_content
+                template_id,  # design_template_id
+                payload.chatSessionId,  # source_chat_session_id
+                is_standalone_quiz,  # is_standalone
+                int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+            )
+        
+        if not row:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create quiz project entry.")
+        
+        created_project = ProjectDB(**dict(row))
+        
+        logger.info(f"[QUIZ_FINALIZE_SUCCESS] Quiz finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_quiz}")
+        return {"id": created_project.id, "name": final_project_name}
+        
+    except Exception as e:
+        logger.error(f"[QUIZ_FINALIZE_ERROR] Error in quiz finalization: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    finally:
+        # Always remove from active set and timestamps
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(quiz_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(quiz_key, None)
+        logger.info(f"[QUIZ_FINALIZE_CLEANUP] Removed quiz_key from active set: {quiz_key}")
+
+@app.delete("/api/custom/lessons/{lesson_id}", status_code=204)
+async def delete_lesson(lesson_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Delete a lesson project permanently"""
+    try:
+        async with pool.acquire() as conn:
+            # First, verify the lesson exists and belongs to the user
+            lesson = await conn.fetchrow(
+                "SELECT id, project_name, microproduct_type FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                lesson_id, onyx_user_id
+            )
+            
+            if not lesson:
+                raise HTTPException(status_code=404, detail="Lesson not found or not owned by user")
+            
+            # Check if this is actually a lesson (not a training plan/course outline)
+            if lesson['microproduct_type'] in ('Training Plan', 'Course Outline'):
+                raise HTTPException(status_code=400, detail="Cannot delete training plans or course outlines. Please delete individual lessons instead.")
+            
+            # Delete the lesson
+            result = await conn.execute(
+                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                lesson_id, onyx_user_id
+            )
+            
+            if result == "DELETE 0":
+                raise HTTPException(status_code=404, detail="Lesson not found")
+            
+            logger.info(f"User {onyx_user_id} deleted lesson {lesson_id} ({lesson['project_name']})")
+            return JSONResponse(status_code=204, content={})
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting lesson {lesson_id} for user {onyx_user_id}: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "An error occurred while deleting the lesson." if IS_PRODUCTION else f"Database error during lesson deletion: {str(e)}"
+        raise HTTPException(status_code=500, detail=detail_msg)
+
+
+# Default quiz JSON example for LLM parsing
+DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM = """
+{
+  "quizTitle": "Example Quiz with All Question Types",
+  "questions": [
+    {
+      "question_type": "multiple-choice",
+      "question_text": "What is the capital of France?",
+      "options": [
+        {"id": "A", "text": "London"},
+        {"id": "B", "text": "Paris"},
+        {"id": "C", "text": "Berlin"},
+        {"id": "D", "text": "Madrid"}
+      ],
+      "correct_option_id": "B",
+      "explanation": "Paris is the capital and largest city of France."
+    },
+    {
+      "question_type": "multi-select",
+      "question_text": "Which of the following are programming languages?",
+      "options": [
+        {"id": "A", "text": "Python"},
+        {"id": "B", "text": "HTML"},
+        {"id": "C", "text": "JavaScript"},
+        {"id": "D", "text": "CSS"}
+      ],
+      "correct_option_ids": ["A", "C"],
+      "explanation": "Python and JavaScript are programming languages, while HTML and CSS are markup/styling languages."
+    },
+    {
+      "question_type": "matching",
+      "question_text": "Match the countries with their capitals:",
+      "prompts": [
+        {"id": "A", "text": "Germany"},
+        {"id": "B", "text": "Italy"},
+        {"id": "C", "text": "Spain"}
+      ],
+      "options": [
+        {"id": "1", "text": "Berlin"},
+        {"id": "2", "text": "Rome"},
+        {"id": "3", "text": "Madrid"}
+      ],
+      "correct_matches": {"A": "1", "B": "2", "C": "3"},
+      "explanation": "Germany-Berlin, Italy-Rome, Spain-Madrid are the correct country-capital pairs."
+    },
+    {
+      "question_type": "sorting",
+      "question_text": "Arrange the following steps in the correct order for a sales process:",
+      "items_to_sort": [
+        {"id": "step1", "text": "Identify customer needs"},
+        {"id": "step2", "text": "Present solution"},
+        {"id": "step3", "text": "Handle objections"},
+        {"id": "step4", "text": "Close the sale"}
+      ],
+      "correct_order": ["step1", "step2", "step3", "step4"],
+      "explanation": "The sales process follows a logical sequence: first understand needs, then present solutions, address concerns, and finally close."
+    },
+    {
+      "question_type": "open-answer",
+      "question_text": "What are the three key elements of an effective elevator pitch?",
+      "acceptable_answers": [
+        "Problem, Solution, Call to Action",
+        "Problem statement, Your solution, What you want them to do next",
+        "The issue, How you solve it, What action to take"
+      ],
+      "explanation": "An effective elevator pitch should clearly state the problem, present your solution, and include a clear call to action."
+    }
+  ],
+  "detectedLanguage": "en"
+}
+
+CRITICAL REQUIREMENTS:
+- Output ONLY the JSON object, no other text or formatting
+- Every question MUST have "question_type" field with exact values: "multiple-choice", "multi-select", "matching", "sorting", "open-answer"
+- Use exact field names as shown above
+- All IDs must be strings: "A", "B", "C", "D" or "1", "2", "3"
+- The "question_type" field is MANDATORY for every question
+"""
+
+# Default text presentation JSON example for LLM parsing
+DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM = """
+{
+  "textTitle": "Example Text Presentation with Nested Lists",
+  "contentBlocks": [
+    { "type": "headline", "level": 2, "text": "Main Title of the Presentation" },
+    { "type": "paragraph", "text": "This is an introductory paragraph explaining the main concepts." },
+    {
+      "type": "bullet_list",
+      "items": [
+        "Top level item 1, demonstrating a simple string item.",
+        {
+          "type": "bullet_list",
+          "iconName": "chevronRight",
+          "items": [
+            "Nested item A: This is a sub-item.",
+            "Nested item B: Another sub-item to show structure.",
+            {
+              "type": "numbered_list",
+              "items": [
+                "Further nested numbered item 1.",
+                "Further nested numbered item 2."
+              ]
+            }
+          ]
+        },
+        "Top level item 2, followed by a nested numbered list.",
+        {
+          "type": "numbered_list",
+          "items": [
+            "Nested numbered 1: First point in nested ordered list.",
+            "Nested numbered 2: Second point."
+          ]
+        },
+        "Top level item 3."
+      ]
+    },
+    { "type": "alert", "alertType": "info", "title": "Important Note", "text": "Alerts can provide contextual information or warnings." },
+    {
+      "type": "numbered_list",
+      "items": [
+        "Main numbered point 1.",
+        {
+          "type": "bullet_list",
+          "items": [
+            "Sub-bullet C under numbered list.",
+            "Sub-bullet D, also useful for breaking down complex points."
+          ]
+        },
+        "Main numbered point 2."
+      ]
+    },
+    { "type": "section_break", "style": "dashed" }
+  ],
+  "detectedLanguage": "en"
+}
+"""
+
+# Text Presentation Pydantic models
+class TextPresentationWizardPreview(BaseModel):
+    outlineId: Optional[int] = None
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    prompt: Optional[str] = None
+    language: str = "en"
+    length: str = "medium"
+    styles: Optional[str] = None
+    fromFiles: bool = False
+    folderIds: Optional[str] = None
+    fileIds: Optional[str] = None
+    fromText: bool = False
+    textMode: Optional[str] = None
+    userText: Optional[str] = None
+    fromKnowledgeBase: bool = False
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+    chatSessionId: Optional[str] = None
+
+class TextPresentationWizardFinalize(BaseModel):
+    aiResponse: str
+    outlineId: Optional[int] = None  # Add outlineId for consistent naming
+    lesson: Optional[str] = None
+    courseName: Optional[str] = None
+    language: str = "en"
+    chatSessionId: Optional[str] = None
+    # NEW: folder context for creation from inside a folder
+    folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: User edits tracking (like in Quiz)
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    isCleanContent: Optional[bool] = False
+    # Connector context fields
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None
+    connectorSources: Optional[str] = None
+
+class TextPresentationEditRequest(BaseModel):
+    content: str
+    editPrompt: str
+    language: Optional[str] = "en"  # Add language field with default fallback
+    chatSessionId: Optional[str] = None
+    isCleanContent: Optional[bool] = False
+
+@app.post("/api/custom/text-presentation/generate")
+async def text_presentation_generate(payload: TextPresentationWizardPreview, request: Request):
+    """Generate text presentation content with streaming response"""
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_START] Text presentation preview initiated")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] outlineId={payload.outlineId} lesson='{payload.lesson}' prompt='{payload.prompt[:50] if payload.prompt else None}...'")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] lang={payload.language}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[TEXT_PRESENTATION_PREVIEW_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Creating new chat session")
+        try:
+            # Check if this is a Knowledge Base search request
+            use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+            persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Got persona ID: {persona_id} (Knowledge Base search: {use_search_persona})")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[TEXT_PRESENTATION_PREVIEW_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_PREVIEW_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Text Presentation",
+        "prompt": payload.prompt or "Create a comprehensive text presentation",
+        "language": payload.language,
+        "length": payload.length,
+    }
+
+    # Add styles if provided
+    if payload.styles:
+        wiz_payload["styles"] = payload.styles
+
+    # Add outline context if provided
+    if payload.outlineId:
+        wiz_payload["outlineId"] = payload.outlineId
+    if payload.lesson:
+        wiz_payload["lesson"] = payload.lesson
+    if payload.courseName:
+        wiz_payload["courseName"] = payload.courseName
+
+    # Add file context if provided
+    if payload.fromFiles:
+        wiz_payload["fromFiles"] = True
+        if payload.folderIds:
+            wiz_payload["folderIds"] = payload.folderIds
+        if payload.fileIds:
+            wiz_payload["fileIds"] = payload.fileIds
+
+    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    if payload.fromText and payload.userText:
+        wiz_payload["fromText"] = True
+        wiz_payload["textMode"] = payload.textMode
+        
+        text_length = len(payload.userText)
+        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        if text_length > LARGE_TEXT_THRESHOLD:
+            # Use virtual file system for large texts to prevent AI memory issues
+            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
+            try:
+                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                wiz_payload["virtualFileId"] = virtual_file_id
+                wiz_payload["textCompressed"] = False
+                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+            except Exception as e:
+                logger.error(f"Failed to create virtual file for large text: {e}")
+                # Fallback to chunking if virtual file creation fails
+                chunks = chunk_text(payload.userText)
+                if len(chunks) == 1:
+                    # Single chunk, use compression
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
+                    wiz_payload["textCompressed"] = True
+                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    # Multiple chunks, use first chunk with compression
+                    first_chunk = chunks[0]
+                    compressed_chunk = compress_text(first_chunk)
+                    wiz_payload["userText"] = compressed_chunk
+                    wiz_payload["textCompressed"] = True
+                    wiz_payload["textChunked"] = True
+                    wiz_payload["totalChunks"] = len(chunks)
+                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
+        elif text_length > TEXT_SIZE_THRESHOLD:
+            # Compress medium text to reduce payload size
+            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
+            compressed_text = compress_text(payload.userText)
+            wiz_payload["userText"] = compressed_text
+            wiz_payload["textCompressed"] = True
+            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+        else:
+            # Use direct text for small content
+            logger.info(f"Using direct text for small content ({text_length} chars)")
+            wiz_payload["userText"] = payload.userText
+            wiz_payload["textCompressed"] = False
+    elif payload.fromText and not payload.userText:
+        # Log this problematic case to help with debugging
+        logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
+        # Don't process fromText if userText is empty to avoid confusing the AI
+    elif payload.fromText:
+        logger.warning(f"Received fromText=True but userText evaluation failed. userText type: {type(payload.userText)}, value: {repr(payload.userText)[:100] if payload.userText else 'None'}")
+
+    # Add Knowledge Base context if provided
+    if payload.fromKnowledgeBase:
+        wiz_payload["fromKnowledgeBase"] = True
+        logger.info(f"Added Knowledge Base context for text presentation generation")
+
+    # Decompress text if it was compressed
+    if wiz_payload.get("textCompressed") and wiz_payload.get("userText"):
+        try:
+            decompressed_text = decompress_text(wiz_payload["userText"])
+            wiz_payload["userText"] = decompressed_text
+            wiz_payload["textCompressed"] = False  # Mark as decompressed
+            logger.info(f"Decompressed text for assistant ({len(decompressed_text)} chars)")
+        except Exception as e:
+            logger.error(f"Failed to decompress text: {e}")
+            # Continue with original text if decompression fails
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+        total_bytes_received = 0
+        done_received = False
+
+        # Use longer timeout for large text processing to prevent AI memory issues
+        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Starting streamer with timeout: {timeout_duration} seconds")
+        logger.info(f"[TEXT_PRESENTATION_PREVIEW_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        # NEW: Check if we should use hybrid approach (Onyx for context + OpenAI for generation)
+        if should_use_hybrid_approach(payload):
+            logger.info(f"[TEXT_PRESENTATION_STREAM] 🔄 USING HYBRID APPROACH (Onyx context extraction + OpenAI generation)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}, fromKnowledgeBase={getattr(payload, 'fromKnowledgeBase', None)}, fromConnectors={getattr(payload, 'fromConnectors', None)}, connectorSources={getattr(payload, 'connectorSources', None)}")
+            
+            try:
+                # Step 1: Extract context from Onyx
+                if payload.fromConnectors and payload.connectorSources:
+                    # For connector-based filtering, extract context from specific connectors
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromKnowledgeBase:
+                    # For Knowledge Base searches, extract context from the entire Knowledge Base
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
+                    file_context = await extract_knowledge_base_context(payload.prompt, cookies)
+                else:
+                    # For file-based searches, extract context from specific files/folders
+                    folder_ids_list = []
+                    file_ids_list = []
+                    
+                    if payload.fromFiles and payload.folderIds:
+                        folder_ids_list = parse_id_list(payload.folderIds, "folder")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed folder IDs: {folder_ids_list}")
+                    
+                    if payload.fromFiles and payload.fileIds:
+                        file_ids_list = parse_id_list(payload.fileIds, "file")
+                        logger.info(f"[HYBRID_CONTEXT] Parsed file IDs: {file_ids_list}")
+                    
+                    # Add virtual file ID if created for large text
+                    if wiz_payload.get("virtualFileId"):
+                        file_ids_list.append(wiz_payload["virtualFileId"])
+                        logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
+                    
+                    # Extract context from Onyx
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
+                    file_context = await extract_file_context_from_onyx(file_ids_list, folder_ids_list, cookies)
+                
+                # Step 2: Use OpenAI with enhanced context
+                logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
+                async for chunk_data in stream_hybrid_response(wizard_message, file_context, "Text Presentation"):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[HYBRID_STREAM] Sent keep-alive")
+                
+                logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                
+            except Exception as e:
+                logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+        
+        # FALLBACK: Use OpenAI directly when no file context
+        else:
+            logger.info(f"[TEXT_PRESENTATION_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[TEXT_PRESENTATION_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
+            try:
+                async for chunk_data in stream_openai_response(wizard_message):
+                    if chunk_data["type"] == "delta":
+                        delta_text = chunk_data["text"]
+                        assistant_reply += delta_text
+                        chunks_received += 1
+                        logger.debug(f"[TEXT_PRESENTATION_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                    elif chunk_data["type"] == "error":
+                        logger.error(f"[TEXT_PRESENTATION_OPENAI_ERROR] {chunk_data['text']}")
+                        yield (json.dumps(chunk_data) + "\n").encode()
+                        return
+                    
+                    # Send keep-alive every 8s
+                    now = asyncio.get_event_loop().time()
+                    if now - last_send > 8:
+                        yield b" "
+                        last_send = now
+                        logger.debug(f"[TEXT_PRESENTATION_OPENAI_STREAM] Sent keep-alive")
+                
+                logger.info(f"[TEXT_PRESENTATION_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
+                    
+            except Exception as e:
+                logger.error(f"[TEXT_PRESENTATION_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                return
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+        }
+    )
+
+@app.post("/api/custom/text-presentation/edit")
+async def text_presentation_edit(payload: TextPresentationEditRequest, request: Request):
+    """Edit text presentation content with streaming response"""
+    logger.info(f"[TEXT_PRESENTATION_EDIT_START] Text presentation edit initiated")
+    logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] editPrompt='{payload.editPrompt[:50]}...'")
+    logger.info(f"[TEXT_PRESENTATION_EDIT_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
+    
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    logger.info(f"[TEXT_PRESENTATION_EDIT_AUTH] Cookie present: {bool(cookies[ONYX_SESSION_COOKIE_NAME])}")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+        logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Using existing chat session: {chat_id}")
+    else:
+        logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Creating new chat session")
+        try:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Got persona ID: {persona_id}")
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+            logger.info(f"[TEXT_PRESENTATION_EDIT_CHAT] Created new chat session: {chat_id}")
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_EDIT_CHAT_ERROR] Failed to create chat session: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create chat session: {str(e)}")
+
+    wiz_payload = {
+        "product": "Text Presentation Edit",
+        "prompt": payload.editPrompt,
+        "language": payload.language,  # Use the language from the request
+        "originalContent": payload.content,
+        "editMode": True,
+        "isCleanContent": getattr(payload, 'isCleanContent', False)
+    }
+
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+
+    # ---------- StreamingResponse with keep-alive -----------
+    async def streamer():
+        assistant_reply: str = ""
+        last_send = asyncio.get_event_loop().time()
+        chunks_received = 0
+
+        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] Starting streamer")
+        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] Wizard payload keys: {list(wiz_payload.keys())}")
+        
+        # NEW: Use OpenAI directly for text presentation editing
+        logger.info(f"[TEXT_PRESENTATION_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING for text presentation editing")
+        try:
+            async for chunk_data in stream_openai_response(wizard_message):
+                if chunk_data["type"] == "delta":
+                    delta_text = chunk_data["text"]
+                    assistant_reply += delta_text
+                    chunks_received += 1
+                    logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                    yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                elif chunk_data["type"] == "error":
+                    logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_ERROR] {chunk_data['text']}")
+                    yield (json.dumps(chunk_data) + "\n").encode()
+                    return
+                
+                # Send keep-alive every 8s
+                now = asyncio.get_event_loop().time()
+                if now - last_send > 8:
+                    yield b" "
+                    last_send = now
+                    logger.debug(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Sent keep-alive")
+            
+            logger.info(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
+            
+        except Exception as e:
+            logger.error(f"[TEXT_PRESENTATION_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
+            yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+            return
+
+        logger.info(f"[TEXT_PRESENTATION_EDIT_COMPLETE] Final assistant reply length: {len(assistant_reply)}")
+        yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+
+    return StreamingResponse(
+        streamer(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+@app.post("/api/custom/text-presentation/finalize")
+async def text_presentation_finalize(payload: TextPresentationWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Finalize text presentation creation by parsing AI response and saving to database"""
+    onyx_user_id = await get_current_onyx_user_id(request)
+    styles_param = getattr(payload, 'styles', None)
+    logger.info(f"[TEXT_PRESENTATION_FINALIZE] styles param: {styles_param}")
+    
+    # Get user ID and deduct credits for one-pager creation
+    try:
+        credits_needed = calculate_product_credits("one_pager")
+        
+        # Check and deduct credits
+        user_credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        if user_credits.credits_balance < credits_needed:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. Need {credits_needed} credits, have {user_credits.credits_balance}"
+            )
+        
+        # Deduct credits
+        await deduct_credits(onyx_user_id, credits_needed, pool, "One-pager creation")
+        logger.info(f"Deducted {credits_needed} credits from user {onyx_user_id} for one-pager creation")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing credits for one-pager creation: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process credits")
+    
+    # Create a unique key for this text presentation finalization to prevent duplicates
+    text_presentation_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
+    
+    # Check if this text presentation is already being processed
+    if text_presentation_key in ACTIVE_QUIZ_FINALIZE_KEYS:  # Reuse the same set for simplicity
+        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_DUPLICATE] Text presentation finalization already in progress for key: {text_presentation_key}")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Text presentation finalization already in progress")
+    
+    # Add to active set and track timestamp
+    ACTIVE_QUIZ_FINALIZE_KEYS.add(text_presentation_key)
+    QUIZ_FINALIZE_TIMESTAMPS[text_presentation_key] = time.time()
+    
+    # Clean up stale entries (older than 5 minutes)
+    current_time = time.time()
+    stale_keys = [key for key, timestamp in QUIZ_FINALIZE_TIMESTAMPS.items() if current_time - timestamp > 300]
+    for stale_key in stale_keys:
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(stale_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(stale_key, None)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Cleaned up stale text presentation key: {stale_key}")
+    
+    try:
+        # Ensure text presentation template exists
+        template_id = await _ensure_text_presentation_template(pool)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_TEMPLATE] Template ID: {template_id}")
+        
+        # CONSISTENT NAMING: Use the same pattern as lesson presentations
+        # Determine the project name - if connected to outline, use correct naming convention
+        project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
+        if payload.outlineId:
+            try:
+                # Fetch outline name from database
+                async with pool.acquire() as conn:
+                    outline_row = await conn.fetchrow(
+                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                        payload.outlineId, onyx_user_id
+                    )
+                    if outline_row:
+                        outline_name = outline_row["project_name"]
+                        project_name = f"{outline_name}: {payload.lesson.strip() if payload.lesson else 'Standalone Presentation'}"
+                        logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Using outline-based naming: {project_name}")
+                    else:
+                        logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+            except Exception as e:
+                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
+                # Continue with plain lesson title if outline fetch fails
+        else:
+            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] lesson: {payload.lesson}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] outlineId: {payload.outlineId}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] chatSessionId: {payload.chatSessionId}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] language: {payload.language}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] text_presentation_key: {text_presentation_key}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] hasUserEdits: {getattr(payload, 'hasUserEdits', False)}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] isCleanContent: {getattr(payload, 'isCleanContent', False)}")
+        
+        # NEW: Check for user edits and decide strategy (like in Quiz)
+        use_direct_parser = False
+        use_ai_parser = True
+        
+        if getattr(payload, 'hasUserEdits', False) and getattr(payload, 'originalContent', None):
+            # User has made edits - check if they're significant
+            any_changes = _any_text_presentation_changes_made(payload.originalContent, payload.aiResponse)
+            
+            if not any_changes:
+                # NO CHANGES: Use direct parser path (fastest)
+                use_direct_parser = True
+                use_ai_parser = False
+                logger.info("No text presentation changes detected - using direct parser path")
+            else:
+                # CHANGES DETECTED: Use AI parser
+                use_direct_parser = False
+                use_ai_parser = True
+                logger.info("Text presentation changes detected - using AI parser path")
+        else:
+            # No edit information available - use AI parser
+            use_direct_parser = False
+            use_ai_parser = True
+            logger.info("No edit information available - using AI parser path")
+        
+        # NEW: Choose parsing strategy based on user edits
+        if use_direct_parser:
+            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+            logger.info("Using direct parser path for text presentation finalization")
+            
+            # Use the original content for parsing since no changes were made
+            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+        else:
+            # AI PARSER PATH: Use the provided content (which may be clean titles only)
+            logger.info("Using AI parser path for text presentation finalization")
+            
+            # NEW: Check if we have clean content (only titles without descriptions)
+            if getattr(payload, 'isCleanContent', False):
+                logger.info("Detected clean content - titles only, will generate descriptions for empty sections")
+                
+                # Parse the clean content to identify sections that need content generation
+                content_to_parse = await _generate_content_for_clean_titles(
+                    clean_content=payload.aiResponse,
+                    original_content=payload.originalContent,
+                    language=payload.language
+                )
+            else:
+                content_to_parse = payload.aiResponse
+        
+        # Parse the text presentation data using LLM - only call once with consistent project name
+        parsed_text_presentation = await parse_ai_response_with_llm(
+            ai_response=content_to_parse,
+            project_name=project_name,  # Use consistent project name
+            target_model=TextPresentationDetails,
+            default_error_model_instance=TextPresentationDetails(
+                textTitle=project_name,
+                contentBlocks=[],
+                detectedLanguage=payload.language
+            ),
+            dynamic_instructions=f"""
+            You are an expert text-to-JSON parsing assistant for 'Text Presentation' content.
+            This product is for general text like introductions, goal descriptions, etc.
+            Your output MUST be a single, valid JSON object. Strictly follow the JSON structure provided in the example.
+
+            **Overall Goal:** Convert the *entirety* of the "Raw text to parse" into a structured JSON. Capture all information and hierarchical relationships. Maintain original language.
+
+            **Global Fields:**
+            1.  `textTitle` (string): Main title for the document. This should be derived from a Level 1 headline (`#`) or from the document header.
+               - Look for patterns like "**Course Name** : **Text Presentation** : **Title**" or "**Text Presentation** : **Title**"
+               - Extract ONLY the title part (the last part after the last "**")
+               - For example: "**Code Optimization Course** : **Text Presentation** : **Introduction to Optimization**" → extract "Introduction to Optimization"
+               - For example: "**Text Presentation** : **JavaScript Basics**" → extract "JavaScript Basics"
+               - Do NOT include the course name or "Text Presentation" label in the title
+               - If no clear pattern is found, use the first meaningful title or heading
+            2.  `contentBlocks` (array): Ordered array of content block objects that form the body of the lesson.
+            3.  `detectedLanguage` (string): e.g., "en", "ru".
+
+            **Content Block Instructions (`contentBlocks` array items):** Each object has a `type`.
+
+            1.  **`type: "headline"`**
+                * `level` (integer):
+                    * `1`: Reserved for the main title of a document, usually handled by `textTitle`. If the input text contains a clear main title that is also part of the body, use level 1.
+                    * `2`: Major Section Header (e.g., "Understanding X", "Typical Mistakes"). These should use `iconName: "info"`.
+                    * `3`: Sub-section Header or Mini-Title. When used as a mini-title inside a numbered list item (see `numbered_list` instruction below), it should not have an icon.
+                    * `4`: Special Call-outs (e.g., "Module Goal", "Important Note"). Typically use `iconName: "target"` for goals, or lesson objectives.
+                * `text` (string): Headline text.
+                * `iconName` (string, optional): Based on level and context as described above.
+                * `isImportant` (boolean, optional): Set to `true` for Level 3 and 4 headlines like "Lesson Goal" or "Lesson Target". If `true`, this headline AND its *immediately following single block* will be grouped into a visually distinct highlighted box. Do NOT set this to 'true' for sections like 'Conclusion', 'Key Takeaways' or any other section that comes in the very end of the lesson. Do not use this as 'true' for more than 1 section.
+
+            2.  **`type: "paragraph"`**
+                * `text` (string): Full paragraph text.
+                * `isRecommendation` (boolean, optional): If this paragraph is a 'recommendation' within a numbered list item, set this to `true`. Or set this to true if it is a concluding thought in the very end of the lesson (this case applies only to one VERY last thought). Cannot be 'true' for ALL the elements in one list. HAS to be 'true' if the paragraph starts with the keyword for recommendation — e.g., 'Recommendation', 'Рекомендація', 'Рекомендация' — or their localized equivalents, and isn't a part of the bullet list.
+
+            3.  **`type: "bullet_list"`**
+                * `items` (array of `ListItem`): Can be strings or other nested content blocks.
+                * `iconName` (string, optional): Default to `chevronRight`. If this bullet list is acting as a structural container for a numbered list item's content (mini-title + description), set `iconName: "none"`.
+
+            4.  **`type: "numbered_list"`**
+                * `items` (array of `ListItem`):
+                    * Can be simple strings for basic numbered points.
+                    * For complex items that should appear as a single visual "box" with a mini-title, description, and optional recommendation:
+                        * Each such item in the `numbered_list`'s `items` array should itself be a `bullet_list` block with `iconName: "none"`.
+                        * The `items` of this *inner* `bullet_list` should then be:
+                            1. A `headline` block (e.g., `level: 3`, `text: "Mini-Title Text"`, no icon).
+                            2. A `paragraph` block (for the main descriptive text).
+                            3. Optionally, another `paragraph` block with `isRecommendation: true`.
+                    * Only use round numbers in this list, no a1, a2 or 1.1, 1.2.
+
+            5.  **`type: "table"`**
+                * `headers` (array of strings): The column headers for the table.
+                * `rows` (array of arrays of strings): Each inner array is a row, with each string representing a cell value. The number of cells in each row should match the number of headers.
+                * `caption` (string, optional): A short description or title for the table, if present in the source text.
+                * Use a table block whenever the source text contains tabular data, a grid, or a Markdown table (with | separators). Do not attempt to represent tables as lists or paragraphs.
+
+
+            6.  **`type: "alert"`**
+                *   `alertType` (string): One of `info`, `success`, `warning`, `danger`.
+                *   `title` (string, optional): The title of the alert.
+                *   `text` (string): The body text of the alert.
+                *   **Parsing Rule:** An alert is identified in the raw text by a blockquote. The first line of the blockquote MUST be `> [!TYPE] Optional Title`. The `TYPE` is extracted for `alertType`. The text after the tag is the `title`. All subsequent lines within the blockquote form the `text`.
+
+            7.  **`type: "section_break"`**
+                * `style` (string, optional): e.g., "solid", "dashed", "none". Parse from `---` in the raw text.
+
+            **General Parsing Rules & Icon Names:**
+            * Ensure correct `level` for headlines. Section headers are `level: 2`. Mini-titles in lists are `level: 3`.
+            * Icons: `info` for H2. `target` or `award` for H4 `isImportant`. `chevronRight` for general bullet lists. No icons for H3 mini-titles.
+            * Permissible Icon Names: `info`, `target`, `award`, `chevronRight`, `bullet-circle`, `compass`.
+            * Make sure to not have any tags in '<>' brackets (e.g. '<u>') in the list elements, UNLESS it is logically a part of the lesson.
+            * DO NOT remove the '**' from the text, treat it as an equal part of the text. Moreover, ADD '**' around short parts of the text if you are sure that they should be bold.
+            * Make sure to analyze the numbered lists in depth to not break their logically intended structure.
+
+            Important Localization Rule: All auxiliary headings or keywords such as "Recommendation", "Conclusion", "Create from scratch", "Goal", etc. MUST be translated into the same language as the surrounding content. Examples:
+              • Ukrainian → "Рекомендація", "Висновок", "Створити з нуля"
+              • Russian   → "Рекомендация", "Заключение", "Создать с нуля"
+              • Spanish   → "Recomendación", "Conclusión", "Crear desde cero"
+
+            Return ONLY the JSON object.
+            """,
+            target_json_example=DEFAULT_TEXT_PRESENTATION_JSON_EXAMPLE_FOR_LLM
+        )
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Parsed text title: {parsed_text_presentation.textTitle}")
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARSE] Number of content blocks: {len(parsed_text_presentation.contentBlocks)}")
+
+        logger.info(parsed_text_presentation.contentBlocks)
+        
+        # Detect language if not provided
+        if not parsed_text_presentation.detectedLanguage:
+            parsed_text_presentation.detectedLanguage = detect_language(payload.aiResponse)
+        
+        # If parsing failed and we have no content blocks, create a basic structure
+        if not parsed_text_presentation.contentBlocks:
+            logger.warning(f"[TEXT_PRESENTATION_FINALIZE_FALLBACK] LLM parsing failed for text presentation, creating fallback structure")
+            # Create a simple text presentation with the AI response as content
+            parsed_text_presentation.textTitle = project_name
+            parsed_text_presentation.contentBlocks = [
+                {
+                    "type": "paragraph",
+                    "text": payload.aiResponse
+                }
+            ]
+        else:
+            # Validate that all content blocks have the required type field
+            valid_content_blocks = []
+            for i, block in enumerate(parsed_text_presentation.contentBlocks):
+                if hasattr(block, 'type') and block.type:
+                    valid_content_blocks.append(block)
+                else:
+                    logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] Content block {i} missing type, converting to paragraph")
+                    # Convert to paragraph if type is missing
+                    if hasattr(block, 'text'):
+                        valid_content_blocks.append({
+                            "type": "paragraph",
+                            "text": block.text
+                        })
+                    elif hasattr(block, 'items'):
+                        valid_content_blocks.append({
+                            "type": "bullet_list",
+                            "items": block.items
+                        })
+                    else:
+                        # Fallback to paragraph with string representation
+                        valid_content_blocks.append({
+                            "type": "paragraph",
+                            "text": str(block)
+                        })
+            
+            if not valid_content_blocks:
+                logger.warning(f"[TEXT_PRESENTATION_FINALIZE_VALIDATION] No valid content blocks found, creating fallback structure")
+                parsed_text_presentation.contentBlocks = [
+                    {
+                        "type": "paragraph",
+                        "text": payload.aiResponse
+                    }
+                ]
+            else:
+                parsed_text_presentation.contentBlocks = valid_content_blocks
+        
+        # Always use the consistent project name for database storage
+        # The text title from parsed_text_presentation.textTitle is used for display purposes only
+        final_project_name = project_name
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
+        
+        # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
+        is_standalone_text_presentation = payload.outlineId is None
+        
+        # For text presentation components, we need to insert directly to avoid double parsing
+        # since add_project_to_custom_db would call parse_ai_response_with_llm again
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                insert_query,
+                onyx_user_id,
+                final_project_name,  # Use final_project_name for project_name to match the expected pattern
+                "Text Presentation",  # product_type
+                COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
+                project_name,  # microproduct_name
+                parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
+                template_id,  # design_template_id
+                payload.chatSessionId,  # source_chat_session_id
+                is_standalone_text_presentation,  # is_standalone - consistent with outline connection
+                int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
+            )
+        
+        if not row:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create text presentation project entry.")
+        
+        created_project = ProjectDB(**dict(row))
+        
+        # Log full saved JSON for inspection
+        try:
+            async with pool.acquire() as conn:
+                content_row = await conn.fetchrow("SELECT microproduct_content FROM projects WHERE id=$1", created_project.id)
+                if content_row:
+                    logger.info(f"[TEXT_PRESENTATION_FINALIZE_SAVED_JSON] Project {created_project.id} content: {json.dumps(content_row['microproduct_content'], ensure_ascii=False)[:10000]}")
+        except Exception as log_e:
+            logger.warning(f"Failed to log saved text presentation JSON for project {created_project.id}: {log_e}")
+        
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_SUCCESS] Text presentation finalization successful: project_id={created_project.id}, project_name={final_project_name}, is_standalone={is_standalone_text_presentation}")
+        return {"id": created_project.id, "name": final_project_name}
+        
+    except Exception as e:
+        logger.error(f"[TEXT_PRESENTATION_FINALIZE_ERROR] Error in text presentation finalization: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    finally:
+        # Always remove from active set and timestamps
+        ACTIVE_QUIZ_FINALIZE_KEYS.discard(text_presentation_key)
+        QUIZ_FINALIZE_TIMESTAMPS.pop(text_presentation_key, None)
+        logger.info(f"[TEXT_PRESENTATION_FINALIZE_CLEANUP] Removed text_presentation_key from active set: {text_presentation_key}")
+
+@app.get("/api/custom/projects/latest-by-chat")
+async def get_latest_project_by_chat(chatId: str = Query(..., alias="chatId"), onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Return the most recently created project for the given source_chat_session_id
+    for the current user. This is used by finalize fallbacks to navigate reliably
+    even when the original finalize request times out.
+    """
+    try:
+        chat_uuid = uuid.UUID(chatId)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid chatId format. Must be UUID")
+
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT id, project_name, design_template_id, product_type, microproduct_type
+                FROM projects
+                WHERE onyx_user_id = $1 AND source_chat_session_id = $2
+                ORDER BY created_at DESC
+                LIMIT 1
+                """,
+                onyx_user_id, chat_uuid
+            )
+        if not row:
+            return JSONResponse(status_code=404, content={"detail": "No project found for chat session"})
+        return {
+            "id": row["id"],
+            "projectName": row["project_name"],
+            "productType": row.get("product_type"),
+            "microproductType": row.get("microproduct_type"),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching latest project by chat: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to fetch latest project by chat session")
+
+# ============================
+# CREDITS MANAGEMENT ENDPOINTS
+# ============================
+
+@app.get("/api/custom/credits/me", response_model=UserCredits)
+async def get_my_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get current user's credit balance (auto-creates if new user)"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # This will auto-create the user if they don't exist yet
+        credits = await get_or_create_user_credits(onyx_user_id, "User", pool)
+        return credits
+    except Exception as e:
+        logger.error(f"Error getting user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve credits")
+
+@app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
+async def list_all_user_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to list all user credits"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT * FROM user_credits 
+                ORDER BY updated_at DESC
+            """)
+            return [UserCredits(**dict(row)) for row in rows]
+    except Exception as e:
+        logger.error(f"Error listing user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+# NEW: Usage analytics across all users
+@app.get("/api/custom/admin/credits/usage-analytics", response_model=CreditUsageAnalyticsResponse)
+async def get_usage_analytics(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT COALESCE(product_type, 'Unknown') as product_type,
+                       COALESCE(SUM(credits), 0) AS credits_used
+                FROM credit_transactions
+                WHERE type = 'product_generation'
+                GROUP BY COALESCE(product_type, 'Unknown')
+                ORDER BY credits_used DESC
+                """
+            )
+            usage_by_product = [ProductUsage(product_type=row["product_type"], credits_used=int(row["credits_used"] or 0)) for row in rows]
+            total_credits = sum(u.credits_used for u in usage_by_product)
+            return CreditUsageAnalyticsResponse(usage_by_product=usage_by_product, total_credits_used=total_credits)
+    except Exception as e:
+        logger.error(f"Error fetching usage analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+
+@app.post("/api/custom/admin/credits/migrate-users")
+async def migrate_onyx_users_to_credits(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to manually trigger migration of Onyx users to credits table"""
+    await verify_admin_user(request)
+    
+    try:
+        # Use the same migration function as startup
+        migrated_count = await migrate_onyx_users_to_credits_table()
+        
+        return {
+            "success": True,
+            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
+            "users_migrated": migrated_count
+        }
+    except Exception as e:
+        logger.error(f"Error migrating users: {e}")
+        raise HTTPException(status_code=500, detail="Failed to migrate users")
+
+@app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
+async def modify_user_credits(
+    transaction: CreditTransactionRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to add or remove credits for a user by email"""
+    await verify_admin_user(request)
+    
+    try:
+        if transaction.amount <= 0:
+            raise HTTPException(status_code=400, detail="Amount must be positive")
+        
+        updated_credits = await modify_user_credits_by_email(
+            transaction.user_email,
+            transaction.amount,
+            transaction.action,
+            pool,
+            transaction.reason
+        )
+        
+        action_msg = "added to" if transaction.action == "add" else "removed from"
+        message = f"Successfully {action_msg} {transaction.user_email}: {transaction.amount} credits"
+        
+        return CreditTransactionResponse(
+            success=True,
+            message=message,
+            new_balance=updated_credits.credits_balance,
+            user_credits=updated_credits
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error modifying user credits: {e}")
+        raise HTTPException(status_code=500, detail="Failed to modify credits")
+
+@app.get("/api/custom/admin/credits/user/{user_email}", response_model=UserCredits)
+async def get_user_credits_by_email(
+    user_email: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to get specific user's credits by email"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT * FROM user_credits WHERE onyx_user_id = $1",
+                user_email
+            )
+            
+            if not row:
+                # Create entry for user if doesn't exist
+                row = await conn.fetchrow("""
+                    INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                    VALUES ($1, $2, $3)
+                    RETURNING *
+                """, user_email, user_email.split('@')[0], 0)
+            
+            return UserCredits(**dict(row))
+            
+    except Exception as e:
+        logger.error(f"Error getting user credits by email: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user credits")
+
+# NEW: User transaction history (purchases + product generations)
+@app.get("/api/custom/admin/credits/user/{user_id}/transactions", response_model=UserTransactionHistoryResponse)
+async def get_user_transactions(
+    user_id: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    async with pool.acquire() as conn:
+        # Resolve user by numeric id or email
+        if user_id.isdigit():
+            user_row = await conn.fetchrow("SELECT * FROM user_credits WHERE id = $1", int(user_id))
+        else:
+            user_row = await conn.fetchrow("SELECT * FROM user_credits WHERE onyx_user_id = $1", user_id)
+
+        if not user_row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        tx_rows = await conn.fetch(
+            """
+            SELECT id, type, title, credits, created_at, product_type
+            FROM credit_transactions
+            WHERE onyx_user_id = $1
+            ORDER BY created_at DESC
+            LIMIT 200
+            """,
+            user_row["onyx_user_id"]
+        )
+
+        activities = [
+            TimelineActivity(
+                id=str(r["id"]),
+                type=r["type"],
+                title=r["title"] or (r["type"].replace('_',' ').title()),
+                credits=int(r["credits"] or 0),
+                timestamp=r["created_at"],
+                product_type=r["product_type"]
+            )
+            for r in tx_rows
+        ]
+
+        return UserTransactionHistoryResponse(
+            user_id=int(user_row["id"]),
+            user_email=user_row["onyx_user_id"],
+            user_name=user_row["name"],
+            transactions=activities
+        )
+
+# --- Feature Management Endpoints ---
+
+@app.get("/api/custom/admin/features/definitions")
+async def get_feature_definitions(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get all feature definitions"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT * FROM feature_definitions 
+                WHERE is_active = true 
+                ORDER BY category, display_name
+            """)
+            
+            return [dict(row) for row in rows]
+    except Exception as e:
+        logger.error(f"Error fetching feature definitions: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch feature definitions")
+
+@app.get("/api/custom/admin/features/users")
+async def get_users_with_features(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get all users and their feature permissions"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Get all users with their feature permissions and user details
+            rows = await conn.fetch("""
+                SELECT 
+                    uf.user_id,
+                    uf.feature_name,
+                    uf.is_enabled,
+                    uf.created_at,
+                    uf.updated_at,
+                    fd.display_name,
+                    fd.description,
+                    fd.category,
+                    uc.name as user_name,
+                    uc.onyx_user_id as user_display_id
+                FROM user_features uf
+                JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
+                LEFT JOIN user_credits uc ON uf.user_id = uc.onyx_user_id
+                WHERE fd.is_active = true
+                ORDER BY uf.user_id, fd.category, fd.display_name
+            """)
+            
+            # Group by user
+            users_features = {}
+            for row in rows:
+                user_id = row['user_id']
+                if user_id not in users_features:
+                    users_features[user_id] = {
+                        'user_id': user_id,
+                        'user_email': row['user_display_id'] or user_id,
+                        'user_name': row['user_name'] or 'Unknown User',
+                        'features': []
+                    }
+                
+                users_features[user_id]['features'].append({
+                    'feature_name': row['feature_name'],
+                    'display_name': row['display_name'],
+                    'description': row['description'],
+                    'category': row['category'],
+                    'is_enabled': row['is_enabled'],
+                    'created_at': row['created_at'],
+                    'updated_at': row['updated_at']
+                })
+            
+            return list(users_features.values())
+    except Exception as e:
+        logger.error(f"Error fetching users with features: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch users with features")
+
+@app.post("/api/custom/admin/features/toggle")
+async def toggle_user_feature(
+    feature_request: FeatureToggleRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Enable or disable a feature for a single user"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Verify feature exists
+            feature_row = await conn.fetchrow(
+                "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
+                feature_request.feature_name
+            )
+            
+            if not feature_row:
+                raise HTTPException(status_code=404, detail="Feature not found")
+            
+            # Insert or update user feature
+            await conn.execute("""
+                INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
+                VALUES ($1, $2, $3, NOW())
+                ON CONFLICT (user_id, feature_name) 
+                DO UPDATE SET 
+                    is_enabled = $3,
+                    updated_at = NOW()
+            """, feature_request.user_id, feature_request.feature_name, feature_request.is_enabled)
+            
+            action = "enabled" if feature_request.is_enabled else "disabled"
+            return {
+                "success": True,
+                "message": f"Feature '{feature_row['display_name']}' {action} for user {feature_request.user_id}"
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error toggling user feature: {e}")
+        raise HTTPException(status_code=500, detail="Failed to toggle feature")
+
+@app.post("/api/custom/admin/features/bulk-toggle")
+async def bulk_toggle_user_features(
+    bulk_request: BulkFeatureToggleRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Enable or disable a feature for multiple users"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Verify feature exists
+            feature_row = await conn.fetchrow(
+                "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
+                bulk_request.feature_name
+            )
+            
+            if not feature_row:
+                raise HTTPException(status_code=404, detail="Feature not found")
+            
+            # Bulk insert/update user features
+            updated_count = 0
+            for user_id in bulk_request.user_ids:
+                await conn.execute("""
+                    INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
+                    VALUES ($1, $2, $3, NOW())
+                    ON CONFLICT (user_id, feature_name) 
+                    DO UPDATE SET 
+                        is_enabled = $3,
+                        updated_at = NOW()
+                """, user_id, bulk_request.feature_name, bulk_request.is_enabled)
+                updated_count += 1
+            
+            action = "enabled" if bulk_request.is_enabled else "disabled"
+            return {
+                "success": True,
+                "message": f"Feature '{feature_row['display_name']}' {action} for {updated_count} users",
+                "users_updated": updated_count
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error bulk toggling user features: {e}")
+        raise HTTPException(status_code=500, detail="Failed to bulk toggle features")
+
+@app.get("/api/custom/features/check/{feature_name}")
+async def check_user_feature(
+    feature_name: str,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Check if a feature is enabled for the current user"""
+    try:
+        user_id = await get_current_onyx_user_id(request)
+        if not user_id:
+            return {"is_enabled": False}
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow("""
+                SELECT uf.is_enabled 
+                FROM user_features uf
+                JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
+                WHERE uf.user_id = $1 AND uf.feature_name = $2 AND fd.is_active = true
+            """, user_id, feature_name)
+            
+            return {"is_enabled": bool(row['is_enabled']) if row else False}
+    except Exception as e:
+        logger.error(f"Error checking user feature: {e}")
+        return {"is_enabled": False}
+
+@app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
+async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
+    """
+    Duplicate a project. If it's a Training Plan, also duplicate all connected products (lessons, quizzes, etc.).
+    Enhanced with proper transaction management and complete field mapping.
+    """
+    async with DB_POOL.acquire() as conn:
+        # Start transaction for atomic operations
+        async with conn.transaction():
+            try:
+                # Fetch original project with all fields
+                orig = await conn.fetchrow("SELECT * FROM projects WHERE id = $1", project_id)
+                if not orig:
+                    raise HTTPException(status_code=404, detail="Project not found")
+                
+                # Verify user ownership
+                if orig['onyx_user_id'] != user_id:
+                    raise HTTPException(status_code=403, detail="Access denied")
+                
+                new_name = f"Copy of {orig['project_name']}"
+                now = datetime.now(timezone.utc)
+                
+                logger.info(f"Starting duplication of project {project_id} (type: {orig['microproduct_type']}) for user {user_id}")
+                
+                if orig['microproduct_type'] == "Training Plan":
+                    # Training Plan duplication - handle connected products
+                    new_session_id = str(uuid4())
+                    
+                    # Duplicate the main Training Plan with all fields
+                    new_outline_id = await conn.fetchval(
+                        """
+                        INSERT INTO projects (
+                            onyx_user_id, project_name, product_type, microproduct_type, 
+                            microproduct_name, microproduct_content, design_template_id, 
+                            created_at, source_chat_session_id, folder_id, "order", 
+                            is_standalone, completion_time, custom_rate, quality_tier
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        RETURNING id
+                        """,
+                        user_id,
+                        new_name,
+                        orig['product_type'],
+                        orig['microproduct_type'],
+                        orig['microproduct_name'],
+                        orig['microproduct_content'],  # JSONB will be handled automatically by asyncpg
+                        orig['design_template_id'],
+                        now,
+                        new_session_id,
+                        orig['folder_id'],
+                        orig['order'],
+                        orig['is_standalone'],
+                        orig['completion_time'],
+                        orig['custom_rate'],
+                        orig['quality_tier']
+                    )
+                    
+                    logger.info(f"Created new Training Plan with ID {new_outline_id}")
+                    
+                    # Find all connected products using the same naming patterns as frontend
+                    # Get all user's projects to search through
+                    all_projects = await conn.fetch(
+                        "SELECT * FROM projects WHERE onyx_user_id = $1 ORDER BY created_at",
+                        user_id
+                    )
+                    
+                    # Find connected products using frontend naming patterns
+                    connected = []
+                    original_outline_name = orig['project_name'].strip()
+                    
+                    for project in all_projects:
+                        if project['id'] == orig['id']:
+                            continue  # Skip the original training plan.
+                        
+                        project_name = project['project_name'].strip()
+                        micro_name = project['microproduct_name']
+                        
+                        # Skip other Training Plans
+                        if project['microproduct_type'] == "Training Plan":
+                            continue
+                        
+                        is_connected = False
+                        
+                        # Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+                        if project_name == original_outline_name and micro_name:
+                            is_connected = True
+                            logger.info(f"Found connected product via legacy matching: {project_name} (micro: {micro_name})")
+                        
+                        # Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+                        elif ': ' in project_name:
+                            outline_part = project_name.split(': ')[0].strip()
+                            if outline_part == original_outline_name:
+                                is_connected = True
+                                logger.info(f"Found connected product via new pattern: {project_name}")
+                        
+                        # Method 3: Legacy patterns for backward compatibility
+                        # Legacy Quiz pattern - "Quiz - Outline Name: Lesson Title"
+                        elif project_name.startswith('Quiz - ') and ': ' in project_name:
+                            quiz_part = project_name.replace('Quiz - ', '', 1)
+                            if ': ' in quiz_part:
+                                outline_part = quiz_part.split(': ')[0].strip()
+                                if outline_part == original_outline_name:
+                                    is_connected = True
+                                    logger.info(f"Found connected product via legacy quiz pattern: {project_name}")
+                        
+                        # Legacy Text Presentation pattern - "Text Presentation - Outline Name: Lesson Title"
+                        elif project_name.startswith('Text Presentation - ') and ': ' in project_name:
+                            text_part = project_name.replace('Text Presentation - ', '', 1)
+                            if ': ' in text_part:
+                                outline_part = text_part.split(': ')[0].strip()
+                                if outline_part == original_outline_name:
+                                    is_connected = True
+                                    logger.info(f"Found connected product via legacy text presentation pattern: {project_name}")
+                        
+                        # Method 4: Alternative pattern - project name matches lesson title directly
+                        # This is for cases where the lesson title became the project name
+                        elif orig['microproduct_content']:
+                            # Check if this project name matches any lesson title in the training plan
+                            try:
+                                content = orig['microproduct_content']
+                                if isinstance(content, dict) and 'sections' in content:
+                                    for section in content['sections']:
+                                        if 'lessons' in section:
+                                            for lesson in section['lessons']:
+                                                lesson_title = lesson.get('title', '').strip()
+                                                if lesson_title and lesson_title == project_name:
+                                                    is_connected = True
+                                                    logger.info(f"Found connected product via lesson title matching: {project_name}")
+                                                    break
+                                        if is_connected:
+                                            break
+                                    if is_connected:
+                                        break
+                            except Exception as e:
+                                logger.warning(f"Error checking lesson title matching for {project_name}: {e}")
+                        
+                        if is_connected:
+                            connected.append(project)
+                    
+                    logger.info(f"Found {len(connected)} connected products to duplicate")
+                    
+                    # Duplicate each connected product
+                    duplicated_products = []
+                    for i, prod in enumerate(connected):
+                        try:
+                            # Smart name replacement - handle various naming patterns
+                            prod_name = prod['project_name']
+                            if prod_name.startswith(orig['project_name']):
+                                prod_name = prod_name.replace(orig['project_name'], new_name, 1)
+                            else:
+                                # If name doesn't start with parent name, just add "Copy of" prefix
+                                prod_name = f"Copy of {prod_name}"
+                            
+                            # Update microproduct name if it references the parent
+                            micro_name = prod['microproduct_name']
+                            if micro_name and micro_name.startswith(orig['project_name']):
+                                micro_name = micro_name.replace(orig['project_name'], new_name, 1)
+                            
+                            # Insert the duplicated product with all fields
+                            new_prod_id = await conn.fetchval(
+                                """
+                                INSERT INTO projects (
+                                    onyx_user_id, project_name, product_type, microproduct_type, 
+                                    microproduct_name, microproduct_content, design_template_id, 
+                                    created_at, source_chat_session_id, folder_id, "order", 
+                                    is_standalone, completion_time, custom_rate, quality_tier
+                                )
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                                RETURNING id
+                                """,
+                                user_id,
+                                prod_name,
+                                prod['product_type'],
+                                prod['microproduct_type'],
+                                micro_name,
+                                prod['microproduct_content'],  # JSONB content preserved
+                                prod['design_template_id'],
+                                now,
+                                new_session_id,  # Link to new Training Plan
+                                prod['folder_id'],
+                                prod['order'],
+                                prod['is_standalone'],
+                                prod['completion_time'],
+                                prod['custom_rate'],
+                                prod['quality_tier']
+                            )
+                            
+                            duplicated_products.append({
+                                'original_id': prod['id'],
+                                'new_id': new_prod_id,
+                                'type': prod['microproduct_type'],
+                                'name': prod_name
+                            })
+                            
+                            logger.info(f"Duplicated {prod['microproduct_type']} '{prod['project_name']}' -> '{prod_name}' (ID: {new_prod_id})")
+                            
+                        except Exception as e:
+                            logger.error(f"Failed to duplicate connected product {prod['id']} ({prod['microproduct_type']}): {str(e)}")
+                            # Re-raise to trigger transaction rollback
+                            raise HTTPException(
+                                status_code=500, 
+                                detail=f"Failed to duplicate {prod['microproduct_type']} '{prod['project_name']}': {str(e)}"
+                            )
+                    
+                    logger.info(f"Successfully duplicated Training Plan and {len(duplicated_products)} connected products")
+                    
+                    return {
+                        "id": new_outline_id,
+                        "name": new_name,
+                        "type": "Training Plan",
+                        "connected_products": duplicated_products,
+                        "total_products_duplicated": len(duplicated_products) + 1
+                    }
+                    
+                else:
+                    # Regular product duplication (non-Training Plan)
+                    new_prod_name = f"Copy of {orig['project_name']}"
+                    
+                    new_id = await conn.fetchval(
+                        """
+                        INSERT INTO projects (
+                            onyx_user_id, project_name, product_type, microproduct_type, 
+                            microproduct_name, microproduct_content, design_template_id, 
+                            created_at, source_chat_session_id, folder_id, "order", 
+                            is_standalone, completion_time, custom_rate, quality_tier
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        RETURNING id
+                        """,
+                        user_id,
+                        new_prod_name,
+                        orig['product_type'],
+                        orig['microproduct_type'],
+                        orig['microproduct_name'],
+                        orig['microproduct_content'],
+                        orig['design_template_id'],
+                        now,
+                        str(uuid4()),  # New session ID for standalone product
+                        orig['folder_id'],
+                        orig['order'],
+                        orig['is_standalone'],
+                        orig['completion_time'],
+                        orig['custom_rate'],
+                        orig['quality_tier']
+                    )
+                    
+                    logger.info(f"Successfully duplicated {orig['microproduct_type']} '{orig['project_name']}' -> '{new_prod_name}' (ID: {new_id})")
+                    
+                    return {
+                        "id": new_id,
+                        "name": new_prod_name,
+                        "type": orig['microproduct_type'],
+                        "total_products_duplicated": 1
+                    }
+                    
+            except HTTPException:
+                # Re-raise HTTP exceptions (these are expected errors)
+                raise
+            except Exception as e:
+                logger.error(f"Unexpected error during project duplication: {str(e)}")
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Failed to duplicate project: {str(e)}"
+                )
+
+# --- Video Generation API Endpoints ---
+
+# Import video generation service safely
+video_generation_service = None
+presentation_service = None
+try:
+    from app.services.video_generation_service import video_generation_service
+    logger.info("Video generation service imported successfully")
+except Exception as e:
+    logger.warning(f"Video generation service not available: {e}")
+    video_generation_service = None
+
+# Import presentation service safely
+try:
+    from app.services.presentation_service import presentation_service, PresentationRequest
+    logger.info("Presentation service imported successfully")
+except Exception as e:
+    logger.warning(f"Presentation service not available: {e}")
+    presentation_service = None
+
+@app.get("/api/custom/video/avatars")
+async def get_avatars():
+    """Get available avatars from Elai API."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False, 
+                "error": "Video generation service not available. Please check backend configuration.",
+                "avatars": []
+            }
+        
+        result = await video_generation_service.get_avatars()
+        
+        if result["success"]:
+            return {"success": True, "avatars": result["avatars"]}
+        else:
+            return {"success": False, "error": result["error"], "avatars": []}
+            
+    except Exception as e:
+        logger.error(f"Error fetching avatars: {str(e)}")
+        return {
+            "success": False, 
+            "error": f"Failed to fetch avatars: {str(e)}",
+            "avatars": []
+        }
+
+@app.post("/api/custom/video/generate")
+async def generate_video(request: Request):
+    """Generate video from slides and avatar data."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        avatar_data = body.get("avatar", {})
+        
+        # Validate request data
+        if not slides_data:
+            return {"success": False, "error": "No slides data provided"}
+        
+        if not avatar_data:
+            return {"success": False, "error": "No avatar data provided"}
+        
+        # Generate video
+        result = await video_generation_service.generate_video(slides_data, avatar_data)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_id": result["video_id"],
+                "download_url": result["download_url"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.get("/api/custom/video/status/{video_id}")
+async def get_video_status(video_id: str):
+    """Get the status of a video generation."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        status_data = await video_generation_service.check_video_status(video_id)
+        
+        if status_data:
+            return {"success": True, "status": status_data}
+        else:
+            return {"success": False, "error": "Video not found"}
+            
+    except Exception as e:
+        logger.error(f"Error checking video status: {str(e)}")
+        return {"success": False, "error": f"Failed to check video status: {str(e)}"}
+
+@app.post("/api/custom/video/create")
+async def create_video(request: Request):
+    """Create a new video with Elai API."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body
+        body = await request.json()
+        project_name = body.get("projectName", "Generated Video")
+        voiceover_texts = body.get("voiceoverTexts", [])
+        avatar_code = body.get("avatarCode")  # None will trigger auto-selection
+        
+        # Validate request data
+        if not voiceover_texts:
+            return {"success": False, "error": "No voiceover texts provided"}
+        
+        # Create video
+        logger.info(f"Creating video with project name: {project_name}")
+        logger.info(f"Voiceover texts count: {len(voiceover_texts)}")
+        logger.info(f"Avatar code: {avatar_code}")
+        
+        result = await video_generation_service.create_video_from_texts(project_name, voiceover_texts, avatar_code)
+        
+        logger.info(f"Video creation result: {result}")
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "videoId": result["videoId"],
+                "message": "Video created successfully"
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error creating video: {str(e)}")
+        return {"success": False, "error": f"Failed to create video: {str(e)}"}
+
+@app.post("/api/custom/video/render/{video_id}")
+async def render_video(video_id: str):
+    """Start rendering a video."""
+    try:
+        if not video_generation_service:
+            return {
+                "success": False,
+                "error": "Video generation service not available. Please check backend configuration."
+            }
+        
+        # Start rendering
+        result = await video_generation_service.render_video(video_id)
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "message": "Video rendering started successfully"
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error starting video render: {str(e)}")
+        return {"success": False, "error": f"Failed to start video render: {str(e)}"}
+
+# ============================================================================
+# Clean Video Generation API Endpoints (HTML → PNG → Video Pipeline)
+# ============================================================================
+
+@app.post("/api/custom/clean-video/avatar-slide")
+async def generate_clean_avatar_slide_video(request: Request):
+    """Generate video for a single avatar slide using clean HTML → PNG → Video pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slide_props = body.get("slideProps", {})
+        theme = body.get("theme", "dark-purple")
+        slide_duration = body.get("slideDuration", 5.0)
+        quality = body.get("quality", "high")
+        
+        # Validate slide props
+        validation = await clean_video_generation_service.validate_slide_props(slide_props)
+        if not validation["valid"]:
+            return {
+                "success": False,
+                "error": f"Invalid slide props: {validation['error']}"
+            }
+        
+        # Generate video
+        result = await clean_video_generation_service.generate_avatar_slide_video(
+            slide_props=slide_props,
+            theme=theme,
+            slide_duration=slide_duration,
+            quality=quality
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_url": result["video_url"],
+                "video_path": result["video_path"],
+                "file_size": result["file_size"],
+                "duration": result["duration"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating clean avatar slide video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.post("/api/custom/clean-video/presentation")
+async def generate_clean_presentation_video(request: Request):
+    """Generate video for multiple avatar slides using clean HTML → PNG → Video pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slides_props = body.get("slidesProps", [])
+        theme = body.get("theme", "dark-purple")
+        slide_duration = body.get("slideDuration", 5.0)
+        quality = body.get("quality", "high")
+        
+        # Validate request
+        if not slides_props:
+            return {
+                "success": False,
+                "error": "No slides provided"
+            }
+        
+        # Validate each slide
+        for i, slide_props in enumerate(slides_props):
+            validation = await clean_video_generation_service.validate_slide_props(slide_props)
+            if not validation["valid"]:
+                return {
+                    "success": False,
+                    "error": f"Invalid slide {i+1} props: {validation['error']}"
+                }
+        
+        # Generate video
+        result = await clean_video_generation_service.generate_presentation_video(
+            slides_props=slides_props,
+            theme=theme,
+            slide_duration=slide_duration,
+            quality=quality
+        )
+        
+        if result["success"]:
+            return {
+                "success": True,
+                "video_url": result["video_url"],
+                "video_path": result["video_path"],
+                "file_size": result["file_size"],
+                "duration": result["duration"],
+                "slides_count": result["slides_count"]
+            }
+        else:
+            return {"success": False, "error": result["error"]}
+            
+    except Exception as e:
+        logger.error(f"Error generating clean presentation video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate video: {str(e)}"}
+
+@app.get("/api/custom/clean-video/test")
+async def test_clean_video_pipeline():
+    """Test the clean video generation pipeline."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        # Run pipeline test
+        result = await clean_video_generation_service.test_pipeline()
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error testing clean video pipeline: {str(e)}")
+        return {"success": False, "error": f"Pipeline test failed: {str(e)}"}
+
+@app.get("/api/custom/clean-video/templates")
+async def get_supported_avatar_templates():
+    """Get list of supported avatar template IDs."""
+    try:
+        # Import the clean video generation service
+        from app.services.clean_video_generation_service import clean_video_generation_service
+        
+        templates = await clean_video_generation_service.get_supported_templates()
+        
+        return {
+            "success": True,
+            "templates": templates
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting supported templates: {str(e)}")
+        return {"success": False, "error": f"Failed to get templates: {str(e)}"}
+
+@app.get("/api/custom/video-system/status")
+async def get_video_system_status():
+    """Get video generation system status."""
+    try:
+        # Check HTML to Image service status
+        from app.services.html_to_image_service import html_to_image_service
+        image_service_status = html_to_image_service.get_status()
+        
+        return {
+            "success": True,
+            "system": "Clean Video Generation Pipeline",
+            "screenshot_services": "DISABLED",
+            "chromium_browser": "NOT REQUIRED",
+            "clean_pipeline": "ACTIVE",
+            "avatar_selection": "DYNAMIC",
+            "image_conversion": image_service_status,
+            "supported_formats": ["avatar-checklist", "avatar-crm", "avatar-service", "avatar-buttons", "avatar-steps"],
+            "output_resolution": "1920x1080",
+            "pipeline": "Props → HTML → PNG → Video"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting video system status: {str(e)}")
+        return {"success": False, "error": f"Failed to get status: {str(e)}"}
+
+# ============================================================================
+# Professional Presentation API Endpoints
+# ============================================================================
+
+@app.post("/api/custom/presentations")
+async def create_presentation(request: Request):
+    """Create a new professional video presentation."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        slide_url = body.get("slideUrl")
+        voiceover_texts = body.get("voiceoverTexts", [])
+        # NEW: Accept actual slide data
+        slides_data = body.get("slidesData")  # Optional - actual slide content with text, props, etc.
+        theme = body.get("theme", "dark-purple")  # Theme for slide generation
+        avatar_code = body.get("avatarCode")  # None will trigger auto-selection
+        use_avatar_mask = body.get("useAvatarMask", True)  # NEW: Use avatar mask service by default
+        duration = body.get("duration", 30.0)
+        layout = body.get("layout", "picture_in_picture")
+        quality = body.get("quality", "high")
+        resolution = body.get("resolution", [1920, 1080])
+        project_name = body.get("projectName", "Generated Presentation")
+        
+        # Add detailed logging for debugging
+        logger.info("🎬 [MAIN_ENDPOINT] Received presentation request parameters:")
+        logger.info(f"  - slide_url: {slide_url}")
+        logger.info(f"  - voiceover_texts_count: {len(voiceover_texts) if voiceover_texts else 0}")
+        logger.info(f"  - slides_data_count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"  - theme: {theme}")
+        logger.info(f"  - avatar_code: {avatar_code}")
+        logger.info(f"  - use_avatar_mask: {use_avatar_mask}")
+        logger.info(f"  - duration: {duration}")
+        logger.info(f"  - layout: {layout}")
+        logger.info(f"  - quality: {quality}")
+        logger.info(f"  - resolution: {resolution}")
+        logger.info(f"  - project_name: {project_name}")
+        
+        # Validate required parameters  
+        # slideUrl is required only if no slidesData provided
+        if not slide_url and not slides_data:
+            return {"success": False, "error": "Either slideUrl or slidesData is required"}
+        
+        if not voiceover_texts or len(voiceover_texts) == 0:
+            return {"success": False, "error": "voiceoverTexts is required"}
+        
+        # Validate layout
+        allowed_layouts = ["side_by_side", "picture_in_picture", "split_screen"]
+        if layout not in allowed_layouts:
+            return {"success": False, "error": f"layout must be one of {allowed_layouts}"}
+        
+        # Create presentation request
+        logger.info("🎬 [MAIN_ENDPOINT] Creating PresentationRequest object...")
+        presentation_request = PresentationRequest(
+            slide_url=slide_url or "",  # Provide empty string if None
+            voiceover_texts=voiceover_texts,
+            slides_data=slides_data,  # NEW: Pass actual slide data
+            theme=theme,  # NEW: Pass theme
+            avatar_code=avatar_code,
+            use_avatar_mask=use_avatar_mask,  # NEW: Pass avatar mask flag
+            duration=duration,
+            layout=layout,
+            quality=quality,
+            resolution=tuple(resolution),
+            project_name=project_name
+        )
+        logger.info(f"🎬 [MAIN_ENDPOINT] PresentationRequest created with use_avatar_mask: {presentation_request.use_avatar_mask}")
+        
+        # Create presentation
+        job_id = await presentation_service.create_presentation(presentation_request)
+        
+        # Immediate response to prevent timeout
+        response = {
+            "success": True,
+            "jobId": job_id,
+            "status": "processing",
+            "progress": 0,
+            "message": "Presentation generation started - check status with job ID",
+            "estimatedTime": "60-90 seconds"
+        }
+        
+        logger.info(f"Returning immediate response for job {job_id}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error creating presentation: {str(e)}")
+        return {"success": False, "error": f"Failed to create presentation: {str(e)}"}
+
+@app.get("/api/custom/presentations/test/quick")
+async def test_quick_response():
+    """Quick test endpoint to verify no timeout issues."""
+    from datetime import datetime
+    return {
+        "success": True,
+        "message": "Quick response test successful",
+        "timestamp": datetime.now().isoformat(),
+        "backend_status": "active"
+    }
+
+@app.get("/api/custom/presentations/{job_id}")
+async def get_presentation_status(job_id: str):
+    """Get presentation processing status."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        job = await presentation_service.get_job_status(job_id)
+        
+        if not job:
+            return {"success": False, "error": "Job not found"}
+        
+        return {
+            "success": True,
+            "jobId": job.job_id,
+            "status": job.status,
+            "progress": job.progress,
+            "error": job.error,
+            "videoUrl": job.video_url,
+            "thumbnailUrl": job.thumbnail_url,
+            "slideImageUrl": f"/api/custom/presentations/{job.job_id}/slide-image" if job.slide_image_path else None,
+            "createdAt": job.created_at.isoformat() if job.created_at else None,
+            "completedAt": job.completed_at.isoformat() if job.completed_at else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting presentation status: {str(e)}")
+        return {"success": False, "error": f"Failed to get presentation status: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/video")
+async def download_presentation_video(job_id: str):
+    """Download the completed presentation video."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        video_path = await presentation_service.get_presentation_video(job_id)
+        
+        if not video_path:
+            return {"success": False, "error": "Video not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=video_path,
+            media_type="video/mp4",
+            filename=f"presentation_{job_id}.mp4"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error downloading presentation video: {str(e)}")
+        return {"success": False, "error": f"Failed to download video: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/thumbnail")
+async def get_presentation_thumbnail(job_id: str):
+    """Get the presentation thumbnail."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        thumbnail_path = await presentation_service.get_presentation_thumbnail(job_id)
+        
+        if not thumbnail_path:
+            return {"success": False, "error": "Thumbnail not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=thumbnail_path,
+            media_type="image/jpeg",
+            filename=f"thumbnail_{job_id}.jpg"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error getting presentation thumbnail: {str(e)}")
+        return {"success": False, "error": f"Failed to get thumbnail: {str(e)}"}
+
+@app.get("/api/custom/presentations/{job_id}/slide-image")
+async def download_presentation_slide_image(job_id: str):
+    """Download the generated slide image for debugging."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        slide_image_path = await presentation_service.get_presentation_slide_image(job_id)
+        
+        if not slide_image_path:
+            return {"success": False, "error": "Slide image not found or not completed"}
+        
+        # Return file response
+        return FileResponse(
+            path=slide_image_path,
+            media_type="image/png",
+            filename=f"slide_image_{job_id}.png"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error downloading presentation slide image: {str(e)}")
+        return {"success": False, "error": f"Failed to download slide image: {str(e)}"}
+
+@app.post("/api/custom/slide-image/generate")
+async def generate_slide_image(request: Request):
+    """Generate slide image from current slide data (standalone, no video generation)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Generating slide image")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Import the HTML to image service
+        from app.services.html_to_image_service import html_to_image_service
+        
+        # Generate a unique ID for this image generation
+        import uuid
+        image_id = str(uuid.uuid4())
+        
+        # Create output directory
+        from pathlib import Path
+        output_dir = Path("output/slide_images")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Generate image for the first slide (or all slides if needed)
+        slide_props = slides_data[0]  # Use first slide
+        template_id = slide_props.get("templateId")
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Template ID: {template_id}")
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Slide props keys: {list(slide_props.keys())}")
+        
+        if not template_id:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Actual props keys: {list(actual_props.keys())}")
+        
+        # Log some key props for debugging
+        for key, value in actual_props.items():
+            if isinstance(value, str):
+                logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] {key}: '{value[:100]}...'")
+            else:
+                logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] {key}: {value}")
+        
+        # Generate output filename
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename = f"slide_image_{template_id}_{timestamp}_{image_id[:8]}.png"
+        output_path = str(output_dir / output_filename)
+        
+        logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Output path: {output_path}")
+        
+        # Convert slide to PNG
+        success = await html_to_image_service.convert_slide_to_png(
+            template_id=template_id,
+            props=actual_props,
+            theme=theme,
+            output_path=output_path
+        )
+        
+        if success:
+            # Verify file was created
+            if not os.path.exists(output_path):
+                logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] File not found after generation: {output_path}")
+                return {"success": False, "error": "Generated file not found"}
+            
+            file_size = os.path.getsize(output_path)
+            logger.info(f"📷 [STANDALONE_SLIDE_IMAGE] Successfully generated slide image: {output_path} ({file_size} bytes)")
+            
+            # Return the image directly
+            return FileResponse(
+                path=output_path,
+                media_type="image/png",
+                filename=output_filename
+            )
+        else:
+            logger.error("📷 [STANDALONE_SLIDE_IMAGE] Failed to generate slide image")
+            return {"success": False, "error": "Failed to generate slide image"}
+        
+    except Exception as e:
+        logger.error(f"📷 [STANDALONE_SLIDE_IMAGE] Error generating slide image: {str(e)}")
+        return {"success": False, "error": f"Failed to generate slide image: {str(e)}"}
+
+@app.post("/api/custom/slide-html/preview")
+async def preview_slide_html(request: Request):
+    """Preview the static HTML for a slide (debugging feature)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML preview")
+        logger.info(f"🔍 [HTML_PREVIEW] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"🔍 [HTML_PREVIEW] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("🔍 [HTML_PREVIEW] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Get the first slide
+        slide_props = slides_data[0]
+        template_id = slide_props.get("templateId")
+        
+        logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
+        
+        if not template_id:
+            logger.error("🔍 [HTML_PREVIEW] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        
+        # Log some key props for debugging
+        for key, value in actual_props.items():
+            if isinstance(value, str):
+                logger.info(f"🔍 [HTML_PREVIEW] {key}: '{value[:100]}...'")
+            else:
+                logger.info(f"🔍 [HTML_PREVIEW] {key}: {value}")
+        
+        # Import the HTML template service
+        from app.services.html_template_service import html_template_service
+        
+        # Generate clean HTML
+        logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
+        html_content = html_template_service.generate_clean_html_for_video(
+            template_id, actual_props, theme
+        )
+        
+        logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
+        logger.info(f"🔍 [HTML_PREVIEW] HTML content length: {len(html_content)} characters")
+        
+        # Return the HTML content
+        return {
+            "success": True,
+            "html": html_content,
+            "template_id": template_id,
+            "theme": theme,
+            "props": actual_props
+        }
+        
+    except Exception as e:
+        logger.error(f"🔍 [HTML_PREVIEW] Error generating HTML preview: {str(e)}")
+        return {"success": False, "error": f"Failed to generate HTML preview: {str(e)}"}
+
+@app.post("/api/custom/slide-video/generate")
+async def generate_slide_video(request: Request):
+    """Generate video from slide image only (no AI avatar)."""
+    try:
+        # Parse request body
+        body = await request.json()
+        slides_data = body.get("slides", [])
+        theme = body.get("theme", "dark-purple")
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Generating slide-only video")
+        logger.info(f"🎬 [SLIDE_VIDEO] Slides count: {len(slides_data) if slides_data else 0}")
+        logger.info(f"🎬 [SLIDE_VIDEO] Theme: {theme}")
+        
+        if not slides_data or len(slides_data) == 0:
+            logger.error("🎬 [SLIDE_VIDEO] No slides data provided")
+            return {"success": False, "error": "No slides data provided"}
+        
+        # Import the presentation service
+        from app.services.presentation_service import presentation_service
+        
+        # Create a presentation request with slide-only flag
+        from app.services.presentation_service import PresentationRequest
+        
+        # Get the first slide
+        slide_props = slides_data[0]
+        template_id = slide_props.get("templateId")
+        
+        if not template_id:
+            logger.error("🎬 [SLIDE_VIDEO] Missing templateId in slide data")
+            return {"success": False, "error": "Missing templateId in slide data"}
+        
+        # Extract actual props
+        actual_props = slide_props.get("props", slide_props)
+        
+        # Create presentation request with required arguments
+        presentation_request = PresentationRequest(
+            slide_url="",  # Empty for slide-only mode
+            voiceover_texts=[],  # Empty for slide-only mode
+            slides_data=slides_data,
+            theme=theme,
+            slide_only=True,  # Flag to indicate slide-only video
+            use_avatar_mask=False  # Disable avatar mask for slide-only videos
+        )
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Creating slide-only presentation...")
+        
+        # Start the presentation generation
+        job_id = await presentation_service.create_presentation(presentation_request)
+        
+        logger.info(f"🎬 [SLIDE_VIDEO] Slide-only video generation started with job ID: {job_id}")
+        
+        return {
+            "success": True,
+            "jobId": job_id,
+            "message": "Slide-only video generation started"
+        }
+        
+    except Exception as e:
+        logger.error(f"🎬 [SLIDE_VIDEO] Error generating slide-only video: {str(e)}")
+        return {"success": False, "error": f"Failed to generate slide-only video: {str(e)}"}
+
+@app.get("/api/custom/presentations")
+async def list_presentations(limit: int = 50):
+    """List recent presentation jobs."""
+    try:
+        if not presentation_service:
+            return {
+                "success": False,
+                "error": "Presentation service not available. Please check backend configuration."
+            }
+        
+        jobs = await presentation_service.list_jobs(limit)
+        
+        return {
+            "success": True,
+            "jobs": [
+                {
+                    "jobId": job.job_id,
+                    "status": job.status,
+                    "progress": job.progress,
+                    "error": job.error,
+                    "videoUrl": job.video_url,
+                    "thumbnailUrl": job.thumbnail_url,
+                    "createdAt": job.created_at.isoformat() if job.created_at else None,
+                    "completedAt": job.completed_at.isoformat() if job.completed_at else None
+                }
+                for job in jobs
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing presentations: {str(e)}")
+        return {"success": False, "error": f"Failed to list presentations: {str(e)}"}
+
+def _any_quiz_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited quiz content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Quiz content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No quiz changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during quiz change detection (assuming changes made): {e}")
+        return True
+
+def _any_text_presentation_changes_made(original_content: str, edited_content: str) -> bool:
+    """Compare original and edited text presentation content to detect changes"""
+    try:
+        # Normalize content for comparison
+        original_normalized = original_content.strip()
+        edited_normalized = edited_content.strip()
+        
+        # Simple text comparison
+        if original_normalized != edited_normalized:
+            logger.info(f"Text presentation content change detected: content length changed from {len(original_normalized)} to {len(edited_normalized)}")
+            return True
+        
+        logger.info("No text presentation changes detected - content is identical")
+        return False
+    except Exception as e:
+        # On any parsing issue assume changes were made so we use AI
+        logger.warning(f"Error during text presentation change detection (assuming changes made): {e}")
+        return True
+
+async def _generate_content_for_clean_titles(clean_content: str, original_content: str, language: str) -> str:
+    """Generate content for clean titles (titles without descriptions)"""
+    try:
+        logger.info("Starting content generation for clean titles")
+        
+        # Parse the clean content to identify sections
+        sections = []
+        lines = clean_content.split('\n')
+        current_section = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check if this is a header (## Title)
+            header_match = re.match(r'^(#{1,6})\s+(.+)$', line)
+            if header_match:
+                # Save previous section if exists
+                if current_section:
+                    sections.append(current_section)
+                
+                # Start new section
+                current_section = {
+                    'title': header_match.group(2).strip(),
+                    'content': '',
+                    'needs_content': True
+                }
+            elif current_section:
+                # This is content for the current section
+                current_section['content'] += line + '\n'
+                current_section['needs_content'] = False
+        
+        # Add the last section
+        if current_section:
+            sections.append(current_section)
+        
+        logger.info(f"Found {len(sections)} sections, {sum(1 for s in sections if s['needs_content'])} need content generation")
+        
+        # Generate content for sections that need it
+        for section in sections:
+            if section['needs_content']:
+                logger.info(f"Generating content for section: {section['title']}")
+                
+                # Create prompt for content generation
+                prompt = f"""Generate comprehensive content for the following section title in {language} language:
+
+Title: {section['title']}
+
+Please provide detailed, informative content that explains the topic thoroughly. The content should be:
+- Educational and informative
+- Well-structured with paragraphs
+- Include relevant examples or explanations
+- Match the tone and style of a professional presentation
+
+Generate the content:"""
+                
+                try:
+                    # Use OpenAI to generate content
+                    response = await stream_openai_response_direct(prompt)
+                    section['content'] = response
+                    logger.info(f"Generated {len(response)} characters for section: {section['title']}")
+                except Exception as e:
+                    logger.error(f"Failed to generate content for section {section['title']}: {e}")
+                    # Fallback to a simple description
+                    section['content'] = f"This section covers {section['title']}. Please refer to the original content for detailed information."
+        
+        # Reconstruct the content with generated descriptions
+        result_content = ""
+        for section in sections:
+            result_content += f"## {section['title']}\n\n{section['content']}\n\n"
+        
+        logger.info(f"Content generation completed. Total length: {len(result_content)} characters")
+        return result_content.strip()
+        
+    except Exception as e:
+        logger.error(f"Error in content generation for clean titles: {e}")
+        # Fallback to original content
+        return clean_content
+
+async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
+    """
+    Get a complete response directly from OpenAI API (non-streaming).
+    Returns the full response as a string.
+    """
+    try:
+        client = get_openai_client()
+        model = model or LLM_DEFAULT_MODEL
+        
+        logger.info(f"[OPENAI_DIRECT] Starting direct OpenAI request with model {model}")
+        logger.info(f"[OPENAI_DIRECT] Prompt length: {len(prompt)} chars")
+        
+        # Read the full ContentBuilder.ai assistant instructions
+        assistant_instructions_path = "custom_assistants/content_builder_ai.txt"
+        try:
+            with open(assistant_instructions_path, 'r', encoding='utf-8') as f:
+                system_prompt = f.read()
+        except FileNotFoundError:
+            logger.warning(f"[OPENAI_DIRECT] Assistant instructions file not found: {assistant_instructions_path}")
+            system_prompt = "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."
+        
+        # Create the chat completion (non-streaming)
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4000,
+            temperature=0.2
+        )
+        
+        if response.choices and len(response.choices) > 0:
+            content = response.choices[0].message.content
+            logger.info(f"[OPENAI_DIRECT] Response received: {len(content)} characters")
+            return content
+        else:
+            logger.error(f"[OPENAI_DIRECT] No content in response")
+            return ""
+            
+    except Exception as e:
+        logger.error(f"[OPENAI_DIRECT] Error in OpenAI direct request: {e}", exc_info=True)
+        return f"Error generating content: {str(e)}"
+
+
+# --- Analytics Response Models ---
+from enum import Enum
+
+class ProductType(str, Enum):
+    ONE_PAGER = "one_pager"
+    PRESENTATION = "presentation"
+    QUIZ = "quiz"
+    VIDEO_LESSON = "video_lesson"
+
+class QualityTier(str, Enum):
+    BASIC = "basic"
+    INTERACTIVE = "interactive"
+    ADVANCED = "advanced"
+    IMMERSIVE = "immersive"
+
+class ProductTypeDistribution(BaseModel):
+    type: ProductType
+    count: int
+    percentage: float
+    color: str
+
+class ProductsDistributionResponse(BaseModel):
+    total_products: int
+    distribution: List[ProductTypeDistribution]
+
+class QualityTierDistribution(BaseModel):
+    tier: QualityTier
+    count: int
+    percentage: float
+    color: str
+
+class QualityTiersDistributionResponse(BaseModel):
+    total_lessons: int
+    distribution: List[QualityTierDistribution]
+
+# Color mappings for consistency
+PRODUCT_TYPE_COLORS = {
+    ProductType.ONE_PAGER: "#9333ea",     # Purple
+    ProductType.PRESENTATION: "#2563eb",   # Blue  
+    ProductType.QUIZ: "#16a34a",          # Green
+    ProductType.VIDEO_LESSON: "#ea580c"   # Orange
+}
+
+QUALITY_TIER_COLORS = {
+    QualityTier.BASIC: "#059669",        # Green
+    QualityTier.INTERACTIVE: "#ea580c",   # Orange  
+    QualityTier.ADVANCED: "#7c3aed",      # Purple
+    QualityTier.IMMERSIVE: "#2563eb"      # Blue
+}
+
+# Component to Product Type mapping
+COMPONENT_TO_PRODUCT_TYPE = {
+    COMPONENT_NAME_TEXT_PRESENTATION: ProductType.ONE_PAGER,
+    COMPONENT_NAME_SLIDE_DECK: ProductType.PRESENTATION,
+    COMPONENT_NAME_QUIZ: ProductType.QUIZ,
+    COMPONENT_NAME_VIDEO_LESSON: ProductType.VIDEO_LESSON,
+    COMPONENT_NAME_VIDEO_LESSON_PRESENTATION: ProductType.VIDEO_LESSON,
+    COMPONENT_NAME_PDF_LESSON: ProductType.ONE_PAGER,  # PDF lessons are considered one-pagers
+    # Note: TrainingPlanTable components contain lessons, we need to count the lesson products, not the outline itself
+}
+
+@app.get("/api/custom/projects/analytics/product-distribution", response_model=ProductsDistributionResponse)
+async def get_product_distribution(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get product type distribution for analytics pie chart."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all projects with their component types
+            query = """
+                SELECT dt.component_name, COUNT(*) as count
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.onyx_user_id = $1
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += " GROUP BY dt.component_name ORDER BY count DESC"
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Process results
+            product_counts = {}
+            total_products = 0
+            
+            for row in rows:
+                component_name = row['component_name']
+                count = row['count']
+                total_products += count
+                
+                # Map component to product type
+                product_type = COMPONENT_TO_PRODUCT_TYPE.get(component_name)
+                if product_type:
+                    if product_type not in product_counts:
+                        product_counts[product_type] = 0
+                    product_counts[product_type] += count
+            
+            # Create distribution list
+            distribution = []
+            for product_type in ProductType:
+                count = product_counts.get(product_type, 0)
+                percentage = (count / total_products * 100) if total_products > 0 else 0
+                
+                distribution.append(ProductTypeDistribution(
+                    type=product_type,
+                    count=count,
+                    percentage=round(percentage, 1),
+                    color=PRODUCT_TYPE_COLORS[product_type]
+                ))
+            
+            return ProductsDistributionResponse(
+                total_products=total_products,
+                distribution=distribution
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting product distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get product distribution: {str(e)}")
+
+@app.get("/api/custom/projects/analytics/quality-distribution", response_model=QualityTiersDistributionResponse)
+async def get_quality_distribution(
+    folder_id: Optional[int] = Query(None),
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Get quality tiers distribution for analytics pie chart."""
+    try:
+        async with pool.acquire() as conn:
+            # Build query to get all lessons with their quality tiers
+            query = """
+                WITH lesson_quality_tiers AS (
+                    SELECT 
+                        COALESCE(
+                            lesson->>'quality_tier',
+                            section->>'quality_tier', 
+                            p.quality_tier,
+                            pf.quality_tier,
+                            'interactive'
+                        ) as effective_quality_tier
+                    FROM projects p
+                    LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                    CROSS JOIN LATERAL jsonb_array_elements(p.microproduct_content->'sections') AS section
+                    CROSS JOIN LATERAL jsonb_array_elements(section->'lessons') AS lesson
+                    WHERE p.onyx_user_id = $1
+                    AND p.microproduct_content IS NOT NULL
+                    AND p.microproduct_content->>'sections' IS NOT NULL
+            """
+            params = [onyx_user_id]
+            
+            if folder_id is not None:
+                query += " AND p.folder_id = $2"
+                params.append(folder_id)
+            
+            query += """
+                )
+                SELECT 
+                    LOWER(effective_quality_tier) as quality_tier,
+                    COUNT(*) as count
+                FROM lesson_quality_tiers
+                GROUP BY LOWER(effective_quality_tier)
+                ORDER BY count DESC
+            """
+            
+            rows = await conn.fetch(query, *params)
+            
+            # Process results
+            tier_counts = {}
+            total_lessons = 0
+            
+            for row in rows:
+                tier_name = row['quality_tier'].lower()
+                count = row['count']
+                total_lessons += count
+                
+                # Map tier names to enum values
+                tier_mapping = {
+                    'basic': QualityTier.BASIC,
+                    'interactive': QualityTier.INTERACTIVE,
+                    'advanced': QualityTier.ADVANCED,
+                    'immersive': QualityTier.IMMERSIVE,
+                    'medium': QualityTier.INTERACTIVE,  # Map medium to interactive
+                    'premium': QualityTier.ADVANCED,    # Map premium to advanced
+                }
+                
+                tier = tier_mapping.get(tier_name, QualityTier.INTERACTIVE)
+                if tier not in tier_counts:
+                    tier_counts[tier] = 0
+                tier_counts[tier] += count
+            
+            # Create distribution list
+            distribution = []
+            for tier in QualityTier:
+                count = tier_counts.get(tier, 0)
+                percentage = (count / total_lessons * 100) if total_lessons > 0 else 0
+                
+                distribution.append(QualityTierDistribution(
+                    tier=tier,
+                    count=count,
+                    percentage=round(percentage, 1),
+                    color=QUALITY_TIER_COLORS[tier]
+                ))
+            
+            return QualityTiersDistributionResponse(
+                total_lessons=total_lessons,
+                distribution=distribution
+            )
+            
+    except Exception as e:
+        logger.error(f"Error getting quality distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get quality distribution: {str(e)}")
+
+# ============================
+# SMART DRIVE API ENDPOINTS
+# ============================
+
+@app.post("/api/custom/smartdrive/session")
+async def bootstrap_smartdrive_session(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Bootstrap SmartDrive access for the current user"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Bootstrapping SmartDrive session for user: {onyx_user_id}")
+
+        async with pool.acquire() as conn:
+            # Check if user already has SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                # Create new SmartDrive account placeholder
+                await conn.execute(
+                    """
+                    INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                    VALUES ($1, $2, $3, $4)
+                    """,
+                    onyx_user_id,
+                    '{}',  # Empty JSON cursor
+                    datetime.now(timezone.utc),
+                    datetime.now(timezone.utc)
+                )
+                logger.info(f"Created SmartDrive account placeholder for user: {onyx_user_id}")
+                has_credentials = False
+            else:
+                logger.info(f"SmartDrive account already exists for user: {onyx_user_id}")
+                has_credentials = bool(account.get('nextcloud_username') and account.get('nextcloud_password_encrypted'))
+
+        return {
+            "success": True, 
+            "message": "SmartDrive session initialized",
+            "has_credentials": has_credentials,
+            "setup_required": not has_credentials
+        }
+        
+    except Exception as e:
+        logger.error(f"Error bootstrapping SmartDrive session: {e}")
+        raise HTTPException(status_code=500, detail="Failed to initialize SmartDrive session")
+
+
+@app.post("/api/custom/smartdrive/credentials")
+async def set_smartdrive_credentials(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Set or update user's Nextcloud credentials"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get request data
+        data = await request.json()
+        nextcloud_username = data.get('nextcloud_username', '').strip()
+        nextcloud_password = data.get('nextcloud_password', '').strip()
+        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
+        
+        if not nextcloud_username or not nextcloud_password:
+            raise HTTPException(status_code=400, detail="Username and password are required")
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(nextcloud_password)
+        
+        async with pool.acquire() as conn:
+            # Update or insert credentials
+            await conn.execute(
+                """
+                UPDATE smartdrive_accounts 
+                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                WHERE onyx_user_id = $1
+                """,
+                onyx_user_id,
+                nextcloud_username,
+                encrypted_password,
+                nextcloud_base_url,
+                datetime.now(timezone.utc)
+            )
+            
+        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
+        return {"success": True, "message": "Nextcloud credentials saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting SmartDrive credentials: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/custom/smartdrive/credentials")
+async def set_smartdrive_credentials(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Set or update user's Nextcloud credentials"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        data = await request.json()
+        
+        nextcloud_username = data.get('nextcloud_username', '').strip()
+        nextcloud_password = data.get('nextcloud_password', '').strip()
+        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
+        
+        if not nextcloud_username or not nextcloud_password:
+            raise HTTPException(status_code=400, detail="Username and password are required")
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(nextcloud_password)
+        
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                UPDATE smartdrive_accounts 
+                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                WHERE onyx_user_id = $1
+            """, onyx_user_id, nextcloud_username, encrypted_password, nextcloud_base_url, datetime.now(timezone.utc))
+            
+        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
+        return {"success": True, "message": "Nextcloud credentials saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting SmartDrive credentials: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/custom/smartdrive/list")
+async def list_smartdrive_files(
+    request: Request,
+    path: str = Query("/", description="Path to list files from"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """List files/folders in the user's SmartDrive"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Listing SmartDrive files for user: {onyx_user_id}, path: {path}")
+
+        async with pool.acquire() as conn:
+            # Get user's SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                raise HTTPException(status_code=404, detail="SmartDrive account not found")
+
+            # Use Nextcloud WebDAV API to list files
+            # Use a shared Nextcloud account for all Smart Drive access
+            nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+            nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+            
+            # Create user-specific folder path within the shared account
+            nextcloud_user_folder = account['nextcloud_user_id']  # This becomes the folder name
+            
+            # Ensure user folder exists
+            await ensure_user_folder_exists(nextcloud_username, nextcloud_password, nextcloud_user_folder)
+            
+            webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{path}"
+            
+            auth = (nextcloud_username, nextcloud_password)
+            
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.request(
+                        "PROPFIND", 
+                        webdav_url,
+                        auth=auth,
+                        headers={
+                            "Depth": "1",
+                            "Content-Type": "application/xml"
+                        },
+                        content="""<?xml version="1.0"?>
+                        <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                            <d:prop>
+                                <d:resourcetype/>
+                                <d:getcontentlength/>
+                                <d:getlastmodified/>
+                                <d:getcontenttype/>
+                            </d:prop>
+                        </d:propfind>"""
+                    )
+                    
+                    if response.status_code == 207:  # Multi-Status response
+                        # Parse WebDAV XML response
+                        files = await parse_webdav_response(response.text, path)
+                        return {
+                            "files": files,
+                            "path": path,
+                            "total_count": len(files)
+                        }
+                    else:
+                        logger.error(f"Nextcloud WebDAV error: {response.status_code} - {response.text}")
+                        # Fallback to mock data if Nextcloud is unavailable
+                        return await get_mock_files_response(path)
+                        
+            except Exception as nextcloud_error:
+                logger.error(f"Failed to connect to Nextcloud: {nextcloud_error}")
+                # Fallback to mock data if Nextcloud is unavailable
+                return await get_mock_files_response(path)
+        
+    except Exception as e:
+        logger.error(f"Error listing SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list SmartDrive files")
+
+async def parse_webdav_response(xml_content: str, base_path: str) -> List[Dict]:
+    """Parse WebDAV PROPFIND XML response into file list"""
+    # Simple XML parsing for WebDAV response
+    import xml.etree.ElementTree as ET
+    
+    files = []
+    try:
+        root = ET.fromstring(xml_content)
+        
+        for response in root.findall('.//{DAV:}response'):
+            href = response.find('.//{DAV:}href')
+            if href is None:
+                continue
+                
+            file_path = href.text
+            if file_path.endswith('/remote.php/dav/files/'):
+                continue  # Skip the root directory entry
+                
+            # Extract relative path by removing the WebDAV prefix
+            # file_path looks like: /smartdrive/remote.php/dav/files/username/Documents/file.txt
+            # We want just: /Documents/file.txt
+            if '/remote.php/dav/files/' in file_path:
+                # Find the username part and extract everything after it
+                parts = file_path.split('/remote.php/dav/files/')
+                if len(parts) > 1:
+                    # parts[1] is like "username/Documents/file.txt"
+                    username_and_path = parts[1]
+                    # Split by first "/" to separate username from the actual path
+                    path_parts = username_and_path.split('/', 1)
+                    if len(path_parts) > 1:
+                        # This is the actual relative path we want
+                        relative_path = '/' + path_parts[1]
+                    else:
+                        # Just the username, so root path
+                        relative_path = '/'
+                else:
+                    relative_path = '/'
+            else:
+                relative_path = file_path
+                
+            # Extract file name
+            name = relative_path.split('/')[-1] if not relative_path.endswith('/') else relative_path.split('/')[-2]
+            if not name:
+                continue
+                
+            # Check if it's a directory
+            resourcetype = response.find('.//{DAV:}resourcetype')
+            is_directory = resourcetype is not None and resourcetype.find('.//{DAV:}collection') is not None
+            
+            # Get file size
+            size_elem = response.find('.//{DAV:}getcontentlength')
+            size = int(size_elem.text) if size_elem is not None and size_elem.text else None
+            
+            # Get last modified
+            modified_elem = response.find('.//{DAV:}getlastmodified')
+            modified = modified_elem.text if modified_elem is not None else None
+            
+            # Get content type
+            content_type_elem = response.find('.//{DAV:}getcontenttype')
+            mime_type = content_type_elem.text if content_type_elem is not None else None
+            
+            # Get ETag
+            etag_elem = response.find('.//{DAV:}getetag')
+            etag = etag_elem.text if etag_elem is not None else None
+            # Remove quotes from ETag if present
+            if etag and etag.startswith('"') and etag.endswith('"'):
+                etag = etag[1:-1]
+            
+            files.append({
+                "name": name,
+                "path": relative_path,
+                "type": "directory" if is_directory else "file",
+                "size": size,
+                "modified": modified,
+                "mime_type": mime_type,
+                "etag": etag
+            })
+            
+    except Exception as e:
+        logger.error(f"Error parsing WebDAV response: {e}")
+        
+    return files
+
+# --- Date Parsing Functions ---
+def parse_http_date(date_string: str) -> datetime:
+    """Parse HTTP date string (RFC 2822 format) to datetime object"""
+    try:
+        # Parse HTTP date format like "Wed, 13 Aug 2025 23:31:13 GMT"
+        from email.utils import parsedate_to_datetime
+        return parsedate_to_datetime(date_string)
+    except Exception as e:
+        logger.warning(f"Failed to parse date '{date_string}': {e}")
+        return datetime.now(timezone.utc)
+
+# --- Encryption Functions ---
+def get_or_create_encryption_key():
+    """Get or create a Fernet encryption key for the system"""
+    key = os.getenv("SMARTDRIVE_ENCRYPTION_KEY")
+    if not key:
+        # Generate a new key and save it to environment (in production, store securely)
+        from cryptography.fernet import Fernet
+        key = Fernet.generate_key().decode()
+        logger.warning(f"Generated new encryption key. Please set SMARTDRIVE_ENCRYPTION_KEY={key} in your environment for production!")
+    return key.encode()
+
+def encrypt_password(password: str) -> str:
+    """Encrypt a password for storage"""
+    try:
+        from cryptography.fernet import Fernet
+        f = Fernet(get_or_create_encryption_key())
+        return f.encrypt(password.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to encrypt password: {e}")
+        raise HTTPException(status_code=500, detail="Encryption failed")
+
+def decrypt_password(encrypted_password: str) -> str:
+    """Decrypt a password from storage"""
+    try:
+        from cryptography.fernet import Fernet
+        f = Fernet(get_or_create_encryption_key())
+        return f.decrypt(encrypted_password.encode()).decode()
+    except Exception as e:
+        logger.error(f"Failed to decrypt password: {e}")
+        raise HTTPException(status_code=500, detail="Decryption failed")
+
+async def get_mock_files_response(path: str) -> Dict:
+    """Fallback mock data when Nextcloud is unavailable"""
+    mock_files = [
+        {
+            "name": "Documents",
+            "path": f"{path}Documents/",
+            "type": "directory",
+            "size": None,
+            "modified": "2024-01-15T10:30:00Z"
+        },
+        {
+            "name": "Training_Materials.pdf",
+            "path": f"{path}Training_Materials.pdf",
+            "type": "file",
+            "size": 2048576,
+            "modified": "2024-01-14T15:45:00Z",
+            "mime_type": "application/pdf"
+        },
+        {
+            "name": "Project_Notes.docx",
+            "path": f"{path}Project_Notes.docx",
+            "type": "file",
+            "size": 1024000,
+            "modified": "2024-01-13T09:20:00Z",
+            "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        }
+    ]
+    
+    return {
+        "files": mock_files,
+        "path": path,
+        "total_count": len(mock_files)
+    }
+
+@app.post("/api/custom/smartdrive/import")
+async def import_smartdrive_files(
+    request: Request,
+    file_paths: List[str] = None,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Stream files into Onyx; returns fileIds"""
+    try:
+        if file_paths is None:
+            payload = await request.json()
+            file_paths = payload.get('paths', [])
+            
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Importing SmartDrive files for user: {onyx_user_id}, paths: {file_paths}")
+
+        imported_file_ids = []
+        
+        async with pool.acquire() as conn:
+            for file_path in file_paths:
+                # TODO: Implement actual file import from Nextcloud
+                # For now, create mock import records
+                file_id = await conn.fetchval(
+                    """
+                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    RETURNING id
+                    """,
+                    onyx_user_id,
+                    file_path,
+                    f"mock_file_{hash(file_path) % 1000000}",  # Mock Onyx file ID
+                    f"etag_{hash(file_path)}",
+                    f"sha256_{hash(file_path)}",
+                    datetime.now(timezone.utc)
+                )
+                imported_file_ids.append(file_id)
+                logger.info(f"Created import record for {file_path} with ID: {file_id}")
+
+        return {
+            "success": True,
+            "fileIds": imported_file_ids,
+            "imported_count": len(imported_file_ids)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to import SmartDrive files")
+
+@app.post("/api/custom/smartdrive/import-new")
+async def import_new_smartdrive_files(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Import new/updated files since the last sync"""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"Importing new SmartDrive files for user: {onyx_user_id}")
+        
+        # Extract session cookies for Onyx authentication
+        session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+
+        async with pool.acquire() as conn:
+            # Get user's SmartDrive account
+            account = await conn.fetchrow(
+                "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                raise HTTPException(status_code=404, detail="SmartDrive account not found")
+
+            # Check if user has set up their Nextcloud credentials
+            if not account['nextcloud_username'] or not account['nextcloud_password_encrypted']:
+                raise HTTPException(status_code=400, detail="Please set up your Nextcloud credentials first")
+
+            # Decrypt user's credentials
+            nextcloud_username = account['nextcloud_username']
+            nextcloud_password = decrypt_password(account['nextcloud_password_encrypted'])
+            nextcloud_base_url = account['nextcloud_base_url'] or 'http://nc1.contentbuilder.ai:8080'
+            
+            # Parse JSON cursor from database
+            sync_cursor = json.loads(account['sync_cursor']) if account['sync_cursor'] else {}
+            last_sync = sync_cursor.get('last_sync') if sync_cursor else None
+            
+            # Get list of all files from user's individual Nextcloud account
+            all_files = await get_all_nextcloud_files_individual(nextcloud_username, nextcloud_password, nextcloud_base_url, "/")
+            
+            imported_count = 0
+            imported_files = []
+            
+            logger.info(f"Processing {len(all_files)} items from Nextcloud")
+            
+            for file_info in all_files:
+                logger.debug(f"Processing item: {file_info}")
+                
+                if file_info['type'] == 'directory':
+                    logger.debug(f"Skipping directory: {file_info['path']}")
+                    continue  # Skip directories for now
+                    
+                file_path = file_info['path']
+                file_modified = file_info['modified']
+                file_etag = file_info.get('etag')
+                
+                logger.info(f"Processing file: {file_path} (type: {file_info['type']}, etag: {file_etag}, modified: {file_modified})")
+                
+                # Check if already imported
+                existing = await conn.fetchrow(
+                    "SELECT id, etag FROM smartdrive_imports WHERE onyx_user_id = $1 AND smartdrive_path = $2",
+                    onyx_user_id, file_path
+                )
+                
+                logger.info(f"Existing record for {file_path}: {existing}")
+                
+                # Skip if already imported with same etag (only if both etags exist and match)
+                if existing and existing.get('etag') and file_etag and existing['etag'] == file_etag:
+                    logger.info(f"Skipping {file_path} - already imported with same etag: {file_etag}")
+                    continue
+                
+                # For debugging: let's import all files for now and check the etag logic later
+                logger.info(f"Will import file: {file_path} (etag: {file_etag}, existing_etag: {existing.get('etag') if existing else None})")
+                
+                # Try to import the file into Onyx
+                try:
+                    # Extract session cookies for Onyx authentication from the request object
+                    session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+                    
+                    onyx_file_id = await import_file_to_onyx_individual(
+                        nextcloud_username,
+                        nextcloud_password,
+                        nextcloud_base_url, 
+                        file_path, 
+                        file_info, 
+                        onyx_user_id,
+                        session_cookies
+                    )
+                    
+                    if onyx_file_id:
+                        # Update or insert import record
+                        if existing:
+                            await conn.execute(
+                                """
+                                UPDATE smartdrive_imports 
+                                SET onyx_file_id = $1, etag = $2, checksum = $3, imported_at = $4, last_modified = $5
+                                WHERE id = $6
+                                """,
+                                onyx_file_id,
+                                file_info.get('etag', ''),
+                                file_info.get('checksum', ''),
+                                datetime.now(timezone.utc),
+                                parse_http_date(file_modified) if file_modified else None,
+                                existing['id']
+                            )
+                        else:
+                            await conn.execute(
+                                """
+                                INSERT INTO smartdrive_imports 
+                                (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, file_size, mime_type, imported_at, last_modified)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                                """,
+                                onyx_user_id,
+                                file_path,
+                                onyx_file_id,
+                                file_info.get('etag', ''),
+                                file_info.get('checksum', ''),
+                                file_info.get('size'),
+                                file_info.get('mime_type'),
+                                datetime.now(timezone.utc),
+                                parse_http_date(file_modified) if file_modified else None
+                            )
+                        
+                        imported_count += 1
+                        imported_files.append({
+                            "name": file_info['name'],
+                            "path": file_path,
+                            "onyx_file_id": onyx_file_id
+                        })
+                        logger.info(f"Successfully imported {file_path} as Onyx file {onyx_file_id}")
+                        
+                except Exception as import_error:
+                    logger.error(f"Failed to import {file_path}: {import_error}")
+                    continue
+
+            # Update sync cursor
+            await conn.execute(
+                "UPDATE smartdrive_accounts SET sync_cursor = $1, updated_at = $2 WHERE onyx_user_id = $3",
+                json.dumps({"last_sync": datetime.now(timezone.utc).isoformat()}),
+                datetime.now(timezone.utc),
+                onyx_user_id
+            )
+            
+            logger.info(f"Import completed: {imported_count} files imported for user {onyx_user_id}")
+
+        return {
+            "success": True,
+            "imported_count": imported_count,
+            "imported_files": imported_files,
+            "message": f"Imported {imported_count} new files"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing new SmartDrive files: {e}")
+        raise HTTPException(status_code=500, detail="Failed to import new SmartDrive files")
+
+async def ensure_user_folder_exists(nextcloud_username: str, nextcloud_password: str, user_folder: str):
+    """Ensure the user's folder exists in Nextcloud, create if it doesn't"""
+    try:
+        folder_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{user_folder}/"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient() as client:
+            # Check if folder exists
+            response = await client.request("PROPFIND", folder_url, auth=auth, headers={"Depth": "0"})
+            
+            if response.status_code == 404:
+                # Folder doesn't exist, create it
+                logger.info(f"Creating Nextcloud folder for user: {user_folder}")
+                create_response = await client.request("MKCOL", folder_url, auth=auth)
+                
+                if create_response.status_code in [201, 405]:  # 201 = Created, 405 = Already exists
+                    logger.info(f"Successfully created/verified folder: {user_folder}")
+                else:
+                    logger.error(f"Failed to create folder {user_folder}: {create_response.status_code}")
+            elif response.status_code == 207:
+                # Folder exists
+                logger.debug(f"User folder already exists: {user_folder}")
+            else:
+                logger.warning(f"Unexpected response checking folder {user_folder}: {response.status_code}")
+                
+    except Exception as e:
+        logger.error(f"Error ensuring user folder exists: {e}")
+
+async def get_all_nextcloud_files_individual(nextcloud_username: str, nextcloud_password: str, nextcloud_base_url: str, base_path: str = "/") -> List[Dict]:
+    """Get all files from user's individual Nextcloud account recursively"""
+    all_files = []
+    visited_paths = set()  # Prevent infinite recursion
+    
+    async def traverse_directory(path: str, depth: int = 0):
+        # Prevent infinite recursion
+        if depth > 10:  # Max depth limit
+            logger.warning(f"Max recursion depth reached for path: {path}")
+            return
+            
+        if path in visited_paths:
+            logger.warning(f"Already visited path, skipping: {path}")
+            return
+            
+        visited_paths.add(path)
+        
+        try:
+            webdav_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{path}"
+            auth = (nextcloud_username, nextcloud_password)
+            
+            logger.debug(f"Traversing directory: {path} (depth: {depth}, URL: {webdav_url})")
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.request(
+                    "PROPFIND", 
+                    webdav_url, 
+                    auth=auth, 
+                    headers={"Depth": "1", "Content-Type": "application/xml"},
+                    content="""<?xml version="1.0"?>
+                    <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                        <d:prop>
+                            <d:resourcetype/>
+                            <d:getcontentlength/>
+                            <d:getlastmodified/>
+                            <d:getcontenttype/>
+                            <d:getetag/>
+                        </d:prop>
+                    </d:propfind>"""
+                )
+                
+                if response.status_code == 404:
+                    logger.warning(f"Directory not found: {path}")
+                    return
+                elif response.status_code != 207:
+                    logger.error(f"WebDAV PROPFIND failed: {response.status_code} - {response.text}")
+                    return
+                    
+                files = await parse_webdav_response(response.text, nextcloud_base_url)
+                logger.debug(f"Found {len(files)} items in {path}")
+                
+                for file_info in files:
+                    if file_info['name'] != '.' and file_info['name'] != '..':  # Skip current and parent directory entries
+                        all_files.append(file_info)
+                        
+                        if file_info['type'] == 'directory':
+                            # For subdirectories, traverse recursively
+                            subdir_path = file_info['path']
+                            logger.debug(f"Found subdirectory: {file_info['name']} -> {subdir_path}")
+                            await traverse_directory(subdir_path, depth + 1)
+                            
+        except Exception as e:
+            logger.error(f"Error traversing directory {path}: {e}")
+    
+    await traverse_directory(base_path)
+    logger.info(f"Directory traversal completed. Found {len(all_files)} total items.")
+    return all_files
+
+
+async def get_all_nextcloud_files(nextcloud_user_folder: str, base_path: str = "/") -> List[Dict]:
+    """Recursively get all files from Nextcloud using shared account"""
+    all_files = []
+    
+    try:
+        # Use shared Nextcloud account
+        nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+        nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+        
+        webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{base_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.request(
+                "PROPFIND",
+                webdav_url,
+                auth=auth,
+                headers={
+                    "Depth": "infinity",  # Get all files recursively
+                    "Content-Type": "application/xml"
+                },
+                content="""<?xml version="1.0"?>
+                <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
+                    <d:prop>
+                        <d:resourcetype/>
+                        <d:getcontentlength/>
+                        <d:getlastmodified/>
+                        <d:getcontenttype/>
+                        <d:getetag/>
+                    </d:prop>
+                </d:propfind>"""
+            )
+            
+            if response.status_code == 207:
+                files = await parse_webdav_response(response.text, base_path)
+                all_files.extend(files)
+                
+    except Exception as e:
+        logger.error(f"Error getting files from Nextcloud: {e}")
+        
+    return all_files
+
+async def import_file_to_onyx(nextcloud_user_folder: str, file_path: str, file_info: Dict, onyx_user_id: str) -> str:
+    """Download file from Nextcloud and upload to Onyx"""
+    try:
+        # Download file from Nextcloud using shared account
+        nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
+        nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
+        
+        download_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            file_name = file_info['name']
+            mime_type = file_info.get('mime_type', 'application/octet-stream')
+            
+            # Upload to Onyx using the user file upload endpoint (same as frontend)
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
+            
+            # Create multipart form data with folder_id parameter
+            files = {
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
+            
+            # Upload to Onyx with session authentication
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                data=data,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    return str(response_data[0].get('id'))
+                elif isinstance(response_data, dict):
+                    return str(response_data.get('id'))
+                else:
+                    logger.error(f"Unexpected Onyx response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"Failed to upload to Onyx: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error importing file {file_path} to Onyx: {e}")
+        return None
+
+
+async def import_file_to_onyx_individual(
+    nextcloud_username: str, 
+    nextcloud_password: str, 
+    nextcloud_base_url: str, 
+    file_path: str, 
+    file_info: Dict, 
+    onyx_user_id: str,
+    session_cookies: Dict[str, str]
+) -> str:
+    """Download file from individual Nextcloud account and upload to Onyx"""
+    try:
+        # Build download URL for individual account
+        download_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
+        auth = (nextcloud_username, nextcloud_password)
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            download_response = await client.get(download_url, auth=auth)
+            
+            if download_response.status_code != 200:
+                logger.error(f"Failed to download {file_path}: {download_response.status_code}")
+                return None
+                
+            file_content = download_response.content
+            file_name = file_info['name']
+            mime_type = file_info.get('mime_type', 'application/octet-stream')
+            
+            # Upload to Onyx using the user file upload endpoint (same as frontend)
+            onyx_upload_url = f"{ONYX_API_SERVER_URL}/user/file/upload"
+            
+            # Create multipart form data with folder_id parameter
+            files = {
+                'files': (file_name, file_content, mime_type)
+            }
+            data = {
+                'folder_id': '-1'  # Use RECENT_DOCS_FOLDER_ID (default "Recent Documents" folder)
+            }
+            
+            # Upload to Onyx with session authentication
+            upload_response = await client.post(
+                onyx_upload_url,
+                files=files,
+                data=data,
+                cookies=session_cookies,
+                timeout=60.0
+            )
+            
+            if upload_response.status_code in [200, 201]:
+                response_data = upload_response.json()
+                # Extract file ID from Onyx response
+                if isinstance(response_data, list) and len(response_data) > 0:
+                    return str(response_data[0].get('id'))
+                elif isinstance(response_data, dict):
+                    return str(response_data.get('id'))
+                else:
+                    logger.error(f"Unexpected Onyx response format: {response_data}")
+                    return None
+            else:
+                logger.error(f"Failed to upload to Onyx: {upload_response.status_code} - {upload_response.text}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error importing individual file {file_path}: {e}")
+        return None
+
+
+@app.post("/api/custom/smartdrive/webhook")
+async def smartdrive_webhook(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Handle Nextcloud webhooks for file changes"""
+    try:
+        payload = await request.json()
+        logger.info(f"Received SmartDrive webhook: {payload}")
+
+        # TODO: Implement webhook processing
+        # This would handle notifications from Nextcloud about file changes
+        
+        return {"success": True, "message": "Webhook processed"}
+        
+    except Exception as e:
+        logger.error(f"Error processing SmartDrive webhook: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process webhook")
+
+# ============================
+# PER-USER CONNECTORS API (DEPRECATED)
+# ============================
+# 
+# NOTE: We now use Onyx's native connector system with AccessType.PRIVATE
+# instead of our custom connector implementation. The frontend redirects users
+# to /admin/connectors/{source}?access_type=private to create connectors using
+# Onyx's existing OAuth-enabled forms and configuration system.
+#
+# Users' private connectors are managed through:
+# - Creation: /admin/connectors/{source} with access_type=private
+# - Listing: /api/manage/admin/connector (filtered for private connectors)
+# - Management: /admin/connector/{id} (Onyx's existing connector management UI)
+# - Syncing: /api/manage/admin/connector/{id}/index (Onyx's existing sync API)
+#
+# This gives users the full Onyx connector experience (including OAuth support)
+# while keeping connectors private to each user.
+
+# New SmartDrive connector creation endpoint (bypasses admin requirements)
+@app.post("/api/custom/smartdrive/connectors/create")
+async def create_smartdrive_connector(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Create a private connector for the current user without requiring admin privileges.
+    This allows non-admin users to create connectors for Smart Drive.
+    """
+    try:
+        # Get the main app domain (remove /custom-projects-ui path)
+        host = request.headers.get('host', 'localhost')
+        # Force HTTPS for production domains, use HTTP only for localhost
+        if 'localhost' in host or '127.0.0.1' in host:
+            protocol = 'http'
+        else:
+            protocol = 'https'
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies (using the same pattern as other endpoints)
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'x-smart-drive-connector': 'true'  # Smart Drive header to bypass admin checks
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Get connector data from request
+        connector_data = await request.json()
+        connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
+        credential_id = connector_data.get('credential_id')  # ID of existing credential to use
+        name = connector_data.get('name', f'Smart Drive {connector_id}')
+        
+        if not connector_id:
+            raise HTTPException(status_code=400, detail="Connector ID is required")
+        
+        if not credential_id:
+            raise HTTPException(status_code=400, detail="Credential ID is required")
+        
+        # Define which fields are credentials vs connector config
+        credential_fields = {
+            'notion': ['notion_integration_token'],
+            'slack': ['slack_bot_token'],
+            'github': ['github_access_token'],
+            'zendesk': ['zendesk_subdomain', 'zendesk_email', 'zendesk_token'],
+            'asana': ['asana_api_token_secret'],
+            'dropbox': ['dropbox_access_token'],
+            'confluence': ['confluence_username', 'confluence_access_token'],
+            'jira': ['jira_user_email', 'jira_api_token'],
+            'linear': ['linear_access_token'],
+            'hubspot': ['hubspot_access_token'],
+            'clickup': ['clickup_api_token', 'clickup_team_id'],
+            'google_drive': ['google_tokens', 'google_primary_admin'],
+            'gmail': ['google_tokens', 'google_primary_admin'],
+            'salesforce': ['sf_username', 'sf_password', 'sf_security_token', 'is_sandbox'],
+            'sharepoint': ['sp_client_id', 'sp_client_secret', 'sp_directory_id'],
+            'airtable': ['airtable_access_token'],
+            'document360': ['portal_id', 'document360_api_token'],
+            'slab': ['slab_bot_token'],
+            'guru': ['guru_user', 'guru_user_token'],
+            'gong': ['gong_access_key', 'gong_access_key_secret'],
+            'loopio': ['loopio_subdomain', 'loopio_client_id', 'loopio_client_token'],
+            'productboard': ['productboard_access_token'],
+            'zulip': ['zuliprc_content'],
+            'gitbook': ['gitbook_api_key'],
+            'gitlab': ['gitlab_url', 'gitlab_access_token'],
+            'bookstack': ['bookstack_base_url', 'bookstack_api_token_id', 'bookstack_api_token_secret'],
+            's3': ['aws_access_key_id', 'aws_secret_access_key', 'aws_role_arn'],
+            'r2': ['account_id', 'r2_access_key_id', 'r2_secret_access_key'],
+            'google_cloud_storage': ['access_key_id', 'secret_access_key'],
+            'oci_storage': ['namespace', 'region', 'access_key_id', 'secret_access_key'],
+            'teams': ['teams_client_id', 'teams_client_secret', 'teams_directory_id']
+        }
+        
+        # Separate credential fields from connector config fields
+        connector_credential_fields = credential_fields.get(connector_id, [])
+        credential_json = {}
+        connector_specific_config = {}
+        
+        for key, value in connector_data.items():
+            if key not in ['connector_id', 'name', 'access_type', 'smart_drive', 'credential_id']:
+                if key in connector_credential_fields:
+                    credential_json[key] = value
+                else:
+                    connector_specific_config[key] = value
+        
+        # Create the connector payload
+        connector_payload = {
+            "name": name,
+            "source": connector_id,
+            "input_type": "poll",
+            "access_type": "private",  # Required field for Smart Drive connectors
+            "connector_specific_config": connector_specific_config,
+            "refresh_freq": 3600,  # 1 hour
+            "prune_freq": 86400,   # 1 day
+            "indexing_start": None
+        }
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Create the connector using httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            connector_url = ensure_https_url("/api/manage/admin/connector")
+            
+            connector_response = await client.post(
+                connector_url,
+                headers=auth_headers,
+                json=connector_payload
+            )
+            
+            if not connector_response.is_success:
+                logger.error(f"Failed to create connector: {connector_response.text}")
+                raise HTTPException(
+                    status_code=connector_response.status_code,
+                    detail=f"Failed to create connector: {connector_response.text}"
+                )
+            
+            connector_result = connector_response.json()
+            connector_id = connector_result.get('id')
+            
+            if not connector_id:
+                raise HTTPException(status_code=500, detail="Failed to get connector ID")
+            
+            # Use the existing credential instead of creating a new one
+            # Verify the credential exists and is accessible
+            credential_response = await client.get(
+                ensure_https_url(f"/api/manage/credential/{credential_id}"),
+                headers=auth_headers
+            )
+            
+            if not credential_response.is_success:
+                logger.error(f"Failed to access credential: {credential_response.text}")
+                # If credential access fails, try to delete the connector
+                try:
+                    await client.delete(
+                        ensure_https_url(f"/api/manage/admin/connector/{connector_id}"),
+                        headers=auth_headers
+                    )
+                except:
+                    pass
+                
+                raise HTTPException(
+                    status_code=credential_response.status_code,
+                    detail=f"Failed to access credential: {credential_response.text}"
+                )
+            
+            credential_result = credential_response.json()
+            
+            # Link the credential to the connector using Onyx's linkCredential approach
+            auto_sync_options = {
+                "enabled": True,
+                "frequency": 3600
+            }
+            
+            # Add Smart Drive header for credential linking
+            linking_headers = auth_headers.copy()
+            linking_headers['x-smart-drive-credential'] = 'true'
+            
+            cc_pair_response = await client.put(
+                ensure_https_url(f"/api/manage/connector/{connector_id}/credential/{credential_id}"),
+                headers=linking_headers,
+                json={
+                    "name": name,
+                    "access_type": "private",
+                    "groups": [],  # Must be an empty list, not None
+                    "auto_sync_options": auto_sync_options
+                }
+            )
+            
+            if not cc_pair_response.is_success:
+                logger.error(f"Failed to create connector-credential pair: {cc_pair_response.text}")
+                # If CC pair creation fails, try to delete both connector and credential
+                try:
+                    await client.delete(
+                        ensure_https_url(f"/api/manage/admin/connector/{connector_id}"),
+                        headers=auth_headers
+                    )
+                    await client.delete(
+                        ensure_https_url(f"/api/manage/credential/{credential_id}"),
+                        headers=auth_headers
+                    )
+                except:
+                    pass
+                
+                raise HTTPException(
+                    status_code=cc_pair_response.status_code,
+                    detail=f"Failed to create connector-credential pair: {cc_pair_response.text}"
+                )
+            
+            cc_pair_result = cc_pair_response.json()
+            
+            return {
+                "success": True,
+                "message": "Connector created successfully",
+                "connector": connector_result,
+                "credential": credential_result,
+                "cc_pair": cc_pair_result
+            }
+            
+    except httpx.RequestError as e:
+        logger.error(f"Network error creating connector: {e}")
+        raise HTTPException(status_code=500, detail="Network error occurred")
+    except Exception as e:
+        logger.error(f"Error creating connector: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Legacy endpoint stub (kept for backwards compatibility)
+@app.get("/api/custom/smartdrive/connectors/")
+async def list_user_connectors(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use Onyx's native connector system instead"""
+    return {
+        "message": "This endpoint is deprecated. Use Onyx's native connector system with AccessType.PRIVATE",
+        "redirect_url": "/admin/connectors/",
+        "api_endpoint": "/api/manage/admin/connector",
+        "connectors": []
+    }
+
+@app.post("/api/custom/smartdrive/connectors/")
+async def create_user_connector(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /admin/connectors/{source}?access_type=private instead"""
+    payload = await request.json()
+    source = payload.get('source', 'unknown')
+    
+    raise HTTPException(
+        status_code=410,  # Gone
+        detail={
+            "message": "This endpoint is deprecated. Create connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connectors/{source}?access_type=private",
+            "instructions": "Visit the connector creation page to set up your private connector with OAuth support."
+        }
+    )
+
+@app.put("/api/custom/smartdrive/connectors/{connector_id}")
+async def update_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /admin/connector/{connector_id} instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Manage connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connector/{connector_id}",
+            "instructions": "Visit the connector management page to update your connector configuration."
+        }
+    )
+
+@app.delete("/api/custom/smartdrive/connectors/{connector_id}")
+async def delete_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /admin/connector/{connector_id} instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Manage connectors using Onyx's native system.",
+            "redirect_url": f"/admin/connector/{connector_id}",
+            "instructions": "Visit the connector management page to delete your connector."
+        }
+    )
+
+@app.post("/api/custom/smartdrive/connectors/{connector_id}/sync")
+async def sync_user_connector(
+    connector_id: int,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """DEPRECATED: Use /api/manage/admin/connector/{connector_id}/index instead"""
+    raise HTTPException(
+        status_code=410,
+        detail={
+            "message": "This endpoint is deprecated. Sync connectors using Onyx's native API.",
+            "api_endpoint": f"/api/manage/admin/connector/{connector_id}/index",
+            "instructions": "Use Onyx's connector sync API or the connector management UI."
+        }
+    )
+
+
+# Credential proxy endpoints for non-admin users
+@app.get("/api/custom/credentials/{source_type}")
+async def get_credentials_for_source(source_type: str, request: Request):
+    """
+    Proxy endpoint to fetch credentials for a specific source type.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Accept': 'application/json',
+            'x-smart-drive-credential': 'true'  # Smart Drive header to bypass admin checks
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's credential endpoint
+            credentials_url = ensure_https_url(f"/api/manage/admin/similar-credentials/{source_type}")
+            
+            response = await client.get(
+                credentials_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            elif response.status_code == 403:
+                # User doesn't have admin access, return empty list
+                # This allows the frontend to show "No existing credentials" 
+                # and proceed with credential creation
+                logger.info(f"Non-admin user accessing credentials for {source_type}, returning empty list")
+                return []
+            else:
+                logger.error(f"Failed to fetch credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to fetch credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error fetching credentials: {str(e)}")
+        # For any error, return empty list to allow credential creation
+        return []
+
+
+@app.post("/api/custom/credentials")
+async def create_credential(request: Request):
+    """
+    Proxy endpoint to create credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        # Get credential data from request
+        credential_data = await request.json()
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's credential creation endpoint
+            credentials_url = ensure_https_url("/api/manage/credential")
+            
+            response = await client.post(
+                credentials_url,
+                headers=auth_headers,
+                json=credential_data
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to create credential: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to create credential: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error creating credential: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating credential: {str(e)}")
+
+# --- Offers API Endpoints ---
+
+@app.get("/api/custom/offers", response_model=List[OfferResponse])
+async def get_offers(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    company_id: Optional[int] = Query(None, description="Filter by company ID"),
+    status: Optional[str] = Query(None, description="Filter by status"),
+    search: Optional[str] = Query(None, description="Search in offer name or manager")
+):
+    """Get all offers for the current user with optional filtering"""
+    try:
+        
+        # Build the query with optional filters
+        query = """
+            SELECT o.*, pf.name as company_name
+            FROM offers o
+            LEFT JOIN project_folders pf ON o.company_id = pf.id
+            WHERE o.onyx_user_id = $1
+        """
+        params = [onyx_user_id]
+        param_count = 1
+        
+        if company_id is not None:
+            param_count += 1
+            query += f" AND o.company_id = ${param_count}"
+            params.append(company_id)
+        
+        if status is not None:
+            param_count += 1
+            query += f" AND o.status = ${param_count}"
+            params.append(status)
+        
+        if search is not None:
+            param_count += 1
+            query += f" AND (o.offer_name ILIKE ${param_count} OR o.manager ILIKE ${param_count})"
+            params.append(f"%{search}%")
+        
+        query += " ORDER BY o.created_on DESC"
+        
+        async with DB_POOL.acquire() as connection:
+            rows = await connection.fetch(query, *params)
+            
+        offers = []
+        for row in rows:
+            offers.append(OfferResponse(
+                id=row['id'],
+                onyx_user_id=row['onyx_user_id'],
+                company_id=row['company_id'],
+                offer_name=row['offer_name'],
+                created_on=row['created_on'],
+                manager=row['manager'],
+                status=row['status'],
+                total_hours=row['total_hours'],
+                link=row['link'],
+                created_at=row['created_at'],
+                updated_at=row['updated_at'],
+                company_name=row['company_name']
+            ))
+        
+        return offers
+        
+    except Exception as e:
+        logger.error(f"Error fetching offers: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offers")
+
+@app.get("/api/custom/offers/counts")
+async def get_offer_counts(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Return a mapping of company_id to number of offers for the current user."""
+    try:
+        async with DB_POOL.acquire() as connection:
+            rows = await connection.fetch(
+                """
+                SELECT company_id, COUNT(*) AS cnt
+                FROM offers
+                WHERE onyx_user_id = $1
+                GROUP BY company_id
+                """,
+                onyx_user_id,
+            )
+        result = {row["company_id"]: int(row["cnt"]) for row in rows}
+        return result
+    except Exception as e:
+        logger.error(f"Error fetching offer counts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offer counts")
+
+@app.post("/api/custom/offers", response_model=OfferResponse)
+async def create_offer(
+    offer_data: OfferCreate,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Create a new offer"""
+    try:
+        
+        # Validate that the company exists and belongs to the user
+        async with DB_POOL.acquire() as connection:
+            company_exists = await connection.fetchval(
+                "SELECT id FROM project_folders WHERE id = $1 AND onyx_user_id = $2",
+                offer_data.company_id, onyx_user_id
+            )
+            
+            if not company_exists:
+                raise HTTPException(status_code=404, detail="Company not found")
+            
+            # First insert the offer without link to get the ID
+            row = await connection.fetchrow("""
+                INSERT INTO offers (onyx_user_id, company_id, offer_name, manager, status, total_hours, link)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING *, (SELECT name FROM project_folders WHERE id = $2) as company_name
+            """, onyx_user_id, offer_data.company_id, offer_data.offer_name, 
+                 offer_data.manager, offer_data.status, offer_data.total_hours, None)
+            
+            # Generate auto link based on the offer ID
+            offer_id = row['id']
+            # Get the base URL from the request
+            base_url = str(request.base_url).rstrip('/')
+            
+            # Log the base URL for debugging
+            logger.info(f"Original base URL: {base_url}")
+            
+            # Remove /api/custom-projects-backend from the base URL if present
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            auto_link = f"{base_url}/custom-projects-ui/offer/{offer_id}"
+            
+            # Log the generated link for debugging
+            logger.info(f"Generated auto link for offer {offer_id}: {auto_link}")
+            
+            # Update the offer with the auto-generated link
+            update_result = await connection.execute(
+                "UPDATE offers SET link = $1 WHERE id = $2",
+                auto_link, offer_id
+            )
+            
+            # Log the update result
+            logger.info(f"Update result for offer {offer_id}: {update_result}")
+            
+            # Update the row dict with the new link
+            row_dict = dict(row)
+            row_dict['link'] = auto_link
+        
+        return OfferResponse(
+            id=row_dict['id'],
+            onyx_user_id=row_dict['onyx_user_id'],
+            company_id=row_dict['company_id'],
+            offer_name=row_dict['offer_name'],
+            created_on=row_dict['created_on'],
+            manager=row_dict['manager'],
+            status=row_dict['status'],
+            total_hours=row_dict['total_hours'],
+            link=row_dict['link'],
+            created_at=row_dict['created_at'],
+            updated_at=row_dict['updated_at'],
+            company_name=row_dict['company_name']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create offer")
+
+@app.put("/api/custom/offers/{offer_id}", response_model=OfferResponse)
+async def update_offer(
+    offer_id: int,
+    offer_data: OfferUpdate,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Update an existing offer"""
+    try:
+        
+        # Build dynamic update query
+        update_fields = []
+        params = [onyx_user_id, offer_id]
+        param_count = 2
+        
+        if offer_data.company_id is not None:
+            param_count += 1
+            update_fields.append(f"company_id = ${param_count}")
+            params.append(offer_data.company_id)
+        
+        if offer_data.offer_name is not None:
+            param_count += 1
+            update_fields.append(f"offer_name = ${param_count}")
+            params.append(offer_data.offer_name)
+        
+        if offer_data.manager is not None:
+            param_count += 1
+            update_fields.append(f"manager = ${param_count}")
+            params.append(offer_data.manager)
+        
+        if offer_data.status is not None:
+            param_count += 1
+            update_fields.append(f"status = ${param_count}")
+            params.append(offer_data.status)
+        
+        if offer_data.total_hours is not None:
+            param_count += 1
+            update_fields.append(f"total_hours = ${param_count}")
+            params.append(offer_data.total_hours)
+        
+        if offer_data.created_on is not None:
+            param_count += 1
+            update_fields.append(f"created_on = ${param_count}")
+            params.append(offer_data.created_on)
+        
+        # Note: link is auto-generated and not editable
+        
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Add updated_at timestamp
+        param_count += 1
+        update_fields.append(f"updated_at = CURRENT_TIMESTAMP")
+        
+        query = f"""
+            UPDATE offers 
+            SET {', '.join(update_fields)}
+            WHERE id = $2 AND onyx_user_id = $1
+            RETURNING *, (SELECT name FROM project_folders WHERE id = company_id) as company_name
+        """
+        
+        async with DB_POOL.acquire() as connection:
+            row = await connection.fetchrow(query, *params)
+            
+            if not row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+        
+        return OfferResponse(
+            id=row['id'],
+            onyx_user_id=row['onyx_user_id'],
+            company_id=row['company_id'],
+            offer_name=row['offer_name'],
+            created_on=row['created_on'],
+            manager=row['manager'],
+            status=row['status'],
+            total_hours=row['total_hours'],
+            link=row['link'],
+            created_at=row['created_at'],
+            updated_at=row['updated_at'],
+            company_name=row['company_name']
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update offer")
+
+@app.delete("/api/custom/offers/{offer_id}")
+async def delete_offer(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Delete an offer"""
+    try:
+        
+        async with DB_POOL.acquire() as connection:
+            result = await connection.execute(
+                "DELETE FROM offers WHERE id = $1 AND onyx_user_id = $2",
+                offer_id, onyx_user_id
+            )
+            
+            if result == "DELETE 0":
+                raise HTTPException(status_code=404, detail="Offer not found")
+        
+        return {"message": "Offer deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting offer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete offer")
+
+@app.get("/api/custom/offers/{offer_id}/details")
+async def get_offer_details(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Get detailed offer information for offer detail page"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offer basic info
+            offer_row = await connection.fetchrow("""
+                SELECT o.*, pf.name as company_name
+                FROM offers o
+                JOIN project_folders pf ON o.company_id = pf.id
+                WHERE o.id = $1 AND o.onyx_user_id = $2
+            """, offer_id, onyx_user_id)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            
+            offer = dict(offer_row)
+            
+            # Get projects in the company folder to build course modules
+            projects_rows = await connection.fetch("""
+                SELECT p.id, p.project_name, p.microproduct_content
+                FROM projects p
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, offer['company_id'], onyx_user_id)
+            
+            course_modules = []
+            total_lessons = 0
+            total_learning_duration = 0
+            total_production_time = 0
+            
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    project_lessons = 0
+                    project_modules = 0
+                    project_completion_time = 0
+                    project_hours = 0
+                    
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            project_modules += 1  # Count modules (sections)
+                            for lesson in section['lessons']:
+                                project_lessons += 1
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                    project_completion_time += completion_minutes
+                                except (ValueError, AttributeError):
+                                    project_completion_time += 5
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                project_hours += lesson_hours
+                    
+                    if project_lessons > 0:
+                        learning_duration_hours = round(project_completion_time / 60.0, 1)
+                        course_modules.append({
+                            'title': project_dict['project_name'],
+                            'modules': project_modules,
+                            'lessons': project_lessons,
+                            'learningDuration': f"{learning_duration_hours}h",
+                            'productionTime': f"{project_hours}h"
+                        })
+                        
+                        total_lessons += project_lessons
+                        total_learning_duration += learning_duration_hours
+                        total_production_time += project_hours
+            
+            # Calculate quality-level-specific totals by examining each lesson's quality tier
+            quality_tier_totals = {
+                'basic': {'learning_duration': 0, 'production_time': 0},
+                'interactive': {'learning_duration': 0, 'production_time': 0},
+                'advanced': {'learning_duration': 0, 'production_time': 0},
+                'immersive': {'learning_duration': 0, 'production_time': 0}
+            }
+            
+            # Re-process projects to calculate quality-specific totals
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            for lesson in section['lessons']:
+                                # Determine effective quality tier for this lesson
+                                effective_quality_tier = (
+                                    lesson.get('quality_tier') or 
+                                    section.get('quality_tier') or 
+                                    content.get('quality_tier') or
+                                    'interactive'  # Default fallback
+                                ).lower()
+                                
+                                # Map alternative names to standard tiers
+                                tier_mapping = {
+                                    'basic': 'basic',
+                                    'interactive': 'interactive',
+                                    'advanced': 'advanced',
+                                    'immersive': 'immersive',
+                                    'medium': 'interactive',  # Map medium to interactive
+                                    'premium': 'advanced',    # Map premium to advanced
+                                }
+                                
+                                standard_tier = tier_mapping.get(effective_quality_tier, 'interactive')
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                except (ValueError, AttributeError):
+                                    completion_minutes = 5
+                                
+                                learning_duration_hours = completion_minutes / 60.0
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                
+                                # Add to the appropriate quality tier totals
+                                quality_tier_totals[standard_tier]['learning_duration'] += learning_duration_hours
+                                quality_tier_totals[standard_tier]['production_time'] += lesson_hours
+            
+            # Generate quality levels data using quality-specific totals
+            quality_levels = [
+                {
+                    'level': 'Level 1 - Basic',
+                    'learningDuration': f"{round(quality_tier_totals['basic']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['basic']['production_time'], 1)}h"
+                },
+                {
+                    'level': 'Level 2 - Interactive',
+                    'learningDuration': f"{round(quality_tier_totals['interactive']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['interactive']['production_time'], 1)}h"
+                },
+                {
+                    'level': 'Level 3 - Advanced',
+                    'learningDuration': f"{round(quality_tier_totals['advanced']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['advanced']['production_time'], 1)}h"
+                },
+                {
+                    'level': 'Level 4 - Immersive',
+                    'learningDuration': f"{round(quality_tier_totals['immersive']['learning_duration'], 1)}h",
+                    'productionTime': f"{round(quality_tier_totals['immersive']['production_time'], 1)}h"
+                }
+            ]
+            
+            return {
+                'offer': offer,
+                'courseModules': course_modules,
+                'qualityLevels': quality_levels
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching offer details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch offer details")
+
+@app.post("/api/custom/offers/migrate-links")
+async def migrate_offer_links(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Update existing offers with auto-generated links"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offers without links or with empty links
+            offers = await connection.fetch("""
+                SELECT id FROM offers 
+                WHERE onyx_user_id = $1 AND (link IS NULL OR link = '')
+            """, onyx_user_id)
+            
+            updated_count = 0
+            base_url = str(request.base_url).rstrip('/')
+            
+            # Log the base URL for debugging
+            logger.info(f"Migration: Original base URL: {base_url}")
+            
+            # Remove /api/custom-projects-backend from the base URL if present
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            logger.info(f"Migration: Found {len(offers)} offers to update")
+            
+            for offer in offers:
+                offer_id = offer['id']
+                auto_link = f"{base_url}/custom-projects-ui/offer/{offer_id}"
+                
+                logger.info(f"Migration: Updating offer {offer_id} with link: {auto_link}")
+                
+                await connection.execute(
+                    "UPDATE offers SET link = $1 WHERE id = $2",
+                    auto_link, offer_id
+                )
+                updated_count += 1
+            
+            logger.info(f"Migration: Successfully updated {updated_count} offers")
+            return {"message": f"Updated {updated_count} offers with auto-generated links"}
+            
+    except Exception as e:
+        logger.error(f"Error migrating offer links: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to migrate offer links")
+
+@app.post("/api/custom/offers/{offer_id}/generate-share-link")
+async def generate_offer_share_link(
+    offer_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Generate a shareable link for an offer that doesn't require authentication"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Verify offer exists and belongs to user
+            offer_row = await connection.fetchrow("""
+                SELECT id, share_token FROM offers 
+                WHERE id = $1 AND onyx_user_id = $2
+            """, offer_id, onyx_user_id)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Offer not found")
+            
+            # Generate or use existing share token
+            share_token = offer_row['share_token']
+            if not share_token:
+                share_token = str(uuid.uuid4())
+                await connection.execute(
+                    "UPDATE offers SET share_token = $1 WHERE id = $2",
+                    share_token, offer_id
+                )
+            
+            # Build shareable URL
+            base_url = str(request.base_url).rstrip('/')
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            share_url = f"{base_url}/custom-projects-ui/offer/shared/{share_token}"
+            
+            return {
+                "share_token": share_token,
+                "share_url": share_url
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating share link: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate share link")
+
+@app.get("/api/custom/offers/shared/{share_token}/details")
+async def get_shared_offer_details(share_token: str):
+    """Get offer details using share token - no authentication required"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Get offer basic info using share token
+            offer_row = await connection.fetchrow("""
+                SELECT o.*, pf.name as company_name
+                FROM offers o
+                JOIN project_folders pf ON o.company_id = pf.id
+                WHERE o.share_token = $1
+            """, share_token)
+            
+            if not offer_row:
+                raise HTTPException(status_code=404, detail="Shared offer not found")
+            
+            offer = dict(offer_row)
+            
+            # Get projects in the company folder to build course modules
+            projects_rows = await connection.fetch("""
+                SELECT p.id, p.project_name, p.microproduct_content
+                FROM projects p
+                WHERE p.folder_id = $1 AND p.onyx_user_id = $2
+                AND p.microproduct_content IS NOT NULL
+                AND p.microproduct_content->>'sections' IS NOT NULL
+            """, offer['company_id'], offer['onyx_user_id'])
+            
+            course_modules = []
+            total_lessons = 0
+            total_learning_duration = 0
+            total_production_time = 0
+            
+            for project_row in projects_rows:
+                project_dict = dict(project_row)
+                content = project_dict.get('microproduct_content', {})
+                
+                if content and content.get('sections'):
+                    project_lessons = 0
+                    project_modules = 0
+                    project_completion_time = 0
+                    project_hours = 0
+                    
+                    for section in content['sections']:
+                        if section.get('lessons'):
+                            project_modules += 1  # Count modules (sections)
+                            for lesson in section['lessons']:
+                                project_lessons += 1
+                                
+                                # Parse completion time
+                                completion_time_str = lesson.get('completionTime', '5m')
+                                try:
+                                    completion_minutes = int(completion_time_str.replace('m', ''))
+                                    project_completion_time += completion_minutes
+                                except (ValueError, AttributeError):
+                                    project_completion_time += 5
+                                
+                                # Get lesson hours (creation time)
+                                lesson_hours = lesson.get('hours', 0)
+                                project_hours += lesson_hours
+                    
+                    if project_lessons > 0:
+                        learning_duration_hours = round(project_completion_time / 60.0, 1)
+                        course_modules.append({
+                            'title': project_dict['project_name'],
+                            'modules': project_modules,
+                            'lessons': project_lessons,
+                            'learningDuration': f"{learning_duration_hours}h",
+                            'productionTime': f"{project_hours}h"
+                        })
+                        
+                        total_lessons += project_lessons
+                        total_learning_duration += learning_duration_hours
+                        total_production_time += project_hours
+            
+            # Generate quality levels data - using actual totals from all courses
+            quality_levels = [
+                {
+                    'level': 'Level 1 - Basic',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{total_production_time}h"
+                },
+                {
+                    'level': 'Level 2 - Interactive',
+                    'learningDuration': f"{total_learning_duration}h", 
+                    'productionTime': f"{int(total_production_time * 1.5)}h"  # 50% more for interactive
+                },
+                {
+                    'level': 'Level 3 - Advanced',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{int(total_production_time * 2)}h"  # 2x for advanced
+                },
+                {
+                    'level': 'Level 4 - Immersive',
+                    'learningDuration': f"{total_learning_duration}h",
+                    'productionTime': f"{int(total_production_time * 3)}h"  # 3x for immersive
+                }
+            ]
+            
+            # Remove sensitive information for shared view
+            offer_public = {
+                'id': offer['id'],
+                'offer_name': offer['offer_name'],
+                'company_name': offer['company_name'],
+                'manager': offer['manager'],
+                'created_on': offer['created_on'],
+                'status': offer['status'],
+                'total_hours': offer['total_hours']
+            }
+            
+            return {
+                'offer': offer_public,
+                'courseModules': course_modules,
+                'qualityLevels': quality_levels
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching shared offer details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch shared offer details")
+
+# ============================================================================
+# WORKSPACE MANAGEMENT API ENDPOINTS
+# ============================================================================
+
+# Dependency to get current user ID (placeholder - integrate with your auth system)
+async def get_current_user_id() -> str:
+    # TODO: Integrate with your authentication system
+    # For now, return a placeholder user ID
+    return "current_user_123"
+
+# Workspace Management Endpoints
+
+@app.post("/api/custom/workspaces", response_model=Workspace)
+async def create_workspace(workspace_data: WorkspaceCreate):
+    """Create a new workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        workspace = await WorkspaceService.create_workspace(workspace_data, current_user_id)
+        return workspace
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to create workspace")
+
+@app.get("/api/custom/workspaces", response_model=List[Workspace])
+async def get_workspaces():
+    """Get all workspaces where the current user is a member."""
+    try:
+        current_user_id = await get_current_user_id()
+        workspaces = await WorkspaceService.get_user_workspaces(current_user_id)
+        return workspaces
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspaces")
+
+@app.get("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
+async def get_workspace(workspace_id: int):
+    """Get a specific workspace by ID."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        workspace = await WorkspaceService.get_workspace(workspace_id)
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return workspace
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspace")
+
+@app.get("/api/custom/workspaces/{workspace_id}/full", response_model=WorkspaceWithMembers)
+async def get_workspace_with_members(workspace_id: int):
+    """Get a workspace with all its members and roles."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        workspace_data = await WorkspaceService.get_workspace_with_members(workspace_id)
+        if not workspace_data:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return workspace_data
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspace data")
+
+@app.put("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
+async def update_workspace(workspace_data: WorkspaceUpdate, workspace_id: int):
+    """Update a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        workspace = await WorkspaceService.update_workspace(workspace_id, workspace_data, current_user_id)
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return workspace
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to update workspace")
+
+@app.delete("/api/custom/workspaces/{workspace_id}")
+async def delete_workspace(workspace_id: int):
+    """Delete a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        success = await WorkspaceService.delete_workspace(workspace_id, current_user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        
+        return {"message": "Workspace deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to delete workspace")
+
+# Role Management Endpoints
+
+@app.post("/api/custom/workspaces/{workspace_id}/roles", response_model=WorkspaceRole)
+async def create_role(role_data: WorkspaceRoleCreate, workspace_id: int):
+    """Create a new custom role in a workspace."""
+    try:
+        # Ensure workspace_id matches path parameter
+        role_data.workspace_id = workspace_id
+        
+        role = await RoleService.create_custom_role(role_data, "current_user_123")
+        return role
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to create role")
+
+@app.get("/api/custom/workspaces/{workspace_id}/roles", response_model=List[WorkspaceRole])
+async def get_workspace_roles(workspace_id: int):
+    """Get all roles for a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        roles = await RoleService.get_workspace_roles(workspace_id)
+        return roles
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve roles")
+
+@app.get("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
+async def get_workspace_role(workspace_id: int, role_id: int):
+    """Get a specific role from a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        role = await RoleService.get_workspace_role(role_id, workspace_id)
+        if not role:
+            raise HTTPException(status_code=404, detail="Role not found")
+        
+        return role
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve role")
+
+@app.put("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
+async def update_role(role_data: WorkspaceRoleUpdate, workspace_id: int, role_id: int):
+    """Update a custom role in a workspace."""
+    try:
+        role = await RoleService.update_custom_role(role_id, workspace_id, role_data, "current_user_123")
+        if not role:
+            raise HTTPException(status_code=404, detail="Role not found")
+        
+        return role
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to update role")
+
+@app.delete("/api/custom/workspaces/{workspace_id}/roles/{role_id}")
+async def delete_role(workspace_id: int, role_id: int):
+    """Delete a custom role from a workspace."""
+    try:
+        success = await RoleService.delete_custom_role(role_id, workspace_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Role not found")
+        
+        return {"message": "Role deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to delete role")
+
+# Member Management Endpoints
+
+@app.post("/api/custom/workspaces/{workspace_id}/members", response_model=WorkspaceMember)
+async def add_member(member_data: WorkspaceMemberCreate, workspace_id: int):
+    """Add a new member to a workspace."""
+    try:
+        # Ensure workspace_id matches path parameter
+        member_data.workspace_id = workspace_id
+        
+        member = await WorkspaceService.add_member(workspace_id, member_data, "current_user_123")
+        return member
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to add member")
+
+@app.get("/api/custom/workspaces/{workspace_id}/members", response_model=List[WorkspaceMember])
+async def get_workspace_members(workspace_id: int):
+    """Get all members of a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        members = await WorkspaceService.get_workspace_members(workspace_id)
+        return members
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve members")
+
+@app.put("/api/custom/workspaces/{workspace_id}/members/{user_id}", response_model=WorkspaceMember)
+async def update_member(member_data: WorkspaceMemberUpdate, workspace_id: int, user_id: str):
+    """Update a workspace member."""
+    try:
+        member = await WorkspaceService.update_member(workspace_id, user_id, member_data, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=404, detail="Member not found")
+        
+        return member
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to update member")
+
+@app.delete("/api/custom/workspaces/{workspace_id}/members/{user_id}")
+async def remove_member(workspace_id: int, user_id: str):
+    """Remove a member from a workspace."""
+    try:
+        success = await WorkspaceService.remove_member(workspace_id, user_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Member not found")
+        
+        return {"message": "Member removed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to remove member")
+
+@app.post("/api/custom/workspaces/{workspace_id}/leave")
+async def leave_workspace(workspace_id: int):
+    """Leave a workspace."""
+    try:
+        current_user_id = await get_current_user_id()
+        success = await WorkspaceService.leave_workspace(workspace_id, current_user_id)
+        if not success:
+            raise HTTPException(status_code=404, detail="Member not found")
+        
+        return {"message": "Successfully left workspace"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to leave workspace")
+
+# Product Access Control Endpoints
+
+@app.post("/api/custom/products/{product_id}/access", response_model=ProductAccess)
+async def grant_product_access(access_data: ProductAccessCreate, product_id: int):
+    """Grant access to a product for a workspace, role, or individual."""
+    try:
+        # Ensure product_id matches path parameter
+        access_data.product_id = product_id
+        
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(access_data.workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        access = await ProductAccessService.grant_access(access_data, "current_user_123")
+        return access
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to grant product access")
+
+@app.get("/api/custom/products/{product_id}/access", response_model=List[ProductAccess])
+async def get_product_access_list(product_id: int):
+    """Get all access records for a specific product."""
+    try:
+        # TODO: Check if user has permission to view product access
+        # This might require checking if the user owns the product or has admin access
+        
+        access_list = await ProductAccessService.get_product_access_list(product_id)
+        return access_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve product access list")
+
+@app.delete("/api/custom/products/{product_id}/access/{access_id}")
+async def revoke_product_access(product_id: int, access_id: int):
+    """Revoke access to a product."""
+    try:
+        # Get the access record to find the workspace_id
+        access = await ProductAccessService.get_product_access(access_id)
+        if not access:
+            raise HTTPException(status_code=404, detail="Access record not found")
+        
+        if access.product_id != product_id:
+            raise HTTPException(status_code=400, detail="Access record does not match product")
+        
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(access.workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        success = await ProductAccessService.revoke_access(access_id, access.workspace_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Access record not found")
+        
+        return {"message": "Product access revoked successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to revoke product access")
+
+@app.delete("/api/custom/products/{product_id}/access/remove")
+async def remove_product_access(product_id: int, criteria: dict):
+    """Remove product access based on criteria (access_type, target_id, workspace_id)."""
+    try:
+        access_type = criteria.get('access_type')
+        target_id = criteria.get('target_id')
+        workspace_id = criteria.get('workspace_id')
+        
+        if not access_type or not workspace_id:
+            raise HTTPException(status_code=400, detail="access_type and workspace_id are required")
+        
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        # Find and remove the matching access record
+        access_list = await ProductAccessService.get_product_access_list(product_id)
+        matching_access = None
+        
+        for access in access_list:
+            if (access.access_type == access_type and 
+                access.workspace_id == workspace_id and
+                access.target_id == target_id):
+                matching_access = access
+                break
+        
+        if not matching_access:
+            raise HTTPException(status_code=404, detail="No matching access record found")
+        
+        success = await ProductAccessService.revoke_access(matching_access.id, workspace_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Failed to remove access record")
+        
+        return {"message": "Product access removed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to remove product access")
+
+@app.get("/api/custom/products/{product_id}/access/check")
+async def check_user_product_access(product_id: int, workspace_id: int):
+    """Check if the current user has access to a specific product in a workspace."""
+    try:
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        has_access = await ProductAccessService.check_user_product_access(product_id, "current_user_123", workspace_id)
+        
+        return {
+            "product_id": product_id,
+            "workspace_id": workspace_id,
+            "user_id": "current_user_123",
+            "has_access": has_access
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to check product access")
+
+@app.get("/api/custom/products/workspace/{workspace_id}/access")
+async def get_workspace_product_access(workspace_id: int):
+    """Get all product access records for a specific workspace."""
+    try:
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        access_list = await ProductAccessService.get_workspace_product_access(workspace_id)
+        
+        return {
+            "workspace_id": workspace_id,
+            "access_records": access_list,
+            "count": len(access_list)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to retrieve workspace product access")
