@@ -1620,27 +1620,19 @@ export default function AuditPage() {
                   Записаться на демонстрацию
                 </h2>
                 
-                <button 
-                  className="text-white font-semibold text-[16px] rounded-lg w-fit relative mx-auto block"
-                  style={{
-                    background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                    paddingInline: '48px',
-                    paddingBlock: '14px',
-                    borderRadius: '6px',
-                    position: 'relative',
-                    boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
-                  }}
-                >
+                <div className="relative w-fit mx-auto block pl-[2px] pt-[2px]">
                   <div 
-                    className="w-full h-full rounded-[4px] flex items-center justify-center"
+                    className="absolute inset-0 px-12 py-3.5 rounded-md"
                     style={{
-                      background: '#0F58F9',
-                      margin: '2px'
+                      background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)'
                     }}
+                  ></div>
+                  <button 
+                    className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 rounded-md shadow-[0px_1px_2px_-1px_rgba(0,0,0,0.1),0px_1px_3px_0px_rgba(0,0,0,0.1)] relative z-10"
                   >
                     <span className="text-white font-semibold text-[16px]">Забронировать</span>
-                  </div>
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
           </section>
