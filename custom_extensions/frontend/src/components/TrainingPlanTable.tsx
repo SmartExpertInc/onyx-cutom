@@ -364,6 +364,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     hasLesson: boolean; hasQuiz: boolean; hasOnePager: boolean; hasLessonPlan: boolean; lessonPlanId?: number;
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false, hasLessonPlan: false });
 
+  const [isRefreshingLessonPlan, setIsRefreshingLessonPlan] = useState(false);
+
   const [openContentModalState, setOpenContentModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
     hasLesson: boolean; hasVideoLesson: boolean; hasQuiz: boolean; hasOnePager: boolean;
@@ -1226,6 +1228,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       return;
     }
 
+    setIsRefreshingLessonPlan(true);
+
     try {
       // First, delete the existing lesson plan
       const deleteResponse = await fetch(`/api/custom-projects-backend/projects/${lessonPlanId}`, {
@@ -1272,6 +1276,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       console.error('Error refreshing lesson plan:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       alert(`Failed to refresh lesson plan: ${errorMessage}`);
+    } finally {
+      setIsRefreshingLessonPlan(false);
     }
   };
 
@@ -1994,6 +2000,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         onCreate={handleOpenOrCreateCreate}
         onOpenLessonPlan={handleOpenLessonPlan}
         onRefreshLessonPlan={handleRefreshLessonPlan}
+        isRefreshingLessonPlan={isRefreshingLessonPlan}
       />
       <OpenContentModal
         isOpen={openContentModalState.isOpen}

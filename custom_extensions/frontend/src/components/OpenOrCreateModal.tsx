@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { X, ExternalLink, Play, Plus, FileText, RefreshCw } from 'lucide-react';
+import { X, ExternalLink, Play, Plus, FileText, RefreshCw, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface OpenOrCreateModalProps {
@@ -19,6 +19,7 @@ interface OpenOrCreateModalProps {
   onCreate: () => void;
   onOpenLessonPlan?: () => void;
   onRefreshLessonPlan?: () => void;
+  isRefreshingLessonPlan?: boolean;
 }
 
 const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
@@ -36,6 +37,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
   onCreate,
   onOpenLessonPlan,
   onRefreshLessonPlan,
+  isRefreshingLessonPlan = false,
 }) => {
   const { t } = useLanguage();
 
@@ -85,6 +87,58 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
 
         {/* Action Cards */}
         <div className="space-y-4">
+          {/* Lesson Plan Option - First Priority */}
+          {hasLessonPlan && (
+            <div className="group">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={onOpenLessonPlan}
+                  className="flex-1 flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02]"
+                >
+                  <div className="flex items-center space-x-4 flex-1">
+                    <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
+                      <FileText size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-bold text-purple-900">Lesson Plan</h3>
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                          Available
+                        </span>
+                      </div>
+                      <p className="text-sm text-purple-800 leading-relaxed">
+                        View lesson plan with objectives and materials
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-purple-400 group-hover:text-purple-600 transition-all duration-200 group-hover:translate-x-1">
+                    <ExternalLink size={20} />
+                  </div>
+                </button>
+                
+                {/* Refresh Button */}
+                <button
+                  onClick={onRefreshLessonPlan}
+                  disabled={isRefreshingLessonPlan}
+                  className={`p-6 border-2 rounded-xl border-purple-200 transition-all duration-300 transform ${
+                    isRefreshingLessonPlan 
+                      ? 'bg-purple-100 cursor-not-allowed' 
+                      : 'bg-purple-50 hover:bg-purple-100 hover:shadow-lg hover:scale-[1.02]'
+                  } group`}
+                  title="Generate new lesson plan"
+                >
+                  <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
+                    {isRefreshingLessonPlan ? (
+                      <Loader2 size={24} className="animate-spin" />
+                    ) : (
+                      <RefreshCw size={24} />
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Open existing content */}
           {(hasLesson || hasQuiz || hasOnePager) && (
             <div className="group">
@@ -171,48 +225,6 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
             </button>
           </div>
 
-          {/* Lesson Plan Option */}
-          {hasLessonPlan && (
-            <div className="group">
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={onOpenLessonPlan}
-                  className="flex-1 flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02]"
-                >
-                  <div className="flex items-center space-x-4 flex-1">
-                    <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
-                      <FileText size={24} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-purple-900">Lesson Plan</h3>
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
-                          Available
-                        </span>
-                      </div>
-                      <p className="text-sm text-purple-800 leading-relaxed">
-                        View your generated lesson plan with objectives, materials, and prompts
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-purple-400 group-hover:text-purple-600 transition-all duration-200 group-hover:translate-x-1">
-                    <ExternalLink size={20} />
-                  </div>
-                </button>
-                
-                {/* Refresh Button */}
-                <button
-                  onClick={onRefreshLessonPlan}
-                  className="p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] group"
-                  title="Generate new lesson plan"
-                >
-                  <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
-                    <RefreshCw size={24} />
-                  </div>
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer hint */}
