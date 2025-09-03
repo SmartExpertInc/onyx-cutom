@@ -33,6 +33,7 @@ interface CreateContentTypeModalProps {
   hasOnePager?: boolean;
   parentProjectName?: string;
   outlineProjectId?: number; // NEW: ID of the parent outline project
+  lessonRecommendations?: string[]; // NEW: Actual recommended products for this lesson
   recommendedContentTypes?: RecommendedContentTypes;
   existingContent?: ExistingContentFlags;
   onUpdateRecommendations?: (newPrimary: string[]) => void; // NEW
@@ -52,6 +53,7 @@ export const CreateContentTypeModal = ({
   hasOnePager = false,
   parentProjectName,
   outlineProjectId,
+  lessonRecommendations,
   recommendedContentTypes,
   existingContent,
   onUpdateRecommendations,
@@ -200,7 +202,7 @@ export const CreateContentTypeModal = ({
           lessonTitle,
           moduleName,
           lessonNumber,
-          recommendedProducts: ['lesson', 'quiz', 'one-pager', 'video-lesson'] // Default recommended products
+          recommendedProducts: lessonRecommendations && lessonRecommendations.length > 0 ? lessonRecommendations : ['lesson', 'quiz', 'one-pager', 'video-lesson'] // Use actual recommendations or fallback to defaults
         }),
       });
 

@@ -352,7 +352,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   }, [onAutoSave]);
 
   const [contentModalState, setContentModalState] = useState<{
-    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any;
+    isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number; recommended?: any; lessonRecommendations?: string[];
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 });
 
   const [allContentTypesModalState, setAllContentTypesModalState] = useState<{
@@ -362,6 +362,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const [openOrCreateModalState, setOpenOrCreateModalState] = useState<{
     isOpen: boolean; lessonTitle: string; moduleName: string; lessonNumber: number;
     hasLesson: boolean; hasQuiz: boolean; hasOnePager: boolean; hasLessonPlan: boolean; lessonPlanId?: number;
+    lessonRecommendations?: string[];
   }>({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false, hasLessonPlan: false });
 
   const [isRefreshingLessonPlan, setIsRefreshingLessonPlan] = useState(false);
@@ -895,6 +896,26 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return null;
   };
 
+  const extractLessonRecommendations = (lesson: LessonType): string[] => {
+    if (!lesson) return [];
+    
+    // Try to get persisted recommendations first
+    const persisted = extractPersistedRecommendations(lesson, getEffectiveLessonTier(undefined, lesson));
+    if (persisted && persisted.primary && Array.isArray(persisted.primary)) {
+      return persisted.primary;
+    }
+    
+    // Fallback to computing recommendations based on lesson title and tier
+    const effectiveTier = getEffectiveLessonTier(undefined, lesson);
+    const computed = computeRecommendations(
+      lesson.title || '',
+      effectiveTier,
+      { hasLesson: false, hasQuiz: false, hasOnePager: false, hasVideoLesson: false }
+    );
+    
+    return computed?.primary || [];
+  };
+
   const computeRecommendations = (
     lessonTitle: string,
     tier: string,
@@ -1065,7 +1086,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         lessonTitle, 
         moduleName, 
         lessonNumber,
-        recommended
+        recommended,
+        lessonRecommendations: extractLessonRecommendations(lesson)
       });
     }
     // Scenario 2: Only lesson exists (no quiz/video lesson/one-pager) - show open or create modal
@@ -1079,7 +1101,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz,
         hasOnePager,
         hasLessonPlan,
-        lessonPlanId: existingLessonPlan?.id
+        lessonPlanId: existingLessonPlan?.id,
+        lessonRecommendations: extractLessonRecommendations(lesson)
       });
     }
     // Scenario 3: ALL content types exist (presentation, quiz, and one-pager) - show open modal
@@ -1111,7 +1134,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz,
         hasOnePager,
         hasLessonPlan,
-        lessonPlanId: existingLessonPlan?.id
+        lessonPlanId: existingLessonPlan?.id,
+        lessonRecommendations: extractLessonRecommendations(lesson)
       });
     }
     // Scenario 5: Only one content type exists (quiz, video lesson, or one-pager) - show open or create modal
@@ -1125,7 +1149,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz,
         hasOnePager,
         hasLessonPlan,
-        lessonPlanId: existingLessonPlan?.id
+        lessonPlanId: existingLessonPlan?.id,
+        lessonRecommendations: extractLessonRecommendations(lesson)
       });
     }
     // Scenario 6: Fallback - should not happen but just in case
@@ -1139,7 +1164,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasQuiz,
         hasOnePager,
         hasLessonPlan,
-        lessonPlanId: existingLessonPlan?.id
+        lessonPlanId: existingLessonPlan?.id,
+        lessonRecommendations: extractLessonRecommendations(lesson)
       });
     }
   };
@@ -1196,7 +1222,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       lessonTitle, 
       moduleName, 
       lessonNumber,
-      recommended
+      recommended,
+      lessonRecommendations: extractLessonRecommendations(lessonObj)
     });
     
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false, hasLessonPlan: false });
@@ -1221,7 +1248,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   const handleRefreshLessonPlan = async () => {
-    const { lessonTitle, moduleName, lessonNumber, lessonPlanId } = openOrCreateModalState;
+    const { lessonTitle, moduleName, lessonNumber, lessonPlanId, lessonRecommendations } = openOrCreateModalState;
     
     if (!lessonPlanId) {
       console.error('No lesson plan ID available for refresh');
@@ -1254,7 +1281,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           lessonTitle,
           moduleName,
           lessonNumber,
-          recommendedProducts: ["quiz", "lesson", "one-pager", "video-lesson"]
+          recommendedProducts: lessonRecommendations && lessonRecommendations.length > 0 ? lessonRecommendations : ["quiz", "lesson", "one-pager", "video-lesson"]
         }),
       });
 
@@ -1812,7 +1839,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     <div className="font-['Inter',_sans-serif] bg-gray-50">
       <CreateContentTypeModal
         isOpen={contentModalState.isOpen}
-        onClose={() => setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0 })}
+        onClose={() => setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, lessonRecommendations: [] })}
         lessonTitle={contentModalState.lessonTitle}
         moduleName={contentModalState.moduleName}
         lessonNumber={contentModalState.lessonNumber}
@@ -1822,6 +1849,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         hasOnePager={!!findExistingOnePager(contentModalState.lessonTitle)}
         parentProjectName={parentProjectName}
         outlineProjectId={projectId}
+        lessonRecommendations={contentModalState.lessonRecommendations}
         recommendedContentTypes={contentModalState.recommended}
         existingContent={{
           hasLesson: !!findExistingLesson(contentModalState.lessonTitle),
