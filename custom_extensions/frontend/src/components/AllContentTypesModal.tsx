@@ -12,7 +12,6 @@ interface ContentType {
   description: string;
   color: string;
   disabled: boolean;
-  soon?: boolean;
 }
 
 interface AllContentTypesModalProps {
@@ -74,11 +73,7 @@ export const AllContentTypesModal = ({
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <h3 className="text-lg font-bold text-gray-900 group-hover:text-gray-800">{type.label}</h3>
-              {type.soon && (
-                <span className="text-xs bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-3 py-1 rounded-full font-medium border border-orange-200">
-                  {t('modals.createContent.soon')}
-                </span>
-              )}
+
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">{type.description}</p>
           </div>

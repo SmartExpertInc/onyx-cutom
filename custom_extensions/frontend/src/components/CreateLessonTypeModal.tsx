@@ -35,8 +35,7 @@ const lessonTypes = [
     name: "videoLesson", 
     icon: <Film className="w-6 h-6" />, 
     disabled: true,
-    tooltipKey: "comingSoon",
-    soon: true
+    tooltipKey: "comingSoon"
   },
 ];
 
@@ -159,11 +158,7 @@ export const CreateLessonTypeModal = ({
                 </div>
                 <div className="w-3/4 text-left flex items-center gap-2">
                     {type.name === "quiz" ? t('modals.createTest.quiz') : t(`modals.createLesson.${type.name}`)}
-                    {(type as any).soon && (
-                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">
-                        {t('modals.createLesson.comingSoon')}
-                      </span>
-                    )}
+
                 </div>
             </StyledButton>
           ))}

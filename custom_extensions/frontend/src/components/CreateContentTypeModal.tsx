@@ -116,8 +116,7 @@ export const CreateContentTypeModal = ({
       label: t('modals.createContent.videoLesson'),
       description: t('modals.createContent.videoLessonDescription'),
       color: "orange",
-      disabled: true,
-      soon: true
+      disabled: true
     },
   ];
 
@@ -491,11 +490,7 @@ export const CreateContentTypeModal = ({
                         }`}>
                           {type.label}
                         </h3>
-                        {type.soon && (
-                          <span className="text-xs bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-700 px-2 py-1 rounded-full font-medium border border-orange-200">
-                            {t('modals.createContent.soon')}
-                          </span>
-                        )}
+
                         {isAlreadyCreated && (
                           <span className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 px-2 py-1 rounded-full font-medium border border-green-200">
                             ✓ {t('modals.createContent.alreadyCreated')}

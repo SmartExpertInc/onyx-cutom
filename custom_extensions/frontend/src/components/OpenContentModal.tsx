@@ -109,12 +109,11 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-black">
                       {t('modals.openContent.videoLesson')}
-                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-medium">{t('modals.openContent.soon')}</span>
                     </h3>
                   </div>
-                  <p className="text-sm text-black">{t('modals.openContent.videoLessonSoon')}</p>
+                  <p className="text-sm text-black">{t('modals.openContent.openVideoLesson')}</p>
                 </div>
               </div>
               <ExternalLink size={20} className="text-gray-300" />

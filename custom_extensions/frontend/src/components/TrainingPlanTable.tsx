@@ -2007,8 +2007,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
             label: t('modals.createContent.videoLesson'),
             description: t('modals.createContent.videoLessonDescription'),
             color: "orange",
-            disabled: true,
-            soon: true
+            disabled: true
           },
         ]}
         onContentCreate={(contentType) => {
