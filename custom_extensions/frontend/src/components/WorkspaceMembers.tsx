@@ -41,6 +41,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // User role state
+  const [currentUserRole, setCurrentUserRole] = useState<WorkspaceRole | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // UI State
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
@@ -108,6 +112,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       
       setRoles(workspaceRoles);
       setMembers(workspaceMembers);
+      
+      // Determine current user's role and permissions
+      await determineCurrentUserRole(targetWorkspaceId, workspaceMembers);
     } catch (err) {
       console.error('Failed to load workspace data:', err);
       setError('Failed to load workspace data');
@@ -116,20 +123,41 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   };
 
-  // Handle member actions
+  const determineCurrentUserRole = async (workspaceId: number, members: WorkspaceMember[]) => {
+    try {
+      // For now, we'll use a placeholder user ID - in production this would come from auth context
+      const currentUserId = "current_user_123"; // This should come from your auth system
+      
+      const currentMember = members.find(member => member.user_id === currentUserId);
+      if (currentMember) {
+        const userRole = roles.find(role => role.id === currentMember.role_id);
+        setCurrentUserRole(userRole || null);
+        setIsAdmin(userRole?.name === 'Admin');
+      } else {
+        setCurrentUserRole(null);
+        setIsAdmin(false);
+      }
+    } catch (err) {
+      console.error('Failed to determine user role:', err);
+      setCurrentUserRole(null);
+      setIsAdmin(false);
+    }
+  };
+
+    // Handle member actions
   const handleDeleteMember = useCallback(async (memberId: number) => {
-    if (!targetWorkspaceId) return;
+    if (!targetWorkspaceId || !isAdmin) return;
     
     try {
       await workspaceService.removeMember(targetWorkspaceId, memberId.toString());
-    setMembers(prev => prev.filter(member => member.id !== memberId));
+      setMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (err) {
       console.error('Failed to delete member:', err);
     }
-  }, [targetWorkspaceId]);
+  }, [targetWorkspaceId, isAdmin]);
 
   const handleSuspendMember = useCallback(async (memberId: number) => {
-    if (!targetWorkspaceId) return;
+    if (!targetWorkspaceId || !isAdmin) return;
     
     try {
       const updatedMember = await workspaceService.updateMember(
@@ -146,7 +174,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }, [targetWorkspaceId]);
 
   const handleActivateMember = useCallback(async (memberId: number) => {
-    if (!targetWorkspaceId) return;
+    if (!targetWorkspaceId || !isAdmin) return;
     
     try {
       const updatedMember = await workspaceService.updateMember(
@@ -164,7 +192,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   // Handle add member
   const handleAddMember = useCallback(async () => {
-    if (!targetWorkspaceId || !newMemberEmail.trim() || !newMemberRole) return;
+    if (!targetWorkspaceId || !newMemberEmail.trim() || !newMemberRole || !isAdmin) return;
     
     try {
       const newMember: Omit<WorkspaceMemberCreate, 'workspace_id'> = {
@@ -188,7 +216,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   // Role management functions
   const handleAddRole = useCallback(async () => {
-    if (!targetWorkspaceId || !newRoleName.trim()) return;
+    if (!targetWorkspaceId || !newRoleName.trim() || !isAdmin) return;
     
     try {
       const newRole: Omit<WorkspaceRoleCreate, 'workspace_id'> = {
@@ -212,7 +240,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId]);
 
   const handleDeleteRole = useCallback(async (roleId: number) => {
-    if (!targetWorkspaceId) return;
+    if (!targetWorkspaceId || !isAdmin) return;
     
     try {
       await workspaceService.deleteRole(targetWorkspaceId, roleId);
@@ -402,20 +430,24 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowRoleManager(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors whitespace-nowrap"
-            >
-              <Settings size={16} />
-              {t('interface.manageRoles', 'Manage Roles')}
-            </button>
-            <button
-              onClick={() => setShowAddMember(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
-            >
-              <UserPlus size={16} />
-              {t('interface.addMember', 'Add Member')}
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setShowRoleManager(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors whitespace-nowrap"
+              >
+                <Settings size={16} />
+                {t('interface.manageRoles', 'Manage Roles')}
+              </button>
+            )}
+            {isAdmin && (
+              <button
+                onClick={() => setShowAddMember(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+              >
+                <UserPlus size={16} />
+                {t('interface.addMember', 'Add Member')}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -511,7 +543,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         </button>
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                           <div className="py-1">
-                            {member.status === 'active' && (
+                            {isAdmin && member.status === 'active' && (
                               <button
                                 onClick={() => handleSuspendMember(member.id)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -519,7 +551,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                                 {t('interface.workspaceActions.suspend', 'Suspend')}
                               </button>
                             )}
-                            {member.status === 'suspended' && (
+                            {isAdmin && member.status === 'suspended' && (
                               <button
                                 onClick={() => handleActivateMember(member.id)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -527,7 +559,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                                 {t('interface.workspaceActions.activate', 'Activate')}
                               </button>
                             )}
-                            {member.status === 'pending' && (
+                            {isAdmin && member.status === 'pending' && (
                               <button
                                 onClick={() => handleActivateMember(member.id)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -535,12 +567,14 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                                 {t('interface.workspaceActions.resendInvitation', 'Resend Invitation')}
                               </button>
                             )}
-                            <button
-                              onClick={() => handleDeleteMember(member.id)}
-                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                            >
-                              {t('interface.workspaceActions.delete', 'Delete')}
-                            </button>
+                            {isAdmin && (
+                              <button
+                                onClick={() => handleDeleteMember(member.id)}
+                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                              >
+                                {t('interface.workspaceActions.delete', 'Delete')}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -759,7 +793,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         >
                           {role.name}
                         </span>
-                        {!role.is_default && (
+                        {isAdmin && !role.is_default && (
                           <button
                             onClick={() => handleDeleteRole(role.id)}
                             className="text-red-600 hover:text-red-800 text-sm"

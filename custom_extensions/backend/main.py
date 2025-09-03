@@ -12326,7 +12326,8 @@ async def get_user_projects_list_from_db(
     pool: asyncpg.Pool = Depends(get_db_pool),
     folder_id: Optional[int] = None
 ):
-    select_query = """
+    # First, get projects owned by the user
+    owned_projects_query = """
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
@@ -12334,45 +12335,115 @@ async def get_user_projects_list_from_db(
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
-        ORDER BY p."order" ASC, p.created_at DESC;
     """
+    
+    # Then, get projects the user has access to through workspace permissions
+    shared_projects_query = """
+        SELECT DISTINCT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
+               dt.template_name as design_template_name,
+               dt.microproduct_type as design_microproduct_type,
+               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone
+        FROM projects p
+        LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+        INNER JOIN product_access pa ON p.id = pa.product_id
+        INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+        WHERE wm.user_id = $1 
+          AND wm.status = 'active'
+          AND pa.access_type IN ('workspace', 'role', 'individual')
+          AND (
+              pa.access_type = 'workspace' 
+              OR (pa.access_type = 'role' AND pa.target_id = wm.role_id)
+              OR (pa.access_type = 'individual' AND pa.target_id = $1)
+          )
+          {folder_filter}
+    """
+    
     folder_filter = ""
     params = [onyx_user_id]
     if folder_id is not None:
         folder_filter = "AND p.folder_id = $2"
         params.append(folder_id)
-    query = select_query.format(folder_filter=folder_filter)
+    
+    owned_query = owned_projects_query.format(folder_filter=folder_filter)
+    shared_query = shared_projects_query.format(folder_filter=folder_filter)
+    
     async with pool.acquire() as conn:
-        db_rows = await conn.fetch(query, *params)
-    projects_list: List[ProjectApiResponse] = []
-    for row_data in db_rows:
-        row_dict = dict(row_data)
-        project_slug = create_slug(row_dict.get('project_name'))
-        # Convert UUID to string if it exists
-        source_chat_session_id = row_dict.get("source_chat_session_id")
-        if source_chat_session_id:
-            source_chat_session_id = str(source_chat_session_id)
+        # Get both owned and shared projects
+        owned_rows = await conn.fetch(owned_query, *params)
+        shared_rows = await conn.fetch(shared_query, *params)
         
-        projects_list.append(ProjectApiResponse(
-            id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
-            microproduct_name=row_dict.get("microproduct_name"),
-            design_template_name=row_dict.get("design_template_name"),
-            design_microproduct_type=row_dict.get("design_microproduct_type"),
-            created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
-            folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
-            microproduct_content=row_dict.get("microproduct_content"),
-            source_chat_session_id=source_chat_session_id,
-            is_standalone=row_dict.get("is_standalone")
-        ))
+        # Combine and deduplicate projects
+        all_projects = {}
+        
+        # Process owned projects first
+        for row_data in owned_rows:
+            row_dict = dict(row_data)
+            project_slug = create_slug(row_dict.get('project_name'))
+            source_chat_session_id = row_dict.get("source_chat_session_id")
+            if source_chat_session_id:
+                source_chat_session_id = str(source_chat_session_id)
+            
+            all_projects[row_dict["id"]] = ProjectApiResponse(
+                id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
+                microproduct_name=row_dict.get("microproduct_name"),
+                design_template_name=row_dict.get("design_template_name"),
+                design_microproduct_type=row_dict.get("design_microproduct_type"),
+                created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
+                folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
+                microproduct_content=row_dict.get("microproduct_content"),
+                source_chat_session_id=source_chat_session_id,
+                is_standalone=row_dict.get("is_standalone")
+            )
+        
+        # Process shared projects (will override owned if same ID, which is fine)
+        for row_data in shared_rows:
+            row_dict = dict(row_data)
+            project_slug = create_slug(row_dict.get('project_name'))
+            source_chat_session_id = row_dict.get("source_chat_session_id")
+            if source_chat_session_id:
+                source_chat_session_id = str(source_chat_session_id)
+            
+            all_projects[row_dict["id"]] = ProjectApiResponse(
+                id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
+                microproduct_name=row_dict.get("microproduct_name"),
+                design_template_name=row_dict.get("design_template_name"),
+                design_microproduct_type=row_dict.get("design_microproduct_type"),
+                created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
+                folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
+                microproduct_content=row_dict.get("microproduct_content"),
+                source_chat_session_id=source_chat_session_id,
+                is_standalone=row_dict.get("is_standalone")
+            )
+    
+    # Convert to list and sort
+    projects_list = list(all_projects.values())
+    projects_list.sort(key=lambda x: (x.order or 0, x.created_at), reverse=True)
+    
     return projects_list
 
 @app.get("/api/custom/projects/view/{project_id}", response_model=MicroProductApiResponse, responses={404: {"model": ErrorDetail}})
 async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    # Check if user owns the project or has workspace access
     select_query = """
         SELECT p.*, dt.template_name as design_template_name, dt.microproduct_type as design_microproduct_type, dt.component_name
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-        WHERE p.id = $1 AND p.onyx_user_id = $2
+        WHERE p.id = $1 AND (
+            p.onyx_user_id = $2 
+            OR EXISTS (
+                SELECT 1 FROM product_access pa
+                INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+                WHERE pa.product_id = p.id 
+                  AND wm.user_id = $2 
+                  AND wm.status = 'active'
+                  AND pa.access_type IN ('workspace', 'role', 'individual')
+                  AND (
+                      pa.access_type = 'workspace' 
+                      OR (pa.access_type = 'role' AND pa.target_id = wm.role_id)
+                      OR (pa.access_type = 'individual' AND pa.target_id = $2)
+                  )
+            )
+        )
     """
     async with pool.acquire() as conn:
         row = await conn.fetchrow(select_query, project_id, onyx_user_id)
