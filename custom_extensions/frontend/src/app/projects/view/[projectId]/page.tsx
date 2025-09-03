@@ -1572,7 +1572,7 @@ export default function ProjectInstanceViewPage() {
 
                                     {/* Email Role Dropdown */}
                                     {showEmailRoleDropdown === email && (
-                                      <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 min-w-32">
+                                      <div className="absolute bottom-full right-0 mb-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 min-w-32">
                                         <div className="space-y-1">
                                           {predefinedRoles.map((role) => (
                                             <div
@@ -1585,10 +1585,7 @@ export default function ProjectInstanceViewPage() {
                                                   <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                                                 )}
                                               </div>
-                                              <div>
-                                                <span className="text-sm font-medium text-gray-900">{role.label}</span>
-                                                <p className="text-xs text-gray-500">{role.description}</p>
-                                              </div>
+                                              <span className="text-sm font-medium text-gray-900">{role.label}</span>
                                             </div>
                                           ))}
                                         </div>
