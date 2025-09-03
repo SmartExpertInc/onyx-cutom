@@ -16606,7 +16606,7 @@ async def generate_lesson_plan(
         
         # Prepare OpenAI prompt
         openai_prompt = f"""
-You are an expert educational content creator. Based on the following source context, create a comprehensive lesson plan.
+You are an expert instructional designer and educational content developer. Based on the following source context, create a comprehensive lesson plan that serves as a complete task specification for Content Developers to create high-quality educational materials.
 
 Source Context:
 {context_for_openai}
@@ -16617,14 +16617,31 @@ Lesson Information:
 - Lesson Number: {payload.lessonNumber}
 - Recommended Products: {', '.join(payload.recommendedProducts)}
 
-Create a detailed lesson plan that includes:
-1. Clear lesson objectives
-2. A concise description
-3. Specific product recommendations (ONLY include descriptions for products in the recommendedProducts list)
-4. Required materials
-5. Suggested prompts for further content creation
+Create a detailed lesson plan following instructional design best practices:
 
-IMPORTANT: Only include descriptions for products that are explicitly listed in the recommendedProducts array. Do not add any additional products.
+LESSON OBJECTIVES: Write 3-5 specific, measurable learning objectives using Bloom's Taxonomy action verbs. Each objective should specify what learners will be able to DO after completing the lesson (not what will be taught to them). Include the performance/behavior, conditions, and success criteria where applicable.
+
+SHORT DESCRIPTION: Write a compelling 2-3 sentence description that clearly communicates the lesson's value proposition to learners. Focus on practical outcomes and real-world applications they will gain, not just topics covered.
+
+RECOMMENDED PRODUCT TYPES: For each product type in the recommendedProducts list, provide detailed specifications that guide Content Developers in creating effective educational materials. Include:
+- Target learning outcomes for that product type
+- Specific content requirements and structure
+- Assessment criteria and success metrics
+- Technical specifications (duration, format, interaction types)
+
+MATERIALS: List specific, actionable resources and tools needed for content creation, including:
+- Primary source materials and references
+- Technical tools and software requirements
+- Assessment instruments and rubrics
+- Visual aids and multimedia specifications
+
+SUGGESTED PROMPTS: Provide 4-6 detailed content creation prompts that:
+- Align with different levels of Bloom's Taxonomy
+- Include specific scenarios and real-world applications
+- Specify target audience and context
+- Define expected deliverables and assessment criteria
+
+IMPORTANT: Only include descriptions for products that are explicitly listed in the recommendedProducts array. Focus on creating actionable specifications that enable Content Developers to produce effective, engaging educational materials.
 
 Return your response as a valid JSON object with this exact structure:
 {{
