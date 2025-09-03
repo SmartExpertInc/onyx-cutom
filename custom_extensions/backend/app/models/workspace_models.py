@@ -68,8 +68,8 @@ class Workspace(WorkspaceBase):
 
 class WorkspaceRoleBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    color: str = Field(..., regex=r'^#[0-9A-Fa-f]{6}$')
-    text_color: str = Field(..., regex=r'^#[0-9A-Fa-f]{6}$')
+    color: str = Field(..., pattern=r'^#[0-9A-Fa-f]{6}$')
+    text_color: str = Field(..., pattern=r'^#[0-9A-Fa-f]{6}$')
     permissions: List[Permission]
     is_default: bool = False
 
@@ -78,8 +78,8 @@ class WorkspaceRoleCreate(WorkspaceRoleBase):
 
 class WorkspaceRoleUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
-    color: Optional[str] = Field(None, regex=r'^#[0-9A-Fa-f]{6}$')
-    text_color: Optional[str] = Field(None, regex=r'^#[0-9A-Fa-f]{6}$')
+    color: Optional[str] = Field(None, pattern=r'^#[0-9A-Fa-f]{6}$')
+    text_color: Optional[str] = Field(None, pattern=r'^#[0-9A-Fa-f]{6}$')
     permissions: Optional[List[Permission]] = None
 
 class WorkspaceRole(WorkspaceRoleBase):
