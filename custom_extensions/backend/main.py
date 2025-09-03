@@ -12439,7 +12439,7 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
                   AND pa.access_type IN ('workspace', 'role', 'individual')
                   AND (
                       pa.access_type = 'workspace' 
-                      OR (pa.access_type = 'role' AND pa.target_id = wm.role_id::text)
+                      OR (pa.access_type = 'role' AND pa.target_id = CAST(wm.role_id AS TEXT))
                       OR (pa.access_type = 'individual' AND pa.target_id = $2)
                   )
             )

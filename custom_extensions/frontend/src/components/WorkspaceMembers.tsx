@@ -114,7 +114,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       setMembers(workspaceMembers);
       
       // Determine current user's role and permissions
-      await determineCurrentUserRole(targetWorkspaceId, workspaceMembers);
+      await determineCurrentUserRole(targetWorkspaceId, workspaceMembers, workspaceRoles);
     } catch (err) {
       console.error('Failed to load workspace data:', err);
       setError('Failed to load workspace data');
@@ -123,19 +123,27 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   };
 
-  const determineCurrentUserRole = async (workspaceId: number, members: WorkspaceMember[]) => {
+  const determineCurrentUserRole = async (workspaceId: number, members: WorkspaceMember[], workspaceRoles: WorkspaceRole[]) => {
     try {
       // For now, we'll use a placeholder user ID - in production this would come from auth context
       const currentUserId = "current_user_123"; // This should come from your auth system
       
       const currentMember = members.find(member => member.user_id === currentUserId);
       if (currentMember) {
-        const userRole = roles.find(role => role.id === currentMember.role_id);
+        const userRole = workspaceRoles.find(role => role.id === currentMember.role_id);
         setCurrentUserRole(userRole || null);
         setIsAdmin(userRole?.name === 'Admin');
+        console.log('Current user role determined:', {
+          userId: currentUserId,
+          memberId: currentMember.id,
+          roleId: currentMember.role_id,
+          roleName: userRole?.name,
+          isAdmin: userRole?.name === 'Admin'
+        });
       } else {
         setCurrentUserRole(null);
         setIsAdmin(false);
+        console.log('Current user is not a member of this workspace');
       }
     } catch (err) {
       console.error('Failed to determine user role:', err);
@@ -171,7 +179,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to suspend member:', err);
     }
-  }, [targetWorkspaceId]);
+  }, [targetWorkspaceId, isAdmin]);
 
   const handleActivateMember = useCallback(async (memberId: number) => {
     if (!targetWorkspaceId || !isAdmin) return;
@@ -188,7 +196,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to activate member:', err);
     }
-  }, [targetWorkspaceId]);
+  }, [targetWorkspaceId, isAdmin]);
 
   // Handle add member
   const handleAddMember = useCallback(async () => {
@@ -212,7 +220,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to add member:', err);
     }
-  }, [newMemberEmail, newMemberRole, newMemberStatus, targetWorkspaceId]);
+  }, [newMemberEmail, newMemberRole, newMemberStatus, targetWorkspaceId, isAdmin]);
 
   // Role management functions
   const handleAddRole = useCallback(async () => {
@@ -237,7 +245,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to add role:', err);
     }
-  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId]);
+  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId, isAdmin]);
 
   const handleDeleteRole = useCallback(async (roleId: number) => {
     if (!targetWorkspaceId || !isAdmin) return;
@@ -248,7 +256,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to delete role:', err);
     }
-  }, [targetWorkspaceId]);
+  }, [targetWorkspaceId, isAdmin]);
 
   const handleTogglePermission = useCallback((permission: string) => {
     setNewRolePermissions(prev =>
