@@ -558,6 +558,9 @@ export default function Projects2ViewPage() {
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
+        videoLessonData={videoLessonData}
+        componentBasedSlideDeck={componentBasedSlideDeck}
+        currentSlideId={currentSlideId}
       />
 
       {/* Toolbar */}

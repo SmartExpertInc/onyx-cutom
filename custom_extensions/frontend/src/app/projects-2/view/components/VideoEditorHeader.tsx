@@ -17,9 +17,19 @@ interface EmailInput {
 interface VideoEditorHeaderProps {
   aspectRatio: string;
   onAspectRatioChange: (ratio: string) => void;
+  // Video generation data props
+  videoLessonData?: any;
+  componentBasedSlideDeck?: any;
+  currentSlideId?: string;
 }
 
-export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: VideoEditorHeaderProps) {
+export default function VideoEditorHeader({ 
+  aspectRatio, 
+  onAspectRatioChange,
+  videoLessonData,
+  componentBasedSlideDeck,
+  currentSlideId
+}: VideoEditorHeaderProps) {
   const [isResizePopupOpen, setIsResizePopupOpen] = useState(false);
   const [isSharePopupOpen, setIsSharePopupOpen] = useState(false);
   const [isEyeVisible, setIsEyeVisible] = useState(false);
@@ -146,62 +156,77 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
   // Video generation constants and functions - transferred from VideoDownloadButton
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-  // Function to extract actual slide data from current project - transferred from VideoDownloadButton
+  // Function to extract actual slide data from current project - updated to use props
   const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
     console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
+    console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
+    console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
+    console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
     
     try {
-      // Try to get slide data from the global window object (if SmartSlideDeckViewer exposed it)
-      const slideViewerData = (window as any).currentSlideData;
-      if (slideViewerData?.deck?.slides) {
-        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in window object:', slideViewerData.deck.slides.length, 'slides');
+      // First try to get data from componentBasedSlideDeck (newer structure)
+      if (componentBasedSlideDeck?.slides && componentBasedSlideDeck.slides.length > 0) {
+        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in componentBasedSlideDeck:', componentBasedSlideDeck.slides.length, 'slides');
         
         // Extract voiceover texts from slides
-        const voiceoverTexts = slideViewerData.deck.slides
-          .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText)
+        const voiceoverTexts = componentBasedSlideDeck.slides
+          .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText || '')
           .filter((text: string) => text && text.trim().length > 0);
         
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from componentBasedSlideDeck:', voiceoverTexts);
         
         return {
-          slides: slideViewerData.deck.slides,
-          theme: slideViewerData.deck.theme || 'dark-purple',
+          slides: componentBasedSlideDeck.slides,
+          theme: componentBasedSlideDeck.theme || 'dark-purple',
+          voiceoverTexts: voiceoverTexts
+        };
+      }
+      
+      // Then try to get data from videoLessonData (older structure)
+      if (videoLessonData?.slides && videoLessonData.slides.length > 0) {
+        console.log('🎬 [VIDEO_DOWNLOAD] Found slide data in videoLessonData:', videoLessonData.slides.length, 'slides');
+        
+        // Extract voiceover texts from slides
+        const voiceoverTexts = videoLessonData.slides
+          .map((slide: any) => slide.voiceoverText || '')
+          .filter((text: string) => text && text.trim().length > 0);
+        
+        console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts from videoLessonData:', voiceoverTexts);
+        
+        return {
+          slides: videoLessonData.slides,
+          theme: videoLessonData.theme || 'dark-purple',
           voiceoverTexts: voiceoverTexts
         };
       }
 
-      // Fallback: Try to extract from the URL by getting project ID and fetching data
-      const currentUrl = window.location.href;
-      const projectIdMatch = currentUrl.match(/\/projects\/view\/(\d+)/);
-      
-      if (projectIdMatch) {
-        const projectId = projectIdMatch[1];
-        console.log('🎬 [VIDEO_DOWNLOAD] Extracted project ID from URL:', projectId);
+      // If no slides found, create a fallback with the current slide if available
+      if (currentSlideId) {
+        console.log('🎬 [VIDEO_DOWNLOAD] No slides found, but currentSlideId exists:', currentSlideId);
         
-        // Fetch project data from API
-        const response = await fetch(`/api/custom/projects/${projectId}`);
-        if (response.ok) {
-          const projectData = await response.json();
-          console.log('🎬 [VIDEO_DOWNLOAD] Fetched project data:', projectData);
+        // Try to find the current slide in either data structure
+        let currentSlide = null;
+        if (componentBasedSlideDeck?.slides) {
+          currentSlide = componentBasedSlideDeck.slides.find((s: any) => s.slideId === currentSlideId);
+        } else if (videoLessonData?.slides) {
+          currentSlide = videoLessonData.slides.find((s: any) => s.slideId === currentSlideId);
+        }
+        
+        if (currentSlide) {
+          const voiceoverText = currentSlide.voiceoverText || currentSlide.props?.voiceoverText || 
+            'Welcome to this professional presentation. We will explore key concepts and insights.';
           
-          if (projectData.details?.slides) {
-            // Extract voiceover texts from slides
-            const voiceoverTexts = projectData.details.slides
-              .map((slide: any) => slide.voiceoverText || slide.props?.voiceoverText)
-              .filter((text: string) => text && text.trim().length > 0);
-            
-            console.log('🎬 [VIDEO_DOWNLOAD] Extracted voiceover texts:', voiceoverTexts);
-            
-            return {
-              slides: projectData.details.slides,
-              theme: projectData.details.theme || 'dark-purple',
-              voiceoverTexts: voiceoverTexts
-            };
-          }
+          console.log('🎬 [VIDEO_DOWNLOAD] Using current slide as fallback:', voiceoverText);
+          
+          return {
+            slides: [currentSlide],
+            theme: 'dark-purple',
+            voiceoverTexts: [voiceoverText]
+          };
         }
       }
 
-      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data');
+      console.log('🎬 [VIDEO_DOWNLOAD] Could not extract slide data - no slides found');
       return { slides: [], theme: 'dark-purple', voiceoverTexts: [] };
         
     } catch (error) {
@@ -264,10 +289,22 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
       return;
     }
 
-    try {
-      setGenerationStatus('generating');
-      setGenerationProgress(0);
-      setGenerationError(null);
+          try {
+        setGenerationStatus('generating');
+        setGenerationProgress(0);
+        setGenerationError(null);
+
+        // Debug: Log all available data at generation start
+        console.log('🎬 [VIDEO_DOWNLOAD] Generation started with data:', {
+          selectedAvatar: selectedAvatar?.name,
+          selectedVariant: selectedVariant?.name,
+          videoTitle,
+          videoLessonData: videoLessonData ? 'Available' : 'Not available',
+          componentBasedSlideDeck: componentBasedSlideDeck ? 'Available' : 'Not available',
+          currentSlideId,
+          videoLessonDataSlides: videoLessonData?.slides?.length || 0,
+          componentBasedSlides: componentBasedSlideDeck?.slides?.length || 0
+        });
 
       console.log('🎬 [VIDEO_DOWNLOAD] Starting video generation with selected avatar:', {
         avatar: selectedAvatar.name,
@@ -306,7 +343,17 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
         resolution: [1920, 1080]
       };
 
-      console.log('🎬 [VIDEO_DOWNLOAD] Request payload:', requestPayload);
+              console.log('🎬 [VIDEO_DOWNLOAD] Request payload:', requestPayload);
+
+        // Additional debugging for the request payload
+        console.log('🎬 [VIDEO_DOWNLOAD] Final request payload:', {
+          projectName: requestPayload.projectName,
+          voiceoverTextsCount: requestPayload.voiceoverTexts.length,
+          voiceoverTexts: requestPayload.voiceoverTexts,
+          slidesCount: requestPayload.slidesData.length,
+          theme: requestPayload.theme,
+          avatarCode: requestPayload.avatarCode
+        });
 
       // Create presentation
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
