@@ -15,9 +15,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
         {/* Header Card */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl mb-6 shadow-lg">
-              <BookOpen className="w-10 h-10 text-white" />
-            </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
               {lessonPlanData.lessonTitle}
             </h1>
