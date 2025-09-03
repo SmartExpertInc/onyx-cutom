@@ -124,11 +124,11 @@ export default function AuditPage() {
           </section>
 
           {/* Second Section */}
-          <section className="flex flex-col gap-[30px] bg-white py-[60px] px-[20px] xl:px-[120px]">
+          <section className="flex flex-col gap-[30px] xl:gap-[50px] bg-white py-[60px] xl:py-[100px] px-[20px] xl:px-[120px]">
             <h2 className="font-medium text-[30px] leading-[115%] tracking-[-0.03em]">
               Как с помощью AI:
             </h2>
-            <div className="flex flex-col gap-[15px]">
+            <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px]">
               {/* Card 1 */}
               <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
                 <div className="p-[15px] flex flex-col gap-[15px]">
