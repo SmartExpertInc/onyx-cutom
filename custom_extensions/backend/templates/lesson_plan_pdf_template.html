@@ -489,16 +489,14 @@
             </div>
             <div class="content-area">
                 {% if details.suggestedPrompts and details.suggestedPrompts|length > 0 %}
-                <div class="product-grid">
+                <ul class="list">
                     {% for prompt in details.suggestedPrompts %}
-                    <div class="product-card">
-                        <div class="product-header">
-                            <div class="product-bullet"></div>
-                            <p class="list-text">{{ prompt }}</p>
-                        </div>
-                    </div>
+                    <li class="list-item">
+                        <div class="list-bullet"></div>
+                        <span class="list-text">{{ prompt }}</span>
+                    </li>
                     {% endfor %}
-                </div>
+                </ul>
                 {% else %}
                 <p class="list-text">No content creation prompts provided</p>
                 {% endif %}
