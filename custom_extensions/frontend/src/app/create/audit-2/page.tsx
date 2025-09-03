@@ -1623,7 +1623,7 @@ export default function AuditPage() {
                 <button 
                   className="text-white font-semibold text-[16px] rounded-lg w-fit relative mx-auto block"
                   style={{
-                    background: '#0F58F9',
+                    background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
                     paddingInline: '48px',
                     paddingBlock: '14px',
                     borderRadius: '6px',
@@ -1631,26 +1631,15 @@ export default function AuditPage() {
                     boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
                   }}
                 >
-                  {/* Gradient borders behind the button */}
                   <div 
-                    className="absolute top-0 left-0 h-full"
+                    className="w-full h-full rounded-[4px] flex items-center justify-center"
                     style={{
-                      width: '2px',
-                      background: 'linear-gradient(180deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                      borderRadius: '6px 0 0 6px',
-                      zIndex: -1
+                      background: '#0F58F9',
+                      margin: '2px'
                     }}
-                  />
-                  <div 
-                    className="absolute top-0 left-0 w-full"
-                    style={{
-                      height: '2px',
-                      background: 'linear-gradient(90deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                      borderRadius: '6px 6px 0 0',
-                      zIndex: -1
-                    }}
-                  />
-                  <span className="relative z-10">Забронировать</span>
+                  >
+                    <span className="text-white font-semibold text-[16px]">Забронировать</span>
+                  </div>
                 </button>
               </div>
             </div>
