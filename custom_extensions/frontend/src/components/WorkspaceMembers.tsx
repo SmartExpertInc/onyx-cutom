@@ -9,7 +9,7 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 import workspaceService, { 
   WorkspaceRole, WorkspaceMember, WorkspaceMemberCreate, 
-  WorkspaceRoleCreate, WorkspaceRoleUpdate 
+  WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace
 } from '../services/workspaceService';
 
 // Predefined color options for roles (pale backgrounds with darker text)
@@ -27,19 +27,22 @@ const ROLE_COLORS = [
 ];
 
 interface WorkspaceMembersProps {
-  workspaceId: number;
+  workspaceId?: number;
 }
 
 const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const { t } = useLanguage();
 
   // State for real data
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
   const [roles, setRoles] = useState<WorkspaceRole[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // UI State
+  const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
   const [showRoleManager, setShowRoleManager] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -48,6 +51,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [newMemberRole, setNewMemberRole] = useState<number | ''>('');
   const [newMemberStatus, setNewMemberStatus] = useState<'pending' | 'active' | 'suspended'>('pending');
 
+  // Workspace creation state
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [newWorkspaceDescription, setNewWorkspaceDescription] = useState('');
+
   // Role management state
   const [newRoleName, setNewRoleName] = useState('');
   const [newRoleColor, setNewRoleColor] = useState(ROLE_COLORS[0].bg);
@@ -55,19 +62,50 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
   const [showColorPalette, setShowColorPalette] = useState(false);
 
-  // Load workspace data
+  // Load user's workspaces
   useEffect(() => {
-    loadWorkspaceData();
-  }, [workspaceId]);
+    loadUserWorkspaces();
+  }, []);
 
-  const loadWorkspaceData = async () => {
+  // Load workspace data when workspaceId changes or workspace is selected
+  useEffect(() => {
+    if (workspaceId || selectedWorkspace) {
+      const targetWorkspaceId = workspaceId || selectedWorkspace?.id;
+      if (targetWorkspaceId) {
+        loadWorkspaceData(targetWorkspaceId);
+      }
+    }
+  }, [workspaceId, selectedWorkspace]);
+
+  const loadUserWorkspaces = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const workspacesData = await workspaceService.getWorkspaces();
+      setWorkspaces(workspacesData);
+      
+      // If no workspaceId is provided, select the first workspace or show creation
+      if (!workspaceId && workspacesData.length > 0) {
+        setSelectedWorkspace(workspacesData[0]);
+      }
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load workspaces');
+      console.error('Error loading workspaces:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadWorkspaceData = async (targetWorkspaceId: number) => {
     try {
       setLoading(true);
       setError(null);
       
       const [rolesData, membersData] = await Promise.all([
-        workspaceService.getWorkspaceRoles(workspaceId),
-        workspaceService.getWorkspaceMembers(workspaceId)
+        workspaceService.getWorkspaceRoles(targetWorkspaceId),
+        workspaceService.getWorkspaceMembers(targetWorkspaceId)
       ]);
       
       setRoles(rolesData);
@@ -79,6 +117,156 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       setLoading(false);
     }
   };
+
+  const handleCreateWorkspace = async () => {
+    if (newWorkspaceName.trim()) {
+      try {
+        const workspace = await workspaceService.createWorkspace({
+          name: newWorkspaceName.trim(),
+          description: newWorkspaceDescription.trim() || undefined
+        });
+        
+        setWorkspaces(prev => [...prev, workspace]);
+        setSelectedWorkspace(workspace);
+        setShowCreateWorkspace(false);
+        setNewWorkspaceName('');
+        setNewWorkspaceDescription('');
+        
+        // Load the new workspace data
+        await loadWorkspaceData(workspace.id);
+      } catch (err) {
+        console.error('Failed to create workspace:', err);
+        // You might want to show a toast notification here
+      }
+    }
+  };
+
+  // If no workspace is selected and no workspaceId is provided, show workspace selection
+  if (!workspaceId && !selectedWorkspace) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="text-center">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {t('interface.workspace.welcome', 'Welcome to Workspaces')}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {t('interface.workspace.description', 'Create a workspace to start collaborating with your team.')}
+            </p>
+            
+            {workspaces.length > 0 ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500">
+                  {t('interface.workspace.selectExisting', 'Select an existing workspace:')}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {workspaces.map((workspace) => (
+                    <button
+                      key={workspace.id}
+                      onClick={() => setSelectedWorkspace(workspace)}
+                      className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left"
+                    >
+                      <h4 className="font-medium text-gray-900">{workspace.name}</h4>
+                      {workspace.description && (
+                        <p className="text-sm text-gray-600 mt-1">{workspace.description}</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        {workspace.member_count || 0} members
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowCreateWorkspace(true)}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                <Plus size={16} className="mr-2" />
+                {t('interface.workspace.createFirst', 'Create Your First Workspace')}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Create Workspace Modal */}
+        {showCreateWorkspace && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4">
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                onClick={() => setShowCreateWorkspace(false)}
+              >
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {t('interface.workspace.createModal.title', 'Create New Workspace')}
+                </h3>
+                <p className="text-gray-600">
+                  {t('interface.workspace.createModal.description', 'Set up a new collaborative workspace for your team')}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('interface.workspace.createModal.nameLabel', 'Workspace Name')}
+                  </label>
+                  <input
+                    type="text"
+                    value={newWorkspaceName}
+                    onChange={(e) => setNewWorkspaceName(e.target.value)}
+                    placeholder={t('interface.workspace.createModal.namePlaceholder', 'Enter workspace name')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t('interface.workspace.createModal.descriptionLabel', 'Description (Optional)')}
+                  </label>
+                  <textarea
+                    value={newWorkspaceDescription}
+                    onChange={(e) => setNewWorkspaceDescription(e.target.value)}
+                    placeholder={t('interface.workspace.createModal.descriptionPlaceholder', 'Describe your workspace')}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowCreateWorkspace(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  {t('interface.workspace.createModal.cancel', 'Cancel')}
+                </button>
+                <button
+                  onClick={handleCreateWorkspace}
+                  disabled={!newWorkspaceName.trim()}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {t('interface.workspace.createModal.create', 'Create Workspace')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Get the target workspace ID
+  const targetWorkspaceId = workspaceId || selectedWorkspace?.id;
+  if (!targetWorkspaceId) {
+    return null;
+  }
 
   const formatDate = (dateInput: string): string => {
     const date = new Date(dateInput);
@@ -126,18 +314,18 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   // Handle member actions
   const handleDeleteMember = useCallback(async (memberId: number) => {
     try {
-      await workspaceService.removeMember(workspaceId, memberId.toString());
+      await workspaceService.removeMember(targetWorkspaceId, memberId.toString());
       setMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (err) {
       console.error('Failed to delete member:', err);
       // You might want to show a toast notification here
     }
-  }, [workspaceId]);
+  }, [targetWorkspaceId]);
 
   const handleSuspendMember = useCallback(async (memberId: number) => {
     try {
       const updatedMember = await workspaceService.updateMember(
-        workspaceId, 
+        targetWorkspaceId, 
         memberId.toString(), 
         { status: 'suspended' }
       );
@@ -147,12 +335,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to suspend member:', err);
     }
-  }, [workspaceId]);
+  }, [targetWorkspaceId]);
 
   const handleActivateMember = useCallback(async (memberId: number) => {
     try {
       const updatedMember = await workspaceService.updateMember(
-        workspaceId, 
+        targetWorkspaceId, 
         memberId.toString(), 
         { status: 'active' }
       );
@@ -162,7 +350,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     } catch (err) {
       console.error('Failed to activate member:', err);
     }
-  }, [workspaceId]);
+  }, [targetWorkspaceId]);
 
   // Handle add member
   const handleAddMember = useCallback(async () => {
@@ -174,7 +362,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           status: newMemberStatus
         };
         
-        const addedMember = await workspaceService.addMember(workspaceId, newMember);
+        const addedMember = await workspaceService.addMember(targetWorkspaceId, newMember);
         setMembers(prev => [...prev, addedMember]);
         
         // Reset form
@@ -187,7 +375,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         // You might want to show a toast notification here
       }
     }
-  }, [newMemberEmail, newMemberRole, newMemberStatus, workspaceId]);
+  }, [newMemberEmail, newMemberRole, newMemberStatus, targetWorkspaceId]);
 
   // Role management functions
   const handleAddRole = useCallback(async () => {
@@ -200,7 +388,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           permissions: newRolePermissions
         };
         
-        const addedRole = await workspaceService.createRole(workspaceId, newRole);
+        const addedRole = await workspaceService.createRole(targetWorkspaceId, newRole);
         setRoles(prev => [...prev, addedRole]);
         
         // Reset form
@@ -212,16 +400,16 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         console.error('Failed to add role:', err);
       }
     }
-  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, workspaceId]);
+  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId]);
 
   const handleDeleteRole = useCallback(async (roleId: number) => {
     try {
-      await workspaceService.deleteRole(workspaceId, roleId);
+      await workspaceService.deleteRole(targetWorkspaceId, roleId);
       setRoles(prev => prev.filter(role => role.id !== roleId));
     } catch (err) {
       console.error('Failed to delete role:', err);
     }
-  }, [workspaceId]);
+  }, [targetWorkspaceId]);
 
   const handleTogglePermission = useCallback((permission: string) => {
     setNewRolePermissions(prev =>
@@ -234,7 +422,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const handleRoleChange = async (memberId: number, newRoleId: number) => {
     try {
       const updatedMember = await workspaceService.updateMember(
-        workspaceId, 
+        targetWorkspaceId, 
         memberId.toString(), 
         { role_id: newRoleId }
       );
@@ -272,6 +460,45 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   return (
     <div className="space-y-6">
+      {/* Workspace Header and Selector */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
+            </h2>
+            {selectedWorkspace?.description && (
+              <p className="text-gray-600">{selectedWorkspace.description}</p>
+            )}
+          </div>
+          
+          {/* Workspace Selector (only show if no specific workspaceId provided) */}
+          {!workspaceId && workspaces.length > 1 && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                {t('interface.workspace.switch', 'Switch Workspace:')}
+              </label>
+              <select
+                value={targetWorkspaceId}
+                onChange={(e) => {
+                  const workspace = workspaces.find(w => w.id === parseInt(e.target.value));
+                  if (workspace) {
+                    setSelectedWorkspace(workspace);
+                  }
+                }}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              >
+                {workspaces.map((workspace) => (
+                  <option key={workspace.id} value={workspace.id}>
+                    {workspace.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Header with Search, Filter, and Create Button */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
