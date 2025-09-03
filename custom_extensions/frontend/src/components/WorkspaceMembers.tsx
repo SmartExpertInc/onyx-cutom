@@ -36,6 +36,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   // State for real data
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
+  const [targetWorkspaceId, setTargetWorkspaceId] = useState<number | null>(null);
   const [roles, setRoles] = useState<WorkspaceRole[]>([]);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,13 +68,13 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     loadUserWorkspaces();
   }, []);
 
-  // Load workspace data when workspaceId changes or workspace is selected
+  // Set target workspace ID and load data when workspaceId changes or workspace is selected
   useEffect(() => {
-    if (workspaceId || selectedWorkspace) {
-      const targetWorkspaceId = workspaceId || selectedWorkspace?.id;
-      if (targetWorkspaceId) {
-        loadWorkspaceData(targetWorkspaceId);
-      }
+    const newTargetWorkspaceId = workspaceId || selectedWorkspace?.id || null;
+    setTargetWorkspaceId(newTargetWorkspaceId);
+    
+    if (newTargetWorkspaceId) {
+      loadWorkspaceData(newTargetWorkspaceId);
     }
   }, [workspaceId, selectedWorkspace]);
 
@@ -262,8 +263,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     );
   }
 
-  // Get the target workspace ID
-  const targetWorkspaceId = workspaceId || selectedWorkspace?.id;
+  // Check if we have a target workspace ID
   if (!targetWorkspaceId) {
     return null;
   }
@@ -313,6 +313,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   // Handle member actions
   const handleDeleteMember = useCallback(async (memberId: number) => {
+    if (!targetWorkspaceId) return;
+    
     try {
       await workspaceService.removeMember(targetWorkspaceId, memberId.toString());
       setMembers(prev => prev.filter(member => member.id !== memberId));
@@ -323,6 +325,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }, [targetWorkspaceId]);
 
   const handleSuspendMember = useCallback(async (memberId: number) => {
+    if (!targetWorkspaceId) return;
+    
     try {
       const updatedMember = await workspaceService.updateMember(
         targetWorkspaceId, 
@@ -338,6 +342,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }, [targetWorkspaceId]);
 
   const handleActivateMember = useCallback(async (memberId: number) => {
+    if (!targetWorkspaceId) return;
+    
     try {
       const updatedMember = await workspaceService.updateMember(
         targetWorkspaceId, 
@@ -354,55 +360,57 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   // Handle add member
   const handleAddMember = useCallback(async () => {
-    if (newMemberEmail.trim() && newMemberRole) {
-      try {
-        const newMember: Omit<WorkspaceMemberCreate, 'workspace_id'> = {
-          user_id: newMemberEmail.trim(),
-          role_id: newMemberRole as number,
-          status: newMemberStatus
-        };
-        
-        const addedMember = await workspaceService.addMember(targetWorkspaceId, newMember);
-        setMembers(prev => [...prev, addedMember]);
-        
-        // Reset form
-        setNewMemberEmail('');
-        setNewMemberRole('');
-        setNewMemberStatus('pending');
-        setShowAddMember(false);
-      } catch (err) {
-        console.error('Failed to add member:', err);
-        // You might want to show a toast notification here
-      }
+    if (!targetWorkspaceId || !newMemberEmail.trim() || !newMemberRole) return;
+    
+    try {
+      const newMember: Omit<WorkspaceMemberCreate, 'workspace_id'> = {
+        user_id: newMemberEmail.trim(),
+        role_id: newMemberRole as number,
+        status: newMemberStatus
+      };
+      
+      const addedMember = await workspaceService.addMember(targetWorkspaceId, newMember);
+      setMembers(prev => [...prev, addedMember]);
+      
+      // Reset form
+      setNewMemberEmail('');
+      setNewMemberRole('');
+      setNewMemberStatus('pending');
+      setShowAddMember(false);
+    } catch (err) {
+      console.error('Failed to add member:', err);
+      // You might want to show a toast notification here
     }
   }, [newMemberEmail, newMemberRole, newMemberStatus, targetWorkspaceId]);
 
   // Role management functions
   const handleAddRole = useCallback(async () => {
-    if (newRoleName.trim()) {
-      try {
-        const newRole: Omit<WorkspaceRoleCreate, 'workspace_id'> = {
-          name: newRoleName.trim(),
-          color: newRoleColor,
-          text_color: newRoleTextColor,
-          permissions: newRolePermissions
-        };
-        
-        const addedRole = await workspaceService.createRole(targetWorkspaceId, newRole);
-        setRoles(prev => [...prev, addedRole]);
-        
-        // Reset form
-        setNewRoleName('');
-        setNewRoleColor(ROLE_COLORS[0].bg);
-        setNewRoleTextColor(ROLE_COLORS[0].text);
-        setNewRolePermissions([]);
-      } catch (err) {
-        console.error('Failed to add role:', err);
-      }
+    if (!targetWorkspaceId || !newRoleName.trim()) return;
+    
+    try {
+      const newRole: Omit<WorkspaceRoleCreate, 'workspace_id'> = {
+        name: newRoleName.trim(),
+        color: newRoleColor,
+        text_color: newRoleTextColor,
+        permissions: newRolePermissions
+      };
+      
+      const addedRole = await workspaceService.createRole(targetWorkspaceId, newRole);
+      setRoles(prev => [...prev, addedRole]);
+      
+      // Reset form
+      setNewRoleName('');
+      setNewRoleColor(ROLE_COLORS[0].bg);
+      setNewRoleTextColor(ROLE_COLORS[0].text);
+      setNewRolePermissions([]);
+    } catch (err) {
+      console.error('Failed to add role:', err);
     }
   }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId]);
 
   const handleDeleteRole = useCallback(async (roleId: number) => {
+    if (!targetWorkspaceId) return;
+    
     try {
       await workspaceService.deleteRole(targetWorkspaceId, roleId);
       setRoles(prev => prev.filter(role => role.id !== roleId));
