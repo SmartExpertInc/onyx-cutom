@@ -157,8 +157,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#ffff',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -231,7 +231,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         {/* Title */}
         <div style={{
           fontSize: '61px',
-          color: themeTitle,
+          color: '#3D3D3D',
           lineHeight: '1.2',
           maxWidth: '76%'
         }}>
@@ -244,8 +244,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               className="soft-skills-title-editor"
               style={{
                 fontSize: '61px',
-                fontWeight: 'bold',
-                color: themeTitle,
+                color: '#3D3D3D',
                 lineHeight: '1.2'
               }}
             />
@@ -305,7 +304,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             {/* Main tip block */}
             <div style={{
               padding: '30px',
-              backgroundColor: tip.isHighlighted ? themeAccent : themeTitle,
+              backgroundColor: index === 0 ? '#916AF6' : index === 1 ? '#212121' : 'transparent',
               minHeight: '310px',
               display: 'flex',
               paddingLeft: '32px',
@@ -315,7 +314,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               <div style={{
                 fontSize: '32px',
                 fontWeight: '500',
-                color: themeBg,
+                color: '#EBDEF8',
                 lineHeight: '1.4',
               }}>
                 {isEditable && editingTips === index ? (
@@ -329,7 +328,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                       fontSize: '32px',
                       maxWidth: '386px',
                       fontWeight: '500',
-                      color: themeBg,
+                      color: '#EBDEF8',
                       lineHeight: '1.4',
                       background: 'transparent',
                       border: 'none',
@@ -353,7 +352,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             {/* Additional block that extends out */}
             <div style={{
               padding: '20px',
-              backgroundColor: themeAccent,
+              backgroundColor: index === 0 ? '#212121' : index === 1 ? '#916AF6' : 'transparent',
               minHeight: '80px',
               height: '304px',
               display: 'flex',

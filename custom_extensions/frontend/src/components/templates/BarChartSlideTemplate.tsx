@@ -160,8 +160,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#15232E',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -293,7 +293,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
         justifyContent: 'center',
         alignItems: 'flex-end',
         gap: '60px',
-        height: '400px',
+        height: '79.8%',
         marginTop: '80px',
         position: 'relative'
       }}>
@@ -303,8 +303,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
           bottom: '0',
           left: '0',
           right: '0',
-          height: '1px',
-          backgroundColor: themeContent,
+          height: '2px',
+          backgroundColor: '#C6D3DC',
           opacity: 0.3
         }} />
 
@@ -353,8 +353,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
           >
                          {/* Percentage */}
              <div style={{
-               fontSize: '32px',
-               color: themeTitle,
+               fontSize: '40px',
+               color: '#EEF0F1',
                fontWeight: 'bold',
                textAlign: 'center',
                minHeight: '40px',
@@ -371,14 +371,17 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    onCancel={handleBarCancel}
                    className="bar-percentage-editor"
                    style={{
-                     fontSize: '32px',
-                     color: themeTitle,
-                     fontWeight: 'bold',
-                     textAlign: 'center',
-                     width: '100%',
-                     height: '100%',
-                     minHeight: '40px',
-                     maxHeight: '40px'
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '40px',
+                    color: '#EEF0F1',
+                    fontWeight: 'bold',
+                    minHeight: '40px',
+                    maxHeight: '40px',
+                    overflow: 'hidden'
                    }}
                  />
                ) : (
@@ -392,8 +395,8 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      display: 'flex',
                      alignItems: 'center',
                      justifyContent: 'center',
-                     fontSize: '32px',
-                     color: themeTitle,
+                     fontSize: '40px',
+                     color: '#EEF0F1',
                      fontWeight: 'bold',
                      minHeight: '40px',
                      maxHeight: '40px',
@@ -408,13 +411,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              {/* Description - moved above the bar */}
              <div style={{
                fontSize: '14px',
-               color: themeContent,
+               color: '#9EA8AF',
                maxWidth: '120px',
                lineHeight: '1.3',
                minHeight: '40px',
                maxHeight: '60px',
                display: 'flex',
-               alignItems: 'center',
                justifyContent: 'center',
                overflow: 'hidden'
              }}>
@@ -427,8 +429,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    className="bar-description-editor"
                    style={{
                      fontSize: '14px',
-                     color: themeContent,
-                     textAlign: 'center',
+                     color: '#9EA8AF',
                      maxWidth: '120px',
                      lineHeight: '1.3',
                      width: '100%',
@@ -449,8 +450,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      alignItems: 'center',
                      justifyContent: 'center',
                      fontSize: '14px',
-                     color: themeContent,
-                     textAlign: 'center',
+                     color: '#9EA8AF',
                      maxWidth: '120px',
                      lineHeight: '1.3',
                      minHeight: '40px',
@@ -467,7 +467,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              <div style={{
                width: '155px',
                height: `${bar.height}px`,
-               backgroundColor: themeAccent,
+               backgroundColor: '#FAF36F',
                position: 'relative'
              }}>
                               {/* Height adjustment controls */}

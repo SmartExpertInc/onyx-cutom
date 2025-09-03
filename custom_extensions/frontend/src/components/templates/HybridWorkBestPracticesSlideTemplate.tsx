@@ -61,8 +61,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '715px',
-    backgroundColor: themeBg,
+    aspectRatio: '16/9',
+    backgroundColor: '#F9F8F4',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -132,7 +132,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       <div style={{
         width: '100%',
         height: '100%',
-        backgroundColor: themeBg,
+        backgroundColor: '#F9F8F4',
         display: 'flex',
         padding: '40px 60px',
         paddingRight: '0px',
@@ -151,7 +151,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             {/* Header */}
             <div style={{
               fontSize: '14px',
-              color: themeContent,
+              color: '#A2A19D',
               marginBottom: '20px',
               fontWeight: '300'
             }}>
@@ -186,7 +186,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             <div style={{
               fontSize: '24px',
               maxWidth: '335px',
-              color: themeTitle,
+              color: '#5B5A57',
               lineHeight: '1.3',
               marginBottom: '40px'
             }}>
@@ -276,8 +276,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 <div style={{
                   width: '20px',
                   height: '20px',
-                  backgroundColor: themeTitle,
-                  color: themeBg,
+                  backgroundColor: '#2A2828',
+                  color: index % 2 === 0 ? '#fff' : '#B7B7B7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -295,7 +295,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   {/* Title */}
                   <div style={{
                     fontSize: '13px',
-                    color: themeTitle,
+                    color: '#6F6E6A',
                     marginBottom: '8px',
                     lineHeight: '1.2'
                   }}>
@@ -307,7 +307,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         className="practice-title-editor"
                         style={{
                           fontSize: '13px',
-                          color: themeTitle,
+                          color: '#6F6E6A',
                           lineHeight: '1.2',
                           width: '100%',
                           height: 'auto'
@@ -329,7 +329,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   {/* Description */}
                   <div style={{
                     fontSize: '11px',
-                    color: themeContent,
+                    color: '#AEADA9',
                     maxWidth: '230px',
                     lineHeight: '1.4'
                   }}>
@@ -342,7 +342,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         className="practice-description-editor"
                         style={{
                           fontSize: '11px',
-                          color: themeContent,
+                          color: '#AEADA9',
                           lineHeight: '1.4',
                           width: '100%',
                           height: 'auto',
@@ -370,7 +370,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           <div style={{
             width: '100%',
             height: '90%',
-            borderRadius: '3px',
           }}>
             <ClickableImagePlaceholder
               imagePath={teamImagePath}
@@ -382,7 +381,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               style={{
                 width: '100%',
                 height: '100%',
-                borderRadius: '10px',
+                borderRadius: '0px',
               }}
             />
           </div>

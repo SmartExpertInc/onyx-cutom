@@ -156,7 +156,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '600px',
+    aspectRatio: '16/9',
     backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
@@ -210,7 +210,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: themeBg,
+        backgroundColor: '#ffffff',
         padding: '60px',
         paddingTop: '40px',
         display: 'flex',
@@ -219,8 +219,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '58px',
-          color: themeTitle,
+          fontSize: '56px',
+          color: '#212222',
           marginBottom: '15px',
           lineHeight: '1.2'
         }}>
@@ -232,8 +232,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               multiline={true}
               className="phishing-title-editor"
               style={{
-                fontSize: '58px',
-                color: themeTitle,
+                fontSize: '56px',
+                color: '#212222',
                 lineHeight: '1.2'
               }}
             />
@@ -262,8 +262,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             <div
               key={index}
               style={{
-                fontSize: '10px',
-                color: themeContent,
+                fontSize: '11px',
+                color: '#545555',
                 lineHeight: '1.5'
               }}
             >
@@ -275,8 +275,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
                   multiline={true}
                   className="definition-editor"
                   style={{
-                    fontSize: '10px',
-                    color: themeContent,
+                    fontSize: '11px',
+                    color: '#545555',
                     lineHeight: '1.5'
                   }}
                 />
@@ -300,8 +300,8 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           position: 'absolute',
           bottom: '40px',
           left: '60px',
-          width: '120px',
-          height: '120px',
+          width: '130px',
+          height: '130px',
           borderRadius: '50%',
           overflow: 'hidden'
         }}>
@@ -338,6 +338,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           style={{
             width: '100%',
             height: '100%',
+            borderRadius: '0px',
             objectFit: 'cover'
           }}
         />

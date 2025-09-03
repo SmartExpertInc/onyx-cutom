@@ -48,7 +48,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '685px',
+    aspectRatio: '16/9',
     backgroundColor: themeBg,
     display: 'flex',
     position: 'relative',
@@ -134,7 +134,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: themeBg,
+        backgroundColor: '#FFFFFF',
         padding: '40px 60px',
         paddingTop: '56px',
         display: 'flex',
@@ -146,7 +146,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           {/* Subtitle */}
           <div style={{
             fontSize: '14px',
-            color: themeContent,
+            color: '#818181',
             marginBottom: '20px',
             fontWeight: '300'
           }}>
@@ -158,7 +158,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 className="learning-subtitle-editor"
                 style={{
                   fontSize: '14px',
-                  color: themeContent,
+                  color: '#818181',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
@@ -179,9 +179,9 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
 
           {/* Main title */}
           <div style={{
-            maxWidth: '321px',
+            maxWidth: '350px',
             fontSize: '58px',
-            color: themeTitle,
+            color: '#414141',
             lineHeight: '1.1',
             marginBottom: '60px'
           }}>
@@ -193,9 +193,9 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 multiline={true}
                 className="learning-title-editor"
                 style={{
-                  maxWidth: '321px',
+                  maxWidth: '350px',
                   fontSize: '58px',
-                  color: themeTitle,
+                  color: '#414141',
                   lineHeight: '1.1',
                   width: '100%',
                   height: 'auto',
@@ -238,7 +238,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 }} />
                 <div style={{
                   fontSize: '30px',
-                  color: themeTitle,
+                  color: '#515151',
                   minWidth: '120px'
                 }}>
                   {isEditable && editingTopics === index ? (
@@ -249,7 +249,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                       className="topic-editor"
                       style={{
                         fontSize: '30px',
-                        color: themeTitle,
+                        color: '#515151',
                         width: '100%',
                         height: 'auto',
                         minWidth: '120px'
@@ -304,7 +304,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
               }}
             >
               <img
-                src="/custom-projects-ui/logoNew.png"
+                src="/custom-projects-ui/benefitsListIcon.png"
                 alt="Company Logo"
                 style={{
                   width: '24px',
@@ -316,7 +316,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           )}
           <div style={{
             fontSize: '14px',
-            color: themeContent,
+            color: '#858585',
             fontWeight: '300'
           }}>
             {isEditable && editingCompanyName ? (
@@ -327,7 +327,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 className="company-name-editor"
                 style={{
                   fontSize: '14px',
-                  color: themeContent,
+                  color: '#858585',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
@@ -352,15 +352,15 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: themeAccent,
+        backgroundColor: '#B593EA',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative'
       }}>
         <div style={{
-          width: '382px',
-          height: '543px',
+          width: '550px',
+          height: '570px',
           position: 'absolute',
           bottom: '-3px',
         }}>
