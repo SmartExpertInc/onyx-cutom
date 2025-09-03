@@ -322,7 +322,6 @@ export default function Projects2ViewPage() {
         aspectRatio={aspectRatio}
         onAspectRatioChange={setAspectRatio}
         videoLessonData={videoLessonData}
-        componentBasedSlideDeck={componentBasedSlideDeck}
         currentSlideId={currentSlideId}
       />
 
