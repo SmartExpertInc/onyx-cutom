@@ -7,6 +7,40 @@ export default function AvatarSettings() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   const [showViewDropdown, setShowViewDropdown] = useState(false);
+  
+  // Mock avatar data for the popup to function
+  const mockAvatarData = [
+    {
+      id: '1',
+      code: 'gia',
+      name: 'Gia',
+      gender: 'female' as const,
+      age: 25,
+      ethnicity: 'Asian',
+      thumbnail: '',
+      canvas: '',
+      variants: [
+        {
+          code: 'casual',
+          name: 'Casual',
+          thumbnail: '',
+          canvas: ''
+        },
+        {
+          code: 'business',
+          name: 'Business',
+          thumbnail: '',
+          canvas: ''
+        }
+      ]
+    }
+  ];
+
+  const handleAvatarSelect = (avatar: any, variant?: any) => {
+    console.log('Avatar selected:', avatar, variant);
+    // Here you would typically update the current avatar in the video editor
+    setIsAvatarPopupOpen(false);
+  };
 
   const contentRef = useRef<HTMLDivElement>(null);
   const viewDropdownRef = useRef<HTMLDivElement>(null);
@@ -249,6 +283,8 @@ export default function AvatarSettings() {
       <AvatarPopup
         isOpen={isAvatarPopupOpen}
         onClose={() => setIsAvatarPopupOpen(false)}
+        onAvatarSelect={handleAvatarSelect}
+        avatarData={mockAvatarData}
         displayMode="modal"
         title="Choose Avatar"
       />

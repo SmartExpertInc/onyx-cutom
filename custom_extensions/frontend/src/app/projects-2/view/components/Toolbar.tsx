@@ -43,6 +43,40 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   const avatarButtonRef = useRef<HTMLDivElement>(null);
   const defaultButtonRef = useRef<HTMLDivElement>(null);
 
+  // Mock avatar data for the popup to function
+  const mockAvatarData = [
+    {
+      id: '1',
+      code: 'gia',
+      name: 'Gia',
+      gender: 'female' as const,
+      age: 25,
+      ethnicity: 'Asian',
+      thumbnail: '',
+      canvas: '',
+      variants: [
+        {
+          code: 'casual',
+          name: 'Casual',
+          thumbnail: '',
+          canvas: ''
+        },
+        {
+          code: 'business',
+          name: 'Business',
+          thumbnail: '',
+          canvas: ''
+        }
+      ]
+    }
+  ];
+
+  const handleAvatarSelect = (avatar: any, variant?: any) => {
+    console.log('Avatar selected from toolbar:', avatar, variant);
+    // Here you would typically add the selected avatar to the video editor
+    setIsAvatarPopupOpen(false);
+  };
+
   // Custom flag icon with EN text
   const renderCustomFlag = () => (
     <div className="relative inline-block">
@@ -443,6 +477,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
         <AvatarPopup 
           isOpen={isAvatarPopupOpen}
           onClose={() => setIsAvatarPopupOpen(false)}
+          onAvatarSelect={handleAvatarSelect}
+          avatarData={mockAvatarData}
           displayMode="popup"
           position={{
             x: avatarButtonRef.current ? (() => {
