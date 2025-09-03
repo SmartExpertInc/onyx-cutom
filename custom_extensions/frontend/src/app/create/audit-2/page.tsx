@@ -1242,13 +1242,13 @@ export default function AuditPage() {
                   </div>
                 </div>
 
-                <div 
-                  className="h-[234px] border border-[#E0E0E0] rounded-[6px]"
-                  style={{ 
-                    backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png)',
-                    boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                  }}
-                ></div>
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
+                  alt="Card 1"
+                  width={300}
+                  height={234}
+                  className="w-full"
+                />
               </div>
 
               <div className="flex flex-col gap-[15px]">
