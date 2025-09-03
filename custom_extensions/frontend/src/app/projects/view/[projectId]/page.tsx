@@ -191,20 +191,25 @@ export default function ProjectInstanceViewPage() {
   const [customEmails, setCustomEmails] = useState<string[]>([]);
   const [newEmail, setNewEmail] = useState('');
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    if (!showColumnDropdown) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node)) {
+      // Close column dropdown
+      if (showColumnDropdown && columnDropdownRef.current && !columnDropdownRef.current.contains(e.target as Node)) {
         setShowColumnDropdown(false);
+      }
+      // Close role dropdown
+      if (showRoleDropdown) {
+        setShowRoleDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown]);
+  }, [showColumnDropdown, showRoleDropdown]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -1460,103 +1465,156 @@ export default function ProjectInstanceViewPage() {
                       onClick={(e) => e.stopPropagation()}
                     >
                       {/* Header */}
-                      <div className="flex items-center justify-between p-4">
-                        <h2 className="text-xl font-semibold text-gray-900">{t('interface.projectView.addMember', 'Add Member')}</h2>
+                      <div className="flex items-center justify-between p-6 pb-4">
+                        <h2 className="text-2xl font-regular text-gray-900">{t('interface.projectView.addMember', 'Add member to product')}</h2>
                         <button
                           onClick={() => setRoleAccess(false)}
                           className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
                       </div>
 
                       {/* Content */}
-                      <div className="p-4 pt-0">
-                        <p className="text-sm text-gray-600 mb-3 border-b pb-2 border-gray-200">{t('interface.projectView.manageAccessToWorkspace', 'Manage access to product')}</p>
-
-                        {/* Roles that have access */}
+                      <div className="px-6 pb-6">
+                        {/* Add Member Input */}
                         <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-900 mb-4">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
-                          <div className="grid grid-cols-2 gap-x-8 gap-y-2 border-b pb-2 border-gray-200">
-                            {predefinedRoles.map((role) => (
-                              <label key={role.id} className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedRoles.includes(role.id)}
-                                  onChange={() => handleRoleToggle(role.id)}
-                                  className="h-4 w-4 text-blue-700 focus:ring-blue-600 border-gray-200 rounded"
-                                />
-                                <span className="ml-3 text-sm font-medium text-gray-900">{role.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* People with access */}
-                        <div className="mb-6">
-                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.peopleWithAccess', 'People with access')}</h3>
-                          <div className="space-y-2 max-h-32 overflow-y-auto">
-                            {customEmails.map((email) => (
-                              <div key={email} className="flex items-center justify-between rounded">
-                                <div className="flex items-center">
-                                  <div className="w-8 h-8 bg-[#D9D9D9] rounded-full flex items-center justify-center text-gray-900 text-sm font-medium mr-3">
-                                    {email.charAt(0).toUpperCase()}
-                                  </div>
-                                  <span className="text-sm text-gray-900">{email}</span>
-                                </div>
-                                <button
-                                  onClick={() => handleRemoveEmail(email)}
-                                  className="text-gray-400 hover:text-gray-600 text-sm p-1 hover:bg-gray-100 rounded transition-colors"
-                                  title={t('interface.projectView.removeEmail', 'Remove email')}
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Invite members */}
-                        <div className="mb-3">
-                          <h3 className="text-sm font-medium text-gray-900 mb-2">{t('interface.projectView.inviteMembers', 'Invite members')}</h3>
-                          <div className="relative">
-                            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5"
-                              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                fill="gray"
-                                stroke="white"
-                                stroke-width="1"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
+                          <div className="flex gap-3">
                             <input
                               type="email"
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
-                              placeholder={t('interface.projectView.addWorkspaceMember', 'Add product member')}
-                              className="w-full pl-10 pr-3 py-2.5 text-sm border text-gray-600 placeholder-gray-400 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder={t('interface.projectView.addMembersToProduct', 'Add members to product')}
+                              className="flex-1 px-4 py-3 text-sm border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
+                            <button
+                              onClick={handleAddEmail}
+                              disabled={!newEmail.trim()}
+                              className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {t('interface.projectView.add', 'Add')}
+                            </button>
                           </div>
                         </div>
 
-                        {/* Action Button */}
-                        <div className="flex justify-center">
-                          <button
-                            onClick={handleAddEmail}
-                            disabled={!newEmail.trim()}
-                            className="w-full px-4 py-2.5 text-m font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                          >
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        {/* Members with access */}
+                        <div className="mb-6">
+                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.membersWithAccess', 'Members with access')}</h3>
+                          <div className="space-y-3 max-h-42 overflow-y-auto pr-2">
+                            {customEmails.map((email) => (
+                              <div key={email} className="flex items-center justify-between p-2 bg-white rounded-lg min-h-[52px]">
+                                <div className="flex items-center">
+                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium mr-3">
+                                    {email.charAt(0).toUpperCase()}
+                                  </div>
+                                  <span className="text-sm text-gray-900">{email}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-gray-900">{t('interface.projectView.editor', 'Editor')}</span>
+                                  <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </div>
+                            ))}
+                            {customEmails.length === 0 && (
+                              <div className="text-center py-4 text-gray-500 text-sm">
+                                {t('interface.projectView.noMembersYet', 'No members added yet')}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* General access */}
+                        <div className="mb-6">
+                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.generalAccess', 'General access')}</h3>
+                          <div className="p-2 bg-white rounded-lg">
+                            <div className="flex items-center gap-1 mb-1">
+                              <div className="w-8 h-8 bg-[#D9D9D9] rounded-full flex items-center justify-center mr-1">
+                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                              </div>
+                              <span className="text-sm -mt-3 font-medium text-gray-900">{t('interface.projectView.restricted', 'Restricted')}</span>
+                              <svg className="w-4 h-4 -mt-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                            <p className="text-xs -mt-2 text-gray-600 ml-10">{t('interface.projectView.onlyMembersWithAccess', 'Only members with access can open with the link.')}</p>
+                          </div>
+                        </div>
+
+                        {/* Roles that have access */}
+                        <div className="mb-6">
+                          <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
+                          <div className="relative">
+                            <div
+                              className="flex flex-wrap gap-2 p-3 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors"
+                              onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                            >
+                              {selectedRoles.map((roleId) => {
+                                const role = predefinedRoles.find(r => r.id === roleId);
+                                return role ? (
+                                  <div key={roleId} className="flex items-center gap-2 px-3 py-1 bg-gray-200 rounded-full">
+                                    <span className="text-xs text-gray-700">{role.label}</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRoleToggle(roleId);
+                                      }}
+                                      className="text-gray-500 hover:text-gray-700"
+                                    >
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                ) : null;
+                              })}
+                              {selectedRoles.length === 0 && (
+                                <span className="text-gray-500 text-sm">{t('interface.projectView.noRolesSelected', 'No roles selected')}</span>
+                              )}
+                              <div className="ml-auto">
+                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
+                            </div>
+
+                            {/* Role Dropdown */}
+                            {showRoleDropdown && (
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
+                                <div className="space-y-2">
+                                  {predefinedRoles.map((role) => (
+                                    <label key={role.id} className="flex items-center cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedRoles.includes(role.id)}
+                                        onChange={() => handleRoleToggle(role.id)}
+                                        className="mr-3 text-blue-600 focus:ring-blue-500"
+                                      />
+                                      <div>
+                                        <span className="text-sm font-medium text-gray-900">{role.label}</span>
+                                        <p className="text-xs text-gray-500">{role.description}</p>
+                                      </div>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Copy link button */}
+                        <div className="flex justify-start">
+                          <button className="px-6 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-3xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                             </svg>
-                            {t('interface.projectView.addMember', 'Add Member')}
+                            {t('interface.projectView.copyLink', 'Copy link')}
                           </button>
                         </div>
                       </div>
