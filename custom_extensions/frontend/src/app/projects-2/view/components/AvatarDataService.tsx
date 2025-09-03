@@ -81,7 +81,7 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
     
     try {
       // 🔍 **DEBUG LOGGING: API Request Details**
-      const apiUrl = '/api/avatars'; // Adjust this URL based on your backend
+      const apiUrl = '/api/custom/video/avatars'; // Correct backend endpoint
       console.log('🎬 [AVATAR_DATA_SERVICE] Making API request to:', apiUrl);
       console.log('🎬 [AVATAR_DATA_SERVICE] Request method: GET');
       console.log('🎬 [AVATAR_DATA_SERVICE] Request headers: { "Content-Type": "application/json" }');
