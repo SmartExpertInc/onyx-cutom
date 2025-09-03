@@ -263,10 +263,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     );
   }
 
-  // Check if we have a target workspace ID
-  if (!targetWorkspaceId) {
-    return null;
-  }
+  // Don't render workspace content if no target workspace ID
+  // We'll handle this in the JSX instead of early return to avoid hook violations
 
   const formatDate = (dateInput: string): string => {
     const date = new Date(dateInput);
@@ -428,6 +426,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }, []);
 
   const handleRoleChange = async (memberId: number, newRoleId: number) => {
+    if (!targetWorkspaceId) return;
+    
     try {
       const updatedMember = await workspaceService.updateMember(
         targetWorkspaceId, 
@@ -474,8 +474,17 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Workspace Header and Selector */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      {!targetWorkspaceId ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspace Selected</h3>
+            <p className="text-gray-600">Please select a workspace to view its members.</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Workspace Header and Selector */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
@@ -493,7 +502,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 {t('interface.workspace.switch', 'Switch Workspace:')}
               </label>
               <select
-                value={targetWorkspaceId}
+                value={targetWorkspaceId || ''}
                 onChange={(e) => {
                   const workspace = workspaces.find(w => w.id === parseInt(e.target.value));
                   if (workspace) {
@@ -931,6 +940,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );
