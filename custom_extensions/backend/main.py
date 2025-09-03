@@ -20012,7 +20012,7 @@ async def _ensure_quiz_template(pool: asyncpg.Pool) -> int:
             "/quiz.png"
         )
         return template_id
-        
+         
     except Exception as e:
         logger.error(f"Error ensuring quiz template: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to ensure quiz template")
