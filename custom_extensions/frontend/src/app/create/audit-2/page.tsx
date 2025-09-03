@@ -1631,13 +1631,14 @@ export default function AuditPage() {
                     boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
                   }}
                 >
-                  {/* Gradient borders only on left and top */}
+                  {/* Gradient borders behind the button */}
                   <div 
                     className="absolute top-0 left-0 h-full"
                     style={{
                       width: '2px',
                       background: 'linear-gradient(180deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                      borderRadius: '6px 0 0 6px'
+                      borderRadius: '6px 0 0 6px',
+                      zIndex: -1
                     }}
                   />
                   <div 
@@ -1645,19 +1646,8 @@ export default function AuditPage() {
                     style={{
                       height: '2px',
                       background: 'linear-gradient(90deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                      borderRadius: '6px 6px 0 0'
-                    }}
-                  />
-                  {/* Button background with proper border radius */}
-                  <div 
-                    className="absolute top-0 left-0 w-full h-full"
-                    style={{
-                      background: '#0F58F9',
-                      borderRadius: '6px',
-                      top: '2px',
-                      left: '2px',
-                      width: 'calc(100% - 2px)',
-                      height: 'calc(100% - 2px)'
+                      borderRadius: '6px 6px 0 0',
+                      zIndex: -1
                     }}
                   />
                   <span className="relative z-10">Забронировать</span>
