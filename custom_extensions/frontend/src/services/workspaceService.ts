@@ -223,8 +223,23 @@ class WorkspaceService {
     });
   }
 
+  async getProductAccess(productId: number): Promise<ProductAccess[]> {
+    return this.request<ProductAccess[]>(`/products/${productId}/access`);
+  }
+
   async getProductAccessList(productId: number): Promise<ProductAccess[]> {
     return this.request<ProductAccess[]>(`/products/${productId}/access`);
+  }
+
+  async removeProductAccess(productId: number, criteria: {
+    access_type: 'workspace' | 'role' | 'individual';
+    target_id?: string;
+    workspace_id: number;
+  }): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/products/${productId}/access/remove`, {
+      method: 'DELETE',
+      body: JSON.stringify(criteria),
+    });
   }
 
   async revokeProductAccess(productId: number, accessId: number): Promise<{ message: string }> {

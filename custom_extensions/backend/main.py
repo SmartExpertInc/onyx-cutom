@@ -25818,6 +25818,48 @@ async def revoke_product_access(product_id: int, access_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to revoke product access")
 
+@app.delete("/api/custom/products/{product_id}/access/remove")
+async def remove_product_access(product_id: int, criteria: dict):
+    """Remove product access based on criteria (access_type, target_id, workspace_id)."""
+    try:
+        access_type = criteria.get('access_type')
+        target_id = criteria.get('target_id')
+        workspace_id = criteria.get('workspace_id')
+        
+        if not access_type or not workspace_id:
+            raise HTTPException(status_code=400, detail="access_type and workspace_id are required")
+        
+        # Check if user is a member of the workspace
+        member = await WorkspaceService.get_workspace_member(workspace_id, "current_user_123")
+        if not member:
+            raise HTTPException(status_code=403, detail="Access denied to workspace")
+        
+        # Find and remove the matching access record
+        access_list = await ProductAccessService.get_product_access_list(product_id)
+        matching_access = None
+        
+        for access in access_list:
+            if (access.access_type == access_type and 
+                access.workspace_id == workspace_id and
+                access.target_id == target_id):
+                matching_access = access
+                break
+        
+        if not matching_access:
+            raise HTTPException(status_code=404, detail="No matching access record found")
+        
+        success = await ProductAccessService.revoke_access(matching_access.id, workspace_id, "current_user_123")
+        if not success:
+            raise HTTPException(status_code=404, detail="Failed to remove access record")
+        
+        return {"message": "Product access removed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to remove product access")
+
 @app.get("/api/custom/products/{product_id}/access/check")
 async def check_user_product_access(product_id: int, workspace_id: int):
     """Check if the current user has access to a specific product in a workspace."""

@@ -24,6 +24,13 @@ import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { LessonPlanView } from '@/components/LessonPlanView';
 import { useLanguage } from '../../../../contexts/LanguageContext';
+import workspaceService, { 
+  Workspace, 
+  WorkspaceRole, 
+  WorkspaceMember, 
+  ProductAccess,
+  ProductAccessCreate 
+} from '../../../../services/workspaceService';
 
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen, Trash2, ChevronDown, Sparkles, Download, Palette } from 'lucide-react';
 import { VideoDownloadButton } from '@/components/VideoDownloadButton';
@@ -275,6 +282,14 @@ export default function ProjectInstanceViewPage() {
   const [emailRoles, setEmailRoles] = useState<Record<string, string>>({});
   const [showEmailRoleDropdown, setShowEmailRoleDropdown] = useState<string | null>(null);
 
+  // Workspace system integration state
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [workspaceRoles, setWorkspaceRoles] = useState<WorkspaceRole[]>([]);
+  const [workspaceMembers, setWorkspaceMembers] = useState<WorkspaceMember[]>([]);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
+  const [productAccess, setProductAccess] = useState<ProductAccess[]>([]);
+  const [accessLoading, setAccessLoading] = useState(false);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -316,7 +331,80 @@ export default function ProjectInstanceViewPage() {
     }));
   };
 
-  // Predefined roles
+  // Load workspace data when access modal opens
+  useEffect(() => {
+    if (roleAccess) {
+      loadWorkspaceData();
+      loadProductAccess();
+    }
+  }, [roleAccess]);
+
+  const loadWorkspaceData = async () => {
+    try {
+      setAccessLoading(true);
+      const userWorkspaces = await workspaceService.getWorkspaces();
+      setWorkspaces(userWorkspaces);
+      
+      // Auto-select first workspace if only one exists
+      if (userWorkspaces.length === 1) {
+        const workspaceId = userWorkspaces[0].id;
+        setSelectedWorkspaceId(workspaceId);
+        await loadWorkspaceDetails(workspaceId);
+      }
+    } catch (error) {
+      console.error('Failed to load workspace data:', error);
+    } finally {
+      setAccessLoading(false);
+    }
+  };
+
+  const loadWorkspaceDetails = async (workspaceId: number) => {
+    try {
+      const [roles, members] = await Promise.all([
+        workspaceService.getWorkspaceRoles(workspaceId),
+        workspaceService.getWorkspaceMembers(workspaceId)
+      ]);
+      setWorkspaceRoles(roles);
+      setWorkspaceMembers(members);
+    } catch (error) {
+      console.error('Failed to load workspace details:', error);
+    }
+  };
+
+  const loadProductAccess = async () => {
+    if (!projectInstanceData?.id) return;
+    
+    try {
+      const access = await workspaceService.getProductAccess(projectInstanceData.id);
+      setProductAccess(access);
+      
+      // Sync with UI state
+      syncAccessToUIState(access);
+    } catch (error) {
+      console.error('Failed to load product access:', error);
+    }
+  };
+
+  const syncAccessToUIState = (access: ProductAccess[]) => {
+    const emails: string[] = [];
+    const roles: string[] = [];
+    const emailRoleMap: Record<string, string> = {};
+    
+    access.forEach(item => {
+      if (item.access_type === 'individual' && item.target_id) {
+        emails.push(item.target_id);
+        emailRoleMap[item.target_id] = 'editor'; // Default role mapping
+      } else if (item.access_type === 'role' && item.target_id) {
+        roles.push(item.target_id);
+      }
+    });
+    
+    setCustomEmails(emails);
+    setSelectedRoles(roles);
+    setEmailRoles(emailRoleMap);
+  };
+
+  // Predefined roles (kept for UI compatibility, but now integrated with workspace roles)
   const predefinedRoles = [
     { id: 'admin', label: 'Admin', description: 'Full access to all features' },
     { id: 'viewer', label: 'Viewer', description: 'Can view content only' },
@@ -325,13 +413,36 @@ export default function ProjectInstanceViewPage() {
     { id: 'manager', label: 'Manager', description: 'Can manage projects and assign tasks' }
   ];
 
-  // Helper functions for role and email management
-  const handleRoleToggle = (roleId: string) => {
-    setSelectedRoles(prev =>
-      prev.includes(roleId)
-        ? prev.filter(id => id !== roleId)
-        : [...prev, roleId]
-    );
+  // Helper functions for role and email management (now integrated with backend)
+  const handleRoleToggle = async (roleId: string) => {
+    if (!projectInstanceData?.id || !selectedWorkspaceId) return;
+    
+    try {
+      const isCurrentlySelected = selectedRoles.includes(roleId);
+      
+      if (isCurrentlySelected) {
+        // Remove role access
+        await workspaceService.removeProductAccess(projectInstanceData.id, {
+          access_type: 'role',
+          target_id: roleId,
+          workspace_id: selectedWorkspaceId
+        });
+        setSelectedRoles(prev => prev.filter(id => id !== roleId));
+      } else {
+        // Add role access
+        await workspaceService.grantProductAccess(projectInstanceData.id, {
+          workspace_id: selectedWorkspaceId,
+          access_type: 'role',
+          target_id: roleId
+        });
+        setSelectedRoles(prev => [...prev, roleId]);
+      }
+      
+      // Refresh product access data
+      await loadProductAccess();
+    } catch (error) {
+      console.error('Failed to toggle role access:', error);
+    }
   };
 
   const handleEmailToggle = (email: string) => {
@@ -342,47 +453,78 @@ export default function ProjectInstanceViewPage() {
     );
   };
 
-  const handleAddEmail = () => {
-    if (newEmail.trim() && !customEmails.includes(newEmail.trim())) {
+  const handleAddEmail = async () => {
+    if (!newEmail.trim() || customEmails.includes(newEmail.trim()) || !projectInstanceData?.id || !selectedWorkspaceId) return;
+    
+    try {
       const emailToAdd = newEmail.trim();
+      
+      // Add individual access to backend
+      await workspaceService.grantProductAccess(projectInstanceData.id, {
+        workspace_id: selectedWorkspaceId,
+        access_type: 'individual',
+        target_id: emailToAdd
+      });
+      
+      // Update UI state
       setCustomEmails(prev => [...prev, emailToAdd]);
       setSelectedEmails(prev => [...prev, emailToAdd]);
-      // Set default role as 'editor' for new emails
       setEmailRoles(prev => ({
         ...prev,
         [emailToAdd]: 'editor'
       }));
       setNewEmail('');
+      
+      // Refresh product access data
+      await loadProductAccess();
+    } catch (error) {
+      console.error('Failed to add email access:', error);
     }
   };
 
-
-
-  const handleEmailRoleChange = (email: string, roleId: string) => {
-    console.log('Changing role for email:', email, 'to role:', roleId);
-    setEmailRoles(prev => {
-      const newRoles = { ...prev, [email]: roleId };
-      return newRoles;
-    });
-    setShowEmailRoleDropdown(null);
+  const handleEmailRoleChange = async (email: string, roleId: string) => {
+    if (!projectInstanceData?.id || !selectedWorkspaceId) return;
+    
+    try {
+      // For now, just update the UI state since we're using a simple access model
+      // In a more complex system, you might have different permission levels per user
+      setEmailRoles(prev => ({
+        ...prev,
+        [email]: roleId
+      }));
+      setShowEmailRoleDropdown(null);
+      
+      console.log('Role changed for email:', email, 'to role:', roleId);
+    } catch (error) {
+      console.error('Failed to change email role:', error);
+    }
   };
 
-  const handleRemoveEmail = (email: string) => {
-    console.log('Removing email:', email);
-    setCustomEmails(prev => {
-      const newEmails = prev.filter(e => e !== email);
-      return newEmails;
-    });
-    setSelectedEmails(prev => {
-      const newSelected = prev.filter(e => e !== email);
-      return newSelected;
-    });
-    // Also remove the role for this email
-    setEmailRoles(prev => {
-      const newRoles = { ...prev };
-      delete newRoles[email];
-      return newRoles;
-    });
+  const handleRemoveEmail = async (email: string) => {
+    if (!projectInstanceData?.id || !selectedWorkspaceId) return;
+    
+    try {
+      // Remove individual access from backend
+      await workspaceService.removeProductAccess(projectInstanceData.id, {
+        access_type: 'individual',
+        target_id: email,
+        workspace_id: selectedWorkspaceId
+      });
+      
+      // Update UI state
+      setCustomEmails(prev => prev.filter(e => e !== email));
+      setSelectedEmails(prev => prev.filter(e => e !== email));
+      setEmailRoles(prev => {
+        const newRoles = { ...prev };
+        delete newRoles[email];
+        return newRoles;
+      });
+      
+      // Refresh product access data
+      await loadProductAccess();
+    } catch (error) {
+      console.error('Failed to remove email access:', error);
+    }
   };
 
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
@@ -1713,8 +1855,42 @@ export default function ProjectInstanceViewPage() {
 
                       {/* Content */}
                       <div className="px-6 pb-6">
-                        {/* Add Member Input */}
-                        <div className="mb-6">
+                        {/* Workspace Selector (if multiple workspaces) */}
+                        {workspaces.length > 1 && (
+                          <div className="mb-6">
+                            <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.selectWorkspace', 'Select Workspace')}</h3>
+                            <select
+                              value={selectedWorkspaceId || ''}
+                              onChange={(e) => {
+                                const workspaceId = parseInt(e.target.value);
+                                setSelectedWorkspaceId(workspaceId);
+                                loadWorkspaceDetails(workspaceId);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                            >
+                              <option value="">Select a workspace...</option>
+                              {workspaces.map((workspace) => (
+                                <option key={workspace.id} value={workspace.id}>
+                                  {workspace.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Loading State */}
+                        {accessLoading && (
+                          <div className="flex items-center justify-center py-4 mb-6">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                            <span className="ml-2 text-gray-600">Loading workspace data...</span>
+                          </div>
+                        )}
+
+                        {/* Only show content if workspace is selected and loaded */}
+                        {selectedWorkspaceId && !accessLoading && (
+                          <>
+                            {/* Add Member Input */}
+                            <div className="mb-6">
                           <div className="flex gap-3">
                             <input
                               type="email"
