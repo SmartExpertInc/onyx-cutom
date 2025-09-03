@@ -1621,7 +1621,7 @@ export default function AuditPage() {
                 </h2>
                 
                 <button 
-                  className="text-white font-semibold text-[16px] rounded-lg w-fit relative"
+                  className="text-white font-semibold text-[16px] rounded-lg w-fit relative mx-auto block"
                   style={{
                     background: '#0F58F9',
                     paddingInline: '48px',
@@ -1633,17 +1633,31 @@ export default function AuditPage() {
                 >
                   {/* Gradient borders only on left and top */}
                   <div 
-                    className="absolute top-0 left-0 w-2 h-full"
+                    className="absolute top-0 left-0 h-full"
                     style={{
+                      width: '2px',
                       background: 'linear-gradient(180deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
                       borderRadius: '6px 0 0 6px'
                     }}
                   />
                   <div 
-                    className="absolute top-0 left-0 w-full h-2"
+                    className="absolute top-0 left-0 w-full"
                     style={{
+                      height: '2px',
                       background: 'linear-gradient(90deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
                       borderRadius: '6px 6px 0 0'
+                    }}
+                  />
+                  {/* Button background with proper border radius */}
+                  <div 
+                    className="absolute top-0 left-0 w-full h-full"
+                    style={{
+                      background: '#0F58F9',
+                      borderRadius: '6px',
+                      top: '2px',
+                      left: '2px',
+                      width: 'calc(100% - 2px)',
+                      height: 'calc(100% - 2px)'
                     }}
                   />
                   <span className="relative z-10">Забронировать</span>
