@@ -170,13 +170,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-gray-600 text-m leading-relaxed max-w-2xl mx-auto">
-            This comprehensive lesson plan follows instructional design best practices and serves as a complete task specification for Content Developers.
-          </p>
-        </div>
       </div>
     </div>
   );

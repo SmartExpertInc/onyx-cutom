@@ -13180,6 +13180,41 @@ async def download_project_instance_pdf(
                     "questions": [],
                     "detectedLanguage": detected_lang_for_pdf
                 }
+        elif component_name == COMPONENT_NAME_LESSON_PLAN: # Lesson Plan handling
+            pdf_template_file = "lesson_plan_pdf_template.html"
+            if content_json and isinstance(content_json, dict):
+                # Extract lesson plan data from the project
+                lesson_plan_data = content_json.get('lesson_plan_data', {})
+                if lesson_plan_data:
+                    data_for_template_render = {
+                        "lessonTitle": lesson_plan_data.get('lessonTitle', mp_name_for_pdf_context),
+                        "shortDescription": lesson_plan_data.get('shortDescription', ''),
+                        "lessonObjectives": lesson_plan_data.get('lessonObjectives', []),
+                        "recommendedProductTypes": lesson_plan_data.get('recommendedProductTypes', {}),
+                        "materials": lesson_plan_data.get('materials', []),
+                        "suggestedPrompts": lesson_plan_data.get('suggestedPrompts', []),
+                        "detectedLanguage": detected_lang_for_pdf
+                    }
+                else:
+                    data_for_template_render = {
+                        "lessonTitle": mp_name_for_pdf_context,
+                        "shortDescription": "Lesson plan content not available",
+                        "lessonObjectives": [],
+                        "recommendedProductTypes": {},
+                        "materials": [],
+                        "suggestedPrompts": [],
+                        "detectedLanguage": detected_lang_for_pdf
+                    }
+            else:
+                data_for_template_render = {
+                    "lessonTitle": f"Content Error: {mp_name_for_pdf_context}",
+                    "shortDescription": "Lesson plan content not available",
+                    "lessonObjectives": [],
+                    "recommendedProductTypes": {},
+                    "materials": [],
+                    "suggestedPrompts": [],
+                    "detectedLanguage": detected_lang_for_pdf
+                }
         else:
             logger.warning(f"PDF: Unknown component_name '{component_name}' for project {project_id}. Defaulting to simple PDF Lesson structure.")
             pdf_template_file = "pdf_lesson_pdf_template.html" # Or a generic template
