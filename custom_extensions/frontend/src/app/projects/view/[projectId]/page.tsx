@@ -302,17 +302,23 @@ export default function ProjectInstanceViewPage() {
 
   const handleEmailRoleChange = (email: string, roleId: string) => {
     console.log('Changing role for email:', email, 'to role:', roleId);
-    setEmailRoles(prev => ({
-      ...prev,
-      [email]: roleId
-    }));
+    setEmailRoles(prev => {
+      const newRoles = { ...prev, [email]: roleId };
+      return newRoles;
+    });
     setShowEmailRoleDropdown(null);
   };
 
   const handleRemoveEmail = (email: string) => {
     console.log('Removing email:', email);
-    setCustomEmails(prev => prev.filter(e => e !== email));
-    setSelectedEmails(prev => prev.filter(e => e !== email));
+    setCustomEmails(prev => {
+      const newEmails = prev.filter(e => e !== email);
+      return newEmails;
+    });
+    setSelectedEmails(prev => {
+      const newSelected = prev.filter(e => e !== email);
+      return newSelected;
+    });
     // Also remove the role for this email
     setEmailRoles(prev => {
       const newRoles = { ...prev };
@@ -1591,13 +1597,18 @@ export default function ProjectInstanceViewPage() {
 
                                     {/* Email Role Dropdown */}
                                     {showEmailRoleDropdown === email && (
-                                      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto">
+                                      <div className="fixed bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto" style={{
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)'
+                                      }}>
                                         <div className="space-y-1">
                                           {predefinedRoles.map((role) => (
                                             <div
                                               key={role.id}
                                               className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
-                                              onClick={() => {
+                                              onClick={(e) => {
+                                                e.stopPropagation();
                                                 handleEmailRoleChange(email, role.id);
                                               }}
                                             >
@@ -1612,7 +1623,8 @@ export default function ProjectInstanceViewPage() {
                                           <div className="border-t border-gray-200 pt-1 mt-1">
                                             <div
                                               className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-red-50 text-red-600"
-                                              onClick={() => {
+                                              onClick={(e) => {
+                                                e.stopPropagation();
                                                 handleRemoveEmail(email);
                                                 setShowEmailRoleDropdown(null);
                                               }}
