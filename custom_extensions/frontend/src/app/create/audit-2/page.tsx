@@ -1491,7 +1491,7 @@ export default function AuditPage() {
 
             <div className="border-[#E0E0E0]" style={{ boxShadow: '1.11px 1.11px 5.53px 0px #0000001A' }}>
               <Image 
-                src="/custom-projects-ui/images/audit-section-5-service-4-image1-mobile.png"
+                src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile.png"
                 alt="Card 1"
                 width={300}
                 height={300}
@@ -1508,6 +1508,12 @@ export default function AuditPage() {
               
               <span className="font-semibold text-[14px] text-[#09090B]">
                 Пробный пакет
+              </span>
+            </div>
+
+            <div className="mt-[25px]">
+              <span className="font-bold text-[60px] leading-[120%]">
+                <span className="text-[70px] text-[#0F58F9]">10</span> часов
               </span>
             </div>
           </div>
