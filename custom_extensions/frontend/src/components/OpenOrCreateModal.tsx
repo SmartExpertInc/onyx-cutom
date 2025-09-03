@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { X, ExternalLink, Play, Plus } from 'lucide-react';
+import { X, ExternalLink, Play, Plus, BookText } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface OpenOrCreateModalProps {
@@ -13,8 +13,11 @@ interface OpenOrCreateModalProps {
   hasLesson: boolean;
   hasQuiz: boolean;
   hasOnePager: boolean;
+  hasLessonPlan?: boolean; // NEW: Add lesson plan flag
+  lessonPlanId?: number; // NEW: Add lesson plan ID
   onOpen: () => void;
   onCreate: () => void;
+  onLessonPlan?: () => void; // NEW: Add lesson plan callback
 }
 
 const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
@@ -159,6 +162,37 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
               </div>
               <div className="text-green-400 group-hover:text-green-600 transition-all duration-200 group-hover:translate-x-1">
                 <Plus size={20} />
+              </div>
+            </button>
+          </div>
+
+          {/* Lesson Plan option */}
+          <div className="group">
+            <button
+              onClick={onLessonPlan}
+              className="w-full flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02]"
+            >
+              <div className="flex items-center space-x-4 flex-1">
+                <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
+                  <BookText size={24} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-lg font-bold text-purple-900">Lesson Plan</h3>
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                      {hasLessonPlan ? 'View Existing' : 'Generate New'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-purple-800 leading-relaxed">
+                    {hasLessonPlan 
+                      ? 'View and manage your lesson plan with objectives, materials, and suggested prompts'
+                      : 'Generate a comprehensive lesson plan with learning objectives, materials, and assessment suggestions'
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="text-purple-400 group-hover:text-purple-600 transition-all duration-200 group-hover:translate-x-1">
+                <BookText size={20} />
               </div>
             </button>
           </div>

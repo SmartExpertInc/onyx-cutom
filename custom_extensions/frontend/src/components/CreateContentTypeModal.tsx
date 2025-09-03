@@ -37,11 +37,6 @@ interface CreateContentTypeModalProps {
   existingContent?: ExistingContentFlags;
   onUpdateRecommendations?: (newPrimary: string[]) => void; // NEW
   onOpenAllContentTypes?: () => void; // NEW: callback to open AllContentTypesModal
-  // NEW: Add props for existing content IDs
-  lessonId?: number;
-  videoLessonId?: number;
-  quizId?: number;
-  onePagerId?: number;
 }
 
 export const CreateContentTypeModal = ({
@@ -60,12 +55,7 @@ export const CreateContentTypeModal = ({
   recommendedContentTypes,
   existingContent,
   onUpdateRecommendations,
-  onOpenAllContentTypes,
-  // NEW: Add destructuring for existing content IDs
-  lessonId,
-  videoLessonId,
-  quizId,
-  onePagerId
+  onOpenAllContentTypes
 }: CreateContentTypeModalProps) => {
   const router = useRouter();
   const { t } = useLanguage();
@@ -87,9 +77,7 @@ export const CreateContentTypeModal = ({
       label: t('modals.createContent.presentation'),
       description: t('modals.createContent.presentationDescription'),
       color: "blue",
-      disabled: false,
-      hasExisting: hasLesson,
-      existingId: lessonId
+      disabled: false
     },
     {
       name: "textPresentation",
@@ -98,9 +86,7 @@ export const CreateContentTypeModal = ({
       label: t('modals.createContent.onePager'),
       description: t('modals.createContent.onePagerDescription'),
       color: "purple",
-      disabled: false,
-      hasExisting: hasOnePager,
-      existingId: onePagerId
+      disabled: false
     },
     {
       name: "multiple-choice",
@@ -109,9 +95,7 @@ export const CreateContentTypeModal = ({
       label: t('modals.createContent.quiz'),
       description: t('modals.createContent.quizDescription'),
       color: "green",
-      disabled: false,
-      hasExisting: hasQuiz,
-      existingId: quizId
+      disabled: false
     },
     {
       name: "videoLesson",
@@ -121,9 +105,7 @@ export const CreateContentTypeModal = ({
       description: t('modals.createContent.videoLessonDescription'),
       color: "orange",
       disabled: true,
-      soon: true,
-      hasExisting: false,
-      existingId: undefined
+      soon: true
     },
   ];
 
@@ -208,7 +190,7 @@ export const CreateContentTypeModal = ({
     try {
       // Use the outlineProjectId prop directly
 
-      const response = await fetch('/api/custom-projects-backend/lesson-plan/generate', {
+      const response = await fetch('/api/custom/lesson-plan/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -243,17 +225,6 @@ export const CreateContentTypeModal = ({
     } finally {
       setIsGeneratingLessonPlan(false);
     }
-  };
-
-  // NEW: Function to handle opening existing content
-  const handleOpenExistingContent = (type: 'lesson' | 'videoLesson' | 'quiz' | 'onePager', id?: number) => {
-    if (id) {
-      // Redirect to the content's view page using only the ID
-      // Include the /custom-projects-ui prefix for proper routing
-      const url = `/custom-projects-ui/projects/view/${id}`;
-      window.location.href = url;
-    }
-    onClose();
   };
 
   // Preferences state
@@ -394,9 +365,6 @@ export const CreateContentTypeModal = ({
               const isRecommended = recommendedState?.primary?.includes(type.key) || recommendedContentTypes?.primary?.includes(type.key);
               const isSelected = selectedPrefs[type.key] || false;
 
-              // Determine if we should show open button for existing content
-              const shouldShowOpenButton = isAlreadyCreated && type.hasExisting && type.existingId;
-
               return (
                 <div
                   key={type.name}
@@ -459,37 +427,13 @@ export const CreateContentTypeModal = ({
                       </p>
                     </div>
                   </div>
-                  
-                  {/* Action buttons - either create or open */}
-                  <div className="flex items-center space-x-2">
-                    {shouldShowOpenButton ? (
-                      // Open existing content button
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const contentType = type.name === "lessonPresentation" ? 'lesson' : 
-                                           type.name === "textPresentation" ? 'onePager' : 
-                                           type.name === "multiple-choice" ? 'quiz' : 'videoLesson';
-                          handleOpenExistingContent(contentType, type.existingId);
-                        }}
-                        className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-1"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        <span>Open</span>
-                      </button>
-                    ) : (
-                      // Create new content arrow (only if selected and not disabled)
-                      isSelected && !isDisabled && (
-                        <div className="text-gray-400 group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1">
-                          <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      )
-                    )}
-                  </div>
+                  {isSelected && !isDisabled && (
+                    <div className="text-gray-400 group-hover:text-gray-600 transition-all duration-200 group-hover:translate-x-1">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
               );
             })}
