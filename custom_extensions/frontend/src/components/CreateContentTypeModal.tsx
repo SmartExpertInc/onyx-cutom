@@ -116,7 +116,7 @@ export const CreateContentTypeModal = ({
       label: t('modals.createContent.videoLesson'),
       description: t('modals.createContent.videoLessonDescription'),
       color: "orange",
-      disabled: true
+      disabled: false
     },
   ];
 
@@ -133,6 +133,7 @@ export const CreateContentTypeModal = ({
     disabled: (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
       (type.name === "textPresentation" && existingFlags.hasOnePager) ||
       (type.name === "multiple-choice" && existingFlags.hasQuiz) ||
+      (type.name === "videoLesson" && existingFlags.hasVideoLesson) ||
       type.disabled
   }));
 
@@ -404,9 +405,10 @@ export const CreateContentTypeModal = ({
           <div className="space-y-1 sm:space-y-1.5 lg:space-y-2">
             {updatedContentTypes.map((type) => {
               const isDisabled = type.disabled;
-              const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
-                (type.name === "textPresentation" && existingFlags.hasOnePager) ||
-                (type.name === "multiple-choice" && existingFlags.hasQuiz);
+                      const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
+          (type.name === "textPresentation" && existingFlags.hasOnePager) ||
+          (type.name === "multiple-choice" && existingFlags.hasQuiz) ||
+          (type.name === "videoLesson" && existingFlags.hasVideoLesson);
 
               // Check if this type is recommended
               const isRecommended = recommendedState?.primary?.includes(type.key) || recommendedContentTypes?.primary?.includes(type.key);

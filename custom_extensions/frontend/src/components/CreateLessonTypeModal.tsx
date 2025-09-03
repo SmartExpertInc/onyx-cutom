@@ -34,8 +34,7 @@ const lessonTypes = [
   { 
     name: "videoLesson", 
     icon: <Film className="w-6 h-6" />, 
-    disabled: true,
-    tooltipKey: "comingSoon"
+    disabled: false
   },
 ];
 

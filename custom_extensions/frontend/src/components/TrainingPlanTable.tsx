@@ -1890,7 +1890,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           hasLesson: !!findExistingLesson(contentModalState.lessonTitle),
           hasQuiz: !!findExistingQuiz(contentModalState.lessonTitle),
           hasOnePager: !!findExistingOnePager(contentModalState.lessonTitle),
-          hasVideoLesson: false
+          hasVideoLesson: !!findExistingVideoLesson(contentModalState.lessonTitle)
         }}
         onOpenAllContentTypes={() => handleOpenAllContentTypesModal(
           contentModalState.lessonTitle,
@@ -2007,7 +2007,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
             label: t('modals.createContent.videoLesson'),
             description: t('modals.createContent.videoLessonDescription'),
             color: "orange",
-            disabled: true
+            disabled: false
           },
         ]}
         onContentCreate={(contentType) => {

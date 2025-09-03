@@ -100,8 +100,8 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
           {/* Video Lesson */}
           {hasVideoLesson && videoLessonId && (
             <button
-              disabled={true}
-              className="w-full flex items-center p-6 border-2 rounded-xl border-orange-200 bg-orange-50 text-gray-400 cursor-not-allowed text-left"
+              onClick={() => handleOpenContent('videoLesson', videoLessonId)}
+              className="w-full flex items-center p-6 border-2 rounded-xl border-orange-200 hover:border-orange-300 bg-orange-50 hover:bg-orange-100 hover:shadow-md transition-all duration-200 text-left"
             >
               <div className="flex items-center space-x-4 flex-1">
                 <div className="p-3 rounded-lg text-orange-600 bg-orange-100">
@@ -116,7 +116,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
                   <p className="text-sm text-black">{t('modals.openContent.openVideoLesson')}</p>
                 </div>
               </div>
-              <ExternalLink size={20} className="text-gray-300" />
+              <ExternalLink size={20} className="text-gray-400" />
             </button>
           )}
 
