@@ -150,7 +150,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     
     try {
       await workspaceService.removeMember(targetWorkspaceId, memberId.toString());
-      setMembers(prev => prev.filter(member => member.id !== memberId));
+    setMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (err) {
       console.error('Failed to delete member:', err);
     }
@@ -431,22 +431,22 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           {/* Action Buttons */}
           <div className="flex gap-2">
             {isAdmin && (
-              <button
-                onClick={() => setShowRoleManager(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors whitespace-nowrap"
-              >
-                <Settings size={16} />
-                {t('interface.manageRoles', 'Manage Roles')}
-              </button>
+            <button
+              onClick={() => setShowRoleManager(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors whitespace-nowrap"
+            >
+              <Settings size={16} />
+              {t('interface.manageRoles', 'Manage Roles')}
+            </button>
             )}
             {isAdmin && (
-              <button
-                onClick={() => setShowAddMember(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
-              >
-                <UserPlus size={16} />
-                {t('interface.addMember', 'Add Member')}
-              </button>
+            <button
+              onClick={() => setShowAddMember(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+            >
+              <UserPlus size={16} />
+              {t('interface.addMember', 'Add Member')}
+            </button>
             )}
           </div>
         </div>
@@ -568,12 +568,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                               </button>
                             )}
                             {isAdmin && (
-                              <button
-                                onClick={() => handleDeleteMember(member.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                              >
-                                {t('interface.workspaceActions.delete', 'Delete')}
-                              </button>
+                            <button
+                              onClick={() => handleDeleteMember(member.id)}
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                            >
+                              {t('interface.workspaceActions.delete', 'Delete')}
+                            </button>
                             )}
                           </div>
                         </div>
