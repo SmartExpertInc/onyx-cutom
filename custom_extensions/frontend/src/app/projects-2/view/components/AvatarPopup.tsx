@@ -518,25 +518,11 @@ export default function AvatarPopup({
                 )}
               </div>
               
-              {/* Avatar details below the image */}
+              {/* Avatar name only */}
               <div className="w-full text-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900">
                   {selectedAvatar?.displayName}
                 </h3>
-                <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-                  <span className="capitalize">{selectedAvatar?.gender}</span>
-                  {selectedAvatar?.age && (
-                    <span>{selectedAvatar.age} years</span>
-                  )}
-                  {selectedAvatar?.ethnicity && (
-                    <span>{selectedAvatar.ethnicity}</span>
-                  )}
-                </div>
-                {selectedAvatar?.selectedVariant && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Style: {selectedAvatar.selectedVariant.name}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -631,14 +617,9 @@ export default function AvatarPopup({
                         </div>
                       </div>
                       
-                      {/* Avatar details below */}
+                      {/* Avatar name only */}
                       <div className="text-center w-full">
-                        <div className="text-sm text-black font-medium mb-1">{avatar.displayName}</div>
-                        <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                          <span className="capitalize">{avatar.gender}</span>
-                          {avatar.age && <span>• {avatar.age}y</span>}
-                          {avatar.selectedVariant && <span>• {avatar.selectedVariant.name}</span>}
-                        </div>
+                        <div className="text-sm text-black font-medium">{avatar.displayName}</div>
                       </div>
                     </div>
                   );
