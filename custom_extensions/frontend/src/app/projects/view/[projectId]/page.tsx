@@ -289,6 +289,11 @@ export default function ProjectInstanceViewPage() {
       const emailToAdd = newEmail.trim();
       setCustomEmails(prev => [...prev, emailToAdd]);
       setSelectedEmails(prev => [...prev, emailToAdd]);
+      // Set default role as 'editor' for new emails
+      setEmailRoles(prev => ({
+        ...prev,
+        [emailToAdd]: 'editor'
+      }));
       setNewEmail('');
     }
   };
@@ -299,11 +304,24 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handleEmailRoleChange = (email: string, roleId: string) => {
+    console.log('Changing role for email:', email, 'to role:', roleId);
     setEmailRoles(prev => ({
       ...prev,
       [email]: roleId
     }));
     setShowEmailRoleDropdown(null);
+  };
+
+  const handleRemoveEmail = (email: string) => {
+    console.log('Removing email:', email);
+    setCustomEmails(prev => prev.filter(e => e !== email));
+    setSelectedEmails(prev => prev.filter(e => e !== email));
+    // Also remove the role for this email
+    setEmailRoles(prev => {
+      const newRoles = { ...prev };
+      delete newRoles[email];
+      return newRoles;
+    });
   };
 
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
@@ -1576,13 +1594,15 @@ export default function ProjectInstanceViewPage() {
 
                                     {/* Email Role Dropdown */}
                                     {showEmailRoleDropdown === email && (
-                                      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32">
+                                      <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto">
                                         <div className="space-y-1">
                                           {predefinedRoles.map((role) => (
                                             <div
                                               key={role.id}
                                               className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
-                                              onClick={() => handleEmailRoleChange(email, role.id)}
+                                              onClick={() => {
+                                                handleEmailRoleChange(email, role.id);
+                                              }}
                                             >
                                               <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
                                                 {currentRole === role.id && (
