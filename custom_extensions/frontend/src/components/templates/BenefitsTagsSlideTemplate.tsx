@@ -60,6 +60,21 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
+  // Tags block styles
+  const tagsBlockStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '200px', // Below the profile image and title
+    left: '80px',
+    right: '80px',
+    bottom: '80px', // Leave space for logo at bottom
+    backgroundColor: '#E0E0E0', // Darker grey for tags block
+    borderRadius: '12px',
+    padding: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  };
+
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
@@ -172,16 +187,17 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         </div>
       </div>
 
-      {/* Tags section */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        maxWidth: '645px',
-        position: 'relative',
-        marginTop: '40px',
-        left: '-23%'
-      }}>
+      {/* Tags Block */}
+      <div style={tagsBlockStyles}>
+        {/* Tags section */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          maxWidth: '645px',
+          position: 'relative',
+          left: '-23%'
+        }}>
         {/* First row */}
         <div style={{
           display: 'flex',
@@ -192,7 +208,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               key={index}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#F5F5F5', // Orange for highlighted, light grey for others
+                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
                 border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                 borderRadius: '8px',
                 fontSize: '34px',
@@ -238,7 +254,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               key={index + 2}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#F5F5F5', // Orange for highlighted, light grey for others
+                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
                 border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                 borderRadius: '8px',
                 fontSize: '34px',
@@ -284,7 +300,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               key={index + 5}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#F5F5F5', // Orange for highlighted, light grey for others
+                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#E0E0E0', // Orange for highlighted, darker grey for others (matching block)
                 border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                 borderRadius: '8px',
                 fontSize: '34px',
@@ -319,9 +335,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             </div>
           ))}
         </div>
+        </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer - below tags block */}
       <div style={{
         position: 'absolute',
         bottom: '25px',

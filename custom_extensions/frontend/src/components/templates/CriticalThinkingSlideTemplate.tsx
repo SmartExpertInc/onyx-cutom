@@ -53,6 +53,21 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
+  // Content block styles
+  const contentBlockStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '200px', // Below the profile image and title
+    left: '60px',
+    right: '60px',
+    bottom: '80px', // Leave space for logo at bottom
+    backgroundColor: '#E0E0E0', // Darker grey for content block
+    borderRadius: '12px',
+    padding: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  };
+
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
@@ -279,55 +294,57 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           )}
         </div>
 
-        {/* Content */}
-        <div style={{
-          fontSize: '36px',
-          color: '#4A4A4A', // Dark grey color as per screenshot
-          lineHeight: '1.6',
-          maxWidth: '640px',
-          minHeight: '40px',
-          display: 'flex',
-          alignItems: 'flex-start',
-          marginTop: '30px'
-        }}>
-          {isEditable && editingContent ? (
-            <ImprovedInlineEditor
-              initialValue={currentContent}
-              onSave={handleContentSave}
-              onCancel={handleContentCancel}
-              multiline={true}
-              className="critical-thinking-content-editor"
-              style={{
-                fontSize: '36px',
-                color: '#4A4A4A',
-                lineHeight: '1.6',
-                maxWidth: '600px',
-                width: '100%',
-                height: 'auto',
-                minHeight: '40px'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingContent(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none',
-                fontSize: '36px',
-                color: '#4A4A4A',
-                lineHeight: '1.6',
-                maxWidth: '600px',
-                minHeight: '40px',
-                width: '100%'
-              }}
-            >
-              {renderContentWithHighlights()}
-            </div>
-          )}
+        {/* Content Block */}
+        <div style={contentBlockStyles}>
+          {/* Content */}
+          <div style={{
+            fontSize: '36px',
+            color: '#4A4A4A', // Dark grey color as per screenshot
+            lineHeight: '1.6',
+            maxWidth: '640px',
+            minHeight: '40px',
+            display: 'flex',
+            alignItems: 'flex-start',
+          }}>
+            {isEditable && editingContent ? (
+              <ImprovedInlineEditor
+                initialValue={currentContent}
+                onSave={handleContentSave}
+                onCancel={handleContentCancel}
+                multiline={true}
+                className="critical-thinking-content-editor"
+                style={{
+                  fontSize: '36px',
+                  color: '#4A4A4A',
+                  lineHeight: '1.6',
+                  maxWidth: '600px',
+                  width: '100%',
+                  height: 'auto',
+                  minHeight: '40px'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingContent(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  fontSize: '36px',
+                  color: '#4A4A4A',
+                  lineHeight: '1.6',
+                  maxWidth: '600px',
+                  minHeight: '40px',
+                  width: '100%'
+                }}
+              >
+                {renderContentWithHighlights()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Company Logo - Bottom Left */}
+      {/* Company Logo - Bottom Left, below content block */}
       <div style={{
         position: 'absolute',
         bottom: '40px',
