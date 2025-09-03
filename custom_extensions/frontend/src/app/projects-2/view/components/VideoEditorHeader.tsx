@@ -6,7 +6,7 @@ import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
-import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
+import AvatarSelector, { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 
 interface EmailInput {
   id: string;
@@ -123,7 +123,23 @@ export default function VideoEditorHeader({
   };
 
   const handleGenerateClick = () => {
+    console.log('🎬 [VIDEO_EDITOR_HEADER] ===== GENERATE BUTTON CLICKED =====');
+    console.log('🎬 [VIDEO_EDITOR_HEADER] Current avatar state:', {
+      selectedAvatar: selectedAvatar?.name || 'None',
+      selectedVariant: selectedVariant?.name || 'None',
+      generationStatus,
+      generationError
+    });
+    
+    if (!selectedAvatar) {
+      console.error('🎬 [VIDEO_EDITOR_HEADER] ERROR: Cannot open GenerateModal without avatar selection');
+      setGenerationError('Please select an avatar before generating video');
+      return;
+    }
+    
+    console.log('🎬 [VIDEO_EDITOR_HEADER] Avatar validation passed, opening GenerateModal');
     setIsGenerateModalOpen(true);
+    console.log('🎬 [VIDEO_EDITOR_HEADER] GenerateModal state set to true');
   };
 
   const handleUpgradeClick = () => {
@@ -158,10 +174,11 @@ export default function VideoEditorHeader({
 
   // Function to extract actual slide data from current project - updated to use props
   const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
-    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
-    console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
-    console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
-    console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
+    console.log('🎬 [VIDEO_GENERATION] ===== EXTRACTING SLIDE DATA =====');
+    console.log('🎬 [VIDEO_GENERATION] Extracting slide data from current project...');
+    console.log('🎬 [VIDEO_GENERATION] videoLessonData:', videoLessonData);
+    console.log('🎬 [VIDEO_GENERATION] componentBasedSlideDeck:', componentBasedSlideDeck);
+    console.log('🎬 [VIDEO_GENERATION] currentSlideId:', currentSlideId);
     
     try {
       // First try to get data from componentBasedSlideDeck (newer structure)
@@ -237,13 +254,26 @@ export default function VideoEditorHeader({
 
   // Avatar selection handler - transferred from VideoDownloadButton
   const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
-    setSelectedAvatar(avatar);
-    setSelectedVariant(variant || undefined);
-    console.log('🎬 [VIDEO_DOWNLOAD] Avatar selected:', {
+    console.log('🎬 [VIDEO_GENERATION] ===== AVATAR SELECTED =====');
+    console.log('🎬 [VIDEO_GENERATION] Avatar selection triggered:', {
       avatar: avatar.name,
       variant: variant?.name,
       code: variant ? `${avatar.code}.${variant.code}` : avatar.code
     });
+    
+    setSelectedAvatar(avatar);
+    setSelectedVariant(variant || undefined);
+    
+    console.log('🎬 [VIDEO_GENERATION] Avatar state updated:', {
+      selectedAvatar: avatar.name,
+      selectedVariant: variant?.name
+    });
+    
+    // Clear any previous generation errors when avatar is selected
+    if (generationError) {
+      console.log('🎬 [VIDEO_GENERATION] Clearing previous generation error');
+      setGenerationError(null);
+    }
   };
 
   // Download video function - transferred from VideoDownloadButton
@@ -284,15 +314,32 @@ export default function VideoEditorHeader({
 
   // Main video generation function - transferred from VideoDownloadButton
   const handleVideoGeneration = async () => {
+    console.log('🎬 [VIDEO_GENERATION] ===== GENERATION START BUTTON CLICKED =====');
+    console.log('🎬 [VIDEO_GENERATION] Function execution started');
+    console.log('🎬 [VIDEO_GENERATION] Current state:', {
+      selectedAvatar: selectedAvatar ? 'Available' : 'Not available',
+      selectedVariant: selectedVariant ? 'Available' : 'Not available',
+      generationStatus,
+      generationProgress,
+      generationJobId,
+      generationError
+    });
+    
     if (!selectedAvatar) {
+      console.error('🎬 [VIDEO_GENERATION] ERROR: No avatar selected');
       setGenerationError('Please select an avatar first');
       return;
     }
+    
+    console.log('🎬 [VIDEO_GENERATION] Avatar validation passed, proceeding with generation');
 
           try {
+        console.log('🎬 [VIDEO_GENERATION] Setting generation status to "generating"');
         setGenerationStatus('generating');
         setGenerationProgress(0);
         setGenerationError(null);
+        
+        console.log('🎬 [VIDEO_GENERATION] Generation state updated, proceeding with slide data extraction');
 
         // Debug: Log all available data at generation start
         console.log('🎬 [VIDEO_DOWNLOAD] Generation started with data:', {
@@ -313,15 +360,20 @@ export default function VideoEditorHeader({
       });
 
       // Extract slide data
+      console.log('🎬 [VIDEO_GENERATION] Calling extractSlideData function...');
       const slideData = await extractSlideData();
+      console.log('🎬 [VIDEO_GENERATION] extractSlideData result:', slideData);
       
       if (!slideData.slides || slideData.slides.length === 0) {
         const errorMsg = 'No slide data found. Please make sure you have a slide open.';
-        console.error('🎬 [VIDEO_DOWNLOAD]', errorMsg);
+        console.error('🎬 [VIDEO_GENERATION] ERROR:', errorMsg);
+        console.error('🎬 [VIDEO_GENERATION] Slide data validation failed:', slideData);
         setGenerationError(errorMsg);
         setGenerationStatus('error');
         return;
       }
+      
+      console.log('🎬 [VIDEO_GENERATION] Slide data validation passed, proceeding with request payload creation');
 
       console.log('🎬 [VIDEO_DOWNLOAD] Slide data extracted successfully');
       console.log('🎬 [VIDEO_DOWNLOAD] Slides count:', slideData.slides.length);
@@ -380,9 +432,14 @@ export default function VideoEditorHeader({
       setGenerationJobId(newJobId);
       console.log('🎬 [VIDEO_DOWNLOAD] Presentation job created:', newJobId);
 
+      console.log('🎬 [VIDEO_GENERATION] Presentation job created successfully, transitioning modals');
+      console.log('🎬 [VIDEO_GENERATION] Closing GenerateModal, opening GenerationCompletedModal');
+      
       // Close GenerateModal and open GenerationCompletedModal
       setIsGenerateModalOpen(false);
       setIsGenerationCompletedModalOpen(true);
+      
+      console.log('🎬 [VIDEO_GENERATION] Modal transition completed, starting progress polling');
 
       // Poll for completion
       const pollInterval = setInterval(async () => {
@@ -438,10 +495,15 @@ export default function VideoEditorHeader({
       }, 600000);
 
     } catch (error) {
-      console.error('🎬 [VIDEO_DOWNLOAD] Video generation failed:', error);
+      console.error('🎬 [VIDEO_GENERATION] ===== GENERATION FAILED =====');
+      console.error('🎬 [VIDEO_GENERATION] Error details:', error);
+      console.error('🎬 [VIDEO_GENERATION] Setting generation status to "error"');
+      
       setGenerationStatus('error');
       const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
       setGenerationError(errorMsg);
+      
+      console.error('🎬 [VIDEO_GENERATION] Error state set, generation process terminated');
     }
   };
 
@@ -856,10 +918,42 @@ export default function VideoEditorHeader({
               )}
             </div>
 
+            {/* Avatar Selection */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select AI Avatar
+              </label>
+              <AvatarSelector
+                onAvatarSelect={handleAvatarSelect}
+                selectedAvatar={selectedAvatar}
+                selectedVariant={selectedVariant}
+                className="w-full"
+              />
+              {selectedAvatar && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Selected: {selectedAvatar.name}
+                  {selectedVariant && ` - ${selectedVariant.name}`}
+                </p>
+              )}
+              {generationError && (
+                <p className="text-xs text-red-600 mt-1">{generationError}</p>
+              )}
+            </div>
+
             {/* Generate button */}
             <button
               onClick={handleGenerateClick}
-              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
+              disabled={!selectedAvatar}
+              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer ${
+                selectedAvatar 
+                  ? 'bg-black text-white hover:bg-gray-800' 
+                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+              }`}
+              title={
+                !selectedAvatar 
+                  ? 'Please select an avatar first'
+                  : 'Start video generation'
+              }
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
@@ -877,7 +971,10 @@ export default function VideoEditorHeader({
       {/* Generate Modal */}
       <GenerateModal 
         isOpen={isGenerateModalOpen} 
-        onClose={() => setIsGenerateModalOpen(false)} 
+        onClose={() => {
+          console.log('🎬 [VIDEO_EDITOR_HEADER] GenerateModal closing');
+          setIsGenerateModalOpen(false);
+        }} 
         title={videoTitle}
         onGenerationStart={handleVideoGeneration}
         generationStatus={generationStatus}
@@ -887,7 +984,10 @@ export default function VideoEditorHeader({
       {/* Generation Completed Modal */}
       <GenerationCompletedModal
         isOpen={isGenerationCompletedModalOpen}
-        onClose={() => setIsGenerationCompletedModalOpen(false)}
+        onClose={() => {
+          console.log('🎬 [VIDEO_EDITOR_HEADER] GenerationCompletedModal closing');
+          setIsGenerationCompletedModalOpen(false);
+        }}
         videoTitle={videoTitle}
         generationStatus={generationStatus}
         generationProgress={generationProgress}

@@ -284,7 +284,14 @@ export default function GenerateModal({
             </button>
             <button 
               onClick={() => {
+                console.log('🎬 [GENERATE_MODAL] ===== START GENERATION BUTTON CLICKED =====');
+                console.log('🎬 [GENERATE_MODAL] Button clicked, calling onGenerationStart callback');
+                console.log('🎬 [GENERATE_MODAL] Callback exists:', !!onGenerationStart);
+                console.log('🎬 [GENERATE_MODAL] Current generation status:', generationStatus);
+                
                 onGenerationStart?.();
+                
+                console.log('🎬 [GENERATE_MODAL] onGenerationStart callback executed');
               }}
               disabled={generationStatus === 'generating'}
               className={`flex-1 px-4 py-2 rounded-full transition-colors font-medium text-sm ${
