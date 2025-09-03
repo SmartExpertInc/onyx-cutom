@@ -122,7 +122,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     
     try {
       await workspaceService.removeMember(targetWorkspaceId, memberId.toString());
-      setMembers(prev => prev.filter(member => member.id !== memberId));
+    setMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (err) {
       console.error('Failed to delete member:', err);
     }
@@ -137,7 +137,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         memberId.toString(), 
         { status: 'suspended' }
       );
-      setMembers(prev => prev.map(member =>
+    setMembers(prev => prev.map(member =>
         member.id === memberId ? updatedMember : member
       ));
     } catch (err) {
@@ -154,9 +154,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         memberId.toString(), 
         { status: 'active' }
       );
-      setMembers(prev => prev.map(member =>
+    setMembers(prev => prev.map(member =>
         member.id === memberId ? updatedMember : member
-      ));
+    ));
     } catch (err) {
       console.error('Failed to activate member:', err);
     }
@@ -239,7 +239,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         memberId.toString(), 
         { role_id: newRoleId }
       );
-      setMembers(prev =>
+    setMembers(prev =>
         prev.map(m => m.id === memberId ? updatedMember : m)
       );
     } catch (err) {
@@ -574,7 +574,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 {t('interface.addMemberModal.description', 'Invite a new member to the workspace')}
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

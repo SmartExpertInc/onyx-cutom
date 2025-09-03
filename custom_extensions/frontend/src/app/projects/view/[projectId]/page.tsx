@@ -372,10 +372,10 @@ export default function ProjectInstanceViewPage() {
   };
 
   const loadProductAccess = async () => {
-    if (!projectInstanceData?.id) return;
+    if (!projectInstanceData?.project_id) return;
     
     try {
-      const access = await workspaceService.getProductAccess(projectInstanceData.id);
+              const access = await workspaceService.getProductAccess(projectInstanceData.project_id);
       setProductAccess(access);
       
       // Sync with UI state
@@ -492,7 +492,7 @@ export default function ProjectInstanceViewPage() {
         ...prev,
         [email]: roleId
       }));
-      setShowEmailRoleDropdown(null);
+    setShowEmailRoleDropdown(null);
       
       console.log('Role changed for email:', email, 'to role:', roleId);
     } catch (error) {
@@ -514,11 +514,11 @@ export default function ProjectInstanceViewPage() {
       // Update UI state
       setCustomEmails(prev => prev.filter(e => e !== email));
       setSelectedEmails(prev => prev.filter(e => e !== email));
-      setEmailRoles(prev => {
-        const newRoles = { ...prev };
-        delete newRoles[email];
-        return newRoles;
-      });
+    setEmailRoles(prev => {
+      const newRoles = { ...prev };
+      delete newRoles[email];
+      return newRoles;
+    });
       
       // Refresh product access data
       await loadProductAccess();
@@ -1729,7 +1729,7 @@ export default function ProjectInstanceViewPage() {
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
   return (
-    <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
+    <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-inter">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
@@ -1853,44 +1853,10 @@ export default function ProjectInstanceViewPage() {
                         </button>
                       </div>
 
-                      {/* Content */}
+                                            {/* Content */}
                       <div className="px-6 pb-6">
-                        {/* Workspace Selector (if multiple workspaces) */}
-                        {workspaces.length > 1 && (
-                          <div className="mb-6">
-                            <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.selectWorkspace', 'Select Workspace')}</h3>
-                            <select
-                              value={selectedWorkspaceId || ''}
-                              onChange={(e) => {
-                                const workspaceId = parseInt(e.target.value);
-                                setSelectedWorkspaceId(workspaceId);
-                                loadWorkspaceDetails(workspaceId);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                            >
-                              <option value="">Select a workspace...</option>
-                              {workspaces.map((workspace) => (
-                                <option key={workspace.id} value={workspace.id}>
-                                  {workspace.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        )}
-
-                        {/* Loading State */}
-                        {accessLoading && (
-                          <div className="flex items-center justify-center py-4 mb-6">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                            <span className="ml-2 text-gray-600">Loading workspace data...</span>
-                          </div>
-                        )}
-
-                        {/* Only show content if workspace is selected and loaded */}
-                        {selectedWorkspaceId && !accessLoading && (
-                          <>
-                            {/* Add Member Input */}
-                            <div className="mb-6">
+                        {/* Add Member Input */}
+                        <div className="mb-6">
                           <div className="flex gap-3">
                             <input
                               type="email"
