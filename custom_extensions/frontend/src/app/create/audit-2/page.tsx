@@ -1268,7 +1268,7 @@ export default function AuditPage() {
                   </h5>
                 </div>
                 <div 
-                  className="p-[10px] border-b border-[#E0E0E0]"
+                  className="p-[10px] border-t border-[#E0E0E0]"
                   style={{
                     boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                   }}
@@ -1299,7 +1299,7 @@ export default function AuditPage() {
                 </div>
 
                 <div 
-                  className="p-[10px] border-b border-[#E0E0E0]"
+                  className="p-[10px] border-t border-[#E0E0E0]"
                   style={{
                     boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                   }}
