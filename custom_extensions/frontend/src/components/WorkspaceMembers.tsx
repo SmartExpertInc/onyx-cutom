@@ -447,9 +447,15 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     return (
       <div className="flex items-center justify-center py-12">
         <XCircle className="h-8 w-8 text-red-600" />
-        <span className="ml-2 text-red-600">Error: {error}</span>
-        <button 
-          onClick={loadWorkspaceData}
+                <span className="ml-2 text-red-600">Error: {error}</span>
+        <button
+          onClick={() => {
+            if (targetWorkspaceId) {
+              loadWorkspaceData(targetWorkspaceId);
+            } else {
+              loadUserWorkspaces();
+            }
+          }}
           className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
           Retry
