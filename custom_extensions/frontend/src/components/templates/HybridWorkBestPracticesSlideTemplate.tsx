@@ -277,7 +277,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   width: '20px',
                   height: '20px',
                   backgroundColor: '#2A2828',
-                  color: index < 2 ? '#fff' : '#B7B7B7',
+                  color: (index === 1 || index === 2) ? '#B7B7B7' : '#fff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
