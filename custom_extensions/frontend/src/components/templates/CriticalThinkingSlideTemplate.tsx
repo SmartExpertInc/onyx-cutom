@@ -56,8 +56,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   // Content block styles
   const contentBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '180px', // Below the profile image and title
-    left: '200px', // Aligned with title
+    top: '40px', // From the top of the slide
+    left: '60px',
     right: '60px',
     bottom: '80px', // Leave space for logo at bottom
     backgroundColor: '#E0E0E0', // Darker grey for content block
@@ -197,96 +197,96 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
   return (
     <div className="critical-thinking-slide-template inter-theme" style={slideStyles}>
-      {/* Profile Image - Top Left with orange background */}
-      <div style={{
-        position: 'absolute',
-        top: '40px',
-        left: '60px',
-        width: '120px',
-        height: '120px',
-        borderRadius: '50%',
-        backgroundColor: '#FF6B35', // Orange background as per screenshot
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden'
-      }}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={handleProfileImageUploaded}
-          size="LARGE"
-          position="CENTER"
-          description="Profile"
-          isEditable={isEditable}
-          style={{
-            width: '100%',
-            height: '100%',
-            borderRadius: '50%',
-            objectFit: 'cover',
-            overflow: 'hidden'
-          }}
-        />
-      </div>
-
-      {/* Title - to the right of profile image */}
-      <div style={{
-        position: 'absolute',
-        top: '50px',
-        left: '200px',
-        fontSize: '38px',
-        color: '#4A4A4A', // Dark grey color as per screenshot
-        lineHeight: '1.2',
-        whiteSpace: 'pre-line',
-        minHeight: '60px',
-        maxHeight: '120px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        overflow: 'hidden',
-      }}>
-        {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
-            initialValue={currentTitle}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            className="critical-thinking-title-editor"
+      {/* Content Block - contains everything except logo */}
+      <div style={contentBlockStyles}>
+        {/* Profile Image - Top Left with orange background */}
+        <div style={{
+          position: 'absolute',
+          top: '0px',
+          left: '0px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          backgroundColor: '#FF6B35', // Orange background as per screenshot
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden'
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile"
+            isEditable={isEditable}
             style={{
-              fontSize: '38px',
-              color: '#4A4A4A',
-              lineHeight: '1.2',
-              whiteSpace: 'pre-line',
-              width: '100%',
-              height: 'auto',
-              minHeight: '60px',
-              maxHeight: '120px'
-            }}
-          />
-        ) : (
-          <div
-            onClick={() => isEditable && setEditingTitle(true)}
-            style={{
-              cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none',
               width: '100%',
               height: '100%',
-              display: 'flex',
-              alignItems: 'flex-start',
-              fontSize: '38px',
-              color: '#4A4A4A',
-              lineHeight: '1.2',
-              whiteSpace: 'pre-line',
-              minHeight: '60px',
-              maxHeight: '120px',
+              borderRadius: '50%',
+              objectFit: 'cover',
               overflow: 'hidden'
             }}
-          >
-            {currentTitle}
-          </div>
-        )}
-      </div>
+          />
+        </div>
 
-      {/* Content Block */}
-      <div style={contentBlockStyles}>
+        {/* Title - to the right of profile image */}
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          left: '140px',
+          fontSize: '38px',
+          color: '#4A4A4A', // Dark grey color as per screenshot
+          lineHeight: '1.2',
+          whiteSpace: 'pre-line',
+          minHeight: '60px',
+          maxHeight: '120px',
+          display: 'flex',
+          alignItems: 'flex-start',
+          overflow: 'hidden',
+        }}>
+          {isEditable && editingTitle ? (
+            <ImprovedInlineEditor
+              initialValue={currentTitle}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              className="critical-thinking-title-editor"
+              style={{
+                fontSize: '38px',
+                color: '#4A4A4A',
+                lineHeight: '1.2',
+                whiteSpace: 'pre-line',
+                width: '100%',
+                height: 'auto',
+                minHeight: '60px',
+                maxHeight: '120px'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingTitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-start',
+                fontSize: '38px',
+                color: '#4A4A4A',
+                lineHeight: '1.2',
+                whiteSpace: 'pre-line',
+                minHeight: '60px',
+                maxHeight: '120px',
+                overflow: 'hidden'
+              }}
+            >
+              {currentTitle}
+            </div>
+          )}
+        </div>
+
         {/* Content */}
         <div style={{
           fontSize: '36px',
@@ -296,6 +296,9 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           minHeight: '40px',
           display: 'flex',
           alignItems: 'flex-start',
+          position: 'absolute',
+          top: '140px',
+          left: '0px',
         }}>
           {isEditable && editingContent ? (
             <ImprovedInlineEditor

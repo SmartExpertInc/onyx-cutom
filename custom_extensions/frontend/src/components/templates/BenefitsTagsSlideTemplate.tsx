@@ -62,8 +62,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   // Tags block styles
   const tagsBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '180px', // Below the profile image and title
-    left: '200px', // Aligned with title
+    top: '40px', // From the top of the slide
+    left: '60px',
     right: '60px',
     bottom: '80px', // Leave space for logo at bottom
     backgroundColor: '#E0E0E0', // Darker grey for tags block
@@ -117,22 +117,45 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
   return (
     <div className="benefits-tags-slide-template inter-theme" style={slideStyles}>
-      {/* Top section with title and profile image */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: '60px'
-      }}>
+
+
+      {/* Tags Block - contains everything except logo */}
+      <div style={tagsBlockStyles}>
+        {/* Profile image with orange background */}
+        <div style={{
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          position: 'absolute',
+          left: '0px',
+          top: '0px',
+          backgroundColor: '#FF6B35', // Orange background as per screenshot
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
+
         {/* Title */}
         <div style={{
           fontSize: '49px',
           color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.1',
-          marginTop: '40px',
           position: 'absolute',
-          top: '50px',
-          left: '200px',
+          top: '10px',
+          left: '140px',
         }}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
@@ -161,42 +184,15 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           )}
         </div>
 
-        {/* Profile image with orange background */}
-        <div style={{
-          width: '120px',
-          height: '120px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          position: 'absolute',
-          left: '60px',
-          top: '40px',
-          backgroundColor: '#FF6B35', // Orange background as per screenshot
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Tags Block */}
-      <div style={tagsBlockStyles}>
         {/* Tags section */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '20px',
           width: '100%',
+          position: 'absolute',
+          top: '140px',
+          left: '0px',
         }}>
           {/* First row */}
           <div style={{
