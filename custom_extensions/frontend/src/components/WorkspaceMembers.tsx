@@ -1,31 +1,16 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Plus, Search, Filter, MoreHorizontal, UserPlus, Mail, Shield,
   RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users,
   Settings, Palette, FolderPlus, Tag
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-
-// Types for custom role system
-interface CustomRole {
-  id: string;
-  name: string;
-  color: string;
-  textColor: string;
-  permissions: string[];
-}
-
-interface WorkspaceMember {
-  id: number;
-  name: string;
-  email: string;
-  role: string; // Now can be any custom role name
-  roleId?: string; // Reference to custom role
-  status: 'Active' | 'Suspended' | 'Blocked' | 'Pending';
-  invitationDate: string;
-}
+import workspaceService, { 
+  WorkspaceRole, WorkspaceMember, WorkspaceMemberCreate, 
+  WorkspaceRoleCreate, WorkspaceRoleUpdate 
+} from '../services/workspaceService';
 
 // Predefined color options for roles (pale backgrounds with darker text)
 const ROLE_COLORS = [
@@ -41,88 +26,18 @@ const ROLE_COLORS = [
   { bg: '#F7FEE7', text: '#65A30D' }, // Pale Lime
 ];
 
-const WorkspaceMembers: React.FC = () => {
+interface WorkspaceMembersProps {
+  workspaceId: number;
+}
+
+const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const { t } = useLanguage();
 
-  // Use useMemo to recalculate custom roles whenever language changes
-  const customRoles = useMemo<CustomRole[]>(() => [
-    {
-      id: 'admin',
-      name: t('interface.roles.admin', 'Admin'),
-      color: '#F3E8FF',
-      textColor: '#7C3AED',
-      permissions: [
-        t('interface.permissions.fullAccess', 'Full Access'),
-        t('interface.permissions.manageUsers', 'Manage Users'),
-        t('interface.permissions.manageSettings', 'Manage Settings')
-      ]
-    },
-    {
-      id: 'member',
-      name: t('interface.roles.member', 'Member'),
-      color: '#EFF6FF',
-      textColor: '#1E40AF',
-      permissions: [
-        t('interface.permissions.viewProjects', 'View Projects'),
-        t('interface.permissions.editOwnWork', 'Edit Own Work')
-      ]
-    },
-    {
-      id: 'viewer',
-      name: t('interface.roles.viewer', 'Viewer'),
-      color: '#F9FAFB',
-      textColor: '#374151',
-      permissions: [
-        t('interface.permissions.viewOnly', 'View Only')
-      ]
-    },
-    {
-      id: 'manager',
-      name: t('interface.roles.manager', 'Manager'),
-      color: '#ECFDF5',
-      textColor: '#047857',
-      permissions: [
-        t('interface.permissions.manageProjects', 'Manage Projects'),
-        t('interface.permissions.assignTasks', 'Assign Tasks')
-      ]
-    },
-    {
-      id: 'editor',
-      name: t('interface.roles.editor', 'Editor'),
-      color: '#FFFBEB',
-      textColor: '#D97706',
-      permissions: [
-        t('interface.permissions.editContent', 'Edit Content'),
-        t('interface.permissions.reviewWork', 'Review Work')
-      ]
-    },
-  ], [t]);
-
-  // State for custom roles that can be added by users
-  const [userCustomRoles, setUserCustomRoles] = useState<CustomRole[]>([]);
-
-  // Combine predefined roles with user custom roles
-  const allCustomRoles = useMemo(() => [...customRoles, ...userCustomRoles], [customRoles, userCustomRoles]);
-
-  // Initialize members with translated role names
-  const [members, setMembers] = useState<WorkspaceMember[]>([
-    { id: 1, name: "Olivia Bennett", email: "olivia@company.com", role: "Admin", roleId: "admin", status: "Active", invitationDate: "2025-08-10" },
-    { id: 2, name: "Lucas Harrison", email: "lucas@company.com", role: "Member", roleId: "member", status: "Suspended", invitationDate: "2025-08-12" },
-    { id: 3, name: "Chloe Morgan", email: "chloe@company.com", role: "Viewer", roleId: "viewer", status: "Blocked", invitationDate: "2025-08-09" },
-    { id: 4, name: "James Whitaker", email: "james@company.com", role: "Manager", roleId: "manager", status: "Active", invitationDate: "2025-08-05" },
-    { id: 5, name: "Emma Davis", email: "emma@company.com", role: "Editor", roleId: "editor", status: "Active", invitationDate: "2025-08-08" },
-  ]);
-
-  // Update member role names when language changes
-  const membersWithTranslatedRoles = useMemo(() => {
-    return members.map((member: WorkspaceMember) => {
-      const role = allCustomRoles.find((r: CustomRole) => r.id === member.roleId);
-      return {
-        ...member,
-        role: role?.name || member.role
-      };
-    });
-  }, [members, allCustomRoles]);
+  // State for real data
+  const [roles, setRoles] = useState<WorkspaceRole[]>([]);
+  const [members, setMembers] = useState<WorkspaceMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // UI State
   const [showAddMember, setShowAddMember] = useState(false);
@@ -130,8 +45,8 @@ const WorkspaceMembers: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [newMemberEmail, setNewMemberEmail] = useState('');
-  const [newMemberRole, setNewMemberRole] = useState<string>('member');
-  const [newMemberStatus, setNewMemberStatus] = useState<'Active' | 'Suspended' | 'Blocked' | 'Pending'>('Pending');
+  const [newMemberRole, setNewMemberRole] = useState<number | ''>('');
+  const [newMemberStatus, setNewMemberStatus] = useState<'pending' | 'active' | 'suspended'>('pending');
 
   // Role management state
   const [newRoleName, setNewRoleName] = useState('');
@@ -140,6 +55,31 @@ const WorkspaceMembers: React.FC = () => {
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
   const [showColorPalette, setShowColorPalette] = useState(false);
 
+  // Load workspace data
+  useEffect(() => {
+    loadWorkspaceData();
+  }, [workspaceId]);
+
+  const loadWorkspaceData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const [rolesData, membersData] = await Promise.all([
+        workspaceService.getWorkspaceRoles(workspaceId),
+        workspaceService.getWorkspaceMembers(workspaceId)
+      ]);
+      
+      setRoles(rolesData);
+      setMembers(membersData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load workspace data');
+      console.error('Error loading workspace data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatDate = (dateInput: string): string => {
     const date = new Date(dateInput);
     if (Number.isNaN(date.getTime())) return dateInput;
@@ -147,130 +87,141 @@ const WorkspaceMembers: React.FC = () => {
   };
 
   // Get role by ID
-  const getRoleById = useCallback((roleId: string) => {
-    return allCustomRoles.find((role: CustomRole) => role.id === roleId);
-  }, [allCustomRoles]);
+  const getRoleById = useCallback((roleId: number) => {
+    return roles.find((role) => role.id === roleId);
+  }, [roles]);
 
   // Get role color
-  const getRoleColor = useCallback((role: string, roleId?: string) => {
-    if (roleId) {
-      const foundRole = getRoleById(roleId);
-      if (foundRole) return foundRole.color;
-    }
-
-    // Fallback to hardcoded colors for backward compatibility
-    switch (role) {
-      case 'Admin': return '#F3E8FF';
-      case 'Member': return '#EFF6FF';
-      case 'Viewer': return '#F9FAFB';
-      default: return '#F9FAFB';
-    }
+  const getRoleColor = useCallback((roleId: number) => {
+    const role = getRoleById(roleId);
+    return role?.color || '#F9FAFB';
   }, [getRoleById]);
 
   // Get role text color
-  const getRoleTextColor = useCallback((role: string, roleId?: string) => {
-    if (roleId) {
-      const foundRole = getRoleById(roleId);
-      if (foundRole) return foundRole.textColor;
-    }
-
-    // Fallback to hardcoded colors for backward compatibility
-    switch (role) {
-      case 'Admin': return '#7C3AED';
-      case 'Member': return '#1E40AF';
-      case 'Viewer': return '#374151';
-      default: return '#374151';
-    }
+  const getRoleTextColor = useCallback((roleId: number) => {
+    const role = getRoleById(roleId);
+    return role?.text_color || '#374151';
   }, [getRoleById]);
 
   // Get status color
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active': return 'bg-green-500';
-      case 'Suspended': return 'bg-red-500';
-      case 'Blocked': return 'bg-gray-500';
-      case 'Pending': return 'bg-yellow-500';
+      case 'active': return 'bg-green-500';
+      case 'suspended': return 'bg-red-500';
+      case 'pending': return 'bg-yellow-500';
       default: return 'bg-gray-500';
     }
   };
 
   // Filter members based on search term and status filter
   const filteredMembers = useMemo(() => {
-    return membersWithTranslatedRoles.filter((member: WorkspaceMember) => {
-      const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        member.email.toLowerCase().includes(searchTerm.toLowerCase());
+    return members.filter((member) => {
+      const matchesSearch = (member.user_name || member.user_id).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (member.user_email || '').toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === '' || member.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [membersWithTranslatedRoles, searchTerm, statusFilter]);
+  }, [members, searchTerm, statusFilter]);
 
   // Handle member actions
-  const handleDeleteMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.filter(member => member.id !== memberId));
-  }, []);
+  const handleDeleteMember = useCallback(async (memberId: number) => {
+    try {
+      await workspaceService.removeMember(workspaceId, memberId.toString());
+      setMembers(prev => prev.filter(member => member.id !== memberId));
+    } catch (err) {
+      console.error('Failed to delete member:', err);
+      // You might want to show a toast notification here
+    }
+  }, [workspaceId]);
 
-  const handleSuspendMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member =>
-      member.id === memberId ? { ...member, status: 'Suspended' as const } : member
-    ));
-  }, []);
+  const handleSuspendMember = useCallback(async (memberId: number) => {
+    try {
+      const updatedMember = await workspaceService.updateMember(
+        workspaceId, 
+        memberId.toString(), 
+        { status: 'suspended' }
+      );
+      setMembers(prev => prev.map(member =>
+        member.id === memberId ? updatedMember : member
+      ));
+    } catch (err) {
+      console.error('Failed to suspend member:', err);
+    }
+  }, [workspaceId]);
 
-  const handleActivateMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member =>
-      member.id === memberId ? { ...member, status: 'Active' as const } : member
-    ));
-  }, []);
-
-  const handleUnblockMember = useCallback((memberId: number) => {
-    setMembers(prev => prev.map(member =>
-      member.id === memberId ? { ...member, status: 'Active' as const } : member
-    ));
-  }, []);
+  const handleActivateMember = useCallback(async (memberId: number) => {
+    try {
+      const updatedMember = await workspaceService.updateMember(
+        workspaceId, 
+        memberId.toString(), 
+        { status: 'active' }
+      );
+      setMembers(prev => prev.map(member =>
+        member.id === memberId ? updatedMember : member
+      ));
+    } catch (err) {
+      console.error('Failed to activate member:', err);
+    }
+  }, [workspaceId]);
 
   // Handle add member
-  const handleAddMember = useCallback(() => {
-    if (newMemberEmail.trim()) {
-      const selectedRole = getRoleById(newMemberRole);
-      const newMember: WorkspaceMember = {
-        id: Math.max(...members.map(m => m.id)) + 1,
-        name: newMemberEmail.split('@')[0], // Simple name generation
-        email: newMemberEmail.trim(),
-        role: selectedRole?.name || 'Member',
-        roleId: selectedRole?.id,
-        status: newMemberStatus,
-        invitationDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      };
-      setMembers(prev => [...prev, newMember]);
-      setNewMemberEmail('');
-      setNewMemberRole('member');
-      setNewMemberStatus('Pending');
-      setShowAddMember(false);
+  const handleAddMember = useCallback(async () => {
+    if (newMemberEmail.trim() && newMemberRole) {
+      try {
+        const newMember: Omit<WorkspaceMemberCreate, 'workspace_id'> = {
+          user_id: newMemberEmail.trim(),
+          role_id: newMemberRole as number,
+          status: newMemberStatus
+        };
+        
+        const addedMember = await workspaceService.addMember(workspaceId, newMember);
+        setMembers(prev => [...prev, addedMember]);
+        
+        // Reset form
+        setNewMemberEmail('');
+        setNewMemberRole('');
+        setNewMemberStatus('pending');
+        setShowAddMember(false);
+      } catch (err) {
+        console.error('Failed to add member:', err);
+        // You might want to show a toast notification here
+      }
     }
-  }, [newMemberEmail, newMemberRole, newMemberStatus, members, getRoleById]);
+  }, [newMemberEmail, newMemberRole, newMemberStatus, workspaceId]);
 
   // Role management functions
-  const handleAddRole = useCallback(() => {
+  const handleAddRole = useCallback(async () => {
     if (newRoleName.trim()) {
-      const newRole: CustomRole = {
-        id: `role-${Date.now()}`,
-        name: newRoleName.trim(),
-        color: newRoleColor,
-        textColor: newRoleTextColor,
-        permissions: newRolePermissions
-      };
-      setUserCustomRoles(prev => [...prev, newRole]);
-      setNewRoleName('');
-      setNewRoleColor(ROLE_COLORS[0].bg);
-      setNewRoleTextColor(ROLE_COLORS[0].text);
-      setNewRolePermissions([]);
+      try {
+        const newRole: Omit<WorkspaceRoleCreate, 'workspace_id'> = {
+          name: newRoleName.trim(),
+          color: newRoleColor,
+          text_color: newRoleTextColor,
+          permissions: newRolePermissions
+        };
+        
+        const addedRole = await workspaceService.createRole(workspaceId, newRole);
+        setRoles(prev => [...prev, addedRole]);
+        
+        // Reset form
+        setNewRoleName('');
+        setNewRoleColor(ROLE_COLORS[0].bg);
+        setNewRoleTextColor(ROLE_COLORS[0].text);
+        setNewRolePermissions([]);
+      } catch (err) {
+        console.error('Failed to add role:', err);
+      }
     }
-  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions]);
+  }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, workspaceId]);
 
-  const handleDeleteRole = useCallback((roleId: string) => {
-    if (roleId !== 'admin' && roleId !== 'member' && roleId !== 'viewer') {
-      setUserCustomRoles(prev => prev.filter(role => role.id !== roleId));
+  const handleDeleteRole = useCallback(async (roleId: number) => {
+    try {
+      await workspaceService.deleteRole(workspaceId, roleId);
+      setRoles(prev => prev.filter(role => role.id !== roleId));
+    } catch (err) {
+      console.error('Failed to delete role:', err);
     }
-  }, []);
+  }, [workspaceId]);
 
   const handleTogglePermission = useCallback((permission: string) => {
     setNewRolePermissions(prev =>
@@ -280,18 +231,44 @@ const WorkspaceMembers: React.FC = () => {
     );
   }, []);
 
-  const handleRoleChange = (memberId: number, newRoleId: string) => {
-    const selectedRole = getRoleById(newRoleId);
-    if (!selectedRole) return;
-
-    setMembers(prev =>
-      prev.map(m =>
-        m.id === memberId
-          ? { ...m, roleId: newRoleId, role: selectedRole.name }
-          : m
-      )
-    );
+  const handleRoleChange = async (memberId: number, newRoleId: number) => {
+    try {
+      const updatedMember = await workspaceService.updateMember(
+        workspaceId, 
+        memberId.toString(), 
+        { role_id: newRoleId }
+      );
+      setMembers(prev =>
+        prev.map(m => m.id === memberId ? updatedMember : m)
+      );
+    } catch (err) {
+      console.error('Failed to update member role:', err);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-2 text-gray-600">Loading workspace data...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <XCircle className="h-8 w-8 text-red-600" />
+        <span className="ml-2 text-red-600">Error: {error}</span>
+        <button 
+          onClick={loadWorkspaceData}
+          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -316,10 +293,9 @@ const WorkspaceMembers: React.FC = () => {
               className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
             >
               <option value="" className="text-black">{t('interface.filters.allStatuses', 'All Statuses')}</option>
-              <option value="Active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
-              <option value="Suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
-              <option value="Blocked" className="text-black">{t('interface.statuses.blocked', 'Blocked')}</option>
-              <option value="Pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
+              <option value="active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
+              <option value="suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
+              <option value="pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
             </select>
           </div>
 
@@ -384,32 +360,32 @@ const WorkspaceMembers: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700">
-                          {member.name.charAt(0).toUpperCase()}
+                          {(member.user_name || member.user_id).charAt(0).toUpperCase()}
                         </div>
                         <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">{member.name}</div>
+                          <div className="text-sm font-medium text-gray-900">{member.user_name || member.user_id}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {member.email}
+                      {member.user_email || 'No email'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                         style={{
-                          backgroundColor: getRoleColor(member.role, member.roleId),
-                          color: getRoleTextColor(member.role, member.roleId)
+                          backgroundColor: getRoleColor(member.role_id),
+                          color: getRoleTextColor(member.role_id)
                         }}
                       >
                         <select
-                          value={member.roleId}
-                          onChange={(e) => handleRoleChange(member.id, e.target.value)}
+                          value={member.role_id}
+                          onChange={(e) => handleRoleChange(member.id, parseInt(e.target.value))}
                           className="px-1 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
                           required
                         >
-                          {allCustomRoles.map((role) => (
-                            <option key={role.id} value={role.id} style={{ color: role.textColor }}>
+                          {roles.map((role) => (
+                            <option key={role.id} value={role.id} style={{ color: role.text_color }}>
                               {role.name}
                             </option>
                           ))}
@@ -420,12 +396,12 @@ const WorkspaceMembers: React.FC = () => {
                       <div className="flex items-center">
                         <div className={`h-2 w-2 rounded-full ${getStatusColor(member.status)} mr-2`}></div>
                         <span className="text-sm text-gray-900">
-                          {t(`interface.statuses.${member.status.toLowerCase()}`, member.status)}
+                          {t(`interface.statuses.${member.status}`, member.status)}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(member.invitationDate)}
+                      {formatDate(member.invited_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="relative group">
@@ -434,7 +410,7 @@ const WorkspaceMembers: React.FC = () => {
                         </button>
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                           <div className="py-1">
-                            {member.status === 'Active' && (
+                            {member.status === 'active' && (
                               <button
                                 onClick={() => handleSuspendMember(member.id)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -442,7 +418,7 @@ const WorkspaceMembers: React.FC = () => {
                                 {t('interface.workspaceActions.suspend', 'Suspend')}
                               </button>
                             )}
-                            {member.status === 'Suspended' && (
+                            {member.status === 'suspended' && (
                               <button
                                 onClick={() => handleActivateMember(member.id)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -450,15 +426,7 @@ const WorkspaceMembers: React.FC = () => {
                                 {t('interface.workspaceActions.activate', 'Activate')}
                               </button>
                             )}
-                            {member.status === 'Blocked' && (
-                              <button
-                                onClick={() => handleUnblockMember(member.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                {t('interface.workspaceActions.unblock', 'Unblock')}
-                              </button>
-                            )}
-                            {member.status === 'Pending' && (
+                            {member.status === 'pending' && (
                               <button
                                 onClick={() => handleActivateMember(member.id)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -526,10 +494,11 @@ const WorkspaceMembers: React.FC = () => {
                 </label>
                 <select
                   value={newMemberRole}
-                  onChange={(e) => setNewMemberRole(e.target.value)}
+                  onChange={(e) => setNewMemberRole(e.target.value ? parseInt(e.target.value) : '')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
-                  {allCustomRoles.map(role => (
+                  <option value="">Select a role</option>
+                  {roles.map(role => (
                     <option key={role.id} value={role.id}>
                       {role.name}
                     </option>
@@ -543,13 +512,12 @@ const WorkspaceMembers: React.FC = () => {
                 </label>
                 <select
                   value={newMemberStatus}
-                  onChange={(e) => setNewMemberStatus(e.target.value as 'Active' | 'Suspended' | 'Blocked' | 'Pending')}
+                  onChange={(e) => setNewMemberStatus(e.target.value as 'pending' | 'active' | 'suspended')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
-                  <option value="Pending">{t('interface.statuses.pending', 'Pending')}</option>
-                  <option value="Active">{t('interface.statuses.active', 'Active')}</option>
-                  <option value="Suspended">{t('interface.statuses.suspended', 'Suspended')}</option>
-                  <option value="Blocked">{t('interface.statuses.blocked', 'Blocked')}</option>
+                  <option value="pending">{t('interface.statuses.pending', 'Pending')}</option>
+                  <option value="active">{t('interface.statuses.active', 'Active')}</option>
+                  <option value="suspended">{t('interface.statuses.suspended', 'Suspended')}</option>
                 </select>
               </div>
             </div>
@@ -563,7 +531,7 @@ const WorkspaceMembers: React.FC = () => {
               </button>
               <button
                 onClick={handleAddMember}
-                disabled={!newMemberEmail.trim()}
+                disabled={!newMemberEmail.trim() || !newMemberRole}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t('interface.addMemberModal.sendInvitation', 'Send Invitation')}
@@ -641,16 +609,13 @@ const WorkspaceMembers: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">{t('interface.roleManager.permissions', 'Permissions')}</label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        t('interface.permissions.fullAccess', 'Full Access'),
-                        t('interface.permissions.manageUsers', 'Manage Users'),
-                        t('interface.permissions.manageSettings', 'Manage Settings'),
-                        t('interface.permissions.viewProjects', 'View Projects'),
-                        t('interface.permissions.editOwnWork', 'Edit Own Work'),
-                        t('interface.permissions.viewOnly', 'View Only'),
-                        t('interface.permissions.manageProjects', 'Manage Projects'),
-                        t('interface.permissions.assignTasks', 'Assign Tasks'),
-                        t('interface.permissions.editContent', 'Edit Content'),
-                        t('interface.permissions.reviewWork', 'Review Work')
+                        'manage_workspace',
+                        'manage_members',
+                        'manage_roles',
+                        'view_content',
+                        'edit_content',
+                        'delete_content',
+                        'manage_product_access'
                       ].map((permission) => (
                         <label key={permission} className="flex items-center">
                           <input
@@ -680,19 +645,19 @@ const WorkspaceMembers: React.FC = () => {
               <div className="space-y-4">
                 <h4 className="text-lg font-medium text-gray-900">{t('interface.roleManager.existingRoles', 'Existing Roles')}</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {allCustomRoles.map((role) => (
+                  {roles.map((role) => (
                     <div key={role.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <span
                           className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                           style={{
                             backgroundColor: role.color,
-                            color: role.textColor
+                            color: role.text_color
                           }}
                         >
                           {role.name}
                         </span>
-                        {role.id !== 'admin' && role.id !== 'member' && role.id !== 'viewer' && (
+                        {!role.is_default && (
                           <button
                             onClick={() => handleDeleteRole(role.id)}
                             className="text-red-600 hover:text-red-800 text-sm"

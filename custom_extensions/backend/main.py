@@ -47,6 +47,17 @@ from app.models.feature_models import (
     BulkFeatureToggleRequest, FeatureToggleRequest
 )
 
+# Workspace management models and services
+from app.models.workspace_models import (
+    Workspace, WorkspaceCreate, WorkspaceUpdate,
+    WorkspaceWithMembers, WorkspaceRole, WorkspaceRoleCreate, WorkspaceRoleUpdate,
+    WorkspaceMember, WorkspaceMemberCreate, WorkspaceMemberUpdate,
+    ProductAccess, ProductAccessCreate
+)
+from app.services.workspace_service import WorkspaceService
+from app.services.role_service import RoleService
+from app.services.product_access_service import ProductAccessService
+
 # --- CONTROL VARIABLE FOR PRODUCTION LOGGING ---
 # SET THIS TO True FOR PRODUCTION, False FOR DEVELOPMENT
 IS_PRODUCTION = False  # Or True for production
@@ -6644,6 +6655,14 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_name ON design_templates(template_name);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_design_templates_mptype ON design_templates(microproduct_type);")
             logger.info("'design_templates' table ensured.")
+
+            # --- Initialize workspace database tables ---
+            try:
+                from app.core.database import init_database
+                await init_database()
+                logger.info("Workspace database tables initialized successfully")
+            except Exception as db_init_error:
+                logger.warning(f"Failed to initialize workspace database tables: {db_init_error}")
 
             # --- Ensure a soft-delete trash table for projects ---
             await connection.execute("""
