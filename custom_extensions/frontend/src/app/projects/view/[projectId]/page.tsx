@@ -192,6 +192,8 @@ export default function ProjectInstanceViewPage() {
   const [newEmail, setNewEmail] = useState('');
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [generalAccessOption, setGeneralAccessOption] = useState<'restricted' | 'anyone'>('restricted');
+  const [showGeneralAccessDropdown, setShowGeneralAccessDropdown] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -202,14 +204,26 @@ export default function ProjectInstanceViewPage() {
       }
       // Close role dropdown
       if (showRoleDropdown) {
-        setShowRoleDropdown(false);
+        const target = e.target as Node;
+        const rolesSection = document.querySelector('[data-roles-section]');
+        if (rolesSection && !rolesSection.contains(target)) {
+          setShowRoleDropdown(false);
+        }
+      }
+      // Close general access dropdown
+      if (showGeneralAccessDropdown) {
+        const target = e.target as Node;
+        const generalAccessSection = document.querySelector('[data-general-access-section]');
+        if (generalAccessSection && !generalAccessSection.contains(target)) {
+          setShowGeneralAccessDropdown(false);
+        }
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown, showRoleDropdown]);
+  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -1487,7 +1501,7 @@ export default function ProjectInstanceViewPage() {
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
                               placeholder={t('interface.projectView.addMembersToProduct', 'Add members to product')}
-                              className="flex-1 px-4 py-3 text-sm border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="flex-1 px-4 py-3 text-sm placeholder-gray-400 text-gray-400 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
                             <button
@@ -1529,26 +1543,107 @@ export default function ProjectInstanceViewPage() {
                         </div>
 
                         {/* General access */}
-                        <div className="mb-6">
+                        <div className="mb-6" data-general-access-section>
                           <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.generalAccess', 'General access')}</h3>
-                          <div className="p-2 bg-white rounded-lg">
-                            <div className="flex items-center gap-1 mb-1">
-                              <div className="w-8 h-8 bg-[#D9D9D9] rounded-full flex items-center justify-center mr-1">
-                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          <div className="relative">
+                            <div
+                              className="p-2 bg-white rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowGeneralAccessDropdown(!showGeneralAccessDropdown)}
+                            >
+                              <div className="flex items-center gap-1 mb-1">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-1 ${generalAccessOption === 'restricted' ? 'bg-[#D9D9D9]' : 'bg-[#C4EED0]'}`}>
+                                  {generalAccessOption === 'restricted' ? (
+                                    <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4 text-gray-600" viewBox="0 0 55.818 55.818" xmlns="http://www.w3.org/2000/svg">
+                                      <g id="Group_6" data-name="Group 6" transform="translate(-1212.948 -289.602)">
+                                        <path id="Path_19" data-name="Path 19" d="M1249.54,294.79s-4.5.25-5,6.25a17.908,17.908,0,0,0,2.5,10.5s2.193-1.558-.028,5.971,7.278,14.529,10.778,6.279-.5-11.783,2-12.641a33.771,33.771,0,0,0,5.382-2.6l-3.229-6.081-5.21-5.421-7.43-4.027Z" fill="#231f20" />
+                                        <path id="Path_20" data-name="Path 20" d="M1219.365,331.985s2.675-14.195,6.425-10.695.25,5.5,2.5,9,5.25,1.5,5.5,5.5.755,6.979,2.618,7.241S1222.967,339.984,1219.365,331.985Z" fill="#231f20" />
+                                        <path id="Path_21" data-name="Path 21" d="M1266.766,317.511a25.909,25.909,0,1,1-25.91-25.909A25.909,25.909,0,0,1,1266.766,317.511Z" fill="none" stroke="#231f20" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
+                                        <path id="Path_22" data-name="Path 22" d="M1240.122,311.619a6.078,6.078,0,1,1-6.078-6.079A6.079,6.079,0,0,1,1240.122,311.619Z" fill="#231f20" />
+                                      </g>
+                                    </svg>
+                                  )}
+                                </div>
+                                <span className="text-sm -mt-3 font-medium text-gray-900">
+                                  {generalAccessOption === 'restricted'
+                                    ? t('interface.projectView.restricted', 'Restricted')
+                                    : t('interface.projectView.anyoneWithLink', 'Anyone with link')
+                                  }
+                                </span>
+                                <svg className="w-4 h-4 -mt-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                               </div>
-                              <span className="text-sm -mt-3 font-medium text-gray-900">{t('interface.projectView.restricted', 'Restricted')}</span>
-                              <svg className="w-4 h-4 -mt-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
+                              <p className="text-xs -mt-2 text-gray-600 ml-10">
+                                {generalAccessOption === 'restricted'
+                                  ? t('interface.projectView.onlyMembersWithAccess', 'Only members with access can open with the link.')
+                                  : t('interface.projectView.anyoneOnTheInternet', 'Anyone on the internet with the link can view.')
+                                }
+                              </p>
                             </div>
-                            <p className="text-xs -mt-2 text-gray-600 ml-10">{t('interface.projectView.onlyMembersWithAccess', 'Only members with access can open with the link.')}</p>
+
+                            {/* General Access Dropdown */}
+                            {showGeneralAccessDropdown && (
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
+                                <div className="space-y-2">
+                                  <label className="flex items-center cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name="generalAccess"
+                                      value="restricted"
+                                      checked={generalAccessOption === 'restricted'}
+                                      onChange={() => setGeneralAccessOption('restricted')}
+                                      className="mr-3 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-6 h-6 bg-[#D9D9D9] rounded-full flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                      </div>
+                                      <div>
+                                        <span className="text-sm font-medium text-gray-900">{t('interface.projectView.restricted', 'Restricted')}</span>
+                                        <p className="text-xs text-gray-500">{t('interface.projectView.onlyMembersWithAccess', 'Only members with access can open with the link.')}</p>
+                                      </div>
+                                    </div>
+                                  </label>
+                                  <label className="flex items-center cursor-pointer">
+                                    <input
+                                      type="radio"
+                                      name="generalAccess"
+                                      value="anyone"
+                                      checked={generalAccessOption === 'anyone'}
+                                      onChange={() => setGeneralAccessOption('anyone')}
+                                      className="mr-3 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-6 h-6 bg-[#C4EED0] rounded-full flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-gray-600" viewBox="0 0 55.818 55.818" xmlns="http://www.w3.org/2000/svg">
+                                          <g id="Group_6" data-name="Group 6" transform="translate(-1212.948 -289.602)">
+                                            <path id="Path_19" data-name="Path 19" d="M1249.54,294.79s-4.5.25-5,6.25a17.908,17.908,0,0,0,2.5,10.5s2.193-1.558-.028,5.971,7.278,14.529,10.778,6.279-.5-11.783,2-12.641a33.771,33.771,0,0,0,5.382-2.6l-3.229-6.081-5.21-5.421-7.43-4.027Z" fill="#231f20" />
+                                            <path id="Path_20" data-name="Path 20" d="M1219.365,331.985s2.675-14.195,6.425-10.695.25,5.5,2.5,9,5.25,1.5,5.5,5.5.755,6.979,2.618,7.241S1222.967,339.984,1219.365,331.985Z" fill="#231f20" />
+                                            <path id="Path_21" data-name="Path 21" d="M1266.766,317.511a25.909,25.909,0,1,1-25.91-25.909A25.909,25.909,0,0,1,1266.766,317.511Z" fill="none" stroke="#231f20" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
+                                            <path id="Path_22" data-name="Path 22" d="M1240.122,311.619a6.078,6.078,0,1,1-6.078-6.079A6.079,6.079,0,0,1,1240.122,311.619Z" fill="#231f20" />
+                                          </g>
+                                        </svg>
+                                      </div>
+                                      <div>
+                                        <span className="text-sm font-medium text-gray-900">{t('interface.projectView.anyoneWithLink', 'Anyone with link')}</span>
+                                        <p className="text-xs text-gray-500">{t('interface.projectView.anyoneOnTheInternet', 'Anyone on the internet with the link can view.')}</p>
+                                      </div>
+                                    </div>
+                                  </label>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
                         {/* Roles that have access */}
-                        <div className="mb-6">
+                        <div className="mb-6" data-roles-section>
                           <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.rolesThatHaveAccess', 'Roles that have access')}</h3>
                           <div className="relative">
                             <div
@@ -1586,7 +1681,7 @@ export default function ProjectInstanceViewPage() {
 
                             {/* Role Dropdown */}
                             {showRoleDropdown && (
-                              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
+                              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
                                 <div className="space-y-2">
                                   {predefinedRoles.map((role) => (
                                     <label key={role.id} className="flex items-center cursor-pointer">
