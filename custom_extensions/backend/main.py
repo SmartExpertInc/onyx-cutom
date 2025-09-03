@@ -12404,9 +12404,9 @@ async def get_user_projects_list_from_db(
             if not membership_check:
                 logger.info(f"   ❌ User {onyx_user_id} is not a member of any workspace!")
                 logger.info(f"   💡 Add user to a workspace to enable shared project access")
-        else:
-            # Debug why no shared projects found
-            logger.info(f"🔍 [WORKSPACE DEBUG] Checking why no shared projects found for user {onyx_user_id}:")
+            else:
+                # Debug why no shared projects found
+                logger.info(f"🔍 [WORKSPACE DEBUG] Checking why no shared projects found for user {onyx_user_id}:")
             
             # Check workspace memberships
             membership_check = await conn.fetch("""
