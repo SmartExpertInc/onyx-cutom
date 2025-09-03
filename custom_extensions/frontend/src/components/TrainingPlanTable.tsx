@@ -794,11 +794,30 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     }
 
     // Filter to lesson plans only
-    const allLessonPlans = allUserMicroproducts.filter(mp => 
-      mp.productType === 'lesson-plan' || mp.microProductType === 'Lesson Plan'
-    );
+    const allLessonPlans = allUserMicroproducts.filter(mp => {
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      const isLessonPlan = mpDesignMicroproductType === "LessonPlanDisplay" || 
+                           mpDesignMicroproductType === "LessonPlan" ||
+                           mpDesignMicroproductType === "Lesson Plan" ||
+                           mpDesignMicroproductType?.toLowerCase() === "lessonplandisplay";
+      console.log(`🔍 [LESSON_PLAN_DISCOVERY] Checking product:`, {
+        id: mp.id,
+        projectName: mp.projectName,
+        designMicroproductType: mpDesignMicroproductType,
+        isLessonPlan,
+        expectedTypes: ["LessonPlanDisplay", "LessonPlan", "Lesson Plan", "lessonplandisplay"]
+      });
+      return isLessonPlan;
+    });
 
-    console.log(`🔍 [LESSON_PLAN_DISCOVERY] Found ${allLessonPlans.length} total lesson plans`);
+    console.log(`🔍 [LESSON_PLAN_DISCOVERY] Found ${allLessonPlans.length} lesson plans in allUserMicroproducts:`);
+    allLessonPlans.forEach((lessonPlan, index) => {
+      console.log(`  Lesson Plan ${index + 1}:`, {
+        id: lessonPlan.id,
+        projectName: lessonPlan.projectName,
+        designMicroproductType: (lessonPlan as any).design_microproduct_type
+      });
+    });
 
     if (allLessonPlans.length === 0) {
       console.log(`❌ [LESSON_PLAN_DISCOVERY] No lesson plans found`);
