@@ -1330,14 +1330,14 @@ export default function AuditPage() {
               <h3 className="font-medium text-[22px] leading-[130%] mb-[10px]">
                 LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
               </h3>
-              
-              <div 
-                className="h-[180px] rounded-[2px] border border-[#E0E0E0] mb-[15px]"
-                style={{
-                  backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-3-image-1-mobile.png)',
-                  boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
-                }}
-              ></div>
+
+              <Image 
+                src="/custom-projects-ui/images/audit-section-5-service-3-image-1-mobile.png"
+                alt="Card 1"
+                width={300}
+                height={180}
+                className="w-full"
+              />
 
               <div className="py-[20px] px-[15px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px]">
                 <h4 className="font-semibold text-[20px] mb-[15px]">
@@ -1590,16 +1590,23 @@ export default function AuditPage() {
 
           {/* Section 6 */}
           <section className="bg-[#3E3AD9] pt-[60px] px-[20px] xl:px-[120px]">
-            <div className="relative bg-white rounded-t-lg p-8 h-96 mb-8 flex flex-col items-center justify-center">
+            <div className="relative bg-white rounded-t-lg px-8 pt-[30px] pb-[100px] mb-8 flex flex-col justify-center">
               <svg 
-                className="absolute bottom-0 left-0 w-1/4 h-1/4"
+                className="absolute"
+                style={{
+                  width: '204px',
+                  height: '195px',
+                  top: '121px',
+                  left: '-42px',
+                  opacity: 1
+                }}
                 width="204" 
                 height="195" 
                 viewBox="0 0 162 165" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path d="M-23.4889 0V195M0.358345 0V195M24.2056 0V195M48.0528 0V195M71.9 0V195M95.7473 0V195M119.594 0V195M143.442 0V195M162 2.26744L-42 2.26743M162 26.1228L-42 26.1228M162 49.9782L-42 49.9782M162 73.8336L-42 73.8336M162 97.6889L-42 97.6889M162 121.544L-42 121.544M162 145.4L-42 145.4M162 169.255L-42 169.255M162 193.11L-42 193.11" stroke="url(#paint0_linear_379_21259)" strokeWidth="0.539877"/>
+                <path d="M-23.4889 0V195M0.358345 0V195M24.2056 0V195M48.0528 0V195M71.9 0V195M95.7473 0V195M119.594 0V195M143.442 0V195M162 2.26744L-42 2.26743M162 26.1228L-42 26.1228M162 49.9782L-42 49.9782M162 73.8336L-42 73.8336M162 97.6889L-42 97.6889M162 121.544L-42 121.544M162 145.4L-42 145.4M162 169.255L-42 169.255M162 193.11L-42 193.11" stroke="url(#paint0_linear_379_21259)" strokeWidth="0.54"/>
                 <defs>
                   <linearGradient id="paint0_linear_379_21259" x1="5.97777" y1="190.465" x2="132.587" y2="29.7078" gradientUnits="userSpaceOnUse">
                     <stop stopColor="#0094FF" stopOpacity="0.6"/>
@@ -1614,19 +1621,23 @@ export default function AuditPage() {
                 </h2>
                 
                 <button 
-                  className="text-white font-semibold text-[16px] rounded-lg"
+                  className="text-white font-semibold text-[16px] rounded-lg w-fit relative overflow-hidden"
                   style={{
                     background: '#0F58F9',
                     paddingInline: '48px',
                     paddingBlock: '14px',
-                    borderWidth: '2px 0px 0px 2px',
-                    borderStyle: 'solid',
-                    borderImageSource: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
-                    borderImageSlice: '1',
-                    borderRadius: '8px'
+                    borderRadius: '6px'
                   }}
                 >
-                  Забронировать
+                  <div 
+                    className="absolute inset-0 rounded-lg"
+                    style={{
+                      background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)',
+                      margin: '2px',
+                      borderRadius: '4px'
+                    }}
+                  />
+                  <span className="relative z-10">Забронировать</span>
                 </button>
               </div>
             </div>
