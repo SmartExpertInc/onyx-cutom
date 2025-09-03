@@ -98,16 +98,15 @@ export interface ProductAccessCreate {
   target_id?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
 class WorkspaceService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `/api/custom-projects-backend${endpoint}`;
     
     const response = await fetch(url, {
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -125,111 +124,111 @@ class WorkspaceService {
 
   // Workspace Management
   async createWorkspace(data: WorkspaceCreate): Promise<Workspace> {
-    return this.request<Workspace>('/api/custom/workspaces', {
+    return this.request<Workspace>('/workspaces', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getWorkspaces(): Promise<Workspace[]> {
-    return this.request<Workspace[]>('/api/custom/workspaces');
+    return this.request<Workspace[]>('/workspaces');
   }
 
   async getWorkspace(id: number): Promise<Workspace> {
-    return this.request<Workspace>(`/api/custom/workspaces/${id}`);
+    return this.request<Workspace>(`/workspaces/${id}`);
   }
 
   async getWorkspaceWithMembers(id: number): Promise<Workspace & { members: WorkspaceMember[]; roles: WorkspaceRole[] }> {
-    return this.request<Workspace & { members: WorkspaceMember[]; roles: WorkspaceRole[] }>(`/api/custom/workspaces/${id}/full`);
+    return this.request<Workspace & { members: WorkspaceMember[]; roles: WorkspaceRole[] }>(`/workspaces/${id}/full`);
   }
 
   async updateWorkspace(id: number, data: WorkspaceUpdate): Promise<Workspace> {
-    return this.request<Workspace>(`/api/custom/workspaces/${id}`, {
+    return this.request<Workspace>(`/workspaces/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteWorkspace(id: number): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/api/custom/workspaces/${id}`, {
+    return this.request<{ message: string }>(`/workspaces/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Role Management
   async createRole(workspaceId: number, data: Omit<WorkspaceRoleCreate, 'workspace_id'>): Promise<WorkspaceRole> {
-    return this.request<WorkspaceRole>(`/api/custom/workspaces/${workspaceId}/roles`, {
+    return this.request<WorkspaceRole>(`/workspaces/${workspaceId}/roles`, {
       method: 'POST',
       body: JSON.stringify({ ...data, workspace_id: workspaceId }),
     });
   }
 
   async getWorkspaceRoles(workspaceId: number): Promise<WorkspaceRole[]> {
-    return this.request<WorkspaceRole[]>(`/api/custom/workspaces/${workspaceId}/roles`);
+    return this.request<WorkspaceRole[]>(`/workspaces/${workspaceId}/roles`);
   }
 
   async getWorkspaceRole(workspaceId: number, roleId: number): Promise<WorkspaceRole> {
-    return this.request<WorkspaceRole>(`/api/custom/workspaces/${workspaceId}/roles/${roleId}`);
+    return this.request<WorkspaceRole>(`/workspaces/${workspaceId}/roles/${roleId}`);
   }
 
   async updateRole(workspaceId: number, roleId: number, data: WorkspaceRoleUpdate): Promise<WorkspaceRole> {
-    return this.request<WorkspaceRole>(`/api/custom/workspaces/${workspaceId}/roles/${roleId}`, {
+    return this.request<WorkspaceRole>(`/workspaces/${workspaceId}/roles/${roleId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteRole(workspaceId: number, roleId: number): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/api/custom/workspaces/${workspaceId}/roles/${roleId}`, {
+    return this.request<{ message: string }>(`/workspaces/${workspaceId}/roles/${roleId}`, {
       method: 'DELETE',
     });
   }
 
   // Member Management
   async addMember(workspaceId: number, data: Omit<WorkspaceMemberCreate, 'workspace_id'>): Promise<WorkspaceMember> {
-    return this.request<WorkspaceMember>(`/api/custom/workspaces/${workspaceId}/members`, {
+    return this.request<WorkspaceMember>(`/workspaces/${workspaceId}/members`, {
       method: 'POST',
       body: JSON.stringify({ ...data, workspace_id: workspaceId }),
     });
   }
 
   async getWorkspaceMembers(workspaceId: number): Promise<WorkspaceMember[]> {
-    return this.request<WorkspaceMember[]>(`/api/custom/workspaces/${workspaceId}/members`);
+    return this.request<WorkspaceMember[]>(`/workspaces/${workspaceId}/members`);
   }
 
   async updateMember(workspaceId: number, userId: string, data: WorkspaceMemberUpdate): Promise<WorkspaceMember> {
-    return this.request<WorkspaceMember>(`/api/custom/workspaces/${workspaceId}/members/${userId}`, {
+    return this.request<WorkspaceMember>(`/workspaces/${workspaceId}/members/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async removeMember(workspaceId: number, userId: string): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/api/custom/workspaces/${workspaceId}/members/${userId}`, {
+    return this.request<{ message: string }>(`/workspaces/${workspaceId}/members/${userId}`, {
       method: 'DELETE',
     });
   }
 
   async leaveWorkspace(workspaceId: number): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/api/custom/workspaces/${workspaceId}/leave`, {
+    return this.request<{ message: string }>(`/workspaces/${workspaceId}/leave`, {
       method: 'POST',
     });
   }
 
   // Product Access Control
   async grantProductAccess(productId: number, data: Omit<ProductAccessCreate, 'product_id'>): Promise<ProductAccess> {
-    return this.request<ProductAccess>(`/api/custom/products/${productId}/access`, {
+    return this.request<ProductAccess>(`/products/${productId}/access`, {
       method: 'POST',
       body: JSON.stringify({ ...data, product_id: productId }),
     });
   }
 
   async getProductAccessList(productId: number): Promise<ProductAccess[]> {
-    return this.request<ProductAccess[]>(`/api/custom/products/${productId}/access`);
+    return this.request<ProductAccess[]>(`/products/${productId}/access`);
   }
 
   async revokeProductAccess(productId: number, accessId: number): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/api/custom/products/${productId}/access/${accessId}`, {
+    return this.request<{ message: string }>(`/products/${productId}/access/${accessId}`, {
       method: 'DELETE',
     });
   }
@@ -245,7 +244,7 @@ class WorkspaceService {
       workspace_id: number;
       user_id: string;
       has_access: boolean;
-    }>(`/api/custom/products/${productId}/access/check?workspace_id=${workspaceId}`);
+    }>(`/products/${productId}/access/check?workspace_id=${workspaceId}`);
   }
 
   async getWorkspaceProductAccess(workspaceId: number): Promise<{
@@ -257,7 +256,7 @@ class WorkspaceService {
       workspace_id: number;
       access_records: ProductAccess[];
       count: number;
-    }>(`/api/custom/products/workspace/${workspaceId}/access`);
+    }>(`/products/workspace/${workspaceId}/access`);
   }
 }
 
