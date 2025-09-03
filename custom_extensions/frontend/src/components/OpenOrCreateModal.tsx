@@ -93,7 +93,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
               <div className="relative">
                 <button
                   onClick={onOpenLessonPlan}
-                  className="w-full flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-20"
+                  className="w-full flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-16"
                 >
                   <div className="flex items-center space-x-4 flex-1">
                     <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
@@ -111,9 +111,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                       </p>
                     </div>
                   </div>
-                  <div className="text-purple-400 group-hover:text-purple-600 transition-all duration-200 group-hover:translate-x-1">
-                    <ExternalLink size={20} />
-                  </div>
+
                 </button>
                 
                 {/* Integrated Refresh Button */}

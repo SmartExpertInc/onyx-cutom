@@ -378,15 +378,26 @@ export const CreateContentTypeModal = ({
                           : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                   }`}
                   onClick={(e: React.MouseEvent) => {
+                    console.log('Content type clicked:', {
+                      typeName: type.name,
+                      isDisabled,
+                      isSelected,
+                      isRecommended,
+                      canClick: !isDisabled && (isSelected || isRecommended)
+                    });
+                    
                     // Allow clicking on recommended products regardless of checkbox state
                     // Only allow clicking if not disabled and either selected or recommended
-                    if (!isDisabled && (isSelected || isRecommended) && e.target === e.currentTarget) {
+                    if (!isDisabled && (isSelected || isRecommended)) {
                       handleContentCreate(type.name);
                     }
                   }}
                 >
                   {/* Checkbox */}
-                  <div className="mr-2 sm:mr-3 lg:mr-4">
+                  <div 
+                    className="mr-2 sm:mr-3 lg:mr-4"
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                  >
                     <input
                       type="checkbox"
                       className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
