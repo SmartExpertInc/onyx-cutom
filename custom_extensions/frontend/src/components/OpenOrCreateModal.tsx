@@ -93,20 +93,20 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
               <div className="relative">
                 <button
                   onClick={onOpenLessonPlan}
-                  className="w-full flex items-center p-6 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-16"
+                  className="w-full flex items-center p-6 border-2 rounded-xl border-amber-200 hover:border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-16"
                 >
                   <div className="flex items-center space-x-4 flex-1">
-                    <div className="p-3 rounded-xl text-purple-600 bg-purple-100 group-hover:scale-110 transition-transform duration-200">
+                    <div className="p-3 rounded-xl text-amber-700 bg-gradient-to-br from-amber-100 to-orange-100 group-hover:scale-110 transition-transform duration-200">
                       <FileText size={24} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-purple-900">Lesson Plan</h3>
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                        <h3 className="text-lg font-bold text-amber-900">Lesson Plan</h3>
+                        <span className="text-xs bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 px-2 py-1 rounded-full font-medium border border-amber-200">
                           Available
                         </span>
                       </div>
-                      <p className="text-sm text-purple-800 leading-relaxed">
+                      <p className="text-sm text-amber-800 leading-relaxed">
                         View lesson plan with objectives and materials
                       </p>
                     </div>
@@ -118,17 +118,17 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                 <button
                   onClick={onRefreshLessonPlan}
                   disabled={isRefreshingLessonPlan}
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-lg border border-purple-300 transition-all duration-300 ${
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-lg border border-amber-300 transition-all duration-300 ${
                     isRefreshingLessonPlan 
-                      ? 'bg-purple-200 cursor-not-allowed' 
-                      : 'bg-purple-100 hover:bg-purple-200 hover:shadow-md'
+                      ? 'bg-amber-200 cursor-not-allowed' 
+                      : 'bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 hover:shadow-md'
                   } group`}
                   title="Generate new lesson plan"
                 >
                   {isRefreshingLessonPlan ? (
-                    <Loader2 size={18} className="animate-spin text-purple-700" />
+                    <Loader2 size={18} className="animate-spin text-amber-700" />
                   ) : (
-                    <RefreshCw size={18} className="text-purple-700 group-hover:scale-110 transition-transform duration-200" />
+                    <RefreshCw size={18} className="text-amber-700 group-hover:scale-110 transition-transform duration-200" />
                   )}
                 </button>
               </div>

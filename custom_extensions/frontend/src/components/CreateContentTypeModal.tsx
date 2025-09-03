@@ -322,31 +322,31 @@ export const CreateContentTypeModal = ({
               <div className="relative">
                 <button
                   onClick={onOpenLessonPlan}
-                  className="w-full flex items-center p-3 lg:p-4 border-2 rounded-xl border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-16"
+                  className="w-full flex items-center p-3 lg:p-4 border-2 rounded-xl border-amber-200 hover:border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 hover:shadow-lg transition-all duration-300 text-left transform hover:scale-[1.02] pr-16"
                 >
                   <div className="flex items-center space-x-3 flex-1">
-                    <div className="p-2 rounded-xl bg-purple-100">
-                      <FileText className="text-purple-700" size={20} />
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100">
+                      <FileText className="text-amber-700" size={20} />
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-purple-900">Lesson Plan</span>
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full border border-purple-200">Already created</span>
+                        <span className="text-sm font-semibold text-amber-900">Lesson Plan</span>
+                        <span className="text-xs bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 px-2 py-1 rounded-full border border-amber-200">Already created</span>
                       </div>
-                      <p className="text-xs text-purple-800">View lesson plan with objectives and materials</p>
+                      <p className="text-xs text-amber-800">View lesson plan with objectives and materials</p>
                     </div>
                   </div>
                 </button>
                 <button
                   onClick={onRefreshLessonPlan}
                   disabled={!!isRefreshingLessonPlan}
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg border border-purple-300 transition-all duration-300 ${isRefreshingLessonPlan ? 'bg-purple-200 cursor-not-allowed' : 'bg-purple-100 hover:bg-purple-200 hover:shadow-md'}`}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg border border-amber-300 transition-all duration-300 ${isRefreshingLessonPlan ? 'bg-amber-200 cursor-not-allowed' : 'bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 hover:shadow-md'}`}
                   title="Generate new lesson plan"
                 >
                   {isRefreshingLessonPlan ? (
-                    <Loader2 size={18} className="animate-spin text-purple-700" />
+                    <Loader2 size={18} className="animate-spin text-amber-700" />
                   ) : (
-                    <RefreshCw size={18} className="text-purple-700 group-hover:scale-110 transition-transform duration-200" />
+                    <RefreshCw size={18} className="text-amber-700 group-hover:scale-110 transition-transform duration-200" />
                   )}
                 </button>
               </div>
