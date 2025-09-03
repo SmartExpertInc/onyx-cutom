@@ -6,11 +6,33 @@ interface GenerationCompletedModalProps {
   isOpen: boolean;
   onClose: () => void;
   videoTitle: string;
+  jobId?: string;
+  generationStatus?: 'idle' | 'generating' | 'completed' | 'error';
+  generationProgress?: number;
+  errorMessage?: string;
 }
 
-export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }: GenerationCompletedModalProps) {
+export default function GenerationCompletedModal({ 
+  isOpen, 
+  onClose, 
+  videoTitle, 
+  jobId, 
+  generationStatus = 'idle',
+  generationProgress = 0,
+  errorMessage
+}: GenerationCompletedModalProps) {
   const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
+  const [localGenerationStatus, setLocalGenerationStatus] = useState(generationStatus);
+  const [localGenerationProgress, setLocalGenerationProgress] = useState(generationProgress);
+  const [localErrorMessage, setLocalErrorMessage] = useState(errorMessage);
+
+  // Sync local state with props changes
+  useEffect(() => {
+    setLocalGenerationStatus(generationStatus);
+    setLocalGenerationProgress(generationProgress);
+    setLocalErrorMessage(errorMessage);
+  }, [generationStatus, generationProgress, errorMessage]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -176,10 +198,92 @@ export default function GenerationCompletedModal({ isOpen, onClose, videoTitle }
 
         {/* Main Content */}
         <div className="flex-1 px-6 py-6 bg-gray-50 flex items-center justify-center">
-          {/* Video placeholder - grey rectangle */}
-          <div className="w-80 h-48 bg-gray-300 rounded-lg flex items-center justify-center">
-            <span className="text-gray-500 text-sm">Video will be displayed here</span>
-          </div>
+          {localGenerationStatus === 'generating' ? (
+            /* Generation in progress */
+            <div className="w-80 text-center">
+              <div className="mb-4">
+                <svg className="animate-spin mx-auto h-12 w-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Generating Video</h3>
+              <p className="text-sm text-gray-600 mb-4">Please wait while we create your professional video...</p>
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div 
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${localGenerationProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-gray-600">{localGenerationProgress}% complete</p>
+            </div>
+          ) : localGenerationStatus === 'error' ? (
+            /* Generation error */
+            <div className="w-80 text-center">
+              <div className="mb-4">
+                <svg className="mx-auto h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Generation Failed</h3>
+              <p className="text-sm text-gray-600 mb-4">{localErrorMessage || 'An error occurred during video generation.'}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : localGenerationStatus === 'completed' ? (
+            /* Video completed - show download options */
+            <div className="w-80 text-center">
+              <div className="mb-4">
+                <svg className="mx-auto h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Video Ready!</h3>
+              <p className="text-sm text-gray-600 mb-4">Your professional video has been generated successfully.</p>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => {
+                    // Auto-download the video
+                    if (jobId) {
+                      const videoUrl = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/presentations/${jobId}/video`;
+                      // Create a temporary link and trigger download
+                      const link = document.createElement('a');
+                      link.href = videoUrl;
+                      link.download = `professional_presentation_${jobId}.mp4`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }
+                  }}
+                  className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
+                >
+                  Download Video
+                </button>
+                <button 
+                  onClick={() => {
+                    // Copy the video link
+                    if (jobId) {
+                      const videoUrl = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/presentations/${jobId}/video`;
+                      navigator.clipboard.writeText(videoUrl);
+                      // You could add a toast notification here
+                    }
+                  }}
+                  className="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm"
+                >
+                  Copy Video Link
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Default state - video placeholder */
+            <div className="w-80 h-48 bg-gray-300 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500 text-sm">Video will be displayed here</span>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
