@@ -139,22 +139,6 @@ export default function ProjectInstanceViewPage() {
   const { projectId } = params || {};
   const { t } = useLanguage();
 
-  // Add CSS for hidden scrollbar
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
-
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
   const [parentProjectNameForCurrentView, setParentProjectNameForCurrentView] = useState<string | undefined>(undefined);
@@ -210,6 +194,8 @@ export default function ProjectInstanceViewPage() {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [generalAccessOption, setGeneralAccessOption] = useState<'restricted' | 'anyone'>('restricted');
   const [showGeneralAccessDropdown, setShowGeneralAccessDropdown] = useState(false);
+  const [emailRoles, setEmailRoles] = useState<Record<string, string>>({});
+  const [showEmailRoleDropdown, setShowEmailRoleDropdown] = useState<string | null>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -234,12 +220,16 @@ export default function ProjectInstanceViewPage() {
           setShowGeneralAccessDropdown(false);
         }
       }
+      // Close email role dropdown
+      if (showEmailRoleDropdown) {
+        setShowEmailRoleDropdown(null);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown]);
+  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown, showEmailRoleDropdown]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -286,6 +276,14 @@ export default function ProjectInstanceViewPage() {
   const handleRemoveEmail = (email: string) => {
     setCustomEmails(prev => prev.filter(e => e !== email));
     setSelectedEmails(prev => prev.filter(e => e !== email));
+  };
+
+  const handleEmailRoleChange = (email: string, roleId: string) => {
+    setEmailRoles(prev => ({
+      ...prev,
+      [email]: roleId
+    }));
+    setShowEmailRoleDropdown(null);
   };
 
   const fetchPageData = useCallback(async (currentProjectIdStr: string) => {
@@ -1534,22 +1532,56 @@ export default function ProjectInstanceViewPage() {
                         <div className="mb-6">
                           <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.membersWithAccess', 'Members with access')}</h3>
                           <div className="space-y-3 max-h-42 overflow-y-auto pr-2">
-                            {customEmails.map((email) => (
-                              <div key={email} className="flex items-center justify-between p-2 bg-white rounded-lg min-h-[52px]">
-                                <div className="flex items-center">
-                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium mr-3">
-                                    {email.charAt(0).toUpperCase()}
+                            {customEmails.map((email) => {
+                              const currentRole = emailRoles[email] || 'editor';
+                              const roleLabel = predefinedRoles.find(r => r.id === currentRole)?.label || 'Editor';
+                              return (
+                                <div key={email} className="flex items-center justify-between p-2 bg-white rounded-lg min-h-[52px]">
+                                  <div className="flex items-center">
+                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium mr-3">
+                                      {email.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="text-sm text-gray-900">{email}</span>
                                   </div>
-                                  <span className="text-sm text-gray-900">{email}</span>
+                                  <div className="relative">
+                                    <div
+                                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
+                                      onClick={() => setShowEmailRoleDropdown(showEmailRoleDropdown === email ? null : email)}
+                                    >
+                                      <span className="text-sm text-gray-900">{roleLabel}</span>
+                                      <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </div>
+
+                                    {/* Email Role Dropdown */}
+                                    {showEmailRoleDropdown === email && (
+                                      <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 min-w-32">
+                                        <div className="space-y-1">
+                                          {predefinedRoles.map((role) => (
+                                            <div
+                                              key={role.id}
+                                              className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
+                                              onClick={() => handleEmailRoleChange(email, role.id)}
+                                            >
+                                              <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
+                                                {currentRole === role.id && (
+                                                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                                )}
+                                              </div>
+                                              <div>
+                                                <span className="text-sm font-medium text-gray-900">{role.label}</span>
+                                                <p className="text-xs text-gray-500">{role.description}</p>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm text-gray-900">{t('interface.projectView.editor', 'Editor')}</span>
-                                  <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                  </svg>
-                                </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                             {customEmails.length === 0 && (
                               <div className="text-center py-4 text-gray-500 text-sm">
                                 {t('interface.projectView.noMembersYet', 'No members added yet')}
