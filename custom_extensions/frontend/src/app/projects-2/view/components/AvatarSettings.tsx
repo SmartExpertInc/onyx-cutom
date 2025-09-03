@@ -2,42 +2,29 @@ import React, { useState, useEffect, useRef } from 'react';
 import Tooltip from './Tooltip';
 import AvatarPopup from './AvatarPopup';
 import AdvancedSettings from './AdvancedSettings';
+import { useAvatarData } from './AvatarDataService';
 
 export default function AvatarSettings() {
   const [isAvatarPopupOpen, setIsAvatarPopupOpen] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<'shoulder' | 'full-body' | 'bubble'>('shoulder');
   const [showViewDropdown, setShowViewDropdown] = useState(false);
   
-  // Mock avatar data for the popup to function
-  const mockAvatarData = [
-    {
-      id: '1',
-      code: 'gia',
-      name: 'Gia',
-      gender: 'female' as const,
-      age: 25,
-      ethnicity: 'Asian',
-      thumbnail: '',
-      canvas: '',
-      variants: [
-        {
-          code: 'casual',
-          name: 'Casual',
-          thumbnail: '',
-          canvas: ''
-        },
-        {
-          code: 'business',
-          name: 'Business',
-          thumbnail: '',
-          canvas: ''
-        }
-      ]
-    }
-  ];
+  // 🔍 **DEBUG LOGGING: AvatarSettings Component Initialization**
+  console.log('🎬 [AVATAR_SETTINGS] AvatarSettings component initialized');
+
+  // Use real avatar data service
+  const { avatarData, processedAvatars, isLoading, error, refreshAvatars } = useAvatarData();
+
+  // 🔍 **DEBUG LOGGING: Avatar Data Service Integration**
+  console.log('🎬 [AVATAR_SETTINGS] Avatar data service state:', {
+    avatarDataCount: avatarData.length,
+    processedAvatarsCount: processedAvatars.length,
+    isLoading,
+    error
+  });
 
   const handleAvatarSelect = (avatar: any, variant?: any) => {
-    console.log('Avatar selected:', avatar, variant);
+    console.log('🎬 [AVATAR_SETTINGS] Avatar selected:', avatar, variant);
     // Here you would typically update the current avatar in the video editor
     setIsAvatarPopupOpen(false);
   };
@@ -284,7 +271,7 @@ export default function AvatarSettings() {
         isOpen={isAvatarPopupOpen}
         onClose={() => setIsAvatarPopupOpen(false)}
         onAvatarSelect={handleAvatarSelect}
-        avatarData={mockAvatarData}
+        avatarData={avatarData}
         displayMode="modal"
         title="Choose Avatar"
       />

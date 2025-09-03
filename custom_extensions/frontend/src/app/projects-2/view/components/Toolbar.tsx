@@ -17,6 +17,7 @@ import {
   Plus
 } from 'lucide-react';
 import AvatarPopup from './AvatarPopup';
+import { useAvatarData } from './AvatarDataService';
 
 interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
@@ -43,36 +44,22 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   const avatarButtonRef = useRef<HTMLDivElement>(null);
   const defaultButtonRef = useRef<HTMLDivElement>(null);
 
-  // Mock avatar data for the popup to function
-  const mockAvatarData = [
-    {
-      id: '1',
-      code: 'gia',
-      name: 'Gia',
-      gender: 'female' as const,
-      age: 25,
-      ethnicity: 'Asian',
-      thumbnail: '',
-      canvas: '',
-      variants: [
-        {
-          code: 'casual',
-          name: 'Casual',
-          thumbnail: '',
-          canvas: ''
-        },
-        {
-          code: 'business',
-          name: 'Business',
-          thumbnail: '',
-          canvas: ''
-        }
-      ]
-    }
-  ];
+  // 🔍 **DEBUG LOGGING: Toolbar Component Initialization**
+  console.log('🎬 [TOOLBAR] Toolbar component initialized');
+
+  // Use real avatar data service
+  const { avatarData, processedAvatars, isLoading, error, refreshAvatars } = useAvatarData();
+
+  // 🔍 **DEBUG LOGGING: Avatar Data Service Integration**
+  console.log('🎬 [TOOLBAR] Avatar data service state:', {
+    avatarDataCount: avatarData.length,
+    processedAvatarsCount: processedAvatars.length,
+    isLoading,
+    error
+  });
 
   const handleAvatarSelect = (avatar: any, variant?: any) => {
-    console.log('Avatar selected from toolbar:', avatar, variant);
+    console.log('🎬 [TOOLBAR] Avatar selected from toolbar:', avatar, variant);
     // Here you would typically add the selected avatar to the video editor
     setIsAvatarPopupOpen(false);
   };
@@ -478,7 +465,7 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
           isOpen={isAvatarPopupOpen}
           onClose={() => setIsAvatarPopupOpen(false)}
           onAvatarSelect={handleAvatarSelect}
-          avatarData={mockAvatarData}
+          avatarData={avatarData}
           displayMode="popup"
           position={{
             x: avatarButtonRef.current ? (() => {

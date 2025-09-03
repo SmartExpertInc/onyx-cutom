@@ -29,6 +29,7 @@ import OptionPopup from '../components/OptionPopup';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
 import '../components/compact-slide-styles.css';
+import AvatarDataProvider from '../components/AvatarDataService';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -551,9 +552,10 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
-      closeMenu();
-    }}>
+    <AvatarDataProvider>
+      <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
+        closeMenu();
+      }}>
       {/* Header */}
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
@@ -822,6 +824,7 @@ export default function Projects2ViewPage() {
         position={optionPopupPosition}
       />
       
-    </div>
+      </div>
+    </AvatarDataProvider>
   );
 }

@@ -27,6 +27,7 @@ import OptionPopup from './components/OptionPopup';
 import { SlideAddButton } from '@/components/SlideAddButton';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
+import AvatarDataProvider from './components/AvatarDataService';
 
 interface Scene {
   id: string;
@@ -314,9 +315,10 @@ export default function Projects2ViewPage() {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
-      closeMenu();
-    }}>
+    <AvatarDataProvider>
+      <div className="h-screen bg-white flex flex-col p-2 relative" onClick={() => {
+        closeMenu();
+      }}>
       {/* Header */}
       <VideoEditorHeader 
         aspectRatio={aspectRatio}
@@ -486,6 +488,7 @@ export default function Projects2ViewPage() {
         position={optionPopupPosition}
       />
       
-    </div>
+      </div>
+    </AvatarDataProvider>
   );
 }

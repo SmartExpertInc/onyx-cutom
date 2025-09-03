@@ -68,6 +68,41 @@ export default function AvatarPopup({
   const [previewMode, setPreviewMode] = useState<boolean>(false);
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
 
+  // 🔍 **DEBUG LOGGING: Component Props Received**
+  console.log('🎬 [AVATAR_POPUP] AvatarPopup component rendered with props:', {
+    isOpen,
+    title,
+    displayMode,
+    className,
+    position,
+    avatarDataCount: avatarData?.length || 0,
+    avatarData: avatarData
+  });
+
+  // 🔍 **DEBUG LOGGING: Avatar Data Analysis**
+  useEffect(() => {
+    if (avatarData && avatarData.length > 0) {
+      console.log('🎬 [AVATAR_POPUP] Avatar data received and analyzed:');
+      console.log('🎬 [AVATAR_POPUP] Total avatars:', avatarData.length);
+      
+      avatarData.forEach((avatar, index) => {
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1}:`, {
+          id: avatar.id,
+          code: avatar.code,
+          name: avatar.name,
+          gender: avatar.gender,
+          age: avatar.age,
+          ethnicity: avatar.ethnicity,
+          variantsCount: avatar.variants?.length || 0,
+          variants: avatar.variants
+        });
+      });
+    } else {
+      console.warn('🎬 [AVATAR_POPUP] No avatar data received or empty array');
+      console.log('🎬 [AVATAR_POPUP] avatarData value:', avatarData);
+    }
+  }, [avatarData]);
+
   // Handle click outside for popup mode
   useEffect(() => {
     if (!isOpen || displayMode !== 'popup') return;
@@ -86,25 +121,42 @@ export default function AvatarPopup({
 
   // Process avatar data to flatten variants
   const processedAvatars = useMemo(() => {
-    return avatarData.flatMap(avatar => {
+    console.log('🎬 [AVATAR_POPUP] Processing avatar data to flatten variants...');
+    console.log('🎬 [AVATAR_POPUP] Input avatarData:', avatarData);
+    
+    const processed = avatarData.flatMap((avatar, avatarIndex) => {
+      console.log(`🎬 [AVATAR_POPUP] Processing avatar ${avatarIndex + 1}:`, avatar);
+      
       if (avatar.variants && avatar.variants.length > 0) {
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${avatarIndex + 1} has ${avatar.variants.length} variants`);
+        
         // Create separate entry for each variant
-        return avatar.variants.map(variant => ({
-          id: avatar.id,
-          code: avatar.code,
-          name: avatar.name,
-          gender: avatar.gender,
-          age: avatar.age,
-          ethnicity: avatar.ethnicity,
-          thumbnail: variant.thumbnail,
-          canvas: variant.canvas,
-          selectedVariant: variant,
-          displayName: `${avatar.name}`,
-          lookCategory: variant.name
-        }));
+        const variantEntries = avatar.variants.map((variant, variantIndex) => {
+          const processedAvatar = {
+            id: avatar.id,
+            code: avatar.code,
+            name: avatar.name,
+            gender: avatar.gender,
+            age: avatar.age,
+            ethnicity: avatar.ethnicity,
+            thumbnail: variant.thumbnail,
+            canvas: variant.canvas,
+            selectedVariant: variant,
+            displayName: `${avatar.name}`,
+            lookCategory: variant.name
+          };
+          
+          console.log(`🎬 [AVATAR_POPUP] Created variant entry ${variantIndex + 1} for avatar ${avatarIndex + 1}:`, processedAvatar);
+          return processedAvatar;
+        });
+        
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${avatarIndex + 1} generated ${variantEntries.length} variant entries`);
+        return variantEntries;
       } else {
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${avatarIndex + 1} has no variants, creating default entry`);
+        
         // Avatar without variants
-        return [{
+        const defaultEntry = {
           id: avatar.id,
           code: avatar.code,
           name: avatar.name,
@@ -115,16 +167,42 @@ export default function AvatarPopup({
           canvas: avatar.canvas || '',
           displayName: avatar.name,
           lookCategory: 'Default'
-        }];
+        };
+        
+        console.log(`🎬 [AVATAR_POPUP] Created default entry for avatar ${avatarIndex + 1}:`, defaultEntry);
+        return [defaultEntry];
       }
     });
+    
+    console.log('🎬 [AVATAR_POPUP] Avatar processing complete');
+    console.log('🎬 [AVATAR_POPUP] Total processed avatars:', processed.length);
+    console.log('🎬 [AVATAR_POPUP] Final processed avatars:', processed);
+    
+    return processed;
   }, [avatarData]);
 
   // Apply filters to avatars
   const filteredAvatars = useMemo(() => {
-    return processedAvatars.filter(avatar => {
+    console.log('🎬 [AVATAR_POPUP] Applying filters to avatars...');
+    console.log('🎬 [AVATAR_POPUP] Current filters:', selectedFilters);
+    console.log('🎬 [AVATAR_POPUP] Input processed avatars count:', processedAvatars.length);
+    
+    const filtered = processedAvatars.filter((avatar, index) => {
+      console.log(`🎬 [AVATAR_POPUP] Filtering avatar ${index + 1}:`, {
+        name: avatar.name,
+        gender: avatar.gender,
+        age: avatar.age,
+        ethnicity: avatar.ethnicity,
+        lookCategory: avatar.lookCategory
+      });
+      
       // Gender filter
       if (selectedFilters.gender !== 'View All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by gender:`, {
+          avatarGender: avatar.gender,
+          filterGender: selectedFilters.gender,
+          match: avatar.gender === selectedFilters.gender?.toLowerCase()
+        });
         return false;
       }
       
@@ -135,22 +213,46 @@ export default function AvatarPopup({
           (selectedFilters.age === 'Middle-aged' && avatar.age >= 30 && avatar.age <= 50) ||
           (selectedFilters.age === 'Senior' && avatar.age > 50)
         );
-        if (!ageMatch) return false;
+        if (!ageMatch) {
+          console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by age:`, {
+            avatarAge: avatar.age,
+            filterAge: selectedFilters.age,
+            ageMatch
+          });
+          return false;
+        }
       }
       
       // Ethnicity filter
       if (selectedFilters.ethnicity && avatar.ethnicity && 
           !avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())) {
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by ethnicity:`, {
+          avatarEthnicity: avatar.ethnicity,
+          filterEthnicity: selectedFilters.ethnicity,
+          match: avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())
+        });
         return false;
       }
       
       // Look filter (variant name)
       if (selectedFilters.look && avatar.lookCategory !== selectedFilters.look) {
+        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by look:`, {
+          avatarLookCategory: avatar.lookCategory,
+          filterLook: selectedFilters.look,
+          match: avatar.lookCategory === selectedFilters.look
+        });
         return false;
       }
       
+      console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} passed all filters`);
       return true;
     });
+    
+    console.log('🎬 [AVATAR_POPUP] Filtering complete');
+    console.log('🎬 [AVATAR_POPUP] Filtered avatars count:', filtered.length);
+    console.log('🎬 [AVATAR_POPUP] Final filtered avatars:', filtered);
+    
+    return filtered;
   }, [processedAvatars, selectedFilters]);
 
   if (!isOpen) return null;
@@ -426,29 +528,47 @@ export default function AvatarPopup({
             <div className="flex-1 overflow-y-auto pb-4">
               {/* Avatar rectangles grid */}
               <div className="grid grid-cols-3 gap-4">
-                {filteredAvatars.map((avatar: ProcessedAvatar) => (
-                  <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
-                    {/* Avatar rectangle */}
-                    <div 
-                      className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-colors group"
-                      onClick={() => handleAvatarClick(avatar)}
-                      style={{
-                        backgroundImage: avatar.thumbnail ? `url(${avatar.thumbnail})` : 'none',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                      }}
-                    >
-                      {/* Plus button that appears on hover */}
-                      <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-lg flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 cursor-pointer">
-                        <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </button>
+                {/* 🔍 **DEBUG LOGGING: Avatar Grid Rendering** */}
+                {(() => {
+                  console.log('🎬 [AVATAR_POPUP] Rendering avatar grid...');
+                  console.log('🎬 [AVATAR_POPUP] filteredAvatars to render:', filteredAvatars);
+                  console.log('🎬 [AVATAR_POPUP] Grid will render', filteredAvatars.length, 'avatars');
+                  
+                  return filteredAvatars.map((avatar: ProcessedAvatar, index) => {
+                    console.log(`🎬 [AVATAR_POPUP] Rendering avatar ${index + 1} in grid:`, {
+                      id: avatar.id,
+                      name: avatar.name,
+                      displayName: avatar.displayName,
+                      lookCategory: avatar.lookCategory,
+                      thumbnail: avatar.thumbnail,
+                      key: `${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`
+                    });
+                    
+                                      return (
+                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
+                      {/* Avatar rectangle */}
+                      <div 
+                        className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-colors group"
+                        onClick={() => handleAvatarClick(avatar)}
+                        style={{
+                          backgroundImage: avatar.thumbnail ? `url(${avatar.thumbnail})` : 'none',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        }}
+                      >
+                        {/* Plus button that appears on hover */}
+                        <button className="absolute bottom-2 right-2 w-6 h-6 bg-white rounded-lg flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50 cursor-pointer">
+                          <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      </div>
+                      {/* Name */}
+                      <span className="text-sm text-black font-medium">{avatar.displayName}</span>
                     </div>
-                    {/* Name */}
-                    <span className="text-sm text-black font-medium">{avatar.displayName}</span>
-                  </div>
-                ))}
+                  );
+                });
+              })()}
               </div>
             </div>
           </>
