@@ -7,6 +7,8 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+type TagType = { text: string; isHighlighted?: boolean };
+
 export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -47,7 +49,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '650px',
-    backgroundColor: themeBg,
+    backgroundColor: '#F5F5F5', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'end',
@@ -55,6 +57,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     padding: '60px 80px',
+    border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -110,7 +113,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         {/* Title */}
         <div style={{
           fontSize: '49px',
-          color: themeTitle,
+          color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.1',
           marginTop: '40px',
           marginLeft: '-332%'
@@ -123,7 +126,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               className="benefits-tags-title-editor"
               style={{
                 fontSize: '49px',
-                color: themeTitle,
+                color: '#4A4A4A',
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
@@ -142,7 +145,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           )}
         </div>
 
-        {/* Profile image */}
+        {/* Profile image with orange background */}
         <div style={{
           width: '155px',
           height: '155px',
@@ -150,6 +153,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           overflow: 'hidden',
           position: 'absolute',
           left: '60px',
+          backgroundColor: '#FF6B35', // Orange background as per screenshot
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -183,16 +187,16 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           display: 'flex',
           gap: '20px'
         }}>
-          {currentTags.slice(0, 2).map((tag, index) => (
+          {currentTags.slice(0, 2).map((tag: TagType, index: number) => (
             <div
               key={index}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
+                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#F5F5F5', // Orange for highlighted, light grey for others
+                border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                 borderRadius: '8px',
                 fontSize: '34px',
-                color: tag.isHighlighted ? themeBg : themeContent,
+                color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
@@ -210,7 +214,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   className="tag-editor"
                   style={{
                     fontSize: '34px',
-                    color: tag.isHighlighted ? themeBg : themeContent,
+                    color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
                     fontWeight: '500',
                     width: '100%',
                     height: 'auto',
@@ -229,16 +233,16 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           display: 'flex',
           gap: '20px'
         }}>
-          {currentTags.slice(2, 5).map((tag, index) => (
+          {currentTags.slice(2, 5).map((tag: TagType, index: number) => (
             <div
               key={index + 2}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
+                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#F5F5F5', // Orange for highlighted, light grey for others
+                border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                 borderRadius: '8px',
                 fontSize: '34px',
-                color: tag.isHighlighted ? themeBg : themeContent,
+                color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
@@ -256,7 +260,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   className="tag-editor"
                   style={{
                     fontSize: '34px',
-                    color: tag.isHighlighted ? themeBg : themeContent,
+                    color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
                     fontWeight: '500',
                     width: '100%',
                     height: 'auto',
@@ -275,16 +279,16 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           display: 'flex',
           gap: '20px',
         }}>
-          {currentTags.slice(5).map((tag, index) => (
+          {currentTags.slice(5).map((tag: TagType, index: number) => (
             <div
               key={index + 5}
               style={{
                 padding: '12px 20px',
-                backgroundColor: tag.isHighlighted ? themeAccent : themeBg,
-                border: tag.isHighlighted ? 'none' : `1px solid ${themeContent}`,
+                backgroundColor: tag.isHighlighted ? '#FF6B35' : '#F5F5F5', // Orange for highlighted, light grey for others
+                border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
                 borderRadius: '8px',
                 fontSize: '34px',
-                color: tag.isHighlighted ? themeBg : themeContent,
+                color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A', // White for highlighted, dark grey for others
                 fontWeight: '500',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
@@ -302,7 +306,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   className="tag-editor"
                   style={{
                     fontSize: '30px',
-                    color: tag.isHighlighted ? themeBg : themeContent,
+                    color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
                     fontWeight: '500',
                     width: '100%',
                     height: 'auto',
@@ -329,7 +333,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         <div style={{
           fontSize: '14px',
           fontWeight: '300',
-          color: themeContent
+          color: '#4A4A4A' // Dark grey color as per screenshot
         }}>
           {currentCompanyLogoPath ? (
             // Show uploaded logo image
@@ -359,7 +363,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid ${themeContent}`,
+                border: `2px solid #4A4A4A`, // Dark grey border as per screenshot
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -369,20 +373,20 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 <div style={{
                   width: '12px',
                   height: '2px',
-                  backgroundColor: themeContent,
+                  backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
                   position: 'absolute'
                 }} />
                 <div style={{
                   width: '2px',
                   height: '12px',
-                  backgroundColor: themeContent,
+                  backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Company logo</span>
+              <div style={{ fontSize: '14px', fontWeight: '300', color: '#4A4A4A' }}>Your Logo</div>
             </div>
           )}
         </div>
@@ -393,7 +397,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         <PresentationImageUpload
           isOpen={showLogoUploadModal}
           onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath) => {
+          onImageUploaded={(newLogoPath: string) => {
             handleCompanyLogoUploaded(newLogoPath);
             setShowLogoUploadModal(false);
           }}

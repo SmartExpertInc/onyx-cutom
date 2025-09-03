@@ -43,13 +43,14 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '650px',
-    backgroundColor: themeBg,
+    backgroundColor: '#F5F5F5', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     padding: '40px 60px',
+    border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -124,13 +125,13 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           );
         }
         
-        // Add highlighted phrase
+        // Add highlighted phrase with exact colors from screenshot
         result.push(
           <span
             key={`highlight-${index}`}
             style={{
-              backgroundColor: '#E8CCC6',
-              color: '#DA8372',
+              backgroundColor: '#E8CCC6', // Light red/orange background as per screenshot
+              color: '#DA8372', // Red/orange text color as per screenshot
               opacity: 1,
               padding: '0px 10px',
               borderRadius: '3px'
@@ -181,34 +182,36 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
   return (
     <div className="critical-thinking-slide-template inter-theme" style={slideStyles}>
-             {/* Profile Image - Top Left */}
-       <div style={{
-         position: 'absolute',
-         top: '40px',
-         left: '60px',
-         width: '120px',
-         height: '120px',
-         borderRadius: '50%',
-         display: 'flex',
-         alignItems: 'center',
-         justifyContent: 'center'
-       }}>
-         <ClickableImagePlaceholder
-           imagePath={profileImagePath}
-           onImageUploaded={handleProfileImageUploaded}
-           size="LARGE"
-           position="CENTER"
-           description="Profile"
-           isEditable={isEditable}
-           style={{
-             width: '100%',
-             height: '100%',
-             borderRadius: '50%',
-             objectFit: 'cover',
-             overflow: 'hidden'
-           }}
-         />
-       </div>
+      {/* Profile Image - Top Left with orange background */}
+      <div style={{
+        position: 'absolute',
+        top: '40px',
+        left: '60px',
+        width: '120px',
+        height: '120px',
+        borderRadius: '50%',
+        backgroundColor: '#FF6B35', // Orange background as per screenshot
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden'
+      }}>
+        <ClickableImagePlaceholder
+          imagePath={profileImagePath}
+          onImageUploaded={handleProfileImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Profile"
+          isEditable={isEditable}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            overflow: 'hidden'
+          }}
+        />
+      </div>
 
       {/* Main Content */}
       <div style={{
@@ -222,7 +225,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         {/* Title */}
         <div style={{
           fontSize: '38px',
-          color: themeTitle,
+          color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.2',
           marginBottom: '40px',
           whiteSpace: 'pre-line',
@@ -243,7 +246,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               className="critical-thinking-title-editor"
               style={{
                 fontSize: '38px',
-                color: themeTitle,
+                color: '#4A4A4A',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 width: '100%',
@@ -263,7 +266,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 display: 'flex',
                 alignItems: 'flex-start',
                 fontSize: '38px',
-                color: themeTitle,
+                color: '#4A4A4A',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 minHeight: '60px',
@@ -278,8 +281,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
         {/* Content */}
         <div style={{
-          fontSize: '38px',
-          color: themeContent,
+          fontSize: '36px',
+          color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.6',
           maxWidth: '640px',
           minHeight: '40px',
@@ -296,7 +299,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               className="critical-thinking-content-editor"
               style={{
                 fontSize: '36px',
-                color: themeContent,
+                color: '#4A4A4A',
                 lineHeight: '1.6',
                 maxWidth: '600px',
                 width: '100%',
@@ -311,7 +314,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 fontSize: '36px',
-                color: themeContent,
+                color: '#4A4A4A',
                 lineHeight: '1.6',
                 maxWidth: '600px',
                 minHeight: '40px',
@@ -324,81 +327,81 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         </div>
       </div>
 
-             {/* Company Logo - Bottom Left */}
-       <div style={{
-         position: 'absolute',
-         bottom: '40px',
-         left: '60px',
-         display: 'flex',
-         alignItems: 'center',
-         gap: '10px'
-       }}>
-         {currentCompanyLogoPath ? (
-           <ClickableImagePlaceholder
-             imagePath={currentCompanyLogoPath}
-             onImageUploaded={handleCompanyLogoUploaded}
-             size="SMALL"
-             position="CENTER"
-             description="Company logo"
-             isEditable={isEditable}
-             style={{
-               width: '60px',
-               height: '30px',
-               objectFit: 'contain'
-             }}
-           />
-         ) : (
-           <div style={{
-             display: 'flex',
-             alignItems: 'center',
-             gap: '10px',
-             cursor: isEditable ? 'pointer' : 'default'
-           }}
-           onClick={() => isEditable && setShowLogoUploadModal(true)}
-           >
-             <div style={{
-               width: '30px',
-               height: '30px',
-               border: `2px solid ${themeContent}`,
-               borderRadius: '50%',
-               position: 'relative',
-               display: 'flex',
-               alignItems: 'center',
-               justifyContent: 'center'
-             }}>
-               <div style={{
-                 width: '12px',
-                 height: '2px',
-                 backgroundColor: themeContent,
-                 position: 'absolute'
-               }} />
-               <div style={{
-                 width: '2px',
-                 height: '12px',
-                 backgroundColor: themeContent,
-                 position: 'absolute',
-                 left: '50%',
-                 top: '50%',
-                 transform: 'translate(-50%, -50%)'
-               }} />
-             </div>
-             <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Your Logo</span>
-           </div>
-         )}
-       </div>
+      {/* Company Logo - Bottom Left */}
+      <div style={{
+        position: 'absolute',
+        bottom: '40px',
+        left: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }}>
+        {currentCompanyLogoPath ? (
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              width: '60px',
+              height: '30px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: `2px solid #4A4A4A`, // Dark grey border as per screenshot
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            <span style={{ fontSize: '14px', fontWeight: '300', color: '#4A4A4A' }}>Your Logo</span>
+          </div>
+        )}
+      </div>
 
-       {/* Logo Upload Modal */}
-       {showLogoUploadModal && (
-         <PresentationImageUpload
-           isOpen={showLogoUploadModal}
-           onClose={() => setShowLogoUploadModal(false)}
-           onImageUploaded={(newLogoPath) => {
-             handleCompanyLogoUploaded(newLogoPath);
-             setShowLogoUploadModal(false);
-           }}
-           title="Upload Company Logo"
-         />
-       )}
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
