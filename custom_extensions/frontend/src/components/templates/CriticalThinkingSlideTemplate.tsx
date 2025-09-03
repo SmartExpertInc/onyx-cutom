@@ -42,8 +42,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    height: '650px',
-    backgroundColor: '#F5F5F5', // Light grey background as per screenshot
+    aspectRatio: '16/9',
+    backgroundColor: '#ffffff', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -56,11 +56,11 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   // Content block styles
   const contentBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '40px', // From the top of the slide
-    left: '60px',
-    right: '60px',
+    top: '15px', // From the top of the slide
+    left: '15px',
+    right: '15px',
     bottom: '80px', // Leave space for logo at bottom
-    backgroundColor: '#E0E0E0', // Darker grey for content block
+    backgroundColor: '#EDEDED', // Darker grey for content block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
@@ -202,16 +202,15 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         {/* Profile Image - Top Left with orange background */}
         <div style={{
           position: 'absolute',
-          top: '0px',
-          left: '0px',
+          top: '33px',
+          left: '70px',
           width: '120px',
           height: '120px',
           borderRadius: '50%',
-          backgroundColor: '#FF6B35', // Orange background as per screenshot
+          backgroundColor: '#E26B54', // Orange background as per screenshot
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          overflow: 'hidden'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -224,6 +223,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               width: '100%',
               height: '100%',
               borderRadius: '50%',
+              position: 'absolute',
+              bottom: '-24px',
               objectFit: 'cover',
               overflow: 'hidden'
             }}
@@ -233,8 +234,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         {/* Title - to the right of profile image */}
         <div style={{
           position: 'absolute',
-          top: '10px',
-          left: '140px',
+          top: '55px',
+          left: '300px',
           fontSize: '38px',
           color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.2',
@@ -292,13 +293,13 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           fontSize: '36px',
           color: '#4A4A4A', // Dark grey color as per screenshot
           lineHeight: '1.6',
-          maxWidth: '640px',
+          maxWidth: '700px',
           minHeight: '40px',
           display: 'flex',
           alignItems: 'flex-start',
           position: 'absolute',
-          top: '140px',
-          left: '0px',
+          top: '215px',
+          left: '300px',
         }}>
           {isEditable && editingContent ? (
             <ImprovedInlineEditor
@@ -311,7 +312,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 fontSize: '36px',
                 color: '#4A4A4A',
                 lineHeight: '1.6',
-                maxWidth: '600px',
+                maxWidth: '700px',
                 width: '100%',
                 height: 'auto',
                 minHeight: '40px'
@@ -340,8 +341,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
       {/* Company Logo - Bottom Left, below content block */}
       <div style={{
         position: 'absolute',
-        bottom: '40px',
-        left: '60px',
+        bottom: '15px',
+        left: '15px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
