@@ -7,50 +7,19 @@ from contextlib import asynccontextmanager
 
 logger = logging.getLogger(__name__)
 
-# Database configuration
-DATABASE_URL = os.getenv("CUSTOM_PROJECTS_DATABASE_URL")
-if not DATABASE_URL:
-    # Fallback to a default database URL for development
-    DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/custom_projects"
-
-# Connection pool configuration
-POOL_CONFIG = {
-    "min_size": 1,
-    "max_size": 20,
-    "command_timeout": 60,
-    "statement_timeout": 60000,
-}
-
-# Global connection pool
-_pool: Optional[asyncpg.Pool] = None
-
-async def get_pool() -> asyncpg.Pool:
-    """Get or create the database connection pool."""
-    global _pool
-    if _pool is None:
-        try:
-            _pool = await asyncpg.create_pool(
-                DATABASE_URL,
-                **POOL_CONFIG
-            )
-            logger.info("Database connection pool created successfully")
-        except Exception as e:
-            logger.error(f"Failed to create database connection pool: {e}")
-            raise
-    return _pool
-
-async def close_pool():
-    """Close the database connection pool."""
-    global _pool
-    if _pool:
-        await _pool.close()
-        _pool = None
-        logger.info("Database connection pool closed")
+def get_main_db_pool():
+    """Get the main application's database pool."""
+    # Import here to avoid circular imports
+    import main
+    return main.DB_POOL
 
 @asynccontextmanager
 async def get_connection():
-    """Get a database connection from the pool."""
-    pool = await get_pool()
+    """Get a database connection from the main application's pool."""
+    pool = get_main_db_pool()
+    if pool is None:
+        raise RuntimeError("Database pool is not initialized")
+    
     async with pool.acquire() as connection:
         yield connection
 
