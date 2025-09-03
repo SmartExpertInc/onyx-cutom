@@ -32,7 +32,7 @@ export default function AuditPage() {
       
       <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}
-        <header className="h-[50px] xl:h-[81px] mb-[33px]">
+        <header className="h-[50px] xl:h-[81px] mb-[33px] bg-transparent">
           <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
             <div className="flex items-center justify-between h-full">
               <svg className="h-[30px] xl:h-[37px]" width="136" height="30" viewBox="0 0 136 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -74,9 +74,9 @@ export default function AuditPage() {
         <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
           {/* First Section */}
           <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:h-[579px] xl:relative xl:overflow-hidden">
-            <div className="flex flex-col gap-5 xl:w-[551px]">
+            <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
               {/* Pill-shaped div */}
-              <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
+              <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2 xl:mb-[5px]">
                 {/* Circle with gradient background */}
                 <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#01D0FF] to-[#6496F8]"></div>
                 
@@ -201,13 +201,13 @@ export default function AuditPage() {
           </section>
 
           {/* Third Section */}
-          <section className="bg-[#FAFAFA] pt-[50px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px]">
+          <section className="bg-[#FAFAFA] pt-[50px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
             <h2 className="font-medium text-[32px] leading-[120%] tracking-[-0.03em] mb-[30px]">
               Открытые вакансии FUSE
             </h2>
             
-            <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px] xl:w-[488px]">
-              <div className="rounded-[6px] mb-[20px] flex flex-col gap-[5px] xl:gap-[10px]">
+            <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
+              <div className="rounded-[6px] mb-[20px] flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px]">
                 {/* Card 1 */}
                 <div className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]">
                   <div className="w-[40px] h-[40px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
@@ -403,7 +403,7 @@ export default function AuditPage() {
 
           {/* Fourth Section */}
           <section className="bg-white pt-[50px] pb-[60px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
-            <h2 className="font-medium text-[32px] leading-[120%] tracking-[-0.03em] mb-[30px]">
+            <h2 className="font-medium text-[32px] leading-[120%] tracking-[-0.03em] mb-[30px] xl:text-center">
               Кадровый кризис в HVAC-отрасли
             </h2>
 
@@ -478,7 +478,7 @@ export default function AuditPage() {
               </p>
             </div>
 
-            <div className="flex gap-[80px] hidden xl:block">
+            <div className="hidden xl:block w-full xl:flex xl:gap-[80px]">
               <div className="flex flex-col gap-[50px] margin-block-[36px]">
                 <div className="flex flex-col gap-[12px]">
                   <div className="flex items-center gap-[10px] mb-[10px]">
