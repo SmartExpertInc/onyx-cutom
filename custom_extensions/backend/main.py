@@ -12320,12 +12320,44 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
         detail_msg = "An error occurred while fetching project details." if IS_PRODUCTION else f"DB error fetching project details for edit: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
+async def get_user_identifiers_for_workspace(request: Request) -> tuple[str, str]:
+    """Get both user UUID and email for workspace access"""
+    try:
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if not session_cookie_value:
+            dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+            if dev_user_id: 
+                # For dev users, assume email format and return both
+                return dev_user_id, dev_user_id
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+
+        onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+        cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+            response.raise_for_status()
+            user_data = response.json()
+            
+            user_id = user_data.get("userId") or user_data.get("id")
+            user_email = user_data.get("email")
+            
+            if not user_id:
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="User ID extraction failed")
+            
+            return str(user_id), user_email or str(user_id)
+    except Exception as e:
+        logger.error(f"Error getting user identifiers: {e}")
+        raise
+
 @app.get("/api/custom/projects", response_model=List[ProjectApiResponse])
 async def get_user_projects_list_from_db(
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool),
     folder_id: Optional[int] = None
 ):
+    # Get both UUID and email for the user
+    user_uuid, user_email = await get_user_identifiers_for_workspace(request)
     # First, get projects owned by the user
     owned_projects_query = """
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
@@ -12347,33 +12379,106 @@ async def get_user_projects_list_from_db(
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         INNER JOIN product_access pa ON p.id = pa.product_id
         INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
-        WHERE wm.user_id = $1 
+        WHERE (wm.user_id = $1 OR wm.user_id = $2)
           AND wm.status = 'active'
           AND pa.access_type IN ('workspace', 'role', 'individual')
           AND (
               pa.access_type = 'workspace' 
               OR (pa.access_type = 'role' AND pa.target_id = CAST(wm.role_id AS TEXT))
-              OR (pa.access_type = 'individual' AND pa.target_id = $1)
+              OR (pa.access_type = 'individual' AND (pa.target_id = $1 OR pa.target_id = $2))
           )
           {folder_filter}
     """
     
+    # Get both UUID and email for workspace access
+    try:
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if not session_cookie_value:
+            dev_user_id = request.headers.get("X-Dev-Onyx-User-ID")
+            if dev_user_id:
+                user_uuid = dev_user_id
+                user_email = dev_user_id  # For dev, assume email format
+            else:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+        else:
+            onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+            cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+                response.raise_for_status()
+                user_data = response.json()
+                
+                user_uuid = str(user_data.get("userId") or user_data.get("id"))
+                user_email = user_data.get("email") or user_uuid
+    except Exception as e:
+        logger.error(f"Error getting user identifiers: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="User identification failed")
+    
     folder_filter = ""
-    params = [onyx_user_id]
+    owned_params = [user_uuid]
+    shared_params = [user_uuid, user_email]
+    
     if folder_id is not None:
         folder_filter = "AND p.folder_id = $2"
-        params.append(folder_id)
+        owned_params.append(folder_id)
+        folder_filter_shared = "AND p.folder_id = $3"
+        shared_params.append(folder_id)
+    else:
+        folder_filter_shared = ""
+    
+    # Get user email for workspace access
+    try:
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if session_cookie_value:
+            onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+            cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+                if response.status_code == 200:
+                    user_data = response.json()
+                    user_email = user_data.get("email")
+                else:
+                    user_email = None
+        else:
+            user_email = None
+    except:
+        user_email = None
+    
+    # Use email if available, otherwise use UUID for both
+    user_for_workspace = user_email if user_email else onyx_user_id
     
     owned_query = owned_projects_query.format(folder_filter=folder_filter)
     shared_query = shared_projects_query.format(folder_filter=folder_filter)
     
+    # Get user email for workspace access (workspace members are stored with emails)
+    user_email = None
+    try:
+        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        if session_cookie_value:
+            onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
+            cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
+                if response.status_code == 200:
+                    user_data = response.json()
+                    user_email = user_data.get("email")
+    except Exception as e:
+        logger.warning(f"Could not get user email for workspace access: {e}")
+    
+    # Use email for workspace queries if available, otherwise use UUID
+    user_for_workspace = user_email if user_email else onyx_user_id
+    
     async with pool.acquire() as conn:
-        # Get both owned and shared projects
+        # Get owned projects (use UUID)
         owned_rows = await conn.fetch(owned_query, *params)
-        shared_rows = await conn.fetch(shared_query, *params)
+        
+        # Get shared projects (use email)
+        shared_params = [user_for_workspace] + (params[1:] if len(params) > 1 else [])
+        shared_rows = await conn.fetch(shared_query, *shared_params)
         
         # 🔍 DEBUG: Log workspace access results
-        logger.info(f"🔍 [WORKSPACE ACCESS] User {onyx_user_id} projects query results:")
+        logger.info(f"🔍 [WORKSPACE ACCESS] User {user_uuid} (email: {user_email}) projects query results:")
         logger.info(f"   - Owned projects: {len(owned_rows)}")
         logger.info(f"   - Shared projects: {len(shared_rows)}")
         logger.info(f"   - Folder filter: {folder_id}")
