@@ -3141,6 +3141,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
 
       const projectsData = await projectsResponse.json();
+      
+      // 🔍 DEBUG: Log projects data for workspace access debugging
+      console.log('🔍 [PROJECTS DEBUG] Raw projects data from API:', {
+        totalProjects: projectsData.length,
+        apiUrl: projectsApiUrl,
+        projects: projectsData.map((p: any) => ({
+          id: p.id,
+          name: p.projectName || p.microproduct_name,
+          type: p.design_microproduct_type,
+          created_at: p.created_at
+        }))
+      });
+      
       const processedProjects = projectsData.map((p: any) => ({
         id: p.id,
         title: p.projectName || p.microproduct_name || "Untitled",

@@ -12372,6 +12372,17 @@ async def get_user_projects_list_from_db(
         owned_rows = await conn.fetch(owned_query, *params)
         shared_rows = await conn.fetch(shared_query, *params)
         
+        # 🔍 DEBUG: Log workspace access results
+        logger.info(f"🔍 [WORKSPACE ACCESS] User {onyx_user_id} projects query results:")
+        logger.info(f"   - Owned projects: {len(owned_rows)}")
+        logger.info(f"   - Shared projects: {len(shared_rows)}")
+        logger.info(f"   - Folder filter: {folder_id}")
+        
+        if owned_rows:
+            logger.info(f"   - Owned project IDs: {[row['id'] for row in owned_rows]}")
+        if shared_rows:
+            logger.info(f"   - Shared project IDs: {[row['id'] for row in shared_rows]}")
+        
         # Combine and deduplicate projects
         all_projects = {}
         

@@ -11,6 +11,9 @@ import workspaceService, {
   WorkspaceRole, WorkspaceMember, WorkspaceMemberCreate, 
   WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace
 } from '../services/workspaceService';
+import { getCurrentUserId } from '../services/userService';
+// Import test utilities for development
+import '../utils/testUserIds';
 
 // Predefined color options for roles (pale backgrounds with darker text)
 const ROLE_COLORS = [
@@ -123,10 +126,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   };
 
+
+
   const determineCurrentUserRole = async (workspaceId: number, members: WorkspaceMember[], workspaceRoles: WorkspaceRole[]) => {
     try {
-      // For now, we'll use a placeholder user ID - in production this would come from auth context
-      const currentUserId = "current_user_123"; // This should come from your auth system
+      // Get the actual current user ID instead of hardcoded value
+      const currentUserId = getCurrentUserId();
       
       const currentMember = members.find(member => member.user_id === currentUserId);
       if (currentMember) {
@@ -143,7 +148,11 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       } else {
         setCurrentUserRole(null);
         setIsAdmin(false);
-        console.log('Current user is not a member of this workspace');
+        console.log('Current user is not a member of this workspace:', {
+          userId: currentUserId,
+          workspaceId: workspaceId,
+          availableMembers: members.map(m => ({ id: m.id, user_id: m.user_id }))
+        });
       }
     } catch (err) {
       console.error('Failed to determine user role:', err);
