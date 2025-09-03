@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
 
 // Avatar data interfaces
 interface AvatarVariant {
@@ -67,6 +68,9 @@ export default function AvatarPopup({
   });
   const [previewMode, setPreviewMode] = useState<boolean>(false);
   const [selectedAvatar, setSelectedAvatar] = useState<ProcessedAvatar | null>(null);
+  
+  // Integrate with global avatar system
+  const { updateSelectedAvatar } = useAvatarDisplay();
 
   // 🔍 **DEBUG LOGGING: Component Props Received**
   console.log('🎬 [AVATAR_POPUP] AvatarPopup component rendered with props:', {
@@ -237,6 +241,44 @@ export default function AvatarPopup({
       
       // Call the callback to update the avatar on the slide
       onAvatarSelect(selectedAvatar, selectedAvatar.selectedVariant);
+      
+              // Update the global avatar system (same as AvatarSelector does)
+        if (selectedAvatar.selectedVariant) {
+          const elaiAvatar = {
+            id: selectedAvatar.id,
+            code: selectedAvatar.code,
+            name: selectedAvatar.name,
+            type: null,
+            status: 1,
+            accountId: '',
+            gender: selectedAvatar.gender,
+            thumbnail: selectedAvatar.thumbnail,
+            canvas: selectedAvatar.canvas,
+            age: selectedAvatar.age,
+            ethnicity: selectedAvatar.ethnicity,
+            variants: [{
+              code: selectedAvatar.selectedVariant.code,
+              id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
+              name: selectedAvatar.selectedVariant.name,
+              thumbnail: selectedAvatar.selectedVariant.thumbnail,
+              canvas: selectedAvatar.selectedVariant.canvas
+            }]
+          };
+          
+          const elaiVariant = {
+            code: selectedAvatar.selectedVariant.code,
+            id: selectedAvatar.selectedVariant.code, // Use code as ID since AvatarVariant doesn't have id
+            name: selectedAvatar.selectedVariant.name,
+            thumbnail: selectedAvatar.selectedVariant.thumbnail,
+            canvas: selectedAvatar.selectedVariant.canvas
+          };
+          
+          updateSelectedAvatar(elaiAvatar, elaiVariant);
+          console.log('🎬 [AVATAR_POPUP] Global avatar context updated:', {
+            avatar: selectedAvatar.name,
+            variant: selectedAvatar.selectedVariant.name
+          });
+        }
       
       console.log('🎬 [AVATAR_POPUP] Avatar selection callback completed, closing popup');
       onClose();
