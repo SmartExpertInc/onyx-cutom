@@ -261,7 +261,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             gridTemplateColumns: '1fr 1fr',
             marginBottom: '10px'
           }}>
-            {currentPractices.map((practice, index) => (
+            {currentPractices.map((practice: { number: number; title: string; description: string }, index: number) => (
               <div
                 key={index}
                 style={{
@@ -277,7 +277,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   width: '20px',
                   height: '20px',
                   backgroundColor: '#2A2828',
-                  color: index % 2 === 0 ? '#fff' : '#B7B7B7',
+                  color: index < 2 ? '#fff' : '#B7B7B7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
