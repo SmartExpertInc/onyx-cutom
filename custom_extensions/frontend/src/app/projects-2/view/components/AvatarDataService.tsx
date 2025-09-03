@@ -108,7 +108,7 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
       const rawData = await response.text();
       console.log('🎬 [AVATAR_DATA_SERVICE] Raw response data received, length:', rawData.length);
 
-      let parsedData: AvatarData[];
+      let parsedData: any;
       try {
         parsedData = JSON.parse(rawData);
         console.log('🎬 [AVATAR_DATA_SERVICE] JSON parsing successful');
@@ -122,23 +122,29 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
       console.log('🎬 [AVATAR_DATA_SERVICE] Parsed data analysis:', {
         type: typeof parsedData,
         isArray: Array.isArray(parsedData),
-        length: parsedData?.length || 'undefined'
+        hasSuccess: parsedData?.success,
+        hasAvatars: parsedData?.avatars,
+        avatarsLength: parsedData?.avatars?.length || 'undefined'
       });
 
-      // Validate data structure
-      if (!Array.isArray(parsedData)) {
-        console.error('🎬 [AVATAR_DATA_SERVICE] Parsed data is not an array:', parsedData);
-        throw new Error('Avatar data is not an array');
+      // Extract avatars from the response structure (same as working AvatarSelector)
+      let avatarArray: AvatarData[];
+      if (parsedData.success && Array.isArray(parsedData.avatars)) {
+        avatarArray = parsedData.avatars;
+        console.log('🎬 [AVATAR_DATA_SERVICE] Successfully extracted avatars array from response');
+      } else {
+        console.error('🎬 [AVATAR_DATA_SERVICE] Response does not have expected structure:', parsedData);
+        throw new Error('Response does not have expected structure with success and avatars');
       }
 
-      if (parsedData.length === 0) {
-        console.warn('🎬 [AVATAR_DATA_SERVICE] Parsed data is an empty array');
+      if (avatarArray.length === 0) {
+        console.warn('🎬 [AVATAR_DATA_SERVICE] Avatars array is empty');
       }
 
       // Validate each avatar object
       const validatedData: AvatarData[] = [];
-      for (let i = 0; i < parsedData.length; i++) {
-        const avatar = parsedData[i];
+      for (let i = 0; i < avatarArray.length; i++) {
+        const avatar = avatarArray[i];
         console.log(`🎬 [AVATAR_DATA_SERVICE] Validating avatar ${i + 1}:`, avatar);
         
         if (!avatar || typeof avatar !== 'object') {
