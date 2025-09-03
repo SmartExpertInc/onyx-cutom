@@ -415,14 +415,14 @@ export default function ProjectInstanceViewPage() {
 
   // Helper functions for role and email management (now integrated with backend)
   const handleRoleToggle = async (roleId: string) => {
-    if (!projectInstanceData?.id || !selectedWorkspaceId) return;
+    if (!projectInstanceData?.project_id || !selectedWorkspaceId) return;
     
     try {
       const isCurrentlySelected = selectedRoles.includes(roleId);
       
       if (isCurrentlySelected) {
         // Remove role access
-        await workspaceService.removeProductAccess(projectInstanceData.id, {
+        await workspaceService.removeProductAccess(projectInstanceData.project_id, {
           access_type: 'role',
           target_id: roleId,
           workspace_id: selectedWorkspaceId
@@ -430,7 +430,7 @@ export default function ProjectInstanceViewPage() {
         setSelectedRoles(prev => prev.filter(id => id !== roleId));
       } else {
         // Add role access
-        await workspaceService.grantProductAccess(projectInstanceData.id, {
+        await workspaceService.grantProductAccess(projectInstanceData.project_id, {
           workspace_id: selectedWorkspaceId,
           access_type: 'role',
           target_id: roleId
@@ -454,13 +454,13 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handleAddEmail = async () => {
-    if (!newEmail.trim() || customEmails.includes(newEmail.trim()) || !projectInstanceData?.id || !selectedWorkspaceId) return;
+    if (!newEmail.trim() || customEmails.includes(newEmail.trim()) || !projectInstanceData?.project_id || !selectedWorkspaceId) return;
     
     try {
       const emailToAdd = newEmail.trim();
       
       // Add individual access to backend
-      await workspaceService.grantProductAccess(projectInstanceData.id, {
+      await workspaceService.grantProductAccess(projectInstanceData.project_id, {
         workspace_id: selectedWorkspaceId,
         access_type: 'individual',
         target_id: emailToAdd
@@ -483,7 +483,7 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handleEmailRoleChange = async (email: string, roleId: string) => {
-    if (!projectInstanceData?.id || !selectedWorkspaceId) return;
+    if (!projectInstanceData?.project_id || !selectedWorkspaceId) return;
     
     try {
       // For now, just update the UI state since we're using a simple access model
@@ -501,11 +501,11 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handleRemoveEmail = async (email: string) => {
-    if (!projectInstanceData?.id || !selectedWorkspaceId) return;
+    if (!projectInstanceData?.project_id || !selectedWorkspaceId) return;
     
     try {
       // Remove individual access from backend
-      await workspaceService.removeProductAccess(projectInstanceData.id, {
+      await workspaceService.removeProductAccess(projectInstanceData.project_id, {
         access_type: 'individual',
         target_id: email,
         workspace_id: selectedWorkspaceId
