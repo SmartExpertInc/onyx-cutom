@@ -130,7 +130,7 @@ export default function AuditPage() {
             </h2>
             <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px]">
               {/* Card 1 */}
-              <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
                 <div className="p-[15px] flex flex-col gap-[15px]">
                   <div className="flex flex-col gap-[15px]">
                     <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
@@ -153,7 +153,7 @@ export default function AuditPage() {
               </div>
 
               {/* Card 2 */}
-              <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
                 <div className="p-[15px] flex flex-col gap-[15px]">
                   <div className="flex flex-col gap-[15px]">
                     <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
@@ -176,7 +176,7 @@ export default function AuditPage() {
               </div>
 
               {/* Card 3 */}
-              <div className="border border-[#E0E0E0] rounded-[6px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
                 <div className="p-[15px] flex flex-col gap-[15px]">
                   <div className="flex flex-col gap-[15px]">
                     <div className="w-[25px] h-[25px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
