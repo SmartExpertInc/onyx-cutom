@@ -12347,47 +12347,6 @@ async def get_user_projects_list_from_db(
         ))
     return projects_list
 
-# --- Delete individual project ---
-@app.delete("/api/custom/projects/{project_id}", status_code=204)
-async def delete_project(
-    project_id: int, 
-    onyx_user_id: str = Depends(get_current_onyx_user_id), 
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """
-    Delete a single project by ID.
-    """
-    try:
-        async with pool.acquire() as conn:
-            # First check if project exists and belongs to user
-            project_row = await conn.fetchrow(
-                "SELECT id, project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                project_id, onyx_user_id
-            )
-            
-            if not project_row:
-                raise HTTPException(
-                    status_code=404, 
-                    detail="Project not found or access denied"
-                )
-            
-            # Delete the project
-            await conn.execute(
-                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                project_id, onyx_user_id
-            )
-            
-            logger.info(f"Successfully deleted project {project_id} for user {onyx_user_id}")
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error deleting project {project_id} for user {onyx_user_id}: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, 
-            detail="Failed to delete project"
-        )
-
 @app.get("/api/custom/projects/view/{project_id}", response_model=MicroProductApiResponse, responses={404: {"model": ErrorDetail}})
 async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     select_query = """
@@ -16496,6 +16455,47 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             detail="An unexpected error occurred during finalization"
         )
 
+# --- Delete single project endpoint ---
+@app.delete("/api/custom/projects/{project_id}", status_code=204)
+async def delete_project(
+    project_id: int,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Delete a single project by ID.
+    """
+    try:
+        async with pool.acquire() as conn:
+            # Check if project exists and belongs to user
+            project_row = await conn.fetchrow(
+                "SELECT id FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project_row:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Project not found"
+                )
+            
+            # Delete the project
+            await conn.execute(
+                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+        logger.info(f"Successfully deleted project {project_id}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error deleting project {project_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while deleting the project"
+        )
+
 # --- New endpoint: list trashed projects for user ---
 
 @app.post("/api/custom/lesson-plan/generate", response_model=LessonPlanResponse)
@@ -16747,10 +16747,50 @@ Ensure the JSON is valid and follows the exact structure specified.
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unexpected error in lesson plan generation: {e}", exc_info=True)
+                logger.error(f"Unexpected error in lesson plan generation: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="An unexpected error occurred during lesson plan generation"
+        )
+
+@app.delete("/api/custom/projects/{project_id}", status_code=204)
+async def delete_project(
+    project_id: int,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Delete a single project by ID.
+    """
+    try:
+        async with pool.acquire() as conn:
+            # Check if project exists and belongs to user
+            project_row = await conn.fetchrow(
+                "SELECT id FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+            if not project_row:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Project not found"
+                )
+            
+            # Delete the project
+            await conn.execute(
+                "DELETE FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                project_id, onyx_user_id
+            )
+            
+        logger.info(f"Successfully deleted project {project_id}")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error deleting project {project_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail="An unexpected error occurred during lesson plan generation"
+            detail="An unexpected error occurred while deleting the project"
         )
 
 @app.get("/api/custom/projects/trash", response_model=List[ProjectApiResponse])
