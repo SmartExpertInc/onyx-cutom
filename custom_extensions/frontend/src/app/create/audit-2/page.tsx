@@ -73,7 +73,7 @@ export default function AuditPage() {
         {/* Main Content */}
         <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
           {/* First Section */}
-          <section className="flex flex-col gap-[30px] px-[20px] xl:px-[120px]">
+          <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:h-[660px] xl:relative xl:overflow-hidden">
             <div className="flex flex-col gap-5">
               {/* Pill-shaped div */}
               <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] py-[6px] flex items-center gap-2">
@@ -98,14 +98,27 @@ export default function AuditPage() {
             </div>
             
             {/* Image */}
-            <div className="-mx-[20px] xl:-mx-[120px]">
+            <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-0 xl:-mx-0">
+              {/* Mobile Image */}
               <Image 
                 src="/custom-projects-ui/images/audit-section-1-mobile.png"
                 alt="Audit"
                 width={360}
                 height={339}
-                className="w-full"
+                className="w-full xl:hidden"
                 style={{ height: '339.39px' }}
+              />
+              {/* Desktop Image */}
+              <Image 
+                src="/images/audit-section-1-desktop.png"
+                alt="Audit"
+                width={1030}
+                height={660}
+                className="hidden xl:block"
+                style={{ 
+                  width: '1030.04345703125px',
+                  height: '660px'
+                }}
               />
             </div>
           </section>
