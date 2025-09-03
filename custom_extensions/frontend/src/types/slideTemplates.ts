@@ -580,82 +580,15 @@ export interface DataAnalysisSlideProps extends BaseTemplateProps {
   voiceoverText?: string;
 }
 
-export interface CompanyToolsResourcesSlideProps extends BaseTemplateProps {
-  title: string;
-  companyName?: string;
-  companyLogoPath?: string;
-  profileImagePath?: string;
-  profileImageAlt?: string;
-  contentBlocks: Array<{
-    title: string;
-    content: string;
-    backgroundColor: string;
-  }>;
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  accentColor?: string;
-  voiceoverText?: string;
-}
 
-export interface ResourcesSlideProps extends BaseTemplateProps {
-  title: string;
-  companyName?: string;
-  companyLogoPath?: string;
-  profileImagePath?: string;
-  profileImageAlt?: string;
-  resources: string[];
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  accentColor?: string;
-  voiceoverText?: string;
-}
 
-export interface ImpactMetricsSlideProps extends BaseTemplateProps {
-  companyName?: string;
-  companyLogoPath?: string;
-  profileImagePath?: string;
-  profileImageAlt?: string;
-  metrics: string[];
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  accentColor?: string;
-  voiceoverText?: string;
-}
 
-export interface TableOfContentsSlideProps extends BaseTemplateProps {
-  title: string;
-  companyName?: string;
-  companyLogoPath?: string;
-  profileImagePath?: string;
-  profileImageAlt?: string;
-  navigationButtons: string[];
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  accentColor?: string;
-  voiceoverText?: string;
-}
 
-export interface OnlineSafetyTipsSlideProps extends BaseTemplateProps {
-  title: string;
-  companyName?: string;
-  companyLogoPath?: string;
-  profileImagePath?: string;
-  profileImageAlt?: string;
-  tips: Array<{
-    number: string;
-    title: string;
-    description: string;
-  }>;
-  backgroundColor?: string;
-  titleColor?: string;
-  contentColor?: string;
-  accentColor?: string;
-  voiceoverText?: string;
-}
+
+
+
+
+
 
 
 
@@ -695,11 +628,7 @@ export type TemplateId =
   | 'critical-thinking-slide'
   | 'psychological-safety-slide'
   | 'data-analysis-slide'
-  | 'company-tools-resources-slide'
-  | 'resources-slide'
-  | 'impact-metrics-slide'
-  | 'table-of-contents-slide'
-  | 'online-safety-tips-slide';
+;
 
 export interface TemplatePreview {
   templateId: string;

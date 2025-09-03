@@ -84,7 +84,7 @@ Created `custom_extensions/frontend/src/styles/inter.css` with:
 - Force override for maximum compatibility - ONLY INTER
 
 ## Slide Templates Updated
-All 19 specified slide templates now use the `inter-theme` class:
+All 14 specified slide templates now use the `inter-theme` class:
 
 1. CourseOverviewSlideTemplate
 2. WorkLifeBalanceSlideTemplate  
@@ -100,11 +100,7 @@ All 19 specified slide templates now use the `inter-theme` class:
 12. BarChartSlideTemplate
 13. CriticalThinkingSlideTemplate
 14. PsychologicalSafetySlideTemplate
-15. CompanyToolsResourcesSlideTemplate
-16. ResourcesSlideTemplate
-17. ImpactMetricsSlideTemplate
-18. TableOfContentsSlideTemplate
-19. OnlineSafetyTipsSlideTemplate
+
 
 ## Font Loading Optimization
 Updated `custom_extensions/frontend/src/app/layout.tsx`:

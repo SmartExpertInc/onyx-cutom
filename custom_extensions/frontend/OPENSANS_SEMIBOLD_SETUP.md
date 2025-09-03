@@ -48,11 +48,7 @@ The following slide templates now use OpenSans-Semibold:
 - ✅ Bar Chart Slide
 - ✅ Critical Thinking Slide
 - ✅ Psychological Safety Slide
-- ✅ Company Tools and Resources
-- ✅ Resources
-- ✅ Impact Metrics
-- ✅ Table of Contents
-- ✅ Online Safety Tips
+
 
 ### 3. CSS Classes Applied
 Each slide template now includes the class `opensans-semibold-theme` which ensures:

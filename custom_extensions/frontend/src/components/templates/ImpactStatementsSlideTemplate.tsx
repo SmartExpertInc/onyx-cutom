@@ -161,7 +161,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         <div style={{
           width: '440px',
           height: '255px',
-          backgroundColor: themeAccent,
+          backgroundColor: '#E09254',
           borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
