@@ -237,7 +237,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           top: '55px',
           left: '300px',
           fontSize: '38px',
-          color: '#4A4A4A', // Dark grey color as per screenshot
+          color: '#646464', // Dark grey color as per screenshot
           lineHeight: '1.2',
           whiteSpace: 'pre-line',
           minHeight: '60px',
@@ -255,7 +255,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               className="critical-thinking-title-editor"
               style={{
                 fontSize: '38px',
-                color: '#4A4A4A',
+                color: '#646464',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 width: '100%',
@@ -275,7 +275,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 display: 'flex',
                 alignItems: 'flex-start',
                 fontSize: '38px',
-                color: '#4A4A4A',
+                color: '#646464',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 minHeight: '60px',
@@ -290,8 +290,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
         {/* Content */}
         <div style={{
-          fontSize: '36px',
-          color: '#4A4A4A', // Dark grey color as per screenshot
+          fontSize: '38px',
+          color: '#646464', // Dark grey color as per screenshot
           lineHeight: '1.6',
           maxWidth: '700px',
           minHeight: '40px',
@@ -309,8 +309,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-content-editor"
               style={{
-                fontSize: '36px',
-                color: '#4A4A4A',
+                fontSize: '38px',
+                color: '#646464',
                 lineHeight: '1.6',
                 maxWidth: '700px',
                 width: '100%',
@@ -324,10 +324,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                fontSize: '36px',
-                color: '#4A4A4A',
+                fontSize: '38px',
+                color: '#646464',
                 lineHeight: '1.6',
-                maxWidth: '600px',
+                maxWidth: '700px',
                 minHeight: '40px',
                 width: '100%'
               }}
