@@ -56,7 +56,14 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             <h2 className="text-2xl font-bold text-gray-900">Content Development Specifications</h2>
           </div>
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className={`grid gap-6 ${Object.keys(lessonPlanData.recommendedProductTypes).length === 1
+              ? 'grid-cols-1 max-w-2xl mx-auto'
+              : Object.keys(lessonPlanData.recommendedProductTypes).length === 2
+                ? 'grid-cols-1 md:grid-cols-2'
+                : Object.keys(lessonPlanData.recommendedProductTypes).length === 3
+                  ? 'grid-cols-1 md:grid-cols-3'
+                  : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+              }`}>
               {Object.entries(lessonPlanData.recommendedProductTypes).map(([productName, description]) => (
                 <div key={productName} className="bg-white rounded-lg p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                   <h3 className="font-bold text-purple-800 mb-4 capitalize flex items-center text-lg">
@@ -115,7 +122,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-gray-600 text-xs leading-relaxed max-w-2xl mx-auto">
+          <p className="text-gray-600 text-m leading-relaxed max-w-2xl mx-auto">
             This comprehensive lesson plan follows instructional design best practices and serves as a complete task specification for Content Developers.
           </p>
         </div>
