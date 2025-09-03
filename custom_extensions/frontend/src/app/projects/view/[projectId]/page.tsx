@@ -298,10 +298,7 @@ export default function ProjectInstanceViewPage() {
     }
   };
 
-  const handleRemoveEmail = (email: string) => {
-    setCustomEmails(prev => prev.filter(e => e !== email));
-    setSelectedEmails(prev => prev.filter(e => e !== email));
-  };
+
 
   const handleEmailRoleChange = (email: string, roleId: string) => {
     console.log('Changing role for email:', email, 'to role:', roleId);
