@@ -73,33 +73,15 @@ export default function AvatarPopup({
     isOpen,
     title,
     displayMode,
-    className,
-    position,
-    avatarDataCount: avatarData?.length || 0,
-    avatarData: avatarData
+    avatarDataCount: avatarData?.length || 0
   });
 
   // 🔍 **DEBUG LOGGING: Avatar Data Analysis**
   useEffect(() => {
     if (avatarData && avatarData.length > 0) {
-      console.log('🎬 [AVATAR_POPUP] Avatar data received and analyzed:');
-      console.log('🎬 [AVATAR_POPUP] Total avatars:', avatarData.length);
-      
-      avatarData.forEach((avatar, index) => {
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1}:`, {
-          id: avatar.id,
-          code: avatar.code,
-          name: avatar.name,
-          gender: avatar.gender,
-          age: avatar.age,
-          ethnicity: avatar.ethnicity,
-          variantsCount: avatar.variants?.length || 0,
-          variants: avatar.variants
-        });
-      });
+      console.log('🎬 [AVATAR_POPUP] Avatar data received, total avatars:', avatarData.length);
     } else {
       console.warn('🎬 [AVATAR_POPUP] No avatar data received or empty array');
-      console.log('🎬 [AVATAR_POPUP] avatarData value:', avatarData);
     }
   }, [avatarData]);
 
@@ -121,40 +103,33 @@ export default function AvatarPopup({
 
   // Process avatar data to flatten variants
   const processedAvatars = useMemo(() => {
-    console.log('🎬 [AVATAR_POPUP] Processing avatar data to flatten variants...');
-    console.log('🎬 [AVATAR_POPUP] Input avatarData:', avatarData);
+    if (!avatarData || avatarData.length === 0) {
+      return [];
+    }
     
     const processed = avatarData.flatMap((avatar, avatarIndex) => {
-      console.log(`🎬 [AVATAR_POPUP] Processing avatar ${avatarIndex + 1}:`, avatar);
-      
       if (avatar.variants && avatar.variants.length > 0) {
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${avatarIndex + 1} has ${avatar.variants.length} variants`);
-        
         // Create separate entry for each variant
         const variantEntries = avatar.variants.map((variant, variantIndex) => {
           const processedAvatar = {
-            id: avatar.id,
+            id: `${avatar.id}-${variant.code}`, // Unique ID for each variant
             code: avatar.code,
             name: avatar.name,
             gender: avatar.gender,
             age: avatar.age,
             ethnicity: avatar.ethnicity,
-            thumbnail: variant.thumbnail,
-            canvas: variant.canvas,
+            thumbnail: variant.thumbnail || variant.canvas || '',
+            canvas: variant.canvas || '',
             selectedVariant: variant,
-            displayName: `${avatar.name}`,
+            displayName: `${avatar.name} - ${variant.name}`,
             lookCategory: variant.name
           };
           
-          console.log(`🎬 [AVATAR_POPUP] Created variant entry ${variantIndex + 1} for avatar ${avatarIndex + 1}:`, processedAvatar);
           return processedAvatar;
         });
         
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${avatarIndex + 1} generated ${variantEntries.length} variant entries`);
         return variantEntries;
       } else {
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${avatarIndex + 1} has no variants, creating default entry`);
-        
         // Avatar without variants
         const defaultEntry = {
           id: avatar.id,
@@ -169,40 +144,19 @@ export default function AvatarPopup({
           lookCategory: 'Default'
         };
         
-        console.log(`🎬 [AVATAR_POPUP] Created default entry for avatar ${avatarIndex + 1}:`, defaultEntry);
         return [defaultEntry];
       }
     });
     
-    console.log('🎬 [AVATAR_POPUP] Avatar processing complete');
-    console.log('🎬 [AVATAR_POPUP] Total processed avatars:', processed.length);
-    console.log('🎬 [AVATAR_POPUP] Final processed avatars:', processed);
-    
+    console.log('🎬 [AVATAR_POPUP] Avatar processing complete, total:', processed.length);
     return processed;
   }, [avatarData]);
 
   // Apply filters to avatars
   const filteredAvatars = useMemo(() => {
-    console.log('🎬 [AVATAR_POPUP] Applying filters to avatars...');
-    console.log('🎬 [AVATAR_POPUP] Current filters:', selectedFilters);
-    console.log('🎬 [AVATAR_POPUP] Input processed avatars count:', processedAvatars.length);
-    
-    const filtered = processedAvatars.filter((avatar, index) => {
-      console.log(`🎬 [AVATAR_POPUP] Filtering avatar ${index + 1}:`, {
-        name: avatar.name,
-        gender: avatar.gender,
-        age: avatar.age,
-        ethnicity: avatar.ethnicity,
-        lookCategory: avatar.lookCategory
-      });
-      
+    const filtered = processedAvatars.filter((avatar) => {
       // Gender filter
       if (selectedFilters.gender !== 'View All' && avatar.gender !== selectedFilters.gender?.toLowerCase()) {
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by gender:`, {
-          avatarGender: avatar.gender,
-          filterGender: selectedFilters.gender,
-          match: avatar.gender === selectedFilters.gender?.toLowerCase()
-        });
         return false;
       }
       
@@ -214,11 +168,6 @@ export default function AvatarPopup({
           (selectedFilters.age === 'Senior' && avatar.age > 50)
         );
         if (!ageMatch) {
-          console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by age:`, {
-            avatarAge: avatar.age,
-            filterAge: selectedFilters.age,
-            ageMatch
-          });
           return false;
         }
       }
@@ -226,32 +175,18 @@ export default function AvatarPopup({
       // Ethnicity filter
       if (selectedFilters.ethnicity && avatar.ethnicity && 
           !avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())) {
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by ethnicity:`, {
-          avatarEthnicity: avatar.ethnicity,
-          filterEthnicity: selectedFilters.ethnicity,
-          match: avatar.ethnicity.toLowerCase().includes(selectedFilters.ethnicity.toLowerCase())
-        });
         return false;
       }
       
       // Look filter (variant name)
       if (selectedFilters.look && avatar.lookCategory !== selectedFilters.look) {
-        console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} filtered out by look:`, {
-          avatarLookCategory: avatar.lookCategory,
-          filterLook: selectedFilters.look,
-          match: avatar.lookCategory === selectedFilters.look
-        });
         return false;
       }
       
-      console.log(`🎬 [AVATAR_POPUP] Avatar ${index + 1} passed all filters`);
       return true;
     });
     
-    console.log('🎬 [AVATAR_POPUP] Filtering complete');
-    console.log('🎬 [AVATAR_POPUP] Filtered avatars count:', filtered.length);
-    console.log('🎬 [AVATAR_POPUP] Final filtered avatars:', filtered);
-    
+    console.log('🎬 [AVATAR_POPUP] Filtering complete, filtered:', filtered.length, 'from:', processedAvatars.length);
     return filtered;
   }, [processedAvatars, selectedFilters]);
 
@@ -565,26 +500,10 @@ export default function AvatarPopup({
 
             {/* Scrollable content area */}
             <div className="flex-1 overflow-y-auto pb-4">
-              {/* Avatar rectangles grid */}
-              <div className="grid grid-cols-3 gap-4">
-                {/* 🔍 **DEBUG LOGGING: Avatar Grid Rendering** */}
-                {(() => {
-                  console.log('🎬 [AVATAR_POPUP] Rendering avatar grid...');
-                  console.log('🎬 [AVATAR_POPUP] filteredAvatars to render:', filteredAvatars);
-                  console.log('🎬 [AVATAR_POPUP] Grid will render', filteredAvatars.length, 'avatars');
-                  
-                  return filteredAvatars.map((avatar: ProcessedAvatar, index) => {
-                    console.log(`🎬 [AVATAR_POPUP] Rendering avatar ${index + 1} in grid:`, {
-                      id: avatar.id,
-                      name: avatar.name,
-                      displayName: avatar.displayName,
-                      lookCategory: avatar.lookCategory,
-                      thumbnail: avatar.thumbnail,
-                      key: `${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`
-                    });
-                    
-                    return (
-                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
+                             {/* Avatar rectangles grid */}
+               <div className="grid grid-cols-3 gap-4">
+                 {filteredAvatars.map((avatar: ProcessedAvatar, index) => (
+                   <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
                       {/* Avatar rectangle */}
                       <div 
                         className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden"
@@ -622,10 +541,8 @@ export default function AvatarPopup({
                         <div className="text-sm text-black font-medium">{avatar.displayName}</div>
                       </div>
                     </div>
-                  );
-                });
-              })()}
-              </div>
+                  ))}
+                </div>
             </div>
           </>
         )}

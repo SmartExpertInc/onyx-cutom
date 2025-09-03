@@ -81,10 +81,8 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
     
     try {
       // 🔍 **DEBUG LOGGING: API Request Details**
-      const apiUrl = '/api/custom/video/avatars'; // Correct backend endpoint
+      const apiUrl = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/video/avatars`; // Use same endpoint as working AvatarSelector
       console.log('🎬 [AVATAR_DATA_SERVICE] Making API request to:', apiUrl);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Request method: GET');
-      console.log('🎬 [AVATAR_DATA_SERVICE] Request headers: { "Content-Type": "application/json" }');
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -95,10 +93,7 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
       });
 
       // 🔍 **DEBUG LOGGING: API Response Details**
-      console.log('🎬 [AVATAR_DATA_SERVICE] API response received');
-      console.log('🎬 [AVATAR_DATA_SERVICE] Response status:', response.status);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Response status text:', response.statusText);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Response headers:', Object.fromEntries(response.headers.entries()));
+      console.log('🎬 [AVATAR_DATA_SERVICE] API response received, status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -111,9 +106,7 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
       }
 
       const rawData = await response.text();
-      console.log('🎬 [AVATAR_DATA_SERVICE] Raw response data received');
-      console.log('🎬 [AVATAR_DATA_SERVICE] Raw data length:', rawData.length);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Raw data preview:', rawData.substring(0, 500));
+      console.log('🎬 [AVATAR_DATA_SERVICE] Raw response data received, length:', rawData.length);
 
       let parsedData: AvatarData[];
       try {
@@ -126,11 +119,11 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
       }
 
       // 🔍 **DEBUG LOGGING: Parsed Data Analysis**
-      console.log('🎬 [AVATAR_DATA_SERVICE] Parsed data analysis:');
-      console.log('🎬 [AVATAR_DATA_SERVICE] Data type:', typeof parsedData);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Is array:', Array.isArray(parsedData));
-      console.log('🎬 [AVATAR_DATA_SERVICE] Data length:', parsedData?.length || 'undefined');
-      console.log('🎬 [AVATAR_DATA_SERVICE] Full parsed data:', parsedData);
+      console.log('🎬 [AVATAR_DATA_SERVICE] Parsed data analysis:', {
+        type: typeof parsedData,
+        isArray: Array.isArray(parsedData),
+        length: parsedData?.length || 'undefined'
+      });
 
       // Validate data structure
       if (!Array.isArray(parsedData)) {
@@ -189,73 +182,9 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
     } catch (error) {
       console.error('🎬 [AVATAR_DATA_SERVICE] Error fetching avatar data:', error);
       
-      // 🔍 **DEBUG LOGGING: Fallback to Mock Data**
-      console.log('🎬 [AVATAR_DATA_SERVICE] Falling back to mock data due to error');
-      
-      // Return comprehensive mock data for testing
-      const fallbackData: AvatarData[] = [
-        {
-          id: '1',
-          code: 'gia',
-          name: 'Gia',
-          gender: 'female',
-          age: 25,
-          ethnicity: 'Asian',
-          thumbnail: '',
-          canvas: '',
-          variants: [
-            { code: 'casual', name: 'Casual', thumbnail: '', canvas: '' },
-            { code: 'business', name: 'Business', thumbnail: '', canvas: '' },
-            { code: 'doctor', name: 'Doctor', thumbnail: '', canvas: '' }
-          ]
-        },
-        {
-          id: '2',
-          code: 'mike',
-          name: 'Mike',
-          gender: 'male',
-          age: 35,
-          ethnicity: 'Caucasian',
-          thumbnail: '',
-          canvas: '',
-          variants: [
-            { code: 'casual', name: 'Casual', thumbnail: '', canvas: '' },
-            { code: 'business', name: 'Business', thumbnail: '', canvas: '' },
-            { code: 'construction', name: 'Construction', thumbnail: '', canvas: '' }
-          ]
-        },
-        {
-          id: '3',
-          code: 'sarah',
-          name: 'Sarah',
-          gender: 'female',
-          age: 28,
-          ethnicity: 'Black',
-          thumbnail: '',
-          canvas: '',
-          variants: [
-            { code: 'casual', name: 'Casual', thumbnail: '', canvas: '' },
-            { code: 'fitness', name: 'Fitness', thumbnail: '', canvas: '' }
-          ]
-        },
-        {
-          id: '4',
-          code: 'david',
-          name: 'David',
-          gender: 'male',
-          age: 42,
-          ethnicity: 'South Asian',
-          thumbnail: '',
-          canvas: '',
-          variants: [
-            { code: 'business', name: 'Business', thumbnail: '', canvas: '' },
-            { code: 'chef', name: 'Chef', thumbnail: '', canvas: '' }
-          ]
-        }
-      ];
-
-      console.log('🎬 [AVATAR_DATA_SERVICE] Fallback mock data created:', fallbackData);
-      return fallbackData;
+      // 🔍 **DEBUG LOGGING: No Fallback Available**
+      console.log('🎬 [AVATAR_DATA_SERVICE] No fallback data available, returning empty array');
+      return [];
     }
   };
 
@@ -280,27 +209,24 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
           console.log(`🎬 [AVATAR_DATA_SERVICE] Processing variant ${j + 1} for avatar ${i + 1}:`, variant);
           
           const processedAvatar: ProcessedAvatar = {
-            id: avatar.id,
+            id: `${avatar.id}-${variant.code}`, // Unique ID for each variant
             code: avatar.code,
             name: avatar.name,
             gender: avatar.gender,
             age: avatar.age,
             ethnicity: avatar.ethnicity,
-            thumbnail: variant.thumbnail,
-            canvas: variant.canvas,
+            thumbnail: variant.thumbnail || variant.canvas || '',
+            canvas: variant.canvas || '',
             selectedVariant: variant,
-            displayName: `${avatar.name}`,
+            displayName: `${avatar.name} - ${variant.name}`,
             lookCategory: variant.name
           };
 
-          console.log(`🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant ${j + 1}:`, processedAvatar);
           processed.push(processedAvatar);
         }
       } else {
-        console.log(`🎬 [AVATAR_DATA_SERVICE] Avatar ${i + 1} has no variants, creating default entry`);
-        
         // Avatar without variants
-        const processedAvatar: ProcessedAvatar = {
+        const defaultEntry: ProcessedAvatar = {
           id: avatar.id,
           code: avatar.code,
           name: avatar.name,
@@ -313,14 +239,11 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
           lookCategory: 'Default'
         };
 
-        console.log(`🎬 [AVATAR_DATA_SERVICE] Created default processed avatar:`, processedAvatar);
-        processed.push(processedAvatar);
+        processed.push(defaultEntry);
       }
     }
 
-    console.log('🎬 [AVATAR_DATA_SERVICE] Avatar processing complete');
-    console.log('🎬 [AVATAR_DATA_SERVICE] Final processed avatars count:', processed.length);
-    console.log('🎬 [AVATAR_DATA_SERVICE] Final processed avatars:', processed);
+    console.log('🎬 [AVATAR_DATA_SERVICE] Avatar processing complete, total:', processed.length);
 
     return processed;
   };
@@ -334,23 +257,18 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
     
     try {
       const fetchedData = await fetchAvatarData();
-      console.log('🎬 [AVATAR_DATA_SERVICE] Avatar data fetched successfully:', fetchedData);
-      
       setAvatarData(fetchedData);
       
       const processed = processAvatarData(fetchedData);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Avatar data processed and set:', processed);
-      
       setProcessedAvatars(processed);
       
-      console.log('🎬 [AVATAR_DATA_SERVICE] Avatar refresh completed successfully');
+      console.log('🎬 [AVATAR_DATA_SERVICE] Avatar refresh completed, fetched:', fetchedData.length, 'processed:', processed.length);
       
     } catch (error) {
       console.error('🎬 [AVATAR_DATA_SERVICE] Error refreshing avatars:', error);
       setError(error instanceof Error ? error.message : 'Unknown error occurred');
     } finally {
       setIsLoading(false);
-      console.log('🎬 [AVATAR_DATA_SERVICE] Avatar refresh loading state cleared');
     }
   };
 
@@ -377,8 +295,6 @@ export default function AvatarDataProvider({ children }: AvatarDataServiceProps)
     error,
     refreshAvatars
   };
-
-  console.log('🎬 [AVATAR_DATA_SERVICE] Providing context value:', contextValue);
 
   return (
     <AvatarDataContext.Provider value={contextValue}>

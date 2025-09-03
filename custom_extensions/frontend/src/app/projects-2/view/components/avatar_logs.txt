@@ -1,0 +1,622 @@
+frontend:
+
+
+🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Providing context value: Object
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: Object
+9360-8ef87be289750e4e.js:1 Script - videoLessonData: undefined
+9360-8ef87be289750e4e.js:1 Script - componentBasedSlideDeck: undefined
+9360-8ef87be289750e4e.js:1 Script - currentSlideId: undefined
+9360-8ef87be289750e4e.js:1 Script - currentSlide: undefined
+9360-8ef87be289750e4e.js:1 Script - voiceoverText: undefined
+9360-8ef87be289750e4e.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+layout-7dd727b8c68f91f5.js:1 🎨 Font styles applied to Chudo and Forta themes
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Initial data fetch effect triggered
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Refresh avatars requested
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Starting avatar data fetch...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Making API request to: /api/custom/video/avatars
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Request method: GET
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Request headers: { "Content-Type": "application/json" }
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] State updated: Object
+242-5ee0b96e6d9bf0fc.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Providing context value: Object
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] State updated: Object
+/api/custom/video/avatars:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] API response received
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Response status: 404
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Response status text: Not Found
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Response headers: Object
+1684-77cc8bacad49b839.js:1 🎬 [AVATAR_DATA_SERVICE] API request failed: Object
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+m @ 9360-8ef87be289750e4e.js:1Understand this error
+1684-77cc8bacad49b839.js:1 🎬 [AVATAR_DATA_SERVICE] Error fetching avatar data: Error: Failed to fetch avatars: 404 - {"detail":"404: Not Found"}
+    at m (9360-8ef87be289750e4e.js:1:43957)
+    at async u (9360-8ef87be289750e4e.js:1:49400)
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+m @ 9360-8ef87be289750e4e.js:1Understand this error
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Falling back to mock data due to error
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Fallback mock data created: Array(4)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar data fetched successfully: Array(4)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Starting avatar data processing...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Input avatars count: 4
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Input avatars: Array(4)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar 1 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 1 for avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 2 for avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 3 for avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar 2 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 1 for avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 2 for avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 3 for avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar 3 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 1 for avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 2 for avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar 4 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 1 for avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Processing variant 2 for avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Created processed avatar for variant 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar processing complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Final processed avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Final processed avatars: Array(10)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar data processed and set: Array(10)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar refresh completed successfully
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Avatar refresh loading state cleared
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Providing context value: Object
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] State updated: Object
+242-5ee0b96e6d9bf0fc.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Providing context value: Object
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: Object
+9360-8ef87be289750e4e.js:1 Script - videoLessonData: undefined
+9360-8ef87be289750e4e.js:1 Script - componentBasedSlideDeck: Object
+9360-8ef87be289750e4e.js:1 Script - currentSlideId: slide_1_intro
+9360-8ef87be289750e4e.js:1 Script - currentSlide: undefined
+9360-8ef87be289750e4e.js:1 Script - voiceoverText: undefined
+9360-8ef87be289750e4e.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+242-5ee0b96e6d9bf0fc.js:1 🎭 [AVATAR_MANAGER] Avatar data received: Object
+242-5ee0b96e6d9bf0fc.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+242-5ee0b96e6d9bf0fc.js:1 🎭 [AVATAR_MANAGER] Loaded saved avatar from localStorage: Object
+242-5ee0b96e6d9bf0fc.js:1 🎭 [AVATAR_MANAGER] Restored saved avatar: Max
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] AvatarDataProvider initialized
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Initial state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_DATA_SERVICE] Providing context value: Object
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: Object
+9360-8ef87be289750e4e.js:1 Script - videoLessonData: undefined
+9360-8ef87be289750e4e.js:1 Script - componentBasedSlideDeck: Object
+9360-8ef87be289750e4e.js:1 Script - currentSlideId: slide-1756805653686-owb1hs3na
+9360-8ef87be289750e4e.js:1 Script - currentSlide: Object
+9360-8ef87be289750e4e.js:1 Script - voiceoverText: Welcome to your Spanish learning journey! In this course, we will explore the essential steps to start learning Spanish effectively. You will gain foundational skills, practical tips, and resources to help you on your journey to fluency. Let's dive in!
+9360-8ef87be289750e4e.js:1 Script - scriptContent: Create dynamic, powerful and informative videos with an avatar as your host. Instantly translate your video into over eighty languages, use engaging media to grab your audiences attention, or even simulate conversations between multiple avatars. All with an intuitive interface that anyone can use!
+9360-8ef87be289750e4e.js:1 Script - videoLessonData: undefined
+9360-8ef87be289750e4e.js:1 Script - componentBasedSlideDeck: Object
+9360-8ef87be289750e4e.js:1 Script - currentSlideId: slide-1756805653686-owb1hs3na
+9360-8ef87be289750e4e.js:1 Script - currentSlide: Object
+9360-8ef87be289750e4e.js:1 Script - voiceoverText: Welcome to your Spanish learning journey! In this course, we will explore the essential steps to start learning Spanish effectively. You will gain foundational skills, practical tips, and resources to help you on your journey to fluency. Let's dive in!
+9360-8ef87be289750e4e.js:1 Script - scriptContent: Welcome to your Spanish learning journey! In this course, we will explore the essential steps to start learning Spanish effectively. You will gain foundational skills, practical tips, and resources to help you on your journey to fluency. Let's dive in!
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar data to flatten variants...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Input avatarData: Array(4)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 3 for avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 generated 3 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 3 for avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 generated 3 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 generated 2 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 generated 2 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar processing complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Total processed avatars: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Final processed avatars: Array(10)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Applying filters to avatars...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Current filters: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Input processed avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 4: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 5: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 5 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 6: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 6 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 7: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 7 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 8: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 8 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 9: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 9 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 10: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 10 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtered avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Final filtered avatars: Array(10)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar grid...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] filteredAvatars to render: Array(10)
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Grid will render 10 avatars
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 1 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 2 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 3 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 4 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 5 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 6 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 7 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 8 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 9 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 10 in grid: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar data received and analyzed:
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Total avatars: 4
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4: Object
+66:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
+66:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
+1684-77cc8bacad49b839.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
+    at HTMLLinkElement.<anonymous> (layout-7dd727b8c68f91f5.js:1:4167)
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+l @ layout-7dd727b8c68f91f5.js:1Understand this error
+layout-7dd727b8c68f91f5.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+66:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
+66:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
+66:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
+66:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar clicked for preview: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Preview mode activated for avatar: David
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: Object
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Add to Scene button clicked!
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Selected avatar: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] onAvatarSelect callback exists: true
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Calling onAvatarSelect with: {avatar: {…}, variant: {…}}
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar selected from toolbar: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …} {code: 'chef', name: 'Chef', thumbnail: '', canvas: ''}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar selection callback completed, closing popup
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 4, processedAvatarsCount: 10, isLoading: false, error: null}
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 4, processedAvatarsCount: 10, isLoading: false, error: null}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: {isOpen: true, title: 'Choose Avatar', displayMode: 'popup', className: '', position: {…}, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar data to flatten variants...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Input avatarData: (4) [{…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 3 for avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 generated 3 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 3 for avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 generated 3 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 generated 2 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 generated 2 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar processing complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Total processed avatars: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Final processed avatars: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Applying filters to avatars...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Current filters: {gender: 'View All', age: null, ethnicity: null, look: null}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Input processed avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 1: {name: 'Gia', gender: 'female', age: 25, ethnicity: 'Asian', lookCategory: 'Casual'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 2: {name: 'Gia', gender: 'female', age: 25, ethnicity: 'Asian', lookCategory: 'Business'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 3: {name: 'Gia', gender: 'female', age: 25, ethnicity: 'Asian', lookCategory: 'Doctor'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 4: {name: 'Mike', gender: 'male', age: 35, ethnicity: 'Caucasian', lookCategory: 'Casual'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 5: {name: 'Mike', gender: 'male', age: 35, ethnicity: 'Caucasian', lookCategory: 'Business'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 5 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 6: {name: 'Mike', gender: 'male', age: 35, ethnicity: 'Caucasian', lookCategory: 'Construction'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 6 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 7: {name: 'Sarah', gender: 'female', age: 28, ethnicity: 'Black', lookCategory: 'Casual'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 7 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 8: {name: 'Sarah', gender: 'female', age: 28, ethnicity: 'Black', lookCategory: 'Fitness'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 8 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 9: {name: 'David', gender: 'male', age: 42, ethnicity: 'South Asian', lookCategory: 'Business'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 9 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 10: {name: 'David', gender: 'male', age: 42, ethnicity: 'South Asian', lookCategory: 'Chef'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 10 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtered avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Final filtered avatars: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar grid...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] filteredAvatars to render: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Grid will render 10 avatars
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 1 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 2 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 3 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Doctor', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 4 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 5 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 6 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Construction', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 7 in grid: {id: '3', name: 'Sarah', displayName: 'Sarah', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 8 in grid: {id: '3', name: 'Sarah', displayName: 'Sarah', lookCategory: 'Fitness', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 9 in grid: {id: '4', name: 'David', displayName: 'David', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 10 in grid: {id: '4', name: 'David', displayName: 'David', lookCategory: 'Chef', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar data received and analyzed:
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Total avatars: 4
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar clicked for preview: {id: '1', name: 'Gia', displayName: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Preview mode activated for avatar: Gia
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: {isOpen: true, title: 'Choose Avatar', displayMode: 'popup', className: '', position: {…}, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Back button clicked, returning to avatar grid
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Preview mode deactivated, avatar grid restored
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: {isOpen: true, title: 'Choose Avatar', displayMode: 'popup', className: '', position: {…}, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar grid...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] filteredAvatars to render: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Grid will render 10 avatars
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 1 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 2 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 3 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Doctor', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 4 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 5 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 6 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Construction', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 7 in grid: {id: '3', name: 'Sarah', displayName: 'Sarah', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 8 in grid: {id: '3', name: 'Sarah', displayName: 'Sarah', lookCategory: 'Fitness', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 9 in grid: {id: '4', name: 'David', displayName: 'David', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 10 in grid: {id: '4', name: 'David', displayName: 'David', lookCategory: 'Chef', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar clicked for preview: {id: '1', name: 'Gia', displayName: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Preview mode activated for avatar: Gia
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: {isOpen: true, title: 'Choose Avatar', displayMode: 'popup', className: '', position: {…}, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Add to Scene button clicked!
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Selected avatar: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] onAvatarSelect callback exists: true
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Calling onAvatarSelect with: {avatar: {…}, variant: {…}}
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar selected from toolbar: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …} {code: 'casual', name: 'Casual', thumbnail: '', canvas: ''}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar selection callback completed, closing popup
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 4, processedAvatarsCount: 10, isLoading: false, error: null}
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Toolbar component initialized
+9360-8ef87be289750e4e.js:1 🎬 [TOOLBAR] Avatar data service state: {avatarDataCount: 4, processedAvatarsCount: 10, isLoading: false, error: null}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] AvatarPopup component rendered with props: {isOpen: true, title: 'Choose Avatar', displayMode: 'popup', className: '', position: {…}, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar data to flatten variants...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Input avatarData: (4) [{…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 3 for avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 generated 3 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 has 3 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 3 for avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 generated 3 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 generated 2 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Processing avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 has 2 variants
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 1 for avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Created variant entry 2 for avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 generated 2 variant entries
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar processing complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Total processed avatars: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Final processed avatars: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Applying filters to avatars...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Current filters: {gender: 'View All', age: null, ethnicity: null, look: null}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Input processed avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 1: {name: 'Gia', gender: 'female', age: 25, ethnicity: 'Asian', lookCategory: 'Casual'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 2: {name: 'Gia', gender: 'female', age: 25, ethnicity: 'Asian', lookCategory: 'Business'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 3: {name: 'Gia', gender: 'female', age: 25, ethnicity: 'Asian', lookCategory: 'Doctor'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 4: {name: 'Mike', gender: 'male', age: 35, ethnicity: 'Caucasian', lookCategory: 'Casual'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 5: {name: 'Mike', gender: 'male', age: 35, ethnicity: 'Caucasian', lookCategory: 'Business'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 5 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 6: {name: 'Mike', gender: 'male', age: 35, ethnicity: 'Caucasian', lookCategory: 'Construction'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 6 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 7: {name: 'Sarah', gender: 'female', age: 28, ethnicity: 'Black', lookCategory: 'Casual'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 7 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 8: {name: 'Sarah', gender: 'female', age: 28, ethnicity: 'Black', lookCategory: 'Fitness'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 8 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 9: {name: 'David', gender: 'male', age: 42, ethnicity: 'South Asian', lookCategory: 'Business'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 9 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering avatar 10: {name: 'David', gender: 'male', age: 42, ethnicity: 'South Asian', lookCategory: 'Chef'}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 10 passed all filters
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtering complete
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Filtered avatars count: 10
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Final filtered avatars: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar grid...
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] filteredAvatars to render: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Grid will render 10 avatars
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 1 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 2 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 3 in grid: {id: '1', name: 'Gia', displayName: 'Gia', lookCategory: 'Doctor', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 4 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 5 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 6 in grid: {id: '2', name: 'Mike', displayName: 'Mike', lookCategory: 'Construction', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 7 in grid: {id: '3', name: 'Sarah', displayName: 'Sarah', lookCategory: 'Casual', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 8 in grid: {id: '3', name: 'Sarah', displayName: 'Sarah', lookCategory: 'Fitness', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 9 in grid: {id: '4', name: 'David', displayName: 'David', lookCategory: 'Business', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Rendering avatar 10 in grid: {id: '4', name: 'David', displayName: 'David', lookCategory: 'Chef', thumbnail: '', …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar data received and analyzed:
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Total avatars: 4
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 1: {id: '1', code: 'gia', name: 'Gia', gender: 'female', age: 25, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 2: {id: '2', code: 'mike', name: 'Mike', gender: 'male', age: 35, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 3: {id: '3', code: 'sarah', name: 'Sarah', gender: 'female', age: 28, …}
+9360-8ef87be289750e4e.js:1 🎬 [AVATAR_POPUP] Avatar 4: {id: '4', code: 'david', name: 'David', gender: 'male', age: 42, …}
+
+
+avatars list from api:
+🎭 [AVATAR_MANAGER] Avatar data received: 
+{success: true, avatars: Array(65)}
+avatars
+: 
+Array(65)
+0
+: 
+{id: '68a4e1cc569f9ab67dc2d161', code: 'mikhailo_test', name: 'Mikhailo', type: null, status: 5, …}
+1
+: 
+{id: '6894847727df8b56340bf670', code: 'mikhailo', name: 'Mikhailo', type: null, status: 5, …}
+2
+: 
+{id: '65841fc2c10c114a3d348cf7', code: 'gia', name: 'Gia', type: null, status: 2, …}
+3
+: 
+{id: '6580ca13695d492e7050097e', code: 'dylan', name: 'Dylan', type: null, status: 2, …}
+4
+: 
+{id: '68750e6891a26dd150e7ff19', code: '1580215624594', type: 'photo', status: 2, accountId: '64c1c506675755202ee364c2', …}
+5
+: 
+{id: '6716aab1cc9e3b85ed7a20a6', code: '882456805442', type: 'photo', status: 2, accountId: '64c1c506675755202ee364c2', …}
+6
+: 
+{id: '6527f4eaf67e73d32c033c9c', code: 'vital_20_10', name: 'Vital', type: 'selfie', status: 3, …}
+7
+: 
+{id: '64e3b4b331dda22f3b17c7e3', code: '52740970826', type: 'photo', status: 2, accountId: '64c1c506675755202ee364c2', …}
+8
+: 
+{id: '64d4ad3d1de1feeffaa94f92', code: '1547917583563', type: 'photo', status: 2, accountId: null, …}
+9
+: 
+{id: '65841e95b950b44a972ce953', code: 'max', name: 'Max', type: null, status: 2, …}
+10
+: 
+{id: '66617d0c7fd7ac53132db45f', code: 'neyson', name: 'Neyson', type: null, status: 2, …}
+11
+: 
+{id: '666180062d19afbfdde76329', code: 'orhan', name: 'Orhan', type: null, status: 2, …}
+12
+: 
+{id: '6661836bf80eaede6dfded9a', code: 'vadim', name: 'Vadim', type: null, status: 2, …}
+13
+: 
+{id: '66617eae7fd7ac53132dc43e', code: 'evelina', name: 'Evelina', type: null, status: 2, …}
+14
+: 
+{id: '654e1923d592bf95fdfe715d', code: 'daniel', name: 'Daniel', type: null, status: 2, …}
+15
+: 
+{id: '64d4f4ff6a67cfe9cefbafd3', code: '1363961221861', type: 'photo', status: 2, accountId: null, …}
+16
+: 
+{id: '657c863730e8f1c712c8dd33', code: 'parker', name: 'Parker', type: null, status: 2, …}
+17
+: 
+{id: '657ae88bed838d449b1341d8', code: 'scarlett', name: 'Scarlett', type: null, status: 2, …}
+18
+: 
+{id: '658426c149039534efe16891', code: 'rory', name: 'Rory', type: null, status: 2, …}
+19
+: 
+{id: '66130c58235ab9d159223da9', code: 'magnolia_v2', name: 'Magnolia', type: null, status: 2, …}
+20
+: 
+{id: '658410a3e17155d131492098', code: 'roy', name: 'Roy', type: null, status: 2, …}
+21
+: 
+{id: '657214832593422a4c52f8ce', code: 'mila', name: 'Mila', type: null, status: 2, …}
+22
+: 
+{id: '65841c08c10c114a3d34719f', code: 'derek', name: 'Derek', type: null, status: 2, …}
+23
+: 
+{id: '65a6b9fd7981f995c0d7155f', code: 'flora', name: 'Flora ', type: null, status: 2, …}
+24
+: 
+{id: '64d4f0fd6e7e7e7f8cc0d9e0', code: '1641142113121', type: 'photo', status: 2, accountId: null, …}
+25
+: 
+{id: '65a8274968c71ab472d70ee4', code: 'sonya', name: 'Sonya', type: null, status: 2, …}
+26
+: 
+{id: '6513f1ec48c497321426da23', code: 'joseph', name: 'Joseph', type: null, status: 2, …}
+27
+: 
+{id: '6589ce7349039534eff3ffdd', code: 'amanda', name: 'Amanda', type: null, status: 2, …}
+28
+: 
+{id: '6584305ab950b44a972d64e1', code: 'lei', name: 'Lei', type: null, status: 2, …}
+29
+: 
+{id: '6584149db950b44a972caa3b', code: 'kira', name: 'Kira', type: null, status: 2, …}
+30
+: 
+{id: '65842cc949039534efe19421', code: 'amber', name: 'Amber', type: null, status: 2, …}
+31
+: 
+{id: '65a7ed54503912ebae8cd889', code: 'cody', name: 'Cody', type: null, status: 2, …}
+32
+: 
+{id: '65a8285e867a43f28b56890f', code: 'stella', name: 'Stella', type: null, status: 2, …}
+33
+: 
+{id: '658ab4b6b950b44a97496f85', code: 'richard', name: 'Richard', type: null, status: 2, …}
+34
+: 
+{id: '65842b4db950b44a972d45bf', code: 'kamal', name: 'Kamal', type: null, status: 2, …}
+35
+: 
+{id: '65842de5e17155d13149f0be', code: 'michael', name: 'Michael', type: null, status: 2, …}
+36
+: 
+{id: '657215e53bb58d9c67987e8f', code: 'luke', name: 'Luke', type: null, status: 2, …}
+37
+: 
+{id: '658ab558c10c114a3d48a286', code: 'kevin', name: 'Kevin', type: null, status: 2, …}
+38
+: 
+{id: '658432e7c10c114a3d352fef', code: 'nancy', name: 'Nancy', type: null, status: 2, …}
+39
+: 
+{id: '648ac9207c5e565e49d07321', code: 'naomi', name: 'Naomi', type: null, status: 2, …}
+40
+: 
+{id: '6572165d3bb58d9c67987fef', code: 'taylor', name: 'Taylor', type: null, status: 2, …}
+41
+: 
+{id: '64d4c4301de1feeffaa956ad', code: '657802031273', type: 'photo', status: 2, accountId: null, …}
+42
+: 
+{id: '64d4bcfcd82ddd2e1d21e3be', code: '388613879006', type: 'photo', status: 2, accountId: null, …}
+43
+: 
+{id: '658431b5b950b44a972d6d62', code: 'megan', name: 'Megan', type: null, status: 2, …}
+44
+: 
+{id: '63933d3e77915a436f6bdd4e', code: 'aniqa', name: 'Aniqa', type: null, status: 2, …}
+45
+: 
+{id: '657216bb2593422a4c53063f', code: 'leyla', name: 'Leyla', type: null, status: 2, …}
+46
+: 
+{id: '65a8243f503912ebae8e3349', code: 'dora', name: 'Dora', type: null, status: 2, …}
+47
+: 
+{id: '64d4db0dd82ddd2e1d21ec6b', code: '1110947882243', type: 'photo', status: 2, accountId: null, …}
+48
+: 
+{id: '65a82924503912ebae8e46f0', code: 'olivia', name: 'Olivia ', type: null, status: 2, …}
+49
+: 
+{id: '658aa4c7e17155d1315d6cdb', code: 'margaret', name: 'Margaret', type: null, status: 2, …}
+50
+: 
+{id: '6584340bb950b44a972d9d76', code: 'aspen', name: 'Aspen', type: null, status: 2, …}
+51
+: 
+{id: '64d4c4b31de1feeffaa956df', code: '533713721819', type: 'photo', status: 2, accountId: null, …}
+52
+: 
+{id: '64d4d451d82ddd2e1d21e9d4', code: '496765495523', type: 'photo', status: 2, accountId: null, …}
+53
+: 
+{id: '658ab50dc10c114a3d489f39', code: 'alma', name: 'Alma', type: null, status: 2, …}
+54
+: 
+{id: '65842edcb950b44a972d5925', code: 'ethan', name: 'Ethan', type: null, status: 2, …}
+55
+: 
+{id: '64d4c256d82ddd2e1d21e4f9', code: '42734972195', type: 'photo', status: 2, accountId: null, …}
+56
+: 
+{id: '658aa457b950b44a974944ed', code: 'brooke', name: 'Brooke', type: null, status: 2, …}
+57
+: 
+{id: '64d4f96a6a67cfe9cefbb12e', code: '1539984167115', type: 'photo', status: 2, accountId: null, …}
+58
+: 
+{id: '65a6c08f5eeacacfb01ebae8', code: 'amira', name: 'Amira', type: null, status: 2, …}
+59
+: 
+{id: '65a6bb9a10f5995884e55535', code: 'skye', name: 'Skye', type: null, status: 2, …}
+60
+: 
+{id: '6682920c2f7c721b42c9e2a8', code: 'gia_realtime_smooth', name: 'Gia Seamless', type: null, status: 2, …}
+61
+: 
+{id: '64d4fb2d6e7e7e7f8cc0dbff', code: '40937680419', type: 'photo', status: 2, accountId: null, …}
+62
+: 
+{id: '647ee867267b5a9739b6b13b', code: 'jameson', name: 'Jameson', type: null, status: 2, …}
+63
+: 
+{id: '65a82b86867a43f28b56987d', code: 'terry', name: 'Terry', type: null, status: 2, …}
+64
+: 
+{id: '6572152d3bb58d9c679878fa', code: 'rose', name: 'Rose', type: null, status: 2, …}
+length
+: 
+65
+[[Prototype]]
+: 
+Array(0)
+success
+: 
+true
+[[Prototype]]
+: 
+Object
