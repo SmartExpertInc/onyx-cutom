@@ -161,6 +161,10 @@
             'contentAvailability': "Наличие контента",
             'source': "Источник информации",
             'qualityTier': "Уровень качества",
+            'quiz': "Викторина",
+            'onePager': "Одностраничный",
+            'videoPresentation': "Видео презентация",
+            'lessonPresentation': "Презентация урока",
             'time': "Оц. время создания",
             'completionTime': "Оц. время завершения"
         },
@@ -170,6 +174,10 @@
             'contentAvailability': "Content Volume",
             'source': "Source",
             'qualityTier': "Quality Tier",
+            'quiz': "Quiz",
+            'onePager': "One-Pager",
+            'videoPresentation': "Video Lesson",
+            'lessonPresentation': "Presentation",
             'time': "Est. Creation Time",
             'completionTime': "Est. Completion Time"
         },
@@ -179,6 +187,10 @@
             'contentAvailability': "Наявність контенту",
             'source': "Джерело інформації",
             'qualityTier': "Рівень якості",
+            'quiz': "Вікторина",
+            'onePager': "Односторінковий",
+            'videoPresentation': "Відеопрезентація",
+            'lessonPresentation': "Презентація уроку",
             'time': "Оц. час створення",
             'completionTime': "Оц. час завершення"
         },
@@ -188,6 +200,10 @@
             'contentAvailability': "Disponibilidad de contenido",
             'source': "Fuente de información",
             'qualityTier': "Nivel de Calidad",
+            'quiz': "Prueba",
+            'onePager': "Una página",
+            'videoPresentation': "Presentación en vídeo",
+            'lessonPresentation': "Presentación de la lección",
             'time': "Tiempo Est. Creación",
             'completionTime': "Tiempo Est. Finalización"
         }
@@ -206,8 +222,12 @@
     {% set ca_show  = column_visibility.get('contentAvailability', True) %}
     {% set src_show = column_visibility.get('informationSource', True) %}
     {% set qt_show  = column_visibility.get('qualityTier', False) %}
-    {% set time_show= column_visibility.get('time', True) %}
+    {% set time_show= column_visibility.get('estCreationTime', True) %}
     {% set ct_show  = column_visibility.get('estCompletionTime', True) %}
+    {% set quiz_show = column_visibility.get('quiz', False) %}
+    {% set onePager_show = column_visibility.get('onePager', False) %}
+    {% set videoPresentation_show = column_visibility.get('videoPresentation', False) %}
+    {% set lessonPresentation_show = column_visibility.get('lessonPresentation', False) %}
 
     {% set span_kc   = 3 if kc_show and qt_show else (4 if kc_show else 0) %}
     {% set span_ca   = 2 if ca_show  else 0 %}
@@ -215,8 +235,12 @@
     {% set span_qt   = 3 if qt_show  else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show  else 0 %}
-    {% set modules_span = 20 - (span_kc + span_ca + span_src + span_qt + span_time + span_ct) %}
-    {% set module_header_span = 20 - span_time - span_ct %}
+    {% set span_quiz = 2 if quiz_show else 0 %}
+    {% set span_onePager = 2 if onePager_show else 0 %}
+    {% set span_videoPresentation = 2 if videoPresentation_show else 0 %}
+    {% set span_lessonPresentation = 2 if lessonPresentation_show else 0 %}
+    {% set modules_span = 20 - (span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation) %}
+    {% set module_header_span = 20 - span_time - span_ct - span_quiz - span_onePager - span_videoPresentation - span_lessonPresentation %}
 
     {% macro span_style(n) %}grid-column: span {{ n }} / span {{ n }};{% endmacro %}
 
@@ -232,6 +256,10 @@
                 {% if ca_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_ca) }}">{{ headers.contentAvailability }}</div>{% endif %}
                 {% if src_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_src) }}">{{ headers.source }}</div>{% endif %}
                 {% if qt_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_qt) }}">{{ headers.qualityTier }}</div>{% endif %}
+                {% if quiz_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_quiz) }}">{{ headers.quiz }}</div>{% endif %}
+                {% if onePager_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_onePager) }}">{{ headers.onePager }}</div>{% endif %}
+                {% if videoPresentation_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_videoPresentation) }}">{{ headers.videoPresentation }}</div>{% endif %}
+                {% if lessonPresentation_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_lessonPresentation) }}">{{ headers.lessonPresentation }}</div>{% endif %}
                 {% if time_show %}<div class="text-left px-2 py-3 border-r border-gray-300" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
                 {% if ct_show %}<div class="text-left px-2 py-3" style="{{ span_style(span_ct) }}">{{ headers.completionTime }}</div>{% endif %}
             </div>
@@ -240,11 +268,11 @@
                 {% for section in details.sections %}
                 <div>
                     <div class="grid grid-cols-20 section-header gap-0 p-4 font-semibold items-center border-t border-gray-200" style="background-color: {{ current_theme.moduleHeaderBg }};">
-                        <div class="flex items-center space-x-2 pr-2 {% if time_show or ct_show or qt_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span - span_qt) }}">
+                        <div class="flex items-center space-x-2 pr-2 {% if time_show or ct_show or qt_show or quiz_show or onePager_show or videoPresentation_show or lessonPresentation_show %}border-r border-gray-300{% endif %}" style="{{ span_style(module_header_span - span_qt) }}">
                             <span class="inline-flex items-center justify-center text-white rounded-sm w-auto px-1 h-3.5 font-bold" style="background-color: {{ current_theme.iconColor }};">{{ section.id }}</span>
                             <span class="font-semibold text-gray-800">{{ section.title }}</span>
                         </div>
-                        {% if qt_show %}<div class="text-left px-2 font-semibold {% if time_show or ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_qt) }}">
+                        {% if qt_show %}<div class="text-left px-2 font-semibold {% if time_show or ct_show or quiz_show or onePager_show or videoPresentation_show or lessonPresentation_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_qt) }}">
                             {% set tier_labels = {
                                 'ru': {'basic': 'Базовый', 'interactive': 'Интерактивный', 'advanced': 'Продвинутый', 'immersive': 'Иммерсивный'},
                                 'en': {'basic': 'Basic', 'interactive': 'Interactive', 'advanced': 'Advanced', 'immersive': 'Immersive'},
@@ -347,6 +375,18 @@
                             <span class="tier-badge" style="color: {{ current_tier_colors.color }};">
                                 {{ current_tier_labels.get(lesson_tier, lesson_tier.title()) }}
                             </span>
+                        </div>{% endif %}
+                        {% if quiz_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_quiz) }}">
+                            <span class="text-gray-500">-</span>
+                        </div>{% endif %}
+                        {% if onePager_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_onePager) }}">
+                            <span class="text-gray-500">-</span>
+                        </div>{% endif %}
+                        {% if videoPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_videoPresentation) }}">
+                            <span class="text-gray-500">-</span>
+                        </div>{% endif %}
+                        {% if lessonPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_lessonPresentation) }}">
+                            <span class="text-gray-500">-</span>
                         </div>{% endif %}
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                             <div class="w-3 flex justify-center">

@@ -11723,7 +11723,7 @@ async def download_project_instance_pdf(
                 'knowledgeCheck': knowledgeCheck == '1' if knowledgeCheck else True,
                 'contentAvailability': contentAvailability == '1' if contentAvailability else True,
                 'informationSource': informationSource == '1' if informationSource else True,
-                'time': time == '1' if time else True,
+                'estCreationTime': time == '1' if time else True,
                 'estCompletionTime': estCompletionTime == '1' if estCompletionTime else True,
                 'qualityTier': qualityTier == '1' if qualityTier else False,  # Hidden by default
                 'quiz': quiz == '1' if quiz else False,
