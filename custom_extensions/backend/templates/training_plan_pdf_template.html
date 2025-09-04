@@ -189,6 +189,10 @@
         .theme-icon-color {
             fill: #FF1414 !important;
         }
+        /* Subtle column width adjustments for PDF export grid/table */
+        .col-module-lesson { flex-basis: 13%; max-width: 15%; }
+        .col-quiz, .col-onepager, .col-videolesson, .col-presentation { flex-basis: 7%; max-width: 8%; }
+        .col-default { flex-basis: 9%; max-width: 10%; }
     </style>
 
     {# Dynamic row height adjustment #}
@@ -438,6 +442,7 @@
                         </div>{% endif %}
                         {% if quiz_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_quiz) }}">
                             {% set quiz_available = lesson.quiz or lesson.quizAvailable or lesson.hasQuiz or lesson.quizStatus or lesson.quizContent %}
+                        <div class="flex justify-center items-center px-2 border-r border-gray-300 col-quiz" style="{{ span_style(span_quiz) }}">
                             {% if quiz_available %}
                                 {% if quiz_available == True or quiz_available == 'true' or quiz_available == '1' or quiz_available == 1 %}
                                     <span class="text-green-600 font-bold">✓</span>
@@ -452,6 +457,7 @@
                         </div>{% endif %}
                         {% if onePager_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_onePager) }}">
                             {% set onePager_available = lesson.onePager or lesson.onePagerAvailable or lesson.hasOnePager or lesson.onePagerStatus or lesson.onePagerContent %}
+                        <div class="flex justify-center items-center px-2 border-r border-gray-300 col-onepager" style="{{ span_style(span_onePager) }}">
                             {% if onePager_available %}
                                 {% if onePager_available == True or onePager_available == 'true' or onePager_available == '1' or onePager_available == 1 %}
                                     <span class="text-green-600 font-bold">✓</span>
@@ -466,6 +472,7 @@
                         </div>{% endif %}
                         {% if videoPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_videoPresentation) }}">
                             {% set video_available = lesson.videoPresentation or lesson.videoContent or lesson.videoType or lesson.videoAvailable or lesson.hasVideo %}
+                        <div class="flex justify-center items-center px-2 border-r border-gray-300 col-videolesson" style="{{ span_style(span_videoPresentation) }}">
                             {% if video_available %}
                                 {% if video_available == True or video_available == 'true' or video_available == '1' or video_available == 1 %}
                                     <span class="text-green-600 font-bold">✓</span>
@@ -480,6 +487,7 @@
                         </div>{% endif %}
                         {% if lessonPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_lessonPresentation) }}">
                             {% set presentation_available = lesson.lessonPresentation or lesson.presentationContent or lesson.presentationType or lesson.presentationAvailable or lesson.hasPresentation %}
+                        <div class="flex justify-center items-center px-2 border-r border-gray-300 presentation-header col-presentation" style="{{ span_style(span_lessonPresentation) }}">
                             {% if presentation_available %}
                                 {% if presentation_available == True or presentation_available == 'true' or presentation_available == '1' or presentation_available == 1 %}
                                     <span class="text-green-600 font-bold">✓</span>
