@@ -1600,6 +1600,9 @@ export default function AuditPage() {
                 className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px]"
                 style={{ 
                   backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
                   boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                 }}
               ></div>
