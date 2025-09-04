@@ -18341,15 +18341,39 @@ class ProjectFolderUpdateRequest(BaseModel):
     model_config = {"from_attributes": True}
 
 @app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
-async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     try:
+        # Get user identifiers for workspace access
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        
         db_microproduct_name_to_store = project_update_data.microProductName
         current_component_name = None
         # Fetch current component_name, project_name and content to detect renames/diffs
         old_project_name: Optional[str] = None
         old_microproduct_content: Optional[dict] = None
         async with pool.acquire() as conn:
-            project_row = await conn.fetchrow("SELECT p.project_name, p.microproduct_content, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2", project_id, onyx_user_id)
+            # Check if user owns the project or has workspace access
+            project_row = await conn.fetchrow("""
+                SELECT p.project_name, p.microproduct_content, dt.component_name 
+                FROM projects p 
+                JOIN design_templates dt ON p.design_template_id = dt.id 
+                WHERE p.id = $1 AND (
+                    p.onyx_user_id = $2 
+                    OR EXISTS (
+                        SELECT 1 FROM product_access pa
+                        INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+                        WHERE pa.product_id = p.id 
+                          AND wm.user_id = $3 
+                          AND wm.status = 'active'
+                          AND pa.access_type IN ('workspace', 'role', 'individual')
+                          AND (
+                              pa.access_type = 'workspace' 
+                              OR (pa.access_type = 'role' AND (pa.target_id = CAST(wm.role_id AS TEXT) OR pa.target_id IN (SELECT name FROM workspace_roles WHERE id = wm.role_id)))
+                              OR (pa.access_type = 'individual' AND pa.target_id = $3)
+                          )
+                    )
+                )
+            """, project_id, user_uuid, user_email)
             if not project_row:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
             current_component_name = project_row["component_name"]

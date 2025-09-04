@@ -14,6 +14,10 @@
 **Problem**: Shared projects opened but lesson data failed to load with 404.
 **Root Cause**: Lesson data endpoint only checked project ownership, not workspace access.
 
+### Issue 4: Project Updates Return 404 for Shared Projects
+**Problem**: Shared projects could be viewed but couldn't be edited with 404.
+**Root Cause**: Project update endpoint only checked project ownership, not workspace access.
+
 ## Fixes Applied
 
 ### Fix 1: Updated Shared Projects Query (Lines 12394, 12576)
@@ -84,7 +88,35 @@ async def get_project_lesson_data(
     project = await conn.fetchrow(query_with_workspace_access, project_id, user_uuid, user_email)
 ```
 
-### Fix 4: Updated Query Parameters
+### Fix 4: Updated Project Update Endpoint (Line 18344)
+**Before**:
+```python
+async def update_project_in_db(
+    project_id: int, 
+    project_update_data: ProjectUpdateRequest, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id),  # ❌ Only UUID
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    # Query only checked ownership: WHERE p.id = $1 AND p.onyx_user_id = $2
+    project_row = await conn.fetchrow(query, project_id, onyx_user_id)
+```
+
+**After**:
+```python
+async def update_project_in_db(
+    project_id: int, 
+    project_update_data: ProjectUpdateRequest, 
+    request: Request,  # ✅ Get real user data
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    # Get both UUID and email
+    user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+    
+    # Query includes full workspace access check
+    project_row = await conn.fetchrow(query_with_workspace_access, project_id, user_uuid, user_email)
+```
+
+### Fix 5: Updated Query Parameters
 **All endpoints now use**:
 - `$1`: `project_id` 
 - `$2`: `user_uuid` (for `p.onyx_user_id = $2` - project ownership)
@@ -110,6 +142,11 @@ GET /api/custom/projects/view/22 HTTP/1.1" 200 OK  ✅ No more 404 errors
 GET /api/custom/projects/22/lesson-data HTTP/1.1" 200 OK  ✅ No more 404 errors
 ```
 
+### ✅ Shared Project Updates Should Work
+```
+PUT /api/custom/projects/update/22 HTTP/1.1" 200 OK  ✅ No more 404 errors
+```
+
 ## Testing Steps
 
 ### Test Role-based Access
@@ -119,6 +156,7 @@ GET /api/custom/projects/22/lesson-data HTTP/1.1" 200 OK  ✅ No more 404 errors
 4. **Click on the shared project**
 5. **Should open successfully** (no 404 error)
 6. **Lesson data should load** (no 404 error in network tab)
+7. **Project should be editable** (no 404 error when saving changes)
 
 ### Test Individual Access
 1. **Should continue to work** as before
@@ -146,5 +184,6 @@ All endpoints now check:
 1. ✅ Role-based access works in project listings
 2. ✅ Shared projects open without 404 errors
 3. ✅ Shared project lesson data loads without 404 errors
-4. ✅ Individual access continues to work
-5. ✅ All access types (workspace, role, individual) are properly supported 
+4. ✅ Shared projects can be edited without 404 errors
+5. ✅ Individual access continues to work
+6. ✅ All access types (workspace, role, individual) are properly supported 
