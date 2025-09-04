@@ -242,7 +242,11 @@ export default function ProjectInstanceViewPage() {
       }
       // Close email role dropdown
       if (showEmailRoleDropdown) {
-        setShowEmailRoleDropdown(null);
+        const target = e.target as Node;
+        const emailRoleSection = document.querySelector('[data-email-role-section]');
+        if (emailRoleSection && !emailRoleSection.contains(target)) {
+          setShowEmailRoleDropdown(null);
+        }
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -1589,7 +1593,7 @@ export default function ProjectInstanceViewPage() {
                                     </div>
                                     <span className="text-sm text-gray-900">{email}</span>
                                   </div>
-                                  <div className="relative">
+                                  <div className="relative" data-email-role-section>
                                     <div
                                       className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
                                       onClick={() => setShowEmailRoleDropdown(showEmailRoleDropdown === email ? null : email)}
@@ -1602,8 +1606,12 @@ export default function ProjectInstanceViewPage() {
 
                                     {/* Email Role Dropdown */}
                                     {showEmailRoleDropdown === email && (
-                                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-3">
-                                        <div className="space-y-2">
+                                      <div className="fixed bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto" style={{
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)'
+                                      }}>
+                                        <div className="space-y-1">
                                           {predefinedRoles.map((role) => (
                                             <div
                                               key={role.id}
@@ -1709,7 +1717,7 @@ export default function ProjectInstanceViewPage() {
                                     <div className="w-6 h-6 bg-[#D9D9D9] rounded-full flex items-center justify-center">
                                       <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
+                                      </svg>
                                     </div>
                                     <div>
                                       <span className="text-sm font-medium text-gray-900">{t('interface.projectView.restricted', 'Restricted')}</span>
