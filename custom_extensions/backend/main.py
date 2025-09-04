@@ -26009,18 +26009,37 @@ async def leave_workspace(workspace_id: int, request: Request):
 # Product Access Control Endpoints
 
 @app.post("/api/custom/products/{product_id}/access", response_model=ProductAccess)
-async def grant_product_access(access_data: ProductAccessCreate, product_id: int):
+async def grant_product_access(
+    access_data: ProductAccessCreate, 
+    product_id: int,
+    request: Request
+):
     """Grant access to a product for a workspace, role, or individual."""
     try:
+        logger.info(f"🔍 [PRODUCT ACCESS DEBUG] Grant access request for product {product_id}")
+        # Get user identifiers (both UUID and email)
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        logger.info(f"🔍 [PRODUCT ACCESS] Grant access request - User: {user_uuid} (email: {user_email})")
+        logger.info(f"   - Product ID: {product_id}, Workspace ID: {access_data.workspace_id}")
+        logger.info(f"   - Access type: {access_data.access_type}, Target ID: {access_data.target_id}")
+        logger.info(f"🔍 [PRODUCT ACCESS] Grant access request - User: {user_uuid} (email: {user_email})")
+        logger.info(f"   - Product ID: {product_id}")
+        logger.info(f"   - Workspace ID: {access_data.workspace_id}")
+        logger.info(f"   - Access type: {access_data.access_type}")
+        logger.info(f"   - Target ID: {access_data.target_id}")
+        
         # Ensure product_id matches path parameter
         access_data.product_id = product_id
         
-        # Check if user is a member of the workspace
-        member = await WorkspaceService.get_workspace_member(access_data.workspace_id, "current_user_123")
+        # Check if user is a member of the workspace (use email for membership check)
+        member = await WorkspaceService.get_workspace_member(access_data.workspace_id, user_email)
         if not member:
+            logger.error(f"❌ [PRODUCT ACCESS] User {user_email} is not a member of workspace {access_data.workspace_id}")
             raise HTTPException(status_code=403, detail="Access denied to workspace")
         
-        access = await ProductAccessService.grant_access(access_data, "current_user_123")
+        logger.info(f"✅ [PRODUCT ACCESS] User {user_email} is a member of workspace {access_data.workspace_id}")
+        
+        access = await ProductAccessService.grant_access(access_data, user_email)
         return access
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
