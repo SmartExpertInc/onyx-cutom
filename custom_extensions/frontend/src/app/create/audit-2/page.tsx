@@ -1733,7 +1733,7 @@ export default function AuditPage() {
                 </h4>
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
-                  <div className="border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1763,7 +1763,7 @@ export default function AuditPage() {
                     </div>
                   </div>
 
-                  <div className="border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
