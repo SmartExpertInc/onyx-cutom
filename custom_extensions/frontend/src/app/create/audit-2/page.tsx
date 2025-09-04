@@ -1114,7 +1114,7 @@ export default function AuditPage() {
                           <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
                             {/* Table Header */}
                             <div className="bg-[#0F58F9] px-[20px] py-[12px]">
-                              <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px]">
+                              <div className="grid grid-cols-3 gap-[20px]">
                                 <div className="text-white font-medium text-[12px] leading-[100%]">
                                   Уроки в модуле
                                 </div>
@@ -1131,7 +1131,7 @@ export default function AuditPage() {
                             <div className="bg-white">
                               {/* Row 1 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
                                     Основные этапы открытия салона
                                   </div>
@@ -1158,8 +1158,8 @@ export default function AuditPage() {
                               
                               {/* Row 2 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
-                                  <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
                                     Локация и планировка: требования к помещению
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
@@ -1183,8 +1183,8 @@ export default function AuditPage() {
                               
                               {/* Row 3 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
-                                  <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
                                     Финансовая модель и управление бюджетом
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
@@ -1208,8 +1208,8 @@ export default function AuditPage() {
                               
                               {/* Row 4 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
-                                  <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
                                     Работа с поставщиками и закупка материалов
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
@@ -1233,8 +1233,8 @@ export default function AuditPage() {
                               
                               {/* Row 5 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
-                                  <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
                                     Требования к оборудованию и его размещение
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
@@ -1258,8 +1258,8 @@ export default function AuditPage() {
                               
                               {/* Row 6 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
-                                  <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
                                     Тест по запуску и организации салона
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
@@ -1597,9 +1597,9 @@ export default function AuditPage() {
               </h3>
 
               <div 
-                className="h-[180px] border border-[#E0E0E0] rounded-[2px]"
+                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px]"
                 style={{ 
-                  backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-mobile.png)',
+                  backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
                   boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                 }}
               ></div>
