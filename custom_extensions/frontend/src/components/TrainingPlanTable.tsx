@@ -139,10 +139,10 @@ interface TrainingPlanTableProps {
 }
 
 const localizationConfig = {
-  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения", qualityTier: "Уровень качества", quiz: "Викторина", onePager: "Одностраничный", videoPresentation: "Видео презентация", lessonPresentation: "Презентация урока" },
-  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time", qualityTier: "Quality Tier", quiz: "Quiz", onePager: "One-Pager", videoPresentation: "Video Presentation", lessonPresentation: "Lesson Presentation" },
-  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення", qualityTier: "Рівень якості", quiz: "Вікторина", onePager: "Односторінковий", videoPresentation: "Відеопрезентація", lessonPresentation: "Презентація уроку" },
-  es: { moduleAndLessons: "Módulo y Lecciones", knowledgeCheck: "Verificación de conocimientos", contentAvailability: "Disponibilidad de contenido", source: "Fuente de información", time: "Tiempo Est. Creación", estCreationTime: "Tiempo Est. Creación", estCompletionTime: "Tiempo Est. Finalización", qualityTier: "Nivel de Calidad", quiz: "Prueba", onePager: "Una página", videoPresentation: "Presentación en vídeo", lessonPresentation: "Presentación de la lección" },
+  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения", qualityTier: "Уровень качества", quiz: "Викторина", onePager: "Одностраничный", videoPresentation: "Видео урок", lessonPresentation: "Презентация" },
+  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time", qualityTier: "Quality Tier", quiz: "Quiz", onePager: "One-Pager", videoPresentation: "Video lesson", lessonPresentation: "Presentation" },
+  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення", qualityTier: "Рівень якості", quiz: "Вікторина", onePager: "Односторінковий", videoPresentation: "Відео урок", lessonPresentation: "Презентація" },
+  es: { moduleAndLessons: "Módulo y Lecciones", knowledgeCheck: "Verificación de conocimientos", contentAvailability: "Disponibilidad de contenido", source: "Fuente de información", time: "Tiempo Est. Creación", estCreationTime: "Tiempo Est. Creación", estCompletionTime: "Tiempo Est. Finalización", qualityTier: "Nivel de Calidad", quiz: "Prueba", onePager: "Una página", videoPresentation: "Presentación de la lección", lessonPresentation: "Presentación" },
 };
 
 const tierLabels = {
@@ -1610,6 +1610,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   });
 
   const gridTemplate = activeColumns.map((c) => `${c.width}fr`).join(' ');
+  // const gridTemplate = `repeat(${activeColumns.length}, minmax(100px, 1fr))`;
 
   if (!dataToDisplay) {
     return <div className="p-8 text-center">Training plan data is unavailable for display.</div>;
