@@ -148,18 +148,18 @@ export default function AuditPage() {
             </h2>
             <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[20px]">
               {/* Card 1 */}
-              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
-                <div className="p-[15px] flex flex-col gap-[15px]">
-                  <div className="flex flex-col gap-[15px]">
+              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+                <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
+                  <div className="flex flex-col gap-[15px] xl:gap-[25px]">
                     <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                       <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">1</span>
                     </div>
-                    <h3 className="font-semibold text-[18px] xl:text-[24px]">
+                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px]">
                       Сократите текучку кадров на <span className="text-[#0F58F9]">30–50%</span>
                     </h3>
                   </div>
                 </div>
-                <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                <div className="pt-[13.26px] xl:pt-[16px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[19px] border-t border-[#E0E0E0]">
                   <Image 
                     src="/custom-projects-ui/images/audit-section-2-card-1-mobile.png"
                     alt="Card 1"
@@ -171,18 +171,18 @@ export default function AuditPage() {
               </div>
 
               {/* Card 2 */}
-              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
-                <div className="p-[15px] flex flex-col gap-[15px]">
-                  <div className="flex flex-col gap-[15px]">
+              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+                <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
+                  <div className="flex flex-col gap-[15px] xl:gap-[25px]">
                     <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                       <span className="font-semibold text-[15px] text-white leading-[120%]">2</span>
                     </div>
-                    <h3 className="font-semibold text-[18px] xl:text-[24px]">
+                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px]">
                       Поднять продуктивность на <span className="text-[#0F58F9]">50-300%</span> сотрудников
                     </h3>
                   </div>
                 </div>
-                  <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                  <div className="pt-[13.26px] xl:pt-[31px] px-[14.88px] xl:px-[18px] pb-[3.85px] xl:pb-[36px] border-t border-[#E0E0E0]">
                     <Image 
                       src="/custom-projects-ui/images/audit-section-2-card-2-mobile.png"
                       alt="Card 2"
@@ -194,18 +194,18 @@ export default function AuditPage() {
               </div>
 
               {/* Card 3 */}
-              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
-                <div className="p-[15px] flex flex-col gap-[15px]">
-                  <div className="flex flex-col gap-[15px]">
+              <div className="border border-[#E0E0E0] rounded-[6px] xl:w-[386px] xl:h-[465px]" style={{ boxShadow: '0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608' }}>
+                <div className="p-[15px] xl:p-[20px] flex flex-col gap-[15px]">
+                  <div className="flex flex-col gap-[15px] xl:gap-[25px]">
                     <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                       <span className="font-semibold text-[15px] text-white leading-[120%]">3</span>
                     </div>
-                    <h3 className="font-semibold text-[18px] xl:text-[24px]">
+                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px]">
                       Внедрение AI-онбординг <span className="text-[#0F58F9]">за 7 дней</span>
                     </h3>
                   </div>
                 </div>
-                  <div className="pt-[13.26px] px-[14.88px] pb-[3.85px] border-t border-[#E0E0E0]">
+                  <div className="pt-[13.26px] xl:pt-[20px] px-[14.88px] xl:px-[20px] pb-[3.85px] xl:pb-[20px] border-t border-[#E0E0E0]">
                     <Image 
                       src="/custom-projects-ui/images/audit-section-2-card-3-mobile.png"
                       alt="Card 3"
