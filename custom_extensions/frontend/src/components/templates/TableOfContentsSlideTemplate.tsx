@@ -207,9 +207,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         
         {/* Profile Image */}
         <div style={{
-          position: 'relative',
-          width: '200px',
-          height: '200px',
+          position: 'absolute',
+          bottom: '-24px',
           zIndex: 2,
         }}>
           <ClickableImagePlaceholder
@@ -223,8 +222,6 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
               width: '536px',
               height: '551px',
               objectFit: 'cover',
-              position: 'absolute',
-              bottom: '0',
             }}
           />
         </div>
