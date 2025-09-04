@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import {
   Plus, Search, Filter, MoreHorizontal, UserPlus, Mail, Shield,
   RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users,
@@ -10,7 +9,7 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 import workspaceService, { 
   WorkspaceRole, WorkspaceMember, WorkspaceMemberCreate, 
-  WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace
+  WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace, WorkspaceCreate
 } from '../services/workspaceService';
 import { getCurrentUserId, initializeUser } from '../services/userService';
 // Import test utilities for development
@@ -264,37 +263,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId, isAdmin]);
 
-  const handleCreateWorkspace = useCallback(async () => {
-    if (!newWorkspaceName.trim()) return;
-    
-    try {
-      setLoading(true);
-      const newWorkspace = await workspaceService.createWorkspace({
-        name: newWorkspaceName.trim(),
-        description: newWorkspaceDescription.trim() || undefined
-      });
-      
-      // Add the new workspace to the list
-      setWorkspaces(prev => [newWorkspace, ...prev]);
-      
-      // Select the new workspace
-      setSelectedWorkspace(newWorkspace);
-      setTargetWorkspaceId(newWorkspace.id);
-      
-      // Reset form
-      setNewWorkspaceName('');
-      setNewWorkspaceDescription('');
-      setShowCreateWorkspace(false);
-      
-      console.log('✅ Workspace created successfully:', newWorkspace);
-    } catch (err) {
-      console.error('Failed to create workspace:', err);
-      setError('Failed to create workspace');
-    } finally {
-      setLoading(false);
-    }
-  }, [newWorkspaceName, newWorkspaceDescription]);
-
   const handleDeleteRole = useCallback(async (roleId: number) => {
     if (!targetWorkspaceId || !isAdmin) return;
     
@@ -313,6 +281,36 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         : [...prev, permission]
     );
   }, []);
+
+  // Handle create workspace
+  const handleCreateWorkspace = useCallback(async () => {
+    if (!newWorkspaceName.trim()) return;
+    
+    try {
+      const newWorkspace: WorkspaceCreate = {
+        name: newWorkspaceName.trim(),
+        description: newWorkspaceDescription.trim() || undefined,
+        is_active: true
+      };
+      
+      const createdWorkspace = await workspaceService.createWorkspace(newWorkspace);
+      
+      // Add to workspaces list and select it
+      setWorkspaces(prev => [...prev, createdWorkspace]);
+      setSelectedWorkspace(createdWorkspace);
+      
+      // Reset form and close modal
+      setNewWorkspaceName('');
+      setNewWorkspaceDescription('');
+      setShowCreateWorkspace(false);
+      
+      // Reload workspaces to get updated data
+      await loadUserWorkspaces();
+    } catch (err) {
+      console.error('Failed to create workspace:', err);
+      setError('Failed to create workspace');
+    }
+  }, [newWorkspaceName, newWorkspaceDescription]);
 
   const handleRoleChange = async (memberId: number, newRoleId: number) => {
     if (!targetWorkspaceId) return;
@@ -406,30 +404,27 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   // Don't render workspace content if no target workspace ID (following project pattern)
   if (!targetWorkspaceId) {
-    // Check if user has any workspaces
+    // If user has no workspaces at all, show create workspace option
     if (workspaces.length === 0) {
       return (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No Workspaces Found</h3>
-            <p className="text-gray-600 mb-6">You're not a member of any workspaces yet.</p>
+            <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
+            <p className="text-gray-600 mb-6">Create your first workspace to start collaborating with your team.</p>
             <button
               onClick={() => setShowCreateWorkspace(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer"
-              style={{ position: 'relative', zIndex: 1000 }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Plus className="h-5 w-5" />
+              <Plus size={20} />
               Create Your First Workspace
             </button>
-            <div className="mt-2 text-xs text-gray-500">
-              Debug: showCreateWorkspace = {showCreateWorkspace.toString()}
-            </div>
           </div>
         </div>
       );
     }
     
+    // If user has workspaces but none selected
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
@@ -909,76 +904,70 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       )}
 
       {/* Create Workspace Modal */}
-      {showCreateWorkspace && typeof document !== 'undefined' && createPortal(
-        <div 
-          className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" 
-          onClick={() => setShowCreateWorkspace(false)}
-          style={{ backgroundColor: 'rgba(255, 0, 0, 0.8)' }}
-        >
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="absolute top-0 left-0 bg-green-500 text-white p-2 text-xs">
-              DEBUG: Modal is rendered!
-            </div>
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
-              onClick={() => setShowCreateWorkspace(false)}
-            >
-              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Create New Workspace</h3>
-              <p className="text-gray-600">Set up a new collaborative workspace for your team</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Workspace Name
-                </label>
-                <input
-                  type="text"
-                  value={newWorkspaceName}
-                  onChange={(e) => setNewWorkspaceName(e.target.value)}
-                  placeholder="Enter workspace name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
+      {showCreateWorkspace && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {t('interface.createWorkspace.title', 'Create New Workspace')}
+                </h3>
+                <button
+                  onClick={() => setShowCreateWorkspace(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle size={24} />
+                </button>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description (Optional)
-                </label>
-                <textarea
-                  value={newWorkspaceDescription}
-                  onChange={(e) => setNewWorkspaceDescription(e.target.value)}
-                  placeholder="Enter workspace description"
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('interface.createWorkspace.nameLabel', 'Workspace Name')} *
+                  </label>
+                  <input
+                    type="text"
+                    value={newWorkspaceName}
+                    onChange={(e) => setNewWorkspaceName(e.target.value)}
+                    placeholder={t('interface.createWorkspace.namePlaceholder', 'Enter workspace name')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('interface.createWorkspace.descriptionLabel', 'Description')}
+                  </label>
+                  <textarea
+                    value={newWorkspaceDescription}
+                    onChange={(e) => setNewWorkspaceDescription(e.target.value)}
+                    placeholder={t('interface.createWorkspace.descriptionPlaceholder', 'Optional description')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                    rows={3}
+                  />
+                </div>
               </div>
-            </div>
-            
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowCreateWorkspace(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateWorkspace}
-                disabled={!newWorkspaceName.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Create Workspace
-              </button>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => setShowCreateWorkspace(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  {t('interface.createWorkspace.cancel', 'Cancel')}
+                </button>
+                <button
+                  onClick={handleCreateWorkspace}
+                  disabled={!newWorkspaceName.trim()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                >
+                  <Plus size={16} />
+                  {t('interface.createWorkspace.create', 'Create Workspace')}
+                </button>
+              </div>
             </div>
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );
