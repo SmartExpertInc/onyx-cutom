@@ -1608,7 +1608,7 @@ export default function ProjectInstanceViewPage() {
                                     {showEmailRoleDropdown === email && (
                                       <div className="fixed bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto" style={{
                                         top: '50%',
-                                        left: '50%',
+                                        left: '55%',
                                         transform: 'translate(-50%, -50%)'
                                       }}>
                                         <div className="space-y-1">
@@ -1623,9 +1623,6 @@ export default function ProjectInstanceViewPage() {
                                               }}
                                             >
                                               <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
-                                                {currentRole === role.id && (
-                                                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                                )}
                                               </div>
                                               <span className="text-sm font-medium text-gray-900">{role.label}</span>
                                             </div>
