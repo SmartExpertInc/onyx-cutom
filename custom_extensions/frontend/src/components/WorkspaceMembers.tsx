@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Plus, Search, Filter, MoreHorizontal, UserPlus, Mail, Shield,
   RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users,
@@ -48,6 +49,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   // User role state
   const [currentUserRole, setCurrentUserRole] = useState<WorkspaceRole | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Portal container for modals
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
   // UI State
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
@@ -69,6 +73,13 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [newRoleTextColor, setNewRoleTextColor] = useState(ROLE_COLORS[0].text);
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
   const [showColorPalette, setShowColorPalette] = useState(false);
+
+  // Set up portal container
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPortalContainer(document.body);
+    }
+  }, []);
 
   // Load user's workspaces and initialize user data
   useEffect(() => {
@@ -663,8 +674,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       </div>
 
       {/* Add Member Modal */}
-      {showAddMember && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowAddMember(false)}>
+      {showAddMember && portalContainer && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowAddMember(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
@@ -748,12 +759,13 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        portalContainer
       )}
 
       {/* Role Manager Modal */}
-      {showRoleManager && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowRoleManager(false)}>
+      {showRoleManager && portalContainer && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowRoleManager(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
@@ -900,12 +912,20 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        portalContainer
       )}
 
       {/* Create Workspace Modal */}
-      {showCreateWorkspace && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {showCreateWorkspace && portalContainer && createPortal(
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowCreateWorkspace(false);
+            }
+          }}
+        >
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
@@ -967,7 +987,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        portalContainer
       )}
     </div>
   );
