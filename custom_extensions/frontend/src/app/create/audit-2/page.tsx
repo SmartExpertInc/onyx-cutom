@@ -1607,7 +1607,7 @@ export default function AuditPage() {
                 }}
               ></div>
               
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px]">
                 <div 
                   className="rounded-[6px] bg-[#F5F8FF] px-[15px] py-[20px] flex flex-col gap-[20px]"
                 >
