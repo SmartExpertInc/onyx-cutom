@@ -52,13 +52,13 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F5F5F5', // Light gray background as per screenshot
+    backgroundColor: '#F0F0F0', // Light gray background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '40px 60px',
+    border: '1px solid #000000', // Black border around entire slide
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -103,18 +103,17 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
         top: '0',
         left: '0',
         right: '0',
-        height: '120px',
-        backgroundColor: '#10B981', // Bright green background as per screenshot
+        height: '100px',
+        backgroundColor: '#66CC66', // Bright green background as per screenshot
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 60px',
+        paddingLeft: '60px',
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '32px',
+          fontSize: '44px',
           fontWeight: 'bold',
-          color: '#FFFFFF', // White text as per screenshot
+          color: '#333333', // Dark gray text as per screenshot
           lineHeight: '1.1',
         }}>
           {isEditable && editingTitle ? (
@@ -124,9 +123,9 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
               onCancel={() => setEditingTitle(false)}
               className="dei-title-editor"
               style={{
-                fontSize: '32px',
+                fontSize: '44px',
                 fontWeight: 'bold',
-                color: '#FFFFFF',
+                color: '#333333',
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
@@ -144,47 +143,50 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
             </div>
           )}
         </div>
+      </div>
 
-        {/* Profile Image */}
-        <div style={{
-          width: '80px',
-          height: '80px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: '#8B5CF6', // Light blue/lavender background as per screenshot
-          border: '2px solid #000000', // Black border as per screenshot
-        }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
+      {/* Profile Image - Overlapping */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        right: '60px',
+        width: '120px',
+        height: '120px',
+        borderRadius: '50%',
+        overflow: 'hidden',
+        backgroundColor: '#ADD8E6', // Light blue background as per screenshot
+        border: '1px solid #000000', // Black border as per screenshot
+        zIndex: 10,
+      }}>
+        <ClickableImagePlaceholder
+          imagePath={profileImagePath}
+          onImageUploaded={handleProfileImageUploaded}
+          size="LARGE"
+          position="CENTER"
+          description="Profile photo"
+          isEditable={isEditable}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            objectFit: 'cover'
+          }}
+        />
       </div>
 
       {/* Main Content Section */}
       <div style={{
         position: 'absolute',
-        top: '120px',
+        top: '80px',
         left: '60px',
         right: '60px',
         bottom: '40px',
         backgroundColor: '#FFFFFF', // White background as per screenshot
-        borderRadius: '12px',
         padding: '40px',
         border: '1px solid #000000', // Black border as per screenshot
         display: 'flex',
         flexDirection: 'column',
-        gap: '30px',
+        gap: '40px',
       }}>
         {currentMethods.map((method, methodIndex) => (
           <div key={methodIndex} style={{
@@ -194,10 +196,10 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
           }}>
             {/* Method Title */}
             <div style={{
-              fontSize: '20px',
+              fontSize: '32px',
               fontWeight: 'bold',
-              color: '#4A4A4A', // Dark gray/black color as per screenshot
-              marginBottom: '8px',
+              color: '#333333', // Dark gray/black color as per screenshot
+              marginBottom: '16px',
             }}>
               {isEditable && editingMethodTitles === methodIndex ? (
                 <ImprovedInlineEditor
@@ -206,9 +208,9 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
                   onCancel={() => setEditingMethodTitles(null)}
                   className="method-title-editor"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '32px',
                     fontWeight: 'bold',
-                    color: '#4A4A4A',
+                    color: '#333333',
                     width: '100%',
                     height: 'auto',
                   }}
@@ -230,26 +232,26 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px',
+              gap: '12px',
               marginLeft: '20px',
             }}>
               {method.bulletPoints.map((bulletPoint, bulletIndex) => (
                 <div key={bulletIndex} style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '8px',
+                  gap: '12px',
                 }}>
                   <div style={{
-                    width: '6px',
-                    height: '6px',
+                    width: '8px',
+                    height: '8px',
                     borderRadius: '50%',
-                    backgroundColor: '#4A4A4A', // Dark gray/black color as per screenshot
-                    marginTop: '8px',
+                    backgroundColor: '#333333', // Dark gray/black color as per screenshot
+                    marginTop: '10px',
                     flexShrink: 0,
                   }} />
                   <div style={{
-                    fontSize: '16px',
-                    color: '#4A4A4A', // Dark gray/black color as per screenshot
+                    fontSize: '20px',
+                    color: '#333333', // Dark gray/black color as per screenshot
                     lineHeight: '1.4',
                     flex: 1,
                   }}>
@@ -260,8 +262,8 @@ export const DeiStandardsMethodsSlideTemplate: React.FC<DeiStandardsMethodsSlide
                         onCancel={() => setEditingBulletPoints(null)}
                         className="bullet-point-editor"
                         style={{
-                          fontSize: '16px',
-                          color: '#4A4A4A',
+                          fontSize: '20px',
+                          color: '#333333',
                           lineHeight: '1.4',
                           width: '100%',
                           height: 'auto',
