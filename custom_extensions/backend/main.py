@@ -16995,7 +16995,7 @@ async def generate_lesson_plan(
         has_video = any('video' in product.lower() for product in payload.recommendedProducts)
         has_presentation = any('presentation' in product.lower() for product in payload.recommendedProducts)
         
-        prompts_instruction = "CONTENT CREATION PROMPTS: "
+        prompts_instruction = "AI TOOL PROMPTS: Create ready-to-use prompts for AI content creation tools (like Synthesia, Gamma, etc.) "
         if has_video and has_presentation:
             prompts_instruction += "Provide exactly 2 specific prompts - one for video lesson creation and one for presentation creation. Each prompt should be detailed and actionable."
         elif has_video:
@@ -17040,11 +17040,15 @@ MATERIALS: List specific, actionable resources and tools needed for content crea
 - Assessment instruments and rubrics
 - Visual aids and multimedia specifications
 
-CONTENT CREATION PROMPTS: Create specific, actionable prompts ONLY for the recommended product types:
-- If "video-lesson" is in recommendedProducts: Create 1 detailed video lesson prompt using this format: "Create a professional training video for [target audience]. This lesson, titled [lesson title], should [key objectives and content]. The tone should be [appropriate tone], and the duration should be around [X] minutes based on the lesson completion time."
-- If "presentation" is in recommendedProducts: Create 1 detailed presentation prompt using this format: "Create a comprehensive presentation for [target audience] on [lesson topic]. The presentation should include [key content areas], use [visual elements], and consist of approximately [X] slides with clear learning progression."
-- For other product types: Create brief, specific prompts as needed
-- Maximum 2-3 prompts total, focusing on video and presentation if they are recommended
+AI TOOL PROMPTS: Create ready-to-use prompts for AI content creation tools (like Synthesia, Gamma, etc.) ONLY for the recommended product types:
+
+- If "video-lesson" is in recommendedProducts: Create 1 detailed video creation prompt for AI tools like Synthesia, using this enhanced format: "Create a professional training video for [specific target audience]. This is [lesson context/position in course], titled {payload.lessonTitle}. The video should [detailed content requirements including key learning objectives, specific topics to cover, and practical applications]. Emphasize [key themes and important concepts]. Provide a clear overview of [specific content areas]. The tone should be [specific tone description], and the duration should be around [X] minutes."
+
+- If "presentation" is in recommendedProducts: Create 1 detailed presentation creation prompt for AI tools like Gamma, using this enhanced format: "Create a comprehensive presentation for [specific target audience] on {payload.lessonTitle}. This presentation should cover [detailed content requirements], include [specific visual elements and slide types], and explain [key concepts and applications]. Structure the presentation with [specific organization], use [design elements], and consist of approximately [X] slides with clear learning progression from [beginning concept] to [end goal]."
+
+- For "quiz" products: Create assessment prompts for AI quiz generators
+- For "one-pager" products: Create document generation prompts for AI writing tools
+- Maximum 2-3 prompts total, with detailed, AI-tool-ready specifications
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
