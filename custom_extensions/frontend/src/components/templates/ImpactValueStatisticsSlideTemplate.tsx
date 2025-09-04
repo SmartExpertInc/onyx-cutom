@@ -129,214 +129,222 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
 
   return (
     <div className="impact-value-statistics-slide-template inter-theme" style={slideStyles}>
-      {/* Header Section */}
+      {/* Main Content Container - Gray Block */}
       <div style={{
         position: 'absolute',
         top: '40px',
         left: '60px',
         right: '60px',
+        bottom: '120px',
+        backgroundColor: '#F5F5F5', // Light gray background
+        borderRadius: '12px',
+        padding: '40px',
         display: 'flex',
-        alignItems: 'flex-start',
-        gap: '30px',
+        flexDirection: 'column',
+        gap: '40px',
       }}>
-        {/* Profile Image */}
+        {/* Header Section */}
         <div style={{
-          width: '100px',
-          height: '100px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: '#E8A090', // Coral/orange background as per screenshot
-          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '30px',
         }}>
-          <ClickableImagePlaceholder
-            imagePath={profileImagePath}
-            onImageUploaded={handleProfileImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-
-        {/* Title and Subtitle */}
-        <div style={{
-          flex: 1,
-        }}>
-          {/* Title */}
+          {/* Profile Image */}
           <div style={{
-            fontSize: '36px',
-            fontWeight: 'bold',
-            color: '#4A4A4A', // Dark gray color as per screenshot
-            marginBottom: '8px',
-            lineHeight: '1.1',
+            width: '100px',
+            height: '100px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            backgroundColor: '#E8A090', // Coral/orange background as per screenshot
+            flexShrink: 0,
           }}>
-            {isEditable && editingTitle ? (
-              <ImprovedInlineEditor
-                initialValue={currentTitle}
-                onSave={handleTitleSave}
-                onCancel={() => setEditingTitle(false)}
-                className="impact-title-editor"
-                style={{
-                  fontSize: '36px',
-                  fontWeight: 'bold',
-                  color: '#4A4A4A',
-                  lineHeight: '1.1',
-                  width: '100%',
-                  height: 'auto',
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingTitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentTitle}
-              </div>
-            )}
+            <ClickableImagePlaceholder
+              imagePath={profileImagePath}
+              onImageUploaded={handleProfileImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Profile photo"
+              isEditable={isEditable}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
           </div>
 
-          {/* Subtitle */}
+          {/* Title and Subtitle */}
           <div style={{
-            fontSize: '16px',
-            color: '#4A4A4A', // Dark gray color as per screenshot
-            lineHeight: '1.3',
+            flex: 1,
           }}>
-            {isEditable && editingSubtitle ? (
-              <ImprovedInlineEditor
-                initialValue={currentSubtitle}
-                onSave={handleSubtitleSave}
-                onCancel={() => setEditingSubtitle(false)}
-                className="impact-subtitle-editor"
-                style={{
-                  fontSize: '16px',
-                  color: '#4A4A4A',
-                  lineHeight: '1.3',
-                  width: '100%',
-                  height: 'auto',
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingSubtitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentSubtitle}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Statistics Boxes */}
-      <div style={{
-        position: 'absolute',
-        top: '180px',
-        left: '60px',
-        right: '60px',
-        display: 'flex',
-        gap: '30px',
-        justifyContent: 'center',
-      }}>
-        {currentStatistics.map((stat, index) => (
-          <div key={index} style={{
-            width: '300px',
-            backgroundColor: stat.backgroundColor,
-            borderRadius: '12px',
-            padding: '40px 30px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          }}>
-            {/* Percentage */}
+            {/* Title */}
             <div style={{
-              fontSize: '64px',
+              fontSize: '36px',
               fontWeight: 'bold',
               color: '#4A4A4A', // Dark gray color as per screenshot
-              marginBottom: '16px',
-              lineHeight: '1',
+              marginBottom: '8px',
+              lineHeight: '1.1',
             }}>
-              {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'percentage' ? (
+              {isEditable && editingTitle ? (
                 <ImprovedInlineEditor
-                  initialValue={stat.percentage}
-                  onSave={(value) => handleStatisticSave(index, 'percentage', value)}
-                  onCancel={() => setEditingStatistics(null)}
-                  className="statistic-percentage-editor"
+                  initialValue={currentTitle}
+                  onSave={handleTitleSave}
+                  onCancel={() => setEditingTitle(false)}
+                  className="impact-title-editor"
                   style={{
-                    fontSize: '64px',
+                    fontSize: '36px',
                     fontWeight: 'bold',
                     color: '#4A4A4A',
-                    lineHeight: '1',
+                    lineHeight: '1.1',
                     width: '100%',
                     height: 'auto',
-                    textAlign: 'center',
                   }}
                 />
               ) : (
                 <div
-                  onClick={() => isEditable && setEditingStatistics({ index, field: 'percentage' })}
+                  onClick={() => isEditable && setEditingTitle(true)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
                   }}
                 >
-                  {stat.percentage}
+                  {currentTitle}
                 </div>
               )}
             </div>
 
-            {/* Description */}
+            {/* Subtitle */}
             <div style={{
               fontSize: '16px',
               color: '#4A4A4A', // Dark gray color as per screenshot
               lineHeight: '1.3',
             }}>
-              {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'description' ? (
+              {isEditable && editingSubtitle ? (
                 <ImprovedInlineEditor
-                  initialValue={stat.description}
-                  onSave={(value) => handleStatisticSave(index, 'description', value)}
-                  onCancel={() => setEditingStatistics(null)}
-                  className="statistic-description-editor"
-                  multiline={true}
+                  initialValue={currentSubtitle}
+                  onSave={handleSubtitleSave}
+                  onCancel={() => setEditingSubtitle(false)}
+                  className="impact-subtitle-editor"
                   style={{
                     fontSize: '16px',
                     color: '#4A4A4A',
                     lineHeight: '1.3',
                     width: '100%',
                     height: 'auto',
-                    textAlign: 'center',
                   }}
                 />
               ) : (
                 <div
-                  onClick={() => isEditable && setEditingStatistics({ index, field: 'description' })}
+                  onClick={() => isEditable && setEditingSubtitle(true)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
                   }}
                 >
-                  {stat.description}
+                  {currentSubtitle}
                 </div>
               )}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Statistics Boxes */}
+        <div style={{
+          display: 'flex',
+          gap: '30px',
+          justifyContent: 'center',
+          flex: 1,
+        }}>
+          {currentStatistics.map((stat, index) => (
+            <div key={index} style={{
+              width: '300px',
+              backgroundColor: stat.backgroundColor,
+              borderRadius: '12px',
+              padding: '40px 30px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            }}>
+              {/* Percentage */}
+              <div style={{
+                fontSize: '64px',
+                fontWeight: 'bold',
+                color: '#4A4A4A', // Dark gray color as per screenshot
+                marginBottom: '16px',
+                lineHeight: '1',
+              }}>
+                {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'percentage' ? (
+                  <ImprovedInlineEditor
+                    initialValue={stat.percentage}
+                    onSave={(value) => handleStatisticSave(index, 'percentage', value)}
+                    onCancel={() => setEditingStatistics(null)}
+                    className="statistic-percentage-editor"
+                    style={{
+                      fontSize: '64px',
+                      fontWeight: 'bold',
+                      color: '#4A4A4A',
+                      lineHeight: '1',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center',
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingStatistics({ index, field: 'percentage' })}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {stat.percentage}
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              <div style={{
+                fontSize: '16px',
+                color: '#4A4A4A', // Dark gray color as per screenshot
+                lineHeight: '1.3',
+              }}>
+                {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'description' ? (
+                  <ImprovedInlineEditor
+                    initialValue={stat.description}
+                    onSave={(value) => handleStatisticSave(index, 'description', value)}
+                    onCancel={() => setEditingStatistics(null)}
+                    className="statistic-description-editor"
+                    multiline={true}
+                    style={{
+                      fontSize: '16px',
+                      color: '#4A4A4A',
+                      lineHeight: '1.3',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center',
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingStatistics({ index, field: 'description' })}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {stat.description}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer - Under the gray block */}
       <div style={{
         position: 'absolute',
         bottom: '20px',
@@ -345,6 +353,7 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        height: '80px',
       }}>
         {/* Logo */}
         <div style={{

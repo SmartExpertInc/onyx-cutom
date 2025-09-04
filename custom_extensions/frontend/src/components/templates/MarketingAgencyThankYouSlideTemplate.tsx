@@ -256,6 +256,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
+          paddingTop: '155px',
           paddingLeft: '20px',
         }}>
           {/* Main Title */}
