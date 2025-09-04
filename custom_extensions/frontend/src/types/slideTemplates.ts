@@ -628,6 +628,15 @@ export type TemplateId =
   | 'critical-thinking-slide'
   | 'psychological-safety-slide'
   | 'data-analysis-slide'
+  | 'solution-steps-slide'
+  | 'proof-statistics-slide'
+  | 'marketing-agency-thank-you-slide'
+  | 'impact-value-statistics-slide'
+  | 'oral-health-conditions-slide'
+  | 'dei-standards-methods-slide'
+  | 'kpi-report-chart-slide'
+  | 'enterprise-roadmap-slide'
+  | 'kpi-best-practices-slide'
 ;
 
 export interface TemplatePreview {
@@ -660,4 +669,162 @@ export interface TemplateEditor {
   onSave: () => void;
   onCancel: () => void;
   onPreview: () => void;
+}
+
+// --- New Slide Interfaces ---
+
+export interface SolutionStepsSlideProps extends BaseTemplateProps {
+  title: string;
+  buttonText: string;
+  steps: Array<{
+    title: string;
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  website?: string;
+  date?: string;
+  pageNumber?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface ProofStatisticsSlideProps extends BaseTemplateProps {
+  tagText: string;
+  title: string;
+  description: string;
+  statistics: Array<{
+    value: string;
+    description: string;
+  }>;
+  conclusionText: string;
+  bulletPoints: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface MarketingAgencyThankYouSlideProps extends BaseTemplateProps {
+  headerTitle: string;
+  logoText: string;
+  mainTitle: string;
+  bodyText: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface ImpactValueStatisticsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  statistics: Array<{
+    percentage: string;
+    description: string;
+    backgroundColor: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  logoText?: string;
+  sourceText?: string;
+  sourceLink?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface OralHealthConditionsSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  conditions: Array<{
+    number: string;
+    condition: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface DeiStandardsMethodsSlideProps extends BaseTemplateProps {
+  title: string;
+  methods: Array<{
+    title: string;
+    bulletPoints: string[];
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface KpiReportChartSlideProps extends BaseTemplateProps {
+  title: string;
+  legend: Array<{
+    color: string;
+    label: string;
+  }>;
+  bars: Array<{
+    percentage: string;
+    color: string;
+    height: number;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  reportType?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface EnterpriseRoadmapSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  tableData: Array<{
+    featureName: string;
+    status: string;
+    dueDate: string;
+    assignee: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyName?: string;
+  reportType?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface KpiBestPracticesSlideProps extends BaseTemplateProps {
+  leftImagePath?: string;
+  leftImageAlt?: string;
+  bodyText: string;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  bottomImagePath?: string;
+  bottomImageAlt?: string;
+  companyName?: string;
+  reportType?: string;
+  date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
 } 

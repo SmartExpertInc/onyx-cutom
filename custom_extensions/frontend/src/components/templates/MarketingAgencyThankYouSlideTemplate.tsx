@@ -1,0 +1,327 @@
+// custom_extensions/frontend/src/components/templates/MarketingAgencyThankYouSlideTemplate.tsx
+
+import React, { useState, useRef, useEffect } from 'react';
+import { MarketingAgencyThankYouSlideProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
+
+export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThankYouSlideProps & {
+  theme?: SlideTheme | string;
+}> = ({
+  slideId,
+  headerTitle = 'Introduction to Our\nMarketing Agency',
+  logoText = 'Your Logo',
+  mainTitle = 'Thank you!',
+  bodyText = 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!',
+  profileImagePath = '',
+  profileImageAlt = 'Profile image',
+  backgroundColor,
+  titleColor,
+  contentColor,
+  accentColor,
+  isEditable = false,
+  onUpdate,
+  theme,
+  voiceoverText
+}) => {
+  const [editingHeaderTitle, setEditingHeaderTitle] = useState(false);
+  const [editingLogoText, setEditingLogoText] = useState(false);
+  const [editingMainTitle, setEditingMainTitle] = useState(false);
+  const [editingBodyText, setEditingBodyText] = useState(false);
+  
+  const [currentHeaderTitle, setCurrentHeaderTitle] = useState(headerTitle);
+  const [currentLogoText, setCurrentLogoText] = useState(logoText);
+  const [currentMainTitle, setCurrentMainTitle] = useState(mainTitle);
+  const [currentBodyText, setCurrentBodyText] = useState(bodyText);
+
+  // Use theme colors instead of props
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    aspectRatio: '16/9',
+    backgroundColor: '#F8F7EE', // Light beige background as per screenshot
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    overflow: 'hidden',
+    fontFamily: currentTheme.fonts.titleFont,
+    padding: '40px 60px',
+  };
+
+  const handleHeaderTitleSave = (newHeaderTitle: string) => {
+    setCurrentHeaderTitle(newHeaderTitle);
+    setEditingHeaderTitle(false);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, headerTitle: newHeaderTitle });
+    }
+  };
+
+  const handleLogoTextSave = (newLogoText: string) => {
+    setCurrentLogoText(newLogoText);
+    setEditingLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, logoText: newLogoText });
+    }
+  };
+
+  const handleMainTitleSave = (newMainTitle: string) => {
+    setCurrentMainTitle(newMainTitle);
+    setEditingMainTitle(false);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, mainTitle: newMainTitle });
+    }
+  };
+
+  const handleBodyTextSave = (newBodyText: string) => {
+    setCurrentBodyText(newBodyText);
+    setEditingBodyText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, bodyText: newBodyText });
+    }
+  };
+
+  const handleProfileImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  return (
+    <div className="marketing-agency-thank-you-slide-template inter-theme" style={slideStyles}>
+      {/* Header Section */}
+      <div style={{
+        position: 'absolute',
+        top: '40px',
+        left: '60px',
+        right: '60px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+      }}>
+        {/* Header Title */}
+        <div style={{
+          fontSize: '24px',
+          fontWeight: '500',
+          color: '#4A4A4A', // Dark gray color as per screenshot
+          lineHeight: '1.2',
+          maxWidth: '400px',
+        }}>
+          {isEditable && editingHeaderTitle ? (
+            <ImprovedInlineEditor
+              initialValue={currentHeaderTitle}
+              onSave={handleHeaderTitleSave}
+              onCancel={() => setEditingHeaderTitle(false)}
+              className="header-title-editor"
+              multiline={true}
+              style={{
+                fontSize: '24px',
+                fontWeight: '500',
+                color: '#4A4A4A',
+                lineHeight: '1.2',
+                width: '100%',
+                height: 'auto',
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingHeaderTitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none',
+                whiteSpace: 'pre-line'
+              }}
+            >
+              {currentHeaderTitle}
+            </div>
+          )}
+        </div>
+
+        {/* Logo Placeholder */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}>
+          <div style={{
+            width: '30px',
+            height: '30px',
+            border: '2px solid #888888',
+            borderRadius: '50%',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <div style={{
+              width: '12px',
+              height: '2px',
+              backgroundColor: '#888888',
+              position: 'absolute'
+            }} />
+            <div style={{
+              width: '2px',
+              height: '12px',
+              backgroundColor: '#888888',
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)'
+            }} />
+          </div>
+          <div style={{
+            fontSize: '14px',
+            color: '#888888', // Lighter gray color as per screenshot
+          }}>
+            {isEditable && editingLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentLogoText}
+                onSave={handleLogoTextSave}
+                onCancel={() => setEditingLogoText(false)}
+                className="logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  color: '#888888',
+                  width: '100%',
+                  height: 'auto',
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingLogoText(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentLogoText}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div style={{
+        position: 'absolute',
+        top: '120px',
+        left: '60px',
+        right: '60px',
+        bottom: '40px',
+        display: 'flex',
+        gap: '40px',
+      }}>
+        {/* Left Section - Orange Background with Profile Image */}
+        <div style={{
+          width: '400px',
+          backgroundColor: '#FF7F27', // Vibrant orange background as per screenshot
+          borderRadius: '12px 12px 0 0',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <ClickableImagePlaceholder
+            imagePath={profileImagePath}
+            onImageUploaded={handleProfileImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Profile photo"
+            isEditable={isEditable}
+            style={{
+              width: '300px',
+              height: '300px',
+              borderRadius: '50%',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
+
+        {/* Right Section - Text Content */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          paddingLeft: '20px',
+        }}>
+          {/* Main Title */}
+          <div style={{
+            fontSize: '48px',
+            fontWeight: 'bold',
+            color: '#4A4A4A', // Dark gray color as per screenshot
+            marginBottom: '30px',
+            lineHeight: '1.1',
+          }}>
+            {isEditable && editingMainTitle ? (
+              <ImprovedInlineEditor
+                initialValue={currentMainTitle}
+                onSave={handleMainTitleSave}
+                onCancel={() => setEditingMainTitle(false)}
+                className="main-title-editor"
+                style={{
+                  fontSize: '48px',
+                  fontWeight: 'bold',
+                  color: '#4A4A4A',
+                  lineHeight: '1.1',
+                  width: '100%',
+                  height: 'auto',
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingMainTitle(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentMainTitle}
+              </div>
+            )}
+          </div>
+
+          {/* Body Text */}
+          <div style={{
+            fontSize: '20px',
+            color: '#4A4A4A', // Dark gray color as per screenshot
+            lineHeight: '1.4',
+            maxWidth: '500px',
+          }}>
+            {isEditable && editingBodyText ? (
+              <ImprovedInlineEditor
+                initialValue={currentBodyText}
+                onSave={handleBodyTextSave}
+                onCancel={() => setEditingBodyText(false)}
+                className="body-text-editor"
+                multiline={true}
+                style={{
+                  fontSize: '20px',
+                  color: '#4A4A4A',
+                  lineHeight: '1.4',
+                  width: '100%',
+                  height: 'auto',
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingBodyText(true)}
+                style={{
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  whiteSpace: 'pre-line'
+                }}
+              >
+                {currentBodyText}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MarketingAgencyThankYouSlideTemplate;

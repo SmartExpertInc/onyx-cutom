@@ -36,6 +36,15 @@ import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
 import { BarChartSlideTemplate } from './BarChartSlideTemplate';
 import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
+import { SolutionStepsSlideTemplate } from './SolutionStepsSlideTemplate';
+import { ProofStatisticsSlideTemplate } from './ProofStatisticsSlideTemplate';
+import { MarketingAgencyThankYouSlideTemplate } from './MarketingAgencyThankYouSlideTemplate';
+import { ImpactValueStatisticsSlideTemplate } from './ImpactValueStatisticsSlideTemplate';
+import { OralHealthConditionsSlideTemplate } from './OralHealthConditionsSlideTemplate';
+import { DeiStandardsMethodsSlideTemplate } from './DeiStandardsMethodsSlideTemplate';
+import { KpiReportChartSlideTemplate } from './KpiReportChartSlideTemplate';
+import { EnterpriseRoadmapSlideTemplate } from './EnterpriseRoadmapSlideTemplate';
+import { KpiBestPracticesSlideTemplate } from './KpiBestPracticesSlideTemplate';
 
 
 
@@ -1523,6 +1532,309 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       content: { type: 'text', label: 'Content', required: true, maxLength: 300 },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'solution-steps-slide': {
+    id: 'solution-steps-slide',
+    name: 'Solution Steps Slide',
+    description: 'Dark themed slide with step-by-step guide and timeline',
+    category: 'content',
+    icon: '📋',
+    component: SolutionStepsSlideTemplate,
+    defaultProps: {
+      title: 'The Solution',
+      buttonText: 'Step-by-step Guide',
+      steps: [
+        { title: 'Step 1', description: 'Know the Regulations' },
+        { title: 'Step 2', description: 'Conduct Risk Assessments' },
+        { title: 'Step 3', description: 'Provide Training and Education' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      website: 'www.company.com',
+      date: 'Date Goes Here',
+      pageNumber: 'Page Number'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      buttonText: { type: 'text', label: 'Button Text', required: true, maxLength: 50 },
+      steps: { type: 'array', label: 'Steps', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      website: { type: 'text', label: 'Website', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 50 }
+    }
+  },
+
+  'proof-statistics-slide': {
+    id: 'proof-statistics-slide',
+    name: 'Proof Statistics Slide',
+    description: 'Dark themed slide with statistics and bullet points',
+    category: 'content',
+    icon: '📊',
+    component: ProofStatisticsSlideTemplate,
+    defaultProps: {
+      tagText: 'By the Numbers',
+      title: 'The Proof Is in the Pudding',
+      description: 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
+      statistics: [
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Decrease in customer complaints' },
+        { value: 'XX%', description: 'Percentage increase in revenue' },
+        { value: 'XM', description: 'Percentage increase in revenue' },
+        { value: 'XX%', description: 'Percentage increase in revenue' },
+        { value: 'XM', description: 'Percentage increase in revenue' }
+      ],
+      conclusionText: 'With these impressive results, it\'s clear that [Product Name] is the real deal, Don\'t miss out on the opportunity to take your business to the next level- try [Product Name] today.',
+      bulletPoints: [
+        'With these impressive results, it\'s clear that',
+        'With these impressive results, it\'s clear that',
+        'With these impressive results, it\'s clear that'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      tagText: { type: 'text', label: 'Tag Text', required: true, maxLength: 50 },
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 500 },
+      statistics: { type: 'array', label: 'Statistics', required: true },
+      conclusionText: { type: 'text', label: 'Conclusion Text', required: true, maxLength: 500 },
+      bulletPoints: { type: 'array', label: 'Bullet Points', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'marketing-agency-thank-you-slide': {
+    id: 'marketing-agency-thank-you-slide',
+    name: 'Marketing Agency Thank You Slide',
+    description: 'Light themed slide with orange accent and thank you message',
+    category: 'content',
+    icon: '🙏',
+    component: MarketingAgencyThankYouSlideTemplate,
+    defaultProps: {
+      headerTitle: 'Introduction to Our\nMarketing Agency',
+      logoText: 'Your Logo',
+      mainTitle: 'Thank you!',
+      bodyText: 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      headerTitle: { type: 'text', label: 'Header Title', required: true, maxLength: 100 },
+      logoText: { type: 'text', label: 'Logo Text', maxLength: 50 },
+      mainTitle: { type: 'text', label: 'Main Title', required: true, maxLength: 100 },
+      bodyText: { type: 'text', label: 'Body Text', required: true, maxLength: 500 },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'impact-value-statistics-slide': {
+    id: 'impact-value-statistics-slide',
+    name: 'Impact Value Statistics Slide',
+    description: 'Light themed slide with statistics boxes and profile image',
+    category: 'content',
+    icon: '📈',
+    component: ImpactValueStatisticsSlideTemplate,
+    defaultProps: {
+      title: 'Impact Value',
+      subtitle: 'Statistics for effective critical thinking and problem-solving skills',
+      statistics: [
+        { percentage: '20%', description: 'Reduction in operational costs and inefficiencies.', backgroundColor: '#E0E0E0' },
+        { percentage: '35%', description: 'Increase in innovation and problem-solving capabilities.', backgroundColor: '#F0D0C8' },
+        { percentage: '50%', description: 'Likelihood of being promoted to leadership positions.', backgroundColor: '#E8A090' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      logoText: 'Your Logo',
+      sourceText: 'Source',
+      sourceLink: 'Source link'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 200 },
+      statistics: { type: 'array', label: 'Statistics', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      logoText: { type: 'text', label: 'Logo Text', maxLength: 50 },
+      sourceText: { type: 'text', label: 'Source Text', maxLength: 50 },
+      sourceLink: { type: 'text', label: 'Source Link', maxLength: 100 }
+    }
+  },
+
+  'oral-health-conditions-slide': {
+    id: 'oral-health-conditions-slide',
+    name: 'Oral Health Conditions Slide',
+    description: 'White and blue themed slide with numbered conditions list',
+    category: 'content',
+    icon: '🦷',
+    component: OralHealthConditionsSlideTemplate,
+    defaultProps: {
+      title: 'Why is oral are linked to oral health?',
+      description: 'Research shows that gingivitis and periodontitis can contribute to certain health conditions, including:',
+      conditions: [
+        { number: '01', condition: 'Cardiovascular disease' },
+        { number: '02', condition: 'Stroke' },
+        { number: '03', condition: 'Endocarditis' },
+        { number: '04', condition: 'Pneumonia' },
+        { number: '05', condition: 'Pregnancy complications' },
+        { number: '06', condition: 'Diabetes' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 500 },
+      conditions: { type: 'array', label: 'Conditions', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'dei-standards-methods-slide': {
+    id: 'dei-standards-methods-slide',
+    name: 'DEI Standards Methods Slide',
+    description: 'Green header slide with methods and bullet points',
+    category: 'content',
+    icon: '🌍',
+    component: DeiStandardsMethodsSlideTemplate,
+    defaultProps: {
+      title: 'Methods to Meet DEI Standards',
+      methods: [
+        {
+          title: 'Diverse Recruitment:',
+          bulletPoints: [
+            'Source candidates from underrepresented groups.',
+            'Use blind screening processes to focus on skills and qualifications.'
+          ]
+        },
+        {
+          title: 'Mentorship and Sponsorship Programs:',
+          bulletPoints: [
+            'Mentor and sponsor diverse talent.',
+            'Create opportunities for growth & advancement.'
+          ]
+        }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      methods: { type: 'array', label: 'Methods', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'kpi-report-chart-slide': {
+    id: 'kpi-report-chart-slide',
+    name: 'KPI Report Chart Slide',
+    description: 'Dark themed slide with interactive bar chart and legend',
+    category: 'content',
+    icon: '📊',
+    component: KpiReportChartSlideTemplate,
+    defaultProps: {
+      title: 'KPI Report',
+      legend: [
+        { color: '#FFFFFF', label: 'Gross Profit' },
+        { color: '#C77B4A', label: 'Net Profit' },
+        { color: '#7B947B', label: 'Operating Profit' }
+      ],
+      bars: [
+        { percentage: '42%', color: '#FFFFFF', height: 180 },
+        { percentage: '30%', color: '#C77B4A', height: 130 },
+        { percentage: '22%', color: '#7B947B', height: 95 }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyName: 'Company name',
+      reportType: 'KPI Report',
+      date: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      legend: { type: 'array', label: 'Legend', required: true },
+      bars: { type: 'array', label: 'Bars', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyName: { type: 'text', label: 'Company Name', maxLength: 100 },
+      reportType: { type: 'text', label: 'Report Type', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 }
+    }
+  },
+
+  'enterprise-roadmap-slide': {
+    id: 'enterprise-roadmap-slide',
+    name: 'Enterprise Roadmap Slide',
+    description: 'White themed slide with table and profile image',
+    category: 'content',
+    icon: '🗺️',
+    component: EnterpriseRoadmapSlideTemplate,
+    defaultProps: {
+      title: 'Enterprise Offerings: Roadmap',
+      description: 'These KPIs typically measure performance in a shorter time frame, and are focused on organizational processes and efficiencies. Some examples include sales by region, average monthly transportation costs and cost per acquisition (CPA)',
+      tableData: [
+        { featureName: 'Mobile optimization', status: 'Testin', dueDate: '14 April', assignee: 'Julius' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+        { featureName: 'Cross-platform sync', status: 'Consept', dueDate: '30 June', assignee: 'Vanessa' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyName: 'Company name',
+      reportType: 'KPI Report',
+      date: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 500 },
+      tableData: { type: 'array', label: 'Table Data', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyName: { type: 'text', label: 'Company Name', maxLength: 100 },
+      reportType: { type: 'text', label: 'Report Type', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 }
+    }
+  },
+
+  'kpi-best-practices-slide': {
+    id: 'kpi-best-practices-slide',
+    name: 'KPI Best Practices Slide',
+    description: 'Light themed slide with multiple images and text content',
+    category: 'content',
+    icon: '💡',
+    component: KpiBestPracticesSlideTemplate,
+    defaultProps: {
+      leftImagePath: '',
+      leftImageAlt: 'Left image',
+      bodyText: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re measuring only the key performance indicators that will help you reach your business goals. The strategic focus is one of the most important aspects of the KPI definition. Here are some best practices for developing the right KPIs.',
+      rightImagePath: '',
+      rightImageAlt: 'Right image',
+      bottomImagePath: '',
+      bottomImageAlt: 'Bottom image',
+      companyName: 'Company name',
+      reportType: 'KPI Report',
+      date: 'February 2023'
+    },
+    propSchema: {
+      leftImagePath: { type: 'image', label: 'Left Image' },
+      leftImageAlt: { type: 'text', label: 'Left Image Alt Text' },
+      bodyText: { type: 'text', label: 'Body Text', required: true, maxLength: 1000 },
+      rightImagePath: { type: 'image', label: 'Right Image' },
+      rightImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      bottomImagePath: { type: 'image', label: 'Bottom Image' },
+      bottomImageAlt: { type: 'text', label: 'Bottom Image Alt Text' },
+      companyName: { type: 'text', label: 'Company Name', maxLength: 100 },
+      reportType: { type: 'text', label: 'Report Type', maxLength: 100 },
+      date: { type: 'text', label: 'Date', maxLength: 50 }
     }
   }
 
