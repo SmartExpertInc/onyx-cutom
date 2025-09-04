@@ -1609,7 +1609,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     return visibleColumns[c.key];
   });
 
-  const gridTemplate = activeColumns.map((c) => `${c.width}fr`).join(' ');
+  // Use equal width for all columns to keep table balanced
+  const gridTemplate = `repeat(${activeColumns.length}, minmax(100px, 1fr))`;
 
   if (!dataToDisplay) {
     return <div className="p-8 text-center">Training plan data is unavailable for display.</div>;
