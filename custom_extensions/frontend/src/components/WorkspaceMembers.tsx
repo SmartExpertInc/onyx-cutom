@@ -414,12 +414,24 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <h3 className="text-xl font-medium text-gray-900 mb-2">No Workspaces Found</h3>
             <p className="text-gray-600 mb-6">You're not a member of any workspaces yet.</p>
             <button
-              onClick={() => setShowCreateWorkspace(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+              onClick={() => {
+                alert('Button clicked! showCreateWorkspace will be set to true');
+                console.log('🔍 [DEBUG] Create workspace button clicked!');
+                console.log('🔍 [DEBUG] Current showCreateWorkspace state:', showCreateWorkspace);
+                setShowCreateWorkspace(true);
+                console.log('🔍 [DEBUG] After setShowCreateWorkspace(true)');
+              }}
+              onMouseDown={() => console.log('🔍 [DEBUG] Button mouse down')}
+              onMouseUp={() => console.log('🔍 [DEBUG] Button mouse up')}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium cursor-pointer"
+              style={{ position: 'relative', zIndex: 1000 }}
             >
               <Plus className="h-5 w-5" />
               Create Your First Workspace
             </button>
+            <div className="mt-2 text-xs text-gray-500">
+              Debug: showCreateWorkspace = {showCreateWorkspace.toString()}
+            </div>
           </div>
         </div>
       );
@@ -904,6 +916,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       )}
 
       {/* Create Workspace Modal */}
+      {console.log('🔍 [DEBUG] Modal render check - showCreateWorkspace:', showCreateWorkspace)}
       {showCreateWorkspace && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowCreateWorkspace(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
