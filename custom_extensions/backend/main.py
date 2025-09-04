@@ -12434,29 +12434,8 @@ async def get_user_projects_list_from_db(
     else:
         folder_filter_shared = ""
     
-    # Use email for workspace queries if available, otherwise use UUID
-    user_for_workspace = user_email if user_email else onyx_user_id
-    
     owned_query = owned_projects_query.format(folder_filter=folder_filter)
-    shared_query = shared_projects_query.format(folder_filter=folder_filter)
-    
-    # Get user email for workspace access (workspace members are stored with emails)
-    user_email = None
-    try:
-        session_cookie_value = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
-        if session_cookie_value:
-            onyx_user_info_url = f"{ONYX_API_SERVER_URL}/me"
-            cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie_value}
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(onyx_user_info_url, cookies=cookies_to_forward)
-                if response.status_code == 200:
-                    user_data = response.json()
-                    user_email = user_data.get("email")
-    except Exception as e:
-        logger.warning(f"Could not get user email for workspace access: {e}")
-    
-    # Use email for workspace queries if available, otherwise use UUID
-    user_for_workspace = user_email if user_email else onyx_user_id
+    shared_query = shared_projects_query.format(folder_filter=folder_filter_shared)
     
     async with pool.acquire() as conn:
         # Get owned projects (use UUID)
@@ -12479,14 +12458,14 @@ async def get_user_projects_list_from_db(
             # Debug why no shared projects found
             logger.info(f"🔍 [WORKSPACE DEBUG] No shared projects found for user {onyx_user_id}. Investigating...")
             
-            # Check workspace memberships
+            # Check workspace memberships using email (not UUID)
             membership_check = await conn.fetch("""
                 SELECT wm.*, w.name as workspace_name, wr.name as role_name
                 FROM workspace_members wm
                 JOIN workspaces w ON wm.workspace_id = w.id
                 JOIN workspace_roles wr ON wm.role_id = wr.id
                 WHERE wm.user_id = $1
-            """, onyx_user_id)
+            """, user_email)
             
             logger.info(f"   - User workspace memberships: {len(membership_check)}")
             for membership in membership_check:
@@ -12495,26 +12474,10 @@ async def get_user_projects_list_from_db(
                 logger.info(f"       Status: {membership['status']}")
             
             if not membership_check:
-                logger.info(f"   ❌ User {onyx_user_id} is not a member of any workspace!")
+                logger.info(f"   ❌ User {user_uuid} is not a member of any workspace!")
                 logger.info(f"   💡 Add user to a workspace to enable shared project access")
-            else:
-                # Debug why no shared projects found
-                logger.info(f"🔍 [WORKSPACE DEBUG] Checking why no shared projects found for user {onyx_user_id}:")
-            
-            # Check workspace memberships
-            membership_check = await conn.fetch("""
-                SELECT wm.*, w.name as workspace_name, wr.name as role_name
-                FROM workspace_members wm
-                JOIN workspaces w ON wm.workspace_id = w.id
-                JOIN workspace_roles wr ON wm.role_id = wr.id
-                WHERE wm.user_id = $1
-            """, onyx_user_id)
-            
-            logger.info(f"   - User workspace memberships: {len(membership_check)}")
-            for membership in membership_check:
-                logger.info(f"     * Workspace: {membership['workspace_name']} (ID: {membership['workspace_id']})")
-                logger.info(f"       Role: {membership['role_name']} (ID: {membership['role_id']})")
-                logger.info(f"       Status: {membership['status']}")
+                logger.info(f"   - User workspace memberships: 0")
+                logger.info(f"   - No workspace memberships found - user needs to be added to a workspace")
             
             # Check product access records
             if membership_check:
