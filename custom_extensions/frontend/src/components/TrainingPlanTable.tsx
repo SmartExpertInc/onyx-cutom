@@ -1587,17 +1587,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const qualityTierVisible = visibleColumns.qualityTier;
     
     return [
-      { key: 'module', width: 7 },
-      { key: 'knowledgeCheck', width: qualityTierVisible ? 2 : 4 },
+      { key: 'module', width: 5.5 },
+      { key: 'knowledgeCheck', width: qualityTierVisible ? 2 : 3.5 },
       { key: 'contentAvailability', width: 2 },
-      { key: 'informationSource', width: 3 },
-      { key: 'qualityTier', width: qualityTierVisible ? 4 : 0 },
+      { key: 'informationSource', width: 2.5 },
+      { key: 'qualityTier', width: qualityTierVisible ? 3.5 : 0 },
       { key: 'estCreationTime', width: 2 },
       { key: 'estCompletionTime', width: 2 },
-      { key: 'quiz', width: 1.2 },
-      { key: 'onePager', width: 1.2 },
-      { key: 'videoPresentation', width: 1.2 },
-      { key: 'lessonPresentation', width: 1.2 },
+      { key: 'quiz', width: 1.6 },
+      { key: 'onePager', width: 1.6 },
+      { key: 'videoPresentation', width: 1.6 },
+      { key: 'lessonPresentation', width: 1.6 },
     ];
   };
 
