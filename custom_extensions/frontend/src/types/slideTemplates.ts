@@ -716,6 +716,7 @@ export interface MarketingAgencyThankYouSlideProps extends BaseTemplateProps {
   bodyText: string;
   profileImagePath?: string;
   profileImageAlt?: string;
+  companyLogoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

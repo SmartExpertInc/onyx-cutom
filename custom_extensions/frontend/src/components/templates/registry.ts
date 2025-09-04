@@ -1621,7 +1621,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       mainTitle: 'Thank you!',
       bodyText: 'We look forward to helping\nyou achieve remarkable\nresults. Contact us today, and\nlet\'s make success happen!',
       profileImagePath: '',
-      profileImageAlt: 'Profile image'
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
     },
     propSchema: {
       headerTitle: { type: 'text', label: 'Header Title', required: true, maxLength: 100 },
@@ -1629,7 +1630,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       mainTitle: { type: 'text', label: 'Main Title', required: true, maxLength: 100 },
       bodyText: { type: 'text', label: 'Body Text', required: true, maxLength: 500 },
       profileImagePath: { type: 'image', label: 'Profile Image' },
-      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
     }
   },
 

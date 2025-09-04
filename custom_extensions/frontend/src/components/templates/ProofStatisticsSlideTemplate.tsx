@@ -387,8 +387,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               gap: '8px',
             }}>
               <div style={{
-                width: '8px',
-                height: '8px',
+                width: '19px',
+                height: '18px',
                 borderRadius: '50%',
                 backgroundColor: '#8C51F6', // Purple circle
                 marginTop: '6px',

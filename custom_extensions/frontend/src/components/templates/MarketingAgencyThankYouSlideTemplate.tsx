@@ -5,6 +5,7 @@ import { MarketingAgencyThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThankYouSlideProps & {
   theme?: SlideTheme | string;
@@ -29,11 +30,13 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   const [editingLogoText, setEditingLogoText] = useState(false);
   const [editingMainTitle, setEditingMainTitle] = useState(false);
   const [editingBodyText, setEditingBodyText] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
   const [currentHeaderTitle, setCurrentHeaderTitle] = useState(headerTitle);
   const [currentLogoText, setCurrentLogoText] = useState(logoText);
   const [currentMainTitle, setCurrentMainTitle] = useState(mainTitle);
   const [currentBodyText, setCurrentBodyText] = useState(bodyText);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -89,6 +92,13 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     }
   };
 
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
     <div className="marketing-agency-thank-you-slide-template inter-theme" style={slideStyles}>
       {/* Header Section */}
@@ -105,7 +115,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         <div style={{
           fontSize: '24px',
           fontWeight: '500',
-          color: '#4A4A4A', // Dark gray color as per screenshot
+          color: '#4C5953', // Dark gray color as per screenshot
           lineHeight: '1.2',
           maxWidth: '400px',
         }}>
@@ -145,61 +155,60 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           alignItems: 'center',
           gap: '10px',
         }}>
-          <div style={{
-            width: '30px',
-            height: '30px',
-            border: '2px solid #888888',
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
             <div style={{
-              width: '12px',
-              height: '2px',
-              backgroundColor: '#888888',
-              position: 'absolute'
-            }} />
-            <div style={{
-              width: '2px',
-              height: '12px',
-              backgroundColor: '#888888',
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)'
-            }} />
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: '#888888', // Lighter gray color as per screenshot
-          }}>
-            {isEditable && editingLogoText ? (
-              <ImprovedInlineEditor
-                initialValue={currentLogoText}
-                onSave={handleLogoTextSave}
-                onCancel={() => setEditingLogoText(false)}
-                className="logo-text-editor"
-                style={{
-                  fontSize: '14px',
-                  color: '#888888',
-                  width: '100%',
-                  height: 'auto',
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingLogoText(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentLogoText}
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: '2px solid #888888',
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '2px',
+                  backgroundColor: '#888888',
+                  position: 'absolute'
+                }} />
+                <div style={{
+                  width: '2px',
+                  height: '12px',
+                  backgroundColor: '#888888',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
               </div>
-            )}
-          </div>
+              <div style={{ fontSize: '14px', fontWeight: '300', color: '#888888' }}>Your Logo</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -215,13 +224,14 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       }}>
         {/* Left Section - Orange Background with Profile Image */}
         <div style={{
-          width: '400px',
-          backgroundColor: '#FF7F27', // Vibrant orange background as per screenshot
-          borderRadius: '12px 12px 0 0',
+          width: '480px',
+          backgroundColor: '#EC672C', // Vibrant orange background as per screenshot
+          borderRadius: '20px',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -231,9 +241,10 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '300px',
-              height: '300px',
-              borderRadius: '50%',
+              position: 'relative',
+              bottom: '-38px',
+              width: '464px',
+              height: '453px',
               objectFit: 'cover'
             }}
           />
@@ -251,7 +262,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           <div style={{
             fontSize: '48px',
             fontWeight: 'bold',
-            color: '#4A4A4A', // Dark gray color as per screenshot
+            color: '#3A4B49', // Dark gray color as per screenshot
             marginBottom: '30px',
             lineHeight: '1.1',
           }}>
@@ -264,7 +275,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 style={{
                   fontSize: '48px',
                   fontWeight: 'bold',
-                  color: '#4A4A4A',
+                  color: '#3A4B49',
                   lineHeight: '1.1',
                   width: '100%',
                   height: 'auto',
@@ -285,8 +296,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
 
           {/* Body Text */}
           <div style={{
-            fontSize: '20px',
-            color: '#4A4A4A', // Dark gray color as per screenshot
+            fontSize: '30px',
+            color: '#455450', // Dark gray color as per screenshot
             lineHeight: '1.4',
             maxWidth: '500px',
           }}>
@@ -298,8 +309,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 className="body-text-editor"
                 multiline={true}
                 style={{
-                  fontSize: '20px',
-                  color: '#4A4A4A',
+                  fontSize: '30px',
+                  color: '#455450',
                   lineHeight: '1.4',
                   width: '100%',
                   height: 'auto',
@@ -320,6 +331,19 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           </div>
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
