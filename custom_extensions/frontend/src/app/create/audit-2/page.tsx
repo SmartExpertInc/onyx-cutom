@@ -28,6 +28,11 @@ export default function AuditPage() {
           line-height: 140%;
           font-weight: 400;
         }
+        
+        /* Ensure h3 elements inherit line-height */
+        h3 {
+          line-height: inherit;
+        }
       `}</style>
       
       <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
