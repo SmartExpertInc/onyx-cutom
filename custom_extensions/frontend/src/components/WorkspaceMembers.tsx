@@ -12,7 +12,7 @@ import workspaceService, {
   WorkspaceRole, WorkspaceMember, WorkspaceMemberCreate, 
   WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace, WorkspaceCreate
 } from '../services/workspaceService';
-import { getCurrentUserId, initializeUser } from '../services/userService';
+import { getCurrentUserId, getCurrentUser, initializeUser } from '../services/userService';
 // Import test utilities for development
 import '../utils/testUserIds';
 
@@ -148,16 +148,24 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   const determineCurrentUserRole = async (workspaceId: number, members: WorkspaceMember[], workspaceRoles: WorkspaceRole[]) => {
     try {
-      // Get the actual current user ID instead of hardcoded value
-      const currentUserId = getCurrentUserId();
-      
-      const currentMember = members.find(member => member.user_id === currentUserId);
+      // Get current user (both id and email available)
+      const currentUser = await getCurrentUser();
+      const currentUserId = currentUser?.id || getCurrentUserId();
+      const currentUserEmail = (currentUser?.email || '').toLowerCase();
+
+      // Match by user_id OR email
+      const currentMember = members.find(member => {
+        const memberId = (member.user_id || '').toLowerCase();
+        const memberEmail = (member.user_email || '').toLowerCase();
+        return memberId === currentUserId.toLowerCase() || (currentUserEmail && memberEmail === currentUserEmail);
+      });
       if (currentMember) {
         const userRole = workspaceRoles.find(role => role.id === currentMember.role_id);
         setCurrentUserRole(userRole || null);
         setIsAdmin(userRole?.name === 'Admin');
         console.log('Current user role determined:', {
           userId: currentUserId,
+          email: currentUserEmail,
           memberId: currentMember.id,
           roleId: currentMember.role_id,
           roleName: userRole?.name,
@@ -168,8 +176,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         setIsAdmin(false);
         console.log('Current user is not a member of this workspace:', {
           userId: currentUserId,
-          workspaceId: workspaceId,
-          availableMembers: members.map(m => ({ id: m.id, user_id: m.user_id }))
+          email: currentUserEmail
         });
       }
     } catch (err) {
