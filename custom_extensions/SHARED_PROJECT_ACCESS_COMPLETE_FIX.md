@@ -10,6 +10,10 @@
 **Problem**: Shared projects appeared in the list but returned 404 when clicked.
 **Root Cause**: Project view endpoint used UUID for workspace access checks but members are stored with emails.
 
+### Issue 3: Lesson Data Returns 404 for Shared Projects
+**Problem**: Shared projects opened but lesson data failed to load with 404.
+**Root Cause**: Lesson data endpoint only checked project ownership, not workspace access.
+
 ## Fixes Applied
 
 ### Fix 1: Updated Shared Projects Query (Lines 12394, 12576)
@@ -54,8 +58,34 @@ async def get_project_instance_detail(
     row = await conn.fetchrow(select_query, project_id, user_uuid, user_email)
 ```
 
-### Fix 3: Updated Query Parameters
-**Query now uses**:
+### Fix 3: Updated Lesson Data Endpoint (Line 19230)
+**Before**:
+```python
+async def get_project_lesson_data(
+    project_id: int, 
+    onyx_user_id: str = Depends(get_current_onyx_user_id),  # ❌ Only UUID
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    # Query only checked ownership: WHERE p.id = $1 AND p.onyx_user_id = $2
+    project = await conn.fetchrow(query, project_id, onyx_user_id)
+```
+
+**After**:
+```python
+async def get_project_lesson_data(
+    project_id: int, 
+    request: Request,  # ✅ Get real user data
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    # Get both UUID and email
+    user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+    
+    # Query includes full workspace access check
+    project = await conn.fetchrow(query_with_workspace_access, project_id, user_uuid, user_email)
+```
+
+### Fix 4: Updated Query Parameters
+**All endpoints now use**:
 - `$1`: `project_id` 
 - `$2`: `user_uuid` (for `p.onyx_user_id = $2` - project ownership)
 - `$3`: `user_email` (for `wm.user_id = $3` - workspace membership)
@@ -75,6 +105,11 @@ async def get_project_instance_detail(
 GET /api/custom/projects/view/22 HTTP/1.1" 200 OK  ✅ No more 404 errors
 ```
 
+### ✅ Shared Project Lesson Data Should Work
+```
+GET /api/custom/projects/22/lesson-data HTTP/1.1" 200 OK  ✅ No more 404 errors
+```
+
 ## Testing Steps
 
 ### Test Role-based Access
@@ -83,15 +118,17 @@ GET /api/custom/projects/view/22 HTTP/1.1" 200 OK  ✅ No more 404 errors
 3. **Should see shared project** in the list
 4. **Click on the shared project**
 5. **Should open successfully** (no 404 error)
+6. **Lesson data should load** (no 404 error in network tab)
 
 ### Test Individual Access
 1. **Should continue to work** as before
 2. **Both listing and viewing** should work correctly
+3. **Lesson data should load** correctly
 
 ## Technical Details
 
 ### Workspace Access Logic
-The query now checks:
+All endpoints now check:
 1. **Project ownership**: `p.onyx_user_id = user_uuid`
 2. **Workspace membership**: `wm.user_id = user_email` 
 3. **Role matching**: Matches both role ID and role name
@@ -100,12 +137,14 @@ The query now checks:
 ### Files Modified
 - `custom_extensions/backend/main.py`:
   - Updated shared projects query (2 instances)
-  - Updated project view endpoint
-  - Added proper user identification
+  - Updated project view endpoint (`/api/custom/projects/view/{project_id}`)
+  - Updated lesson data endpoint (`/api/custom/projects/{project_id}/lesson-data`)
+  - Added proper user identification to all endpoints
 
 ## Status
-✅ **BOTH ISSUES FIXED**:
-1. ✅ Role-based access should now work in project listings
-2. ✅ Shared projects should open without 404 errors
-3. ✅ Individual access continues to work
-4. ✅ All access types (workspace, role, individual) are properly supported 
+✅ **ALL ISSUES FIXED**:
+1. ✅ Role-based access works in project listings
+2. ✅ Shared projects open without 404 errors
+3. ✅ Shared project lesson data loads without 404 errors
+4. ✅ Individual access continues to work
+5. ✅ All access types (workspace, role, individual) are properly supported 

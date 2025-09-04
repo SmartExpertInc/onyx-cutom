@@ -19227,15 +19227,35 @@ async def update_folder_order(
     return {"message": "Folder order updated successfully"}
 
 @app.get("/api/custom/projects/{project_id}/lesson-data")
-async def get_project_lesson_data(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+async def get_project_lesson_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Get lesson data for a project with tier-adjusted creation hours"""
     try:
+        # Get user identifiers for workspace access
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        
         async with pool.acquire() as conn:
-            # Get project details including folder_id
-            project = await conn.fetchrow(
-                "SELECT p.microproduct_content, p.folder_id, dt.component_name FROM projects p JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.id = $1 AND p.onyx_user_id = $2",
-                project_id, onyx_user_id
-            )
+            # Get project details including folder_id (with workspace access check)
+            project = await conn.fetchrow("""
+                SELECT p.microproduct_content, p.folder_id, dt.component_name 
+                FROM projects p 
+                JOIN design_templates dt ON p.design_template_id = dt.id 
+                WHERE p.id = $1 AND (
+                    p.onyx_user_id = $2 
+                    OR EXISTS (
+                        SELECT 1 FROM product_access pa
+                        INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
+                        WHERE pa.product_id = p.id 
+                          AND wm.user_id = $3 
+                          AND wm.status = 'active'
+                          AND pa.access_type IN ('workspace', 'role', 'individual')
+                          AND (
+                              pa.access_type = 'workspace' 
+                              OR (pa.access_type = 'role' AND (pa.target_id = CAST(wm.role_id AS TEXT) OR pa.target_id IN (SELECT name FROM workspace_roles WHERE id = wm.role_id)))
+                              OR (pa.access_type = 'individual' AND pa.target_id = $3)
+                          )
+                    )
+                )
+            """, project_id, user_uuid, user_email)
             
             if not project:
                 raise HTTPException(status_code=404, detail="Project not found")
