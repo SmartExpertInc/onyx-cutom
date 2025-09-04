@@ -89,7 +89,7 @@
                  fill: #4A5568 !important;
             }
             svg path[fill="#FF1414"] {
-                 fill: {{ current_theme.iconColor }} !important;
+                fill: #FF1414 !important;
             }
              svg path[fill="white"] {
                  fill: #ffffff !important;
@@ -111,6 +111,18 @@
             overflow-wrap: break-word;
             word-wrap: break-word;
             word-break: break-word;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        .text-cell {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         .text-xxs { 
             font-size: 0.68rem; 
@@ -134,6 +146,11 @@
             font-size: 0.68rem;
             text-transform: capitalize;
             font-weight: 500;
+        }
+        
+        /* Dynamic theme colors for SVG icons */
+        .theme-icon-color {
+            fill: #FF1414 !important;
         }
     </style>
 
@@ -325,8 +342,8 @@
                     </div>
                     {% for lesson in section.lessons %}
                     <div class="grid grid-cols-20 lesson-row gap-0 p-4 items-center border-t border-gray-200 min-h-[38px]">
-                        <div class="text-gray-800 pr-2 border-r border-gray-300" style="{{ span_style(modules_span) }}">{{ lesson.title }}</div>
-                        {% if kc_show %}<div class="flex justify-start items-center space-x-1.5 px-2 border-r border-gray-300" style="{{ span_style(span_kc) }}">
+                        <div class="text-gray-800 pr-2 border-r border-gray-300 text-cell" style="{{ span_style(modules_span) }}" title="{{ lesson.title }}">{{ lesson.title }}</div>
+                        {% if kc_show %}<div class="flex justify-start items-center space-x-1.5 px-2 border-r border-gray-300 text-cell" style="{{ span_style(span_kc) }}">
                              {% if lesson.check.type == 'test' %}
                                  <svg class="w-3 h-3 shrink-0" viewBox="0 0 9 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.4 6.35C5.5275 6.35 5.63812 6.30312 5.73187 6.20937C5.82562 6.11562 5.8725 6.005 5.8725 5.8775C5.8725 5.75 5.82562 5.63938 5.73187 5.54563C5.63812 5.45188 5.5275 5.405 5.4 5.405C5.2725 5.405 5.16188 5.45188 5.06813 5.54563C4.97438 5.63938 4.9275 5.75 4.9275 5.8775C4.9275 6.005 4.97438 6.11562 5.06813 6.20937C5.16188 6.30312 5.2725 6.35 5.4 6.35ZM5.0625 4.91H5.7375C5.7375 4.6925 5.76 4.53312 5.805 4.43187C5.85 4.33062 5.955 4.1975 6.12 4.0325C6.345 3.8075 6.495 3.62562 6.57 3.48688C6.645 3.34812 6.6825 3.185 6.6825 2.9975C6.6825 2.66 6.56437 2.38437 6.32812 2.17062C6.09188 1.95687 5.7825 1.85 5.4 1.85C5.0925 1.85 4.82438 1.93625 4.59562 2.10875C4.36688 2.28125 4.2075 2.51 4.1175 2.795L4.725 3.0425C4.7925 2.855 4.88437 2.71438 5.00062 2.62063C5.11687 2.52688 5.25 2.48 5.4 2.48C5.58 2.48 5.72625 2.53062 5.83875 2.63188C5.95125 2.73312 6.0075 2.87 6.0075 3.0425C6.0075 3.1475 5.9775 3.24687 5.9175 3.34062C5.8575 3.43437 5.7525 3.5525 5.6025 3.695C5.355 3.9125 5.20312 4.08312 5.14687 4.20687C5.09062 4.33062 5.0625 4.565 5.0625 4.91ZM2.7 7.7C2.4525 7.7 2.24062 7.61188 2.06437 7.43563C1.88812 7.25938 1.8 7.0475 1.8 6.8V1.4C1.8 1.1525 1.88812 0.940625 2.06437 0.764375C2.24062 0.588125 2.4525 0.5 2.7 0.5H8.1C8.3475 0.5 8.55937 0.588125 8.73563 0.764375C8.91187 0.940625 9 1.1525 9 1.4V6.8C9 7.0475 8.91187 7.25938 8.73563 7.43563C8.55937 7.61188 8.3475 7.7 8.1 7.7H2.7ZM0.9 9.5C0.6525 9.5 0.440625 9.41187 0.264375 9.23563C0.088125 9.05937 0 8.8475 0 8.6V2.3H0.9V8.6H7.2V9.5H0.9Z" fill="#FF1414"/></svg>
                              {% elif lesson.check.type == 'practice' or lesson.check.type == 'practice_supervisor' or lesson.check.type == 'role_play' or lesson.check.type == 'demo_supervisor' or lesson.check.type == 'error_analysis_supervisor' or lesson.check.type == 'demo_practice' or lesson.check.type == 'practice_case' or lesson.check.type == 'practice_discussion' or lesson.check.type == 'oral_quiz' or lesson.check.type == 'photo_analysis' or lesson.check.type == 'other_check' %}
@@ -376,17 +393,53 @@
                                 {{ current_tier_labels.get(lesson_tier, lesson_tier.title()) }}
                             </span>
                         </div>{% endif %}
-                        {% if quiz_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_quiz) }}">
-                            <span class="text-gray-500">-</span>
+                        {% if quiz_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_quiz) }}">
+                            {% set quiz_text = lesson.quiz | default('', true) %}
+                            {% if quiz_text and quiz_text | length > 8 %}
+                                {% if ' ' in quiz_text %}
+                                    {{ quiz_text }}
+                                {% else %}
+                                    {{ quiz_text[:8] }}...
+                                {% endif %}
+                            {% else %}
+                                {{ quiz_text or '-' }}
+                            {% endif %}
                         </div>{% endif %}
-                        {% if onePager_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_onePager) }}">
-                            <span class="text-gray-500">-</span>
+                        {% if onePager_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_onePager) }}">
+                            {% set onePager_text = lesson.onePager | default('', true) %}
+                            {% if onePager_text and onePager_text | length > 8 %}
+                                {% if ' ' in onePager_text %}
+                                    {{ onePager_text }}
+                                {% else %}
+                                    {{ onePager_text[:8] }}...
+                                {% endif %}
+                            {% else %}
+                                {{ onePager_text or '-' }}
+                            {% endif %}
                         </div>{% endif %}
-                        {% if videoPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_videoPresentation) }}">
-                            <span class="text-gray-500">-</span>
+                        {% if videoPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_videoPresentation) }}">
+                            {% set video_text = lesson.videoPresentation | default('', true) %}
+                            {% if video_text and video_text | length > 8 %}
+                                {% if ' ' in video_text %}
+                                    {{ video_text }}
+                                {% else %}
+                                    {{ video_text[:8] }}...
+                                {% endif %}
+                            {% else %}
+                                {{ video_text or '-' }}
+                            {% endif %}
                         </div>{% endif %}
-                        {% if lessonPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300" style="{{ span_style(span_lessonPresentation) }}">
-                            <span class="text-gray-500">-</span>
+                        {% if lessonPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_lessonPresentation) }}">
+                            {% set presentation_text = lesson.lessonPresentation | default('', true) %}
+                            {% if presentation_text and presentation_text | length > 8 %}
+                                {% if ' ' in presentation_text %}
+                                    {{ presentation_text }}
+                                {% else %}
+                                    {{ presentation_text[:8] }}...
+                                {% endif %}
+                            {% else %}
+                                {{ presentation_text or '-' }}
+                            {% endif %}
                         </div>{% endif %}
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
                             <div class="w-3 flex justify-center">
