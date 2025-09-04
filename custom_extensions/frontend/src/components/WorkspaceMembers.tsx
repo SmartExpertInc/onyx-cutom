@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Plus, Search, Filter, MoreHorizontal, UserPlus, Mail, Shield,
   RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users,
@@ -908,9 +909,16 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       )}
 
       {/* Create Workspace Modal */}
-      {showCreateWorkspace && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowCreateWorkspace(false)}>
+      {showCreateWorkspace && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20" 
+          onClick={() => setShowCreateWorkspace(false)}
+          style={{ backgroundColor: 'rgba(255, 0, 0, 0.8)' }}
+        >
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 bg-green-500 text-white p-2 text-xs">
+              DEBUG: Modal is rendered!
+            </div>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
               onClick={() => setShowCreateWorkspace(false)}
@@ -969,7 +977,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
