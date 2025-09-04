@@ -262,11 +262,11 @@ export default function CreateFromSpecificFilesPage() {
       <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Link
-            href="/create/from-files"
+            href="/create"
             className="group flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-800 rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
-            {t('interface.fromFiles.backToCreateFromFiles', 'Back to Create from Files')}
+            {t('interface.back', 'Back')}
           </Link>
         </div>
         <h1 className="text-3xl font-bold text-gray-900">
@@ -395,17 +395,6 @@ export default function CreateFromSpecificFilesPage() {
                       <div>
                         <h3 className="font-semibold text-gray-900 text-lg truncate">{connector.name}</h3>
                         <p className="text-sm text-gray-500">{connector.source}</p>
-                      </div>
-
-                      {/* Status and Stats */}
-                      <div className="flex items-center justify-between">
-                        <span className={`px-3 py-1 text-xs rounded-full font-medium ${getStatusColor(connector.status)}`}>
-                          <span className="mr-1">{getStatusIcon(connector.status)}</span>
-                          {t(`interface.connectorStatusLabels.${connector.status}`, connector.status)}
-                        </span>
-                        <span className="text-xs text-gray-500 font-medium">
-                          {connector.total_docs_indexed} {t('interface.docs', 'docs')}
-                        </span>
                       </div>
                     </div>
 
