@@ -271,16 +271,16 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             <div key={index} style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
-              width: '33.33%',
+              paddingLeft: index === 0 ? '16%' : '0',
+              marginTop: '-30px',
+              width: index === 0 ? '33.33%' : index === 1 ? '16.33%' : index === 2 ? '28%' : '0',
             }}>
               {/* Step Title */}
               <div style={{
                 fontSize: '24px',
                 fontWeight: 'bold',
-                color: '#FFFFFF',
-                marginBottom: '8px',
-                textAlign: 'center',
+                color: '#D5DBDD',
+                marginBottom: '25px',
               }}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'title' ? (
                   <ImprovedInlineEditor
@@ -291,10 +291,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     style={{
                       fontSize: '24px',
                       fontWeight: 'bold',
-                      color: '#FFFFFF',
+                      color: '#D5DBDD',
                       width: '100%',
                       height: 'auto',
-                      textAlign: 'center',
                     }}
                   />
                 ) : (
@@ -313,9 +312,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               {/* Step Description */}
               <div style={{
                 fontSize: '16px',
-                color: '#FFFFFF',
-                textAlign: 'center',
+                color: '#A0A9AF',
                 lineHeight: '1.3',
+                maxWidth: '160px',
               }}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'description' ? (
                   <ImprovedInlineEditor
@@ -325,10 +324,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     className="step-description-editor"
                     style={{
                       fontSize: '16px',
-                      color: '#FFFFFF',
+                      color: '#A0A9AF',
                       width: '100%',
                       height: 'auto',
-                      textAlign: 'center',
                       lineHeight: '1.3',
                     }}
                   />
