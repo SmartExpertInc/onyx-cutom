@@ -1975,27 +1975,27 @@ export default function AuditPage() {
             </div>
 
             {/* Service 4 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 4:
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                 Expert-as-a-Service — Методолог:
               </h3>
 
-              <div className="flex flex-col xl:flex-row gap-[25px] xl:gap-[19px]">
+              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                 <Image 
                   src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile.png"
                   alt="Card 1"
                   width={300}
                   height={300}
-                  className="w-full"
+                  className="w-full xl:h-[490px] xl:w-[470px]"
                 />
 
-                <div>
+                <div className="flex flex-col gap-[15px]">
                 <div className="px-[18px] py-[8px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] mt-[25px] w-fit">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M13.809 6.75093C10.2631 5.77179 9.5257 5.03362 8.54645 1.48836C8.51534 1.37561 8.41295 1.29785 8.29631 1.29785C8.17967 1.29785 8.07729 1.37561 8.04618 1.48836C7.06704 5.03429 6.32888 5.77168 2.78361 6.75093C2.67086 6.78204 2.59375 6.88442 2.59375 7.00106C2.59375 7.1177 2.67151 7.22009 2.78361 7.25119C6.32954 8.23033 7.06693 8.9685 8.04618 12.5138C8.07729 12.6265 8.17967 12.7043 8.29631 12.7043C8.41295 12.7043 8.51534 12.6265 8.54645 12.5138C9.52559 8.96784 10.2638 8.23045 13.809 7.25119C13.9218 7.22009 13.9989 7.1177 13.9989 7.00106C13.9989 6.88442 13.9211 6.78204 13.809 6.75093Z" fill="#09090B"/>
@@ -2008,7 +2008,7 @@ export default function AuditPage() {
                     </span>
                   </div>
 
-                  <div className="mt-[25px]">
+                  <div className="mt-[25px] xl:mb-[5px]">
                     <span className="font-bold text-[30px] leading-[120%]">
                       <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> часов
                     </span>
@@ -2075,10 +2075,10 @@ export default function AuditPage() {
               </div>
               
               <div 
-                className="flex gap-[5px] py-[10px] px-[15px] rounded-[6px] items-start"
+                className="flex gap-[5px] xl:gap-[15px] py-[10px] px-[15px] rounded-[6px] items-start"
                 style={{ background: '#EBF2FF87' }}
               >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1 xl:h-[13px] xl:w-[13px]">
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
