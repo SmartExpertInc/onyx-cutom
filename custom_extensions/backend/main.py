@@ -12541,22 +12541,22 @@ async def get_user_projects_list_from_db(
         
         # Process owned projects first
         for row_data in owned_rows:
-            row_dict = dict(row_data)
-            project_slug = create_slug(row_dict.get('project_name'))
-            source_chat_session_id = row_dict.get("source_chat_session_id")
-            if source_chat_session_id:
-                source_chat_session_id = str(source_chat_session_id)
-            
+        row_dict = dict(row_data)
+        project_slug = create_slug(row_dict.get('project_name'))
+        source_chat_session_id = row_dict.get("source_chat_session_id")
+        if source_chat_session_id:
+            source_chat_session_id = str(source_chat_session_id)
+        
             all_projects[row_dict["id"]] = ProjectApiResponse(
-                id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
-                microproduct_name=row_dict.get("microproduct_name"),
-                design_template_name=row_dict.get("design_template_name"),
-                design_microproduct_type=row_dict.get("design_microproduct_type"),
-                created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
-                folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
-                microproduct_content=row_dict.get("microproduct_content"),
-                source_chat_session_id=source_chat_session_id,
-                is_standalone=row_dict.get("is_standalone")
+            id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
+            microproduct_name=row_dict.get("microproduct_name"),
+            design_template_name=row_dict.get("design_template_name"),
+            design_microproduct_type=row_dict.get("design_microproduct_type"),
+            created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
+            folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
+            microproduct_content=row_dict.get("microproduct_content"),
+            source_chat_session_id=source_chat_session_id,
+            is_standalone=row_dict.get("is_standalone")
             )
         
         # Process shared projects (will override owned if same ID, which is fine)
@@ -25718,10 +25718,18 @@ async def get_shared_offer_details(share_token: str):
 # ============================================================================
 
 # Dependency to get current user ID (placeholder - integrate with your auth system)
-async def get_current_user_id() -> str:
-    # TODO: Integrate with your authentication system
-    # For now, return a placeholder user ID
-    return "current_user_123"
+async def get_current_user_id_for_workspaces(request: Request) -> str:
+    """Get current user ID for workspace operations - uses same logic as projects"""
+    try:
+        # Use the same user identification logic as projects
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        # For workspace operations, we'll use email as the primary identifier
+        # since workspace members are stored with emails
+        return user_email if user_email else user_uuid
+    except Exception as e:
+        logger.error(f"Failed to get user ID for workspace operations: {e}")
+        # Fallback for development
+        return "current_user_123"
 
 # Workspace Management Endpoints
 
@@ -25738,13 +25746,21 @@ async def create_workspace(workspace_data: WorkspaceCreate):
         raise HTTPException(status_code=500, detail="Failed to create workspace")
 
 @app.get("/api/custom/workspaces", response_model=List[Workspace])
-async def get_workspaces():
+async def get_workspaces(request: Request):
     """Get all workspaces where the current user is a member."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers (same logic as projects endpoint)
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        # Use email for workspace operations since members are stored with emails
+        current_user_id = user_email if user_email else user_uuid
+        
+        logger.info(f"🔍 [WORKSPACE LIST] Getting workspaces for user: {current_user_id} (UUID: {user_uuid})")
         workspaces = await WorkspaceService.get_user_workspaces(current_user_id)
+        logger.info(f"🔍 [WORKSPACE LIST] Found {len(workspaces)} workspaces for user {current_user_id}")
+        
         return workspaces
     except Exception as e:
+        logger.error(f"Failed to retrieve workspaces: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve workspaces")
 
 @app.get("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
