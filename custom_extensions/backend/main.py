@@ -18497,7 +18497,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         if not update_clauses:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
 
-        update_values.extend([project_id, onyx_user_id])
+        update_values.extend([project_id, user_uuid])
         update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
 
         async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
@@ -18516,7 +18516,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     async with pool.acquire() as conn:
                         children = await conn.fetch(
                             "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND is_standalone = FALSE AND project_name LIKE $2",
-                            onyx_user_id, old_prefix + "%"
+                            user_uuid, old_prefix + "%"
                         )
                         for child in children:
                             child_id = child["id"]
@@ -18537,7 +18537,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                                 updated_micro_name = updated_project_name
                             await conn.execute(
                                 "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name) WHERE id = $3 AND onyx_user_id = $4",
-                                updated_project_name, updated_micro_name, child_id, onyx_user_id
+                                updated_project_name, updated_micro_name, child_id, user_uuid
                             )
                 
                 # 2) If lesson titles changed inside outline content, rename exact-matching children
@@ -18577,7 +18577,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                             new_full = f"{(row['project_name'] or new_project_name).strip()}: {new_title}"
                             children = await conn.fetch(
                                 "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2",
-                                onyx_user_id, old_full
+                                user_uuid, old_full
                             )
                             for child in children:
                                 child_id = child["id"]

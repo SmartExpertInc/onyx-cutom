@@ -147,6 +147,8 @@ GET /api/custom/projects/22/lesson-data HTTP/1.1" 200 OK  ✅ No more 404 errors
 PUT /api/custom/projects/update/22 HTTP/1.1" 200 OK  ✅ No more 404 errors
 ```
 
+**Status**: ✅ **FIXED** - All `onyx_user_id` variable references have been updated to use `user_uuid` from the workspace access check.
+
 ## Testing Steps
 
 ### Test Role-based Access
