@@ -284,14 +284,14 @@
     {% set lessonPresentation_show = column_visibility.get('lessonPresentation', False) %}
 
     {# Calculate column spans to better match web table proportions #}
-    {% set span_kc   = 2 if kc_show else 0 %}
+    {% set span_kc   = 2.2 if kc_show else 0 %}
     {% set span_ca   = 2 if ca_show else 0 %}
     {% set span_src  = 2 if src_show else 0 %}
     {% set span_qt   = 2 if qt_show else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show else 0 %}
-    {% set span_quiz = 2 if quiz_show else 0 %}
-    {% set span_onePager = 2 if onePager_show else 0 %}
+    {% set span_quiz = 1.9 if quiz_show else 0 %}
+    {% set span_onePager = 1.9 if onePager_show else 0 %}
     {% set span_videoPresentation = 2 if videoPresentation_show else 0 %}
     {% set span_lessonPresentation = 2 if lessonPresentation_show else 0 %}
     
