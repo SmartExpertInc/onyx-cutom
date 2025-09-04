@@ -162,14 +162,15 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       if (currentMember) {
         const userRole = workspaceRoles.find(role => role.id === currentMember.role_id);
         setCurrentUserRole(userRole || null);
-        setIsAdmin(userRole?.name === 'Admin');
+        // Temporarily allow all members to manage workspace
+        setIsAdmin(true);
         console.log('Current user role determined:', {
           userId: currentUserId,
           email: currentUserEmail,
           memberId: currentMember.id,
           roleId: currentMember.role_id,
           roleName: userRole?.name,
-          isAdmin: userRole?.name === 'Admin'
+          isAdmin: true // Temporarily always true
         });
       } else {
         setCurrentUserRole(null);
