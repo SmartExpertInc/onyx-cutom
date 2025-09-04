@@ -173,9 +173,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       {/* Title */}
       <div style={{
         position: 'absolute',
-        top: '68px',
+        top: '100px',
         left: '5%',
-        transform: 'translateX(-50%)',
         fontSize: '56px',
         fontWeight: 'bold',
         color: '#2A2A2A', // Dark gray text as per screenshot
@@ -216,8 +215,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         position: 'absolute',
         top: '40px',
         right: '40px',
-        width: '80px',
-        height: '80px',
+        width: '120px',
+        height: '120px',
         borderRadius: '50%',
         overflow: 'hidden',
         backgroundColor: '#000000', // Black background as per screenshot
@@ -241,7 +240,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       {/* Content Sections Grid */}
       <div style={{
         position: 'absolute',
-        top: '140px',
+        top: '203px',
         left: '40px',
         right: '40px',
         bottom: '40px',
@@ -252,14 +251,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         {currentSections.map((section, index) => (
           <div key={index} style={{
             backgroundColor: index === 0 || index === 3 ? '#CCCCCC' : '#4231EA',
-            padding: '24px',
+            padding: '33px',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
           }}>
             {/* Section Title */}
             <div style={{
-              fontSize: '20px',
+              fontSize: '16px',
               fontWeight: 'bold',
               color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
               lineHeight: '1.2',
@@ -271,9 +270,9 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   onCancel={() => setEditingSections(null)}
                   className="section-title-editor"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '16px',
                     fontWeight: 'bold',
-                    color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
+                    color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
                     lineHeight: '1.2',
                     width: '100%',
                     height: 'auto',
@@ -295,7 +294,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             {/* Section Content */}
             <div style={{
               fontSize: '14px',
-              color: section.textColor,
+              color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
               lineHeight: '1.4',
               flex: 1,
             }}>
@@ -308,7 +307,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   multiline={true}
                   style={{
                     fontSize: '14px',
-                    color: section.textColor,
+                    color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
                     lineHeight: '1.4',
                     width: '100%',
                     height: 'auto',
