@@ -1916,7 +1916,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Video Presentation</span>
+                        <span className="text-sm text-gray-700">Video Lesson</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -1925,7 +1925,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Lesson Presentation</span>
+                        <span className="text-sm text-gray-700">Presentation</span>
                       </label>
                     </div>
                   </div>
