@@ -17018,6 +17018,7 @@ Lesson Information:
 - Lesson Number: {payload.lessonNumber}
 - Lesson Completion Time: {lesson_completion_time}
 - Recommended Products: {', '.join(payload.recommendedProducts)}
+- CRITICAL: Use these EXACT product names as keys in recommendedProductTypes: {payload.recommendedProducts}
 
 {timing_info}
 
@@ -17045,7 +17046,13 @@ CONTENT CREATION PROMPTS: Create specific, actionable prompts ONLY for the recom
 - For other product types: Create brief, specific prompts as needed
 - Maximum 2-3 prompts total, focusing on video and presentation if they are recommended
 
-IMPORTANT: Only include descriptions for products that are explicitly listed in the recommendedProducts array. Focus on creating actionable specifications that enable Content Developers to produce effective, engaging educational materials.
+CRITICAL REQUIREMENT: 
+- ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
+- Use the EXACT product names from the recommendedProducts list as keys in the recommendedProductTypes object
+- Do NOT add any products that are not in the recommendedProducts array
+- Do NOT change the spelling or format of product names from the recommendedProducts list
+
+Focus on creating actionable specifications that enable Content Developers to produce effective, engaging educational materials.
 
 Return your response as a valid JSON object with this exact structure:
 {{
@@ -17086,10 +17093,49 @@ Ensure the JSON is valid and follows the exact structure specified.
                 if field not in lesson_plan_data:
                     raise ValueError(f"Missing required field: {field}")
             
+            # Log the recommended products for debugging
+            logger.info(f"Payload recommended products: {payload.recommendedProducts}")
+            logger.info(f"AI generated product types: {list(lesson_plan_data['recommendedProductTypes'].keys())}")
+            
+            # Create a mapping of common product name variations
+            product_name_mapping = {
+                'video-lesson': ['video-lesson', 'videoLesson', 'video_lesson', 'video lesson'],
+                'presentation': ['presentation', 'presentations'],
+                'quiz': ['quiz', 'quizzes'],
+                'one-pager': ['one-pager', 'onePager', 'one_pager', 'one pager']
+            }
+            
+            # Create reverse mapping for validation
+            normalized_payload_products = set()
+            for product in payload.recommendedProducts:
+                # Find the canonical name for this product
+                canonical_name = None
+                for canonical, variations in product_name_mapping.items():
+                    if product.lower() in [v.lower() for v in variations]:
+                        canonical_name = canonical
+                        break
+                if canonical_name:
+                    normalized_payload_products.add(canonical_name)
+                else:
+                    normalized_payload_products.add(product.lower())
+            
             # Validate recommendedProductTypes only contains products from the request
             for product_name in lesson_plan_data["recommendedProductTypes"]:
-                if product_name not in payload.recommendedProducts:
-                    raise ValueError(f"Product {product_name} not in recommended products list")
+                # Normalize the AI-generated product name
+                canonical_name = None
+                for canonical, variations in product_name_mapping.items():
+                    if product_name.lower() in [v.lower() for v in variations]:
+                        canonical_name = canonical
+                        break
+                
+                if canonical_name:
+                    if canonical_name not in normalized_payload_products:
+                        logger.warning(f"AI generated product '{product_name}' (canonical: '{canonical_name}') not in normalized recommended products: {normalized_payload_products}")
+                        raise ValueError(f"Product {product_name} not in recommended products list")
+                else:
+                    if product_name.lower() not in normalized_payload_products:
+                        logger.warning(f"AI generated unknown product '{product_name}' not in recommended products: {payload.recommendedProducts}")
+                        raise ValueError(f"Product {product_name} not in recommended products list")
                     
         except (json.JSONDecodeError, ValueError) as e:
             logger.error(f"Failed to parse OpenAI response: {e}")
