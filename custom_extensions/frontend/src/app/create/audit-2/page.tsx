@@ -193,7 +193,7 @@ export default function AuditPage() {
                       alt="Card 2"
                       width={290}
                       height={203}
-                      className="w-full xl:w-[349.44px] xl:h-[244.46px]"
+                      className="w-full xl:w-[350px] xl:h-[213px]"
                     />
                   </div>
               </div>
@@ -216,7 +216,7 @@ export default function AuditPage() {
                       alt="Card 3"
                       width={290}
                       height={203}
-                      className="w-full xl:w-[349.44px] xl:h-[244.46px]"
+                      className="w-full xl:w-[346px] xl:h-[240px]"
                     />
                   </div>
               </div>
