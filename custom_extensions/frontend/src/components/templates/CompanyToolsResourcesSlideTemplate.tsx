@@ -16,26 +16,26 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
     {
       title: 'Communication Tools:',
       content: 'Effective communication is key to success in any workplace. At [Company Name], we use a variety of communication tools to keep our team connected and informed. Here are some of the key tools we use.',
-      backgroundColor: '#E5E7EB', // Light gray
-      textColor: '#374151' // Dark gray
+      backgroundColor: '#CCCCCC', // Light gray
+      textColor: '#404040' // Dark gray
     },
     {
       title: 'Project Management:',
       content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
-      backgroundColor: '#3B82F6', // Blue
-      textColor: '#FFFFFF' // White
+      backgroundColor: '#4231EA', // Blue
+      textColor: '#ABA5EB' // White
     },
     {
       title: 'Learning and Development Resources',
       content: 'We believe in investing in our employees\' growth and development. Here are some of the resources we offer: Online training courses (LinkedIn Learning, Udemy, etc.); In-house training and workshops; Professional development funds.',
-      backgroundColor: '#3B82F6', // Blue
-      textColor: '#FFFFFF' // White
+      backgroundColor: '#4231EA', // Blue
+      textColor: '#ABA5EB' // White
     },
     {
       title: 'Project Management',
       content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
-      backgroundColor: '#E5E7EB', // Light gray
-      textColor: '#374151' // Dark gray
+      backgroundColor: '#CCCCCC', // Light gray
+      textColor: '#404040' // Dark gray
     }
   ],
   profileImagePath = '',
@@ -248,12 +248,10 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gridTemplateRows: '1fr 1fr',
-        gap: '20px',
       }}>
         {currentSections.map((section, index) => (
           <div key={index} style={{
             backgroundColor: section.backgroundColor,
-            borderRadius: '8px',
             padding: '24px',
             display: 'flex',
             flexDirection: 'column',
