@@ -31,7 +31,7 @@ export default function AuditPage() {
         
         /* Ensure h3 elements inherit line-height */
         h3, span {
-          line-height: inherit;
+          line-height: 140%;
         }
       `}</style>
       
@@ -1592,7 +1592,7 @@ export default function AuditPage() {
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] mb-[10px] xl:mb-[20px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                 ContentBuilder.ai — AI-платформа для автоматизации создания и обновления курсов:
               </h3>
 
@@ -1982,7 +1982,7 @@ export default function AuditPage() {
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px]">
                 Expert-as-a-Service — Методолог:
               </h3>
 
@@ -2082,7 +2082,7 @@ export default function AuditPage() {
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
-                  Вы приобретаете <span className="text-[14px] text-[#09090B] font-semibold font-[600]">почасовой доступ к профессиональному методологу</span> по предоплаченной модели. Методолог — это ваша «правая рука», которая берёт на себя всю операционную работу: от структурирования знаний до подготовки обучающих материалов и загрузки их в систему.
+                  Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой доступ к профессиональному методологу</span> по предоплаченной модели. Методолог — это ваша «правая рука», которая берёт на себя всю операционную работу: от структурирования знаний до подготовки обучающих материалов и загрузки их в систему.
                 </span>
               </div> 
             </div>
