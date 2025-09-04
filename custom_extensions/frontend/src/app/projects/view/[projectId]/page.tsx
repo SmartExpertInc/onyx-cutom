@@ -1622,8 +1622,6 @@ export default function ProjectInstanceViewPage() {
                                                 setShowEmailRoleDropdown(null);
                                               }}
                                             >
-                                              <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
-                                              </div>
                                               <span className="text-sm font-medium text-gray-900">{role.label}</span>
                                             </div>
                                           ))}
