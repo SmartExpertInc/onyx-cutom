@@ -25778,6 +25778,7 @@ async def get_workspace(workspace_id: int, request: Request):
         # Get user identifiers
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
         current_user_id = user_email if user_email else user_uuid
+        logger.info(f"🔍 [WORKSPACE ROLES] Getting roles for workspace {workspace_id}, user: {current_user_id}")
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25800,6 +25801,7 @@ async def get_workspace_with_members(workspace_id: int, request: Request):
         # Get user identifiers
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
         current_user_id = user_email if user_email else user_uuid
+        logger.info(f"🔍 [WORKSPACE ROLES] Getting roles for workspace {workspace_id}, user: {current_user_id}")
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25870,23 +25872,29 @@ async def create_role(role_data: WorkspaceRoleCreate, workspace_id: int, request
         raise HTTPException(status_code=500, detail="Failed to create role")
 
 @app.get("/api/custom/workspaces/{workspace_id}/roles", response_model=List[WorkspaceRole])
-async def get_workspace_roles(workspace_id: int):
+async def get_workspace_roles(workspace_id: int, request: Request):
     """Get all roles for a workspace."""
     try:
         # Get user identifiers
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
         current_user_id = user_email if user_email else user_uuid
+        logger.info(f"🔍 [WORKSPACE ROLES] Getting roles for workspace {workspace_id}, user: {current_user_id}")
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
             raise HTTPException(status_code=403, detail="Access denied to workspace")
         
         roles = await RoleService.get_workspace_roles(workspace_id)
+        logger.info(f"✅ [WORKSPACE ROLES] Retrieved {len(roles)} roles for workspace {workspace_id}")
         return roles
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to retrieve roles")
+        logger.error(f"❌ [WORKSPACE ROLES] Failed to get roles for workspace {workspace_id}: {e}")
+        logger.error(f"❌ [WORKSPACE ROLES] Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"❌ [WORKSPACE ROLES] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve roles: {str(e)}")
 
 @app.get("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
 async def get_workspace_role(workspace_id: int, role_id: int):
@@ -25895,6 +25903,7 @@ async def get_workspace_role(workspace_id: int, role_id: int):
         # Get user identifiers
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
         current_user_id = user_email if user_email else user_uuid
+        logger.info(f"🔍 [WORKSPACE ROLES] Getting roles for workspace {workspace_id}, user: {current_user_id}")
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25959,23 +25968,29 @@ async def add_member(member_data: WorkspaceMemberCreate, workspace_id: int, requ
         raise HTTPException(status_code=500, detail="Failed to add member")
 
 @app.get("/api/custom/workspaces/{workspace_id}/members", response_model=List[WorkspaceMember])
-async def get_workspace_members(workspace_id: int):
+async def get_workspace_members(workspace_id: int, request: Request):
     """Get all members of a workspace."""
     try:
         # Get user identifiers
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
         current_user_id = user_email if user_email else user_uuid
+        logger.info(f"🔍 [WORKSPACE ROLES] Getting roles for workspace {workspace_id}, user: {current_user_id}")
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
             raise HTTPException(status_code=403, detail="Access denied to workspace")
         
         members = await WorkspaceService.get_workspace_members(workspace_id)
+        logger.info(f"✅ [WORKSPACE MEMBERS] Retrieved {len(members)} members for workspace {workspace_id}")
         return members
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to retrieve members")
+        logger.error(f"❌ [WORKSPACE MEMBERS] Failed to get members for workspace {workspace_id}: {e}")
+        logger.error(f"❌ [WORKSPACE MEMBERS] Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"❌ [WORKSPACE MEMBERS] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve members: {str(e)}")
 
 @app.put("/api/custom/workspaces/{workspace_id}/members/{user_id}", response_model=WorkspaceMember)
 async def update_member(member_data: WorkspaceMemberUpdate, workspace_id: int, user_id: str):
