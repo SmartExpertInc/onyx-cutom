@@ -98,7 +98,7 @@ export default function AuditPage() {
             </div>
             
             {/* Image */}
-            <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-[-114px] xl:-mx-0">
+            <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-[-200px] xl:-mx-0 xl:z-10">
               {/* Mobile Image */}
               <Image 
                 src="/custom-projects-ui/images/audit-section-1-mobile.png"
@@ -529,7 +529,7 @@ export default function AuditPage() {
                 className="w-full"
               />
 
-              <div className="flex flex-col gap-[50px] margin-block-[36px]">
+              <div className="flex flex-col gap-[50px] my-[36px]">
                 <div className="flex flex-col gap-[12px]">
                   <div className="flex items-center gap-[10px] mb-[10px]">
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
