@@ -268,7 +268,6 @@ export const OralHealthConditionsSlideTemplate: React.FC<OralHealthConditionsSli
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative',
       }}>
         {/* Geometric Overlays */}
         <div style={{
