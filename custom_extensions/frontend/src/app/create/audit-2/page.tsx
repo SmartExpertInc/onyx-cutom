@@ -1723,11 +1723,11 @@ export default function AuditPage() {
                   alt="Card 1"
                   width={300}
                   height={234}
-                  className="w-full"
+                  className="w-full xl:w-[560px] xl:h-[437px]"
                 />
               </div>
 
-              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
+              <div className="flex flex-col gap-[15px] xl:gap-[40px]">
                 <h4 className="font-semibold text-[20px] xl:text-[32px] leading-[130%] mb-[5px]">
                   Как это работает:
                 </h4>
@@ -1815,7 +1815,7 @@ export default function AuditPage() {
                 alt="Card 1"
                 width={300}
                 height={180}
-                className="w-full xl:hidden"
+                className="w-full xl:hidden rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
               />
 
               <Image 
@@ -1823,7 +1823,7 @@ export default function AuditPage() {
                 alt="Card 1"
                 width={1120}
                 height={571}
-                className="w-full hidden xl:block rounded-[6px] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
+                className="w-full hidden xl:block rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
               />
 
               <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px]">
@@ -2081,7 +2081,7 @@ export default function AuditPage() {
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1">
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
-                <span className="text-[14px] text-[#71717A] font-normal font-[400] leading-[140%]">
+                <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
                   Вы приобретаете <span className="text-[14px] text-[#09090B] font-semibold font-[600]">почасовой доступ к профессиональному методологу</span> по предоплаченной модели. Методолог — это ваша «правая рука», которая берёт на себя всю операционную работу: от структурирования знаний до подготовки обучающих материалов и загрузки их в систему.
                 </span>
               </div> 
