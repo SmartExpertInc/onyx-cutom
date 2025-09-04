@@ -116,7 +116,7 @@ export default function AuditPage() {
             </div>
             
             {/* Image */}
-            <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-[-22px] xl:-mx-0 xl:z-10">
+            <div className="-mx-[20px] xl:absolute xl:left-[770px] xl:top-0 xl:-mx-0 xl:z-10">
               {/* Mobile Image */}
               <Image 
                 src="/custom-projects-ui/images/audit-section-1-mobile.png"
