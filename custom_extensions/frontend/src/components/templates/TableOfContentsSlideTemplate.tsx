@@ -46,7 +46,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F8F8F8', // Light off-white background as per screenshot
+    backgroundColor: '#FAF9F4', // Light off-white background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -94,7 +94,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         left: '60px',
         fontSize: '48px',
         fontWeight: 'bold',
-        color: '#000000', // Black text as per screenshot
+        color: '#1C1B1A', // Black text as per screenshot
         lineHeight: '1.1',
       }}>
         {isEditable && editingTitle ? (
@@ -106,7 +106,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             style={{
               fontSize: '48px',
               fontWeight: 'bold',
-              color: '#000000',
+              color: '#1C1B1A',
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
@@ -128,18 +128,19 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
       {/* Buttons Grid */}
       <div style={{
         position: 'absolute',
-        top: '180px',
+        top: '270px',
         left: '60px',
-        width: '400px',
+        width: '430px',
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gridTemplateRows: 'repeat(3, 1fr)',
-        gap: '20px',
+        gridTemplateColumns: '215px 215px',
+        gridTemplateRows: 'repeat(3, 70px)',
+        gap: '40px',
       }}>
         {currentButtons.map((button, index) => (
           <div key={index} style={{
-            backgroundColor: '#10B981', // Vibrant green color as per screenshot
-            borderRadius: '8px',
+            backgroundColor: '#6CDC77', // Vibrant green color as per screenshot
+            borderRadius: '15px',
+            border: '1px solid gray',
             padding: '20px',
             display: 'flex',
             alignItems: 'center',
@@ -154,9 +155,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 onCancel={() => setEditingButtons(null)}
                 className="toc-button-editor"
                 style={{
-                  fontSize: '18px',
+                  fontSize: '17px',
                   fontWeight: '500',
-                  color: '#FFFFFF',
+                  color: '#245D27',
                   width: '100%',
                   height: 'auto',
                   textAlign: 'center',
@@ -166,9 +167,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
               <div
                 onClick={() => isEditable && setEditingButtons({ index })}
                 style={{
-                  fontSize: '18px',
+                  fontSize: '17px',
                   fontWeight: '500',
-                  color: '#FFFFFF', // White text as per screenshot
+                  color: '#245D27', // White text as per screenshot
                   textAlign: 'center',
                   userSelect: 'none'
                 }}
@@ -185,8 +186,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         position: 'absolute',
         top: '120px',
         right: '60px',
-        width: '300px',
-        height: '400px',
+        width: '545px',
+        height: '440px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -197,9 +198,10 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           bottom: '0',
           left: '0',
           right: '0',
-          height: '250px',
-          backgroundColor: '#ADD8E6', // Light blue background as per screenshot
+          height: '290px',
+          backgroundColor: '#A7B3DD', // Light blue background as per screenshot
           borderRadius: '12px',
+          border: '1px solid #000000',
           zIndex: 1,
         }} />
         
@@ -208,9 +210,6 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           position: 'relative',
           width: '200px',
           height: '200px',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          backgroundColor: '#E5E7EB',
           zIndex: 2,
         }}>
           <ClickableImagePlaceholder
@@ -221,10 +220,11 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover'
+              width: '536px',
+              height: '551px',
+              objectFit: 'cover',
+              position: 'absolute',
+              bottom: '0',
             }}
           />
         </div>
