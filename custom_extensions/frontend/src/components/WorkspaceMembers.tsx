@@ -179,7 +179,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   };
 
-    // Handle member actions
+  // Handle member actions
   const handleDeleteMember = useCallback(async (memberId: number) => {
     if (!targetWorkspaceId || !isAdmin) return;
     

@@ -12541,22 +12541,22 @@ async def get_user_projects_list_from_db(
         
         # Process owned projects first
         for row_data in owned_rows:
-            row_dict = dict(row_data)
-            project_slug = create_slug(row_dict.get('project_name'))
-            source_chat_session_id = row_dict.get("source_chat_session_id")
-            if source_chat_session_id:
-                source_chat_session_id = str(source_chat_session_id)
-            
+        row_dict = dict(row_data)
+        project_slug = create_slug(row_dict.get('project_name'))
+        source_chat_session_id = row_dict.get("source_chat_session_id")
+        if source_chat_session_id:
+            source_chat_session_id = str(source_chat_session_id)
+        
             all_projects[row_dict["id"]] = ProjectApiResponse(
-                id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
-                microproduct_name=row_dict.get("microproduct_name"),
-                design_template_name=row_dict.get("design_template_name"),
-                design_microproduct_type=row_dict.get("design_microproduct_type"),
-                created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
-                folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
-                microproduct_content=row_dict.get("microproduct_content"),
-                source_chat_session_id=source_chat_session_id,
-                is_standalone=row_dict.get("is_standalone")
+            id=row_dict["id"], projectName=row_dict["project_name"], projectSlug=project_slug,
+            microproduct_name=row_dict.get("microproduct_name"),
+            design_template_name=row_dict.get("design_template_name"),
+            design_microproduct_type=row_dict.get("design_microproduct_type"),
+            created_at=row_dict["created_at"], design_template_id=row_dict.get("design_template_id"),
+            folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
+            microproduct_content=row_dict.get("microproduct_content"),
+            source_chat_session_id=source_chat_session_id,
+            is_standalone=row_dict.get("is_standalone")
             )
         
         # Process shared projects (will override owned if same ID, which is fine)
@@ -25734,15 +25734,23 @@ async def get_current_user_id_for_workspaces(request: Request) -> str:
 # Workspace Management Endpoints
 
 @app.post("/api/custom/workspaces", response_model=Workspace)
-async def create_workspace(workspace_data: WorkspaceCreate):
+async def create_workspace(workspace_data: WorkspaceCreate, request: Request):
     """Create a new workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers (same logic as get_workspaces endpoint)
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        # Use email for workspace operations since members are stored with emails
+        current_user_id = user_email if user_email else user_uuid
+        
+        logger.info(f"🔍 [WORKSPACE CREATE] Creating workspace '{workspace_data.name}' for user: {current_user_id} (UUID: {user_uuid})")
         workspace = await WorkspaceService.create_workspace(workspace_data, current_user_id)
+        logger.info(f"✅ [WORKSPACE CREATE] Successfully created workspace {workspace.id} for user {current_user_id}")
         return workspace
     except ValueError as e:
+        logger.error(f"❌ [WORKSPACE CREATE] Validation error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        logger.error(f"❌ [WORKSPACE CREATE] Failed to create workspace: {e}")
         raise HTTPException(status_code=500, detail="Failed to create workspace")
 
 @app.get("/api/custom/workspaces", response_model=List[Workspace])
@@ -25764,10 +25772,12 @@ async def get_workspaces(request: Request):
         raise HTTPException(status_code=500, detail="Failed to retrieve workspaces")
 
 @app.get("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
-async def get_workspace(workspace_id: int):
+async def get_workspace(workspace_id: int, request: Request):
     """Get a specific workspace by ID."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25784,10 +25794,12 @@ async def get_workspace(workspace_id: int):
         raise HTTPException(status_code=500, detail="Failed to retrieve workspace")
 
 @app.get("/api/custom/workspaces/{workspace_id}/full", response_model=WorkspaceWithMembers)
-async def get_workspace_with_members(workspace_id: int):
+async def get_workspace_with_members(workspace_id: int, request: Request):
     """Get a workspace with all its members and roles."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25804,10 +25816,12 @@ async def get_workspace_with_members(workspace_id: int):
         raise HTTPException(status_code=500, detail="Failed to retrieve workspace data")
 
 @app.put("/api/custom/workspaces/{workspace_id}", response_model=Workspace)
-async def update_workspace(workspace_data: WorkspaceUpdate, workspace_id: int):
+async def update_workspace(workspace_data: WorkspaceUpdate, workspace_id: int, request: Request):
     """Update a workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         workspace = await WorkspaceService.update_workspace(workspace_id, workspace_data, current_user_id)
         if not workspace:
             raise HTTPException(status_code=404, detail="Workspace not found")
@@ -25821,10 +25835,12 @@ async def update_workspace(workspace_data: WorkspaceUpdate, workspace_id: int):
         raise HTTPException(status_code=500, detail="Failed to update workspace")
 
 @app.delete("/api/custom/workspaces/{workspace_id}")
-async def delete_workspace(workspace_id: int):
+async def delete_workspace(workspace_id: int, request: Request):
     """Delete a workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         success = await WorkspaceService.delete_workspace(workspace_id, current_user_id)
         if not success:
             raise HTTPException(status_code=404, detail="Workspace not found")
@@ -25840,7 +25856,7 @@ async def delete_workspace(workspace_id: int):
 # Role Management Endpoints
 
 @app.post("/api/custom/workspaces/{workspace_id}/roles", response_model=WorkspaceRole)
-async def create_role(role_data: WorkspaceRoleCreate, workspace_id: int):
+async def create_role(role_data: WorkspaceRoleCreate, workspace_id: int, request: Request):
     """Create a new custom role in a workspace."""
     try:
         # Ensure workspace_id matches path parameter
@@ -25857,7 +25873,9 @@ async def create_role(role_data: WorkspaceRoleCreate, workspace_id: int):
 async def get_workspace_roles(workspace_id: int):
     """Get all roles for a workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25874,7 +25892,9 @@ async def get_workspace_roles(workspace_id: int):
 async def get_workspace_role(workspace_id: int, role_id: int):
     """Get a specific role from a workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25891,7 +25911,7 @@ async def get_workspace_role(workspace_id: int, role_id: int):
         raise HTTPException(status_code=500, detail="Failed to retrieve role")
 
 @app.put("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
-async def update_role(role_data: WorkspaceRoleUpdate, workspace_id: int, role_id: int):
+async def update_role(role_data: WorkspaceRoleUpdate, workspace_id: int, role_id: int, request: Request):
     """Update a custom role in a workspace."""
     try:
         role = await RoleService.update_custom_role(role_id, workspace_id, role_data, "current_user_123")
@@ -25925,7 +25945,7 @@ async def delete_role(workspace_id: int, role_id: int):
 # Member Management Endpoints
 
 @app.post("/api/custom/workspaces/{workspace_id}/members", response_model=WorkspaceMember)
-async def add_member(member_data: WorkspaceMemberCreate, workspace_id: int):
+async def add_member(member_data: WorkspaceMemberCreate, workspace_id: int, request: Request):
     """Add a new member to a workspace."""
     try:
         # Ensure workspace_id matches path parameter
@@ -25942,7 +25962,9 @@ async def add_member(member_data: WorkspaceMemberCreate, workspace_id: int):
 async def get_workspace_members(workspace_id: int):
     """Get all members of a workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         # Check if user is a member of the workspace
         member = await WorkspaceService.get_workspace_member(workspace_id, current_user_id)
         if not member:
@@ -25988,10 +26010,12 @@ async def remove_member(workspace_id: int, user_id: str):
         raise HTTPException(status_code=500, detail="Failed to remove member")
 
 @app.post("/api/custom/workspaces/{workspace_id}/leave")
-async def leave_workspace(workspace_id: int):
+async def leave_workspace(workspace_id: int, request: Request):
     """Leave a workspace."""
     try:
-        current_user_id = await get_current_user_id()
+        # Get user identifiers
+        user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+        current_user_id = user_email if user_email else user_uuid
         success = await WorkspaceService.leave_workspace(workspace_id, current_user_id)
         if not success:
             raise HTTPException(status_code=404, detail="Member not found")

@@ -493,7 +493,7 @@ export default function ProjectInstanceViewPage() {
         [email]: roleId
       }));
     setShowEmailRoleDropdown(null);
-      
+
       console.log('Role changed for email:', email, 'to role:', roleId);
     } catch (error) {
       console.error('Failed to change email role:', error);
@@ -1853,7 +1853,7 @@ export default function ProjectInstanceViewPage() {
                         </button>
                       </div>
 
-                                            {/* Content */}
+                      {/* Content */}
                       <div className="px-6 pb-6">
                         {/* Add Member Input */}
                         <div className="mb-6">
