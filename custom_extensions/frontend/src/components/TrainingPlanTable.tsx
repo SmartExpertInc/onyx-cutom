@@ -1593,9 +1593,9 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       { key: 'informationSource', width: 1.5 },
       { key: 'quiz', width: 1.1 },
       { key: 'onePager', width: 1.2 },
-      { key: 'videoPresentation', width: 2 },
+      { key: 'videoPresentation', width: 1.5 },
       { key: 'lessonPresentation', width: 2 },
-      { key: 'qualityTier', width: qualityTierVisible ? 2.5 : 0 },
+      { key: 'qualityTier', width: qualityTierVisible ? 2 : 0 },
       { key: 'estCreationTime', width: 2 },
       { key: 'estCompletionTime', width: 2 },
     ];
