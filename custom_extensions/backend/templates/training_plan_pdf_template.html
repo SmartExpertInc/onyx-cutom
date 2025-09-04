@@ -425,51 +425,73 @@
                             </span>
                         </div>{% endif %}
                         {% if quiz_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_quiz) }}">
-                            {% set quiz_text = lesson.quiz | default('', true) %}
-                            {% if quiz_text and quiz_text | length > 8 %}
-                                {% if ' ' in quiz_text %}
-                                    {{ quiz_text }}
+                            {% set quiz_text = lesson.quiz or lesson.quizContent or lesson.quizType or '' %}
+                            {% set quiz_available = lesson.quizAvailable or lesson.hasQuiz or lesson.quizStatus %}
+                            {% if quiz_text and quiz_text != '' %}
+                                {% if quiz_text | length > 8 %}
+                                    {% if ' ' in quiz_text %}
+                                        {{ quiz_text }}
+                                    {% else %}
+                                        {{ quiz_text[:8] }}...
+                                    {% endif %}
                                 {% else %}
-                                    {{ quiz_text[:8] }}...
+                                    {{ quiz_text }}
                                 {% endif %}
+                            {% elif quiz_available %}
+                                <span class="text-green-600">Available</span>
                             {% else %}
-                                {{ quiz_text or '-' }}
+                                <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if onePager_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_onePager) }}">
-                            {% set onePager_text = lesson.onePager | default('', true) %}
-                            {% if onePager_text and onePager_text | length > 8 %}
-                                {% if ' ' in onePager_text %}
-                                    {{ onePager_text }}
+                            {% set onePager_text = lesson.onePager or lesson.onePagerContent or lesson.onePagerType or '' %}
+                            {% set onePager_available = lesson.onePagerAvailable or lesson.hasOnePager or lesson.onePagerStatus %}
+                            {% if onePager_text and onePager_text != '' %}
+                                {% if onePager_text | length > 8 %}
+                                    {% if ' ' in onePager_text %}
+                                        {{ onePager_text }}
+                                    {% else %}
+                                        {{ onePager_text[:8] }}...
+                                    {% endif %}
                                 {% else %}
-                                    {{ onePager_text[:8] }}...
+                                    {{ onePager_text }}
                                 {% endif %}
+                            {% elif onePager_available %}
+                                <span class="text-green-600">Available</span>
                             {% else %}
-                                {{ onePager_text or '-' }}
+                                <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if videoPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_videoPresentation) }}">
-                            {% set video_text = lesson.videoPresentation | default('', true) %}
-                            {% if video_text and video_text | length > 8 %}
-                                {% if ' ' in video_text %}
-                                    {{ video_text }}
+                            {% set video_text = lesson.videoPresentation or lesson.videoContent or lesson.videoType or '' %}
+                            {% if video_text and video_text != '' %}
+                                {% if video_text | length > 8 %}
+                                    {% if ' ' in video_text %}
+                                        {{ video_text }}
+                                    {% else %}
+                                        {{ video_text[:8] }}...
+                                    {% endif %}
                                 {% else %}
-                                    {{ video_text[:8] }}...
+                                    {{ video_text }}
                                 {% endif %}
                             {% else %}
-                                {{ video_text or '-' }}
+                                <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if lessonPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_lessonPresentation) }}">
-                            {% set presentation_text = lesson.lessonPresentation | default('', true) %}
-                            {% if presentation_text and presentation_text | length > 8 %}
-                                {% if ' ' in presentation_text %}
-                                    {{ presentation_text }}
+                            {% set presentation_text = lesson.lessonPresentation or lesson.presentationContent or lesson.presentationType or '' %}
+                            {% if presentation_text and presentation_text != '' %}
+                                {% if presentation_text | length > 8 %}
+                                    {% if ' ' in presentation_text %}
+                                        {{ presentation_text }}
+                                    {% else %}
+                                        {{ presentation_text[:8] }}...
+                                    {% endif %}
                                 {% else %}
-                                    {{ presentation_text[:8] }}...
+                                    {{ presentation_text }}
                                 {% endif %}
                             {% else %}
-                                {{ presentation_text or '-' }}
+                                <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if time_show %}<div class="flex items-center justify-start space-x-1 text-gray-500 px-2 {% if ct_show %}border-r border-gray-300{% endif %}" style="{{ span_style(span_time) }}">
