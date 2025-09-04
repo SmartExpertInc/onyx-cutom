@@ -17085,6 +17085,21 @@ Ensure the JSON is valid and follows the exact structure specified.
         # Parse OpenAI response
         ai_response = response.choices[0].message.content.strip()
         
+        # Strip markdown code blocks if present
+        if ai_response.startswith('```json'):
+            ai_response = ai_response[7:]  # Remove ```json
+        elif ai_response.startswith('```'):
+            ai_response = ai_response[3:]   # Remove ```
+        
+        if ai_response.endswith('```'):
+            ai_response = ai_response[:-3]  # Remove trailing ```
+        
+        ai_response = ai_response.strip()  # Clean up any remaining whitespace
+        
+        # Strip markdown code blocks if present (similar to existing LLM parsing logic)
+        ai_response = re.sub(r"^```json\s*|\s*```$", "", ai_response.strip(), flags=re.MULTILINE)
+        ai_response = re.sub(r"^```(?:json)?\s*|\s*```$", "", ai_response, flags=re.IGNORECASE | re.MULTILINE).strip()
+        
         try:
             lesson_plan_data = json.loads(ai_response)
             # Validate the structure
