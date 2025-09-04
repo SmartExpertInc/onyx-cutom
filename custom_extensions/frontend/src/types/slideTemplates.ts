@@ -637,6 +637,8 @@ export type TemplateId =
   | 'kpi-report-chart-slide'
   | 'enterprise-roadmap-slide'
   | 'kpi-best-practices-slide'
+  | 'table-of-contents-slide'
+  | 'company-tools-resources-slide'
 ;
 
 export interface TemplatePreview {
@@ -824,6 +826,38 @@ export interface KpiBestPracticesSlideProps extends BaseTemplateProps {
   companyName?: string;
   reportType?: string;
   date?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface TableOfContentsSlideProps extends BaseTemplateProps {
+  title: string;
+  buttons: Array<{
+    text: string;
+    link: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  accentColor?: string;
+}
+
+export interface CompanyToolsResourcesSlideProps extends BaseTemplateProps {
+  title: string;
+  sections: Array<{
+    title: string;
+    content: string;
+    backgroundColor: string;
+    textColor: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  companyLogoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

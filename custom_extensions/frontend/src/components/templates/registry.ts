@@ -45,6 +45,8 @@ import { DeiStandardsMethodsSlideTemplate } from './DeiStandardsMethodsSlideTemp
 import { KpiReportChartSlideTemplate } from './KpiReportChartSlideTemplate';
 import { EnterpriseRoadmapSlideTemplate } from './EnterpriseRoadmapSlideTemplate';
 import { KpiBestPracticesSlideTemplate } from './KpiBestPracticesSlideTemplate';
+import { TableOfContentsSlideTemplate } from './TableOfContentsSlideTemplate';
+import { CompanyToolsResourcesSlideTemplate } from './CompanyToolsResourcesSlideTemplate';
 
 
 
@@ -1837,6 +1839,84 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       companyName: { type: 'text', label: 'Company Name', maxLength: 100 },
       reportType: { type: 'text', label: 'Report Type', maxLength: 100 },
       date: { type: 'text', label: 'Date', maxLength: 50 }
+    }
+  },
+
+  'table-of-contents-slide': {
+    id: 'table-of-contents-slide',
+    name: 'Table of Contents Slide',
+    description: 'Clean slide with green buttons and profile image',
+    category: 'content',
+    icon: '📋',
+    component: TableOfContentsSlideTemplate,
+    defaultProps: {
+      title: 'Table of Contents',
+      buttons: [
+        { text: 'The Problem', link: '' },
+        { text: 'Benefits', link: '' },
+        { text: 'Best Practices', link: '' },
+        { text: 'Methods', link: '' },
+        { text: 'Achieving Success', link: '' },
+        { text: 'The Future', link: '' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      buttons: { type: 'array', label: 'Buttons', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  },
+
+  'company-tools-resources-slide': {
+    id: 'company-tools-resources-slide',
+    name: 'Company Tools and Resources Slide',
+    description: 'Grid layout with alternating colored sections',
+    category: 'content',
+    icon: '🛠️',
+    component: CompanyToolsResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Company tools and resources',
+      sections: [
+        {
+          title: 'Communication Tools:',
+          content: 'Effective communication is key to success in any workplace. At [Company Name], we use a variety of communication tools to keep our team connected and informed. Here are some of the key tools we use.',
+          backgroundColor: '#E5E7EB',
+          textColor: '#374151'
+        },
+        {
+          title: 'Project Management:',
+          content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
+          backgroundColor: '#3B82F6',
+          textColor: '#FFFFFF'
+        },
+        {
+          title: 'Learning and Development Resources',
+          content: 'We believe in investing in our employees\' growth and development. Here are some of the resources we offer: Online training courses (LinkedIn Learning, Udemy, etc.); In-house training and workshops; Professional development funds.',
+          backgroundColor: '#3B82F6',
+          textColor: '#FFFFFF'
+        },
+        {
+          title: 'Project Management',
+          content: 'Tools To help you stay organized and manage projects effectively, we use the following tools: Project management software (Asana, Trello, etc.); Task lists and calendars; Time tracking software.',
+          backgroundColor: '#E5E7EB',
+          textColor: '#374151'
+        }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image',
+      companyLogoPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      sections: { type: 'array', label: 'Sections', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      companyLogoPath: { type: 'image', label: 'Company Logo' }
     }
   }
 
