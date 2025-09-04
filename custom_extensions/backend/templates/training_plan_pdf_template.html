@@ -149,6 +149,18 @@
             white-space: normal;
             line-height: 1.2;
         }
+        
+        /* Special handling for Presentation column header to ensure word breaking */
+        .presentation-header {
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-all;
+            white-space: normal;
+            line-height: 1.2;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+        }
         .text-xxs { 
             font-size: 0.68rem; 
             line-height: 0.88rem; 
@@ -272,16 +284,16 @@
     {% set lessonPresentation_show = column_visibility.get('lessonPresentation', False) %}
 
     {# Calculate column spans to better match web table proportions #}
-    {% set span_kc   = 3 if kc_show else 0 %}
+    {% set span_kc   = 2 if kc_show else 0 %}
     {% set span_ca   = 2 if ca_show else 0 %}
     {% set span_src  = 2 if src_show else 0 %}
     {% set span_qt   = 2 if qt_show else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show else 0 %}
-    {% set span_quiz = 1.8 if quiz_show else 0 %}
-    {% set span_onePager = 1.8 if onePager_show else 0 %}
-    {% set span_videoPresentation = 1.8 if videoPresentation_show else 0 %}
-    {% set span_lessonPresentation = 1.8 if lessonPresentation_show else 0 %}
+    {% set span_quiz = 2 if quiz_show else 0 %}
+    {% set span_onePager = 2 if onePager_show else 0 %}
+    {% set span_videoPresentation = 2 if videoPresentation_show else 0 %}
+    {% set span_lessonPresentation = 2 if lessonPresentation_show else 0 %}
     
     {# Calculate remaining space for module/lesson column #}
     {% set total_used_span = span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
@@ -307,7 +319,7 @@
                 {% if quiz_show %}<div class="text-left px-2 py-3 border-r border-gray-300 table-header" style="{{ span_style(span_quiz) }}">{{ headers.quiz }}</div>{% endif %}
                 {% if onePager_show %}<div class="text-left px-2 py-3 border-r border-gray-300 table-header" style="{{ span_style(span_onePager) }}">{{ headers.onePager }}</div>{% endif %}
                 {% if videoPresentation_show %}<div class="text-left px-2 py-3 border-r border-gray-300 table-header" style="{{ span_style(span_videoPresentation) }}">{{ headers.videoPresentation }}</div>{% endif %}
-                {% if lessonPresentation_show %}<div class="text-left px-2 py-3 border-r border-gray-300 table-header" style="{{ span_style(span_lessonPresentation) }}">{{ headers.lessonPresentation }}</div>{% endif %}
+                {% if lessonPresentation_show %}<div class="text-left px-2 py-3 border-r border-gray-300 table-header presentation-header" style="{{ span_style(span_lessonPresentation) }}">{{ headers.lessonPresentation }}</div>{% endif %}
                 {% if time_show %}<div class="text-left px-2 py-3 border-r border-gray-300 table-header" style="{{ span_style(span_time) }}">{{ headers.time }}</div>{% endif %}
                 {% if ct_show %}<div class="text-left px-2 py-3 table-header" style="{{ span_style(span_ct) }}">{{ headers.completionTime }}</div>{% endif %}
             </div>
