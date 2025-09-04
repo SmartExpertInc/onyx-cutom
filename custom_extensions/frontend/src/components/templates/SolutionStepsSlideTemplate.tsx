@@ -117,6 +117,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
     }
   };
 
+  const positions: string[] = ['15%', '43%', '71%'];
+
   return (
     <div className="solution-steps-slide-template inter-theme" style={slideStyles}>
       {/* Title */}
@@ -248,7 +250,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             <div key={index} style={{
               position: 'absolute',
               top: '50%',
-              left: `${(index * 33.33) + 10}%`,
+              left: positions[index],
               transform: 'translate(-50%, -50%)',
               width: '25px',
               height: '25px',
