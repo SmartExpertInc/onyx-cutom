@@ -263,6 +263,37 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   }, [newRoleName, newRoleColor, newRoleTextColor, newRolePermissions, targetWorkspaceId, isAdmin]);
 
+  const handleCreateWorkspace = useCallback(async () => {
+    if (!newWorkspaceName.trim()) return;
+    
+    try {
+      setLoading(true);
+      const newWorkspace = await workspaceService.createWorkspace({
+        name: newWorkspaceName.trim(),
+        description: newWorkspaceDescription.trim() || undefined
+      });
+      
+      // Add the new workspace to the list
+      setWorkspaces(prev => [newWorkspace, ...prev]);
+      
+      // Select the new workspace
+      setSelectedWorkspace(newWorkspace);
+      setTargetWorkspaceId(newWorkspace.id);
+      
+      // Reset form
+      setNewWorkspaceName('');
+      setNewWorkspaceDescription('');
+      setShowCreateWorkspace(false);
+      
+      console.log('✅ Workspace created successfully:', newWorkspace);
+    } catch (err) {
+      console.error('Failed to create workspace:', err);
+      setError('Failed to create workspace');
+    } finally {
+      setLoading(false);
+    }
+  }, [newWorkspaceName, newWorkspaceDescription]);
+
   const handleDeleteRole = useCallback(async (roleId: number) => {
     if (!targetWorkspaceId || !isAdmin) return;
     
@@ -374,6 +405,26 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   // Don't render workspace content if no target workspace ID (following project pattern)
   if (!targetWorkspaceId) {
+    // Check if user has any workspaces
+    if (workspaces.length === 0) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 mb-2">No Workspaces Found</h3>
+            <p className="text-gray-600 mb-6">You're not a member of any workspaces yet.</p>
+            <button
+              onClick={() => setShowCreateWorkspace(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+            >
+              <Plus className="h-5 w-5" />
+              Create Your First Workspace
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
@@ -846,6 +897,67 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 className="px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors"
               >
                 {t('interface.roleManager.close', 'Close')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Workspace Modal */}
+      {showCreateWorkspace && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Create New Workspace</h3>
+              <button
+                onClick={() => setShowCreateWorkspace(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Workspace Name
+                </label>
+                <input
+                  type="text"
+                  value={newWorkspaceName}
+                  onChange={(e) => setNewWorkspaceName(e.target.value)}
+                  placeholder="Enter workspace name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={newWorkspaceDescription}
+                  onChange={(e) => setNewWorkspaceDescription(e.target.value)}
+                  placeholder="Enter workspace description"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setShowCreateWorkspace(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateWorkspace}
+                disabled={!newWorkspaceName.trim()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Create Workspace
               </button>
             </div>
           </div>
