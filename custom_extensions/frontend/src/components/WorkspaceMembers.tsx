@@ -418,20 +418,108 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     // If user has no workspaces at all, show create workspace option
     if (workspaces.length === 0) {
       return (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
-            <p className="text-gray-600 mb-6">Create your first workspace to start collaborating with your team.</p>
-            <button
-              onClick={() => setShowCreateWorkspace(true)}
+        <>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
+              <p className="text-gray-600 mb-6">Create your first workspace to start collaborating with your team.</p>
+                          <button
+              onClick={() => {
+                console.log('🔘 Create Workspace button clicked!');
+                console.log('🔘 Current state:', { showCreateWorkspace, portalContainer: !!portalContainer });
+                setShowCreateWorkspace(true);
+              }}
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Plus size={20} />
-              Create Your First Workspace
-            </button>
+                <Plus size={20} />
+                Create Your First Workspace
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* Create Workspace Modal */}
+          {(() => {
+            console.log('🔘 Modal render check:', { 
+              showCreateWorkspace, 
+              portalContainer: !!portalContainer,
+              shouldRender: showCreateWorkspace && portalContainer 
+            });
+            return showCreateWorkspace && portalContainer;
+          })() && createPortal(
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setShowCreateWorkspace(false);
+                }
+              }}
+            >
+              <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {t('interface.createWorkspace.title', 'Create New Workspace')}
+                    </h3>
+                    <button
+                      onClick={() => setShowCreateWorkspace(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <XCircle size={24} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('interface.createWorkspace.nameLabel', 'Workspace Name')} *
+                      </label>
+                      <input
+                        type="text"
+                        value={newWorkspaceName}
+                        onChange={(e) => setNewWorkspaceName(e.target.value)}
+                        placeholder={t('interface.createWorkspace.namePlaceholder', 'Enter workspace name')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('interface.createWorkspace.descriptionLabel', 'Description')}
+                      </label>
+                      <textarea
+                        value={newWorkspaceDescription}
+                        onChange={(e) => setNewWorkspaceDescription(e.target.value)}
+                        placeholder={t('interface.createWorkspace.descriptionPlaceholder', 'Optional description')}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={() => setShowCreateWorkspace(false)}
+                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      {t('interface.createWorkspace.cancel', 'Cancel')}
+                    </button>
+                    <button
+                      onClick={handleCreateWorkspace}
+                      disabled={!newWorkspaceName.trim()}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    >
+                      <Plus size={16} />
+                      {t('interface.createWorkspace.create', 'Create Workspace')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            portalContainer
+          )}
+        </>
       );
     }
     
@@ -910,81 +998,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               >
                 {t('interface.roleManager.close', 'Close')}
               </button>
-            </div>
-          </div>
-        </div>,
-        portalContainer
-      )}
-
-      {/* Create Workspace Modal */}
-      {showCreateWorkspace && portalContainer && createPortal(
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowCreateWorkspace(false);
-            }
-          }}
-        >
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {t('interface.createWorkspace.title', 'Create New Workspace')}
-                </h3>
-                <button
-                  onClick={() => setShowCreateWorkspace(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XCircle size={24} />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('interface.createWorkspace.nameLabel', 'Workspace Name')} *
-                  </label>
-                  <input
-                    type="text"
-                    value={newWorkspaceName}
-                    onChange={(e) => setNewWorkspaceName(e.target.value)}
-                    placeholder={t('interface.createWorkspace.namePlaceholder', 'Enter workspace name')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('interface.createWorkspace.descriptionLabel', 'Description')}
-                  </label>
-                  <textarea
-                    value={newWorkspaceDescription}
-                    onChange={(e) => setNewWorkspaceDescription(e.target.value)}
-                    placeholder={t('interface.createWorkspace.descriptionPlaceholder', 'Optional description')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                    rows={3}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => setShowCreateWorkspace(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-                >
-                  {t('interface.createWorkspace.cancel', 'Cancel')}
-                </button>
-                <button
-                  onClick={handleCreateWorkspace}
-                  disabled={!newWorkspaceName.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                >
-                  <Plus size={16} />
-                  {t('interface.createWorkspace.create', 'Create Workspace')}
-                </button>
-              </div>
             </div>
           </div>
         </div>,
