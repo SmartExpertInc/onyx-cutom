@@ -1944,7 +1944,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           {activeColumns.map((col, idx) => {
             const borderClasses = idx < activeColumns.length - 1 ? 'border-r border-gray-400' : '';
             const common = `px-2 ${borderClasses}`;
-            const breakStyle = { wordBreak: 'break-all', overflowWrap: 'anywhere' };
+            const breakStyle: React.CSSProperties = { wordBreak: 'break-all', overflowWrap: 'break-word' };
             switch (col.key) {
               case 'module':
                 return (
