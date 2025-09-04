@@ -1082,28 +1082,15 @@ export default function ProjectInstanceViewPage() {
       queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
       queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
       queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
+      queryParams.append('quiz', columnVisibility.quiz ? '1' : '0');
+      queryParams.append('onePager', columnVisibility.onePager ? '1' : '0');
+      queryParams.append('videoPresentation', columnVisibility.videoPresentation ? '1' : '0');
+      queryParams.append('lessonPresentation', columnVisibility.lessonPresentation ? '1' : '0');
       queryParams.append('estCreationTime', columnVisibility.estCreationTime ? '1' : '0');
       queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
       queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
     }
 
-    // Add column visibility settings for other component types (Quiz, One-Pager, Video Lesson, Presentation)
-    if (projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN) {
-      queryParams.append('quiz', columnVisibility.quiz ? '1' : '0');
-      queryParams.append('onePager', columnVisibility.onePager ? '1' : '0');
-      queryParams.append('videoPresentation', columnVisibility.videoPresentation ? '1' : '0');
-      queryParams.append('lessonPresentation', columnVisibility.lessonPresentation ? '1' : '0');
-
-      // Log the column visibility settings being sent for debugging
-      console.log('📊 [PDF DOWNLOAD] Column visibility for non-training plan:', {
-        componentName: projectInstanceData.component_name,
-        quiz: columnVisibility.quiz,
-        onePager: columnVisibility.onePager,
-        videoPresentation: columnVisibility.videoPresentation,
-        lessonPresentation: columnVisibility.lessonPresentation,
-        queryParams: queryParams.toString()
-      });
-    }
 
     if (queryParams.toString()) {
       pdfUrl += `?${queryParams.toString()}`;
@@ -1854,16 +1841,6 @@ export default function ProjectInstanceViewPage() {
                 {showColumnDropdown && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
                     <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
-
-                    {/* Debug info */}
-                    <div className="mb-3 p-2 bg-gray-100 rounded text-xs">
-                      <div className="font-medium mb-1">Debug - Current State:</div>
-                      <div>Component: {projectInstanceData.component_name}</div>
-                      <div>Quiz: {columnVisibility.quiz ? 'ON' : 'OFF'}</div>
-                      <div>One-Pager: {columnVisibility.onePager ? 'ON' : 'OFF'}</div>
-                      <div>Video Lesson: {columnVisibility.videoPresentation ? 'ON' : 'OFF'}</div>
-                      <div>Presentation: {columnVisibility.lessonPresentation ? 'ON' : 'OFF'}</div>
-                    </div>
 
                     <div className="space-y-2">
                       {/* Training Plan specific columns */}
