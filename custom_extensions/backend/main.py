@@ -12549,7 +12549,14 @@ async def get_user_projects_list_from_db(
     return projects_list
 
 @app.get("/api/custom/projects/view/{project_id}", response_model=MicroProductApiResponse, responses={404: {"model": ErrorDetail}})
-async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+async def get_project_instance_detail(
+    project_id: int, 
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    # Get user identifiers for workspace access
+    user_uuid, user_email = await get_user_identifiers_for_workspace(request)
+    
     # Check if user owns the project or has workspace access
     select_query = """
         SELECT p.*, dt.template_name as design_template_name, dt.microproduct_type as design_microproduct_type, dt.component_name
@@ -12561,19 +12568,19 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
                 SELECT 1 FROM product_access pa
                 INNER JOIN workspace_members wm ON pa.workspace_id = wm.workspace_id
                 WHERE pa.product_id = p.id 
-                  AND wm.user_id = $2 
+                  AND wm.user_id = $3 
                   AND wm.status = 'active'
                   AND pa.access_type IN ('workspace', 'role', 'individual')
                   AND (
                       pa.access_type = 'workspace' 
                       OR (pa.access_type = 'role' AND (pa.target_id = CAST(wm.role_id AS TEXT) OR pa.target_id IN (SELECT name FROM workspace_roles WHERE id = wm.role_id)))
-                      OR (pa.access_type = 'individual' AND pa.target_id = $2)
+                      OR (pa.access_type = 'individual' AND pa.target_id = $3)
                   )
             )
         )
     """
     async with pool.acquire() as conn:
-        row = await conn.fetchrow(select_query, project_id, onyx_user_id)
+        row = await conn.fetchrow(select_query, project_id, user_uuid, user_email)
     if not row:
         raise HTTPException(status_code=404, detail="Project not found")
     row_dict = dict(row)
