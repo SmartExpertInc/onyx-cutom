@@ -16856,7 +16856,10 @@ async def generate_lesson_plan(
             if search_query:
                 context_for_openai += f"Knowledge Base Query: {search_query}\n\n"
         
-        # Add course outline content if available
+        # Extract specific lesson data and course outline content
+        lesson_completion_time = "6m"  # Default fallback
+        lesson_context = ""
+        
         if outline_row["microproduct_content"]:
             try:
                 outline_content = outline_row["microproduct_content"]
@@ -16864,18 +16867,144 @@ async def generate_lesson_plan(
                     # Extract relevant information from outline
                     if "sections" in outline_content:
                         sections_text = []
+                        found_lesson = False
+                        
                         for section in outline_content["sections"]:
                             if isinstance(section, dict):
                                 section_title = section.get("title", "")
                                 section_content = section.get("content", "")
+                                
+                                # Check if this section matches the module name
+                                if section_title and payload.moduleName.lower() in section_title.lower():
+                                    # Look for the specific lesson in this section
+                                    if "lessons" in section and isinstance(section["lessons"], list):
+                                        for lesson in section["lessons"]:
+                                            if isinstance(lesson, dict):
+                                                lesson_title = lesson.get("title", "")
+                                                if lesson_title and payload.lessonTitle.lower() in lesson_title.lower():
+                                                    # Found the specific lesson - extract its completion time and individual product times
+                                                    lesson_completion_time = lesson.get("completionTime", "6m")
+                                                    
+                                                    # Extract individual product completion times if available
+                                                    individual_completion_times = {}
+                                                    if lesson.get("completionTimes"):
+                                                        completion_times_data = lesson["completionTimes"]
+                                                        if isinstance(completion_times_data, dict):
+                                                            # Map frontend naming to backend naming
+                                                            if 'presentation' in completion_times_data:
+                                                                individual_completion_times['presentation'] = completion_times_data['presentation']
+                                                            if 'onePager' in completion_times_data:
+                                                                individual_completion_times['one-pager'] = completion_times_data['onePager']
+                                                            if 'quiz' in completion_times_data:
+                                                                individual_completion_times['quiz'] = completion_times_data['quiz']
+                                                            if 'videoLesson' in completion_times_data:
+                                                                individual_completion_times['video-lesson'] = completion_times_data['videoLesson']
+                                                    
+                                                    lesson_context = f"Lesson Context: {lesson_title}"
+                                                    if lesson.get("content"):
+                                                        lesson_context += f" - {lesson.get('content')}"
+                                                    found_lesson = True
+                                                    
+                                                    if individual_completion_times:
+                                                        logger.info(f"Found lesson '{lesson_title}' with individual completion times: {individual_completion_times}")
+                                                    else:
+                                                        logger.info(f"Found lesson '{lesson_title}' with total completion time: {lesson_completion_time}")
+                                                    break
+                                    if found_lesson:
+                                        break
+                                
+                                # Add general section context
                                 if section_title and section_content:
                                     sections_text.append(f"{section_title}: {section_content}")
                         
                         if sections_text:
                             context_for_openai += "Course Outline Content:\n" + "\n".join(sections_text) + "\n\n"
+                        
+                        if lesson_context:
+                            context_for_openai += lesson_context + "\n\n"
+                            
             except Exception as e:
                 logger.warning(f"Failed to parse outline content: {e}")
+                
+        # Use individual completion times if available, otherwise use total lesson time
+        if individual_completion_times:
+            logger.info(f"Using individual product completion times: {individual_completion_times}")
+        else:
+            logger.info(f"Using total lesson completion time: {lesson_completion_time} for lesson plan generation")
         
+        # Helper function to extract minutes from time string
+        def extract_minutes_from_time(time_str):
+            try:
+                if not time_str:
+                    return 6  # Default fallback
+                # Extract numeric part from strings like "6m", "2h", etc.
+                numeric_part = ''.join(filter(str.isdigit, str(time_str)))
+                if not numeric_part:
+                    return 6  # Default fallback
+                minutes = int(numeric_part)
+                if 'h' in str(time_str).lower():
+                    minutes *= 60  # Convert hours to minutes
+                return minutes
+            except:
+                return 6  # Default fallback
+        
+        # Prepare timing information for products using individual times if available
+        timing_info = "Product Timing Guidelines:\n"
+        
+        # Calculate video lesson duration
+        if individual_completion_times and 'video-lesson' in individual_completion_times:
+            video_minutes = extract_minutes_from_time(individual_completion_times['video-lesson'])
+            timing_info += f"- Video Lesson Duration: {video_minutes} minutes (from individual completion time)\n"
+        else:
+            # Fallback to calculated duration from total lesson time
+            total_minutes = extract_minutes_from_time(lesson_completion_time)
+            video_duration = max(2, min(5, total_minutes // 2))
+            timing_info += f"- Video Lesson Duration: Approximately {video_duration} minutes (calculated from lesson completion time)\n"
+        
+        # Calculate presentation length
+        if individual_completion_times and 'presentation' in individual_completion_times:
+            presentation_minutes = extract_minutes_from_time(individual_completion_times['presentation'])
+            # Convert presentation time to slide count (rough estimate: 1 slide per minute + buffer)
+            presentation_slides = max(8, min(20, presentation_minutes + 3))
+            timing_info += f"- Presentation Length: Approximately {presentation_slides} slides (based on {presentation_minutes}min completion time)\n"
+        else:
+            # Fallback to calculated slides from total lesson time
+            total_minutes = extract_minutes_from_time(lesson_completion_time)
+            presentation_slides = max(8, min(15, total_minutes + 2))
+            timing_info += f"- Presentation Length: Approximately {presentation_slides} slides (calculated from lesson completion time)\n"
+        
+        # Calculate quiz length
+        if individual_completion_times and 'quiz' in individual_completion_times:
+            quiz_minutes = extract_minutes_from_time(individual_completion_times['quiz'])
+            # Convert quiz time to question count (rough estimate: 1-2 questions per minute)
+            quiz_questions = max(5, min(15, quiz_minutes * 2))
+            timing_info += f"- Quiz Length: Approximately {quiz_questions} questions (based on {quiz_minutes}min completion time)\n"
+        else:
+            timing_info += "- Quiz Length: 8-12 questions (standard range)\n"
+        
+        # One-pager timing
+        if individual_completion_times and 'one-pager' in individual_completion_times:
+            onepager_minutes = extract_minutes_from_time(individual_completion_times['one-pager'])
+            timing_info += f"- One-Pager: Single comprehensive page (based on {onepager_minutes}min completion time)\n"
+        else:
+            timing_info += "- One-Pager: Single comprehensive page\n"
+        
+
+        
+        # Create specific prompts based on recommended products
+        has_video = any('video' in product.lower() for product in payload.recommendedProducts)
+        has_presentation = any('presentation' in product.lower() for product in payload.recommendedProducts)
+        
+        prompts_instruction = "CONTENT CREATION PROMPTS: "
+        if has_video and has_presentation:
+            prompts_instruction += "Provide exactly 2 specific prompts - one for video lesson creation and one for presentation creation. Each prompt should be detailed and actionable."
+        elif has_video:
+            prompts_instruction += "Provide exactly 1 specific prompt for video lesson creation. The prompt should be detailed and actionable."
+        elif has_presentation:
+            prompts_instruction += "Provide exactly 1 specific prompt for presentation creation. The prompt should be detailed and actionable."
+        else:
+            prompts_instruction += "Provide 2-3 specific content creation prompts for the recommended product types. Each prompt should be detailed and actionable."
+
         # Prepare OpenAI prompt
         openai_prompt = f"""
 You are an expert instructional designer and educational content developer. Based on the following source context, create a comprehensive lesson plan that serves as a complete task specification for Content Developers to create high-quality educational materials.
@@ -16887,7 +17016,10 @@ Lesson Information:
 - Lesson Title: {payload.lessonTitle}
 - Module Name: {payload.moduleName}
 - Lesson Number: {payload.lessonNumber}
+- Lesson Completion Time: {lesson_completion_time}
 - Recommended Products: {', '.join(payload.recommendedProducts)}
+
+{timing_info}
 
 Create a detailed lesson plan following instructional design best practices:
 
@@ -16907,11 +17039,11 @@ MATERIALS: List specific, actionable resources and tools needed for content crea
 - Assessment instruments and rubrics
 - Visual aids and multimedia specifications
 
-SUGGESTED PROMPTS: Provide 4-6 detailed content creation prompts that:
-- Align with different levels of Bloom's Taxonomy
-- Include specific scenarios and real-world applications
-- Specify target audience and context
-- Define expected deliverables and assessment criteria
+CONTENT CREATION PROMPTS: Create specific, actionable prompts ONLY for the recommended product types:
+- If "video-lesson" is in recommendedProducts: Create 1 detailed video lesson prompt using this format: "Create a professional training video for [target audience]. This lesson, titled [lesson title], should [key objectives and content]. The tone should be [appropriate tone], and the duration should be around [X] minutes based on the lesson completion time."
+- If "presentation" is in recommendedProducts: Create 1 detailed presentation prompt using this format: "Create a comprehensive presentation for [target audience] on [lesson topic]. The presentation should include [key content areas], use [visual elements], and consist of approximately [X] slides with clear learning progression."
+- For other product types: Create brief, specific prompts as needed
+- Maximum 2-3 prompts total, focusing on video and presentation if they are recommended
 
 IMPORTANT: Only include descriptions for products that are explicitly listed in the recommendedProducts array. Focus on creating actionable specifications that enable Content Developers to produce effective, engaging educational materials.
 
