@@ -52,7 +52,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#1A1E24', // Dark blue-grey background as per screenshot
+    backgroundColor: '#15232E', // Dark blue-grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -126,7 +126,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         left: '60px',
         fontSize: '48px',
         fontWeight: 'bold',
-        color: '#FFFFFF',
+        color: '#DEE2E2',
         lineHeight: '1.1',
       }}>
         {isEditable && editingTitle ? (
@@ -160,11 +160,10 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       {/* Orange Button */}
       <div style={{
         position: 'absolute',
-        top: '120px',
+        top: '140px',
         left: '60px',
-        backgroundColor: '#F06C3E',
-        padding: '12px 24px',
-        borderRadius: '8px',
+        backgroundColor: '#EC6140',
+        padding: '10px 24px',
         cursor: isEditable ? 'pointer' : 'default',
       }}>
         {isEditable && editingButtonText ? (
@@ -174,9 +173,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             onCancel={() => setEditingButtonText(false)}
             className="button-text-editor"
             style={{
-              fontSize: '18px',
+              fontSize: '23px',
               fontWeight: '500',
-              color: '#FFFFFF',
+              color: '#F4D4C8',
               width: '100%',
               height: 'auto',
             }}
@@ -185,9 +184,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           <div
             onClick={() => isEditable && setEditingButtonText(true)}
             style={{
-              fontSize: '18px',
+              fontSize: '23px',
               fontWeight: '500',
-              color: '#FFFFFF',
+              color: '#F4D4C8',
               userSelect: 'none'
             }}
           >
@@ -199,8 +198,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       {/* Profile Image */}
       <div style={{
         position: 'absolute',
-        top: '40px',
-        right: '60px',
+        top: '30px',
+        right: '30px',
         width: '120px',
         height: '120px',
         borderRadius: '50%',
@@ -217,6 +216,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           style={{
             width: '100%',
             height: '100%',
+            position: 'relative',
+            bottom: '-16px',
             borderRadius: '50%',
             objectFit: 'cover'
           }}
@@ -229,7 +230,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '80%',
+        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -237,8 +238,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         {/* Timeline Line */}
         <div style={{
           width: '100%',
-          height: '2px',
-          backgroundColor: '#FFFFFF',
+          height: '1px',
+          backgroundColor: '#F1FEFF',
           position: 'relative',
           marginBottom: '40px',
         }}>
@@ -247,12 +248,12 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             <div key={index} style={{
               position: 'absolute',
               top: '50%',
-              left: `${(index * 33.33) + 16.67}%`,
+              left: `${(index * 33.33) + 10}%`,
               transform: 'translate(-50%, -50%)',
-              width: '20px',
-              height: '20px',
+              width: '25px',
+              height: '25px',
               borderRadius: '50%',
-              backgroundColor: '#FFD700', // Yellow circles
+              backgroundColor: '#FAF36F', // Yellow circles
               zIndex: 1,
             }} />
           ))}
@@ -349,7 +350,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       {/* Footer */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
+        bottom: '40px',
         left: '60px',
         right: '60px',
         display: 'flex',
@@ -359,7 +360,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         {/* Website */}
         <div style={{
           fontSize: '14px',
-          color: '#FFFFFF',
+          color: '#A2ACB1',
         }}>
           {isEditable && editingWebsite ? (
             <ImprovedInlineEditor
@@ -369,7 +370,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               className="website-editor"
               style={{
                 fontSize: '14px',
-                color: '#FFFFFF',
+                color: '#A2ACB1',
                 width: '100%',
                 height: 'auto',
               }}
@@ -390,9 +391,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         {/* Date and Page Number */}
         <div style={{
           display: 'flex',
-          gap: '20px',
+          gap: '45px',
           fontSize: '14px',
-          color: '#FFFFFF',
+          color: '#A2ACB1',
         }}>
           {isEditable && editingDate ? (
             <ImprovedInlineEditor
@@ -402,7 +403,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               className="date-editor"
               style={{
                 fontSize: '14px',
-                color: '#FFFFFF',
+                color: '#A2ACB1',
                 width: '100%',
                 height: 'auto',
               }}
@@ -427,7 +428,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               className="page-number-editor"
               style={{
                 fontSize: '14px',
-                color: '#FFFFFF',
+                color: '#A2ACB1',
                 width: '100%',
                 height: 'auto',
               }}
