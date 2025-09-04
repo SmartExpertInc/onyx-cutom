@@ -173,12 +173,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       {/* Title */}
       <div style={{
         position: 'absolute',
-        top: '40px',
-        left: '50%',
+        top: '68px',
+        left: '5%',
         transform: 'translateX(-50%)',
-        fontSize: '36px',
+        fontSize: '56px',
         fontWeight: 'bold',
-        color: '#374151', // Dark gray text as per screenshot
+        color: '#2A2A2A', // Dark gray text as per screenshot
         lineHeight: '1.1',
         textAlign: 'center',
       }}>
@@ -189,9 +189,9 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             onCancel={() => setEditingTitle(false)}
             className="company-title-editor"
             style={{
-              fontSize: '36px',
+              fontSize: '56px',
               fontWeight: 'bold',
-              color: '#374151',
+              color: '#2A2A2A',
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
@@ -251,7 +251,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       }}>
         {currentSections.map((section, index) => (
           <div key={index} style={{
-            backgroundColor: section.backgroundColor,
+            backgroundColor: index === 0 || index === 3 ? '#CCCCCC' : '#4231EA',
             padding: '24px',
             display: 'flex',
             flexDirection: 'column',
@@ -261,7 +261,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             <div style={{
               fontSize: '20px',
               fontWeight: 'bold',
-              color: section.textColor,
+              color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
               lineHeight: '1.2',
             }}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'title' ? (
@@ -273,7 +273,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   style={{
                     fontSize: '20px',
                     fontWeight: 'bold',
-                    color: section.textColor,
+                    color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
                     lineHeight: '1.2',
                     width: '100%',
                     height: 'auto',
