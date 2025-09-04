@@ -2065,11 +2065,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               {(section.lessons || []).map((lesson: LessonType, lessonIndex: number) => {
                 lessonCounter++;
                 const currentLessonNumber = lessonCounter;
-                // Use mock boolean properties for each lesson
-                const hasQuiz = lesson.quiz ?? false;
-                const hasOnePager = lesson.onePager ?? false;
-                const hasVideoPresentation = lesson.videoPresentation ?? false;
-                const hasLessonPresentation = lesson.lessonPresentation ?? false;
+                const matchingMicroproduct = findMicroproductByTitle(lesson.title, parentProjectName, allUserMicroproducts, ["Quiz"]);
 
                 return (
                   <div
@@ -2287,13 +2283,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             </div>
                           );
                         case 'quiz':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasQuiz ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.quiz ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'onePager':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasOnePager ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.onePager ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'videoPresentation':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasVideoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.videoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'lessonPresentation':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{hasLessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.lessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         default:
                           return <div key={col.key} className={commonCls}></div>;
                       }

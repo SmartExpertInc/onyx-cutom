@@ -22,6 +22,11 @@ export interface Lesson {
     last_updated?: string;
     quality_tier_used?: string;
   };
+  // Content type booleans for table display
+  quiz?: boolean;
+  onePager?: boolean;
+  videoPresentation?: boolean;
+  lessonPresentation?: boolean;
   // Advanced mode support
   advanced?: boolean;
   advancedRates?: { presentation?: number; onePager?: number; quiz?: number; videoLesson?: number };
