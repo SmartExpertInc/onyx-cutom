@@ -278,10 +278,10 @@
     {% set span_qt   = 2 if qt_show else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show else 0 %}
-    {% set span_quiz = 2 if quiz_show else 0 %}
-    {% set span_onePager = 2 if onePager_show else 0 %}
-    {% set span_videoPresentation = 2 if videoPresentation_show else 0 %}
-    {% set span_lessonPresentation = 2 if lessonPresentation_show else 0 %}
+    {% set span_quiz = 1.5 if quiz_show else 0 %}
+    {% set span_onePager = 1.5 if onePager_show else 0 %}
+    {% set span_videoPresentation = 1.5 if videoPresentation_show else 0 %}
+    {% set span_lessonPresentation = 1.5 if lessonPresentation_show else 0 %}
     
     {# Calculate remaining space for module/lesson column #}
     {% set total_used_span = span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
@@ -425,70 +425,56 @@
                             </span>
                         </div>{% endif %}
                         {% if quiz_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_quiz) }}">
-                            {% set quiz_text = lesson.quiz or lesson.quizContent or lesson.quizType or '' %}
-                            {% set quiz_available = lesson.quizAvailable or lesson.hasQuiz or lesson.quizStatus %}
-                            {% if quiz_text and quiz_text != '' %}
-                                {% if quiz_text | length > 8 %}
-                                    {% if ' ' in quiz_text %}
-                                        {{ quiz_text }}
-                                    {% else %}
-                                        {{ quiz_text[:8] }}...
-                                    {% endif %}
+                            {% set quiz_available = lesson.quiz or lesson.quizAvailable or lesson.hasQuiz or lesson.quizStatus or lesson.quizContent %}
+                            {% if quiz_available %}
+                                {% if quiz_available == True or quiz_available == 'true' or quiz_available == '1' or quiz_available == 1 %}
+                                    <span class="text-green-600 font-bold">✓</span>
+                                {% elif quiz_available == False or quiz_available == 'false' or quiz_available == '0' or quiz_available == 0 %}
+                                    <span class="text-red-500 font-bold">✗</span>
                                 {% else %}
-                                    {{ quiz_text }}
+                                    <span class="text-green-600 font-bold">✓</span>
                                 {% endif %}
-                            {% elif quiz_available %}
-                                <span class="text-green-600">Available</span>
                             {% else %}
                                 <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if onePager_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_onePager) }}">
-                            {% set onePager_text = lesson.onePager or lesson.onePagerContent or lesson.onePagerType or '' %}
-                            {% set onePager_available = lesson.onePagerAvailable or lesson.hasOnePager or lesson.onePagerStatus %}
-                            {% if onePager_text and onePager_text != '' %}
-                                {% if onePager_text | length > 8 %}
-                                    {% if ' ' in onePager_text %}
-                                        {{ onePager_text }}
-                                    {% else %}
-                                        {{ onePager_text[:8] }}...
-                                    {% endif %}
+                            {% set onePager_available = lesson.onePager or lesson.onePagerAvailable or lesson.hasOnePager or lesson.onePagerStatus or lesson.onePagerContent %}
+                            {% if onePager_available %}
+                                {% if onePager_available == True or onePager_available == 'true' or onePager_available == '1' or onePager_available == 1 %}
+                                    <span class="text-green-600 font-bold">✓</span>
+                                {% elif onePager_available == False or onePager_available == 'false' or onePager_available == '0' or onePager_available == 0 %}
+                                    <span class="text-red-500 font-bold">✗</span>
                                 {% else %}
-                                    {{ onePager_text }}
+                                    <span class="text-green-600 font-bold">✓</span>
                                 {% endif %}
-                            {% elif onePager_available %}
-                                <span class="text-green-600">Available</span>
                             {% else %}
                                 <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if videoPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_videoPresentation) }}">
-                            {% set video_text = lesson.videoPresentation or lesson.videoContent or lesson.videoType or '' %}
-                            {% if video_text and video_text != '' %}
-                                {% if video_text | length > 8 %}
-                                    {% if ' ' in video_text %}
-                                        {{ video_text }}
-                                    {% else %}
-                                        {{ video_text[:8] }}...
-                                    {% endif %}
+                            {% set video_available = lesson.videoPresentation or lesson.videoContent or lesson.videoType or lesson.videoAvailable or lesson.hasVideo %}
+                            {% if video_available %}
+                                {% if video_available == True or video_available == 'true' or video_available == '1' or video_available == 1 %}
+                                    <span class="text-green-600 font-bold">✓</span>
+                                {% elif video_available == False or video_available == 'false' or video_available == '0' or video_available == 0 %}
+                                    <span class="text-red-500 font-bold">✗</span>
                                 {% else %}
-                                    {{ video_text }}
+                                    <span class="text-green-600 font-bold">✓</span>
                                 {% endif %}
                             {% else %}
                                 <span class="text-gray-400">-</span>
                             {% endif %}
                         </div>{% endif %}
                         {% if lessonPresentation_show %}<div class="text-gray-600 px-2 border-r border-gray-300 source-cell" style="{{ span_style(span_lessonPresentation) }}">
-                            {% set presentation_text = lesson.lessonPresentation or lesson.presentationContent or lesson.presentationType or '' %}
-                            {% if presentation_text and presentation_text != '' %}
-                                {% if presentation_text | length > 8 %}
-                                    {% if ' ' in presentation_text %}
-                                        {{ presentation_text }}
-                                    {% else %}
-                                        {{ presentation_text[:8] }}...
-                                    {% endif %}
+                            {% set presentation_available = lesson.lessonPresentation or lesson.presentationContent or lesson.presentationType or lesson.presentationAvailable or lesson.hasPresentation %}
+                            {% if presentation_available %}
+                                {% if presentation_available == True or presentation_available == 'true' or presentation_available == '1' or presentation_available == 1 %}
+                                    <span class="text-green-600 font-bold">✓</span>
+                                {% elif presentation_available == False or presentation_available == 'false' or presentation_available == '0' or presentation_available == 0 %}
+                                    <span class="text-red-500 font-bold">✗</span>
                                 {% else %}
-                                    {{ presentation_text }}
+                                    <span class="text-green-600 font-bold">✓</span>
                                 {% endif %}
                             {% else %}
                                 <span class="text-gray-400">-</span>
