@@ -280,7 +280,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 fontSize: '24px',
                 fontWeight: 'bold',
                 color: '#D5DBDD',
-                marginBottom: '25px',
+                marginBottom: '15px',
               }}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'title' ? (
                   <ImprovedInlineEditor
