@@ -159,8 +159,8 @@ export default function AuditPage() {
                     <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                       <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">1</span>
                     </div>
-                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px]">
-                      Сократите текучку кадров на <span className="text-[#0F58F9]">30–50%</span>
+                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                      Сократите текучку кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span>
                     </h3>
                   </div>
                 </div>
@@ -182,8 +182,8 @@ export default function AuditPage() {
                     <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                       <span className="font-semibold text-[15px] text-white leading-[120%]">2</span>
                     </div>
-                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px]">
-                      Поднять продуктивность на <span className="text-[#0F58F9]">50-300%</span> сотрудников
+                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                      Поднять продуктивность на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников
                     </h3>
                   </div>
                 </div>
@@ -205,8 +205,8 @@ export default function AuditPage() {
                     <div className="w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] min-w-[25px] min-h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}>
                       <span className="font-semibold text-[15px] text-white leading-[120%]">3</span>
                     </div>
-                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px]">
-                      Внедрение AI-онбординг <span className="text-[#0F58F9]">за 7 дней</span>
+                    <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
+                      Внедрение AI-онбординг <span className="text-[#0F58F9] xl:leading-[140%]">за 7 дней</span>
                     </h3>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ export default function AuditPage() {
             </h2>
             
             <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
-              <div className="rounded-[6px] mb-[20px] flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px]">
+              <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px]">
                 {/* Card 1 */}
                 <div className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]">
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
@@ -603,7 +603,7 @@ export default function AuditPage() {
                 Купите готовые шаблоны курсов для онбординга и обучения:
               </h3>
 
-              <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:mb-[20px]">
+              <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                 Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:
               </h3>
               
@@ -1611,14 +1611,14 @@ export default function AuditPage() {
                 <div 
                   className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                 >
-                  <h4 className="font-semibold text-[20px]">
+                  <h4 className="font-semibold text-[20px] xl:text-[32px]">
                     AI capabilities:
                   </h4>
                   
                   {/* Capability 1 */}
                   <div className="flex gap-[15px]">
                     <div 
-                      className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
                       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                     >
                       <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1626,7 +1626,7 @@ export default function AuditPage() {
                       </svg>
                     </div>
 
-                    <span className="text-[#71717A] font-medium text-[16px]">
+                    <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
                       Генерация видеоуроков
                     </span>
                   </div>
@@ -1634,7 +1634,7 @@ export default function AuditPage() {
                   {/* Capability 2 */}
                   <div className="flex gap-[15px]">
                     <div 
-                      className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
                       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                     >
                       <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1642,7 +1642,7 @@ export default function AuditPage() {
                       </svg>
                     </div>
 
-                    <span className="text-[#71717A] font-medium text-[16px]">
+                    <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
                       Генерация тестов
                     </span>
                   </div>
@@ -1650,7 +1650,7 @@ export default function AuditPage() {
                   {/* Capability 3 */}
                   <div className="flex gap-[15px]">
                     <div 
-                      className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
                       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                     >
                       <svg width="17" height="18" viewBox="0 0 17 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1662,7 +1662,7 @@ export default function AuditPage() {
                       </svg>
                     </div>
 
-                    <span className="text-[#71717A] font-medium text-[16px]">
+                    <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
                       Генерация презентаций
                     </span>
                   </div>
@@ -1670,7 +1670,7 @@ export default function AuditPage() {
                   {/* Capability 4 */}
                   <div className="flex gap-[15px]">
                     <div 
-                      className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
                       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1678,7 +1678,7 @@ export default function AuditPage() {
                       </svg>
                     </div>
 
-                    <span className="text-[#71717A] font-medium text-[16px]">
+                    <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
                       Перевод на 120+ языков
                     </span>
                   </div>
@@ -1686,7 +1686,7 @@ export default function AuditPage() {
                   {/* Capability 5 */}
                   <div className="flex gap-[15px]">
                     <div 
-                      className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
                       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                     >
                       <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1695,7 +1695,7 @@ export default function AuditPage() {
                       </svg>
                     </div>
 
-                    <span className="text-[#71717A] font-medium text-[16px]">
+                    <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
                       Озвучка и AI-аватары
                     </span>
                   </div>
@@ -1703,7 +1703,7 @@ export default function AuditPage() {
                   {/* Capability 6 */}
                   <div className="flex gap-[15px]">
                     <div 
-                      className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
+                      className="w-[28px] h-[28px] xl:w-[32px] xl:h-[32px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center"
                       style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}
                     >
                       <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1712,7 +1712,7 @@ export default function AuditPage() {
                       </svg>
                     </div>
 
-                    <span className="text-[#71717A] font-medium text-[16px]">
+                    <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
                       Интеграция с LMS платформами
                     </span>
                   </div>
@@ -1803,7 +1803,7 @@ export default function AuditPage() {
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px]">
                 LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
               </h3>
 
@@ -1820,7 +1820,11 @@ export default function AuditPage() {
                   Возможности платформы:
                 </h4>
                 
-                {/* Perk 1 */}
+                {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
+                <div className="flex flex-col gap-[20px] xl:grid xl:grid-cols-2 xl:gap-x-[70px] xl:gap-y-[30px]">
+                  {/* Left Column - Perks 1-4 */}
+                  <div className="flex flex-col gap-[20px]">
+                    {/* Perk 1 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1842,7 +1846,7 @@ export default function AuditPage() {
                   </span>
                 </div>
 
-                {/* Perk 2 */}
+                    {/* Perk 2 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1857,7 +1861,7 @@ export default function AuditPage() {
                   </span>
                 </div>
 
-                {/* Perk 3 */}
+                    {/* Perk 3 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1872,7 +1876,7 @@ export default function AuditPage() {
                   </span>
                 </div>
 
-                {/* Perk 4 */}
+                    {/* Perk 4 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1886,8 +1890,11 @@ export default function AuditPage() {
                     Геймификация<span className="font-normal text-[#71717A]">, тестирование и оценка компетенций</span>
                   </span>
                 </div>
+                  </div>
 
-                {/* Perk 5 */}
+                  {/* Right Column - Perks 5-8 */}
+                  <div className="flex flex-col gap-[20px]">
+                    {/* Perk 5 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1902,7 +1909,7 @@ export default function AuditPage() {
                   </span>
                 </div>
 
-                {/* Perk 6 */}
+                    {/* Perk 6 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1919,7 +1926,7 @@ export default function AuditPage() {
                   </span>
                 </div>
 
-                {/* Perk 7 */}
+                    {/* Perk 7 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1934,7 +1941,7 @@ export default function AuditPage() {
                   </span>
                 </div>
 
-                {/* Perk 8 */}
+                    {/* Perk 8 */}
                 <div className="flex gap-[15px]">
                   <div 
                     className="w-[28px] h-[28px] bg-[#0F58F9] rounded-[2.8px] flex items-center justify-center flex-shrink-0"
@@ -1950,6 +1957,8 @@ export default function AuditPage() {
                   <span className="font-medium text-[16px]  ">
                     Гибкое управление<span className="font-normal text-[#71717A]"> доступами и брендированием</span>
                   </span>
+                </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2174,7 +2183,7 @@ export default function AuditPage() {
         </main>
         
         {/* Footer */}
-        <footer className="bg-black h-[122px] xl:h-[129px] flex flex-col gap-[13px] items-center justify-center xl:items-start xl:justify-start">
+        <footer className="px-[20px] xl:px-[120px] bg-black h-[122px] xl:h-[129px] flex flex-col gap-[13px] items-center justify-center xl:items-start xl:justify-start">
           <svg width="146" height="32" className="xl:h-[37px]" viewBox="0 0 146 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M41.785 20.4795C41.785 20.89 41.8587 21.2378 42.0061 21.5229C42.1535 21.808 42.3462 22.0417 42.5843 22.2242C42.8337 22.3952 43.1228 22.5264 43.4516 22.6176C43.7803 22.6974 44.1204 22.7373 44.4719 22.7373C44.7099 22.7373 44.965 22.7202 45.2371 22.686C45.5092 22.6404 45.7643 22.5606 46.0023 22.4465C46.2404 22.3325 46.4388 22.1786 46.5975 21.9847C46.7562 21.7794 46.8356 21.5229 46.8356 21.215C46.8356 20.8843 46.7279 20.6163 46.5125 20.4111C46.3084 20.2058 46.0364 20.0348 45.6962 19.8979C45.3561 19.7611 44.9707 19.6413 44.5399 19.5387C44.1091 19.4361 43.6726 19.3221 43.2305 19.1966C42.777 19.0826 42.3349 18.9457 41.9041 18.7861C41.4733 18.6151 41.0878 18.3984 40.7477 18.1361C40.4076 17.8738 40.1299 17.5488 39.9145 17.1611C39.7104 16.762 39.6084 16.2831 39.6084 15.7243C39.6084 15.0972 39.7387 14.5555 39.9995 14.0994C40.2716 13.6318 40.623 13.2441 41.0538 12.9362C41.4846 12.6284 41.9721 12.4003 42.5163 12.2521C43.0604 12.1038 43.6046 12.0297 44.1488 12.0297C44.7836 12.0297 45.3902 12.1038 45.9683 12.2521C46.5578 12.3889 47.0793 12.617 47.5328 12.9362C47.9863 13.2555 48.3434 13.666 48.6042 14.1678C48.8762 14.6581 49.0123 15.2568 49.0123 15.9638H46.4275C46.4048 15.5989 46.3254 15.2967 46.1894 15.0572C46.0647 14.8178 45.8946 14.6296 45.6792 14.4928C45.4638 14.3559 45.2144 14.259 44.931 14.202C44.6589 14.145 44.3585 14.1165 44.0297 14.1165C43.8143 14.1165 43.5989 14.1393 43.3835 14.1849C43.1681 14.2305 42.9697 14.3103 42.7884 14.4244C42.6183 14.5384 42.4766 14.6809 42.3632 14.852C42.2499 15.023 42.1932 15.2397 42.1932 15.502C42.1932 15.7414 42.2385 15.9353 42.3292 16.0835C42.4199 16.2318 42.5956 16.3686 42.8564 16.4941C43.1285 16.6195 43.4969 16.7449 43.9617 16.8704C44.4379 16.9958 45.0557 17.1554 45.8153 17.3493C46.042 17.3949 46.3538 17.4804 46.7506 17.6059C47.1587 17.7199 47.5612 17.9081 47.958 18.1703C48.3547 18.4326 48.6948 18.7861 48.9783 19.2308C49.273 19.6641 49.4204 20.2229 49.4204 20.9071C49.4204 21.4659 49.3127 21.9847 49.0973 22.4636C48.8819 22.9426 48.5588 23.3588 48.128 23.7123C47.7085 24.0544 47.1814 24.3224 46.5465 24.5162C45.923 24.7101 45.1974 24.807 44.3698 24.807C43.701 24.807 43.0491 24.7215 42.4142 24.5504C41.7907 24.3908 41.2352 24.1342 40.7477 23.7807C40.2716 23.4272 39.8918 22.9768 39.6084 22.4294C39.3249 21.8821 39.1889 21.2321 39.2002 20.4795H41.785Z" fill="white"/>
             <path d="M51.332 15.6901H53.6107V16.8875H53.6447C53.9622 16.4313 54.342 16.0778 54.7841 15.827C55.2376 15.5761 55.7534 15.4507 56.3316 15.4507C56.8871 15.4507 57.3916 15.559 57.845 15.7756C58.3099 15.9923 58.6613 16.3743 58.8994 16.9217C59.1601 16.534 59.5116 16.1919 59.9537 15.8954C60.4072 15.5989 60.94 15.4507 61.5522 15.4507C62.017 15.4507 62.4478 15.5077 62.8446 15.6217C63.2414 15.7357 63.5815 15.9182 63.8649 16.1691C64.1483 16.4199 64.3694 16.7506 64.5281 17.1611C64.6868 17.5603 64.7662 18.0449 64.7662 18.615V24.5333H62.3514V19.5216C62.3514 19.2251 62.3401 18.9457 62.3174 18.6835C62.2948 18.4212 62.2324 18.1931 62.1304 17.9993C62.0283 17.8054 61.8753 17.6515 61.6712 17.5374C61.4785 17.4234 61.2121 17.3664 60.872 17.3664C60.5319 17.3664 60.2541 17.4348 60.0387 17.5717C59.8347 17.6971 59.6703 17.8681 59.5456 18.0848C59.4322 18.2901 59.3528 18.5295 59.3075 18.8032C59.2735 19.0655 59.2565 19.3335 59.2565 19.6071V24.5333H56.8417V19.5729C56.8417 19.3106 56.8361 19.0541 56.8247 18.8032C56.8134 18.5409 56.7624 18.3015 56.6717 18.0848C56.5923 17.8681 56.4506 17.6971 56.2465 17.5717C56.0538 17.4348 55.7647 17.3664 55.3793 17.3664C55.2659 17.3664 55.1129 17.3949 54.9201 17.4519C54.7388 17.4975 54.5574 17.5945 54.376 17.7427C54.2059 17.8795 54.0585 18.0848 53.9338 18.3585C53.8091 18.6208 53.7468 18.9685 53.7468 19.4019V24.5333H51.332V15.6901Z" fill="white"/>
