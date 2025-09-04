@@ -1944,6 +1944,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           {activeColumns.map((col, idx) => {
             const borderClasses = idx < activeColumns.length - 1 ? 'border-r border-gray-400' : '';
             const common = `px-2 ${borderClasses}`;
+            const breakStyle = { wordBreak: 'break-all', overflowWrap: 'anywhere' };
             switch (col.key) {
               case 'module':
                 return (
@@ -1968,7 +1969,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               case 'videoPresentation':
                 return <div key={col.key} className={common}>{localized.videoPresentation}</div>;
               case 'lessonPresentation':
-                return <div key={col.key} className={common}>{localized.lessonPresentation}</div>;
+                return <div key={col.key} className={common} style={breakStyle}>{localized.lessonPresentation}</div>;
 
               default:
                 return null;
