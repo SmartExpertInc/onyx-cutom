@@ -5,6 +5,7 @@ import { ImpactValueStatisticsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsSlideProps & {
   theme?: SlideTheme | string;
@@ -37,6 +38,7 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
   const [editingLogoText, setEditingLogoText] = useState(false);
   const [editingSourceText, setEditingSourceText] = useState(false);
   const [editingSourceLink, setEditingSourceLink] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
@@ -44,6 +46,7 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
   const [currentLogoText, setCurrentLogoText] = useState(logoText);
   const [currentSourceText, setCurrentSourceText] = useState(sourceText);
   const [currentSourceLink, setCurrentSourceLink] = useState(sourceLink);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -114,6 +117,13 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, statistics, profileImagePath, profileImageAlt, logoText, sourceText, sourceLink, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, statistics, profileImagePath, profileImageAlt, logoText, sourceText, sourceLink, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
@@ -342,61 +352,60 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
           alignItems: 'center',
           gap: '10px',
         }}>
-          <div style={{
-            width: '30px',
-            height: '30px',
-            border: '2px solid #4A4A4A',
-            borderRadius: '50%',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
             <div style={{
-              width: '12px',
-              height: '2px',
-              backgroundColor: '#4A4A4A',
-              position: 'absolute'
-            }} />
-            <div style={{
-              width: '2px',
-              height: '12px',
-              backgroundColor: '#4A4A4A',
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)'
-            }} />
-          </div>
-          <div style={{
-            fontSize: '14px',
-            color: '#4A4A4A', // Dark gray color as per screenshot
-          }}>
-            {isEditable && editingLogoText ? (
-              <ImprovedInlineEditor
-                initialValue={currentLogoText}
-                onSave={handleLogoTextSave}
-                onCancel={() => setEditingLogoText(false)}
-                className="logo-text-editor"
-                style={{
-                  fontSize: '14px',
-                  color: '#4A4A4A',
-                  width: '100%',
-                  height: 'auto',
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingLogoText(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none'
-                }}
-              >
-                {currentLogoText}
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: '2px solid #4A4A4A',
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '2px',
+                  backgroundColor: '#4A4A4A',
+                  position: 'absolute'
+                }} />
+                <div style={{
+                  width: '2px',
+                  height: '12px',
+                  backgroundColor: '#4A4A4A',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
               </div>
-            )}
-          </div>
+              <div style={{ fontSize: '14px', fontWeight: '300', color: '#4A4A4A' }}>Your Logo</div>
+            </div>
+          )}
         </div>
 
         {/* Source Information */}
@@ -466,6 +475,19 @@ export const ImpactValueStatisticsSlideTemplate: React.FC<ImpactValueStatisticsS
           </div>
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

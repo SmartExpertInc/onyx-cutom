@@ -5,6 +5,7 @@ import { KpiBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const KpiBestPracticesSlideTemplate: React.FC<KpiBestPracticesSlideProps & {
   theme?: SlideTheme | string;
@@ -33,11 +34,13 @@ export const KpiBestPracticesSlideTemplate: React.FC<KpiBestPracticesSlideProps 
   const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [editingReportType, setEditingReportType] = useState(false);
   const [editingDate, setEditingDate] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
   const [currentBodyText, setCurrentBodyText] = useState(bodyText);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
   const [currentReportType, setCurrentReportType] = useState(reportType);
   const [currentDate, setCurrentDate] = useState(date);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -102,6 +105,13 @@ export const KpiBestPracticesSlideTemplate: React.FC<KpiBestPracticesSlideProps 
   const handleBottomImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ leftImagePath, leftImageAlt, bodyText, rightImagePath, rightImageAlt, bottomImagePath, bottomImageAlt, companyName, reportType, date, backgroundColor, titleColor, contentColor, accentColor }, bottomImagePath: newImagePath });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ leftImagePath, leftImageAlt, bodyText, rightImagePath, rightImageAlt, bottomImagePath, bottomImageAlt, companyName, reportType, date, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
@@ -247,28 +257,58 @@ export const KpiBestPracticesSlideTemplate: React.FC<KpiBestPracticesSlideProps 
           fontSize: '12px',
           color: '#888888', // Light gray color as per screenshot
         }}>
-          {isEditable && editingCompanyName ? (
-            <ImprovedInlineEditor
-              initialValue={currentCompanyName}
-              onSave={handleCompanyNameSave}
-              onCancel={() => setEditingCompanyName(false)}
-              className="company-name-editor"
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
               style={{
-                fontSize: '12px',
-                color: '#888888',
-                width: '100%',
-                height: 'auto',
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
               }}
             />
           ) : (
-            <div
-              onClick={() => isEditable && setEditingCompanyName(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
             >
-              {currentCompanyName}
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: `2px solid #888888`,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '2px',
+                  backgroundColor: '#888888',
+                  position: 'absolute'
+                }} />
+                <div style={{
+                  width: '2px',
+                  height: '12px',
+                  backgroundColor: '#888888',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: '300', color: '#888888' }}>Your Logo</div>
             </div>
           )}
         </div>
@@ -335,6 +375,19 @@ export const KpiBestPracticesSlideTemplate: React.FC<KpiBestPracticesSlideProps 
           )}
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

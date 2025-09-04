@@ -5,6 +5,7 @@ import { KpiReportChartSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
   theme?: SlideTheme | string;
@@ -40,12 +41,14 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
   const [editingCompanyName, setEditingCompanyName] = useState(false);
   const [editingReportType, setEditingReportType] = useState(false);
   const [editingDate, setEditingDate] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
   const [currentLegend, setCurrentLegend] = useState(legend);
   const [currentBars, setCurrentBars] = useState(bars);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
   const [currentReportType, setCurrentReportType] = useState(reportType);
   const [currentDate, setCurrentDate] = useState(date);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -110,6 +113,13 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, legend, bars, profileImagePath, profileImageAlt, companyName, reportType, date, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, legend, bars, profileImagePath, profileImageAlt, companyName, reportType, date, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
@@ -207,7 +217,7 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
         right: '60px',
         display: 'flex',
         alignItems: 'flex-end',
-        gap: '20px',
+        gap: '40px',
         height: '200px',
       }}>
         {currentBars.map((bar, index) => (
@@ -220,7 +230,7 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
           }}>
             {/* Bar */}
             <div style={{
-              width: '60px',
+              width: '80px',
               height: `${bar.height}px`,
               backgroundColor: bar.color,
               borderRadius: '4px 4px 0 0',
@@ -231,7 +241,7 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
             }}>
               {/* Percentage Text */}
               <div style={{
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 color: bar.color === '#FFFFFF' ? '#333333' : '#FFFFFF', // Dark text for white bars, white for others
               }}>
@@ -242,7 +252,7 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
                     onCancel={() => setEditingBars(null)}
                     className="bar-percentage-editor"
                     style={{
-                      fontSize: '14px',
+                      fontSize: '16px',
                       fontWeight: 'bold',
                       color: bar.color === '#FFFFFF' ? '#333333' : '#FFFFFF',
                       width: '100%',
@@ -338,7 +348,7 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
           <button
             onClick={addBar}
             style={{
-              width: '60px',
+              width: '80px',
               height: '40px',
               backgroundColor: '#FFFFFF',
               border: '2px dashed #333333',
@@ -398,28 +408,58 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
           fontSize: '14px',
           color: '#AAAAAA', // Light gray color as per screenshot
         }}>
-          {isEditable && editingCompanyName ? (
-            <ImprovedInlineEditor
-              initialValue={currentCompanyName}
-              onSave={handleCompanyNameSave}
-              onCancel={() => setEditingCompanyName(false)}
-              className="company-name-editor"
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
               style={{
-                fontSize: '14px',
-                color: '#AAAAAA',
-                width: '100%',
-                height: 'auto',
+                height: '30px',
+                maxWidth: '120px',
+                objectFit: 'contain'
               }}
             />
           ) : (
-            <div
-              onClick={() => isEditable && setEditingCompanyName(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
             >
-              {currentCompanyName}
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: `2px solid #AAAAAA`,
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '2px',
+                  backgroundColor: '#AAAAAA',
+                  position: 'absolute'
+                }} />
+                <div style={{
+                  width: '2px',
+                  height: '12px',
+                  backgroundColor: '#AAAAAA',
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
+              </div>
+              <div style={{ fontSize: '14px', fontWeight: '300', color: '#AAAAAA' }}>Your Logo</div>
             </div>
           )}
         </div>
@@ -486,6 +526,19 @@ export const KpiReportChartSlideTemplate: React.FC<KpiReportChartSlideProps & {
           )}
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
