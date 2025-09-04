@@ -391,7 +391,7 @@ export default function AuditPage() {
                 </h3>
                 
                 {/* First Card */}
-                <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[45px] py-[15px] xl:py-[30px] px-[15px] xl:py-[20px] justify-center items-center text-center border border-[#E0E0E0] rounded-[4px]">
+                <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[45px] py-[15px] xl:py-[30px] px-[15px] xl:pl-[20px] xl:pr-[35px] justify-center items-center text-center border border-[#E0E0E0] rounded-[4px]">
                   <svg className="block xl:hidden" width="164" height="164" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="82" cy="82" r="80" stroke="#EAF7FE" stroke-width="2.85714"/>
                     <path d="M162 82C162 126.183 126.183 162 82 162C37.8172 162 2 126.183 2 82C2 37.8172 37.8172 2 82 2" stroke="#55BFF9" stroke-width="4" stroke-linecap="round"/>
