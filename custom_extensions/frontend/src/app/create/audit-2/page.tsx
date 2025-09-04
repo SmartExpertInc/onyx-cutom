@@ -1114,7 +1114,7 @@ export default function AuditPage() {
                           <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
                             {/* Table Header */}
                             <div className="bg-[#0F58F9] px-[20px] py-[12px]">
-                              <div className="grid grid-cols-3 gap-[20px]">
+                              <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px]">
                                 <div className="text-white font-medium text-[12px] leading-[100%]">
                                   Уроки в модуле
                                 </div>
@@ -1131,7 +1131,7 @@ export default function AuditPage() {
                             <div className="bg-white">
                               {/* Row 1 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
                                     Основные этапы открытия салона
                                   </div>
@@ -1158,7 +1158,7 @@ export default function AuditPage() {
                               
                               {/* Row 2 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
                                   <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                                     Локация и планировка: требования к помещению
                                   </div>
@@ -1183,7 +1183,7 @@ export default function AuditPage() {
                               
                               {/* Row 3 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
                                   <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                                     Финансовая модель и управление бюджетом
                                   </div>
@@ -1208,7 +1208,7 @@ export default function AuditPage() {
                               
                               {/* Row 4 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
                                   <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                                     Работа с поставщиками и закупка материалов
                                   </div>
@@ -1233,7 +1233,7 @@ export default function AuditPage() {
                               
                               {/* Row 5 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
                                   <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                                     Требования к оборудованию и его размещение
                                   </div>
@@ -1258,7 +1258,7 @@ export default function AuditPage() {
                               
                               {/* Row 6 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-[20px] items-center">
                                   <div className="font-medium text-[14px] text-[#09090B] leading-[130%]">
                                     Тест по запуску и организации салона
                                   </div>
