@@ -13241,7 +13241,7 @@ async def download_project_instance_pdf(
             target_row_dict = await conn.fetchrow(
                 """
                 SELECT p.project_name, p.microproduct_name, p.microproduct_content,
-                       dt.component_name as design_component_name
+                       p.lesson_plan_data, dt.component_name as design_component_name
                 FROM projects p
                 LEFT JOIN design_templates dt ON p.design_template_id = dt.id
                 WHERE p.id = $1 AND p.onyx_user_id = $2;
@@ -13256,8 +13256,21 @@ async def download_project_instance_pdf(
 
         content_json = target_row_dict.get('microproduct_content')
         component_name = target_row_dict.get("design_component_name")
+        lesson_plan_data = target_row_dict.get("lesson_plan_data")
         data_for_template_render: Optional[Dict[str, Any]] = None
         pdf_template_file: str
+        
+        # Debug logging for LessonPlan data
+        if component_name == COMPONENT_NAME_LESSON_PLAN:
+            logger.info(f"PDF Gen (Proj {project_id}): Raw lesson_plan_data from DB: {lesson_plan_data}")
+            if lesson_plan_data:
+                logger.info(f"PDF Gen (Proj {project_id}): lesson_plan_data type: {type(lesson_plan_data)}")
+                if isinstance(lesson_plan_data, dict):
+                    logger.info(f"PDF Gen (Proj {project_id}): lesson_plan_data keys: {list(lesson_plan_data.keys())}")
+                elif isinstance(lesson_plan_data, str):
+                    logger.info(f"PDF Gen (Proj {project_id}): lesson_plan_data is string, length: {len(lesson_plan_data)}")
+            else:
+                logger.warning(f"PDF Gen (Proj {project_id}): No lesson_plan_data found in target_row_dict")
 
         detected_lang_for_pdf = 'ru'  # Default language
         if isinstance(content_json, dict) and content_json.get('detectedLanguage'):
@@ -13404,6 +13417,42 @@ async def download_project_instance_pdf(
                     "questions": [],
                     "detectedLanguage": detected_lang_for_pdf
                 }
+        elif component_name == COMPONENT_NAME_LESSON_PLAN: # Lesson Plan handling
+            pdf_template_file = "lesson_plan_pdf_template.html"
+            # Get lesson plan data from the separate lesson_plan_data column
+            lesson_plan_data = target_row_dict.get('lesson_plan_data')
+            
+            # Handle case where lesson_plan_data might be a JSON string
+            if lesson_plan_data and isinstance(lesson_plan_data, str):
+                try:
+                    lesson_plan_data = json.loads(lesson_plan_data)
+                    logger.info(f"PDF Gen (Proj {project_id}): Parsed lesson_plan_data from JSON string")
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.error(f"PDF Gen (Proj {project_id}): Failed to parse lesson_plan_data JSON: {e}")
+                    lesson_plan_data = None
+            
+            if lesson_plan_data and isinstance(lesson_plan_data, dict):
+                data_for_template_render = {
+                    "lessonTitle": lesson_plan_data.get('lessonTitle', mp_name_for_pdf_context),
+                    "shortDescription": lesson_plan_data.get('shortDescription', ''),
+                    "lessonObjectives": lesson_plan_data.get('lessonObjectives', []),
+                    "materials": lesson_plan_data.get('materials', []),
+                    "recommendedProductTypes": lesson_plan_data.get('recommendedProductTypes', {}),
+                    "suggestedPrompts": lesson_plan_data.get('suggestedPrompts', []),
+                    "detectedLanguage": detected_lang_for_pdf
+                }
+                logger.info(f"PDF Gen (Proj {project_id}): LessonPlan data loaded successfully with {len(lesson_plan_data.get('lessonObjectives', []))} objectives")
+            else:
+                data_for_template_render = {
+                    "lessonTitle": mp_name_for_pdf_context,
+                    "shortDescription": "Lesson plan content not available",
+                    "lessonObjectives": [],
+                    "recommendedProductTypes": {},
+                    "materials": [],
+                    "suggestedPrompts": [],
+                    "detectedLanguage": detected_lang_for_pdf
+                }
+                logger.warning(f"PDF Gen (Proj {project_id}): No lesson_plan_data found in database or failed to parse")
         else:
             logger.warning(f"PDF: Unknown component_name '{component_name}' for project {project_id}. Defaulting to simple PDF Lesson structure.")
             pdf_template_file = "pdf_lesson_pdf_template.html" # Or a generic template
