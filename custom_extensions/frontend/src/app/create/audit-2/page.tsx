@@ -1069,11 +1069,17 @@ export default function AuditPage() {
                     </h4>
 
                     {/* Module 1*/}
-                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
-                          Модуль 01:
-                        </span>
+                        <div className="xl:flex xl:gap-[6px]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                            Модуль 01:
+                          </span>
+
+                          <h5 className="hidden xl:block font-medium text-[16px]">
+                            Корпоративная культура и стандарты работы в Vogue Lashes & Spa
+                          </h5>
+                        </div>
                         
                         <button 
                           onClick={() => toggleModule('module1')}
@@ -1093,7 +1099,7 @@ export default function AuditPage() {
                         </button>
                       </div>
                       
-                      <h5 className="font-medium text-[16px]">
+                      <h5 className="font-medium text-[16px] xl:hidden">
                         Корпоративная культура и стандарты работы в Vogue Lashes & Spa
                       </h5>
 
@@ -1466,11 +1472,17 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 2*/}
-                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
-                          Модуль 02:
-                        </span>
+                        <div className="xl:flex xl:gap-[6px]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                            Модуль 02:
+                          </span>
+
+                          <h5 className="hidden, xl:block font-medium text-[16px]">
+                            Подбор и управление персоналом
+                          </h5>
+                        </div>
                         
                         <button 
                           onClick={() => toggleModule('module3')}
@@ -1490,17 +1502,23 @@ export default function AuditPage() {
                         </button>
                       </div>
                       
-                      <h5 className="font-medium text-[16px]">
+                      <h5 className="font-medium text-[16px] xl:hidden">
                         Подбор и управление персоналом
                       </h5>
                     </div>
 
                     {/* Module 3*/}
-                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
-                          Модуль 03:
-                        </span>
+                        <div className="xl:flex xl:gap-[6px]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                            Модуль 03:
+                          </span>
+
+                          <h5 className="font-medium text-[16px] hidden xl:block">
+                            Маркетинг и привлечение клиентов
+                          </h5>
+                        </div>
                         
                         <button 
                           onClick={() => toggleModule('module4')}
@@ -1520,17 +1538,23 @@ export default function AuditPage() {
                         </button>
                       </div>
                       
-                      <h5 className="font-medium text-[16px]">
+                      <h5 className="font-medium text-[16px] xl:hidden">
                         Маркетинг и привлечение клиентов
                       </h5>
                     </div>
 
                     {/* Module 4*/}
-                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
-                        <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
-                          Модуль 04:
-                        </span>
+                        <div className="xl:flex xl:gap-[6px]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                            Модуль 04:
+                          </span>
+
+                          <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
+                            Финансовый контроль и развитие бизнеса
+                          </h5>
+                        </div>
                         
                         <button 
                           onClick={() => toggleModule('module5')}
@@ -1550,7 +1574,7 @@ export default function AuditPage() {
                         </button>
                       </div>
                       
-                      <h5 className="font-medium text-[16px] text-[#09090B]">
+                      <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
                         Финансовый контроль и развитие бизнеса
                       </h5>
                     </div>
