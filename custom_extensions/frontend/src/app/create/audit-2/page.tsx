@@ -593,8 +593,8 @@ export default function AuditPage() {
 
             {/* Service 1 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] py-[4px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                <span className="font-medium text-[16.8px] text-white leading-[120%]">
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 1:
                 </span>
               </div>
@@ -1585,19 +1585,19 @@ export default function AuditPage() {
             </div>
 
             {/* Service 2 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] py-[4px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                <span className="font-medium text-[16.8px] text-white leading-[120%]">
+            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 2:
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] leading-[130%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] mb-[10px] xl:mb-[20px]">
                 ContentBuilder.ai — AI-платформа для автоматизации создания и обновления курсов:
               </h3>
 
               <div 
-                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px]"
+                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px]"
                 style={{ 
                   backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-2-image-1-desktop.png)',
                   backgroundSize: 'cover',
@@ -1607,9 +1607,9 @@ export default function AuditPage() {
                 }}
               ></div>
               
-              <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px]">
+              <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] xl:px-[20px] xl:py-[20px] xl:mb-[40px]">
                 <div 
-                  className="rounded-[6px] bg-[#F5F8FF] px-[15px] py-[20px] flex flex-col gap-[20px]"
+                  className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                 >
                   <h4 className="font-semibold text-[20px]">
                     AI capabilities:
@@ -1728,20 +1728,20 @@ export default function AuditPage() {
               </div>
 
               <div className="flex flex-col gap-[15px]">
-                <h4 className="font-semibold text-[20px]   mb-[5px]">
+                <h4 className="font-semibold text-[20px] xl:text-[32px] leading-[130%] mb-[5px]">
                   Как это работает:
                 </h4>
                 
-                <div className="border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
-                  <div className="pt-[15px] px-[15px] pb-[25px]">
+                <div className="border border-[#E0E0E0] rounded-[4px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
+                  <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px]">
                     <div 
-                      className="w-[25px] h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                      className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                       style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
                     >
                       1
                     </div>
                     
-                    <h5 className="font-semibold text-[18px]   mt-[15px]">
+                    <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px]">
                       Методолог <span className="text-[#0F58F9]">загружает ваши материалы</span> (тексты, инструкции, PDF, видео и др.)
                     </h5>
                   </div>
@@ -1763,15 +1763,15 @@ export default function AuditPage() {
                 </div>
 
                 <div className="border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
-                  <div className="pt-[15px] px-[15px] pb-[25px]">
+                  <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px]">
                     <div 
-                      className="w-[25px] h-[25px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                      className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                       style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
                     >
                       2
                     </div>
                     
-                    <h5 className="font-semibold text-[18px]   mt-[15px]">
+                    <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px]">
                       Платформа превращает их в <span className="text-[#0F58F9]">уроки, тесты, видео и презентации</span>
                     </h5>
                   </div>
@@ -1797,13 +1797,13 @@ export default function AuditPage() {
 
             {/* Service 3 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] py-[4px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                <span className="font-medium text-[16.8px] text-white leading-[120%]">
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 3:
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] leading-[130%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] mb-[10px]">
                 LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
               </h3>
 
@@ -1956,13 +1956,13 @@ export default function AuditPage() {
 
             {/* Service 4 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] py-[4px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
-                <span className="font-medium text-[16.8px] text-white leading-[120%]">
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+                <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 4:
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] leading-[130%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] mb-[10px]">
                 Expert-as-a-Service — Методолог:
               </h3>
 
