@@ -605,7 +605,7 @@ export default function AuditPage() {
                 Купите готовые шаблоны курсов для онбординга и обучения:
               </h3>
 
-              <h3 className="hidden xl:block font-medium xl:text-[40px] xl:leading-[130%] xl:mb-[20px]">
+              <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:mb-[20px]">
                 Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:
               </h3>
               
@@ -944,7 +944,7 @@ export default function AuditPage() {
                 {/* Card 6 */}
                 <div className="hidden xl:block border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
                   {/* Card Top */}
-                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-3-mobile.png)' }}>
+                  <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-6-desktop.png)' }}>
                     <span className="font-semibold text-[16px] text-white">
                       Slide Deck
                     </span>
