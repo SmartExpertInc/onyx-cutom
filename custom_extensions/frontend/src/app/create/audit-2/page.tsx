@@ -1069,7 +1069,7 @@ export default function AuditPage() {
                     </h4>
 
                     {/* Module 1*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                           Модуль 01:
@@ -1466,7 +1466,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 2*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                           Модуль 02:
@@ -1496,7 +1496,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 3*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                           Модуль 03:
@@ -1526,7 +1526,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 4*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col xl:flex-row gap-[8px] xl:gap-[6px] py-[15px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
                           Модуль 04:
