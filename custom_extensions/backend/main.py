@@ -18354,7 +18354,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         async with pool.acquire() as conn:
             # Check if user owns the project or has workspace access
             project_row = await conn.fetchrow("""
-                SELECT p.project_name, p.microproduct_content, dt.component_name 
+                SELECT p.project_name, p.microproduct_content, p.onyx_user_id, dt.component_name 
                 FROM projects p 
                 JOIN design_templates dt ON p.design_template_id = dt.id 
                 WHERE p.id = $1 AND (
@@ -18377,6 +18377,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             if not project_row:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or not owned by user.")
             current_component_name = project_row["component_name"]
+            project_owner_id = project_row["onyx_user_id"]
             old_project_name = project_row["project_name"]
             try:
                 old_microproduct_content = dict(project_row["microproduct_content"]) if project_row["microproduct_content"] else None
@@ -18497,8 +18498,8 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         if not update_clauses:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No update data provided.")
 
-        update_values.extend([project_id, user_uuid])
-        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
+        update_values.extend([project_id])
+        update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
 
         async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
         if not row:
@@ -18516,7 +18517,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     async with pool.acquire() as conn:
                         children = await conn.fetch(
                             "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND is_standalone = FALSE AND project_name LIKE $2",
-                            user_uuid, old_prefix + "%"
+                            project_owner_id, old_prefix + "%"
                         )
                         for child in children:
                             child_id = child["id"]
@@ -18537,7 +18538,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                                 updated_micro_name = updated_project_name
                             await conn.execute(
                                 "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name) WHERE id = $3 AND onyx_user_id = $4",
-                                updated_project_name, updated_micro_name, child_id, user_uuid
+                                updated_project_name, updated_micro_name, child_id, project_owner_id
                             )
                 
                 # 2) If lesson titles changed inside outline content, rename exact-matching children
@@ -18577,7 +18578,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                             new_full = f"{(row['project_name'] or new_project_name).strip()}: {new_title}"
                             children = await conn.fetch(
                                 "SELECT id, project_name, microproduct_name, microproduct_content FROM projects WHERE onyx_user_id = $1 AND project_name = $2",
-                                user_uuid, old_full
+                                project_owner_id, old_full
                             )
                             for child in children:
                                 child_id = child["id"]
@@ -18609,7 +18610,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                                     logger.warning(f"[RENAME_PROPAGATION] Failed to update content titles for child {child_id}: {e}")
                                 await conn.execute(
                                     "UPDATE projects SET project_name = $1, microproduct_name = COALESCE($2, microproduct_name), microproduct_content = COALESCE($3, microproduct_content) WHERE id = $4 AND onyx_user_id = $5",
-                                    new_full, updated_micro_name, updated_content, child_id, onyx_user_id
+                                    new_full, updated_micro_name, updated_content, child_id, project_owner_id
                                 )
         except Exception as e:
             logger.error(f"[RENAME_PROPAGATION] Error during rename propagation for project {project_id}: {e}", exc_info=not IS_PRODUCTION)
