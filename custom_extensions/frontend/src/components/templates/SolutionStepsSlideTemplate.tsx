@@ -247,7 +247,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             <div key={index} style={{
               position: 'absolute',
               top: '50%',
-              left: `${(index * 50) + 25}%`,
+              left: `${(index * 33.33) + 16.67}%`,
               transform: 'translate(-50%, -50%)',
               width: '20px',
               height: '20px',
@@ -269,7 +269,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              width: '30%',
+              width: '33.33%',
             }}>
               {/* Step Title */}
               <div style={{
