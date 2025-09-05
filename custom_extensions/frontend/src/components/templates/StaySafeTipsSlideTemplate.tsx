@@ -52,23 +52,23 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
     left: 0,
     bottom: 0,
     width: '66.5%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FEFEFE',
   };
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
     top: '44px',
-    left: '44px',
-    fontSize: '76px',
+    left: '41px',
+    fontSize: '60px',
     lineHeight: '1.05',
     fontWeight: 800,
-    color: '#2b2b2b',
+    color: '#202122',
     maxWidth: '78%',
   };
 
   const tipsGridStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '280px',
+    top: '143px',
     left: '44px',
     width: '61%',
     display: 'grid',
@@ -81,20 +81,20 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
   const numberStyles: React.CSSProperties = {
     fontSize: '30px',
     fontWeight: 700,
-    color: '#7E61F8',
+    color: '#5740BC',
     marginBottom: '8px',
   };
 
   const tipHeadingStyles: React.CSSProperties = {
-    fontSize: '40px',
+    fontSize: '29px',
     fontWeight: 800,
-    color: '#1f1f1f',
+    color: '#202222',
     marginBottom: '8px',
   };
 
   const tipDescStyles: React.CSSProperties = {
-    fontSize: '16px',
-    color: '#5f6a6a',
+    fontSize: '13px',
+    color: '#484949',
     lineHeight: 1.4,
     maxWidth: '95%',
   };
@@ -156,7 +156,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
           position="CENTER"
           description="Actor image"
           isEditable={isEditable}
-          style={{ width: '92%', height: '92%', objectFit: 'contain' }}
+          style={{ width: '92%', height: '92%', objectFit: 'contain', position: 'absolute', bottom: '-25px' }}
         />
       </div>
     </div>
