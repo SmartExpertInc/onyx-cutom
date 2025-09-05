@@ -37,7 +37,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#4A471F',
+    backgroundColor: '#4D4828',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -46,8 +46,8 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
     left: '56px',
-    bottom: '48px',
-    fontSize: '64px',
+    bottom: '33px',
+    fontSize: '53px',
     fontWeight: 800,
     color: '#D7D1B0',
   };
@@ -63,9 +63,9 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   };
 
   const itemStyles: React.CSSProperties = {
-    backgroundColor: '#59562A',
-    color: '#D7D1B0',
-    borderRadius: '8px',
+    backgroundColor: '#58552E',
+    color: '#D6D2AC',
+    borderRadius: '2px',
     padding: '28px 28px',
     fontSize: '28px',
     fontWeight: 600,
@@ -109,7 +109,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
       </div>
 
       {/* Profile circle bottom-right */}
-      <div style={{ position: 'absolute', right: '48px', bottom: '48px', width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#919363' }}>
+      <div style={{ position: 'absolute', right: '48px', bottom: '11px', width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#9E9E58' }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
