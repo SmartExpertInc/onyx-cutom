@@ -17045,10 +17045,11 @@ CONTENT DEVELOPMENT SPECIFICATIONS: Create a flowing, structured lesson format t
 
 TEXT BLOCKS: Create 3-5 educational text blocks with:
 - block_title: A clear, engaging title (e.g., "Understanding the Fundamentals", "Key Implementation Strategies", "Best Practices for Success")
-- block_content: Rich educational content that can include:
-  * Plain text paragraphs explaining concepts
-  * Bullet lists (using -) for key points and benefits
-  * Numbered lists (using 1.) for sequential steps or processes
+- block_content: Rich educational content that should contain ONE of the following formats:
+  * Plain text paragraphs only (for explanatory content)
+  * Bullet lists only (using -) for key points and benefits
+  * Numbered lists only (using 1.) for sequential steps or processes
+  * Mixed format: Brief intro text followed by a list (if context requires both)
 
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
@@ -17057,9 +17058,12 @@ PRODUCT BLOCKS: For each recommended product, create a product block with:
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
 - Insert first product block
-- Add 1-2 text blocks expanding on concepts
+- Add randomly 1-2 text blocks expanding on concepts (vary the count)
 - Insert next product block (if applicable)
-- Continue pattern, ending with a text block for conclusion
+- Continue pattern with random 1-2 text blocks between each product block
+- End with a text block for conclusion
+
+IMPORTANT: Vary the number of text blocks between products (sometimes 1, sometimes 2) to create natural flow. Each text block should contain EITHER plain text paragraphs OR bullet/numbered lists, not necessarily both.
 
 The content should flow naturally, building knowledge progressively while seamlessly incorporating product specifications that support the learning journey.
 

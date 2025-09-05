@@ -61,61 +61,87 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                 <div key={index}>
                   {block.type === 'text' ? (
                     // Text Block
-                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border-l-4 border-blue-400 shadow-sm">
-                      <h3 className="font-bold text-blue-800 mb-4 text-lg flex items-center">
-                        <FileText className="w-5 h-5 mr-2" />
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 shadow-sm">
+                      <h3 className="font-bold text-blue-800 mb-4 text-lg">
                         {block.block_title}
                       </h3>
                       <div className="text-gray-700 leading-relaxed">
-                        {block.block_content.split('\n').map((paragraph, pIndex) => {
-                          if (paragraph.trim() === '') return null;
+                        {(() => {
+                          const lines = block.block_content.split('\n').filter(line => line.trim() !== '');
+                          const hasBulletList = lines.some(line => line.trim().startsWith('- '));
+                          const hasNumberedList = lines.some(line => /^\d+\./.test(line.trim()));
                           
-                          // Handle bullet lists
-                          if (paragraph.trim().startsWith('- ')) {
-                            const listItems = block.block_content
-                              .split('\n')
+                          if (hasBulletList) {
+                            // Extract bullet list items and non-list content
+                            const bulletItems = lines
                               .filter(line => line.trim().startsWith('- '))
                               .map(line => line.trim().substring(2));
+                            const nonListContent = lines
+                              .filter(line => !line.trim().startsWith('- '))
+                              .join('\n');
                             
-                            if (pIndex === block.block_content.split('\n').findIndex(line => line.trim().startsWith('- '))) {
-                              return (
-                                <ul key={pIndex} className="list-disc list-inside space-y-2 ml-4 mb-4">
-                                  {listItems.map((item, itemIndex) => (
+                            return (
+                              <>
+                                {nonListContent.trim() && (
+                                  <div className="mb-4">
+                                    {nonListContent.split('\n').map((paragraph, pIndex) => (
+                                      paragraph.trim() && (
+                                        <p key={pIndex} className="mb-3 last:mb-0">
+                                          {paragraph}
+                                        </p>
+                                      )
+                                    ))}
+                                  </div>
+                                )}
+                                <ul className="list-disc list-inside space-y-2 ml-4">
+                                  {bulletItems.map((item, itemIndex) => (
                                     <li key={itemIndex} className="text-gray-700">{item}</li>
                                   ))}
                                 </ul>
-                              );
-                            }
-                            return null;
-                          }
-                          
-                          // Handle numbered lists
-                          if (/^\d+\./.test(paragraph.trim())) {
-                            const listItems = block.block_content
-                              .split('\n')
-                              .filter(line => /^\d+\./.test(line.trim()));
+                              </>
+                            );
+                          } else if (hasNumberedList) {
+                            // Extract numbered list items and non-list content
+                            const numberedItems = lines
+                              .filter(line => /^\d+\./.test(line.trim()))
+                              .map(line => line.replace(/^\d+\.\s*/, ''));
+                            const nonListContent = lines
+                              .filter(line => !/^\d+\./.test(line.trim()))
+                              .join('\n');
                             
-                            if (pIndex === block.block_content.split('\n').findIndex(line => /^\d+\./.test(line.trim()))) {
-                              return (
-                                <ol key={pIndex} className="list-decimal list-inside space-y-2 ml-4 mb-4">
-                                  {listItems.map((item, itemIndex) => (
-                                    <li key={itemIndex} className="text-gray-700">
-                                      {item.replace(/^\d+\.\s*/, '')}
-                                    </li>
+                            return (
+                              <>
+                                {nonListContent.trim() && (
+                                  <div className="mb-4">
+                                    {nonListContent.split('\n').map((paragraph, pIndex) => (
+                                      paragraph.trim() && (
+                                        <p key={pIndex} className="mb-3 last:mb-0">
+                                          {paragraph}
+                                        </p>
+                                      )
+                                    ))}
+                                  </div>
+                                )}
+                                <ol className="list-decimal list-inside space-y-2 ml-4">
+                                  {numberedItems.map((item, itemIndex) => (
+                                    <li key={itemIndex} className="text-gray-700">{item}</li>
                                   ))}
                                 </ol>
-                              );
-                            }
-                            return null;
+                              </>
+                            );
+                          } else {
+                            // Plain text only
+                            return (
+                              <>
+                                {lines.map((paragraph, pIndex) => (
+                                  <p key={pIndex} className="mb-3 last:mb-0">
+                                    {paragraph}
+                                  </p>
+                                ))}
+                              </>
+                            );
                           }
-                          
-                          // Regular paragraph
-                          return (
-                            <p key={pIndex} className="mb-3 last:mb-0">
-                              {paragraph}
-                            </p>
-                          );
-                        })}
+                        })()}
                       </div>
                     </div>
                   ) : (
