@@ -592,14 +592,14 @@ export default function AuditPage() {
           </section>
 
           {/* Fifth Section */}
-          <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
+          <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
             <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%]">
               Предлагаем три готовых решения:
             </h2>
 
             {/* Service 1 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 1:
                 </span>
@@ -613,7 +613,7 @@ export default function AuditPage() {
                 Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:
               </h3>
               
-              <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px]">
+              <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
                 {/* Card 1 */}
                 <div className="border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px]" style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
                   {/* Card Top */}
@@ -1592,7 +1592,7 @@ export default function AuditPage() {
 
             {/* Service 2 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 2:
                 </span>
@@ -1806,7 +1806,7 @@ export default function AuditPage() {
 
             {/* Service 3 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 3:
                 </span>
@@ -1982,7 +1982,7 @@ export default function AuditPage() {
 
             {/* Service 4 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
-              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
+              <div className="bg-[#0F58F9] rounded-[2.24px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 4:
                 </span>
