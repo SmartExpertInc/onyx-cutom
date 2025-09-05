@@ -9,20 +9,24 @@ interface LessonPlanViewProps {
 }
 
 export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }) => {
-  const handleSeePrompt = (productName: string) => {
-    // Scroll to the prompts section
-    const promptsSection = document.getElementById('prompts-section');
-    if (promptsSection) {
-      promptsSection.scrollIntoView({ behavior: 'smooth' });
-      
-      // Highlight the specific prompt for this product
-      const productPrompt = document.getElementById(`prompt-${productName}`);
-      if (productPrompt) {
-        productPrompt.style.backgroundColor = '#fef3c7';
-        setTimeout(() => {
-          productPrompt.style.backgroundColor = '';
-        }, 2000);
-      }
+  const handleSeePrompt = (productName: string, description: string) => {
+    // Find the corresponding prompt for this product
+    const prompt = lessonPlanData.suggestedPrompts.find(p => 
+      p.toLowerCase().includes(productName.toLowerCase()) || 
+      p.toLowerCase().includes(productName.replace('-', ' ').toLowerCase())
+    );
+    
+    if (prompt) {
+      // Create a modal or copy to clipboard functionality
+      navigator.clipboard.writeText(prompt).then(() => {
+        alert('Prompt copied to clipboard!');
+      }).catch(() => {
+        // Fallback: show prompt in alert
+        alert(prompt);
+      });
+    } else {
+      // Fallback: show the product description
+      alert(description);
     }
   };
 
@@ -168,7 +172,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                       <p className="text-gray-700 leading-relaxed mb-4">{block.product_description}</p>
                       <div className="flex justify-end">
                         <button
-                          onClick={() => handleSeePrompt(block.product_name)}
+                          onClick={() => handleSeePrompt(block.product_name, block.product_description)}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
                         >
                           <Eye className="w-4 h-4" />
@@ -191,45 +195,20 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Resources</h2>
           </div>
-          {/* Source Materials Section */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Source Materials Used:</h3>
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
-              <ul className="space-y-3">
-                {lessonPlanData.materials
-                  .slice(0, lessonPlanData.materials.findIndex(m => m.includes('Additional Resources')) || lessonPlanData.materials.length)
-                  .map((material, index) => (
-                    <li key={index} className="flex items-start group">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                      <span className="text-gray-800 leading-relaxed font-semibold text-lg">{material}</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 border border-cyan-100">
+            <ul className="space-y-4">
+              {lessonPlanData.materials.map((material, index) => (
+                <li key={index} className="flex items-start group">
+                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                  <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-          
-          {/* Additional Resources Section */}
-          {lessonPlanData.materials.some(m => m.includes('Additional Resources')) && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Additional Resources Needed:</h3>
-              <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 border border-cyan-100">
-                <ul className="space-y-3">
-                  {lessonPlanData.materials
-                    .slice(lessonPlanData.materials.findIndex(m => m.includes('Additional Resources')) + 1)
-                    .map((material, index) => (
-                      <li key={index} className="flex items-start group">
-                        <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                        <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Content Creation Prompts */}
-        <div id="prompts-section" className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-700 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Lightbulb className="w-6 h-6 text-white" />
@@ -238,31 +217,15 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
           </div>
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
             <div className="space-y-6">
-              {lessonPlanData.suggestedPrompts.map((prompt, index) => {
-                // Parse structured prompts with titles
-                const lines = prompt.split('\n');
-                const titleMatch = lines[0].match(/\*\*(.+?)\*\*/);
-                const title = titleMatch ? titleMatch[1] : `Prompt ${index + 1}`;
-                const content = titleMatch ? lines.slice(1).join('\n').trim() : prompt;
-                
-                // Extract product name from title for ID
-                const productName = title.toLowerCase().includes('video') ? 'video-lesson' :
-                                  title.toLowerCase().includes('presentation') ? 'presentation' :
-                                  title.toLowerCase().includes('quiz') ? 'quiz' :
-                                  title.toLowerCase().includes('one-pager') ? 'one-pager' :
-                                  `product-${index}`;
-                
-                return (
-                  <div key={index} id={`prompt-${productName}`} className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
-                    <div className="mb-3">
-                      <h3 className="font-bold text-blue-800 text-lg uppercase tracking-wide">{title}</h3>
+              {lessonPlanData.suggestedPrompts.map((prompt, index) => (
+                <div key={index} className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="flex items-start">
+                    <div className="flex items-center justify-center w-3 h-3 bg-blue-500 rounded-full mr-4 mt-2 flex-shrink-0">
                     </div>
-                    <div className="text-gray-800 leading-relaxed font-medium text-lg whitespace-pre-wrap">
-                      {content}
-                    </div>
+                    <p className="text-gray-800 leading-relaxed font-medium text-lg">{prompt}</p>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
