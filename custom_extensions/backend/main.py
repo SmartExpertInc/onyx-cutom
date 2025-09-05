@@ -17194,27 +17194,18 @@ CRITICAL CASE STUDY REQUIREMENT: If any text block includes a case study, it MUS
 
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
-- product_description: ABSOLUTELY CRITICAL - This MUST be a single STRING value only. Do NOT use nested objects, dictionaries, or structured data. Write everything as one comprehensive paragraph string. Include all the following details in one detailed paragraph:
+- product_description: SIMPLE CONTENT OUTLINE ONLY. This should be a clear, concise description of WHAT TOPICS AND CONTENT should be covered in this product. Write as a single string that serves as a content roadmap for developers. Include:
 
-WRITE AS A SINGLE DETAILED STRING: Focus ONLY on content description and topics. Provide comprehensive content specifications including:
+CONTENT TOPICS TO COVER (as a simple list format):
+- Main topics that must be addressed (3-5 key areas)
+- Important subtopics within each main area
+- Key concepts and terminology to explain
+- Essential examples or case studies to include
+- Practical applications to demonstrate
 
-CONTENT TO BE INCLUDED:
-- Exact topics with 5-8 specific subtopics that must be covered
-- Precise learning concepts with concrete examples
-- Specific terminology and industry-standard language to be explained
-- Detailed procedures and methodologies to be demonstrated
-- Specific real-world scenarios and case studies with names/details
-- Key concepts learners must understand and apply
-- Specific knowledge areas that must be addressed
+EXAMPLE FORMAT: "This [product type] should cover the following topics: Topic 1 including subtopic A and subtopic B, Topic 2 with focus on concept X and concept Y, Topic 3 demonstrating practical application Z. Key terminology to explain includes [terms]. Essential examples should include [specific example]. The content should help learners understand [main learning outcome]."
 
-LEARNING CONTENT STRUCTURE:
-- What specific information should be presented and in what order
-- How concepts should be explained and connected
-- What examples and case studies should be included
-- What practical applications should be demonstrated
-- How learners should interact with the content material
-
-DO NOT INCLUDE: Technical specifications like resolution, colors, fonts, accessibility requirements, duration, slide counts, formatting details, or visual design elements. Focus exclusively on the educational content and topics to be covered.
+DO NOT INCLUDE: Detailed instructions, technical specs, formatting requirements, or step-by-step creation guidance. Keep it focused on WHAT content should be covered, not HOW to create it.
 
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
@@ -17233,26 +17224,37 @@ MATERIALS: List the actual source materials used to create this lesson plan:
 Source Materials Used:
 {', '.join(source_materials)}
 
-AI TOOL PROMPTS: Create exactly one ULTRA-DETAILED, immediately actionable prompt for each recommended product type. Each prompt must follow the specific format for its product type and be so comprehensive that a content creator can execute it immediately without additional clarification.
+AI TOOL PROMPTS: Create exactly one COMPLETE, COPY-PASTE READY prompt for each recommended product type. These prompts should be fully formed instructions that users can copy directly into AI tools (like ChatGPT, Claude, Synthesia, Gamma, etc.) without any modification. Each prompt must be self-contained and immediately executable.
 
 CRITICAL REQUIREMENTS:
 - Create exactly {len(payload.recommendedProducts)} prompts (one for each recommended product)
-- Each prompt must be 200-400 words with precise specifications
-- Follow the exact format structure for each product type
+- Each prompt must be 200-400 words and READY TO USE as-is
+- Fill in ALL placeholder values with actual lesson-specific content
+- Prompts should be complete sentences that can be copied and pasted directly into AI tools
 
 PRODUCT TYPE FORMATS:
 
+IMPORTANT: Replace ALL bracketed placeholders with actual lesson-specific information. The final prompts should contain NO brackets or placeholders.
+
 FOR VIDEO LESSONS:
-Structure: "Create a professional [type] video for [target audience]. This is the [lesson context], titled [lesson title]. The video should [opening approach], explain that the main goal [main objective], [key content areas], and provide [overview elements]. The tone should be [tone description], and the duration should be around [X] minutes."
+Create prompts following this pattern (fill in all specific details):
+"Create a professional training video for [specific target audience with experience level]. This is the [specific lesson context], titled [actual lesson title]. The video should welcome learners with [specific opening approach], explain that the main goal is [actual learning objective from the lesson plan], cover [specific topics from the lesson's product block content], and provide [specific overview elements]. The tone should be [appropriate tone for audience], and the duration should be around [X] minutes based on the lesson timing."
 
 FOR PRESENTATIONS:
-Structure: "Create a professional educational presentation for [target audience]. This is the [lesson context] for the unit on [topic area], titled '[lesson title].' The presentation should [opening approach], explain that the main goal is to [main objective], and provide [content breakdown]. [Detailed content requirements]. The tone should be [tone description], with [visual style description]. The presentation should be around [X-Y] slides. For each slide, please generate concise on-slide text and provide detailed speaker notes to guide the teacher."
+Create prompts following this pattern (fill in all specific details):
+"Create a professional educational presentation for [specific target audience]. This is the [lesson context] for the unit on [topic area], titled '[actual lesson title].' The presentation should [specific opening approach], explain that the main goal is to [actual learning objective], and provide [specific content breakdown from lesson topics]. The presentation must cover [list specific topics from product block]. The tone should be [appropriate tone], with [visual style description]. The presentation should be around [X-Y] slides based on timing. For each slide, please generate concise on-slide text and provide detailed speaker notes to guide the teacher."
 
 FOR QUIZZES:
-Structure: "Create a [X]-question multiple-choice quiz for [target audience] to assess their understanding of the [lesson context], '[lesson title].' The quiz's primary goal is to test the students' knowledge of [key concepts]. It should cover [content areas]. The questions should be clear, direct, and multiple-choice, with four distinct answer options. The tone should be educational and straightforward. For each question, provide one correct answer and three plausible but incorrect distractors. Additionally, include a brief rationale for each answer option explaining why it is correct or incorrect, and a hint for each question that guides students toward the correct concept without giving away the answer."
+Create prompts following this pattern (fill in all specific details):
+"Create a [specific number]-question multiple-choice quiz for [specific target audience] to assess their understanding of the [lesson context], '[actual lesson title].' The quiz's primary goal is to test the students' knowledge of [specific concepts from lesson objectives]. It should cover [specific content areas from product block]. The questions should be clear, direct, and multiple-choice, with four distinct answer options. The tone should be educational and straightforward. For each question, provide one correct answer and three plausible but incorrect distractors. Additionally, include a brief rationale for each answer option explaining why it is correct or incorrect, and a hint for each question that guides students toward the correct concept without giving away the answer."
 
 FOR ONE-PAGERS:
-Structure: "Create a professional e-learning document for [target audience]. This document should act as a [document purpose] for the lesson titled '[lesson title].' The document should [content organization requirements]. [Specific content requirements]. The tone should be [tone description]. The information should be highly organized for scannability, using headings, bullet points, and bold text to highlight key information. The final document should be approximately [length] long."
+Create prompts following this pattern (fill in all specific details):
+"Create a professional e-learning document for [specific target audience]. This document should act as a [specific document purpose] for the lesson titled '[actual lesson title].' The document should [specific content organization requirements]. It must cover [specific topics from the lesson's product block content]. The tone should be [appropriate tone]. The information should be highly organized for scannability, using headings, bullet points, and bold text to highlight key information. The final document should be approximately [specific length] long."
+
+CRITICAL DISTINCTION - PRODUCT BLOCKS vs PROMPTS:
+- PRODUCT BLOCKS = Simple content outline describing WHAT topics should be covered (example: "This video should cover topic A, topic B, and topic C with focus on practical applications")
+- AI TOOL PROMPTS = Complete, copy-paste ready instructions for AI tools (example: "Create a professional training video for senior project managers. This is an advanced lesson on risk management, titled 'Advanced Risk Assessment Techniques.' The video should...")
 
 CONTENT REQUIREMENTS FOR ALL PROMPTS:
 - Target audience must be specific (not generic)
@@ -17260,6 +17262,8 @@ CONTENT REQUIREMENTS FOR ALL PROMPTS:
 - Content must include specific topics and subtopics from the lesson context
 - Examples and case studies must be detailed and relevant
 - Tone and style must be appropriate for the audience and context
+- Fill in ALL bracketed placeholders with actual lesson-specific information
+- Final prompts should be ready to copy-paste into AI tools without modification
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
