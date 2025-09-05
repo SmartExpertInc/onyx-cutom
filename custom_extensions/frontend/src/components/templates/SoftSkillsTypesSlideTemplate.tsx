@@ -81,6 +81,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     padding: '6px 10px',
     fontSize: '25px',
     fontWeight: 600,
+    display: 'flex',
+    alignItems: 'center',
   };
 
   return (
@@ -132,8 +134,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
             />
             <div style={cardLabelStyles}>
-              <span style={{ fontSize: '34px', lineHeight: 1, display: 'inline-block', marginRight: '8px' }}>•</span>
-              <span style={{ fontSize: '25px' }}>{c.label}</span>
+              <span style={{ fontSize: '41px', color: '#FFFFFF', lineHeight: 1, display: 'inline-block', marginRight: '8px' }}>•</span>
+              <span style={{ fontSize: '18px', marginTop: '7px' }}>{c.label}</span>
             </div>
           </div>
         ))}
