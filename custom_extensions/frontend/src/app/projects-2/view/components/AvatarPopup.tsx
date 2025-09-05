@@ -550,12 +550,20 @@ export default function AvatarPopup({
                     <div 
                         className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden"
                       onClick={() => handleAvatarClick(avatar)}
-                        style={{
-                          backgroundImage: avatar.thumbnail ? `url(${avatar.thumbnail})` : 'none',
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center'
-                        }}
                       >
+                        {avatar.thumbnail ? (
+                          <img 
+                            src={avatar.thumbnail} 
+                            alt={avatar.displayName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        )}
                         {/* Overlay on hover */}
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
                         
