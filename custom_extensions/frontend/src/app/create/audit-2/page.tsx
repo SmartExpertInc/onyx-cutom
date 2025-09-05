@@ -2008,7 +2008,7 @@ export default function AuditPage() {
                 Expert-as-a-Service — Методолог:
               </h3>
 
-              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
+              <div className="xl:h-[531px] xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
                 <Image 
                   src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile.png"
                   alt="Card 1"
