@@ -418,8 +418,8 @@ export default function AuditPage() {
                     src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
                     alt="Audit section 3 card 2 mobile" 
                     width={281}
-                    height={225}
-                    className="w-full h-full object-cover"
+                    height={226}
+                    className="w-[281px] h-[226px]"
                   />
                 </div>
 
@@ -1069,13 +1069,13 @@ export default function AuditPage() {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-[20px] xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
+                  <div className="flex flex-col gap-[20px] xl:gap-0 xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
                     <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
                       План обучения
                     </h4>
 
                     {/* Module 1*/}
-                    <div className="module-item flex flex-col gap-[8px] xl:pb-[15px] border-b border-[#D2E3F1] xl:border-b-0">
+                    <div className={`module-item flex flex-col gap-[8px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
@@ -1539,7 +1539,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 3*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
+                    <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module3'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
@@ -1575,7 +1575,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 4*/}
-                    <div className="module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1]">
+                    <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module4'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
