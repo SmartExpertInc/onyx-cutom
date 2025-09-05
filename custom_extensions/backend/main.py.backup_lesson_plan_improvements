@@ -17138,7 +17138,7 @@ TEXT BLOCKS: Create 3-5 educational text blocks with:
 
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
-- product_description: Detailed content specifications including specific topics, concepts, and learning elements that must be covered in this product. Include a list of key content areas and learning points that the product should address.
+- product_description: Detailed specifications for Content Developers
 
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
@@ -17152,22 +17152,35 @@ IMPORTANT: Vary the number of text blocks between products (sometimes 1, sometim
 
 The content should flow naturally, building knowledge progressively while seamlessly incorporating product specifications that support the learning journey.
 
-MATERIALS: List the actual source materials used to create this lesson plan:
+MATERIALS: List the actual source materials used to create this lesson plan, followed by general content creation resources:
 
 Source Materials Used:
 {', '.join(source_materials)}
 
-AI TOOL PROMPTS: Create exactly one detailed, ready-to-use prompt for each recommended product type. Do NOT include titles or formatting - just the prompt content itself.
+Additional Resources Needed:
+- Content creation tools and software
+- Assessment and evaluation instruments  
+- Visual design and multimedia resources
+
+AI TOOL PROMPTS: Create exactly one specific prompt for each recommended product type. Format each prompt with a clear title indicating the product type:
+
+Format each prompt as:
+**[PRODUCT TYPE] Creation Prompt:**
+[Detailed prompt content here]
 
 Requirements:
 - Create exactly {len(payload.recommendedProducts)} prompts (one for each recommended product)
 - Each prompt should be specifically formatted for AI content creation tools
 - Include specific duration/length requirements based on completion times from the timing guidelines above
 - Make prompts actionable and detailed for immediate use
-- Focus on specific content that should be covered in the product
+- Use the exact product names from the recommendedProducts list as titles
 
-Example format for video lesson:
-Create a professional training video for HVAC Maintenance Technicians. This is the first lesson of the onboarding course, titled Course Overview and Objectives. The video should welcome learners to the program, explain that the main goal of the course is to teach safe installation, maintenance, and repair of HVAC systems, emphasize the importance of safety and professional standards, and provide a clear overview of what topics will be covered both in this module and throughout the entire course. The tone should be clear, confident, and supportive, and the duration should be around 3 minutes.
+Example format:
+**Video Lesson Creation Prompt:**
+Create a professional training video for [target audience]. This lesson, titled {payload.lessonTitle}, should [detailed requirements]. Duration: [X] minutes.
+
+**Quiz Creation Prompt:**
+Create an interactive quiz for [target audience] on {payload.lessonTitle}. Include [X] questions covering [key topics]. Format: [question types].
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
@@ -17299,7 +17312,13 @@ Ensure the JSON is valid and follows the exact structure specified.
         
         # Override AI materials with our extracted source materials
         logger.info(f"Extracted source materials: {source_materials}")
-        lesson_plan_data['materials'] = source_materials
+        lesson_plan_data['materials'] = source_materials + [
+            "",  # Separator
+            "Additional Resources Needed:",
+            "- Content creation tools and software", 
+            "- Assessment and evaluation instruments",
+            "- Visual design and multimedia resources"
+        ]
         logger.info(f"Final materials for lesson plan: {lesson_plan_data['materials']}")
         
         # Debug the prompts to see what the AI returned
