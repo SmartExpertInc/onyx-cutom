@@ -17138,7 +17138,17 @@ TEXT BLOCKS: Create 3-5 educational text blocks with:
 
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
-- product_description: Detailed content specifications including specific topics, concepts, and learning elements that must be covered in this product. Include a list of key content areas and learning points that the product should address.
+- product_description: Provide extremely detailed content specifications that include:
+  * Specific topics and subtopics that must be covered
+  * Exact learning concepts and key points to address
+  * Detailed list of content areas with specific examples
+  * Learning objectives that this product should achieve
+  * Specific skills or knowledge learners should gain
+  * Exact content structure and organization requirements
+  * Specific examples, case studies, or scenarios to include
+  * Assessment criteria and learning outcomes
+  * Technical requirements and specifications
+  * Target audience considerations and adaptations needed
 
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
@@ -17157,17 +17167,22 @@ MATERIALS: List the actual source materials used to create this lesson plan:
 Source Materials Used:
 {', '.join(source_materials)}
 
-AI TOOL PROMPTS: Create exactly one detailed, ready-to-use prompt for each recommended product type. Do NOT include titles or formatting - just the prompt content itself.
+AI TOOL PROMPTS: Create exactly one extremely detailed, ready-to-use prompt for each recommended product type. Do NOT include titles or formatting - just the prompt content itself. Each prompt must be comprehensive and specific enough for immediate use by content creators.
 
 Requirements:
 - Create exactly {len(payload.recommendedProducts)} prompts (one for each recommended product)
-- Each prompt should be specifically formatted for AI content creation tools
-- Include specific duration/length requirements based on completion times from the timing guidelines above
-- Make prompts actionable and detailed for immediate use
-- Focus on specific content that should be covered in the product
+- Each prompt must be extremely detailed with specific instructions, examples, and requirements
+- Include exact duration/length requirements based on completion times from timing guidelines
+- Specify target audience, tone, style, and delivery method
+- Include specific content topics, learning objectives, and assessment criteria
+- Provide detailed technical specifications and requirements
+- Include specific examples, case studies, or scenarios to incorporate
+- Specify visual elements, interactions, and engagement strategies
+- Include exact formatting, structure, and organization requirements
+- Make prompts actionable with step-by-step instructions where applicable
 
-Example format for video lesson:
-Create a professional training video for HVAC Maintenance Technicians. This is the first lesson of the onboarding course, titled Course Overview and Objectives. The video should welcome learners to the program, explain that the main goal of the course is to teach safe installation, maintenance, and repair of HVAC systems, emphasize the importance of safety and professional standards, and provide a clear overview of what topics will be covered both in this module and throughout the entire course. The tone should be clear, confident, and supportive, and the duration should be around 3 minutes.
+Example format for video lesson (be this detailed):
+Create a professional training video for HVAC Maintenance Technicians with 3-5 years of experience. This is the first lesson of the onboarding course, titled Course Overview and Objectives. The video should be exactly 3 minutes long and follow this specific structure: (1) Opening 30 seconds: Welcome learners with a professional introduction, introduce the instructor as a certified HVAC professional with 15+ years experience, and establish credibility. (2) Main content 2 minutes: Explain that the main goal of the course is to teach safe installation, maintenance, and repair of HVAC systems according to industry standards and local codes. Emphasize the critical importance of safety protocols, proper tool usage, and professional standards. Provide a detailed overview of what topics will be covered in this module (system components, safety procedures, basic troubleshooting) and throughout the entire course (advanced diagnostics, commercial systems, energy efficiency). Include specific examples of real-world scenarios they will encounter. (3) Closing 30 seconds: Summarize key takeaways, preview the next lesson, and encourage questions. The tone should be clear, confident, and supportive with professional terminology appropriate for experienced technicians. Use high-quality visuals showing actual HVAC equipment, safety demonstrations, and real work environments. Include closed captions and ensure accessibility compliance.
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}

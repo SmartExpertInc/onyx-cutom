@@ -512,8 +512,8 @@ export default function ProjectInstanceViewPage() {
       });
       
       // Update UI state
-      setCustomEmails(prev => prev.filter(e => e !== email));
-      setSelectedEmails(prev => prev.filter(e => e !== email));
+    setCustomEmails(prev => prev.filter(e => e !== email));
+    setSelectedEmails(prev => prev.filter(e => e !== email));
     setEmailRoles(prev => {
       const newRoles = { ...prev };
       delete newRoles[email];
@@ -1858,7 +1858,7 @@ export default function ProjectInstanceViewPage() {
                         {/* Add Member Input */}
                         <div className="mb-6">
                           <div className="flex gap-3">
-                            <input
+                                <input
                               type="email"
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
@@ -1885,12 +1885,12 @@ export default function ProjectInstanceViewPage() {
                               const roleLabel = predefinedRoles.find(r => r.id === currentRole)?.label || 'Editor';
                               return (
                                 <div key={email} className="flex items-center justify-between p-2 bg-white rounded-lg min-h-[52px]">
-                                  <div className="flex items-center">
+                                <div className="flex items-center">
                                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium mr-3">
-                                      {email.charAt(0).toUpperCase()}
-                                    </div>
-                                    <span className="text-sm text-gray-900">{email}</span>
+                                    {email.charAt(0).toUpperCase()}
                                   </div>
+                                  <span className="text-sm text-gray-900">{email}</span>
+                                </div>
                                   <div className="relative">
                                     <div
                                       className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
@@ -1899,7 +1899,7 @@ export default function ProjectInstanceViewPage() {
                                       <span className="text-sm text-gray-900">{roleLabel}</span>
                                       <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                      </svg>
+                                  </svg>
                                     </div>
 
                                     {/* Email Role Dropdown */}
@@ -1925,8 +1925,8 @@ export default function ProjectInstanceViewPage() {
                                                 )}
                                               </div>
                                               <span className="text-sm font-medium text-gray-900">{role.label}</span>
-                                            </div>
-                                          ))}
+                              </div>
+                            ))}
                                           <div className="border-t border-gray-200 pt-1 mt-1">
                                             <div
                                               className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-red-50 text-red-600"
@@ -1970,7 +1970,7 @@ export default function ProjectInstanceViewPage() {
                                   {generalAccessOption === 'restricted' ? (
                                     <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
+                            </svg>
                                   ) : (
                                     <svg className="w-4 h-4 text-gray-600" viewBox="0 0 55.818 55.818" xmlns="http://www.w3.org/2000/svg">
                                       <g id="Group_6" data-name="Group 6" transform="translate(-1212.948 -289.602)">
@@ -1981,7 +1981,7 @@ export default function ProjectInstanceViewPage() {
                                       </g>
                                     </svg>
                                   )}
-                                </div>
+                          </div>
                                 <span className="text-sm -mt-3 font-medium text-gray-900">
                                   {generalAccessOption === 'restricted'
                                     ? t('interface.projectView.restricted', 'Restricted')
@@ -1998,7 +1998,7 @@ export default function ProjectInstanceViewPage() {
                                   : t('interface.projectView.anyoneOnTheInternet', 'Anyone on the internet with the link can view.')
                                 }
                               </p>
-                            </div>
+                        </div>
 
                             {/* General Access Dropdown */}
                             {showGeneralAccessDropdown && (
@@ -2062,7 +2062,7 @@ export default function ProjectInstanceViewPage() {
                                 return role ? (
                                   <div key={roleId} className="flex items-center gap-2 px-3 py-1 bg-gray-200 rounded-full">
                                     <span className="text-xs text-gray-700">{role.label}</span>
-                                    <button
+                          <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleRoleToggle(roleId);
@@ -2071,7 +2071,7 @@ export default function ProjectInstanceViewPage() {
                                     >
                                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
+                            </svg>
                                     </button>
                                   </div>
                                 ) : null;

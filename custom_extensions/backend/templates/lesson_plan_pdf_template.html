@@ -463,7 +463,7 @@
                                             <p class="text-paragraph">{{ trimmed_line }}</p>
                                         {% endif %}
                                     {% endif %}
-                                {% endfor %}
+                    {% endfor %}
                                 
                                 {% if current_list_type == 'bullet' %}
                                     </ul>
@@ -475,9 +475,9 @@
                         {% elif block.type == 'product' %}
                         <!-- Product Block -->
                         <div class="product-block">
-                            <div class="product-card">
-                                <div class="product-header">
-                                    <div class="product-bullet"></div>
+                        <div class="product-card">
+                            <div class="product-header">
+                                <div class="product-bullet"></div>
                                     <h3 class="product-title">{{ block.product_name|replace('-', ' ')|title }}</h3>
                                 </div>
                                 <p class="product-description">{{ block.product_description }}</p>
