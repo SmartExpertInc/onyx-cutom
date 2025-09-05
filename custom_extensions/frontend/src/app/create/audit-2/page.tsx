@@ -1802,16 +1802,16 @@ export default function AuditPage() {
                     </div>
 
                     <div 
-                      className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0]"
+                      className="xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0] overflow-hidden"
                       style={{
                         boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                       }}
                     >
                       <Image 
-                        src="/custom-projects-ui/images/audit-section-5-service-2-image-4-desktop.png"
+                        src="/custom-projects-ui/images/audit-section-5-service-2-image-4-mobile.png"
                         alt="Upload"
-                        width={280}
-                        height={175}
+                        width={300}
+                        height={195}
                         className="xl:hidden"
                       />
 
