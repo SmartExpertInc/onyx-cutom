@@ -592,7 +592,7 @@ export default function AuditPage() {
           </section>
 
           {/* Fifth Section */}
-          <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
+          <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
             <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%]">
               Предлагаем три готовых решения:
             </h2>
@@ -2103,7 +2103,7 @@ export default function AuditPage() {
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1 xl:h-[13px] xl:w-[13px]">
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
-                <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
+                <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%] xl:h-[164px]">
                   Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой доступ к профессиональному методологу</span> по предоплаченной модели. Методолог — это ваша «правая рука», которая берёт на себя всю операционную работу: от структурирования знаний до подготовки обучающих материалов и загрузки их в систему.
                 </span>
               </div> 
@@ -2111,7 +2111,7 @@ export default function AuditPage() {
           </section>
 
           {/* Section 6 */}
-          <section className="bg-[#3E3AD9] pt-[60px] px-[20px] xl:px-[120px]">
+          <section className="bg-[#3E3AD9] pt-[60px] xl:pt-[120px] px-[20px] xl:px-[120px]">
             <div className="relative bg-white rounded-t-lg px-8 xl:px-[255px] pt-[30px] xl:pt-[71px] pb-[100px] xl:pb-[172px] flex flex-col items-center justify-center overflow-hidden">
               <svg 
                 className="absolute xl:hidden"
