@@ -226,7 +226,7 @@ export default function AuditPage() {
             <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
               <div className="rounded-[6px] mb-[20px] xl:mb-0 flex flex-col gap-[5px] xl:gap-[10px] xl:w-[488px] xl:h-[870px]">
                 {/* Card 1 */}
-                <div className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M1.73797 0.399902L1.33332 4.41851H6.30775L6.63565 0.399902H1.73797ZM7.52867 0.399902L7.20078 4.41851H12.3566L12.0287 0.399902H7.52867ZM12.9217 0.399902L13.2426 4.41851H18.217L17.8124 0.399902H12.9217ZM1.2496 5.31153L0.88681 8.88362H5.95193L6.23796 5.31153H1.2496ZM7.13099 5.31153L6.84495 8.88362H12.7124L12.4263 5.31153H7.13099ZM13.3194 5.31153L13.6054 8.88362H18.6636L18.3008 5.31153H13.3194ZM0.803089 9.77665L0.398438 13.7953H5.55426L5.88216 9.77665H0.803089ZM6.76819 9.77665L6.44729 13.7953H9.32867C9.32867 15.1348 9.32867 16.4743 9.32867 17.8139H6.6496V19.5999H12.9008V17.8139H10.2217C10.2217 16.4743 10.2217 15.1348 10.2217 13.7953H13.1101L12.7891 9.77665H6.76819ZM13.6752 9.77665L14.0031 13.7953H19.1519L18.7473 9.77665H13.6752Z" fill="#0F58F9"/>
@@ -236,7 +236,7 @@ export default function AuditPage() {
                 </div>
                 
                 {/* Card 2 */}
-                <div className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M0.851769 11.5278H4.01705V11.1528C3.11984 10.2333 2.61843 8.9986 2.61981 7.71387H0.851733C0.493402 7.71387 0.203125 8.00415 0.203125 8.36248V10.8791C0.203125 11.2375 0.493441 11.5278 0.851769 11.5278Z" fill="#0F58F9"/>
@@ -255,7 +255,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 3 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="24" height="22" viewBox="0 0 24 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2.55809 16.8226C2.62884 16.8588 2.67486 16.9299 2.67486 17.0094V20.5112C2.67486 21.002 3.07274 21.3999 3.56354 21.3999H5.10476C5.25765 21.3999 5.38159 21.276 5.38159 21.1231L5.3816 17.0094C5.3816 16.9299 5.42762 16.8588 5.49837 16.8226C6.58488 16.2663 7.25959 15.1641 7.25959 13.9454C7.25959 12.7699 6.63883 11.7211 5.65873 11.1529C5.47593 11.0469 5.2467 11.1838 5.2467 11.3951L5.24669 13.3734C5.24669 14.0488 4.71683 14.6141 4.0655 14.6336C3.68416 14.644 3.32398 14.4825 3.07789 14.1787C2.89687 13.9553 2.80976 13.6699 2.80976 13.3824L2.80977 11.3951C2.80977 11.1838 2.58054 11.0469 2.39774 11.1529C1.41764 11.7211 0.796875 12.7699 0.796875 13.9454C0.796868 15.1642 1.47158 16.2663 2.55809 16.8226Z" fill="#0F58F9"/>
@@ -273,7 +273,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 4 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M19.1152 15.7603C19.4678 15.5421 19.7396 15.2149 19.8895 14.8282C20.0394 14.4416 20.0591 14.0166 19.9456 13.6178C19.8322 13.2189 19.5918 12.8679 19.2609 12.618C18.93 12.3681 18.5266 12.2329 18.112 12.2329C17.6973 12.2329 17.2939 12.3681 16.963 12.618C16.6321 12.8679 16.3917 13.2189 16.2783 13.6178C16.1649 14.0166 16.1846 14.4416 16.3344 14.8282C16.4843 15.2149 16.7561 15.5421 17.1087 15.7603C16.5637 15.964 16.0937 16.3291 15.7616 16.8068C15.4295 17.2845 15.251 17.8522 15.25 18.4341V20.3404H20.9691V18.4341C20.9675 17.8536 20.7893 17.2874 20.4581 16.8106C20.127 16.3339 19.6586 15.9692 19.1152 15.7651V15.7603Z" fill="#0F58F9"/>
@@ -286,7 +286,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 5 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M20.5725 2.57143H15.4297V0.857143C15.4297 0.383756 15.8134 0 16.2868 0H19.7154C20.1888 0 20.5725 0.383756 20.5725 0.857143V2.57143Z" fill="#0F58F9"/>
@@ -299,7 +299,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 6 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="21" height="24" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.01327 16.5864L2.62306 18.2692L0.818345 21.3665C0.37936 22.1225 0.623241 23.098 1.40366 23.537C1.64754 23.6833 1.94019 23.7565 2.20846 23.7565C2.745 23.7565 3.28154 23.4638 3.57419 22.9761L5.25697 20.0739L5.11064 18.5375L3.01327 16.5864Z" fill="#0F58F9"/>
@@ -312,7 +312,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 7 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12.8656 13.8158H12.6663C12.2114 13.8271 11.7377 13.8384 11.5835 13.2932C11.2941 12.3007 10.6511 10.9359 9.76387 10.2066L9.40294 12.3684C9.35407 12.6617 9.10217 12.8759 8.80515 12.8797H8.80139C8.43295 12.8797 8.14344 12.5564 8.19234 12.1917L8.54576 9.52226C8.36905 9.45459 8.18858 9.40195 8.01187 9.35308V8.92449C8.01187 8.66883 7.80133 8.46582 7.54943 8.46582L5.95909 8.47334C5.70343 8.47334 5.50042 8.68012 5.50042 8.93578V9.36437C5.32372 9.41325 5.14325 9.46964 4.96654 9.53732L5.3425 12.2029C5.39514 12.5676 5.10941 12.8984 4.74096 12.8984C4.44394 12.8984 4.18828 12.6879 4.13566 12.3946L3.75594 10.2366C2.86866 10.9734 2.24079 12.342 1.96259 13.342C1.80845 13.8871 1.33848 13.8834 0.883564 13.8759H0.684303C0.304584 13.8759 -0.00371972 14.1917 3.39161e-05 14.5789V14.9023C3.39161e-05 15.2895 0.315845 15.6053 0.695564 15.6015L12.8843 15.5451C13.2603 15.5451 13.5686 15.2256 13.5648 14.8383V14.515C13.5648 14.1277 13.2527 13.8195 12.8768 13.8195L12.8656 13.8158Z" fill="#0F58F9"/>
@@ -323,7 +323,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 8 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px]w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M19.234 21.3337L20.3613 15.6973C20.5618 14.6909 19.8876 13.8672 18.8602 13.8672H5.13323C4.10647 13.8672 3.43112 14.6909 3.63244 15.6973L4.75999 21.3337H0.796875V23.2004H23.1969V21.3337H19.234ZM12.9301 19.4672H11.0634V17.6004H12.9301V19.4672Z" fill="#0F58F9"/>
@@ -334,7 +334,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 9 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M7.87848 5.27539C7.67315 5.27933 7.47756 5.36366 7.33375 5.51027C7.18993 5.65687 7.10937 5.85404 7.10938 6.05941C7.10938 6.26477 7.18995 6.46194 7.33377 6.60854C7.47759 6.75513 7.67318 6.83946 7.87851 6.84339C8.08384 6.83945 8.27942 6.75512 8.42324 6.60851C8.56705 6.46191 8.64761 6.26474 8.64761 6.05938C8.6476 5.85401 8.56704 5.65684 8.42322 5.51024C8.2794 5.36365 8.0838 5.27932 7.87848 5.27539Z" fill="#0F58F9"/>
@@ -347,7 +347,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 10 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M9.89212 7.84264C9.74475 7.69538 9.63013 7.51867 9.55573 7.32407C9.48134 7.12947 9.44885 6.92136 9.4604 6.71335L9.55234 5.06277C9.56359 4.85993 9.53193 4.65699 9.45941 4.46722C9.3869 4.27744 9.27517 4.1051 9.13152 3.96144L7.72168 2.55161C7.57879 2.40881 7.40753 2.29758 7.21897 2.22509C7.03041 2.15261 6.82874 2.12048 6.62699 2.13079L5.22473 2.20235C5.15858 2.20578 5.09485 2.22832 5.04125 2.26722C4.98764 2.30613 4.94646 2.35974 4.9227 2.42157C4.89893 2.48339 4.89359 2.55078 4.90733 2.61558C4.92107 2.68037 4.95329 2.7398 5.00011 2.78666L6.01566 3.80127C6.30965 4.09533 6.4748 4.49413 6.4748 4.90994C6.4748 5.32576 6.30965 5.72455 6.01566 6.01862C5.72159 6.31261 5.3228 6.47776 4.90699 6.47776C4.49117 6.47776 4.09238 6.31261 3.79831 6.01862L2.78275 5.00401C2.73589 4.9572 2.67647 4.92497 2.61167 4.91124C2.54687 4.8975 2.47949 4.90283 2.41766 4.9266C2.35584 4.95037 2.30222 4.99155 2.26332 5.04515C2.22441 5.09876 2.20188 5.16249 2.19844 5.22864L2.12688 6.63089C2.11657 6.83264 2.1487 7.03431 2.22119 7.22287C2.29367 7.41143 2.40491 7.58269 2.5477 7.72559L3.95754 9.13543C4.10119 9.27908 4.27354 9.39081 4.46331 9.46332C4.65309 9.53583 4.85602 9.5675 5.05887 9.55625L6.70944 9.46431C6.91746 9.45276 7.12557 9.48524 7.32017 9.55964C7.51477 9.63403 7.69147 9.74866 7.83874 9.89603L10.9693 13.0261L14.097 16.1567C14.2444 16.3039 14.359 16.4806 14.4334 16.6752C14.5078 16.8698 14.5403 17.0779 14.5287 17.2859L14.4368 18.9365C14.4255 19.1394 14.4572 19.3423 14.5297 19.5321C14.6022 19.7218 14.7139 19.8942 14.8576 20.0379L16.2674 21.4477C16.4103 21.5905 16.5816 21.7017 16.7701 21.7742C16.9587 21.8467 17.1604 21.8788 17.3621 21.8685L18.7644 21.7969C18.8305 21.7935 18.8943 21.771 18.9479 21.7321C19.0015 21.6932 19.0427 21.6396 19.0664 21.5777C19.0902 21.5159 19.0955 21.4485 19.0818 21.3837C19.068 21.3189 19.0358 21.2595 18.989 21.2126L17.9758 20.198C17.6818 19.904 17.5167 19.5052 17.5167 19.0894C17.5167 18.6735 17.6818 18.2747 17.9758 17.9807C18.2699 17.6867 18.6687 17.5215 19.0845 17.5215C19.5003 17.5215 19.8991 17.6867 20.1932 17.9807L21.2087 18.9962C21.2556 19.043 21.315 19.0753 21.3798 19.089C21.4446 19.1027 21.512 19.0974 21.5738 19.0736C21.6356 19.0499 21.6893 19.0087 21.7282 18.9551C21.7671 18.9015 21.7896 18.8378 21.793 18.7716L21.8646 17.3693C21.8749 17.1676 21.8428 16.9659 21.7703 16.7774C21.6978 16.5888 21.5866 16.4175 21.4438 16.2747L20.0339 14.8648C19.8903 14.7212 19.7179 14.6094 19.5282 14.5369C19.3384 14.4644 19.1355 14.4327 18.9326 14.444L17.282 14.5359C17.074 14.5475 16.8659 14.515 16.6713 14.4406C16.4767 14.3662 16.3 14.2516 16.1527 14.1042L13.0222 10.9765L9.89212 7.84264Z" fill="#0F58F9"/>
@@ -361,7 +361,7 @@ export default function AuditPage() {
                 </div>
 
                 {/* Card 11 */}
-                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]">
+                <div className="bg-white p-[10px] rounded-[6px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
                     <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.28906 10.2103C3.28906 10.5431 3.48959 10.8439 3.79786 10.9719C4.10612 11.0988 4.46025 11.0284 4.69599 10.7927C4.93172 10.5569 5.00212 10.2028 4.87518 9.89454C4.74719 9.58628 4.44746 9.38574 4.11359 9.38574C3.65812 9.38574 3.29013 9.75483 3.28906 10.2103Z" fill="#0F58F9"/>
@@ -379,8 +379,8 @@ export default function AuditPage() {
                 </div>
               </div>
 
-              <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:w-[680px]">
-                <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] text-center">
+              <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:w-[680px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
+                <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] text-center xl:text-left">
                   Дефицит квалифицированных кадров
                 </h3>
                 
@@ -411,15 +411,13 @@ export default function AuditPage() {
                 </div>
 
                 {/* Second Card */}
-                <div className="py-[15px] px-[9px] border border-[#E0E0E0] rounded-[4px]">
-                  <Image 
-                    src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
-                    alt="Audit section 3 card 2 mobile" 
-                    width={281}
-                    height={225}
-                    className="w-full xl:w-[620px] xl:h-[420px]"
-                  />
-                </div>
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
+                  alt="Audit section 3 card 2 mobile" 
+                  width={281}
+                  height={225}
+                  className="w-full xl:w-[620px] xl:h-[420px]"
+                />
               </div>
             </div>
           </section>
