@@ -14,6 +14,7 @@ interface ClickableImagePlaceholderProps {
   isEditable?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  fit?: 'cover' | 'contain';
 }
 
 const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
@@ -25,7 +26,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   prompt = 'relevant illustration',
   isEditable = true,
   className = '',
-  style = {}
+  style = {},
+  fit = 'cover'
 }) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -69,8 +71,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           <img 
             src={imagePath} 
             alt={description}
-            className="w-full h-full object-cover"
-            style={{ cursor: isEditable ? 'pointer' : 'default' }}
+            className="w-full h-full"
+            style={{ cursor: isEditable ? 'pointer' : 'default', objectFit: fit }}
           />
           {isEditable && (
             <div 

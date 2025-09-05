@@ -6,20 +6,22 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
-  slideId,
-  steps = [
+export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = (props: CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }) => {
+  const {
+    slideId,
+    steps: stepsProp,
+    profileImagePath = '',
+    profileImageAlt = 'Profile image',
+    backgroundColor,
+    textColor,
+    isEditable = false,
+    onUpdate,
+    theme,
+  } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; };
+  const steps = stepsProp ?? [
     { number: '01', text: 'Rules of the course' },
     { number: '02', text: 'Prerequisite courses' },
-  ],
-  profileImagePath = '',
-  profileImageAlt = 'Profile image',
-  backgroundColor,
-  textColor,
-  isEditable = false,
-  onUpdate,
-  theme,
-}) => {
+  ];
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingStep, setEditingStep] = useState<{ index: number; field: 'number' | 'text' } | null>(null);
@@ -38,7 +40,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     position: 'absolute',
     left: '70px',
     bottom: '0px',
-    width: '520px',
+    width: '400px',
     height: '640px',
   };
 
@@ -66,7 +68,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const stepTextStyles: React.CSSProperties = {
     color: '#FFFFFF',
-    fontSize: '72px',
+    fontSize: '39px',
     fontWeight: 700,
     lineHeight: '1.05',
   };
@@ -100,8 +102,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     top: '34px',
     left: '26px',
     width: '14px',
-    height: '14px',
-    color: '#FFFFFF'
+    height: '14px'
   };
 
   const pageNumberStyles: React.CSSProperties = {
@@ -118,10 +119,13 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       {/* Left accent line */}
       <div style={leftAccentLine} />
 
-      {/* Small star icon top-left */}
-      <svg viewBox="0 0 24 24" style={starStyles} aria-hidden="true">
-        <path fill="currentColor" d="M12 2l1.8 4.6L18 8.4l-4.2 1.8L12 15l-1.8-4.8L6 8.4l4.2-1.8L12 2z" />
-      </svg>
+      {/* Small star icon top-left (built with divs) */}
+      <div style={starStyles}>
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '12px', height: '2px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%)' }} />
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '2px', height: '12px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%)' }} />
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '12px', height: '2px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%) rotate(45deg)' }} />
+        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '12px', height: '2px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%) rotate(-45deg)' }} />
+      </div>
 
       {/* Actor */}
       <div style={actorStyles}>
@@ -132,7 +136,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
           position="CENTER"
           description="Actor"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          style={{ width: '100%', height: '100%' }}
+          fit="contain"
         />
       </div>
 
@@ -140,7 +145,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       <div style={lineStyles} />
 
       {/* Circles centered on the line */}
-      {currentSteps.slice(0, 2).map((s, i) => (
+      {currentSteps.slice(0, 2).map((s: { number: string; text: string }, i: number) => (
         <div key={`circle-${i}`} style={circlePositionStyles(i)}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
             <ImprovedInlineEditor
@@ -163,7 +168,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       ))}
 
       {/* Step texts on the right */}
-      {currentSteps.slice(0, 2).map((s, i) => (
+      {currentSteps.slice(0, 2).map((s: { number: string; text: string }, i: number) => (
         <div key={`text-${i}`} style={stepContainerStyles(i)}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
             <ImprovedInlineEditor
