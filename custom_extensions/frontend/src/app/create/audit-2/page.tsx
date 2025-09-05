@@ -1740,7 +1740,7 @@ export default function AuditPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
-                  <div className="xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
+                  <div className="xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px] xl:gap-0 overflow-hidden">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1749,7 +1749,7 @@ export default function AuditPage() {
                         1
                       </div>
                       
-                      <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px]">
+                      <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
                         Методолог <span className="text-[#0F58F9]">загружает ваши материалы</span> (тексты, инструкции, PDF, видео и др.)
                       </h5>
                     </div>
@@ -1778,7 +1778,7 @@ export default function AuditPage() {
                   </div>
 
                   {/* Card 2 */}
-                  <div className="xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
+                  <div className="xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px] xl:gap-0 overflow-hidden">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1787,7 +1787,7 @@ export default function AuditPage() {
                         2
                       </div>
                       
-                      <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px]">
+                      <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
                         Платформа превращает их в <span className="text-[#0F58F9]">уроки, тесты, видео и презентации</span>
                       </h5>
                     </div>
