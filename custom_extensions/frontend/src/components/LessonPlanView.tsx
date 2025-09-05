@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import React from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Video, Presentation, FileQuestion, FileText as FilePage, Layers } from 'lucide-react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 
 interface LessonPlanViewProps {
@@ -25,54 +25,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
       }
     }
   };
-
-  // Helper function to get the appropriate icon for each product type
-  const getProductIcon = (productName: string) => {
-    const lowerName = productName.toLowerCase();
-    if (lowerName.includes('video')) return Video;
-    if (lowerName.includes('presentation')) return Presentation;
-    if (lowerName.includes('quiz')) return FileQuestion;
-    if (lowerName.includes('one-pager') || lowerName.includes('onepager')) return FilePage;
-    return Layers; // Default icon
-  };
-
-  // Helper function to get product type color scheme
-  const getProductColors = (productName: string) => {
-    const lowerName = productName.toLowerCase();
-    if (lowerName.includes('video')) return {
-      bg: 'from-red-500 to-pink-600',
-      text: 'text-red-800',
-      border: 'border-red-200',
-      lightBg: 'from-red-50 to-pink-50'
-    };
-    if (lowerName.includes('presentation')) return {
-      bg: 'from-green-500 to-emerald-600',
-      text: 'text-green-800',
-      border: 'border-green-200',
-      lightBg: 'from-green-50 to-emerald-50'
-    };
-    if (lowerName.includes('quiz')) return {
-      bg: 'from-purple-500 to-violet-600',
-      text: 'text-purple-800',
-      border: 'border-purple-200',
-      lightBg: 'from-purple-50 to-violet-50'
-    };
-    if (lowerName.includes('one-pager') || lowerName.includes('onepager')) return {
-      bg: 'from-orange-500 to-amber-600',
-      text: 'text-orange-800',
-      border: 'border-orange-200',
-      lightBg: 'from-orange-50 to-amber-50'
-    };
-    return {
-      bg: 'from-blue-500 to-cyan-600',
-      text: 'text-blue-800',
-      border: 'border-blue-200',
-      lightBg: 'from-blue-50 to-cyan-50'
-    };
-  };
-
-  // Extract product blocks from content specifications
-  const productBlocks = lessonPlanData.contentDevelopmentSpecifications.filter(block => block.type === 'product');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4">
@@ -110,55 +62,66 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
         </div>
 
         {/* Content Types */}
-        {productBlocks.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-                <Layers className="w-6 h-6 text-white" />
-              </div>
-              <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Content Types</h2>
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+              <Package className="w-6 h-6 text-white" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {productBlocks.map((block, index) => {
-                const IconComponent = getProductIcon(block.product_name!);
-                const colors = getProductColors(block.product_name!);
-                
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Content Types</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {(() => {
+              // Extract unique product types from contentDevelopmentSpecifications
+              const productTypes = lessonPlanData.contentDevelopmentSpecifications
+                .filter(block => block.type === 'product')
+                .map(block => block.product_name)
+                .filter((name, index, array) => array.indexOf(name) === index); // Remove duplicates
+
+              const getProductIcon = (productName: string) => {
+                const name = productName.toLowerCase();
+                if (name.includes('video')) return Play;
+                if (name.includes('presentation')) return Presentation;
+                if (name.includes('quiz')) return FileQuestion;
+                if (name.includes('one-pager') || name.includes('onepager')) return ScrollText;
+                return FileText; // Default icon
+              };
+
+              const getProductColor = (productName: string) => {
+                const name = productName.toLowerCase();
+                if (name.includes('video')) return 'from-red-500 to-pink-600';
+                if (name.includes('presentation')) return 'from-blue-500 to-indigo-600';
+                if (name.includes('quiz')) return 'from-green-500 to-emerald-600';
+                if (name.includes('one-pager') || name.includes('onepager')) return 'from-orange-500 to-amber-600';
+                return 'from-gray-500 to-slate-600'; // Default color
+              };
+
+              const formatProductName = (productName: string) => {
+                return productName
+                  .split('-')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
+              };
+
+              return productTypes.map((productName, index) => {
+                const IconComponent = getProductIcon(productName);
+                const colorClass = getProductColor(productName);
+                const formattedName = formatProductName(productName);
+
                 return (
-                  <div
-                    key={index}
-                    className={`bg-gradient-to-br ${colors.lightBg} rounded-xl p-6 border ${colors.border} hover:shadow-lg transition-all duration-200 hover:scale-105`}
-                  >
-                    <div className="flex items-center mb-4">
-                      <div className={`w-10 h-10 bg-gradient-to-br ${colors.bg} rounded-lg flex items-center justify-center mr-3 shadow-sm`}>
-                        <IconComponent className="w-5 h-5 text-white" />
+                  <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-6 border border-blue-100 hover:shadow-md transition-all duration-300">
+                    <div className="flex flex-col items-center text-center">
+                      <div className={`w-16 h-16 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-105 transition-transform duration-300`}>
+                        <IconComponent className="w-8 h-8 text-white" />
                       </div>
-                      <h3 className={`font-bold ${colors.text} text-lg capitalize`}>
-                        {block.product_name!.replace(/-/g, ' ')}
-                      </h3>
-                    </div>
-                    
-                    <p className="text-gray-700 leading-relaxed text-sm mb-4 line-clamp-4">
-                      {block.product_description}
-                    </p>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className={`text-xs ${colors.text} font-medium uppercase tracking-wide`}>
-                        Content Outline
-                      </div>
-                      <button
-                        onClick={() => handleSeePrompt(block.product_name!)}
-                        className={`text-xs ${colors.text} hover:${colors.text.replace('800', '900')} font-medium flex items-center gap-1 transition-colors`}
-                      >
-                        <Eye className="w-3 h-3" />
-                        View Prompt
-                      </button>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">{formattedName}</h3>
+                      <p className="text-sm text-gray-600">Content Type</p>
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              });
+            })()}
           </div>
-        )}
+        </div>
 
         {/* Content Draft */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
