@@ -250,6 +250,66 @@
             margin: 0 auto;
         }
 
+        /* Flowing Content Styles */
+        .flowing-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .text-block {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 24px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .text-block-title {
+            font-weight: 700;
+            color: #1e40af;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .text-block-content {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .text-paragraph {
+            margin-bottom: 12px;
+        }
+
+        .text-paragraph:last-child {
+            margin-bottom: 0;
+        }
+
+        .content-list {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+
+        .content-list li {
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .content-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .bullet-list {
+            list-style-type: disc;
+        }
+
+        .numbered-list {
+            list-style-type: decimal;
+        }
+
+        .product-block {
+            margin: 8px 0;
+        }
+
         /* Responsive adjustments for PDF */
         @media print {
             body {
@@ -356,72 +416,76 @@
                 <h2 class="section-title">Content Development Specifications</h2>
             </div>
             <div class="content-area">
-                {% if details.recommendedProductTypes and details.recommendedProductTypes|length > 0 %}
-                {% set item_count = details.recommendedProductTypes|length %}
-                {% set entries = details.recommendedProductTypes.items() %}
-
-                {% if item_count == 1 %}
-                <div class="product-grid single">
-                    {% for product_name, description in entries %}
-                    <div class="product-card">
-                        <div class="product-header">
-                            <div class="product-bullet"></div>
-                            <h3 class="product-title">{{ product_name|replace('-', ' ') }}</h3>
-                        </div>
-                        <p class="product-description">{{ description }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% elif item_count == 2 %}
-                <div class="product-grid two">
-                    {% for product_name, description in entries %}
-                    <div class="product-card">
-                        <div class="product-header">
-                            <div class="product-bullet"></div>
-                            <h3 class="product-title">{{ product_name|replace('-', ' ') }}</h3>
-                        </div>
-                        <p class="product-description">{{ description }}</p>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% elif item_count == 3 %}
-                <div class="three-layout">
-                    <div class="top-row">
-                        {% for i in range(2) %}
-                        {% set product_name, description = entries[i] %}
-                        <div class="product-card">
-                            <div class="product-header">
-                                <div class="product-bullet"></div>
-                                <h3 class="product-title">{{ product_name|replace('-', ' ') }}</h3>
+                {% if details.contentDevelopmentSpecifications and details.contentDevelopmentSpecifications|length > 0 %}
+                <div class="flowing-content">
+                    {% for block in details.contentDevelopmentSpecifications %}
+                        {% if block.type == 'text' %}
+                        <!-- Text Block -->
+                        <div class="text-block">
+                            <h3 class="text-block-title">{{ block.block_title }}</h3>
+                            <div class="text-block-content">
+                                {% set content_lines = block.block_content.split('\n') %}
+                                {% set current_list = [] %}
+                                {% set current_list_type = '' %}
+                                
+                                {% for line in content_lines %}
+                                    {% set trimmed_line = line.strip() %}
+                                    {% if trimmed_line %}
+                                        {% if trimmed_line.startswith('- ') %}
+                                            {% if current_list_type != 'bullet' %}
+                                                {% if current_list_type == 'numbered' %}
+                                                    </ol>
+                                                {% endif %}
+                                                {% set current_list_type = 'bullet' %}
+                                                <ul class="content-list bullet-list">
+                                            {% endif %}
+                                            <li>{{ trimmed_line[2:].strip() }}</li>
+                                            {% set _ = current_list.append(trimmed_line) %}
+                                        {% elif trimmed_line|regex_match('^\d+\.\s+') %}
+                                            {% if current_list_type != 'numbered' %}
+                                                {% if current_list_type == 'bullet' %}
+                                                    </ul>
+                                                {% endif %}
+                                                {% set current_list_type = 'numbered' %}
+                                                <ol class="content-list numbered-list">
+                                            {% endif %}
+                                            <li>{{ trimmed_line|regex_replace('^\d+\.\s+', '') }}</li>
+                                            {% set _ = current_list.append(trimmed_line) %}
+                                        {% else %}
+                                            {% if current_list_type %}
+                                                {% if current_list_type == 'bullet' %}
+                                                    </ul>
+                                                {% elif current_list_type == 'numbered' %}
+                                                    </ol>
+                                                {% endif %}
+                                                {% set current_list_type = '' %}
+                                            {% endif %}
+                                            <p class="text-paragraph">{{ trimmed_line }}</p>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if current_list_type == 'bullet' %}
+                                    </ul>
+                                {% elif current_list_type == 'numbered' %}
+                                    </ol>
+                                {% endif %}
                             </div>
-                            <p class="product-description">{{ description }}</p>
                         </div>
-                        {% endfor %}
-                    </div>
-                    <div class="bottom-item">
-                        {% set product_name, description = entries[2] %}
-                        <div class="product-card">
-                            <div class="product-header">
-                                <div class="product-bullet"></div>
-                                <h3 class="product-title">{{ product_name|replace('-', ' ') }}</h3>
+                        {% elif block.type == 'product' %}
+                        <!-- Product Block -->
+                        <div class="product-block">
+                            <div class="product-card">
+                                <div class="product-header">
+                                    <div class="product-bullet"></div>
+                                    <h3 class="product-title">{{ block.product_name|replace('-', ' ')|title }}</h3>
+                                </div>
+                                <p class="product-description">{{ block.product_description }}</p>
                             </div>
-                            <p class="product-description">{{ description }}</p>
                         </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="product-grid many">
-                    {% for product_name, description in entries %}
-                    <div class="product-card">
-                        <div class="product-header">
-                            <div class="product-bullet"></div>
-                            <h3 class="product-title">{{ product_name|replace('-', ' ') }}</h3>
-                        </div>
-                        <p class="product-description">{{ description }}</p>
-                    </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
-                {% endif %}
                 {% else %}
                 <p class="list-text">No content development specifications provided</p>
                 {% endif %}

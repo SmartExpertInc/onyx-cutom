@@ -352,42 +352,42 @@ export const CreateContentTypeModal = ({
               </div>
             </div>
           ) : (
-            <button
+          <button
               onClick={handleLessonPlanGeneration}
               disabled={isGeneratingLessonPlan}
               className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-2 sm:p-3 lg:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-                <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
+          >
+            <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+              <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
                   {isGeneratingLessonPlan ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
                   )}
-                </div>
-                <div className="text-left flex-1">
-                  <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
+              </div>
+              <div className="text-left flex-1">
+                <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
                     <span className="text-sm sm:text-base font-semibold text-gray-900">
                       {isGeneratingLessonPlan ? 'Generating Lesson Plan...' : 'Lesson Plan'}
                     </span>
-                  </div>
+                </div>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                     {isGeneratingLessonPlan ? 'Please wait while we generate your lesson plan...' : 'Technical specification with lesson objectives'}
                   </p>
-                </div>
               </div>
-              <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
+            </div>
+            <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
                 {isGeneratingLessonPlan ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
                 ) : (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
                 )}
-              </div>
-            </button>
+            </div>
+          </button>
           )}
         </div>
 
@@ -405,8 +405,8 @@ export const CreateContentTypeModal = ({
           <div className="space-y-1 sm:space-y-1.5 lg:space-y-2">
             {updatedContentTypes.map((type) => {
               const isDisabled = type.disabled;
-                      const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
-          (type.name === "textPresentation" && existingFlags.hasOnePager) ||
+              const isAlreadyCreated = (type.name === "lessonPresentation" && existingFlags.hasLesson) ||
+                (type.name === "textPresentation" && existingFlags.hasOnePager) ||
           (type.name === "multiple-choice" && existingFlags.hasQuiz) ||
           (type.name === "videoLesson" && existingFlags.hasVideoLesson);
 
@@ -419,13 +419,13 @@ export const CreateContentTypeModal = ({
                   key={type.name}
                   className={`group w-full flex items-center p-2 sm:p-3 lg:p-4 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
                     isDisabled
-                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                      : isSelected
-                        ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
+                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                    : isSelected
+                      ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
                         : isRecommended
                           ? 'border-blue-200 bg-blue-50 text-blue-600 cursor-pointer hover:bg-blue-100 hover:border-blue-300 hover:shadow-md'
-                          : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                  }`}
+                      : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                    }`}
                   onClick={(e: React.MouseEvent) => {
                     console.log('Content type clicked:', {
                       typeName: type.name,
@@ -468,7 +468,7 @@ export const CreateContentTypeModal = ({
                           : isRecommended
                             ? 'bg-blue-100'
                             : 'bg-gray-100'
-                    }`}>
+                      }`}>
                       {React.cloneElement(type.icon, {
                         className: `w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200 ${
                           isDisabled 

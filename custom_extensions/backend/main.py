@@ -758,11 +758,24 @@ class LessonPlanGenerationRequest(BaseModel):
     lessonNumber: int
     recommendedProducts: List[str]
 
+# Content Development Specifications Models for Lesson Plans
+class ContentTextBlock(BaseModel):
+    type: Literal["text"] = "text"
+    block_title: str
+    block_content: str  # Can contain plain text, bullet lists (with -), or numbered lists (with 1.)
+
+class ContentProductBlock(BaseModel):
+    type: Literal["product"] = "product"
+    product_name: str  # e.g., "video-lesson", "presentation", "quiz", "one-pager"
+    product_description: str
+
+ContentBlock = Union[ContentTextBlock, ContentProductBlock]
+
 class LessonPlanData(BaseModel):
     lessonTitle: str
     lessonObjectives: List[str]
     shortDescription: str
-    recommendedProductTypes: Dict[str, str]
+    contentDevelopmentSpecifications: List[ContentBlock]  # New flowing structure
     materials: List[str]
     suggestedPrompts: List[str]
 
@@ -17018,7 +17031,7 @@ Lesson Information:
 - Lesson Number: {payload.lessonNumber}
 - Lesson Completion Time: {lesson_completion_time}
 - Recommended Products: {', '.join(payload.recommendedProducts)}
-- CRITICAL: Use these EXACT product names as keys in recommendedProductTypes: {payload.recommendedProducts}
+- CRITICAL: Use these EXACT product names in product blocks within contentDevelopmentSpecifications: {payload.recommendedProducts}
 
 {timing_info}
 
@@ -17028,11 +17041,27 @@ LESSON OBJECTIVES: Write 3-5 specific, measurable learning objectives using Bloo
 
 SHORT DESCRIPTION: Write a compelling 2-3 sentence description that clearly communicates the lesson's value proposition to learners. Focus on practical outcomes and real-world applications they will gain, not just topics covered.
 
-RECOMMENDED PRODUCT TYPES: For each product type in the recommendedProducts list, provide detailed specifications that guide Content Developers in creating effective educational materials. Include:
-- Target learning outcomes for that product type
-- Specific content requirements and structure
-- Assessment criteria and success metrics
-- Technical specifications (duration, format, interaction types)
+CONTENT DEVELOPMENT SPECIFICATIONS: Create a flowing, structured lesson format that combines educational text blocks with product specifications. This section should tell a complete story about the lesson topic, with product blocks seamlessly integrated. Structure as follows:
+
+TEXT BLOCKS: Create 3-5 educational text blocks with:
+- block_title: A clear, engaging title (e.g., "Understanding the Fundamentals", "Key Implementation Strategies", "Best Practices for Success")
+- block_content: Rich educational content that can include:
+  * Plain text paragraphs explaining concepts
+  * Bullet lists (using -) for key points and benefits
+  * Numbered lists (using 1.) for sequential steps or processes
+
+PRODUCT BLOCKS: For each recommended product, create a product block with:
+- product_name: Exact name from recommendedProducts list
+- product_description: Detailed specifications for Content Developers
+
+INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
+- Start with 1-2 text blocks introducing the topic
+- Insert first product block
+- Add 1-2 text blocks expanding on concepts
+- Insert next product block (if applicable)
+- Continue pattern, ending with a text block for conclusion
+
+The content should flow naturally, building knowledge progressively while seamlessly incorporating product specifications that support the learning journey.
 
 MATERIALS: List specific, actionable resources and tools needed for content creation, including:
 - Primary source materials and references
@@ -17052,7 +17081,7 @@ AI TOOL PROMPTS: Create ready-to-use prompts for AI content creation tools (like
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
-- Use the EXACT product names from the recommendedProducts list as keys in the recommendedProductTypes object
+- Use the EXACT product names from the recommendedProducts list in product blocks within contentDevelopmentSpecifications
 - Do NOT add any products that are not in the recommendedProducts array
 - Do NOT change the spelling or format of product names from the recommendedProducts list
 
@@ -17063,9 +17092,18 @@ Return your response as a valid JSON object with this exact structure:
   "lessonTitle": "string",
   "lessonObjectives": ["string"],
   "shortDescription": "string",
-  "recommendedProductTypes": {{
-    "productName": "productDescription"
-  }},
+  "contentDevelopmentSpecifications": [
+    {{
+      "type": "text",
+      "block_title": "string",
+      "block_content": "string (can include bullet lists with - or numbered lists with 1.)"
+    }},
+    {{
+      "type": "product",
+      "product_name": "exact name from recommendedProducts",
+      "product_description": "detailed specifications"
+    }}
+  ],
   "materials": ["string"],
   "suggestedPrompts": ["string"]
 }}
@@ -17107,7 +17145,7 @@ Ensure the JSON is valid and follows the exact structure specified.
         try:
             lesson_plan_data = json.loads(ai_response)
             # Validate the structure
-            required_fields = ["lessonTitle", "lessonObjectives", "shortDescription", "recommendedProductTypes", "materials", "suggestedPrompts"]
+            required_fields = ["lessonTitle", "lessonObjectives", "shortDescription", "contentDevelopmentSpecifications", "materials", "suggestedPrompts"]
             for field in required_fields:
                 if field not in lesson_plan_data:
                     raise ValueError(f"Missing required field: {field}")
