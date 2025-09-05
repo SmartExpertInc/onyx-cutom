@@ -1739,7 +1739,8 @@ export default function AuditPage() {
                 </h4>
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
+                  {/* Card 1 */}
+                  <div className="xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1753,7 +1754,7 @@ export default function AuditPage() {
                       </h5>
                     </div>
                     <div 
-                      className="p-[10px] border-t border-[#E0E0E0]"
+                      className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0]"
                       style={{
                         boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                       }}
@@ -1763,13 +1764,21 @@ export default function AuditPage() {
                         alt="Upload"
                         width={280}
                         height={175}
-                        className="w-full"
-                        // style={{ height: '339.39px' }}
+                        className="xl:hidden"
+                      />
+
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-5-service-2-image-3-desktop.png"
+                        alt="Upload"
+                        width={410}
+                        height={175}
+                        className="hidden xl:block"
                       />
                     </div>
                   </div>
 
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
+                  {/* Card 2 */}
+                  <div className="xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col gap-[15px]">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1784,18 +1793,25 @@ export default function AuditPage() {
                     </div>
 
                     <div 
-                      className="p-[10px] border-t border-[#E0E0E0]"
+                      className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0]"
                       style={{
                         boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                       }}
                     >
                       <Image 
-                        src="/custom-projects-ui/images/audit-section-5-service-2-image-4-mobile.png"
+                        src="/custom-projects-ui/images/audit-section-5-service-2-image-4-desktop.png"
                         alt="Upload"
                         width={280}
                         height={175}
-                        className="w-full"
-                        // style={{ height: '339.39px' }}
+                        className="xl:hidden"
+                      />
+
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-5-service-2-image-4-desktop.png"
+                        alt="Upload"
+                        width={375}
+                        height={175}
+                        className="hidden xl:block"
                       />
                     </div>
                   </div>
