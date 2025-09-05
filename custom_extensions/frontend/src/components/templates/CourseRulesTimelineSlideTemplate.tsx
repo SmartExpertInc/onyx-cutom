@@ -119,13 +119,12 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       {/* Left accent line */}
       <div style={leftAccentLine} />
 
-      {/* Small star icon top-left (built with divs) */}
-      <div style={starStyles}>
-        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '12px', height: '2px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%)' }} />
-        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '2px', height: '12px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%)' }} />
-        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '12px', height: '2px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%) rotate(45deg)' }} />
-        <div style={{ position: 'absolute', left: '50%', top: '50%', width: '12px', height: '2px', backgroundColor: '#FFFFFF', transform: 'translate(-50%, -50%) rotate(-45deg)' }} />
-      </div>
+      {/* Small star icon top-left */}
+      <img
+        alt="star"
+        style={starStyles}
+        src={"data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FFFFFF" d="M12 2l1.8 4.6L18 8.4l-4.2 1.8L12 15l-1.8-4.8L6 8.4l4.2-1.8L12 2z"/></svg>')}
+      />
 
       {/* Actor */}
       <div style={actorStyles}>

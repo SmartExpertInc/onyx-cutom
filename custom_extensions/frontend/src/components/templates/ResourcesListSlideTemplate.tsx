@@ -66,7 +66,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     backgroundColor: '#58552E',
     color: '#D6D2AC',
     borderRadius: '2px',
-    padding: '28px 28px',
+    padding: '15px 15px',
     fontSize: '28px',
     fontWeight: 600,
   };
