@@ -17192,7 +17192,25 @@ PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
 - product_description: ABSOLUTELY CRITICAL - This MUST be a single STRING value only. Do NOT use nested objects, dictionaries, or structured data. Write everything as one comprehensive paragraph string. Include all the following details in one detailed paragraph:
 
-WRITE AS A SINGLE DETAILED STRING: Provide extremely comprehensive content specifications including exact topics with 5-8 specific subtopics, precise learning concepts with concrete examples, specific terminology and industry-standard language, detailed procedures and methodologies, specific real-world scenarios and case studies with names/details, exact skills learners must demonstrate with measurable criteria, precise duration/length requirements (exact minutes for videos, slide counts for presentations, question counts for quizzes), exact format requirements (screen layout, visual elements, interaction types), specific technical quality standards (resolution, audio quality, accessibility features), detailed structural organization requirements (introduction timing, section breakdowns, conclusion elements), exact visual style requirements (color schemes, typography, branding), specific navigation and user interaction requirements, detailed accessibility and compliance requirements (WCAG standards, closed captions), specific experience level requirements with detailed prerequisites, exact tone and communication style with examples, precise vocabulary level and technical language guidelines, specific cultural considerations and adaptations, detailed learning style accommodations, and exact prerequisite knowledge and skill requirements.
+WRITE AS A SINGLE DETAILED STRING: Focus ONLY on content description and topics. Provide comprehensive content specifications including:
+
+CONTENT TO BE INCLUDED:
+- Exact topics with 5-8 specific subtopics that must be covered
+- Precise learning concepts with concrete examples
+- Specific terminology and industry-standard language to be explained
+- Detailed procedures and methodologies to be demonstrated
+- Specific real-world scenarios and case studies with names/details
+- Key concepts learners must understand and apply
+- Specific knowledge areas that must be addressed
+
+LEARNING CONTENT STRUCTURE:
+- What specific information should be presented and in what order
+- How concepts should be explained and connected
+- What examples and case studies should be included
+- What practical applications should be demonstrated
+- How learners should interact with the content material
+
+DO NOT INCLUDE: Technical specifications like resolution, colors, fonts, accessibility requirements, duration, slide counts, formatting details, or visual design elements. Focus exclusively on the educational content and topics to be covered.
 
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
@@ -17256,8 +17274,8 @@ MANDATORY ELEMENTS FOR EACH PROMPT:
    * Specific testing or validation requirements
    * Detailed revision guidelines and improvement criteria
 
-Example format demonstrating ULTRA-DETAILED specifications (minimum level of detail required):
-Create a professional training video for HVAC Maintenance Technicians with 3-5 years field experience, 2+ years residential/commercial system exposure, and current EPA Section 608 certification. Target completion time: exactly 4 minutes 30 seconds. STRUCTURE: (1) Opening sequence 45 seconds: Begin with 10-second branded intro animation, instructor introduction using full name and credentials (minimum 15 years field experience, NATE certified, EPA Universal certified), establish learning context with specific mention of ASHRAE standards compliance and local building codes. Visual elements: instructor in professional uniform against HVAC equipment backdrop, certification logos displayed. (2) Main content 3 minutes: Cover exact learning objectives with specific time allocations - safety protocols (60 seconds) including lockout/tagout procedures, refrigerant handling protocols, electrical safety with specific voltage warnings; system components overview (90 seconds) covering compressor types, evaporator configurations, condensing unit specifications; troubleshooting methodology (30 seconds) using systematic diagnostic approach. Include specific examples: residential split system R-410A leak detection, commercial rooftop unit bearing replacement, heat pump defrost cycle malfunction. (3) Closing 15 seconds: Recap three key safety points, preview next module content, provide specific contact method for questions. TECHNICAL SPECS: 1920x1080 resolution, 30fps, H.264 encoding, stereo audio at 48kHz, -23 LUFS audio levels. Visual requirements: consistent lighting 3200K, clean backgrounds, equipment close-ups minimum 5 seconds duration, text overlays Arial 24pt minimum. Accessibility: accurate closed captions, audio descriptions for visual demonstrations, high contrast text (4.5:1 minimum ratio). Tone: authoritative yet approachable, use industry-standard terminology with brief explanations, speak at 160-180 words per minute for clarity. Quality checkpoints: technical accuracy review by certified HVAC engineer, audio clarity verification, caption synchronization verification, equipment demonstration accuracy validation.
+Example format demonstrating CONTENT-FOCUSED specifications (minimum level of detail required):
+Create content covering HVAC system safety and troubleshooting for maintenance technicians. CONTENT TO INCLUDE: Safety protocols covering lockout/tagout procedures, refrigerant handling regulations including EPA requirements, electrical safety practices with voltage identification protocols, personal protective equipment requirements for HVAC work environments. System components knowledge including compressor types (scroll, reciprocating, screw), evaporator configurations (air-cooled vs water-cooled), condensing unit specifications, refrigerant circuit fundamentals, and control system basics. Troubleshooting methodologies using systematic diagnostic approaches including symptom analysis, pressure testing procedures, temperature differential measurements, electrical circuit testing, and component isolation techniques. SPECIFIC EXAMPLES TO COVER: Residential split system R-410A refrigerant leak detection using electronic leak detectors and bubble solutions, commercial rooftop unit bearing replacement procedures including safety isolation and reassembly verification, heat pump defrost cycle malfunction diagnosis including sensor testing and control board evaluation, condenser coil cleaning techniques for different environments. KEY CONCEPTS: Industry standards compliance (ASHRAE, local building codes), proper documentation practices, customer communication protocols, equipment maintenance schedules, energy efficiency optimization, and environmental regulations compliance. PRACTICAL APPLICATIONS: Real-world scenarios technicians encounter daily, hands-on demonstration of proper techniques, troubleshooting decision trees, and quality assurance procedures.
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
