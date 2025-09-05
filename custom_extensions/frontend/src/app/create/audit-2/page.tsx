@@ -1845,7 +1845,7 @@ export default function AuditPage() {
                 alt="Card 1"
                 width={1120}
                 height={571}
-                className="w-full hidden xl:block rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
+                className="xl:mb-[40px] w-full hidden xl:block rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
               />
 
               <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px]">
@@ -2008,7 +2008,7 @@ export default function AuditPage() {
                 Expert-as-a-Service — Методолог:
               </h3>
 
-              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
+              <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
                 <Image 
                   src="/custom-projects-ui/images/audit-section-5-service-4-image-1-mobile.png"
                   alt="Card 1"
