@@ -17138,17 +17138,34 @@ TEXT BLOCKS: Create 3-5 educational text blocks with:
 
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
-- product_description: Provide extremely detailed content specifications that include:
-  * Specific topics and subtopics that must be covered
-  * Exact learning concepts and key points to address
-  * Detailed list of content areas with specific examples
-  * Learning objectives that this product should achieve
-  * Specific skills or knowledge learners should gain
-  * Exact content structure and organization requirements
-  * Specific examples, case studies, or scenarios to include
-  * Assessment criteria and learning outcomes
-  * Technical requirements and specifications
-  * Target audience considerations and adaptations needed
+- product_description: Provide EXTREMELY COMPREHENSIVE content specifications with precise, actionable details:
+
+  CONTENT SPECIFICATIONS:
+  * List exact topics with specific subtopics (minimum 5-8 detailed bullet points)
+  * Define precise learning concepts with concrete examples
+  * Specify exact key points with supporting details and context
+  * Include specific terminology, definitions, and industry-standard language
+  * Detail exact procedures, workflows, or methodologies to demonstrate
+  * Provide specific real-world scenarios, case studies, or examples with names/details
+  * List exact skills learners must demonstrate with measurable criteria
+  * Specify exact assessment methods with detailed evaluation criteria
+
+  TECHNICAL SPECIFICATIONS:
+  * Precise duration/length requirements (exact minutes for videos, slide counts for presentations, question counts for quizzes)
+  * Exact format requirements (screen layout, visual elements, interaction types)
+  * Specific technical quality standards (resolution, audio quality, accessibility features)
+  * Detailed structural organization requirements (introduction timing, section breakdowns, conclusion elements)
+  * Exact visual style requirements (color schemes, typography, branding elements)
+  * Specific navigation and user interaction requirements
+  * Detailed accessibility and compliance requirements (WCAG standards, closed captions, etc.)
+
+  TARGET AUDIENCE ADAPTATIONS:
+  * Specific experience level requirements with detailed prerequisites
+  * Exact tone and communication style with examples
+  * Precise vocabulary level and technical language guidelines
+  * Specific cultural considerations and adaptations needed
+  * Detailed learning style accommodations and alternatives
+  * Exact prerequisite knowledge and skill requirements
 
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
@@ -17167,22 +17184,53 @@ MATERIALS: List the actual source materials used to create this lesson plan:
 Source Materials Used:
 {', '.join(source_materials)}
 
-AI TOOL PROMPTS: Create exactly one extremely detailed, ready-to-use prompt for each recommended product type. Do NOT include titles or formatting - just the prompt content itself. Each prompt must be comprehensive and specific enough for immediate use by content creators.
+AI TOOL PROMPTS: Create exactly one ULTRA-DETAILED, immediately actionable prompt for each recommended product type. Do NOT include titles or formatting - just the prompt content itself. Each prompt must be so comprehensive and specific that a content creator can execute it immediately without additional clarification.
 
-Requirements:
+CRITICAL REQUIREMENTS:
 - Create exactly {len(payload.recommendedProducts)} prompts (one for each recommended product)
-- Each prompt must be extremely detailed with specific instructions, examples, and requirements
-- Include exact duration/length requirements based on completion times from timing guidelines
-- Specify target audience, tone, style, and delivery method
-- Include specific content topics, learning objectives, and assessment criteria
-- Provide detailed technical specifications and requirements
-- Include specific examples, case studies, or scenarios to incorporate
-- Specify visual elements, interactions, and engagement strategies
-- Include exact formatting, structure, and organization requirements
-- Make prompts actionable with step-by-step instructions where applicable
+- Each prompt must be 300-500 words minimum with granular detail
+- Include EXACT specifications for every aspect of content creation
 
-Example format for video lesson (be this detailed):
-Create a professional training video for HVAC Maintenance Technicians with 3-5 years of experience. This is the first lesson of the onboarding course, titled Course Overview and Objectives. The video should be exactly 3 minutes long and follow this specific structure: (1) Opening 30 seconds: Welcome learners with a professional introduction, introduce the instructor as a certified HVAC professional with 15+ years experience, and establish credibility. (2) Main content 2 minutes: Explain that the main goal of the course is to teach safe installation, maintenance, and repair of HVAC systems according to industry standards and local codes. Emphasize the critical importance of safety protocols, proper tool usage, and professional standards. Provide a detailed overview of what topics will be covered in this module (system components, safety procedures, basic troubleshooting) and throughout the entire course (advanced diagnostics, commercial systems, energy efficiency). Include specific examples of real-world scenarios they will encounter. (3) Closing 30 seconds: Summarize key takeaways, preview the next lesson, and encourage questions. The tone should be clear, confident, and supportive with professional terminology appropriate for experienced technicians. Use high-quality visuals showing actual HVAC equipment, safety demonstrations, and real work environments. Include closed captions and ensure accessibility compliance.
+MANDATORY ELEMENTS FOR EACH PROMPT:
+1. PRECISE CONTENT REQUIREMENTS:
+   * Exact duration/length with specific time breakdowns (e.g., "30-second intro, 2-minute main content, 30-second conclusion")
+   * Detailed content outline with specific topics and subtopics to cover
+   * Exact learning objectives with measurable outcomes
+   * Specific examples, case studies, or scenarios with detailed descriptions
+   * Precise terminology and industry language to use
+   * Exact key concepts to emphasize with specific explanation requirements
+
+2. TECHNICAL SPECIFICATIONS:
+   * Exact format requirements (resolution, aspect ratio, file types)
+   * Specific visual style guidelines (colors, fonts, layout specifications)
+   * Detailed audio requirements (voice tone, background music, sound effects)
+   * Precise quality standards and technical constraints
+   * Exact accessibility requirements (captions, alt text, contrast ratios)
+   * Specific platform or delivery method considerations
+
+3. STRUCTURAL ORGANIZATION:
+   * Detailed step-by-step content flow with specific timing
+   * Exact introduction requirements with specific opening elements
+   * Precise main content structure with detailed section breakdowns
+   * Specific transition requirements between sections
+   * Exact conclusion elements with specific call-to-action details
+   * Detailed assessment or interaction requirements where applicable
+
+4. TARGET AUDIENCE SPECIFICATIONS:
+   * Exact experience level and prerequisite knowledge
+   * Specific tone, language level, and communication style
+   * Detailed engagement strategies and interaction methods
+   * Precise motivational elements and learning reinforcement techniques
+   * Specific cultural or demographic considerations
+
+5. IMPLEMENTATION DETAILS:
+   * Step-by-step creation process with specific tools or methods
+   * Exact review criteria and quality checkpoints
+   * Specific testing or validation requirements
+   * Detailed revision guidelines and improvement criteria
+
+Example format demonstrating ULTRA-DETAILED specifications (minimum level of detail required):
+Create a professional training video for HVAC Maintenance Technicians with 3-5 years field experience, 2+ years residential/commercial system exposure, and current EPA Section 608 certification. Target completion time: exactly 4 minutes 30 seconds. STRUCTURE: (1) Opening sequence 45 seconds: Begin with 10-second branded intro animation, instructor introduction using full name and credentials (minimum 15 years field experience, NATE certified, EPA Universal certified), establish learning context with specific mention of ASHRAE standards compliance and local building codes. Visual elements: instructor in professional uniform against HVAC equipment backdrop, certification logos displayed. (2) Main content 3 minutes: Cover exact learning objectives with specific time allocations - safety protocols (60 seconds) including lockout/tagout procedures, refrigerant handling protocols, electrical safety with specific voltage warnings; system components overview (90 seconds) covering compressor types, evaporator configurations, condensing unit specifications; troubleshooting methodology (30 seconds) using systematic diagnostic approach. Include specific examples: residential split system R-410A leak detection, commercial rooftop unit bearing replacement, heat pump defrost cycle malfunction. (3) Closing 15 seconds: Recap three key safety points, preview next module content, provide specific contact method for questions. TECHNICAL SPECS: 1920x1080 resolution, 30fps, H.264 encoding, stereo audio at 48kHz, -23 LUFS audio levels. Visual requirements: consistent lighting 3200K, clean backgrounds, equipment close-ups minimum 5 seconds duration, text overlays Arial 24pt minimum. Accessibility: accurate closed captions, audio descriptions for visual demonstrations, high contrast text (4.5:1 minimum ratio). Tone: authoritative yet approachable, use industry-standard terminology with brief explanations, speak at 160-180 words per minute for clarity. Quality checkpoints: technical accuracy review by certified HVAC engineer, audio clarity verification, caption synchronization verification, equipment demonstration accuracy validation.
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}
@@ -17222,11 +17270,11 @@ Ensure the JSON is valid and follows the exact structure specified.
         response = await openai_client.chat.completions.create(
             model=LLM_DEFAULT_MODEL,
             messages=[
-                {"role": "system", "content": "You are an expert educational content creator. Always respond with valid JSON."},
+                {"role": "system", "content": "You are an expert educational content creator. Always respond with valid JSON. Create extremely detailed, comprehensive content specifications."},
                 {"role": "user", "content": openai_prompt}
             ],
             temperature=0.7,
-            max_tokens=2000
+            max_tokens=4000
         )
         
         # Parse OpenAI response

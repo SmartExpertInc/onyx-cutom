@@ -193,7 +193,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
           </div>
           {/* Source Materials Section */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Source Materials Used:</h3>
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
               <ul className="space-y-3">
                 {(() => {
