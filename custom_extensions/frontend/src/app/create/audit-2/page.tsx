@@ -423,13 +423,15 @@ export default function AuditPage() {
                   />
                 </div>
 
-                <Image 
-                  src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
-                  alt="Audit section 3 card 2 desktop" 
-                  width={620}
-                  height={420}
-                  className="hidden xl:block w-full border border-[#E0E0E0] rounded-[4px]"
-                />
+                <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
+                    alt="Audit section 3 card 2 desktop" 
+                    width={620}
+                    height={420}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
             </div>
           </section>
