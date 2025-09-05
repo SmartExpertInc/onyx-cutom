@@ -25,7 +25,7 @@ export default function AuditPage() {
         /* Set default text color for the entire page */
         body, html {
           color: #09090B;
-          line-height: 140%;
+          line-height: 150%;
           font-weight: 400;
         }
         
