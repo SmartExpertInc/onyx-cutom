@@ -205,7 +205,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           zIndex: 1,
         }} />
         
-        {/* Profile Image */}
+        {/* Profile Image! */}
         <div style={{
           position: 'absolute',
           bottom: '-24px',
