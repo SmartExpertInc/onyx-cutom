@@ -95,7 +95,7 @@ export default function AuditPage() {
               {/* Pill-shaped div */}
               <div className="bg-white border border-[#E4E4E7] rounded-full w-fit px-[15px] xl:px-[25px] py-[6px] xl:py-[4px] flex items-center gap-2 xl:mb-[5px]">
                 {/* Circle with gradient background */}
-                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#01D0FF] to-[#6496F8]"></div>
+                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#01D0FF] to-[#6496F8] xl:bg-gradient-to-r xl:from-[#0F58F9] xl:to-[#6496F8]"></div>
                 
                 {/* Text */}
                 <span className="font-medium text-[13px] xl:text-[16px] text-[#71717A] xl:text-[#09090B] tracking-[0.05em]">
@@ -1750,7 +1750,7 @@ export default function AuditPage() {
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
                   <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                    <div className="pt-[15px] px-[15px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                    <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                         style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1910,7 +1910,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    База знаний <span className="font-normal text-[#71717A]">и централизованное обновление контента</span>
+                    База знаний <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> централизованное<br className="xl:hidden"/> обновление контента</span>
                   </span>
                 </div>
 
@@ -1925,7 +1925,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Геймификация<span className="font-normal text-[#71717A]">, тестирование и оценка компетенций</span>
+                    Геймификация<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> тестирование и оценка<br className="xl:hidden"/> компетенций</span>
                   </span>
                 </div>
                   </div>
@@ -1943,7 +1943,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Отчётность, дашборды<span className="font-normal text-[#71717A]"> и аналитика по обучению</span>
+                    Отчётность, дашборды<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> аналитика по обучению</span>
                   </span>
                 </div>
 
@@ -1960,7 +1960,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Встроенный AI-ассистент <span className="font-normal text-[#71717A]">для сопровождения и автоматизации</span>
+                    Встроенный AI-ассистент<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">для сопровождения и<br className="xl:hidden"/> автоматизации</span>
                   </span>
                 </div>
 
@@ -1975,7 +1975,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Мультиязычность<span className="font-normal text-[#71717A]"> и поддержка глобальных команд</span>
+                    Мультиязычность<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> поддержка глобальных<br className="xl:hidden"/> команд</span>
                   </span>
                 </div>
 
@@ -1993,7 +1993,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Гибкое управление<span className="font-normal text-[#71717A]"> доступами и брендированием</span>
+                    Гибкое управление<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> доступами и брендированием</span>
                   </span>
                 </div>
                   </div>
@@ -2112,7 +2112,7 @@ export default function AuditPage() {
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
-                  Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой доступ к профессиональному методологу</span> по предоплаченной модели. Методолог — это ваша «правая рука», которая берёт на себя всю операционную работу: от структурирования знаний до подготовки обучающих материалов и загрузки их в систему.
+                  Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой <br className="xl:hidden"/>доступ к профессиональному<br className="xl:hidden"/> методологу</span> по предоплаченной<br className="xl:hidden"/> модели. Методолог — это ваша<br className="xl:hidden"/> «правая рука», которая берёт на<br className="xl:hidden"/> себя всю операционную работу: от<br className="xl:hidden"/> структурирования знаний до<br className="xl:hidden"/> подготовки обучающих материалов<br className="xl:hidden"/> и загрузки их в систему.
                 </span>
               </div> 
             </div>
