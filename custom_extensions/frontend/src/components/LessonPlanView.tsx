@@ -62,21 +62,21 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
         </div>
 
         {/* Content Draft */}
-        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Package className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Content Draft</h2>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Content Draft</h2>
           </div>
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 md:p-6 border border-blue-100">
             <div className="space-y-6">
               {lessonPlanData.contentDevelopmentSpecifications.map((block, index) => (
                 <div key={index}>
                   {block.type === 'text' ? (
                     // Text Block
-                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 shadow-sm">
-                      <h3 className="font-bold text-blue-800 mb-4 text-lg">
+                    <div className="p-2 md:p-3">
+                      <h3 className="font-bold text-blue-800 mb-3 text-base md:text-lg">
                         {block.block_title}
                       </h3>
                       <div className="text-gray-700 leading-relaxed">
@@ -296,9 +296,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                                   `product-${index}`;
                 
                 return (
-                  <div key={index} id={`prompt-${productName}`} className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
+                  <div key={index} id={`prompt-${productName}`} className="bg-white rounded-lg p-4 md:p-6 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="mb-3">
-                      <h3 className="font-bold text-blue-800 text-lg uppercase tracking-wide">{title}</h3>
+                      <h3 className="font-bold text-blue-800 text-base md:text-lg uppercase tracking-wide">{title}</h3>
                     </div>
                     <div className="text-gray-800 leading-relaxed font-medium text-lg whitespace-pre-wrap">
                       {content}
