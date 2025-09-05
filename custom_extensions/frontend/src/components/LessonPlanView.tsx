@@ -69,7 +69,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Content Types</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {(() => {
               // Extract unique product types from contentDevelopmentSpecifications
               const productTypes = lessonPlanData.contentDevelopmentSpecifications
@@ -108,13 +108,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                 const formattedName = formatProductName(productName);
 
                 return (
-                  <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-6 border border-blue-100 hover:shadow-md transition-all duration-300">
+                                     <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-8 border border-blue-100 hover:shadow-md transition-all duration-300">
                     <div className="flex flex-col items-center text-center">
                       <div className={`w-16 h-16 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-105 transition-transform duration-300`}>
                         <IconComponent className="w-8 h-8 text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">{formattedName}</h3>
-                      <p className="text-sm text-gray-600">Content Type</p>
+                                             <h3 className="text-lg font-semibold text-gray-800">{formattedName}</h3>
                     </div>
                   </div>
                 );
