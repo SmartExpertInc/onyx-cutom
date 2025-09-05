@@ -13450,7 +13450,7 @@ async def download_project_instance_pdf(
                     "shortDescription": lesson_plan_data.get('shortDescription', ''),
                     "lessonObjectives": lesson_plan_data.get('lessonObjectives', []),
                     "materials": lesson_plan_data.get('materials', []),
-                    "recommendedProductTypes": lesson_plan_data.get('recommendedProductTypes', {}),
+                    "contentDevelopmentSpecifications": lesson_plan_data.get('contentDevelopmentSpecifications', []),
                     "suggestedPrompts": lesson_plan_data.get('suggestedPrompts', []),
                     "detectedLanguage": detected_lang_for_pdf
                 }
@@ -13460,7 +13460,7 @@ async def download_project_instance_pdf(
                     "lessonTitle": mp_name_for_pdf_context,
                     "shortDescription": "Lesson plan content not available",
                     "lessonObjectives": [],
-                    "recommendedProductTypes": {},
+                    "contentDevelopmentSpecifications": [],
                     "materials": [],
                     "suggestedPrompts": [],
                     "detectedLanguage": detected_lang_for_pdf
@@ -17152,7 +17152,14 @@ Ensure the JSON is valid and follows the exact structure specified.
             
             # Log the recommended products for debugging
             logger.info(f"Payload recommended products: {payload.recommendedProducts}")
-            logger.info(f"AI generated product types: {list(lesson_plan_data['recommendedProductTypes'].keys())}")
+            
+            # Extract product names from contentDevelopmentSpecifications for validation
+            ai_generated_products = []
+            for block in lesson_plan_data.get('contentDevelopmentSpecifications', []):
+                if block.get('type') == 'product':
+                    ai_generated_products.append(block.get('product_name'))
+            
+            logger.info(f"AI generated product types: {ai_generated_products}")
             
             # Create a mapping of common product name variations
             product_name_mapping = {
@@ -17176,23 +17183,24 @@ Ensure the JSON is valid and follows the exact structure specified.
                 else:
                     normalized_payload_products.add(product.lower())
             
-            # Validate recommendedProductTypes only contains products from the request
-            for product_name in lesson_plan_data["recommendedProductTypes"]:
-                # Normalize the AI-generated product name
-                canonical_name = None
-                for canonical, variations in product_name_mapping.items():
-                    if product_name.lower() in [v.lower() for v in variations]:
-                        canonical_name = canonical
-                        break
-                
-                if canonical_name:
-                    if canonical_name not in normalized_payload_products:
-                        logger.warning(f"AI generated product '{product_name}' (canonical: '{canonical_name}') not in normalized recommended products: {normalized_payload_products}")
-                        raise ValueError(f"Product {product_name} not in recommended products list")
-                else:
-                    if product_name.lower() not in normalized_payload_products:
-                        logger.warning(f"AI generated unknown product '{product_name}' not in recommended products: {payload.recommendedProducts}")
-                        raise ValueError(f"Product {product_name} not in recommended products list")
+            # Validate product blocks only contain products from the request
+            for product_name in ai_generated_products:
+                if product_name:  # Skip None values
+                    # Normalize the AI-generated product name
+                    canonical_name = None
+                    for canonical, variations in product_name_mapping.items():
+                        if product_name.lower() in [v.lower() for v in variations]:
+                            canonical_name = canonical
+                            break
+                    
+                    if canonical_name:
+                        if canonical_name not in normalized_payload_products:
+                            logger.warning(f"AI generated product '{product_name}' (canonical: '{canonical_name}') not in normalized recommended products: {normalized_payload_products}")
+                            raise ValueError(f"Product {product_name} not in recommended products list")
+                    else:
+                        if product_name.lower() not in normalized_payload_products:
+                            logger.warning(f"AI generated unknown product '{product_name}' not in recommended products: {payload.recommendedProducts}")
+                            raise ValueError(f"Product {product_name} not in recommended products list")
                     
         except (json.JSONDecodeError, ValueError) as e:
             logger.error(f"Failed to parse OpenAI response: {e}")
