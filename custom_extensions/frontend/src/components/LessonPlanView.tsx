@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import React from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText } from 'lucide-react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 
 interface LessonPlanViewProps {
@@ -58,67 +58,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        {/* Content Types */}
-        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Content Types</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(() => {
-              // Extract unique product types from contentDevelopmentSpecifications
-              const productTypes = lessonPlanData.contentDevelopmentSpecifications
-                .filter(block => block.type === 'product')
-                .map(block => block.product_name)
-                .filter((name, index, array) => array.indexOf(name) === index); // Remove duplicates
-
-              const getProductIcon = (productName: string) => {
-                const name = productName.toLowerCase();
-                if (name.includes('video')) return Play;
-                if (name.includes('presentation')) return Presentation;
-                if (name.includes('quiz')) return FileQuestion;
-                if (name.includes('one-pager') || name.includes('onepager')) return ScrollText;
-                return FileText; // Default icon
-              };
-
-              const getProductColor = (productName: string) => {
-                const name = productName.toLowerCase();
-                if (name.includes('video')) return 'from-red-500 to-pink-600';
-                if (name.includes('presentation')) return 'from-blue-500 to-indigo-600';
-                if (name.includes('quiz')) return 'from-green-500 to-emerald-600';
-                if (name.includes('one-pager') || name.includes('onepager')) return 'from-orange-500 to-amber-600';
-                return 'from-gray-500 to-slate-600'; // Default color
-              };
-
-              const formatProductName = (productName: string) => {
-                return productName
-                  .split('-')
-                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ');
-              };
-
-              return productTypes.map((productName, index) => {
-                const IconComponent = getProductIcon(productName);
-                const colorClass = getProductColor(productName);
-                const formattedName = formatProductName(productName);
-
-                return (
-                                     <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-8 border border-blue-100 hover:shadow-md transition-all duration-300">
-                    <div className="flex flex-col items-center text-center">
-                      <div className={`w-16 h-16 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-105 transition-transform duration-300`}>
-                        <IconComponent className="w-8 h-8 text-white" />
-                      </div>
-                                             <h3 className="text-lg font-semibold text-gray-800">{formattedName}</h3>
-                    </div>
-                  </div>
-                );
-              });
-            })()}
           </div>
         </div>
 
@@ -323,7 +262,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                 const lines = prompt.split('\n');
                 const firstLine = lines[0];
                 const titleMatch = firstLine.match(/\*\*(.+?)\*\*/);
-
+                
                 let title, content;
                 if (titleMatch) {
                   // Title provided in bold markdown syntax
@@ -354,9 +293,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                     } else if (lowerPrompt.includes('quiz')) {
                       title = 'Quiz Creation Prompt';
                     } else if (lowerPrompt.includes('one-pager') || lowerPrompt.includes('onepager')) {
-                      title = 'One-Pager Creation Prompt';
-                    } else {
-                      title = `Content Creation Prompt ${index + 1}`;
+                    title = 'One-Pager Creation Prompt';
+                  } else {
+                    title = `Content Creation Prompt ${index + 1}`;
                     }
                   }
 
