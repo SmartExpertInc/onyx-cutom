@@ -131,6 +131,19 @@
             box-sizing: border-box;
         }
         
+        /* Handle fractional column spans */
+        .grid-cols-20 {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+        }
+        
+        /* Ensure proper text wrapping for all columns */
+        .grid-cols-20 > div {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        
         /* Better text handling for all columns */
         .column-content {
             overflow-wrap: break-word;
@@ -188,6 +201,25 @@
         /* Dynamic theme colors for SVG icons */
         .theme-icon-color {
             fill: #FF1414 !important;
+        }
+        
+        /* Ensure table fits within page width when all columns are visible */
+        .table-container {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        /* Force table to stay within bounds */
+        .grid-cols-20 {
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        /* Ensure no column exceeds reasonable width */
+        .grid-cols-20 > div {
+            max-width: 100%;
+            min-width: 0;
         }
     </style>
 
@@ -283,21 +315,36 @@
     {% set videoPresentation_show = column_visibility.get('videoPresentation', False) %}
     {% set lessonPresentation_show = column_visibility.get('lessonPresentation', False) %}
 
-    {# Calculate column spans to better match web table proportions #}
+    {# Calculate column spans with adjusted proportions #}
+    {# Make Quiz, One-Pager, Video, Presentation columns smaller (1.5 spans each) #}
     {% set span_kc   = 2 if kc_show else 0 %}
     {% set span_ca   = 2 if ca_show else 0 %}
     {% set span_src  = 2 if src_show else 0 %}
     {% set span_qt   = 2 if qt_show else 0 %}
     {% set span_time = 2 if time_show else 0 %}
     {% set span_ct   = 2 if ct_show else 0 %}
-    {% set span_quiz = 2 if quiz_show else 0 %}
-    {% set span_onePager = 2 if onePager_show else 0 %}
-    {% set span_videoPresentation = 2 if videoPresentation_show else 0 %}
-    {% set span_lessonPresentation = 2 if lessonPresentation_show else 0 %}
+    {% set span_quiz = 1.5 if quiz_show else 0 %}
+    {% set span_onePager = 1.5 if onePager_show else 0 %}
+    {% set span_videoPresentation = 1.5 if videoPresentation_show else 0 %}
+    {% set span_lessonPresentation = 1.5 if lessonPresentation_show else 0 %}
     
-    {# Calculate remaining space for module/lesson column #}
+    {# Calculate remaining space for module/lesson column (make it bigger) #}
     {% set total_used_span = span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
     {% set modules_span = 20 - total_used_span %}
+    
+    {# Ensure minimum width for module/lesson column and handle overflow #}
+    {% if modules_span < 4 %}
+        {% set modules_span = 4 %}
+        {# If we have too many columns, reduce the optional column spans #}
+        {% if total_used_span > 16 %}
+            {% set span_quiz = 1 if quiz_show else 0 %}
+            {% set span_onePager = 1 if onePager_show else 0 %}
+            {% set span_videoPresentation = 1 if videoPresentation_show else 0 %}
+            {% set span_lessonPresentation = 1 if lessonPresentation_show else 0 %}
+            {% set total_used_span = span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
+            {% set modules_span = 20 - total_used_span %}
+        {% endif %}
+    {% endif %}
     
     {# For module headers, we need to account for all columns except time and completion time #}
     {% set module_header_span = modules_span + span_kc + span_ca + span_src + span_qt + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
@@ -305,7 +352,7 @@
     {% macro span_style(n) %}grid-column: span {{ n }} / span {{ n }};{% endmacro %}
 
     <div class="p-4 md:p-8">
-        <div class="shadow-lg rounded-lg overflow-hidden border border-gray-200 bg-white w-full">
+        <div class="shadow-lg rounded-lg overflow-hidden border border-gray-200 bg-white w-full table-container">
             <div class="p-4" style="background-color: {{ current_theme.courseHeaderBg }}; color: {{ current_theme.courseHeaderTextColor }};">
                 <h1 class="text-lg md:text-xl font-bold">{{ details.mainTitle }}</h1>
             </div>
