@@ -465,7 +465,7 @@ export default function AuditPage() {
                 <span className="font-semibold text-[20px]">Выгорание</span>
               </div>
               <p className="font-normal text-[14px] text-[#71717A]">
-                Средняя продолжительность работы в HVAC-компаниях — <span className="font-medium">менее 14 месяцев.</span>
+                Средняя продолжительность работы в HVAC-компаниях — <span className="font-medium text-[#09090B]">менее 14 месяцев.</span>
               </p>
             </div>
 
@@ -480,7 +480,7 @@ export default function AuditPage() {
                 <span className="font-semibold text-[20px]">Текучка до 85% в год</span>
               </div>
               <p className="font-normal text-[14px] text-[#71717A]">
-                <span className="font-medium">45% увольняются</span> в первые 3 месяца
+                <span className="font-medium text-[#09090B]">45% увольняются</span> в первые 3 месяца
               </p>
             </div>
             
@@ -494,7 +494,7 @@ export default function AuditPage() {
                 <span className="font-semibold text-[20px]">Убытки $10К–$18К</span>
               </div>
               <p className="font-normal text-[14px] text-[#71717A]">
-                <span className="font-medium">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.
+                <span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.
               </p>
             </div>
             
@@ -606,7 +606,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                Купите готовые шаблоны <br className="xl:hidden"/> курсов для онбординга и <br className="xl:hidden"/> обучения:
+                Купите готовые шаблоны <br className="xl:hidden"/> курсов для онбординга<br className="hidden xl:block"/> и <br className="xl:hidden"/> обучения:
               </h3>
 
               <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
@@ -1599,7 +1599,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                ContentBuilder.ai — AI-<br className="xl:hidden"/>платформа дл <br className="xl:hidden"/> автоматизации создания<br className="xl:hidden"/> и обновления курсов
+                ContentBuilder.ai — AI-<br className="xl:hidden"/>платформа для <br/> автоматизации создания<br className="xl:hidden"/> и обновления курсов
               </h3>
 
               <div 
@@ -1760,7 +1760,7 @@ export default function AuditPage() {
                       
                       <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
                         Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
-                        <span className="text-[#0F58F9]">материалы</span> (тексты,<br className="xl:hidden"/>
+                        <span className="text-[#0F58F9]">материалы</span><br className="hidden xl:block"/> (тексты,<br className="xl:hidden"/>
                         инструкции, PDF, видео и др.)
                       </h5>
                     </div>
@@ -1799,7 +1799,7 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                        Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки, тесты,<br className="xl:hidden"/> видео и презентации</span>
+                        Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты,<br className="xl:hidden"/> видео и презентации</span>
                       </h5>
                     </div>
 
@@ -1840,7 +1840,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                LMS-платформа<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> автоматизация<br className="xl:hidden"/> корпоративного<br className="xl:hidden"/> обучения и онбординга
+                LMS-платформа<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> автоматизация<br /> корпоративного<br className="xl:hidden"/> обучения и онбординга
               </h3>
 
               <div 
@@ -1880,7 +1880,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Онбординг и адаптация<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">новых сотрудников</span>
+                    Онбординг и адаптация<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">новых<br className="hidden xl:block"/> сотрудников</span>
                   </span>
                 </div>
 
@@ -1895,7 +1895,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                  Обучение по ролям <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> департаментам</span>
+                  Обучение по ролям <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>и<br className="xl:hidden"/> департаментам</span>
                   </span>
                 </div>
 
@@ -1910,7 +1910,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    База знаний <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> централизованное<br className="xl:hidden"/> обновление контента</span>
+                    База знаний <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> централизованное<br/> обновление контента</span>
                   </span>
                 </div>
 
@@ -1925,7 +1925,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Геймификация<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> тестирование и оценка<br className="xl:hidden"/> компетенций</span>
+                    Геймификация<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> тестирование<br className="hidden xl:block"/> и оценка<br className="xl:hidden"/> компетенций</span>
                   </span>
                 </div>
                   </div>
@@ -1943,7 +1943,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Отчётность, дашборды<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> аналитика по обучению</span>
+                    Отчётность, дашборды<span className="font-normal text-[#71717A]"> и<br/> аналитика по обучению</span>
                   </span>
                 </div>
 
@@ -1960,7 +1960,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Встроенный AI-ассистент<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">для сопровождения и<br className="xl:hidden"/> автоматизации</span>
+                    Встроенный AI-ассистент<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">для<br className="hidden xl:block"/> сопровождения и<br className="xl:hidden"/> автоматизации</span>
                   </span>
                 </div>
 
@@ -1975,7 +1975,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Мультиязычность<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> поддержка глобальных<br className="xl:hidden"/> команд</span>
+                    Мультиязычность<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> поддержка<br className="hidden xl:block"/> глобальных<br className="xl:hidden"/> команд</span>
                   </span>
                 </div>
 
@@ -1993,7 +1993,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Гибкое управление<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> доступами и брендированием</span>
+                    Гибкое управление<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> доступами<br className="hidden xl:block"/> и брендированием</span>
                   </span>
                 </div>
                   </div>
@@ -2096,7 +2096,7 @@ export default function AuditPage() {
                       </div>
                       
                       <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                        Выполняет технические и методологические задачи по вашему запросу
+                        Выполняет технические и методологические<br className="hidden xl:block"/> задачи по вашему запросу
                       </span>
                     </div>
                   </div>
@@ -2112,7 +2112,7 @@ export default function AuditPage() {
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
-                  Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой <br className="xl:hidden"/>доступ к профессиональному<br className="xl:hidden"/> методологу</span> по предоплаченной<br className="xl:hidden"/> модели. Методолог — это ваша<br className="xl:hidden"/> «правая рука», которая берёт на<br className="xl:hidden"/> себя всю операционную работу: от<br className="xl:hidden"/> структурирования знаний до<br className="xl:hidden"/> подготовки обучающих материалов<br className="xl:hidden"/> и загрузки их в систему.
+                  Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой <br className="xl:hidden"/>доступ к профессиональному<br className="xl:hidden"/> методологу</span> по предоплаченной<br/> модели. Методолог — это ваша<br className="xl:hidden"/> «правая рука», которая берёт на<br className="xl:hidden"/> себя всю операционную<br className="hidden xl:block"/> работу: от<br className="xl:hidden"/> структурирования знаний до<br className="xl:hidden"/> подготовки обучающих материалов<br className="xl:hidden"/> и загрузки их в<br className="hidden xl:block"/> систему.
                 </span>
               </div> 
             </div>
