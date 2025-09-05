@@ -27,7 +27,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#F8F8F8',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -35,12 +35,12 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '56px',
+    top: '33px',
     left: '56px',
-    fontSize: '82px',
+    fontSize: '60px',
     lineHeight: 1.1,
     fontWeight: 800,
-    color: '#333333',
+    color: '#3C3C3C',
     whiteSpace: 'pre-line',
   };
 
@@ -48,11 +48,11 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     position: 'absolute',
     top: '40px',
     right: '56px',
-    width: '120px',
-    height: '120px',
+    width: '150px',
+    height: '150px',
     borderRadius: '50%',
     overflow: 'hidden',
-    backgroundColor: '#8A6AD8',
+    backgroundColor: '#916AF7',
   };
 
   const cardsRowStyles: React.CSSProperties = {
@@ -68,7 +68,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const cardStyles: React.CSSProperties = {
     position: 'relative',
     backgroundColor: '#E5E5E5',
-    borderRadius: '6px',
+    borderRadius: '0px',
     overflow: 'hidden',
     height: '340px',
   };
@@ -77,11 +77,9 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     position: 'absolute',
     top: '20px',
     left: '20px',
-    color: '#FFFFFF',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    color: '#CAC7C6',
     padding: '6px 10px',
-    borderRadius: '999px',
-    fontSize: '20px',
+    fontSize: '25px',
     fontWeight: 600,
   };
 
@@ -131,7 +129,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               position="CENTER"
               description="Card image"
               isEditable={isEditable}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
             />
             <div style={cardLabelStyles}>• {c.label}</div>
           </div>

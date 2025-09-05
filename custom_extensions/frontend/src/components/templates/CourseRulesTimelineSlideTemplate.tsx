@@ -30,7 +30,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#4D3EC1',
+    backgroundColor: '#473CA4',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -38,37 +38,37 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const actorStyles: React.CSSProperties = {
     position: 'absolute',
-    left: '70px',
+    left: '140px',
     bottom: '0px',
-    width: '400px',
-    height: '640px',
+    height: '600px',
   };
 
   const lineStyles: React.CSSProperties = {
     position: 'absolute',
     left: '50%',
-    top: '80px',
+    top: '193px',
     bottom: '80px',
-    width: '2px',
-    backgroundColor: '#171717',
+    width: '3px',
+    height: '100%',
+    backgroundColor: '#232428',
   };
 
   const stepNumStyles: React.CSSProperties = {
-    width: '110px',
-    height: '110px',
+    width: '80px',
+    height: '80px',
     borderRadius: '50%',
-    backgroundColor: '#171717',
-    color: '#FFFFFF',
+    backgroundColor: '#232428',
+    color: '#D3D4D8',
     fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '42px',
+    fontSize: '33px',
   };
 
   const stepTextStyles: React.CSSProperties = {
-    color: '#FFFFFF',
-    fontSize: '39px',
+    color: '#E0DFEC',
+    fontSize: '46px',
     fontWeight: 700,
     lineHeight: '1.05',
   };
@@ -76,7 +76,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const stepContainerStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     left: '55%',
-    top: index === 0 ? '150px' : '480px',
+    top: index === 0 ? '137px' : '467px',
     display: 'flex',
     alignItems: 'center',
     gap: '40px',
@@ -84,7 +84,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const circlePositionStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
-    left: 'calc(50% - 55px)', // center the 110px circle on the vertical line
+    left: 'calc(50% - 38px)', // center the 110px circle on the vertical line
     top: index === 0 ? '120px' : '450px',
   });
 
@@ -100,17 +100,16 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const starStyles: React.CSSProperties = {
     position: 'absolute',
     top: '34px',
-    left: '26px',
-    width: '14px',
-    height: '14px'
+    left: '15px',
+    width: '30px',
   };
 
   const pageNumberStyles: React.CSSProperties = {
     position: 'absolute',
     bottom: '24px',
-    left: '24px',
+    left: '22px',
     color: '#E6E6F3',
-    fontSize: '16px',
+    fontSize: '13px',
     fontWeight: 400
   };
 

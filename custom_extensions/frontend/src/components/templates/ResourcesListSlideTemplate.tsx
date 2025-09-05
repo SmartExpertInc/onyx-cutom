@@ -32,6 +32,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingResourceIndex, setEditingResourceIndex] = useState<number | null>(null);
   const [showLogoUpload, setShowLogoUpload] = useState(false);
 
   const slideStyles: React.CSSProperties = {
@@ -124,7 +125,27 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
       {/* Items */}
       <div style={listContainerStyles}>
         {resources.slice(0, 3).map((r, i) => (
-          <div key={i} style={itemStyles}>{r.text}</div>
+          <div key={i} style={itemStyles}>
+            {isEditable && editingResourceIndex === i ? (
+              <ImprovedInlineEditor
+                initialValue={r.text}
+                onSave={(v) => {
+                  const next = [...resources];
+                  next[i] = { text: v };
+                  setEditingResourceIndex(null);
+                  onUpdate && onUpdate({ resources: next });
+                }}
+                onCancel={() => setEditingResourceIndex(null)}
+                className="resources-item-editor"
+                multiline={true}
+                style={{ fontSize: '28px', fontWeight: 600, color: '#D7D1B0' }}
+              />
+            ) : (
+              <div onClick={() => isEditable && setEditingResourceIndex(i)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+                {r.text}
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
