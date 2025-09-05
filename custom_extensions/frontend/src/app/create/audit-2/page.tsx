@@ -1070,12 +1070,12 @@ export default function AuditPage() {
                   </div>
                   
                   <div className="flex flex-col gap-[20px] xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
-                    <h4 className="font-medium text-[18px] text-[#09090B]">
+                    <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
                       План обучения
                     </h4>
 
                     {/* Module 1*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
@@ -1478,7 +1478,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 2*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
@@ -1514,7 +1514,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 3*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
@@ -1550,7 +1550,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 4*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
