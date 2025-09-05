@@ -25,13 +25,7 @@ export default function AuditPage() {
         /* Set default text color for the entire page */
         body, html {
           color: #09090B;
-          line-height: 150%;
           font-weight: 400;
-        }
-        
-        /* Ensure h3 elements inherit line-height */
-        h3, span {
-          line-height: 140%;
         }
       `}</style>
       
