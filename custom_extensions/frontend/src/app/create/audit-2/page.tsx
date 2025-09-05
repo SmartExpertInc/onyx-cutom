@@ -1841,21 +1841,31 @@ export default function AuditPage() {
                 LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
               </h3>
 
-              <Image 
+              {/* <Image 
                 src="/custom-projects-ui/images/audit-section-5-service-3-image-1-mobile.png"
                 alt="Card 1"
                 width={300}
                 height={180}
                 className="w-full xl:hidden rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
-              />
+              /> */}
 
-              <Image 
+              {/* <Image 
                 src="/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png"
                 alt="Card 1"
                 width={1120}
                 height={571}
                 className="xl:mb-[40px] w-full hidden xl:block rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
-              />
+              /> */}
+
+              <div 
+                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
+                style={{ 
+                  backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png)',
+                  backgroundSize: 'cover',
+                  backgroundRepeat: 'no-repeat',
+                  boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
+                }}
+              ></div>
 
               <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px]">
                 <h4 className="font-semibold text-[20px] xl:text-[32px] mb-[15px]">
