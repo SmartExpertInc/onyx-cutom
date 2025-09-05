@@ -6,7 +6,7 @@ import PlayModal from './PlayModal';
 import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
-import AvatarSelector, { Avatar, AvatarVariant } from '@/components/AvatarSelector';
+import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
 
 interface EmailInput {
   id: string;
@@ -123,23 +123,7 @@ export default function VideoEditorHeader({
   };
 
   const handleGenerateClick = () => {
-    console.log('🎬 [VIDEO_EDITOR_HEADER] ===== GENERATE BUTTON CLICKED =====');
-    console.log('🎬 [VIDEO_EDITOR_HEADER] Current avatar state:', {
-      selectedAvatar: selectedAvatar?.name || 'None',
-      selectedVariant: selectedVariant?.name || 'None',
-      generationStatus,
-      generationError
-    });
-    
-    if (!selectedAvatar) {
-      console.error('🎬 [VIDEO_EDITOR_HEADER] ERROR: Cannot open GenerateModal without avatar selection');
-      setGenerationError('Please select an avatar before generating video');
-      return;
-    }
-    
-    console.log('🎬 [VIDEO_EDITOR_HEADER] Avatar validation passed, opening GenerateModal');
     setIsGenerateModalOpen(true);
-    console.log('🎬 [VIDEO_EDITOR_HEADER] GenerateModal state set to true');
   };
 
   const handleUpgradeClick = () => {
@@ -174,11 +158,10 @@ export default function VideoEditorHeader({
 
   // Function to extract actual slide data from current project - updated to use props
   const extractSlideData = async (): Promise<{ slides: any[], theme: string, voiceoverTexts: string[] }> => {
-    console.log('🎬 [VIDEO_GENERATION] ===== EXTRACTING SLIDE DATA =====');
-    console.log('🎬 [VIDEO_GENERATION] Extracting slide data from current project...');
-    console.log('🎬 [VIDEO_GENERATION] videoLessonData:', videoLessonData);
-    console.log('🎬 [VIDEO_GENERATION] componentBasedSlideDeck:', componentBasedSlideDeck);
-    console.log('🎬 [VIDEO_GENERATION] currentSlideId:', currentSlideId);
+    console.log('🎬 [VIDEO_DOWNLOAD] Extracting slide data from current project...');
+    console.log('🎬 [VIDEO_DOWNLOAD] videoLessonData:', videoLessonData);
+    console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
+    console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
     
     try {
       // First try to get data from componentBasedSlideDeck (newer structure)
@@ -254,32 +237,19 @@ export default function VideoEditorHeader({
 
   // Avatar selection handler - transferred from VideoDownloadButton
   const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
-    console.log('🎬 [VIDEO_GENERATION] ===== AVATAR SELECTED =====');
-    console.log('🎬 [VIDEO_GENERATION] Avatar selection triggered:', {
+    setSelectedAvatar(avatar);
+    setSelectedVariant(variant || undefined);
+    console.log('🎬 [VIDEO_DOWNLOAD] Avatar selected:', {
       avatar: avatar.name,
       variant: variant?.name,
       code: variant ? `${avatar.code}.${variant.code}` : avatar.code
     });
-    
-    setSelectedAvatar(avatar);
-    setSelectedVariant(variant || undefined);
-    
-    console.log('🎬 [VIDEO_GENERATION] Avatar state updated:', {
-      selectedAvatar: avatar.name,
-      selectedVariant: variant?.name
-    });
-    
-    // Clear any previous generation errors when avatar is selected
-    if (generationError) {
-      console.log('🎬 [VIDEO_GENERATION] Clearing previous generation error');
-      setGenerationError(null);
-    }
   };
 
   // Download video function - transferred from VideoDownloadButton
   const downloadVideo = async (jobId: string) => {
     try {
-      console.log('🎬 [VIDEO_DOWNLOAD] Downloading video for job:', jobId);
+      console.log('🎬 [VIDEO_GENERATION] Downloading video for job:', jobId);
       
       const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${jobId}/video`, {
         method: 'GET',
@@ -289,11 +259,14 @@ export default function VideoEditorHeader({
         credentials: 'same-origin',
       });
        
+      console.log('🎬 [VIDEO_GENERATION] Download response status:', downloadResponse.status);
       if (!downloadResponse.ok) {
+        console.error('🎬 [VIDEO_GENERATION] Download failed with status:', downloadResponse.status);
         throw new Error(`Download failed: ${downloadResponse.status}`);
       }
 
       // Create blob and download
+      console.log('🎬 [VIDEO_GENERATION] Creating blob and initiating download...');
       const blob = await downloadResponse.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -304,47 +277,58 @@ export default function VideoEditorHeader({
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      console.log('🎬 [VIDEO_DOWNLOAD] Video downloaded successfully');
+      console.log('🎬 [VIDEO_GENERATION] Video downloaded successfully!');
        
     } catch (error) {
-      console.error('🎬 [VIDEO_DOWNLOAD] Download failed:', error);
+      console.error('🎬 [VIDEO_GENERATION] Download failed:', error);
       setGenerationError(error instanceof Error ? error.message : 'Download failed');
     }
   };
 
   // Main video generation function - transferred from VideoDownloadButton
   const handleVideoGeneration = async () => {
-    console.log('🎬 [VIDEO_GENERATION] ===== GENERATION START BUTTON CLICKED =====');
-    console.log('🎬 [VIDEO_GENERATION] Function execution started');
-    console.log('🎬 [VIDEO_GENERATION] Current state:', {
-      selectedAvatar: selectedAvatar ? 'Available' : 'Not available',
-      selectedVariant: selectedVariant ? 'Available' : 'Not available',
-      generationStatus,
-      generationProgress,
-      generationJobId,
-      generationError
-    });
+    console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
+    console.log('🎬 [VIDEO_GENERATION] Current selectedAvatar:', selectedAvatar);
+    console.log('🎬 [VIDEO_GENERATION] Current selectedVariant:', selectedVariant);
+    
+    // If no avatar is selected, use a default avatar to allow generation to proceed
+    let avatarToUse = selectedAvatar;
+    let variantToUse = selectedVariant;
     
     if (!selectedAvatar) {
-      console.error('🎬 [VIDEO_GENERATION] ERROR: No avatar selected');
-      setGenerationError('Please select an avatar first');
-      return;
+      console.log('🎬 [VIDEO_GENERATION] No avatar selected, using default avatar');
+      // Use a default avatar - you can change this to any available avatar
+      avatarToUse = {
+        id: 'default-avatar',
+        code: 'default',
+        name: 'Default Avatar',
+        type: 'default',
+        status: 1,
+        accountId: 'default',
+        gender: 'female' as const,
+        thumbnail: '',
+        canvas: '',
+        variants: [{
+          id: 'default-variant',
+          code: 'default',
+          name: 'Default',
+          thumbnail: '',
+          canvas: ''
+        }]
+      };
+      variantToUse = undefined;
+      console.log('🎬 [VIDEO_GENERATION] Using default avatar:', avatarToUse);
     }
-    
-    console.log('🎬 [VIDEO_GENERATION] Avatar validation passed, proceeding with generation');
 
           try {
-        console.log('🎬 [VIDEO_GENERATION] Setting generation status to "generating"');
         setGenerationStatus('generating');
         setGenerationProgress(0);
         setGenerationError(null);
-        
-        console.log('🎬 [VIDEO_GENERATION] Generation state updated, proceeding with slide data extraction');
 
         // Debug: Log all available data at generation start
-        console.log('🎬 [VIDEO_DOWNLOAD] Generation started with data:', {
-          selectedAvatar: selectedAvatar?.name,
-          selectedVariant: selectedVariant?.name,
+        console.log('🎬 [VIDEO_GENERATION] Generation started with data:', {
+          selectedAvatar: avatarToUse?.name,
+          selectedVariant: variantToUse?.name,
           videoTitle,
           videoLessonData: videoLessonData ? 'Available' : 'Not available',
           componentBasedSlideDeck: componentBasedSlideDeck ? 'Available' : 'Not available',
@@ -353,31 +337,28 @@ export default function VideoEditorHeader({
           componentBasedSlides: componentBasedSlideDeck?.slides?.length || 0
         });
 
-      console.log('🎬 [VIDEO_DOWNLOAD] Starting video generation with selected avatar:', {
-        avatar: selectedAvatar.name,
-        variant: selectedVariant?.name,
-        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code
+      console.log('🎬 [VIDEO_GENERATION] Starting video generation with avatar:', {
+        avatar: avatarToUse?.name,
+        variant: variantToUse?.name,
+        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code
       });
 
       // Extract slide data
-      console.log('🎬 [VIDEO_GENERATION] Calling extractSlideData function...');
+      console.log('🎬 [VIDEO_GENERATION] Extracting slide data...');
       const slideData = await extractSlideData();
-      console.log('🎬 [VIDEO_GENERATION] extractSlideData result:', slideData);
       
       if (!slideData.slides || slideData.slides.length === 0) {
         const errorMsg = 'No slide data found. Please make sure you have a slide open.';
-        console.error('🎬 [VIDEO_GENERATION] ERROR:', errorMsg);
-        console.error('🎬 [VIDEO_GENERATION] Slide data validation failed:', slideData);
+        console.error('🎬 [VIDEO_GENERATION]', errorMsg);
         setGenerationError(errorMsg);
         setGenerationStatus('error');
         return;
       }
-      
-      console.log('🎬 [VIDEO_GENERATION] Slide data validation passed, proceeding with request payload creation');
 
-      console.log('🎬 [VIDEO_DOWNLOAD] Slide data extracted successfully');
-      console.log('🎬 [VIDEO_DOWNLOAD] Slides count:', slideData.slides.length);
-      console.log('🎬 [VIDEO_DOWNLOAD] Theme:', slideData.theme);
+      console.log('🎬 [VIDEO_GENERATION] Slide data extracted successfully');
+      console.log('🎬 [VIDEO_GENERATION] Slides count:', slideData.slides.length);
+      console.log('🎬 [VIDEO_GENERATION] Theme:', slideData.theme);
+      console.log('🎬 [VIDEO_GENERATION] Voiceover texts count:', slideData.voiceoverTexts.length);
 
       // Create the request payload
       const requestPayload = {
@@ -387,7 +368,7 @@ export default function VideoEditorHeader({
         ],  // Use actual voiceover texts or fallback
         slidesData: slideData.slides,  // Add the extracted slide data
         theme: slideData.theme,  // Use the extracted theme
-        avatarCode: selectedVariant ? `${selectedAvatar.code}.${selectedVariant.code}` : selectedAvatar.code,
+        avatarCode: variantToUse ? `${avatarToUse?.code}.${variantToUse.code}` : avatarToUse?.code,
         useAvatarMask: true,
         layout: 'picture_in_picture',
         duration: 30.0,
@@ -395,10 +376,10 @@ export default function VideoEditorHeader({
         resolution: [1920, 1080]
       };
 
-              console.log('🎬 [VIDEO_DOWNLOAD] Request payload:', requestPayload);
+              console.log('🎬 [VIDEO_GENERATION] Request payload:', requestPayload);
 
         // Additional debugging for the request payload
-        console.log('🎬 [VIDEO_DOWNLOAD] Final request payload:', {
+        console.log('🎬 [VIDEO_GENERATION] Final request payload:', {
           projectName: requestPayload.projectName,
           voiceoverTextsCount: requestPayload.voiceoverTexts.length,
           voiceoverTexts: requestPayload.voiceoverTexts,
@@ -408,6 +389,7 @@ export default function VideoEditorHeader({
         });
 
       // Create presentation
+      console.log('🎬 [VIDEO_GENERATION] Making API request to:', `${CUSTOM_BACKEND_URL}/presentations`);
       const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations`, {
         method: 'POST',
         headers: {
@@ -417,68 +399,75 @@ export default function VideoEditorHeader({
         body: JSON.stringify(requestPayload)
       });
 
+      console.log('🎬 [VIDEO_GENERATION] API response status:', createResponse.status);
       if (!createResponse.ok) {
         const errorText = await createResponse.text();
+        console.error('🎬 [VIDEO_GENERATION] API request failed:', errorText);
         throw new Error(`Failed to create presentation: ${createResponse.status} - ${errorText}`);
       }
 
       const createData = await createResponse.json();
+      console.log('🎬 [VIDEO_GENERATION] API response data:', createData);
 
       if (!createData.success) {
+        console.error('🎬 [VIDEO_GENERATION] API returned success: false:', createData.error);
         throw new Error(createData.error || 'Failed to create presentation');
       }
 
       const newJobId = createData.jobId;
       setGenerationJobId(newJobId);
-      console.log('🎬 [VIDEO_DOWNLOAD] Presentation job created:', newJobId);
+      console.log('🎬 [VIDEO_GENERATION] Presentation job created successfully:', newJobId);
 
-      console.log('🎬 [VIDEO_GENERATION] Presentation job created successfully, transitioning modals');
-      console.log('🎬 [VIDEO_GENERATION] Closing GenerateModal, opening GenerationCompletedModal');
-      
       // Close GenerateModal and open GenerationCompletedModal
+      console.log('🎬 [VIDEO_GENERATION] Closing GenerateModal and opening GenerationCompletedModal');
       setIsGenerateModalOpen(false);
       setIsGenerationCompletedModalOpen(true);
-      
-      console.log('🎬 [VIDEO_GENERATION] Modal transition completed, starting progress polling');
 
       // Poll for completion
+      console.log('🎬 [VIDEO_GENERATION] Starting polling for job completion...');
       const pollInterval = setInterval(async () => {
         try {
+          console.log('🎬 [VIDEO_GENERATION] Polling job status for:', newJobId);
           const statusResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${newJobId}`, {
             method: 'GET',
             credentials: 'same-origin',
           });
 
           if (!statusResponse.ok) {
+            console.error('🎬 [VIDEO_GENERATION] Status check failed with status:', statusResponse.status);
             throw new Error(`Status check failed: ${statusResponse.status}`);
           }
 
           const statusData = await statusResponse.json();
+          console.log('🎬 [VIDEO_GENERATION] Status response:', statusData);
           
           if (statusData.success) {
             const currentProgress = statusData.progress || 0;
             setGenerationProgress(currentProgress);
             
-            console.log('🎬 [VIDEO_DOWNLOAD] Job progress:', currentProgress);
+            console.log('🎬 [VIDEO_GENERATION] Job progress:', currentProgress, 'Status:', statusData.status);
             
             if (statusData.status === 'completed') {
               clearInterval(pollInterval);
               setGenerationStatus('completed');
               setGenerationProgress(100);
-              console.log('🎬 [VIDEO_DOWNLOAD] Video generation completed');
+              console.log('🎬 [VIDEO_GENERATION] Video generation completed successfully!');
               
               // Auto-download the video
+              console.log('🎬 [VIDEO_GENERATION] Starting video download...');
               await downloadVideo(newJobId);
             } else if (statusData.status === 'failed') {
               clearInterval(pollInterval);
               setGenerationStatus('error');
+              console.error('🎬 [VIDEO_GENERATION] Video generation failed:', statusData.error);
               throw new Error(statusData.error || 'Video generation failed');
             }
           } else {
+            console.error('🎬 [VIDEO_GENERATION] Status check returned success: false:', statusData.error);
             throw new Error(statusData.error || 'Status check failed');
           }
         } catch (error) {
-          console.error('🎬 [VIDEO_DOWNLOAD] Status check error:', error);
+          console.error('🎬 [VIDEO_GENERATION] Status check error:', error);
           clearInterval(pollInterval);
           setGenerationStatus('error');
           setGenerationError(error instanceof Error ? error.message : 'Status check failed');
@@ -487,6 +476,7 @@ export default function VideoEditorHeader({
 
       // Set a timeout to stop polling after 10 minutes
       setTimeout(() => {
+        console.log('🎬 [VIDEO_GENERATION] Polling timeout reached (10 minutes)');
         clearInterval(pollInterval);
         if (generationStatus === 'generating') {
           setGenerationStatus('error');
@@ -495,15 +485,10 @@ export default function VideoEditorHeader({
       }, 600000);
 
     } catch (error) {
-      console.error('🎬 [VIDEO_GENERATION] ===== GENERATION FAILED =====');
-      console.error('🎬 [VIDEO_GENERATION] Error details:', error);
-      console.error('🎬 [VIDEO_GENERATION] Setting generation status to "error"');
-      
+      console.error('🎬 [VIDEO_GENERATION] Video generation failed:', error);
       setGenerationStatus('error');
       const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
       setGenerationError(errorMsg);
-      
-      console.error('🎬 [VIDEO_GENERATION] Error state set, generation process terminated');
     }
   };
 
@@ -918,42 +903,10 @@ export default function VideoEditorHeader({
               )}
             </div>
 
-            {/* Avatar Selection */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select AI Avatar
-              </label>
-              <AvatarSelector
-                onAvatarSelect={handleAvatarSelect}
-                selectedAvatar={selectedAvatar}
-                selectedVariant={selectedVariant}
-                className="w-full"
-              />
-              {selectedAvatar && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Selected: {selectedAvatar.name}
-                  {selectedVariant && ` - ${selectedVariant.name}`}
-                </p>
-              )}
-              {generationError && (
-                <p className="text-xs text-red-600 mt-1">{generationError}</p>
-              )}
-            </div>
-
             {/* Generate button */}
             <button
               onClick={handleGenerateClick}
-              disabled={!selectedAvatar}
-              className={`rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer ${
-                selectedAvatar 
-                  ? 'bg-black text-white hover:bg-gray-800' 
-                  : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-              }`}
-              title={
-                !selectedAvatar 
-                  ? 'Please select an avatar first'
-                  : 'Start video generation'
-              }
+              className="bg-black text-white hover:bg-gray-800 rounded-[7px] px-3 py-1.5 flex items-center h-8 border cursor-pointer"
             >
               <span className="text-sm font-normal">Generate</span>
             </button>
@@ -971,10 +924,7 @@ export default function VideoEditorHeader({
       {/* Generate Modal */}
       <GenerateModal 
         isOpen={isGenerateModalOpen} 
-        onClose={() => {
-          console.log('🎬 [VIDEO_EDITOR_HEADER] GenerateModal closing');
-          setIsGenerateModalOpen(false);
-        }} 
+        onClose={() => setIsGenerateModalOpen(false)} 
         title={videoTitle}
         onGenerationStart={handleVideoGeneration}
         generationStatus={generationStatus}
@@ -984,10 +934,7 @@ export default function VideoEditorHeader({
       {/* Generation Completed Modal */}
       <GenerationCompletedModal
         isOpen={isGenerationCompletedModalOpen}
-        onClose={() => {
-          console.log('🎬 [VIDEO_EDITOR_HEADER] GenerationCompletedModal closing');
-          setIsGenerationCompletedModalOpen(false);
-        }}
+        onClose={() => setIsGenerationCompletedModalOpen(false)}
         videoTitle={videoTitle}
         generationStatus={generationStatus}
         generationProgress={generationProgress}

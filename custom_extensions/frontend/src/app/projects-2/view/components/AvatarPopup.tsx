@@ -305,9 +305,9 @@ export default function AvatarPopup({
         <>
           {/* Left sidebar */}
           <div className="w-64 bg-white px-6 py-4 flex flex-col">
-            {/* Three buttons at the top */}
-            <div className="mb-4 flex justify-center">
-              <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1 py-1" style={{ width: 'fit-content', height: '36px' }}>
+                    {/* Three buttons at the top */}
+        <div className="mb-4 flex justify-center">
+                        <div className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-1 py-1" style={{ width: 'fit-content', height: '36px' }}>
                 <button 
                   onClick={() => setActiveButton('button1')}
                   className={`px-2 rounded-md font-medium transition-colors h-7 text-sm ${
@@ -368,15 +368,15 @@ export default function AvatarPopup({
                     <span className="text-sm text-black">Female</span>
                   </label>
                   <label className="flex items-center cursor-pointer pl-2">
-                    <input
+                      <input
                       type="radio"
                       name="gender"
                       checked={selectedFilters.gender === 'View All'}
                       onChange={() => handleFilterChange('gender', 'View All')}
-                      className="mr-2 border-gray-400 text-black focus:ring-0"
-                    />
+                        className="mr-2 border-gray-400 text-black focus:ring-0"
+                      />
                     <span className="text-sm text-black">View All</span>
-                  </label>
+                    </label>
                 </div>
               </div>
 
@@ -490,7 +490,7 @@ export default function AvatarPopup({
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
                     <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                  </svg>
                   </div>
                 )}
               </div>
@@ -542,14 +542,14 @@ export default function AvatarPopup({
 
             {/* Scrollable content area */}
             <div className="flex-1 overflow-y-auto pb-4">
-                             {/* Avatar rectangles grid */}
-               <div className="grid grid-cols-3 gap-4">
+              {/* Avatar rectangles grid */}
+              <div className="grid grid-cols-3 gap-4">
                  {filteredAvatars.map((avatar: ProcessedAvatar, index) => (
                    <div key={`${avatar.id}-${avatar.selectedVariant?.code || avatar.code}`} className="flex flex-col items-center">
-                      {/* Avatar rectangle */}
-                      <div 
+                    {/* Avatar rectangle */}
+                    <div 
                         className="relative w-full h-32 bg-gray-200 rounded-lg mb-2 cursor-pointer hover:bg-gray-300 transition-all duration-200 group overflow-hidden"
-                        onClick={() => handleAvatarClick(avatar)}
+                      onClick={() => handleAvatarClick(avatar)}
                         style={{
                           backgroundImage: avatar.thumbnail ? `url(${avatar.thumbnail})` : 'none',
                           backgroundSize: 'cover',
@@ -574,17 +574,17 @@ export default function AvatarPopup({
                           <svg className="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
+                        </svg>
                         </div>
                       </div>
                       
                       {/* Avatar name only */}
                       <div className="text-center w-full">
                         <div className="text-sm text-black font-medium">{avatar.displayName}</div>
-                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
