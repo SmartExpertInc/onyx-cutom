@@ -1867,8 +1867,8 @@ export default function AuditPage() {
                 }}
               ></div>
 
-              <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px]">
-                <h4 className="font-semibold text-[20px] xl:text-[32px] mb-[15px]">
+              <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
+                <h4 className="font-semibold text-[20px] xl:text-[32px]">
                   Возможности платформы:
                 </h4>
                 
@@ -2023,7 +2023,7 @@ export default function AuditPage() {
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                 Expert-as-a-Service — Методолог:
               </h3>
 
