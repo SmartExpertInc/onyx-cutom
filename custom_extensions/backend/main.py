@@ -17155,7 +17155,7 @@ async def generate_lesson_plan(
         if not source_materials:
             source_materials = ["General Knowledge"]
 
-        print("context_for_openai", context_for_openai)
+        print("context_for_openai:", context_for_openai)
         
         # Prepare OpenAI prompt
         openai_prompt = f"""

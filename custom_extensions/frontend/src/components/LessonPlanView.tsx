@@ -80,13 +80,17 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                         {block.block_title}
                       </h3>
                       <div className="text-gray-700 leading-relaxed">
-                        {(() => {
-                          const lines = block.block_content.split('\n').filter(line => line.trim() !== '');
-                          const hasBulletList = lines.some(line => line.trim().startsWith('- '));
-                          const hasNumberedList = lines.some(line => /^\d+\./.test(line.trim()));
+                      {(() => {
+                        // Enhanced list parsing function
+                        const parseContentWithLists = (content) => {
+                          const lines = content.split('\n').filter(line => line.trim() !== '');
                           
-                          if (hasBulletList) {
-                            // Extract bullet list items and non-list content
+                          // Check for multi-line lists first (existing working logic)
+                          const hasMultiLineBullets = lines.some(line => line.trim().startsWith('- '));
+                          const hasMultiLineNumbers = lines.some(line => /^\d+\./.test(line.trim()));
+                          
+                          if (hasMultiLineBullets) {
+                            // Handle multi-line bullet lists (keep existing logic)
                             const bulletItems = lines
                               .filter(line => line.trim().startsWith('- '))
                               .map(line => line.trim().substring(2));
@@ -94,11 +98,77 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                               .filter(line => !line.trim().startsWith('- '))
                               .join('\n');
                             
+                            return { type: 'multiline_bullets', nonListContent, items: bulletItems };
+                          } 
+                          
+                          if (hasMultiLineNumbers) {
+                            // Handle multi-line numbered lists (keep existing logic)
+                            const numberedItems = lines
+                              .filter(line => /^\d+\./.test(line.trim()))
+                              .map(line => line.replace(/^\d+\.\s*/, ''));
+                            const nonListContent = lines
+                              .filter(line => !/^\d+\./.test(line.trim()))
+                              .join('\n');
+                            
+                            return { type: 'multiline_numbers', nonListContent, items: numberedItems };
+                          }
+                          
+                          // NEW: Check for inline lists in the content
+                          const fullText = lines.join(' ');
+                          
+                          // NEW: Check for inline bullet lists (pattern: "text: - item1. - item2. - item3")
+                          if (fullText.includes(': -') && (fullText.match(/ - /g) || []).length >= 1) {
+                            const colonIndex = fullText.indexOf(': -');
+                            const introText = fullText.substring(0, colonIndex).trim();
+                            const listPart = fullText.substring(colonIndex + 2).trim();
+                            
+                            // Split on " - " pattern and clean up items
+                            const items = listPart
+                              .split(/ - /)
+                              .map(item => item.replace(/\.\s*$/, '').trim())
+                              .filter(item => item.length > 0);
+                            
+                            if (items.length > 0) {
+                              return { type: 'inline_bullets', introText, items };
+                            }
+                          }
+                          
+                          // NEW: Check for inline numbered lists (pattern: "text: 1. item1. 2. item2. 3. item3")
+                          if (/:\s*\d+\.\s/.test(fullText)) {
+                            const match = fullText.match(/^(.+?):\s*(.+)$/);
+                            if (match) {
+                              const introText = match[1].trim();
+                              const listPart = match[2];
+                              
+                              // Check if this contains numbered items
+                              if (/\d+\.\s/.test(listPart)) {
+                                // Split on numbered pattern and clean up items
+                                const items = listPart
+                                  .split(/\s+\d+\.\s+/)
+                                  .map(item => item.replace(/\.\s*$/, '').replace(/^\d+\.\s*/, '').trim())
+                                  .filter(item => item.length > 0);
+                                
+                                if (items.length > 0) {
+                                  return { type: 'inline_numbers', introText, items };
+                                }
+                              }
+                            }
+                          }
+                          
+                          // No lists detected, return as plain text
+                          return { type: 'plain_text', content: lines };
+                        };
+
+                        const parsed = parseContentWithLists(block.block_content);
+                        
+                        // Render based on parsed type
+                        switch (parsed.type) {
+                          case 'multiline_bullets':
                             return (
                               <>
-                                {nonListContent.trim() && (
+                                {parsed.nonListContent.trim() && (
                                   <div className="mb-4">
-                                    {nonListContent.split('\n').map((paragraph, pIndex) => (
+                                    {parsed.nonListContent.split('\n').map((paragraph, pIndex) => (
                                       paragraph.trim() && (
                                         <p key={pIndex} className="mb-3 last:mb-0">
                                           {paragraph}
@@ -108,26 +178,19 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                                   </div>
                                 )}
                                 <ul className="list-disc list-inside space-y-2 ml-4">
-                                  {bulletItems.map((item, itemIndex) => (
+                                  {parsed.items.map((item, itemIndex) => (
                                     <li key={itemIndex} className="text-gray-700">{item}</li>
                                   ))}
                                 </ul>
                               </>
                             );
-                          } else if (hasNumberedList) {
-                            // Extract numbered list items and non-list content
-                            const numberedItems = lines
-                              .filter(line => /^\d+\./.test(line.trim()))
-                              .map(line => line.replace(/^\d+\.\s*/, ''));
-                            const nonListContent = lines
-                              .filter(line => !/^\d+\./.test(line.trim()))
-                              .join('\n');
                             
+                          case 'multiline_numbers':
                             return (
                               <>
-                                {nonListContent.trim() && (
+                                {parsed.nonListContent.trim() && (
                                   <div className="mb-4">
-                                    {nonListContent.split('\n').map((paragraph, pIndex) => (
+                                    {parsed.nonListContent.split('\n').map((paragraph, pIndex) => (
                                       paragraph.trim() && (
                                         <p key={pIndex} className="mb-3 last:mb-0">
                                           {paragraph}
@@ -137,25 +200,50 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                                   </div>
                                 )}
                                 <ol className="list-decimal list-inside space-y-2 ml-4">
-                                  {numberedItems.map((item, itemIndex) => (
+                                  {parsed.items.map((item, itemIndex) => (
                                     <li key={itemIndex} className="text-gray-700">{item}</li>
                                   ))}
                                 </ol>
                               </>
                             );
-                          } else {
-                            // Plain text only
+                            
+                          case 'inline_bullets':
                             return (
                               <>
-                                {lines.map((paragraph, pIndex) => (
+                                <p className="mb-3">{parsed.introText}:</p>
+                                <ul className="list-disc list-inside space-y-2 ml-4">
+                                  {parsed.items.map((item, itemIndex) => (
+                                    <li key={itemIndex} className="text-gray-700">{item}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            );
+                            
+                          case 'inline_numbers':
+                            return (
+                              <>
+                                <p className="mb-3">{parsed.introText}:</p>
+                                <ol className="list-decimal list-inside space-y-2 ml-4">
+                                  {parsed.items.map((item, itemIndex) => (
+                                    <li key={itemIndex} className="text-gray-700">{item}</li>
+                                  ))}
+                                </ol>
+                              </>
+                            );
+                            
+                          case 'plain_text':
+                          default:
+                            return (
+                              <>
+                                {parsed.content.map((paragraph, pIndex) => (
                                   <p key={pIndex} className="mb-3 last:mb-0">
                                     {paragraph}
                                   </p>
                                 ))}
                               </>
                             );
-                          }
-                        })()}
+                        }
+                      })()}
                       </div>
                     </div>
                   ) : (
