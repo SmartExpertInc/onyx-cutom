@@ -631,14 +631,13 @@ export type TemplateId =
   | 'solution-steps-slide'
   | 'proof-statistics-slide'
   | 'marketing-agency-thank-you-slide'
-  | 'impact-value-statistics-slide'
-  | 'oral-health-conditions-slide'
-  | 'dei-standards-methods-slide'
-  | 'kpi-report-chart-slide'
-  | 'enterprise-roadmap-slide'
-  | 'kpi-best-practices-slide'
   | 'table-of-contents-slide'
   | 'company-tools-resources-slide'
+  | 'stay-safe-tips-slide'
+  | 'resources-list-slide'
+  | 'course-rules-timeline-slide'
+  | 'resilience-behaviors-slide'
+  | 'soft-skills-types-slide'
 ;
 
 export interface TemplatePreview {
@@ -863,3 +862,69 @@ export interface CompanyToolsResourcesSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
 } 
+
+// --- New pixel-perfect slides based on provided designs ---
+export interface StaySafeTipsSlideProps extends BaseTemplateProps {
+  title: string;
+  tips: Array<{
+    number: string;
+    heading: string;
+    description: string;
+  }>;
+  actorImagePath?: string;
+  actorImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface ResourcesListSlideProps extends BaseTemplateProps {
+  title: string;
+  resources: Array<{
+    text: string;
+  }>;
+  logoPath?: string;
+  logoAlt?: string;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  barColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface CourseRulesTimelineSlideProps extends BaseTemplateProps {
+  steps: Array<{
+    number: string;
+    text: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  textColor?: string;
+}
+
+export interface ResilienceBehaviorsSlideProps extends BaseTemplateProps {
+  title: string;
+  subtitle: string;
+  bullets: string[];
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface SoftSkillsTypesSlideProps extends BaseTemplateProps {
+  title: string;
+  cards: Array<{
+    label: string;
+    imagePath?: string;
+    imageAlt?: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}

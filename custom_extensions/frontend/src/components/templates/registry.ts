@@ -41,6 +41,11 @@ import { ProofStatisticsSlideTemplate } from './ProofStatisticsSlideTemplate';
 import { MarketingAgencyThankYouSlideTemplate } from './MarketingAgencyThankYouSlideTemplate';
 import { TableOfContentsSlideTemplate } from './TableOfContentsSlideTemplate';
 import { CompanyToolsResourcesSlideTemplate } from './CompanyToolsResourcesSlideTemplate';
+import { StaySafeTipsSlideTemplate } from './StaySafeTipsSlideTemplate';
+import { ResourcesListSlideTemplate } from './ResourcesListSlideTemplate';
+import { CourseRulesTimelineSlideTemplate } from './CourseRulesTimelineSlideTemplate';
+import { ResilienceBehaviorsSlideTemplate } from './ResilienceBehaviorsSlideTemplate';
+import { SoftSkillsTypesSlideTemplate } from './SoftSkillsTypesSlideTemplate';
 
 
 
@@ -1631,10 +1636,139 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
+  'stay-safe-tips-slide': {
+    id: 'stay-safe-tips-slide',
+    name: 'Stay Safe Tips Slide',
+    description: 'White left panel with 4 numbered tips and actor on black',
+    category: 'content',
+    icon: '🛡️',
+    component: StaySafeTipsSlideTemplate,
+    defaultProps: {
+      title: '4 tips to staysafe online',
+      tips: [
+        { number: '1', heading: 'Know the scams', description: 'Read articles and blogs, follow the news, and share this so you can learn about different kinds of scams and what you can do to avoid them.' },
+        { number: '2', heading: "Don't click", description: 'These phishing emails have links that lead to websites that can lure you into giving personal information or download malware to your computer' },
+        { number: '3', heading: 'Shop safely', description: 'Don\'t shop on a site unless it has the "https". Also, protect yourself and use a credit card instead of a debit card while shopping online' },
+        { number: '4', heading: 'Passwords', description: 'Do away with the "Fitguy1982" password and use an extremely uncrackable one like 9&4yiw2pyqx# Phrases are good too.' },
+      ],
+      actorImagePath: '',
+      actorImageAlt: 'Actor image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 120 },
+      tips: { type: 'array', label: 'Tips', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' },
+      actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    }
+  },
 
+  'resources-list-slide': {
+    id: 'resources-list-slide',
+    name: 'Resources List Slide',
+    description: 'Olive background with three resource bars and title',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesListSlideTemplate,
+    defaultProps: {
+      title: 'Resources',
+      resources: [
+        { text: 'Resource 1: [Website/Book Title] - [Link/Author Name]' },
+        { text: 'Resource 2: [Website/Book Title] - [Link/Author Name]' },
+        { text: 'Resource 3: [Website/Book Title] - [Link/Author Name]' }
+      ],
+      logoPath: '',
+      logoAlt: 'Your Logo',
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      resources: { type: 'array', label: 'Resources', required: true },
+      logoPath: { type: 'image', label: 'Logo' },
+      logoAlt: { type: 'text', label: 'Logo Alt Text' },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
 
+  'course-rules-timeline-slide': {
+    id: 'course-rules-timeline-slide',
+    name: 'Course Rules Timeline Slide',
+    description: 'Purple background, actor left, vertical line with two steps',
+    category: 'content',
+    icon: '🧭',
+    component: CourseRulesTimelineSlideTemplate,
+    defaultProps: {
+      steps: [
+        { number: '01', text: 'Rules of the course' },
+        { number: '02', text: 'Prerequisite courses' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      steps: { type: 'array', label: 'Steps', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
 
+  'resilience-behaviors-slide': {
+    id: 'resilience-behaviors-slide',
+    name: 'Resilience Behaviors Slide',
+    description: 'Green background with title, subtitle, avatar and 8 bullets',
+    category: 'content',
+    icon: '🌿',
+    component: ResilienceBehaviorsSlideTemplate,
+    defaultProps: {
+      title: 'Research shows that resilient employees engage in three specific behaviors.',
+      subtitle: 'Research shows that resilient employees engage in three specific behaviors. These help them remain focused and optimistic despite setbacks or uncertainty:',
+      bullets: [
+        'Pay attention to your health',
+        'Focus on your physical well-being',
+        'Practice relaxation techniques',
+        'Practice reframing threats as challenges',
+        'Watch your stress levels',
+        'Mind your mindset',
+        'Practice self-awareness',
+        'Get connected'
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 140 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 400 },
+      bullets: { type: 'array', label: 'Bullets', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
 
+  'soft-skills-types-slide': {
+    id: 'soft-skills-types-slide',
+    name: 'Soft Skills Types Slide',
+    description: 'Light background with big title and three image cards',
+    category: 'content',
+    icon: '🧠',
+    component: SoftSkillsTypesSlideTemplate,
+    defaultProps: {
+      title: 'Types of\nSoft Skills',
+      cards: [
+        { label: 'Time management' },
+        { label: 'Team work' },
+        { label: 'Work ethic' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
+      cards: { type: 'array', label: 'Cards', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
 
 
   'table-of-contents-slide': {
