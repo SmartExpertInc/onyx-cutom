@@ -1723,12 +1723,22 @@ export default function AuditPage() {
                   </div>
                 </div>
 
+                <div className="w-[300px] h-[234px] border border-[#E0E0E0] rounded-[6px] xl:hidden">
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
+                    alt="Card 1"
+                    width={280}
+                    height={218}
+                    // className="w-full h-full object-cover rounded-[6px]"
+                  />
+                </div>
+
                 <Image 
                   src="/custom-projects-ui/images/audit-section-5-service-2-image-2-mobile.png"
                   alt="Card 1"
-                  width={300}
-                  height={234}
-                  className="w-full xl:w-[560px] xl:h-[437px]"
+                  width={560}
+                  height={437}
+                  className="hidden xl:block"
                 />
               </div>
 
