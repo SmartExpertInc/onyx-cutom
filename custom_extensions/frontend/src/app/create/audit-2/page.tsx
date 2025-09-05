@@ -1856,7 +1856,7 @@ export default function AuditPage() {
                 {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
                 <div className="flex flex-col gap-[20px] xl:flex xl:flex-row xl:gap-x-[70px] xl:gap-y-[30px]">
                   {/* Left Column - Perks 1-4 */}
-                  <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[428px]">
+                  <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
                     {/* Perk 1 */}
                 <div className="flex gap-[15px]">
                   <div 
@@ -1926,7 +1926,7 @@ export default function AuditPage() {
                   </div>
 
                   {/* Right Column - Perks 5-8 */}
-                  <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[480px]">
+                  <div className="flex flex-col gap-[20px] xl:gap-[30px] xl:w-[410px]">
                     {/* Perk 5 */}
                 <div className="flex gap-[15px]">
                   <div 
