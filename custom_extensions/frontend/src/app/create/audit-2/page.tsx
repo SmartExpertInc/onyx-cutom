@@ -412,7 +412,7 @@ export default function AuditPage() {
 
                 {/* Second Card */}
                 <div 
-                  className="w-[300px] h-[256px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
+                  className="w-[300px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
                 >
                   <Image 
                     src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
@@ -530,7 +530,7 @@ export default function AuditPage() {
                     <span className="font-semibold text-[20px]">Выгорание</span>
                   </div>
                   <p className="font-normal text-[14px] text-[#71717A]">
-                    Средняя продолжительность работы в HVAC-компаниях — <span className="font-medium">менее 14 месяцев.</span>
+                    Средняя продолжительность работы в HVAC-компаниях — <span className="font-medium text-[#09090B]">менее 14 месяцев.</span>
                   </p>
                 </div>
 
@@ -545,7 +545,7 @@ export default function AuditPage() {
                     <span className="font-semibold text-[20px]">Текучка до 85% в год</span>
                   </div>
                   <p className="font-normal text-[14px] text-[#71717A]">
-                    <span className="font-medium">45% увольняются</span> в первые 3 месяца
+                    <span className="font-medium text-[#09090B]">45% увольняются</span> в первые 3 месяца
                   </p>
                 </div>
               </div>
@@ -569,7 +569,7 @@ export default function AuditPage() {
                     <span className="font-semibold text-[20px]">Убытки $10К–$18К</span>
                   </div>
                   <p className="font-normal text-[14px] text-[#71717A]">
-                    <span className="font-medium">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.
+                    <span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.
                   </p>
                 </div>
                 
@@ -1075,10 +1075,10 @@ export default function AuditPage() {
                     </h4>
 
                     {/* Module 1*/}
-                    <div className="module-item flex flex-col gap-[8px] xl:py-[30px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] xl:pb-[15px] border-b border-[#D2E3F1] xl:border-b-0">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
                             Модуль 01:
                           </span>
 
@@ -1186,7 +1186,7 @@ export default function AuditPage() {
                                   </div>
                                 </div>
                               </div>
-                              
+
                               {/* Row 3 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
@@ -1216,6 +1216,31 @@ export default function AuditPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
+                                    Финансовая модель и управление бюджетом
+                                  </div>
+                                  <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      практика
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
+                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+                                    </svg>
+                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                      6 мин
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Row 5 */}
+                              <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                <div className="grid grid-cols-3 gap-[20px] items-center">
+                                  <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
                                     Работа с поставщиками и закупка материалов
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
@@ -1237,7 +1262,7 @@ export default function AuditPage() {
                                 </div>
                               </div>
                               
-                              {/* Row 5 */}
+                              {/* Row 6 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
@@ -1262,7 +1287,7 @@ export default function AuditPage() {
                                 </div>
                               </div>
                               
-                              {/* Row 6 */}
+                              {/* Row 7 */}
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
@@ -1478,10 +1503,10 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 2*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
                             Модуль 02:
                           </span>
 
@@ -1514,10 +1539,10 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 3*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
                             Модуль 03:
                           </span>
 
@@ -1550,10 +1575,10 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 4*/}
-                    <div className="module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[30px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
-                          <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
+                          <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
                             Модуль 04:
                           </span>
 
