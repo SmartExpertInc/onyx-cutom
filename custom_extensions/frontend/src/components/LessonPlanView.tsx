@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from 'react';
 import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye } from 'lucide-react';
@@ -82,7 +82,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                       <div className="text-gray-700 leading-relaxed">
                       {(() => {
                         // Enhanced list parsing function
-                        const parseContentWithLists = (content) => {
+                        const parseContentWithLists = (content: string) => {
                           const lines = content.split('\n').filter(line => line.trim() !== '');
                           
                           // Check for multi-line lists first (existing working logic)
