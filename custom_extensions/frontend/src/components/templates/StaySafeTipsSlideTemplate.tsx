@@ -5,7 +5,7 @@ import { StaySafeTipsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import PresentationImageUpload from '../PresentationImageUpload';
+ 
 
 export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
   slideId,
@@ -18,7 +18,6 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
   ],
   actorImagePath = '',
   actorImageAlt = 'Actor image',
-  companyLogoPath = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -30,7 +29,6 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
   const { backgroundColor: themeBg } = currentTheme.colors;
 
   const [editingTitle, setEditingTitle] = useState(false);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState<boolean>(false);
   const [editingTip, setEditingTip] = useState<{ index: number; field: 'number' | 'heading' | 'description' } | null>(null);
   const [currentTips, setCurrentTips] = useState<Array<{ number: string; heading: string; description: string }>>(tips);
 
@@ -232,60 +230,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
         />
       </div>
 
-      {/* Company Logo - Bottom Left */}
-      <div style={{
-        position: 'absolute',
-        bottom: '15px',
-        left: '15px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px'
-      }}>
-        {companyLogoPath ? (
-          <ClickableImagePlaceholder
-            imagePath={companyLogoPath}
-            onImageUploaded={(newPath: string) => onUpdate && onUpdate({ companyLogoPath: newPath })}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{ width: '60px', height: '30px', objectFit: 'contain' }}
-          />
-        ) : (
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default' }}
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-          >
-            <div style={{
-              width: '30px',
-              height: '30px',
-              border: `2px solid #4A4A4A`,
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{ width: '12px', height: '2px', backgroundColor: '#4A4A4A', position: 'absolute' }} />
-              <div style={{ width: '2px', height: '12px', backgroundColor: '#4A4A4A', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: 300, color: '#4A4A4A' }}>Your Logo</div>
-          </div>
-        )}
-      </div>
-
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            onUpdate && onUpdate({ companyLogoPath: newLogoPath });
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
+      
     </div>
   );
 };
