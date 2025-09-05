@@ -17190,6 +17190,8 @@ TEXT BLOCKS: Create 3-5 educational text blocks with:
   * Numbered lists only (using 1.) for sequential steps or processes
   * Mixed format: Brief intro text followed by a list (if context requires both)
 
+CRITICAL CASE STUDY REQUIREMENT: If any text block includes a case study, it MUST be a real, specific case study with actual details - including real company names, specific outcomes, actual dates/timeframes, and concrete results. NEVER use placeholder text like "Company X", "a major corporation", "recent study", or generic examples. Research and provide actual case studies with verifiable details.
+
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
 - product_description: ABSOLUTELY CRITICAL - This MUST be a single STRING value only. Do NOT use nested objects, dictionaries, or structured data. Write everything as one comprehensive paragraph string. Include all the following details in one detailed paragraph:
@@ -17231,39 +17233,33 @@ MATERIALS: List the actual source materials used to create this lesson plan:
 Source Materials Used:
 {', '.join(source_materials)}
 
-AI TOOL PROMPTS: Create exactly one ULTRA-DETAILED, immediately actionable prompt for each recommended product type. Do NOT include titles or formatting - just the prompt content itself. Each prompt must be so comprehensive and specific that a content creator can execute it immediately without additional clarification.
+AI TOOL PROMPTS: Create exactly one ULTRA-DETAILED, immediately actionable prompt for each recommended product type. Each prompt must follow the specific format for its product type and be so comprehensive that a content creator can execute it immediately without additional clarification.
 
 CRITICAL REQUIREMENTS:
 - Create exactly {len(payload.recommendedProducts)} prompts (one for each recommended product)
-- Each prompt must be 300-500 words minimum with granular detail
-- Include EXACT specifications for every aspect of content creation
+- Each prompt must be 200-400 words with precise specifications
+- Follow the exact format structure for each product type
 
-MANDATORY ELEMENTS FOR EACH PROMPT:
-1. PRECISE CONTENT REQUIREMENTS:
-   * Exact duration/length with specific time breakdowns (e.g., "30-second intro, 2-minute main content, 30-second conclusion")
-   * Detailed content outline with specific topics and subtopics to cover
-   * Exact learning objectives with measurable outcomes
-   * Specific examples, case studies, or scenarios with detailed descriptions
-   * Precise terminology and industry language to use
-   * Exact key concepts to emphasize with specific explanation requirements
+PRODUCT TYPE FORMATS:
 
-2. STRUCTURAL ORGANIZATION:
-   * Detailed step-by-step content flow with specific timing
-   * Exact introduction requirements with specific opening elements
-   * Precise main content structure with detailed section breakdowns
-   * Specific transition requirements between sections
-   * Exact conclusion elements with specific call-to-action details
-   * Detailed assessment or interaction requirements where applicable
+FOR VIDEO LESSONS:
+Structure: "Create a professional [type] video for [target audience]. This is the [lesson context], titled [lesson title]. The video should [opening approach], explain that the main goal [main objective], [key content areas], and provide [overview elements]. The tone should be [tone description], and the duration should be around [X] minutes."
 
-4. TARGET AUDIENCE SPECIFICATIONS:
-   * Exact experience level and prerequisite knowledge
-   * Specific tone, language level, and communication style
-   * Detailed engagement strategies and interaction methods
-   * Precise motivational elements and learning reinforcement techniques
-   * Specific cultural or demographic considerations
+FOR PRESENTATIONS:
+Structure: "Create a professional educational presentation for [target audience]. This is the [lesson context] for the unit on [topic area], titled '[lesson title].' The presentation should [opening approach], explain that the main goal is to [main objective], and provide [content breakdown]. [Detailed content requirements]. The tone should be [tone description], with [visual style description]. The presentation should be around [X-Y] slides. For each slide, please generate concise on-slide text and provide detailed speaker notes to guide the teacher."
 
-Example format demonstrating CONTENT-FOCUSED specifications (minimum level of detail required):
-Create content covering HVAC system safety and troubleshooting for maintenance technicians. CONTENT TO INCLUDE: Safety protocols covering lockout/tagout procedures, refrigerant handling regulations including EPA requirements, electrical safety practices with voltage identification protocols, personal protective equipment requirements for HVAC work environments. System components knowledge including compressor types (scroll, reciprocating, screw), evaporator configurations (air-cooled vs water-cooled), condensing unit specifications, refrigerant circuit fundamentals, and control system basics. Troubleshooting methodologies using systematic diagnostic approaches including symptom analysis, pressure testing procedures, temperature differential measurements, electrical circuit testing, and component isolation techniques. SPECIFIC EXAMPLES TO COVER: Residential split system R-410A refrigerant leak detection using electronic leak detectors and bubble solutions, commercial rooftop unit bearing replacement procedures including safety isolation and reassembly verification, heat pump defrost cycle malfunction diagnosis including sensor testing and control board evaluation, condenser coil cleaning techniques for different environments. KEY CONCEPTS: Industry standards compliance (ASHRAE, local building codes), proper documentation practices, customer communication protocols, equipment maintenance schedules, energy efficiency optimization, and environmental regulations compliance. PRACTICAL APPLICATIONS: Real-world scenarios technicians encounter daily, hands-on demonstration of proper techniques, troubleshooting decision trees, and quality assurance procedures.
+FOR QUIZZES:
+Structure: "Create a [X]-question multiple-choice quiz for [target audience] to assess their understanding of the [lesson context], '[lesson title].' The quiz's primary goal is to test the students' knowledge of [key concepts]. It should cover [content areas]. The questions should be clear, direct, and multiple-choice, with four distinct answer options. The tone should be educational and straightforward. For each question, provide one correct answer and three plausible but incorrect distractors. Additionally, include a brief rationale for each answer option explaining why it is correct or incorrect, and a hint for each question that guides students toward the correct concept without giving away the answer."
+
+FOR ONE-PAGERS:
+Structure: "Create a professional e-learning document for [target audience]. This document should act as a [document purpose] for the lesson titled '[lesson title].' The document should [content organization requirements]. [Specific content requirements]. The tone should be [tone description]. The information should be highly organized for scannability, using headings, bullet points, and bold text to highlight key information. The final document should be approximately [length] long."
+
+CONTENT REQUIREMENTS FOR ALL PROMPTS:
+- Target audience must be specific (not generic)
+- Learning objectives must be measurable and clear
+- Content must include specific topics and subtopics from the lesson context
+- Examples and case studies must be detailed and relevant
+- Tone and style must be appropriate for the audience and context
 
 CRITICAL REQUIREMENT: 
 - ONLY include products that are explicitly listed in the recommendedProducts array: {payload.recommendedProducts}

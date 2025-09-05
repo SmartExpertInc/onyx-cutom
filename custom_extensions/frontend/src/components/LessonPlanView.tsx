@@ -259,28 +259,49 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
             <div className="space-y-6">
               {lessonPlanData.suggestedPrompts.map((prompt, index) => {
-                // Parse structured prompts with titles
                 const lines = prompt.split('\n');
-                const titleMatch = lines[0].match(/\*\*(.+?)\*\*/);
-                
+                const firstLine = lines[0];
+                const titleMatch = firstLine.match(/\*\*(.+?)\*\*/);
+
                 let title, content;
                 if (titleMatch) {
+                  // Title provided in bold markdown syntax
                   title = titleMatch[1];
                   content = lines.slice(1).join('\n').trim();
                 } else {
-                  // If no title format found, try to infer from content or use generic title
-                  if (prompt.toLowerCase().includes('video')) {
-                    title = 'Video Lesson Creation Prompt';
-                  } else if (prompt.toLowerCase().includes('presentation')) {
+                  // Remove any leading "XYZ Creation Prompt:" style prefix for cleaner content
+                  const prefixCleanRegex = /^(video|presentation|quiz|one[ -]?pager) creation prompt[:\-]?\s*/i;
+                  const cleanedFirstLine = firstLine.replace(prefixCleanRegex, '').trim();
+
+                  // Determine type primarily from FIRST LINE (explicit intention) then fallback to whole prompt
+                  const lowerFirst = firstLine.toLowerCase();
+                  if (lowerFirst.includes('presentation')) {
                     title = 'Presentation Creation Prompt';
-                  } else if (prompt.toLowerCase().includes('quiz')) {
+                  } else if (lowerFirst.includes('video')) {
+                    title = 'Video Lesson Creation Prompt';
+                  } else if (lowerFirst.includes('quiz')) {
                     title = 'Quiz Creation Prompt';
-                  } else if (prompt.toLowerCase().includes('one-pager') || prompt.toLowerCase().includes('onepager')) {
+                  } else if (lowerFirst.includes('one-pager') || lowerFirst.includes('onepager')) {
                     title = 'One-Pager Creation Prompt';
                   } else {
-                    title = `Content Creation Prompt ${index + 1}`;
+                    // fallback based on overall content
+                    const lowerPrompt = prompt.toLowerCase();
+                    if (lowerPrompt.includes('video')) {
+                      title = 'Video Lesson Creation Prompt';
+                    } else if (lowerPrompt.includes('presentation')) {
+                      title = 'Presentation Creation Prompt';
+                    } else if (lowerPrompt.includes('quiz')) {
+                      title = 'Quiz Creation Prompt';
+                    } else if (lowerPrompt.includes('one-pager') || lowerPrompt.includes('onepager')) {
+                      title = 'One-Pager Creation Prompt';
+                    } else {
+                      title = `Content Creation Prompt ${index + 1}`;
+                    }
                   }
-                  content = prompt;
+
+                  // Content should exclude any prefixing label line if it's generic
+                  const remainingLines = [cleanedFirstLine, ...lines.slice(1)].join('\n').trim();
+                  content = remainingLines;
                 }
                 
                 // Ensure content is not empty
