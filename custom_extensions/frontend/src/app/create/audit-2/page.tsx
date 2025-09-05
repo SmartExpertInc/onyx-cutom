@@ -419,7 +419,7 @@ export default function AuditPage() {
                     alt="Audit section 3 card 2 mobile" 
                     width={281}
                     height={226}
-                    className="w-[281px] h-[226px]"
+                    className="max-w-[281px] max-h-[226px] w-auto h-auto object-contain"
                   />
                 </div>
 
@@ -1069,13 +1069,13 @@ export default function AuditPage() {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-[20px] xl:gap-0 xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
+                  <div className="flex flex-col xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
                     <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
                       План обучения
                     </h4>
 
                     {/* Module 1*/}
-                    <div className={`module-item flex flex-col gap-[8px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
+                    <div className={`module-item flex flex-col gap-[8px] pb-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
