@@ -196,14 +196,26 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Source Materials Used:</h3>
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
               <ul className="space-y-3">
-                {lessonPlanData.materials
-                  .slice(0, lessonPlanData.materials.findIndex(m => m.includes('Additional Resources')) || lessonPlanData.materials.length)
-                  .map((material, index) => (
+                {(() => {
+                  // Find the separator index
+                  const separatorIndex = lessonPlanData.materials.findIndex(m => m.includes('Additional Resources'));
+                  const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
+                  
+                  // Filter out empty strings
+                  const filteredSourceMaterials = sourceMaterials.filter(m => m.trim() !== '');
+                  
+                  return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
                     <li key={index} className="flex items-start group">
                       <div className="w-3 h-3 bg-blue-600 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
                       <span className="text-gray-800 leading-relaxed font-semibold text-lg">{material}</span>
                     </li>
-                  ))}
+                  )) : (
+                    <li className="flex items-start group">
+                      <div className="w-3 h-3 bg-blue-600 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                      <span className="text-gray-800 leading-relaxed font-semibold text-lg">General Knowledge</span>
+                    </li>
+                  );
+                })()}
               </ul>
             </div>
           </div>
@@ -216,6 +228,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                 <ul className="space-y-3">
                   {lessonPlanData.materials
                     .slice(lessonPlanData.materials.findIndex(m => m.includes('Additional Resources')) + 1)
+                    .filter(m => m.trim() !== '') // Filter out empty strings
                     .map((material, index) => (
                       <li key={index} className="flex items-start group">
                         <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
@@ -242,8 +255,31 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
                 // Parse structured prompts with titles
                 const lines = prompt.split('\n');
                 const titleMatch = lines[0].match(/\*\*(.+?)\*\*/);
-                const title = titleMatch ? titleMatch[1] : `Prompt ${index + 1}`;
-                const content = titleMatch ? lines.slice(1).join('\n').trim() : prompt;
+                
+                let title, content;
+                if (titleMatch) {
+                  title = titleMatch[1];
+                  content = lines.slice(1).join('\n').trim();
+                } else {
+                  // If no title format found, try to infer from content or use generic title
+                  if (prompt.toLowerCase().includes('video')) {
+                    title = 'Video Lesson Creation Prompt';
+                  } else if (prompt.toLowerCase().includes('presentation')) {
+                    title = 'Presentation Creation Prompt';
+                  } else if (prompt.toLowerCase().includes('quiz')) {
+                    title = 'Quiz Creation Prompt';
+                  } else if (prompt.toLowerCase().includes('one-pager') || prompt.toLowerCase().includes('onepager')) {
+                    title = 'One-Pager Creation Prompt';
+                  } else {
+                    title = `Content Creation Prompt ${index + 1}`;
+                  }
+                  content = prompt;
+                }
+                
+                // Ensure content is not empty
+                if (!content || content.trim() === '') {
+                  content = prompt; // Fallback to original prompt
+                }
                 
                 // Extract product name from title for ID
                 const productName = title.toLowerCase().includes('video') ? 'video-lesson' :

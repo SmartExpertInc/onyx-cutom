@@ -17310,6 +17310,86 @@ Ensure the JSON is valid and follows the exact structure specified.
                 detail="Failed to generate valid lesson plan structure"
             )
         
+        # Override AI materials with our extracted source materials
+        logger.info(f"Extracted source materials: {source_materials}")
+        lesson_plan_data['materials'] = source_materials + [
+            "",  # Separator
+            "Additional Resources Needed:",
+            "- Content creation tools and software", 
+            "- Assessment and evaluation instruments",
+            "- Visual design and multimedia resources"
+        ]
+        logger.info(f"Final materials for lesson plan: {lesson_plan_data['materials']}")
+        
+        # Debug the prompts to see what the AI returned
+        logger.info(f"AI returned {len(lesson_plan_data.get('suggestedPrompts', []))} prompts")
+        for i, prompt in enumerate(lesson_plan_data.get('suggestedPrompts', [])):
+            logger.info(f"Prompt {i+1}: {prompt[:100]}...")  # Log first 100 chars of each prompt
+            
+        # Ensure prompts are properly formatted with titles if they're not
+        if 'suggestedPrompts' in lesson_plan_data:
+            formatted_prompts = []
+            for i, prompt in enumerate(lesson_plan_data['suggestedPrompts']):
+                # Check if prompt already has a title format
+                if not prompt.strip().startswith('**'):
+                    # Try to infer the product type from the recommended products
+                    if i < len(ai_generated_products):
+                        product_name = ai_generated_products[i]
+                        # Format the product name as a title
+                        if 'video' in product_name.lower():
+                            title = "Video Lesson Creation Prompt"
+                        elif 'presentation' in product_name.lower():
+                            title = "Presentation Creation Prompt"
+                        elif 'quiz' in product_name.lower():
+                            title = "Quiz Creation Prompt"
+                        elif 'one-pager' in product_name.lower():
+                            title = "One-Pager Creation Prompt"
+                        else:
+                            title = f"{product_name.replace('-', ' ').title()} Creation Prompt"
+                        
+                        formatted_prompt = f"**{title}:**\n{prompt}"
+                        formatted_prompts.append(formatted_prompt)
+                        logger.info(f"Formatted prompt {i+1} with title: {title}")
+                    else:
+                        formatted_prompts.append(prompt)
+                else:
+                    formatted_prompts.append(prompt)
+            
+            lesson_plan_data['suggestedPrompts'] = formatted_prompts
+        
+        # Debug the prompts to see what the AI returned
+        logger.info(f"AI returned prompts: {lesson_plan_data.get('suggestedPrompts', [])}")
+        
+        # Ensure prompts are properly formatted with titles if they're not
+        formatted_prompts = []
+        for i, prompt in enumerate(lesson_plan_data.get('suggestedPrompts', [])):
+            # Check if prompt already has a title format
+            if not prompt.strip().startswith('**'):
+                # Try to infer the product type from the recommended products
+                if i < len(ai_generated_products):
+                    product_name = ai_generated_products[i]
+                    # Format the product name as a title
+                    if 'video' in product_name.lower():
+                        title = "Video Lesson Creation Prompt"
+                    elif 'presentation' in product_name.lower():
+                        title = "Presentation Creation Prompt"
+                    elif 'quiz' in product_name.lower():
+                        title = "Quiz Creation Prompt"
+                    elif 'one-pager' in product_name.lower():
+                        title = "One-Pager Creation Prompt"
+                    else:
+                        title = f"{product_name.title()} Creation Prompt"
+                    
+                    formatted_prompt = f"**{title}:**\n{prompt}"
+                    formatted_prompts.append(formatted_prompt)
+                else:
+                    formatted_prompts.append(prompt)
+            else:
+                formatted_prompts.append(prompt)
+        
+        lesson_plan_data['suggestedPrompts'] = formatted_prompts
+        logger.info(f"Formatted prompts: {formatted_prompts}")
+        
         # Create the lesson plan project in database
         project_name = f"{outline_row['project_name']}: {payload.lessonTitle}"
         
