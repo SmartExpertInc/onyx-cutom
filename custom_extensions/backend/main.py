@@ -16783,6 +16783,58 @@ async def delete_project(
 
 # --- New endpoint: list trashed projects for user ---
 
+def fix_product_descriptions(lesson_plan_data, logger):
+    """
+    Ensures all product_description fields are strings, not nested objects.
+    """
+    if "contentDevelopmentSpecifications" not in lesson_plan_data:
+        return
+    
+    logger.info("🔧 Fixing product descriptions to ensure string format...")
+    
+    for i, block in enumerate(lesson_plan_data["contentDevelopmentSpecifications"]):
+        if block.get("type") == "product" and "product_description" in block:
+            description = block["product_description"]
+            
+            if not isinstance(description, str):
+                logger.warning(f"Block {i}: product_description is {type(description)}, converting to string")
+                
+                if isinstance(description, dict):
+                    # Flatten dictionary to comprehensive string
+                    text_parts = []
+                    
+                    def flatten_dict(d, prefix=""):
+                        for key, value in d.items():
+                            if isinstance(value, dict):
+                                flatten_dict(value, f"{prefix}{key}: ")
+                            elif isinstance(value, list):
+                                text_parts.append(f"{prefix}{key}: {', '.join(map(str, value))}")
+                            else:
+                                text_parts.append(f"{prefix}{key}: {value}")
+                    
+                    flatten_dict(description)
+                    flattened_description = ". ".join(text_parts) + "."
+                    
+                    # Ensure comprehensive content
+                    if len(flattened_description) < 250:
+                        flattened_description += " Additional specifications include technical quality standards, accessibility compliance (WCAG), target audience considerations, assessment criteria, and implementation guidelines for professional content development."
+                    
+                    block["product_description"] = flattened_description
+                    logger.info(f"✅ Block {i}: Flattened to {len(flattened_description)} chars")
+                    
+                elif isinstance(description, list):
+                    # Join list items
+                    flattened_description = ". ".join(map(str, description)) + "."
+                    block["product_description"] = flattened_description
+                    logger.info(f"✅ Block {i}: Joined list to string")
+                    
+                else:
+                    # Convert any other type
+                    block["product_description"] = str(description)
+                    logger.info(f"✅ Block {i}: Converted to string")
+            else:
+                logger.info(f"✅ Block {i}: product_description is already a string ({len(description)} chars)")
+
 @app.post("/api/custom/lesson-plan/generate", response_model=LessonPlanResponse)
 async def generate_lesson_plan(
     payload: LessonPlanGenerationRequest, 
@@ -17138,34 +17190,9 @@ TEXT BLOCKS: Create 3-5 educational text blocks with:
 
 PRODUCT BLOCKS: For each recommended product, create a product block with:
 - product_name: Exact name from recommendedProducts list
-- product_description: Provide EXTREMELY COMPREHENSIVE content specifications with precise, actionable details:
+- product_description: ABSOLUTELY CRITICAL - This MUST be a single STRING value only. Do NOT use nested objects, dictionaries, or structured data. Write everything as one comprehensive paragraph string. Include all the following details in one detailed paragraph:
 
-  CONTENT SPECIFICATIONS:
-  * List exact topics with specific subtopics (minimum 5-8 detailed bullet points)
-  * Define precise learning concepts with concrete examples
-  * Specify exact key points with supporting details and context
-  * Include specific terminology, definitions, and industry-standard language
-  * Detail exact procedures, workflows, or methodologies to demonstrate
-  * Provide specific real-world scenarios, case studies, or examples with names/details
-  * List exact skills learners must demonstrate with measurable criteria
-  * Specify exact assessment methods with detailed evaluation criteria
-
-  TECHNICAL SPECIFICATIONS:
-  * Precise duration/length requirements (exact minutes for videos, slide counts for presentations, question counts for quizzes)
-  * Exact format requirements (screen layout, visual elements, interaction types)
-  * Specific technical quality standards (resolution, audio quality, accessibility features)
-  * Detailed structural organization requirements (introduction timing, section breakdowns, conclusion elements)
-  * Exact visual style requirements (color schemes, typography, branding elements)
-  * Specific navigation and user interaction requirements
-  * Detailed accessibility and compliance requirements (WCAG standards, closed captions, etc.)
-
-  TARGET AUDIENCE ADAPTATIONS:
-  * Specific experience level requirements with detailed prerequisites
-  * Exact tone and communication style with examples
-  * Precise vocabulary level and technical language guidelines
-  * Specific cultural considerations and adaptations needed
-  * Detailed learning style accommodations and alternatives
-  * Exact prerequisite knowledge and skill requirements
+WRITE AS A SINGLE DETAILED STRING: Provide extremely comprehensive content specifications including exact topics with 5-8 specific subtopics, precise learning concepts with concrete examples, specific terminology and industry-standard language, detailed procedures and methodologies, specific real-world scenarios and case studies with names/details, exact skills learners must demonstrate with measurable criteria, precise duration/length requirements (exact minutes for videos, slide counts for presentations, question counts for quizzes), exact format requirements (screen layout, visual elements, interaction types), specific technical quality standards (resolution, audio quality, accessibility features), detailed structural organization requirements (introduction timing, section breakdowns, conclusion elements), exact visual style requirements (color schemes, typography, branding), specific navigation and user interaction requirements, detailed accessibility and compliance requirements (WCAG standards, closed captions), specific experience level requirements with detailed prerequisites, exact tone and communication style with examples, precise vocabulary level and technical language guidelines, specific cultural considerations and adaptations, detailed learning style accommodations, and exact prerequisite knowledge and skill requirements.
 
 INTEGRATION PATTERN: Alternate between text blocks and product blocks to create educational flow:
 - Start with 1-2 text blocks introducing the topic
@@ -17240,7 +17267,8 @@ CRITICAL REQUIREMENT:
 
 Focus on creating actionable specifications that enable Content Developers to produce effective, engaging educational materials.
 
-Return your response as a valid JSON object with this exact structure:
+Return your response as a valid JSON object with this exact structure. PAY SPECIAL ATTENTION to product_description - it must be a SINGLE STRING, not nested objects:
+
 {{
   "lessonTitle": "string",
   "lessonObjectives": ["string"],
@@ -17254,12 +17282,14 @@ Return your response as a valid JSON object with this exact structure:
     {{
       "type": "product",
       "product_name": "exact name from recommendedProducts",
-      "product_description": "detailed specifications"
+      "product_description": "This must be a single string with all specifications in one paragraph. Example: Create a comprehensive 12-slide presentation targeting intermediate project managers with 3-5 years experience. Content must cover RAG methodology definitions, common applications in project contexts, specific limitations including data quality issues and implementation challenges, real-world case studies from software development and construction industries. Technical specifications: 16:9 aspect ratio, 1920x1080 resolution, corporate branding with blue/white color scheme, Arial font 24pt minimum for titles and 18pt for content. Each slide should include speaker notes with detailed talking points. Accessibility requirements: high contrast text (4.5:1 ratio), alt text for all images, screen reader compatibility. Structure: opening slide with agenda, 2 slides for definitions, 4 slides for applications, 3 slides for limitations with examples, 2 slides for case studies, closing slide with key takeaways. Include interactive elements like polls or discussion questions every 4 slides to maintain engagement."
     }}
   ],
   "materials": ["string"],
   "suggestedPrompts": ["string"]
 }}
+
+CRITICAL: The product_description field shown above is an example of the single string format required. Do NOT use nested objects like {{"contentSpecifications": {{}}, "technicalSpecs": {{}}}}. Everything must be in one comprehensive string.
 
 Ensure the JSON is valid and follows the exact structure specified.
 """
@@ -17297,11 +17327,158 @@ Ensure the JSON is valid and follows the exact structure specified.
         
         try:
             lesson_plan_data = json.loads(ai_response)
+            
+            # CRITICAL FIX: Ensure product_description is always a string
+            if "contentDevelopmentSpecifications" in lesson_plan_data:
+                for i, block in enumerate(lesson_plan_data["contentDevelopmentSpecifications"]):
+                    if block.get("type") == "product" and "product_description" in block:
+                        description = block["product_description"]
+                        if not isinstance(description, str):
+                            logger.warning(f"Block {i}: Converting {type(description)} to string")
+                            if isinstance(description, dict):
+                                # Flatten nested structure to string
+                                parts = []
+                                def flatten_obj(obj, prefix=""):
+                                    if isinstance(obj, dict):
+                                        for k, v in obj.items():
+                                            if isinstance(v, dict):
+                                                flatten_obj(v, f"{prefix}{k}: ")
+                                            elif isinstance(v, list):
+                                                parts.append(f"{prefix}{k}: {', '.join(map(str, v))}")
+                                            else:
+                                                parts.append(f"{prefix}{k}: {v}")
+                                    else:
+                                        parts.append(str(obj))
+                                flatten_obj(description)
+                                flattened = ". ".join(parts) + "."
+                                if len(flattened) < 200:
+                                    flattened += " This includes comprehensive specifications, technical requirements, and quality standards."
+                                block["product_description"] = flattened
+                                logger.info(f"✅ Block {i}: Flattened to {len(flattened)} chars")
+                            else:
+                                block["product_description"] = str(description)
+                                logger.info(f"✅ Block {i}: Converted to string")
             # Validate the structure
             required_fields = ["lessonTitle", "lessonObjectives", "shortDescription", "contentDevelopmentSpecifications", "materials", "suggestedPrompts"]
             for field in required_fields:
                 if field not in lesson_plan_data:
                     raise ValueError(f"Missing required field: {field}")
+            
+            # COMPREHENSIVE FIX: Ensure all product descriptions are strings
+            logger.info("Validating and fixing product descriptions...")
+            if "contentDevelopmentSpecifications" in lesson_plan_data:
+                for i, block in enumerate(lesson_plan_data["contentDevelopmentSpecifications"]):
+                    if block.get("type") == "product" and "product_description" in block:
+                        description = block["product_description"]
+                        
+                        if not isinstance(description, str):
+                            logger.warning(f"Block {i}: Converting {type(description)} to string for product_description")
+                            
+                            if isinstance(description, dict):
+                                # Convert dictionary to comprehensive string
+                                parts = []
+                                for key, value in description.items():
+                                    if isinstance(value, dict):
+                                        nested_parts = [f"{k}: {v}" for k, v in value.items()]
+                                        parts.append(f"{key.upper()}: {'. '.join(nested_parts)}")
+                                    elif isinstance(value, list):
+                                        parts.append(f"{key.upper()}: {', '.join(map(str, value))}")
+                                    else:
+                                        parts.append(f"{key}: {value}")
+                                
+                                flattened = ". ".join(parts)
+                                if len(flattened) < 200:
+                                    flattened += ". This content should include comprehensive specifications, technical requirements, accessibility standards, and quality criteria."
+                                
+                                block["product_description"] = flattened
+                                logger.info(f"Block {i}: Flattened to {len(flattened)} character string")
+                                
+                            else:
+                                # Convert other types to string
+                                block["product_description"] = str(description)
+                                logger.info(f"Block {i}: Converted {type(description)} to string")
+            
+            # Fix product descriptions that might be nested objects instead of strings
+            if "contentDevelopmentSpecifications" in lesson_plan_data:
+                for block in lesson_plan_data["contentDevelopmentSpecifications"]:
+                    if block.get("type") == "product" and "product_description" in block:
+                        description = block["product_description"]
+                        if isinstance(description, dict):
+                            # AI returned nested structure - flatten it to a comprehensive string
+                            logger.warning(f"AI returned nested structure for product_description, flattening to string")
+                            flattened_description = ""
+                            
+                            # Extract content specifications
+                            if "contentSpecifications" in description:
+                                content_specs = description["contentSpecifications"]
+                                if isinstance(content_specs, dict):
+                                    flattened_description += "CONTENT SPECIFICATIONS: "
+                                    for key, value in content_specs.items():
+                                        if isinstance(value, list):
+                                            flattened_description += f"{key}: {', '.join(map(str, value))}. "
+                                        else:
+                                            flattened_description += f"{key}: {value}. "
+                                elif isinstance(content_specs, list):
+                                    flattened_description += "CONTENT SPECIFICATIONS: " + ". ".join(map(str, content_specs)) + ". "
+                            
+                            # Extract technical specifications
+                            if "technicalSpecifications" in description:
+                                tech_specs = description["technicalSpecifications"]
+                                flattened_description += "TECHNICAL SPECIFICATIONS: "
+                                if isinstance(tech_specs, dict):
+                                    for key, value in tech_specs.items():
+                                        if isinstance(value, list):
+                                            flattened_description += f"{key}: {', '.join(map(str, value))}. "
+                                        else:
+                                            flattened_description += f"{key}: {value}. "
+                                elif isinstance(tech_specs, list):
+                                    flattened_description += ". ".join(map(str, tech_specs)) + ". "
+                            
+                            # Extract target audience specifications
+                            if "targetAudienceAdaptations" in description:
+                                audience_specs = description["targetAudienceAdaptations"]
+                                flattened_description += "TARGET AUDIENCE: "
+                                if isinstance(audience_specs, dict):
+                                    for key, value in audience_specs.items():
+                                        if isinstance(value, list):
+                                            flattened_description += f"{key}: {', '.join(map(str, value))}. "
+                                        else:
+                                            flattened_description += f"{key}: {value}. "
+                                elif isinstance(audience_specs, list):
+                                    flattened_description += ". ".join(map(str, audience_specs)) + ". "
+                            
+                            # If we couldn't extract specific sections, convert the whole thing to string
+                            if not flattened_description.strip():
+                                # Recursive function to extract all text from nested structures
+                                def extract_all_text(obj):
+                                    if isinstance(obj, dict):
+                                        text_parts = []
+                                        for key, value in obj.items():
+                                            if isinstance(value, (str, int, float)):
+                                                text_parts.append(f"{key}: {value}")
+                                            else:
+                                                text_parts.append(f"{key}: {extract_all_text(value)}")
+                                        return ". ".join(text_parts)
+                                    elif isinstance(obj, list):
+                                        return ". ".join(str(item) for item in obj)
+                                    else:
+                                        return str(obj)
+                                
+                                flattened_description = extract_all_text(description)
+                            
+                            # Clean up the string and ensure it's comprehensive
+                            flattened_description = flattened_description.strip()
+                            if len(flattened_description) < 200:
+                                # If too short, add padding with comprehensive details
+                                flattened_description += " This content should include detailed specifications, technical requirements, learning objectives, assessment criteria, target audience considerations, accessibility requirements, and implementation guidelines to ensure comprehensive content development."
+                            
+                            # Update the block with flattened string
+                            block["product_description"] = flattened_description
+                            logger.info(f"Flattened product description to {len(flattened_description)} characters")
+                        elif not isinstance(description, str):
+                            # Handle other non-string types
+                            logger.warning(f"Product description is not a string: {type(description)}, converting to string")
+                            block["product_description"] = str(description)
             
             # Log the recommended products for debugging
             logger.info(f"Payload recommended products: {payload.recommendedProducts}")
