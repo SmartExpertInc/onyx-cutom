@@ -1550,7 +1550,7 @@ export default function AuditPage() {
                     </div>
 
                     {/* Module 4*/}
-                    <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[30px] border-b border-[#D2E3F1]">
+                    <div className="module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[30px] border-b border-[#D2E3F1]">
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] leading-[100%]">
@@ -1599,7 +1599,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                ContentBuilder.ai — AI-платформа для автоматизации создания и обновления курсов:
+                ContentBuilder.ai — AI-платформа для автоматизации создания и обновления курсов
               </h3>
 
               <div 
@@ -1750,7 +1750,7 @@ export default function AuditPage() {
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
                   <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                    <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                    <div className="pt-[15px] px-[15px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                         style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1759,7 +1759,9 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                        Методолог <span className="text-[#0F58F9]">загружает ваши материалы</span> (тексты, инструкции, PDF, видео и др.)
+                        Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
+                        <span className="text-[#0F58F9]">материалы</span> (тексты,<br className="xl:hidden"/>
+                        инструкции, PDF, видео и др.)
                       </h5>
                     </div>
                     <div 
@@ -1802,7 +1804,7 @@ export default function AuditPage() {
                     </div>
 
                     <div 
-                      className="xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0] overflow-hidden"
+                      className="p-[10px] xl:py-[24px] xl:px-[70px] border-t border-[#E0E0E0] overflow-hidden"
                       style={{
                         boxShadow: '0px 6.43px 6.43px -2.14px #2A334608, 0px 2.68px 2.68px -1.34px #2A334608, 0px 1.34px 1.34px -0.67px #2A334608'
                       }}
@@ -1810,8 +1812,8 @@ export default function AuditPage() {
                       <Image 
                         src="/custom-projects-ui/images/audit-section-5-service-2-image-4-mobile.png"
                         alt="Upload"
-                        width={300}
-                        height={195}
+                        width={280}
+                        height={175}
                         className="xl:hidden"
                       />
 
