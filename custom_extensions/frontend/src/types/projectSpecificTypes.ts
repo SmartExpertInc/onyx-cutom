@@ -17,11 +17,25 @@ import { VideoLessonData } from './videoLessonTypes'; // <-- Import the new Vide
 import { QuizData } from './quizTypes';
 
 // Lesson Plan Types
+export interface LessonPlanTextBlock {
+  type: "text";
+  block_title: string;
+  block_content: string;
+}
+
+export interface LessonPlanProductBlock {
+  type: "product";
+  product_name: string;
+  product_description: string;
+}
+
+export type LessonPlanContentBlock = LessonPlanTextBlock | LessonPlanProductBlock;
+
 export interface LessonPlanData {
   lessonTitle: string;
   lessonObjectives: string[];
   shortDescription: string;
-  recommendedProductTypes: Record<string, string>;
+  contentDevelopmentSpecifications: LessonPlanContentBlock[];
   materials: string[];
   suggestedPrompts: string[];
 }

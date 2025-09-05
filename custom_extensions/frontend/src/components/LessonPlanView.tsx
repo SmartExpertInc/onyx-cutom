@@ -53,75 +53,84 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
             <h2 className="text-2xl font-bold text-gray-900">Content Development Specifications</h2>
           </div>
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
-            {(() => {
-              const itemCount = Object.keys(lessonPlanData.recommendedProductTypes).length;
-              const entries = Object.entries(lessonPlanData.recommendedProductTypes);
-
-              if (itemCount === 1) {
-                return (
-                  <div className="max-w-4xl mx-auto">
+            <p className="text-sm text-gray-600 italic mb-6">
+              A structured guide combining instructional content and product development specifications
+            </p>
+            <div className="space-y-6">
+              {lessonPlanData.contentDevelopmentSpecifications.map((block, index) => (
+                <div key={index}>
+                  {block.type === 'text' ? (
+                    // Text Block
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border-l-4 border-blue-400 shadow-sm">
+                      <h3 className="font-bold text-blue-800 mb-4 text-lg flex items-center">
+                        <FileText className="w-5 h-5 mr-2" />
+                        {block.block_title}
+                      </h3>
+                      <div className="text-gray-700 leading-relaxed">
+                        {block.block_content.split('\n').map((paragraph, pIndex) => {
+                          if (paragraph.trim() === '') return null;
+                          
+                          // Handle bullet lists
+                          if (paragraph.trim().startsWith('- ')) {
+                            const listItems = block.block_content
+                              .split('\n')
+                              .filter(line => line.trim().startsWith('- '))
+                              .map(line => line.trim().substring(2));
+                            
+                            if (pIndex === block.block_content.split('\n').findIndex(line => line.trim().startsWith('- '))) {
+                              return (
+                                <ul key={pIndex} className="list-disc list-inside space-y-2 ml-4 mb-4">
+                                  {listItems.map((item, itemIndex) => (
+                                    <li key={itemIndex} className="text-gray-700">{item}</li>
+                                  ))}
+                                </ul>
+                              );
+                            }
+                            return null;
+                          }
+                          
+                          // Handle numbered lists
+                          if (/^\d+\./.test(paragraph.trim())) {
+                            const listItems = block.block_content
+                              .split('\n')
+                              .filter(line => /^\d+\./.test(line.trim()));
+                            
+                            if (pIndex === block.block_content.split('\n').findIndex(line => /^\d+\./.test(line.trim()))) {
+                              return (
+                                <ol key={pIndex} className="list-decimal list-inside space-y-2 ml-4 mb-4">
+                                  {listItems.map((item, itemIndex) => (
+                                    <li key={itemIndex} className="text-gray-700">
+                                      {item.replace(/^\d+\.\s*/, '')}
+                                    </li>
+                                  ))}
+                                </ol>
+                              );
+                            }
+                            return null;
+                          }
+                          
+                          // Regular paragraph
+                          return (
+                            <p key={pIndex} className="mb-3 last:mb-0">
+                              {paragraph}
+                            </p>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    // Product Block
                     <div className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
                       <h3 className="font-bold text-blue-800 mb-4 capitalize flex items-center text-lg">
                         <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                        {entries[0][0].replace(/-/g, ' ')}
+                        {block.product_name.replace(/-/g, ' ')}
                       </h3>
-                      <p className="text-gray-700 leading-relaxed">{entries[0][1]}</p>
+                      <p className="text-gray-700 leading-relaxed">{block.product_description}</p>
                     </div>
-                  </div>
-                );
-              } else if (itemCount === 2) {
-                return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {entries.map(([productName, description]) => (
-                      <div key={productName} className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <h3 className="font-bold text-blue-800 mb-4 capitalize flex items-center text-lg">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                          {productName.replace(/-/g, ' ')}
-                        </h3>
-                        <p className="text-gray-700 leading-relaxed">{description}</p>
-                      </div>
-                    ))}
-                  </div>
-                );
-              } else if (itemCount === 3) {
-                return (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {entries.slice(0, 2).map(([productName, description]) => (
-                        <div key={productName} className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                          <h3 className="font-bold text-blue-800 mb-4 capitalize flex items-center text-lg">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                            {productName.replace(/-/g, ' ')}
-                          </h3>
-                          <p className="text-gray-700 leading-relaxed">{description}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                      <h3 className="font-bold text-blue-800 mb-4 capitalize flex items-center text-lg">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                        {entries[2][0].replace(/-/g, ' ')}
-                      </h3>
-                      <p className="text-gray-700 leading-relaxed">{entries[2][1]}</p>
-                    </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {entries.map(([productName, description]) => (
-                      <div key={productName} className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                        <h3 className="font-bold text-blue-800 mb-4 capitalize flex items-center text-lg">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                          {productName.replace(/-/g, ' ')}
-                        </h3>
-                        <p className="text-gray-700 leading-relaxed">{description}</p>
-                      </div>
-                    ))}
-                  </div>
-                );
-              }
-            })()}
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
