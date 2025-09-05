@@ -873,6 +873,7 @@ export interface StaySafeTipsSlideProps extends BaseTemplateProps {
   }>;
   actorImagePath?: string;
   actorImageAlt?: string;
+  companyLogoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

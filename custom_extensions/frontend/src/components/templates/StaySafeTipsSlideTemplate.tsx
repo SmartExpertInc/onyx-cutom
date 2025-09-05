@@ -5,10 +5,9 @@ import { StaySafeTipsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
-export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
-  theme?: SlideTheme | string;
-}> = ({
+export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
   slideId,
   title = '4 tips to staysafe online',
   tips = [
@@ -19,17 +18,21 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
   ],
   actorImagePath = '',
   actorImageAlt = 'Actor image',
+  companyLogoPath = '',
   backgroundColor,
   titleColor,
   contentColor,
   isEditable = false,
   onUpdate,
   theme
-}) => {
+}: StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg } = currentTheme.colors;
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState<boolean>(false);
+  const [editingTip, setEditingTip] = useState<{ index: number; field: 'number' | 'heading' | 'description' } | null>(null);
+  const [currentTips, setCurrentTips] = useState<Array<{ number: string; heading: string; description: string }>>(tips);
 
   const handleTitleSave = (newTitle: string) => {
     setEditingTitle(false);
@@ -68,7 +71,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
 
   const tipsGridStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '143px',
+    top: '165px',
     left: '44px',
     width: '61%',
     display: 'grid',
@@ -79,7 +82,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
   };
 
   const numberStyles: React.CSSProperties = {
-    fontSize: '30px',
+    fontSize: '25px',
     fontWeight: 700,
     color: '#5740BC',
     marginBottom: '8px',
@@ -138,11 +141,80 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
 
       {/* Tips grid */}
       <div style={tipsGridStyles}>
-        {tips.slice(0, 4).map((tip, index) => (
+        {currentTips.slice(0, 4).map((tip: { number: string; heading: string; description: string }, index: number) => (
           <div key={index}>
-            <div style={numberStyles}>{tip.number}</div>
-            <div style={tipHeadingStyles}>{tip.heading}</div>
-            <div style={tipDescStyles}>{tip.description}</div>
+            {/* Tip number */}
+            {isEditable && editingTip && editingTip.index === index && editingTip.field === 'number' ? (
+              <ImprovedInlineEditor
+                initialValue={tip.number}
+                onSave={(newValue: string) => {
+                  const updated = [...currentTips];
+                  updated[index] = { ...updated[index], number: newValue };
+                  setCurrentTips(updated);
+                  setEditingTip(null);
+                  onUpdate && onUpdate({ tips: updated });
+                }}
+                onCancel={() => setEditingTip(null)}
+                className="stay-safe-tip-number-editor"
+                style={{ ...numberStyles }}
+              />
+            ) : (
+              <div
+                style={numberStyles}
+                onClick={() => isEditable && setEditingTip({ index, field: 'number' })}
+              >
+                {tip.number}
+              </div>
+            )}
+
+            {/* Tip heading */}
+            {isEditable && editingTip && editingTip.index === index && editingTip.field === 'heading' ? (
+              <ImprovedInlineEditor
+                initialValue={tip.heading}
+                onSave={(newValue: string) => {
+                  const updated = [...currentTips];
+                  updated[index] = { ...updated[index], heading: newValue };
+                  setCurrentTips(updated);
+                  setEditingTip(null);
+                  onUpdate && onUpdate({ tips: updated });
+                }}
+                onCancel={() => setEditingTip(null)}
+                className="stay-safe-tip-heading-editor"
+                style={{ ...tipHeadingStyles }}
+              />
+            ) : (
+              <div
+                style={tipHeadingStyles}
+                onClick={() => isEditable && setEditingTip({ index, field: 'heading' })}
+              >
+                {tip.heading}
+              </div>
+            )}
+
+            {/* Tip description */}
+            {isEditable && editingTip && editingTip.index === index && editingTip.field === 'description' ? (
+              <ImprovedInlineEditor
+                initialValue={tip.description}
+                onSave={(newValue: string) => {
+                  const updated = [...currentTips];
+                  updated[index] = { ...updated[index], description: newValue };
+                  setCurrentTips(updated);
+                  setEditingTip(null);
+                  onUpdate && onUpdate({ tips: updated });
+                }}
+                onCancel={() => setEditingTip(null)}
+                className="stay-safe-tip-desc-editor"
+                style={{ ...tipDescStyles }}
+                multiline
+              />
+            ) : (
+              <div
+                style={tipDescStyles}
+                onClick={() => isEditable && setEditingTip({ index, field: 'description' })}
+              >
+                {tip.description}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -156,9 +228,64 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & {
           position="CENTER"
           description="Actor image"
           isEditable={isEditable}
-          style={{ width: '92%', height: '92%', objectFit: 'contain', position: 'absolute', bottom: '-25px' }}
+          style={{ width: '100%', height: '92%', objectFit: 'contain', position: 'absolute', bottom: '-25px' }}
         />
       </div>
+
+      {/* Company Logo - Bottom Left */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        left: '15px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }}>
+        {companyLogoPath ? (
+          <ClickableImagePlaceholder
+            imagePath={companyLogoPath}
+            onImageUploaded={(newPath: string) => onUpdate && onUpdate({ companyLogoPath: newPath })}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{ width: '60px', height: '30px', objectFit: 'contain' }}
+          />
+        ) : (
+          <div
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default' }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: `2px solid #4A4A4A`,
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#4A4A4A', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#4A4A4A', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <div style={{ fontSize: '14px', fontWeight: 300, color: '#4A4A4A' }}>Your Logo</div>
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            onUpdate && onUpdate({ companyLogoPath: newLogoPath });
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

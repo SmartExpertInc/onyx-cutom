@@ -87,10 +87,23 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
           />
         ) : (
           <div
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default' }}
             onClick={() => isEditable && setShowLogoUpload(true)}
-            style={{ color: '#B9B48D', fontSize: '18px', cursor: isEditable ? 'pointer' : 'default' }}
           >
-            Your Logo
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #B9B48D',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#B9B48D', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#B9B48D', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <div style={{ color: '#B9B48D', fontSize: '18px' }}>Your Logo</div>
           </div>
         )}
       </div>
