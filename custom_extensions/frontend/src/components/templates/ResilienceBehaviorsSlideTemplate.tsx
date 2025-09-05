@@ -36,7 +36,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#C7D3B8',
+    backgroundColor: '#B2B89C',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -47,19 +47,20 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     top: '88px',
     left: '64px',
     right: '420px',
-    fontSize: '54px',
+    fontSize: '37px',
+    maxWidth: '720px',
     fontWeight: 700,
-    color: '#43523F',
+    color: '#4E563B',
     lineHeight: 1.2,
   };
 
   const subtitleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '188px',
+    top: '200px',
     left: '64px',
     right: '420px',
     fontSize: '18px',
-    color: '#5B6A58',
+    color: '#6B7155',
     lineHeight: 1.6,
   };
 
@@ -86,13 +87,13 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   };
 
   const bulletItemStyles: React.CSSProperties = {
-    color: '#4B5B48',
+    color: '#63694D',
     fontSize: '18px',
   };
 
   const bulletIndexStyles: React.CSSProperties = {
-    color: '#7A8A77',
-    fontSize: '16px',
+    color: '#63694D',
+    fontSize: '18px',
     marginRight: '12px',
   };
 
