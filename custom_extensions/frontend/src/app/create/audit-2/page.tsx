@@ -154,7 +154,7 @@ export default function AuditPage() {
                       <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">1</span>
                     </div>
                     <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
-                      Сократите текучку кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span>
+                      Сократите текучку <br className="xl:hidden"/> кадров на <span className="text-[#0F58F9] xl:leading-[140%]">30–50%</span>
                     </h3>
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export default function AuditPage() {
                       <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">2</span>
                     </div>
                     <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
-                      Поднять продуктивность на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников
+                      Поднять продуктивност <br className="xl:hidden"/> на <span className="text-[#0F58F9] xl:leading-[140%]">50-300%</span> сотрудников
                     </h3>
                   </div>
                 </div>
@@ -200,7 +200,7 @@ export default function AuditPage() {
                       <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">3</span>
                     </div>
                     <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
-                      Внедрение AI-онбординг <span className="text-[#0F58F9] xl:leading-[140%]">за 7 дней</span>
+                      Внедрение AI-онбординг <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">за 7 дней</span>
                     </h3>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ export default function AuditPage() {
           {/* Third Section */}
           <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
             <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
-              Открытые вакансии FUSE
+              Открытые вакансии <br className="xl:hidden"/> FUSE
             </h2>
             
             <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
@@ -439,7 +439,7 @@ export default function AuditPage() {
           {/* Fourth Section */}
           <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
             <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
-              Кадровый кризис в HVAC-отрасли
+              Кадровый кризис <br className="xl:hidden"/> в HVAC-отрасли
             </h2>
 
             <Image 
@@ -594,7 +594,7 @@ export default function AuditPage() {
           {/* Fifth Section */}
           <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
             <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%]">
-              Предлагаем три готовых решения:
+              Предлагаем три <br className="xl:hidden"/> готовых решения:
             </h2>
 
             {/* Service 1 */}
@@ -606,7 +606,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                Купите готовые шаблоны курсов для онбординга и обучения:
+                Купите готовые шаблоны <br className="xl:hidden"/> курсов для онбординга и <br className="xl:hidden"/> обучения:
               </h3>
 
               <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
@@ -1021,7 +1021,7 @@ export default function AuditPage() {
                 </div>
                 
                 <h4 className="font-medium text-[20px] xl:text-[32px] text-[#09090B] mb-[6px] xl:mb-[15px]">
-                  Онбординг курс для должности HVAC Installer
+                  Онбординг курс для <br className="xl:hidden"/> должности HVAC Installer
                 </h4>
                 
                 <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
@@ -1599,7 +1599,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                ContentBuilder.ai — AI-платформа для автоматизации создания и обновления курсов
+                ContentBuilder.ai — AI-<br className="xl:hidden"/>платформа дл <br className="xl:hidden"/> автоматизации создания<br className="xl:hidden"/> и обновления курсов
               </h3>
 
               <div 
@@ -1799,7 +1799,7 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                        Платформа превращает их в <span className="text-[#0F58F9]">уроки, тесты, видео и презентации</span>
+                        Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки, тесты,<br className="xl:hidden"/> видео и презентации</span>
                       </h5>
                     </div>
 
@@ -1840,7 +1840,7 @@ export default function AuditPage() {
               </div>
               
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
+                LMS-платформа<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> автоматизация<br className="xl:hidden"/> корпоративного<br className="xl:hidden"/> обучения и онбординга
               </h3>
 
               <div 
@@ -1880,7 +1880,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                    Онбординг и адаптация <span className="font-normal text-[#71717A]">новых сотрудников</span>
+                    Онбординг и адаптация<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">новых сотрудников</span>
                   </span>
                 </div>
 
@@ -1895,7 +1895,7 @@ export default function AuditPage() {
                   </div>
                   
                   <span className="font-medium text-[16px] xl:text-[20px]">
-                  Обучение по ролям <span className="font-normal text-[#71717A]">и департаментам</span>
+                  Обучение по ролям <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> департаментам</span>
                   </span>
                 </div>
 
