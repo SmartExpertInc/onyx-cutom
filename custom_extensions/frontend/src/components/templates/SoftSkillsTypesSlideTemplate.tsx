@@ -131,7 +131,10 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               isEditable={isEditable}
               style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
             />
-            <div style={cardLabelStyles}>• {c.label}</div>
+            <div style={cardLabelStyles}>
+              <span style={{ fontSize: '34px', lineHeight: 1, display: 'inline-block', marginRight: '8px' }}>•</span>
+              <span style={{ fontSize: '25px' }}>{c.label}</span>
+            </div>
           </div>
         ))}
       </div>
