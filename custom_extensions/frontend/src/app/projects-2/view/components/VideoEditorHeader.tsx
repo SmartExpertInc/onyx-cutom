@@ -7,6 +7,7 @@ import GenerateModal from './GenerateModal';
 import GenerationCompletedModal from './GenerationCompletedModal';
 import UpgradeModal from './UpgradeModal';
 import { Avatar, AvatarVariant } from '@/components/AvatarSelector';
+import { useAvatarDisplay } from '@/components/AvatarDisplayManager';
 
 interface EmailInput {
   id: string;
@@ -48,9 +49,21 @@ export default function VideoEditorHeader({
   const [generationStatus, setGenerationStatus] = useState<'idle' | 'generating' | 'completed' | 'error'>('idle');
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generationJobId, setGenerationJobId] = useState<string | null>(null);
-  const [selectedAvatar, setSelectedAvatar] = useState<Avatar | undefined>(undefined);
-  const [selectedVariant, setSelectedVariant] = useState<AvatarVariant | undefined>(undefined);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  
+  // Use global avatar context instead of local state
+  const { defaultAvatar } = useAvatarDisplay();
+  
+  // Debug logging for avatar context
+  useEffect(() => {
+    console.log('🎬 [VIDEO_GENERATION] Avatar context updated:', {
+      hasDefaultAvatar: !!defaultAvatar,
+      avatarName: defaultAvatar?.avatar?.name,
+      avatarCode: defaultAvatar?.avatar?.code,
+      variantName: defaultAvatar?.selectedVariant?.name,
+      variantCode: defaultAvatar?.selectedVariant?.code
+    });
+  }, [defaultAvatar]);
   
   const resizeButtonRef = useRef<HTMLButtonElement>(null);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
@@ -235,16 +248,7 @@ export default function VideoEditorHeader({
     }
   };
 
-  // Avatar selection handler - transferred from VideoDownloadButton
-  const handleAvatarSelect = (avatar: Avatar, variant?: AvatarVariant) => {
-    setSelectedAvatar(avatar);
-    setSelectedVariant(variant || undefined);
-    console.log('🎬 [VIDEO_DOWNLOAD] Avatar selected:', {
-      avatar: avatar.name,
-      variant: variant?.name,
-      code: variant ? `${avatar.code}.${variant.code}` : avatar.code
-    });
-  };
+  // Avatar selection is now handled by the global AvatarDisplayManager context
 
   // Download video function - transferred from VideoDownloadButton
   const downloadVideo = async (jobId: string) => {
@@ -288,36 +292,43 @@ export default function VideoEditorHeader({
   // Main video generation function - transferred from VideoDownloadButton
   const handleVideoGeneration = async () => {
     console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
-    console.log('🎬 [VIDEO_GENERATION] Current selectedAvatar:', selectedAvatar);
-    console.log('🎬 [VIDEO_GENERATION] Current selectedVariant:', selectedVariant);
+    console.log('🎬 [VIDEO_GENERATION] Global defaultAvatar:', defaultAvatar);
     
-    // If no avatar is selected, use a default avatar to allow generation to proceed
-    let avatarToUse = selectedAvatar;
-    let variantToUse = selectedVariant;
+    // Use the global avatar context instead of local state
+    let avatarToUse = defaultAvatar?.avatar;
+    let variantToUse = defaultAvatar?.selectedVariant;
     
-    if (!selectedAvatar) {
-      console.log('🎬 [VIDEO_GENERATION] No avatar selected, using default avatar');
-      // Use a default avatar - you can change this to any available avatar
+    if (!avatarToUse) {
+      console.log('🎬 [VIDEO_GENERATION] No avatar selected from global context, using fallback avatar');
+      // Use a real avatar that exists in the backend as fallback
       avatarToUse = {
-        id: 'default-avatar',
-        code: 'default',
-        name: 'Default Avatar',
-        type: 'default',
+        id: 'max-avatar',
+        code: 'max',
+        name: 'Max',
+        type: null,
         status: 1,
         accountId: 'default',
-        gender: 'female' as const,
+        gender: 'male' as const,
         thumbnail: '',
         canvas: '',
         variants: [{
-          id: 'default-variant',
-          code: 'default',
-          name: 'Default',
+          id: 'business-variant',
+          code: 'business',
+          name: 'Business',
           thumbnail: '',
           canvas: ''
         }]
       };
-      variantToUse = undefined;
-      console.log('🎬 [VIDEO_GENERATION] Using default avatar:', avatarToUse);
+      variantToUse = {
+        id: 'business-variant',
+        code: 'business',
+        name: 'Business',
+        thumbnail: '',
+        canvas: ''
+      };
+      console.log('🎬 [VIDEO_GENERATION] Using fallback avatar:', avatarToUse);
+    } else {
+      console.log('🎬 [VIDEO_GENERATION] Using selected avatar from global context:', avatarToUse);
     }
 
           try {
