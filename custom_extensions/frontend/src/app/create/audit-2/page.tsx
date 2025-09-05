@@ -1749,7 +1749,7 @@ export default function AuditPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
-                  <div className="h-[300px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                  <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1787,7 +1787,7 @@ export default function AuditPage() {
                   </div>
 
                   {/* Card 2 */}
-                  <div className="h-[300px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                  <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
                     <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
@@ -1840,22 +1840,6 @@ export default function AuditPage() {
               <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                 LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
               </h3>
-
-              {/* <Image 
-                src="/custom-projects-ui/images/audit-section-5-service-3-image-1-mobile.png"
-                alt="Card 1"
-                width={300}
-                height={180}
-                className="w-full xl:hidden rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
-              /> */}
-
-              {/* <Image 
-                src="/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png"
-                alt="Card 1"
-                width={1120}
-                height={571}
-                className="xl:mb-[40px] w-full hidden xl:block rounded-[6px] border border-[#E0E0E0] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.03),0px_10px_10px_-5px_rgba(42,51,70,0.03),0px_5px_5px_-2.5px_rgba(42,51,70,0.03)]"
-              /> */}
 
               <div 
                 className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
