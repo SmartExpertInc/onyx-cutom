@@ -1874,7 +1874,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     Онбординг и адаптация <span className="font-normal text-[#71717A]">новых сотрудников</span>
                   </span>
                 </div>
@@ -1889,7 +1889,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                   Обучение по ролям <span className="font-normal text-[#71717A]">и департаментам</span>
                   </span>
                 </div>
@@ -1904,7 +1904,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     База знаний <span className="font-normal text-[#71717A]">и централизованное обновление контента</span>
                   </span>
                 </div>
@@ -1919,7 +1919,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     Геймификация<span className="font-normal text-[#71717A]">, тестирование и оценка компетенций</span>
                   </span>
                 </div>
@@ -1937,7 +1937,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     Отчётность, дашборды<span className="font-normal text-[#71717A]"> и аналитика по обучению</span>
                   </span>
                 </div>
@@ -1954,7 +1954,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     Встроенный AI-ассистент <span className="font-normal text-[#71717A]">для сопровождения и автоматизации</span>
                   </span>
                 </div>
@@ -1969,7 +1969,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]  ">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     Мультиязычность<span className="font-normal text-[#71717A]"> и поддержка глобальных команд</span>
                   </span>
                 </div>
@@ -1987,7 +1987,7 @@ export default function AuditPage() {
                     </svg>
                   </div>
                   
-                  <span className="font-medium text-[16px]  ">
+                  <span className="font-medium text-[16px] xl:text-[20px]">
                     Гибкое управление<span className="font-normal text-[#71717A]"> доступами и брендированием</span>
                   </span>
                 </div>
