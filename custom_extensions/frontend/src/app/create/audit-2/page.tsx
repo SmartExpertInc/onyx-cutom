@@ -380,7 +380,7 @@ export default function AuditPage() {
               </div>
 
               <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px] xl:h-[870px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
-                <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] text-center xl:text-left">
+                <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] xl:mb-0 text-center xl:text-left">
                   Дефицит квалифицированных кадров
                 </h3>
                 
@@ -437,7 +437,7 @@ export default function AuditPage() {
           </section>
 
           {/* Fourth Section */}
-          <section className="bg-white pt-[50px] pb-[60px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
+          <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
             <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:text-center">
               Кадровый кризис в HVAC-отрасли
             </h2>
