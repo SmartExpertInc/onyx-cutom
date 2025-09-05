@@ -1821,14 +1821,14 @@ export default function AuditPage() {
             </div>
 
             {/* Service 3 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 3:
                 </span>
               </div>
               
-              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px]">
+              <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
                 LMS-платформа SmartExpert — автоматизация корпоративного обучения и онбординга
               </h3>
 
