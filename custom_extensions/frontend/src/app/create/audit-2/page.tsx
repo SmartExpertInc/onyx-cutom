@@ -379,7 +379,7 @@ export default function AuditPage() {
                 </div>
               </div>
 
-              <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:w-[680px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
+              <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                 <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] text-center xl:text-left">
                   Дефицит квалифицированных кадров
                 </h3>
