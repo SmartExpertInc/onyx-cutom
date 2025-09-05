@@ -316,17 +316,17 @@
     {% set lessonPresentation_show = column_visibility.get('lessonPresentation', False) %}
 
     {# Calculate column spans with adjusted proportions #}
-    {# Make Quiz, One-Pager, Video, Presentation columns smaller (1.6 spans each) #}
+    {# Make Quiz, One-Pager, Video, Presentation columns smaller (1.5 spans each) #}
     {% set span_kc   = 2 if kc_show else 0 %}
     {% set span_ca   = 2 if ca_show else 0 %}
     {% set span_src  = 2 if src_show else 0 %}
     {% set span_qt   = 2 if qt_show else 0 %}
     {% set span_time = 1.8 if time_show else 0 %}
     {% set span_ct   = 1.8 if ct_show else 0 %}
-    {% set span_quiz = 1.6 if quiz_show else 0 %}
-    {% set span_onePager = 1.6 if onePager_show else 0 %}
-    {% set span_videoPresentation = 1.6 if videoPresentation_show else 0 %}
-    {% set span_lessonPresentation = 1.6 if lessonPresentation_show else 0 %}
+    {% set span_quiz = 1.5 if quiz_show else 0 %}
+    {% set span_onePager = 1.5 if onePager_show else 0 %}
+    {% set span_videoPresentation = 1.5 if videoPresentation_show else 0 %}
+    {% set span_lessonPresentation = 1.5 if lessonPresentation_show else 0 %}
     
     {# Calculate remaining space for module/lesson column (make it bigger) #}
     {% set total_used_span = span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
@@ -337,10 +337,12 @@
         {% set modules_span = 4 %}
         {# If we have too many columns, reduce the optional column spans #}
         {% if total_used_span > 16 %}
-            {% set span_quiz = 1 if quiz_show else 0 %}
-            {% set span_onePager = 1 if onePager_show else 0 %}
-            {% set span_videoPresentation = 1 if videoPresentation_show else 0 %}
-            {% set span_lessonPresentation = 1 if lessonPresentation_show else 0 %}
+            {% set span_quiz = 1.2 if quiz_show else 0 %}
+            {% set span_onePager = 1.2 if onePager_show else 0 %}
+            {% set span_videoPresentation = 1.2 if videoPresentation_show else 0 %}
+            {% set span_lessonPresentation = 1.2 if lessonPresentation_show else 0 %}
+            {% set span_time = 1.5 if time_show else 0 %}
+            {% set span_ct = 1.5 if ct_show else 0 %}
             {% set total_used_span = span_kc + span_ca + span_src + span_qt + span_time + span_ct + span_quiz + span_onePager + span_videoPresentation + span_lessonPresentation %}
             {% set modules_span = 20 - total_used_span %}
         {% endif %}
