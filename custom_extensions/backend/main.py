@@ -17155,6 +17155,8 @@ async def generate_lesson_plan(
         if not source_materials:
             source_materials = ["General Knowledge"]
 
+        print("context_for_openai", context_for_openai)
+        
         # Prepare OpenAI prompt
         openai_prompt = f"""
 You are an expert instructional designer and educational content developer. Based on the following source context, create a comprehensive lesson plan that serves as a complete task specification for Content Developers to create high-quality educational materials.
@@ -17245,15 +17247,7 @@ MANDATORY ELEMENTS FOR EACH PROMPT:
    * Precise terminology and industry language to use
    * Exact key concepts to emphasize with specific explanation requirements
 
-2. TECHNICAL SPECIFICATIONS:
-   * Exact format requirements (resolution, aspect ratio, file types)
-   * Specific visual style guidelines (colors, fonts, layout specifications)
-   * Detailed audio requirements (voice tone, background music, sound effects)
-   * Precise quality standards and technical constraints
-   * Exact accessibility requirements (captions, alt text, contrast ratios)
-   * Specific platform or delivery method considerations
-
-3. STRUCTURAL ORGANIZATION:
+2. STRUCTURAL ORGANIZATION:
    * Detailed step-by-step content flow with specific timing
    * Exact introduction requirements with specific opening elements
    * Precise main content structure with detailed section breakdowns
@@ -17267,12 +17261,6 @@ MANDATORY ELEMENTS FOR EACH PROMPT:
    * Detailed engagement strategies and interaction methods
    * Precise motivational elements and learning reinforcement techniques
    * Specific cultural or demographic considerations
-
-5. IMPLEMENTATION DETAILS:
-   * Step-by-step creation process with specific tools or methods
-   * Exact review criteria and quality checkpoints
-   * Specific testing or validation requirements
-   * Detailed revision guidelines and improvement criteria
 
 Example format demonstrating CONTENT-FOCUSED specifications (minimum level of detail required):
 Create content covering HVAC system safety and troubleshooting for maintenance technicians. CONTENT TO INCLUDE: Safety protocols covering lockout/tagout procedures, refrigerant handling regulations including EPA requirements, electrical safety practices with voltage identification protocols, personal protective equipment requirements for HVAC work environments. System components knowledge including compressor types (scroll, reciprocating, screw), evaporator configurations (air-cooled vs water-cooled), condensing unit specifications, refrigerant circuit fundamentals, and control system basics. Troubleshooting methodologies using systematic diagnostic approaches including symptom analysis, pressure testing procedures, temperature differential measurements, electrical circuit testing, and component isolation techniques. SPECIFIC EXAMPLES TO COVER: Residential split system R-410A refrigerant leak detection using electronic leak detectors and bubble solutions, commercial rooftop unit bearing replacement procedures including safety isolation and reassembly verification, heat pump defrost cycle malfunction diagnosis including sensor testing and control board evaluation, condenser coil cleaning techniques for different environments. KEY CONCEPTS: Industry standards compliance (ASHRAE, local building codes), proper documentation practices, customer communication protocols, equipment maintenance schedules, energy efficiency optimization, and environmental regulations compliance. PRACTICAL APPLICATIONS: Real-world scenarios technicians encounter daily, hands-on demonstration of proper techniques, troubleshooting decision trees, and quality assurance procedures.
