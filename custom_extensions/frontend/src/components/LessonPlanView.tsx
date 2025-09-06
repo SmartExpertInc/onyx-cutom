@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import React from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home } from 'lucide-react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 
 interface LessonPlanViewProps {
@@ -45,14 +45,14 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Lesson Draft</h1>
           </div>
-          <p className="text-center text-lg text-gray-600 mb-6">Comprehensive lesson plan and content specifications</p>
+          
           
           {/* Navigation Info Blocks */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-600 rounded-md flex items-center justify-center">
-                  <BookOpen className="w-3 h-3 text-white" />
+                                 <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-600 rounded-md flex items-center justify-center">
+                   <GraduationCap className="w-3 h-3 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Course</p>
@@ -64,7 +64,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center">
-                  <Package className="w-3 h-3 text-white" />
+                  <Layers className="w-3 h-3 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Module</p>
@@ -76,7 +76,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md flex items-center justify-center">
-                  <Target className="w-3 h-3 text-white" />
+                  <BookOpen className="w-3 h-3 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Lesson</p>
