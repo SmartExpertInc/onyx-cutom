@@ -43,7 +43,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <FileText className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Lesson Draft</h1>
+            <h1 className="text-5xl font-bold text-gray-900 tracking-tight">Lesson Draft</h1>
           </div>
           
           
@@ -90,10 +90,10 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Header Card */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">
               {lessonPlanData.lessonTitle}
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            </h2>
+                          <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
               {lessonPlanData.shortDescription}
             </p>
           </div>
