@@ -1,14 +1,22 @@
 ﻿"use client";
 
 import React from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText } from 'lucide-react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 
 interface LessonPlanViewProps {
   lessonPlanData: LessonPlanData;
+  courseName?: string;
+  moduleName?: string;
+  lessonName?: string;
 }
 
-export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }) => {
+export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ 
+  lessonPlanData, 
+  courseName = "Course", 
+  moduleName = "Module", 
+  lessonName 
+}) => {
   const handleSeePrompt = (productName: string) => {
     // Scroll to the prompts section
     const promptsSection = document.getElementById('prompts-section');
@@ -27,8 +35,30 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ lessonPlanData }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
+        {/* Navigation Breadcrumb */}
+        <div className="mb-6">
+          <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+            <Home className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" />
+            <span className="font-medium text-gray-700">{courseName}</span>
+            <ChevronRight className="w-4 h-4" />
+            <span className="font-medium text-gray-700">{moduleName}</span>
+            <ChevronRight className="w-4 h-4" />
+            <span className="font-medium text-blue-600">{lessonName || lessonPlanData.lessonTitle}</span>
+          </div>
+          
+          {/* Document Title */}
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+              <FileText className="w-4 h-4 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Lesson Draft</h1>
+          </div>
+          <p className="text-gray-600 ml-11">Comprehensive lesson plan and content specifications</p>
+        </div>
+
         {/* Header Card */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
           <div className="text-center">
