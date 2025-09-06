@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import React from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers } from 'lucide-react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 
 interface LessonPlanViewProps {
@@ -90,12 +90,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 {/* Description */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-gray-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <FileText className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+              <Info className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Description</h2>
           </div>
-          <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4 md:p-6 border border-gray-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-blue-100">
             <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
               {lessonPlanData.lessonTitle}
             </h3>
