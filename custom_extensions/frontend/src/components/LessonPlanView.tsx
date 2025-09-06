@@ -13,8 +13,8 @@ interface LessonPlanViewProps {
 
 export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ 
   lessonPlanData, 
-  courseName = "Course", 
-  moduleName = "Module", 
+  courseName = "New Employee Onboarding", 
+  moduleName = "Introduction to the Company", 
   lessonName 
 }) => {
   const handleSeePrompt = (productName: string) => {
@@ -37,26 +37,54 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
-        {/* Navigation Breadcrumb */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-            <Home className="w-4 h-4" />
-            <ChevronRight className="w-4 h-4" />
-            <span className="font-medium text-gray-700">{courseName}</span>
-            <ChevronRight className="w-4 h-4" />
-            <span className="font-medium text-gray-700">{moduleName}</span>
-            <ChevronRight className="w-4 h-4" />
-            <span className="font-medium text-blue-600">{lessonName || lessonPlanData.lessonTitle}</span>
-          </div>
-          
-          {/* Document Title */}
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-              <FileText className="w-4 h-4 text-white" />
+        {/* Document Title - More Prominent */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <FileText className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Lesson Draft</h1>
+            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Lesson Draft</h1>
           </div>
-          <p className="text-gray-600 ml-11">Comprehensive lesson plan and content specifications</p>
+          <p className="text-center text-lg text-gray-600 mb-6">Comprehensive lesson plan and content specifications</p>
+          
+          {/* Navigation Info Blocks */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-600 rounded-md flex items-center justify-center">
+                  <BookOpen className="w-3 h-3 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Course</p>
+                  <p className="text-sm font-semibold text-gray-800">{courseName}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center">
+                  <Package className="w-3 h-3 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Module</p>
+                  <p className="text-sm font-semibold text-gray-800">{moduleName}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md flex items-center justify-center">
+                  <Target className="w-3 h-3 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Lesson</p>
+                  <p className="text-sm font-semibold text-gray-800">{lessonName || lessonPlanData.lessonTitle}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Header Card */}
@@ -129,7 +157,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 return productName
                   .split('-')
                   .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ');
+                  .join(' ') + ' Draft';
               };
 
               return productTypes.map((productName, index) => {
