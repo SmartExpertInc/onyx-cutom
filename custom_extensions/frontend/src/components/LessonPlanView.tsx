@@ -114,18 +114,16 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
       const newProductData: {[key: string]: any} = {};
 
-      // Use EXACT same logic as TrainingPlan - find products by lesson title using the working function
-      console.log(`🔍 [LESSON_PLAN] Using EXACT matching logic from TrainingPlan...`);
+      // Direct search by projectName and design_microproduct_type
+      console.log(`🔍 [LESSON_PLAN] Searching for products with projectName = "${parentProjectName}"`);
 
-      // Find presentation (exclude Quiz, Text Presentation, Video Lesson to get only Presentation)
-      const presentationProduct = findMicroproductByTitle(
-        lessonTitle, 
-        parentProjectName, 
-        allUserMicroproducts, 
-        ["Quiz", "Text Presentation", "Video Lesson"]
+      // Find presentation (Slide Deck)
+      const presentationProduct = allUserMicroproducts.find(mp => 
+        mp.projectName === parentProjectName && 
+        (mp as any).design_microproduct_type === 'Slide Deck'
       );
       
-      console.log(`🎯 [LESSON_PLAN] Presentation search result:`, {
+      console.log(`🎯 [LESSON_PLAN] Presentation (Slide Deck) search:`, {
         found: !!presentationProduct,
         id: presentationProduct?.id,
         projectName: presentationProduct?.projectName,
@@ -133,15 +131,13 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         designMicroproductType: (presentationProduct as any)?.design_microproduct_type
       });
 
-      // Find quiz (exclude other types to get only Quiz)
-      const quizProduct = findMicroproductByTitle(
-        lessonTitle, 
-        parentProjectName, 
-        allUserMicroproducts, 
-        ["Presentation", "Text Presentation", "Video Lesson"]
+      // Find quiz
+      const quizProduct = allUserMicroproducts.find(mp => 
+        mp.projectName === parentProjectName && 
+        (mp as any).design_microproduct_type === 'Quiz'
       );
       
-      console.log(`❓ [LESSON_PLAN] Quiz search result:`, {
+      console.log(`❓ [LESSON_PLAN] Quiz search:`, {
         found: !!quizProduct,
         id: quizProduct?.id,
         projectName: quizProduct?.projectName,
@@ -149,15 +145,13 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         designMicroproductType: (quizProduct as any)?.design_microproduct_type
       });
 
-      // Find one-pager (exclude other types to get only Text Presentation)
-      const onePagerProduct = findMicroproductByTitle(
-        lessonTitle, 
-        parentProjectName, 
-        allUserMicroproducts, 
-        ["Presentation", "Quiz", "Video Lesson"]
+      // Find one-pager (Text Presentation)
+      const onePagerProduct = allUserMicroproducts.find(mp => 
+        mp.projectName === parentProjectName && 
+        (mp as any).design_microproduct_type === 'Text Presentation'
       );
       
-      console.log(`📄 [LESSON_PLAN] One-pager search result:`, {
+      console.log(`📄 [LESSON_PLAN] One-pager (Text Presentation) search:`, {
         found: !!onePagerProduct,
         id: onePagerProduct?.id,
         projectName: onePagerProduct?.projectName,
@@ -165,15 +159,13 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         designMicroproductType: (onePagerProduct as any)?.design_microproduct_type
       });
 
-      // Find video lesson (exclude other types to get only Video Lesson)
-      const videoLessonProduct = findMicroproductByTitle(
-        lessonTitle, 
-        parentProjectName, 
-        allUserMicroproducts, 
-        ["Presentation", "Quiz", "Text Presentation"]
+      // Find video lesson
+      const videoLessonProduct = allUserMicroproducts.find(mp => 
+        mp.projectName === parentProjectName && 
+        (mp as any).design_microproduct_type === 'Video Lesson'
       );
       
-      console.log(`🎥 [LESSON_PLAN] Video lesson search result:`, {
+      console.log(`🎥 [LESSON_PLAN] Video lesson search:`, {
         found: !!videoLessonProduct,
         id: videoLessonProduct?.id,
         projectName: videoLessonProduct?.projectName,
