@@ -1127,8 +1127,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         lessonRecommendations: extractLessonRecommendations(lesson)
       });
     }
-    // Scenario 3: ALL content types exist (presentation, quiz, and one-pager) - show open modal
-    else if (hasLesson && hasQuiz && hasOnePager) {
+    // Scenario 3: ALL content types exist (presentation, quiz, video lesson, and one-pager) - show open modal
+    else if (hasLesson && hasQuiz && hasVideoLesson && hasOnePager) {
       setOpenContentModalState({
         isOpen: true,
         lessonTitle,
@@ -1145,8 +1145,8 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         parentProjectName
       });
     }
-    // Scenario 4: Two content types exist (but not all three) - show open or create modal
-    else if ((hasLesson && hasQuiz) || (hasLesson && hasOnePager) || (hasQuiz && hasOnePager)) {
+    // Scenario 4: Some content types exist (but not all four) - show open or create modal
+    else if ((hasLesson && hasQuiz) || (hasLesson && hasOnePager) || (hasQuiz && hasOnePager) || (hasLesson && hasVideoLesson) || (hasQuiz && hasVideoLesson) || (hasOnePager && hasVideoLesson)) {
       setOpenOrCreateModalState({ 
         isOpen: true, 
         lessonTitle, 

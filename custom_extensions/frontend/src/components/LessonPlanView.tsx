@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info, ChevronLeft } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 import TextPresentationDisplay from './TextPresentationDisplay';
+import QuizDisplay from './QuizDisplay';
+import { SmartSlideDeckViewer } from './SmartSlideDeckViewer';
+import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 
 interface LessonPlanViewProps {
   lessonPlanData: LessonPlanData;
@@ -367,14 +370,35 @@ const PresentationBlock: React.FC<{
   slides: Array<{ title: string; content: string }>;
   prompt: string;
 }> = ({ title, slides, prompt }) => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  // Convert simple slides to ComponentBasedSlideDeck format for SmartSlideDeckViewer
+  const componentBasedSlideDeck: ComponentBasedSlideDeck = {
+    deckTitle: title,
+    theme: 'default',
+    slides: slides.map((slide, index) => ({
+      slideId: `slide-${index}`,
+      slideTitle: slide.title,
+      slideType: 'text-focus',
+      components: [
+        {
+          id: `content-${index}`,
+          type: 'text',
+          props: {
+            text: slide.content,
+            style: {
+              fontSize: '18px',
+              textAlign: 'left',
+              color: '#333333'
+            }
+          },
+          layout: {
+            x: 50,
+            y: 150,
+            width: 700,
+            height: 400
+          }
+        }
+      ]
+    }))
   };
 
   return (
@@ -386,45 +410,21 @@ const PresentationBlock: React.FC<{
         <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
       </div>
       
-      {/* Slide Carousel */}
+      {/* Slide Display using SmartSlideDeckViewer */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Presentation Slides</h3>
-        <div className="relative">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[300px]">
-            <div className="text-center h-full flex flex-col justify-center">
-              <h4 className="text-2xl font-bold text-blue-900 mb-4">
-                {slides[currentSlide]?.title}
-              </h4>
-              <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">
-                {slides[currentSlide]?.content}
-              </p>
-            </div>
-          </div>
-          
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-between mt-4">
-            <button
-              onClick={prevSlide}
-              disabled={slides.length <= 1}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
-            </button>
-            
-            <span className="text-sm text-gray-600">
-              Slide {currentSlide + 1} of {slides.length}
-            </span>
-            
-            <button
-              onClick={nextSlide}
-              disabled={slides.length <= 1}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
-          </div>
+        <div style={{
+          width: '100%',
+          minHeight: '600px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px'
+        }}>
+          <SmartSlideDeckViewer
+            deck={componentBasedSlideDeck}
+            isEditable={false}
+            showFormatInfo={false}
+            enableAutomaticImageGeneration={false}
+          />
         </div>
       </div>
 
@@ -449,14 +449,19 @@ const QuizBlock: React.FC<{
   questions: Array<{ question: string; options: string[]; correct: number }>;
   prompt: string;
 }> = ({ title, questions, prompt }) => {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-
-  const nextQuestion = () => {
-    setCurrentQuestion((prev) => (prev + 1) % questions.length);
-  };
-
-  const prevQuestion = () => {
-    setCurrentQuestion((prev) => (prev - 1 + questions.length) % questions.length);
+  // Convert simple questions to QuizData format
+  const quizData = {
+    quizTitle: title,
+    questions: questions.map((q, index) => ({
+      question_id: `q-${index}`,
+      question_type: 'multiple-choice' as const,
+      question_text: q.question,
+      options: q.options.map((option, optIndex) => ({
+        option_id: `opt-${index}-${optIndex}`,
+        option_text: option,
+        is_correct: optIndex === q.correct
+      }))
+    }))
   };
 
   return (
@@ -468,66 +473,14 @@ const QuizBlock: React.FC<{
         <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
       </div>
       
-      {/* Question Carousel */}
+      {/* Quiz Display using QuizDisplay component */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Quiz Questions</h3>
-        <div className="relative">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-            <div className="mb-4">
-              <h4 className="text-lg font-semibold text-green-900 mb-4">
-                Question {currentQuestion + 1}
-              </h4>
-              <p className="text-gray-800 leading-relaxed mb-6">
-                {questions[currentQuestion]?.question}
-              </p>
-              <div className="space-y-3">
-                {questions[currentQuestion]?.options.map((option, index) => (
-                  <div 
-                    key={index} 
-                    className={`p-3 rounded-lg border ${
-                      index === questions[currentQuestion]?.correct 
-                        ? 'bg-green-100 border-green-300 text-green-800' 
-                        : 'bg-white border-gray-200 text-gray-700'
-                    }`}
-                  >
-                    <span className="font-medium mr-2">
-                      {String.fromCharCode(65 + index)}.
-                    </span>
-                    {option}
-                    {index === questions[currentQuestion]?.correct && (
-                      <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-between mt-4">
-            <button
-              onClick={prevQuestion}
-              disabled={questions.length <= 1}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
-            </button>
-            
-            <span className="text-sm text-gray-600">
-              Question {currentQuestion + 1} of {questions.length}
-            </span>
-            
-            <button
-              onClick={nextQuestion}
-              disabled={questions.length <= 1}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
-          </div>
-        </div>
+        <QuizDisplay
+          dataToDisplay={quizData}
+          isEditing={false}
+          onTextChange={() => {}} // No editing in lesson plan view
+        />
       </div>
 
       {/* Quiz Creation Prompt */}
