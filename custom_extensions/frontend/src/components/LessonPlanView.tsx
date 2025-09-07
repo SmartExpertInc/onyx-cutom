@@ -912,7 +912,7 @@ const FallbackOnePagerContent: React.FC = () => {
       backgroundColor: 'var(--bg-color)'
     } as React.CSSProperties}>
       <TextPresentationDisplay 
-        dataToDisplay={fallbackOnePagerData}
+        dataToDisplay={fallbackOnePagerData as any}
         isEditing={false}
       />
     </div>
