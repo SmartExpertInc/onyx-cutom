@@ -1,13 +1,15 @@
 ﻿"use client";
 
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info, ChevronLeft } from 'lucide-react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info, ChevronLeft, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 import { ProjectListItem } from '@/types/products';
 import TextPresentationDisplay from './TextPresentationDisplay';
 import QuizDisplay from './QuizDisplay';
 import { SmartSlideDeckViewer } from './SmartSlideDeckViewer';
-import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
+import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
+import { AnyQuizQuestion, MultipleChoiceQuestion, MultiSelectQuestion, MatchingQuestion, SortingQuestion, OpenAnswerQuestion } from '@/types/quizTypes';
 import Image from 'next/image';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
@@ -467,31 +469,24 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
           <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <ul className="space-y-4">
               {connectorConfigs.map((connector) => (
-                <div
-                  key={connector.id}
-                  className="group bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-emerald-300 transition-all duration-300"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
-                      <Image
-                        src={connector.logoPath}
-                        alt={`${connector.name} logo`}
-                        width={24}
-                        height={24}
-                        className="object-contain w-6 h-6"
-                        priority={false}
-                        unoptimized={true}
-                      />
-                    </div>
-                    <h3 className="text-sm font-medium text-gray-800 truncate w-full">
-                      {connector.name}
-                    </h3>
+                <li key={connector.id} className="flex items-center group">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm mr-4 flex-shrink-0">
+                    <Image
+                      src={connector.logoPath}
+                      alt={`${connector.name} logo`}
+                      width={32}
+                      height={32}
+                      className="object-contain w-8 h-8"
+                      priority={false}
+                      unoptimized={true}
+                    />
                   </div>
-                </div>
+                  <span className="text-gray-800 leading-relaxed font-medium text-lg">{connector.name}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
 
@@ -971,7 +966,7 @@ const FallbackOnePagerContent: React.FC = () => {
     );
 };
 
-// Carousel version of SmartSlideDeckViewer - exact copy but with carousel navigation
+// Carousel version of SmartSlideDeckViewer - clean slide rendering without extra UI
 const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ deck }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   
@@ -1001,7 +996,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       borderRadius: '8px',
       position: 'relative'
     }}>
-      {/* Single Slide Display - Exact same as SmartSlideDeckViewer */}
+      {/* Clean Slide Display - Just the slide content */}
       <div style={{ padding: '20px' }}>
         <div
           className="professional-slide relative"
@@ -1009,17 +1004,16 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             backgroundColor: 'white',
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-            minHeight: '500px'
+            minHeight: '500px',
+            width: '100%',
+            height: '500px'
           }}
         >
-          <div className="slide-content">
-            <SmartSlideDeckViewer
-              deck={{ ...deck, slides: [currentSlide] }}
-              isEditable={false}
-              showFormatInfo={false}
-              enableAutomaticImageGeneration={false}
-            />
-          </div>
+          <ComponentBasedSlideRenderer
+            slide={currentSlide}
+            isEditable={false}
+            theme="default"
+          />
         </div>
       </div>
 
@@ -1054,6 +1048,8 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
 // Carousel version of QuizDisplay - exact copy but with carousel navigation
 const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
+  const [showAnswers, setShowAnswers] = useState(true); // Always show answers in lesson plan view
   
   if (!dataToDisplay || !dataToDisplay.questions || dataToDisplay.questions.length === 0) {
     return (
@@ -1076,10 +1072,113 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   const currentQuestion = questions[currentQuestionIndex];
   const questionNumber = currentQuestionIndex + 1;
 
-  // Render single question using exact same logic as QuizDisplay
-  const renderSingleQuestion = (question: any, index: number) => {
+  // Exact same renderMultipleChoice as QuizDisplay
+  const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
+    const isCorrect = userAnswers[index] === question.correct_option_id;
+    const showResult = showAnswers;
+
     return (
-      <div className="p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="mt-4">
+        <div className="space-y-2">
+          {question.options.map((option, optIndex) => (
+            <div key={option.id} className="flex items-start">
+              <div className="flex items-center h-5">
+                <div 
+                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                    option.id === question.correct_option_id ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'
+                  }`}
+                >
+                  {option.id === question.correct_option_id && (
+                    <div className="w-2 h-2 bg-white rounded-full" />
+                  )}
+                </div>
+              </div>
+              <div className="ml-3 flex-1">
+                <div className="flex items-center">
+                  <span className="font-medium mr-2 text-black">
+                    {String.fromCharCode(65 + optIndex)}.
+                  </span>
+                  <span className="text-black">{option.text}</span>
+                  {showResult && option.id === question.correct_option_id && (
+                    <CheckCircle className="ml-2 w-5 h-5 text-green-600" />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {showResult && (
+          <div className={`mt-4 p-3 rounded-md ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <div className="flex">
+              {isCorrect ? (
+                <CheckCircle className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
+              )}
+              <div className="text-sm">
+                <div className={`font-medium ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
+                  {isCorrect ? 'Correct!' : 'Incorrect'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Exact same renderMultiSelect as QuizDisplay  
+  const renderMultiSelect = (question: MultiSelectQuestion, index: number) => {
+    const userAnswer = userAnswers[index] || [];
+
+    let correctIds: string[] = [];
+    if (Array.isArray(question.correct_option_ids)) {
+      correctIds = question.correct_option_ids;
+    } else if (typeof question.correct_option_ids === 'string') {
+      correctIds = question.correct_option_ids.split(',').filter(id => id.trim() !== '');
+    }
+
+    const isCorrect = correctIds.every((id: string) => userAnswer.includes(id)) &&
+                     userAnswer.every((id: string) => correctIds.includes(id));
+    const showResult = showAnswers;
+
+    return (
+      <div className="mt-4">
+        <div className="space-y-2">
+          {question.options.map((option) => (
+            <div key={option.id} className="flex items-start">
+              <div className="flex items-center h-5">
+                <div 
+                  className={`w-4 h-4 rounded border flex items-center justify-center ${
+                    correctIds.includes(option.id) ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'
+                  }`}
+                >
+                  {correctIds.includes(option.id) && (
+                    <div className="w-2 h-2 bg-white" />
+                  )}
+                </div>
+              </div>
+              <div className="ml-3 flex-1">
+                <div className="flex items-center">
+                  <span className="text-black">{option.text}</span>
+                  {showResult && correctIds.includes(option.id) && (
+                    <CheckCircle className="ml-2 w-5 h-5 text-green-600" />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Exact same renderQuestion as QuizDisplay
+  const renderQuestion = (question: AnyQuizQuestion, index: number) => {
+    const questionType = question.question_type;
+
+    return (
+      <div className="mb-8 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="flex items-start mb-4">
           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2563eb] text-white font-semibold mr-3">
             {questionNumber}
@@ -1088,30 +1187,8 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
             <h3 className="text-lg font-semibold text-black">{question.question_text}</h3>
           </div>
         </div>
-        
-        {/* Render options based on question type */}
-        {question.question_type === 'multiple-choice' && (
-          <div className="space-y-3">
-            {question.options.map((option: any, optIndex: number) => (
-              <div 
-                key={option.id}
-                className={`p-3 rounded-lg border ${
-                  option.id === question.correct_option_id
-                    ? 'bg-green-100 border-green-300 text-green-800' 
-                    : 'bg-white border-gray-200 text-gray-700'
-                }`}
-              >
-                <span className="font-medium mr-2">
-                  {String.fromCharCode(65 + optIndex)}.
-                </span>
-                {option.text}
-                {option.id === question.correct_option_id && (
-                  <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
+        {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
       </div>
     );
   };
@@ -1119,7 +1196,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   return (
     <div className="relative">
       {/* Single Question Display */}
-      {renderSingleQuestion(currentQuestion, currentQuestionIndex)}
+      {renderQuestion(currentQuestion, currentQuestionIndex)}
       
       {/* Carousel Navigation */}
       <div className="flex items-center justify-center gap-4 mt-6">
