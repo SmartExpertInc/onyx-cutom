@@ -1,8 +1,9 @@
 ﻿"use client";
 
-import React from 'react';
-import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info, ChevronLeft } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
+import TextPresentationDisplay from './TextPresentationDisplay';
 
 interface LessonPlanViewProps {
   lessonPlanData: LessonPlanData;
@@ -186,277 +187,408 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           </div>
         </div>
 
-        {/* Content Draft */}
-        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Content Draft</h2>
-          </div>
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 md:p-6 border border-blue-100">
-            <div className="space-y-6">
-              {lessonPlanData.contentDevelopmentSpecifications.map((block, index) => (
-                <div key={index}>
-                  {block.type === 'text' ? (
-                    // Text Block
-                    <div className="p-2 md:p-3">
-                      <h3 className="font-bold text-blue-800 mb-3 text-base md:text-lg">
-                        {block.block_title}
-                      </h3>
-                      <div className="text-gray-700 leading-relaxed">
-                        {(() => {
-                          // Pre-process the content to ensure inline list markers (e.g. " - " or " 1. ")
-                          // are moved onto new lines so they can be detected and rendered as lists.
-                          const processedContent = block.block_content
-                            // Insert a newline before any hyphen that denotes a bullet list item
-                            .replace(/(?:^|\s)-\s+/g, '\n- ')
-                            // Insert a newline before numbers followed by a dot that denote numbered list items
-                            .replace(/(?:^|\s)(\d+)\.\s+/g, '\n$1. ');
+        {/* Product-Specific Content Blocks */}
+        {(() => {
+          // Extract unique product types from contentDevelopmentSpecifications
+          const productTypes = lessonPlanData.contentDevelopmentSpecifications
+            .filter(block => block.type === 'product')
+            .map(block => block.product_name)
+            .filter((name, index, array) => array.indexOf(name) === index); // Remove duplicates
 
-                          const lines = processedContent.split('\n').filter(line => line.trim() !== '');
-                          const hasBulletList = lines.some(line => line.trim().startsWith('- '));
-                          const hasNumberedList = lines.some(line => /^\d+\./.test(line.trim()));
-                          
-                          if (hasBulletList) {
-                            // Extract bullet list items and non-list content
-                            const bulletItems = lines
-                              .filter(line => line.trim().startsWith('- '))
-                              .map(line => line.trim().substring(2));
-                            const nonListContent = lines
-                              .filter(line => !line.trim().startsWith('- '))
-                              .join('\n');
-                            
-                            return (
-                              <>
-                                {nonListContent.trim() && (
-                                  <div className="mb-4">
-                                    {nonListContent.split('\n').map((paragraph, pIndex) => (
-                                      paragraph.trim() && (
-                                        <p key={pIndex} className="mb-3 last:mb-0">
-                                          {paragraph}
-                                        </p>
-                                      )
-                                    ))}
-                                  </div>
-                                )}
-                                <ul className="list-disc list-inside space-y-2 ml-4">
-                                  {bulletItems.map((item, itemIndex) => (
-                                    <li key={itemIndex} className="text-gray-700">{item}</li>
-                                  ))}
-                                </ul>
-                              </>
-                            );
-                          } else if (hasNumberedList) {
-                            // Extract numbered list items and non-list content
-                            const numberedItems = lines
-                              .filter(line => /^\d+\./.test(line.trim()))
-                              .map(line => line.replace(/^\d+\.\s*/, ''));
-                            const nonListContent = lines
-                              .filter(line => !/^\d+\./.test(line.trim()))
-                              .join('\n');
-                            
-                            return (
-                              <>
-                                {nonListContent.trim() && (
-                                  <div className="mb-4">
-                                    {nonListContent.split('\n').map((paragraph, pIndex) => (
-                                      paragraph.trim() && (
-                                        <p key={pIndex} className="mb-3 last:mb-0">
-                                          {paragraph}
-                                        </p>
-                                      )
-                                    ))}
-                                  </div>
-                                )}
-                                <ol className="list-decimal list-inside space-y-2 ml-4">
-                                  {numberedItems.map((item, itemIndex) => (
-                                    <li key={itemIndex} className="text-gray-700">{item}</li>
-                                  ))}
-                                </ol>
-                              </>
-                            );
-                          } else {
-                            // Plain text only
-                            return (
-                              <>
-                                {lines.map((paragraph, pIndex) => (
-                                  <p key={pIndex} className="mb-3 last:mb-0">
-                                    {paragraph}
-                                  </p>
-                                ))}
-                              </>
-                            );
-                          }
-                        })()}
-                      </div>
-                    </div>
-                  ) : (
-                    // Product Block
-                    <div className="bg-white rounded-lg p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-                      <h3 className="font-bold text-blue-800 mb-4 capitalize flex items-center text-lg">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
-                        {block.product_name.replace(/-/g, ' ')}
-                      </h3>
-                      <p className="text-gray-700 leading-relaxed mb-4">{block.product_description}</p>
-                      <div className="flex justify-end">
-                        <button
-                          onClick={() => handleSeePrompt(block.product_name)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          See Prompt
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          // Define product order: video-lesson first, then presentation, then quiz, then one-pager
+          const productOrder = ['video-lesson', 'presentation', 'quiz', 'one-pager'];
+          const sortedProducts = productTypes.sort((a, b) => {
+            const aIndex = productOrder.indexOf(a);
+            const bIndex = productOrder.indexOf(b);
+            return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+          });
+
+          // Mock data for existing content - in real implementation, this would come from props or API calls
+          const mockOnePagerData = {
+            textTitle: lessonPlanData.lessonTitle,
+            contentBlocks: [
+              {
+                type: 'headline',
+                level: 2,
+                text: 'Key Concepts',
+                isImportant: true
+              },
+              {
+                type: 'paragraph',
+                text: 'This lesson introduces fundamental concepts that form the foundation of understanding in this subject area.'
+              },
+              {
+                type: 'headline',
+                level: 3,
+                text: 'Learning Objectives',
+                isImportant: true
+              },
+              {
+                type: 'bullet_list',
+                items: lessonPlanData.lessonObjectives
+              }
+            ]
+          };
+
+          const mockPresentationSlides = [
+            { title: lessonPlanData.lessonTitle, content: lessonPlanData.shortDescription },
+            { title: 'Learning Objectives', content: lessonPlanData.lessonObjectives.join('\n• ') },
+            { title: 'Key Concepts', content: 'Overview of main concepts covered in this lesson' },
+            { title: 'Summary', content: 'Recap of important points and next steps' }
+          ];
+
+          const mockQuizQuestions = [
+            {
+              question: 'What is the main objective of this lesson?',
+              options: ['Option A', 'Option B', 'Option C', 'Option D'],
+              correct: 0
+            },
+            {
+              question: 'Which concept is most important to understand?',
+              options: ['Concept 1', 'Concept 2', 'Concept 3', 'Concept 4'],
+              correct: 1
+            }
+          ];
+
+          const getPromptForProduct = (productName: string) => {
+            return lessonPlanData.suggestedPrompts.find(prompt => {
+              const lowerPrompt = prompt.toLowerCase();
+              if (productName === 'video-lesson') return lowerPrompt.includes('video');
+              if (productName === 'presentation') return lowerPrompt.includes('presentation');
+              if (productName === 'quiz') return lowerPrompt.includes('quiz');
+              if (productName === 'one-pager') return lowerPrompt.includes('one-pager') || lowerPrompt.includes('onepager');
+              return false;
+            }) || `Create a ${productName.replace('-', ' ')} for this lesson.`;
+          };
+
+          return sortedProducts.map((productName, index) => {
+            const formattedName = productName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            const prompt = getPromptForProduct(productName);
+
+            if (productName === 'video-lesson') {
+              return (
+                <VideoLessonBlock 
+                  key={productName}
+                  title={`${formattedName} Draft`}
+                  onePagerData={mockOnePagerData}
+                  prompt={prompt}
+                />
+              );
+            }
+
+            if (productName === 'presentation') {
+              return (
+                <PresentationBlock 
+                  key={productName}
+                  title={`${formattedName} Draft`}
+                  slides={mockPresentationSlides}
+                  prompt={prompt}
+                />
+              );
+            }
+
+            if (productName === 'quiz') {
+              return (
+                <QuizBlock 
+                  key={productName}
+                  title={`${formattedName} Draft`}
+                  questions={mockQuizQuestions}
+                  prompt={prompt}
+                />
+              );
+            }
+
+            if (productName === 'one-pager') {
+              return (
+                <OnePagerBlock 
+                  key={productName}
+                  title={`${formattedName} Draft`}
+                  onePagerData={mockOnePagerData}
+                  prompt={prompt}
+                />
+              );
+            }
+
+            return null;
+          }).filter(Boolean);
+        })()}
+      </div>
+    </div>
+  );
+};
+
+// Product-Specific Block Components
+const VideoLessonBlock: React.FC<{
+  title: string;
+  onePagerData: any;
+  prompt: string;
+}> = ({ title, onePagerData, prompt }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+      <div className="flex items-center mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+          <Play className="w-6 h-6 text-white" />
         </div>
-
-        {/* Resources */}
-        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <Wrench className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Resources</h2>
-          </div>
-          {/* Source Materials Section */}
-          <div className="mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
-              <ul className="space-y-3">
-                {(() => {
-                  // Find the separator index
-                  const separatorIndex = lessonPlanData.materials.findIndex(m => m.includes('Additional Resources'));
-                  const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
-                  
-                  // Filter out empty strings
-                  const filteredSourceMaterials = sourceMaterials.filter(m => m.trim() !== '');
-                  
-                  return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
-                    <li key={index} className="flex items-start group">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                      <span className="text-gray-800 leading-relaxed font-semibold text-lg">{material}</span>
-                    </li>
-                  )) : (
-                    <li className="flex items-start group">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
-                      <span className="text-gray-800 leading-relaxed font-semibold text-lg">General Knowledge</span>
-                    </li>
-                  );
-                })()}
-              </ul>
-            </div>
-          </div>
-          
-          {/* Additional Resources Section */}
-          {lessonPlanData.materials.some(m => m.includes('Additional Resources')) && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Additional Resources Needed:</h3>
-              <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 border border-cyan-100">
-                <ul className="space-y-3">
-                  {lessonPlanData.materials
-                    .slice(lessonPlanData.materials.findIndex(m => m.includes('Additional Resources')) + 1)
-                    .filter(m => m.trim() !== '') // Filter out empty strings
-                    .map((material, index) => (
-                      <li key={index} className="flex items-start group">
-                        <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                        <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            </div>
-          )}
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+      </div>
+      
+      {/* One-Pager Content */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Content Script (One-Pager)</h3>
+        <div style={{ 
+          '--bg-color': '#EFF6FF',
+          backgroundColor: 'var(--bg-color)'
+        } as React.CSSProperties}>
+          <TextPresentationDisplay 
+            dataToDisplay={onePagerData}
+            isEditing={false}
+          />
         </div>
+      </div>
 
-        {/* Content Creation Prompts */}
-        <div id="prompts-section" className="bg-white rounded-xl shadow-lg border border-blue-200 p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-700 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <Lightbulb className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Content Creation Prompts</h2>
-          </div>
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
-            <div className="space-y-6">
-              {lessonPlanData.suggestedPrompts.map((prompt, index) => {
-                const lines = prompt.split('\n');
-                const firstLine = lines[0];
-                const titleMatch = firstLine.match(/\*\*(.+?)\*\*/);
-
-                let title, content;
-                if (titleMatch) {
-                  // Title provided in bold markdown syntax
-                  title = titleMatch[1];
-                  content = lines.slice(1).join('\n').trim();
-                } else {
-                  // Remove any leading "XYZ Creation Prompt:" style prefix for cleaner content
-                  const prefixCleanRegex = /^(video|presentation|quiz|one[ -]?pager) creation prompt[:\-]?\s*/i;
-                  const cleanedFirstLine = firstLine.replace(prefixCleanRegex, '').trim();
-
-                  // Determine type primarily from FIRST LINE (explicit intention) then fallback to whole prompt
-                  const lowerFirst = firstLine.toLowerCase();
-                  if (lowerFirst.includes('presentation')) {
-                    title = 'Presentation Creation Prompt';
-                  } else if (lowerFirst.includes('video')) {
-                    title = 'Video Lesson Creation Prompt';
-                  } else if (lowerFirst.includes('quiz')) {
-                    title = 'Quiz Creation Prompt';
-                  } else if (lowerFirst.includes('one-pager') || lowerFirst.includes('onepager')) {
-                    title = 'One-Pager Creation Prompt';
-                  } else {
-                    // fallback based on overall content
-                    const lowerPrompt = prompt.toLowerCase();
-                    if (lowerPrompt.includes('video')) {
-                      title = 'Video Lesson Creation Prompt';
-                    } else if (lowerPrompt.includes('presentation')) {
-                      title = 'Presentation Creation Prompt';
-                    } else if (lowerPrompt.includes('quiz')) {
-                      title = 'Quiz Creation Prompt';
-                    } else if (lowerPrompt.includes('one-pager') || lowerPrompt.includes('onepager')) {
-                      title = 'One-Pager Creation Prompt';
-                    } else {
-                      title = `Content Creation Prompt ${index + 1}`;
-                    }
-                  }
-
-                  // Content should exclude any prefixing label line if it's generic
-                  const remainingLines = [cleanedFirstLine, ...lines.slice(1)].join('\n').trim();
-                  content = remainingLines;
-                }
-                
-                // Ensure content is not empty
-                if (!content || content.trim() === '') {
-                  content = prompt; // Fallback to original prompt
-                }
-                
-                // Extract product name from title for ID
-                const productName = title.toLowerCase().includes('video') ? 'video-lesson' :
-                                  title.toLowerCase().includes('presentation') ? 'presentation' :
-                                  title.toLowerCase().includes('quiz') ? 'quiz' :
-                                  title.toLowerCase().includes('one-pager') ? 'one-pager' :
-                                  `product-${index}`;
-                
-                return (
-                  <div key={index} id={`prompt-${productName}`} className="bg-white rounded-lg p-4 md:p-6 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
-                    <div className="mb-3">
-                      <h3 className="font-bold text-blue-800 text-base md:text-lg uppercase tracking-wide">{title}</h3>
-                    </div>
-                    <div className="text-gray-800 leading-relaxed font-medium text-lg whitespace-pre-wrap">
-                      {content}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {/* Video Creation Prompt */}
+      <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-4 md:p-6 border border-red-100">
+        <div className="flex items-center mb-3">
+          <Play className="w-5 h-5 text-red-600 mr-2" />
+          <h4 className="font-bold text-red-800 text-base md:text-lg uppercase tracking-wide">
+            Video Creation Prompt
+          </h4>
+        </div>
+        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
+          {prompt}
         </div>
       </div>
     </div>
   );
 };
+
+const PresentationBlock: React.FC<{
+  title: string;
+  slides: Array<{ title: string; content: string }>;
+  prompt: string;
+}> = ({ title, slides, prompt }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+      <div className="flex items-center mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+          <Presentation className="w-6 h-6 text-white" />
+        </div>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+      </div>
+      
+      {/* Slide Carousel */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Presentation Slides</h3>
+        <div className="relative">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[300px]">
+            <div className="text-center h-full flex flex-col justify-center">
+              <h4 className="text-2xl font-bold text-blue-900 mb-4">
+                {slides[currentSlide]?.title}
+              </h4>
+              <p className="text-lg text-gray-700 leading-relaxed whitespace-pre-line">
+                {slides[currentSlide]?.content}
+              </p>
+            </div>
+          </div>
+          
+          {/* Navigation Controls */}
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={prevSlide}
+              disabled={slides.length <= 1}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <span className="text-sm text-gray-600">
+              Slide {currentSlide + 1} of {slides.length}
+            </span>
+            
+            <button
+              onClick={nextSlide}
+              disabled={slides.length <= 1}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Presentation Creation Prompt */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-100">
+        <div className="flex items-center mb-3">
+          <Presentation className="w-5 h-5 text-blue-600 mr-2" />
+          <h4 className="font-bold text-blue-800 text-base md:text-lg uppercase tracking-wide">
+            Presentation Creation Prompt
+          </h4>
+        </div>
+        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
+          {prompt}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const QuizBlock: React.FC<{
+  title: string;
+  questions: Array<{ question: string; options: string[]; correct: number }>;
+  prompt: string;
+}> = ({ title, questions, prompt }) => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+
+  const nextQuestion = () => {
+    setCurrentQuestion((prev) => (prev + 1) % questions.length);
+  };
+
+  const prevQuestion = () => {
+    setCurrentQuestion((prev) => (prev - 1 + questions.length) % questions.length);
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+      <div className="flex items-center mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+          <FileQuestion className="w-6 h-6 text-white" />
+        </div>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+      </div>
+      
+      {/* Question Carousel */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Quiz Questions</h3>
+        <div className="relative">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+            <div className="mb-4">
+              <h4 className="text-lg font-semibold text-green-900 mb-4">
+                Question {currentQuestion + 1}
+              </h4>
+              <p className="text-gray-800 leading-relaxed mb-6">
+                {questions[currentQuestion]?.question}
+              </p>
+              <div className="space-y-3">
+                {questions[currentQuestion]?.options.map((option, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-3 rounded-lg border ${
+                      index === questions[currentQuestion]?.correct 
+                        ? 'bg-green-100 border-green-300 text-green-800' 
+                        : 'bg-white border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    <span className="font-medium mr-2">
+                      {String.fromCharCode(65 + index)}.
+                    </span>
+                    {option}
+                    {index === questions[currentQuestion]?.correct && (
+                      <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Navigation Controls */}
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={prevQuestion}
+              disabled={questions.length <= 1}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <span className="text-sm text-gray-600">
+              Question {currentQuestion + 1} of {questions.length}
+            </span>
+            
+            <button
+              onClick={nextQuestion}
+              disabled={questions.length <= 1}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Quiz Creation Prompt */}
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 md:p-6 border border-green-100">
+        <div className="flex items-center mb-3">
+          <FileQuestion className="w-5 h-5 text-green-600 mr-2" />
+          <h4 className="font-bold text-green-800 text-base md:text-lg uppercase tracking-wide">
+            Quiz Creation Prompt
+          </h4>
+        </div>
+        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
+          {prompt}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const OnePagerBlock: React.FC<{
+  title: string;
+  onePagerData: any;
+  prompt: string;
+}> = ({ title, onePagerData, prompt }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+      <div className="flex items-center mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+          <ScrollText className="w-6 h-6 text-white" />
+        </div>
+        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+      </div>
+      
+      {/* One-Pager Content */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">One-Pager Content</h3>
+        <div style={{ 
+          '--bg-color': '#EFF6FF',
+          backgroundColor: 'var(--bg-color)'
+        } as React.CSSProperties}>
+                     <TextPresentationDisplay 
+             dataToDisplay={onePagerData}
+             isEditing={false}
+           />
+        </div>
+      </div>
+
+      {/* One-Pager Creation Prompt */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 md:p-6 border border-orange-100">
+        <div className="flex items-center mb-3">
+          <ScrollText className="w-5 h-5 text-orange-600 mr-2" />
+          <h4 className="font-bold text-orange-800 text-base md:text-lg uppercase tracking-wide">
+            One-Pager Creation Prompt
+          </h4>
+        </div>
+        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
+          {prompt}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LessonPlanView;
  
