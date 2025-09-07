@@ -114,84 +114,71 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
       const newProductData: {[key: string]: any} = {};
 
-      // Find products by component type - search for each type specifically
-      const presentationProduct = allUserMicroproducts.find(mp => {
-        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-        const isPresentation = (mp as any).design_microproduct_type === 'Presentation' || 
-                              (mp as any).component_name === 'presentation' ||
-                              (mp as any).component_name === 'slide_deck';
-        
-        console.log(`🎯 [LESSON_PLAN] Checking presentation match:`, {
-          id: mp.id,
-          projectName: mp.projectName,
-          microProductName: mp.microProductName,
-          design_microproduct_type: (mp as any).design_microproduct_type,
-          component_name: (mp as any).component_name,
-          hasMatch: !!match,
-          isPresentation,
-          bothTrue: !!match && isPresentation
-        });
+      // Use EXACT same logic as TrainingPlan - find products by lesson title using the working function
+      console.log(`🔍 [LESSON_PLAN] Using EXACT matching logic from TrainingPlan...`);
 
-        return match && isPresentation;
+      // Find presentation (exclude Quiz, Text Presentation, Video Lesson to get only Presentation)
+      const presentationProduct = findMicroproductByTitle(
+        lessonTitle, 
+        parentProjectName, 
+        allUserMicroproducts, 
+        ["Quiz", "Text Presentation", "Video Lesson"]
+      );
+      
+      console.log(`🎯 [LESSON_PLAN] Presentation search result:`, {
+        found: !!presentationProduct,
+        id: presentationProduct?.id,
+        projectName: presentationProduct?.projectName,
+        microProductName: presentationProduct?.microProductName,
+        designMicroproductType: (presentationProduct as any)?.design_microproduct_type
       });
 
-      const quizProduct = allUserMicroproducts.find(mp => {
-        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-        const isQuiz = (mp as any).design_microproduct_type === 'Quiz' || 
-                      (mp as any).component_name === 'quiz';
-        
-        console.log(`❓ [LESSON_PLAN] Checking quiz match:`, {
-          id: mp.id,
-          projectName: mp.projectName,
-          microProductName: mp.microProductName,
-          design_microproduct_type: (mp as any).design_microproduct_type,
-          component_name: (mp as any).component_name,
-          hasMatch: !!match,
-          isQuiz,
-          bothTrue: !!match && isQuiz
-        });
-
-        return match && isQuiz;
+      // Find quiz (exclude other types to get only Quiz)
+      const quizProduct = findMicroproductByTitle(
+        lessonTitle, 
+        parentProjectName, 
+        allUserMicroproducts, 
+        ["Presentation", "Text Presentation", "Video Lesson"]
+      );
+      
+      console.log(`❓ [LESSON_PLAN] Quiz search result:`, {
+        found: !!quizProduct,
+        id: quizProduct?.id,
+        projectName: quizProduct?.projectName,
+        microProductName: quizProduct?.microProductName,
+        designMicroproductType: (quizProduct as any)?.design_microproduct_type
       });
 
-      const onePagerProduct = allUserMicroproducts.find(mp => {
-        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-        const isOnePager = (mp as any).design_microproduct_type === 'Text Presentation' || 
-                          (mp as any).design_microproduct_type === 'One-Pager' ||
-                          (mp as any).component_name === 'text_presentation' ||
-                          (mp as any).component_name === 'one_pager';
-        
-        console.log(`📄 [LESSON_PLAN] Checking one-pager match:`, {
-          id: mp.id,
-          projectName: mp.projectName,
-          microProductName: mp.microProductName,
-          design_microproduct_type: (mp as any).design_microproduct_type,
-          component_name: (mp as any).component_name,
-          hasMatch: !!match,
-          isOnePager,
-          bothTrue: !!match && isOnePager
-        });
-
-        return match && isOnePager;
+      // Find one-pager (exclude other types to get only Text Presentation)
+      const onePagerProduct = findMicroproductByTitle(
+        lessonTitle, 
+        parentProjectName, 
+        allUserMicroproducts, 
+        ["Presentation", "Quiz", "Video Lesson"]
+      );
+      
+      console.log(`📄 [LESSON_PLAN] One-pager search result:`, {
+        found: !!onePagerProduct,
+        id: onePagerProduct?.id,
+        projectName: onePagerProduct?.projectName,
+        microProductName: onePagerProduct?.microProductName,
+        designMicroproductType: (onePagerProduct as any)?.design_microproduct_type
       });
 
-      const videoLessonProduct = allUserMicroproducts.find(mp => {
-        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-        const isVideoLesson = (mp as any).design_microproduct_type === 'Video Lesson' || 
-                             (mp as any).component_name === 'video_lesson';
-        
-        console.log(`🎥 [LESSON_PLAN] Checking video lesson match:`, {
-          id: mp.id,
-          projectName: mp.projectName,
-          microProductName: mp.microProductName,
-          design_microproduct_type: (mp as any).design_microproduct_type,
-          component_name: (mp as any).component_name,
-          hasMatch: !!match,
-          isVideoLesson,
-          bothTrue: !!match && isVideoLesson
-        });
-
-        return match && isVideoLesson;
+      // Find video lesson (exclude other types to get only Video Lesson)
+      const videoLessonProduct = findMicroproductByTitle(
+        lessonTitle, 
+        parentProjectName, 
+        allUserMicroproducts, 
+        ["Presentation", "Quiz", "Text Presentation"]
+      );
+      
+      console.log(`🎥 [LESSON_PLAN] Video lesson search result:`, {
+        found: !!videoLessonProduct,
+        id: videoLessonProduct?.id,
+        projectName: videoLessonProduct?.projectName,
+        microProductName: videoLessonProduct?.microProductName,
+        designMicroproductType: (videoLessonProduct as any)?.design_microproduct_type
       });
 
       console.log(`✅ [LESSON_PLAN] Found products:`, {
