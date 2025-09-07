@@ -1,26 +1,159 @@
 ﻿"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info, ChevronLeft } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
+import { ProjectListItem } from '@/types/products';
 import TextPresentationDisplay from './TextPresentationDisplay';
 import QuizDisplay from './QuizDisplay';
 import { SmartSlideDeckViewer } from './SmartSlideDeckViewer';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+
+const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
 
 interface LessonPlanViewProps {
   lessonPlanData: LessonPlanData;
   courseName?: string;
   moduleName?: string;
   lessonName?: string;
+  allUserMicroproducts?: ProjectListItem[];
+  parentProjectName?: string;
 }
+
+// Helper function to find microproduct by title (same as in TrainingPlanTable)
+const findMicroproductByTitle = (
+  titleToMatch: string | undefined | null,
+  parentProjectName: string | undefined,
+  allUserMicroproducts: ProjectListItem[] | undefined,
+  excludeComponentTypes: string[] = []
+): ProjectListItem | undefined => {
+  if (!allUserMicroproducts || !parentProjectName || !titleToMatch) {
+    return undefined;
+  }
+
+  const trimmedTitleToMatch = titleToMatch.trim();
+  const trimmedParentProjectName = parentProjectName.trim();
+
+  const found = allUserMicroproducts.find(
+    (mp) => {
+      const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
+      const mpProjectName = mp.projectName?.trim();
+      const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+
+      // Skip if this component type should be excluded
+      if (excludeComponentTypes.includes(mpDesignMicroproductType)) {
+        return false;
+      }
+
+      // Method 1: Legacy matching - project name matches outline and microProductName matches lesson
+      const legacyProjectMatch = mpProjectName === trimmedParentProjectName;
+      const legacyNameMatch = mpMicroName?.trim() === trimmedTitleToMatch;
+      
+      // Method 2: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+      const expectedNewProjectName = `${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const newPatternMatch = mpProjectName === expectedNewProjectName;
+      
+      // Method 3: Legacy patterns for backward compatibility
+      const legacyQuizPattern = `Quiz - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const legacyQuizPatternMatch = mpProjectName === legacyQuizPattern;
+      
+      const legacyTextPresentationPattern = `Text Presentation - ${trimmedParentProjectName}: ${trimmedTitleToMatch}`;
+      const legacyTextPresentationPatternMatch = mpProjectName === legacyTextPresentationPattern;
+      
+      const isMatch = (legacyProjectMatch && legacyNameMatch) || newPatternMatch || legacyQuizPatternMatch || legacyTextPresentationPatternMatch;
+      
+      return isMatch;
+    }
+  );
+
+  return found;
+};
 
 export const LessonPlanView: React.FC<LessonPlanViewProps> = ({ 
   lessonPlanData, 
   courseName = "New Employee Onboarding", 
   moduleName = "Introduction to the Company", 
-  lessonName 
+  lessonName,
+  allUserMicroproducts,
+  parentProjectName
 }) => {
+  const [productData, setProductData] = useState<{[key: string]: any}>({});
+  const [loading, setLoading] = useState(false);
+
+  // Fetch real product data for this lesson
+  useEffect(() => {
+    if (!allUserMicroproducts || !parentProjectName) return;
+
+    const fetchProductData = async () => {
+      setLoading(true);
+      const lessonTitle = lessonName || lessonPlanData.lessonTitle;
+      const newProductData: {[key: string]: any} = {};
+
+      // Find products for this lesson
+      const presentationProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
+      const quizProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
+      const onePagerProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
+      const videoLessonProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
+
+      // Filter by component types
+      const presentation = presentationProduct && (presentationProduct as any).design_microproduct_type === 'Presentation' ? presentationProduct : 
+                          allUserMicroproducts.find(mp => {
+                            const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+                            return matches && (mp as any).design_microproduct_type === 'Presentation';
+                          });
+      
+      const quiz = quizProduct && (quizProduct as any).design_microproduct_type === 'Quiz' ? quizProduct :
+                   allUserMicroproducts.find(mp => {
+                     const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+                     return matches && (mp as any).design_microproduct_type === 'Quiz';
+                   });
+      
+      const onePager = onePagerProduct && (onePagerProduct as any).design_microproduct_type === 'Text Presentation' ? onePagerProduct :
+                       allUserMicroproducts.find(mp => {
+                         const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+                         return matches && (mp as any).design_microproduct_type === 'Text Presentation';
+                       });
+      
+      const videoLesson = videoLessonProduct && (videoLessonProduct as any).design_microproduct_type === 'Video Lesson' ? videoLessonProduct :
+                          allUserMicroproducts.find(mp => {
+                            const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+                            return matches && (mp as any).design_microproduct_type === 'Video Lesson';
+                          });
+
+      // Fetch data for found products
+      const fetchProduct = async (product: ProjectListItem | undefined, productType: string) => {
+        if (!product) return null;
+        try {
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${product.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            return data.details;
+          }
+        } catch (error) {
+          console.error(`Error fetching ${productType} data:`, error);
+        }
+        return null;
+      };
+
+      const [presentationData, quizData, onePagerData, videoLessonData] = await Promise.all([
+        fetchProduct(presentation, 'presentation'),
+        fetchProduct(quiz, 'quiz'),
+        fetchProduct(onePager, 'one-pager'),
+        fetchProduct(videoLesson, 'video-lesson')
+      ]);
+
+      newProductData.presentation = presentationData;
+      newProductData.quiz = quizData;
+      newProductData.onePager = onePagerData;
+      newProductData.videoLesson = videoLessonData;
+
+      setProductData(newProductData);
+      setLoading(false);
+    };
+
+    fetchProductData();
+  }, [lessonPlanData.lessonTitle, lessonName, allUserMicroproducts, parentProjectName]);
+
   const handleSeePrompt = (productName: string) => {
     // Scroll to the prompts section
     const promptsSection = document.getElementById('prompts-section');
@@ -206,53 +339,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
           });
 
-          // Mock data for existing content - in real implementation, this would come from props or API calls
-          const mockOnePagerData = {
-            textTitle: lessonPlanData.lessonTitle,
-            contentBlocks: [
-              {
-                type: 'headline',
-                level: 2,
-                text: 'Key Concepts',
-                isImportant: true
-              },
-              {
-                type: 'paragraph',
-                text: 'This lesson introduces fundamental concepts that form the foundation of understanding in this subject area.'
-              },
-              {
-                type: 'headline',
-                level: 3,
-                text: 'Learning Objectives',
-                isImportant: true
-              },
-              {
-                type: 'bullet_list',
-                items: lessonPlanData.lessonObjectives
-              }
-            ]
-          };
-
-          const mockPresentationSlides = [
-            { title: lessonPlanData.lessonTitle, content: lessonPlanData.shortDescription },
-            { title: 'Learning Objectives', content: lessonPlanData.lessonObjectives.join('\n• ') },
-            { title: 'Key Concepts', content: 'Overview of main concepts covered in this lesson' },
-            { title: 'Summary', content: 'Recap of important points and next steps' }
-          ];
-
-          const mockQuizQuestions = [
-            {
-              question: 'What is the main objective of this lesson?',
-              options: ['Option A', 'Option B', 'Option C', 'Option D'],
-              correct: 0
-            },
-            {
-              question: 'Which concept is most important to understand?',
-              options: ['Concept 1', 'Concept 2', 'Concept 3', 'Concept 4'],
-              correct: 1
-            }
-          ];
-
           const getPromptForProduct = (productName: string) => {
             return lessonPlanData.suggestedPrompts.find(prompt => {
               const lowerPrompt = prompt.toLowerCase();
@@ -273,8 +359,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 <VideoLessonBlock 
                   key={productName}
                   title={`${formattedName} Draft`}
-                  onePagerData={mockOnePagerData}
+                  data={productData.videoLesson || productData.onePager}
                   prompt={prompt}
+                  loading={loading}
                 />
               );
             }
@@ -284,8 +371,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 <PresentationBlock 
                   key={productName}
                   title={`${formattedName} Draft`}
-                  slides={mockPresentationSlides}
+                  data={productData.presentation}
                   prompt={prompt}
+                  loading={loading}
                 />
               );
             }
@@ -295,8 +383,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 <QuizBlock 
                   key={productName}
                   title={`${formattedName} Draft`}
-                  questions={mockQuizQuestions}
+                  data={productData.quiz}
                   prompt={prompt}
+                  loading={loading}
                 />
               );
             }
@@ -306,8 +395,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 <OnePagerBlock 
                   key={productName}
                   title={`${formattedName} Draft`}
-                  onePagerData={mockOnePagerData}
+                  data={productData.onePager}
                   prompt={prompt}
+                  loading={loading}
                 />
               );
             }
@@ -323,9 +413,10 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 // Product-Specific Block Components
 const VideoLessonBlock: React.FC<{
   title: string;
-  onePagerData: any;
+  data: any;
   prompt: string;
-}> = ({ title, onePagerData, prompt }) => {
+  loading: boolean;
+}> = ({ title, data, prompt, loading }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
       <div className="flex items-center mb-6">
@@ -338,15 +429,25 @@ const VideoLessonBlock: React.FC<{
       {/* One-Pager Content */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Content Script (One-Pager)</h3>
-        <div style={{ 
-          '--bg-color': '#EFF6FF',
-          backgroundColor: 'var(--bg-color)'
-        } as React.CSSProperties}>
-          <TextPresentationDisplay 
-            dataToDisplay={onePagerData}
-            isEditing={false}
-          />
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">Loading content...</div>
+          </div>
+        ) : data ? (
+          <div style={{ 
+            '--bg-color': '#EFF6FF',
+            backgroundColor: 'var(--bg-color)'
+          } as React.CSSProperties}>
+            <TextPresentationDisplay 
+              dataToDisplay={data}
+              isEditing={false}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">No content available yet</div>
+          </div>
+        )}
       </div>
 
       {/* Video Creation Prompt */}
@@ -367,23 +468,10 @@ const VideoLessonBlock: React.FC<{
 
 const PresentationBlock: React.FC<{
   title: string;
-  slides: Array<{ title: string; content: string }>;
+  data: any;
   prompt: string;
-}> = ({ title, slides, prompt }) => {
-  // Convert simple slides to ComponentBasedSlideDeck format for SmartSlideDeckViewer
-  const componentBasedSlideDeck: ComponentBasedSlideDeck = {
-    lessonTitle: title,
-    theme: 'default',
-    slides: slides.map((slide, index) => ({
-      slideId: `slide-${index}`,
-      slideNumber: index + 1,
-      templateId: 'text-focus',
-      props: {
-        title: slide.title,
-        content: slide.content
-      }
-    }))
-  };
+  loading: boolean;
+}> = ({ title, data, prompt, loading }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
@@ -397,19 +485,29 @@ const PresentationBlock: React.FC<{
       {/* Slide Display using SmartSlideDeckViewer */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Presentation Slides</h3>
-        <div style={{
-          width: '100%',
-          minHeight: '600px',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px'
-        }}>
-          <SmartSlideDeckViewer
-            deck={componentBasedSlideDeck}
-            isEditable={false}
-            showFormatInfo={false}
-            enableAutomaticImageGeneration={false}
-          />
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">Loading slides...</div>
+          </div>
+        ) : data ? (
+          <div style={{
+            width: '100%',
+            minHeight: '600px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px'
+          }}>
+            <SmartSlideDeckViewer
+              deck={data}
+              isEditable={false}
+              showFormatInfo={false}
+              enableAutomaticImageGeneration={false}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">No slides available yet</div>
+          </div>
+        )}
       </div>
 
       {/* Presentation Creation Prompt */}
@@ -430,22 +528,10 @@ const PresentationBlock: React.FC<{
 
 const QuizBlock: React.FC<{
   title: string;
-  questions: Array<{ question: string; options: string[]; correct: number }>;
+  data: any;
   prompt: string;
-}> = ({ title, questions, prompt }) => {
-  // Convert simple questions to QuizData format
-  const quizData = {
-    quizTitle: title,
-    questions: questions.map((q, index) => ({
-      question_type: 'multiple-choice' as const,
-      question_text: q.question,
-      options: q.options.map((option, optIndex) => ({
-        id: `opt-${index}-${optIndex}`,
-        text: option
-      })),
-      correct_option_id: `opt-${index}-${q.correct}`
-    }))
-  };
+  loading: boolean;
+}> = ({ title, data, prompt, loading }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
@@ -459,11 +545,21 @@ const QuizBlock: React.FC<{
       {/* Quiz Display using QuizDisplay component */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Quiz Questions</h3>
-        <QuizDisplay
-          dataToDisplay={quizData}
-          isEditing={false}
-          onTextChange={() => {}} // No editing in lesson plan view
-        />
+        {loading ? (
+          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">Loading questions...</div>
+          </div>
+        ) : data ? (
+          <QuizDisplay
+            dataToDisplay={data}
+            isEditing={false}
+            onTextChange={() => {}} // No editing in lesson plan view
+          />
+        ) : (
+          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">No questions available yet</div>
+          </div>
+        )}
       </div>
 
       {/* Quiz Creation Prompt */}
@@ -484,9 +580,10 @@ const QuizBlock: React.FC<{
 
 const OnePagerBlock: React.FC<{
   title: string;
-  onePagerData: any;
+  data: any;
   prompt: string;
-}> = ({ title, onePagerData, prompt }) => {
+  loading: boolean;
+}> = ({ title, data, prompt, loading }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
       <div className="flex items-center mb-6">
@@ -499,15 +596,25 @@ const OnePagerBlock: React.FC<{
       {/* One-Pager Content */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">One-Pager Content</h3>
-        <div style={{ 
-          '--bg-color': '#EFF6FF',
-          backgroundColor: 'var(--bg-color)'
-        } as React.CSSProperties}>
-                     <TextPresentationDisplay 
-             dataToDisplay={onePagerData}
-             isEditing={false}
-           />
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">Loading content...</div>
+          </div>
+        ) : data ? (
+          <div style={{ 
+            '--bg-color': '#EFF6FF',
+            backgroundColor: 'var(--bg-color)'
+          } as React.CSSProperties}>
+            <TextPresentationDisplay 
+              dataToDisplay={data}
+              isEditing={false}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+            <div className="text-gray-500">No content available yet</div>
+          </div>
+        )}
       </div>
 
       {/* One-Pager Creation Prompt */}

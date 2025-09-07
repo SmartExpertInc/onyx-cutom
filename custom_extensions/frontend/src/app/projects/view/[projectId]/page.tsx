@@ -1713,7 +1713,11 @@ export default function ProjectInstanceViewPage() {
           );
         }
         return (
-          <LessonPlanView lessonPlanData={lessonPlanData} />
+          <LessonPlanView 
+            lessonPlanData={lessonPlanData}
+            allUserMicroproducts={allUserMicroproducts}
+            parentProjectName={parentProjectNameForCurrentView}
+          />
         );
       default:
         return <DefaultDisplayComponent instanceData={projectInstanceData} t={t} />;
