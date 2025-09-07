@@ -82,65 +82,169 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
   // Fetch real product data for this lesson
   useEffect(() => {
-    if (!allUserMicroproducts || !parentProjectName) return;
+    if (!allUserMicroproducts || !parentProjectName) {
+      console.log(`🚫 [LESSON_PLAN] Missing required data:`, {
+        hasAllUserMicroproducts: !!allUserMicroproducts,
+        hasParentProjectName: !!parentProjectName,
+        allUserMicroproductsLength: allUserMicroproducts?.length || 0
+      });
+      return;
+    }
 
     const fetchProductData = async () => {
       setLoading(true);
       const lessonTitle = lessonName || lessonPlanData.lessonTitle;
+      
+      console.log(`🔍 [LESSON_PLAN] Starting product search:`, {
+        lessonTitle,
+        parentProjectName,
+        totalProducts: allUserMicroproducts.length
+      });
+
+      // Log all available products for debugging
+      console.log(`📋 [LESSON_PLAN] All available products:`, 
+        allUserMicroproducts.map(mp => ({
+          id: mp.id,
+          projectName: mp.projectName,
+          microProductName: mp.microProductName,
+          design_microproduct_type: (mp as any).design_microproduct_type,
+          component_name: (mp as any).component_name
+        }))
+      );
+
       const newProductData: {[key: string]: any} = {};
 
-      // Find products for this lesson
-      const presentationProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
-      const quizProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
-      const onePagerProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
-      const videoLessonProduct = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, []);
+      // Find products by component type - search for each type specifically
+      const presentationProduct = allUserMicroproducts.find(mp => {
+        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+        const isPresentation = (mp as any).design_microproduct_type === 'Presentation' || 
+                              (mp as any).component_name === 'presentation' ||
+                              (mp as any).component_name === 'slide_deck';
+        
+        console.log(`🎯 [LESSON_PLAN] Checking presentation match:`, {
+          id: mp.id,
+          projectName: mp.projectName,
+          microProductName: mp.microProductName,
+          design_microproduct_type: (mp as any).design_microproduct_type,
+          component_name: (mp as any).component_name,
+          hasMatch: !!match,
+          isPresentation,
+          bothTrue: !!match && isPresentation
+        });
 
-      // Filter by component types
-      const presentation = presentationProduct && (presentationProduct as any).design_microproduct_type === 'Presentation' ? presentationProduct : 
-                          allUserMicroproducts.find(mp => {
-                            const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-                            return matches && (mp as any).design_microproduct_type === 'Presentation';
-                          });
-      
-      const quiz = quizProduct && (quizProduct as any).design_microproduct_type === 'Quiz' ? quizProduct :
-                   allUserMicroproducts.find(mp => {
-                     const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-                     return matches && (mp as any).design_microproduct_type === 'Quiz';
-                   });
-      
-      const onePager = onePagerProduct && (onePagerProduct as any).design_microproduct_type === 'Text Presentation' ? onePagerProduct :
-                       allUserMicroproducts.find(mp => {
-                         const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-                         return matches && (mp as any).design_microproduct_type === 'Text Presentation';
-                       });
-      
-      const videoLesson = videoLessonProduct && (videoLessonProduct as any).design_microproduct_type === 'Video Lesson' ? videoLessonProduct :
-                          allUserMicroproducts.find(mp => {
-                            const matches = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
-                            return matches && (mp as any).design_microproduct_type === 'Video Lesson';
-                          });
+        return match && isPresentation;
+      });
+
+      const quizProduct = allUserMicroproducts.find(mp => {
+        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+        const isQuiz = (mp as any).design_microproduct_type === 'Quiz' || 
+                      (mp as any).component_name === 'quiz';
+        
+        console.log(`❓ [LESSON_PLAN] Checking quiz match:`, {
+          id: mp.id,
+          projectName: mp.projectName,
+          microProductName: mp.microProductName,
+          design_microproduct_type: (mp as any).design_microproduct_type,
+          component_name: (mp as any).component_name,
+          hasMatch: !!match,
+          isQuiz,
+          bothTrue: !!match && isQuiz
+        });
+
+        return match && isQuiz;
+      });
+
+      const onePagerProduct = allUserMicroproducts.find(mp => {
+        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+        const isOnePager = (mp as any).design_microproduct_type === 'Text Presentation' || 
+                          (mp as any).design_microproduct_type === 'One-Pager' ||
+                          (mp as any).component_name === 'text_presentation' ||
+                          (mp as any).component_name === 'one_pager';
+        
+        console.log(`📄 [LESSON_PLAN] Checking one-pager match:`, {
+          id: mp.id,
+          projectName: mp.projectName,
+          microProductName: mp.microProductName,
+          design_microproduct_type: (mp as any).design_microproduct_type,
+          component_name: (mp as any).component_name,
+          hasMatch: !!match,
+          isOnePager,
+          bothTrue: !!match && isOnePager
+        });
+
+        return match && isOnePager;
+      });
+
+      const videoLessonProduct = allUserMicroproducts.find(mp => {
+        const match = findMicroproductByTitle(lessonTitle, parentProjectName, [mp], []);
+        const isVideoLesson = (mp as any).design_microproduct_type === 'Video Lesson' || 
+                             (mp as any).component_name === 'video_lesson';
+        
+        console.log(`🎥 [LESSON_PLAN] Checking video lesson match:`, {
+          id: mp.id,
+          projectName: mp.projectName,
+          microProductName: mp.microProductName,
+          design_microproduct_type: (mp as any).design_microproduct_type,
+          component_name: (mp as any).component_name,
+          hasMatch: !!match,
+          isVideoLesson,
+          bothTrue: !!match && isVideoLesson
+        });
+
+        return match && isVideoLesson;
+      });
+
+      console.log(`✅ [LESSON_PLAN] Found products:`, {
+        presentation: presentationProduct?.id || 'none',
+        quiz: quizProduct?.id || 'none',
+        onePager: onePagerProduct?.id || 'none',
+        videoLesson: videoLessonProduct?.id || 'none'
+      });
 
       // Fetch data for found products
       const fetchProduct = async (product: ProjectListItem | undefined, productType: string) => {
-        if (!product) return null;
+        if (!product) {
+          console.log(`⚠️ [LESSON_PLAN] No ${productType} product found`);
+          return null;
+        }
+        
+        console.log(`📥 [LESSON_PLAN] Fetching ${productType} data for product ID: ${product.id}`);
+        
         try {
           const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${product.id}`);
+          console.log(`📡 [LESSON_PLAN] ${productType} API response status:`, response.status);
+          
           if (response.ok) {
             const data = await response.json();
+            console.log(`✅ [LESSON_PLAN] ${productType} data received:`, {
+              hasDetails: !!data.details,
+              detailsKeys: data.details ? Object.keys(data.details) : [],
+              componentName: data.component_name
+            });
             return data.details;
+          } else {
+            console.error(`❌ [LESSON_PLAN] ${productType} API error:`, response.status);
+            return null;
           }
         } catch (error) {
-          console.error(`Error fetching ${productType} data:`, error);
+          console.error(`💥 [LESSON_PLAN] Error fetching ${productType} data:`, error);
+          return null;
         }
-        return null;
       };
 
       const [presentationData, quizData, onePagerData, videoLessonData] = await Promise.all([
-        fetchProduct(presentation, 'presentation'),
-        fetchProduct(quiz, 'quiz'),
-        fetchProduct(onePager, 'one-pager'),
-        fetchProduct(videoLesson, 'video-lesson')
+        fetchProduct(presentationProduct, 'presentation'),
+        fetchProduct(quizProduct, 'quiz'),
+        fetchProduct(onePagerProduct, 'one-pager'),
+        fetchProduct(videoLessonProduct, 'video-lesson')
       ]);
+
+      console.log(`🎯 [LESSON_PLAN] Final data summary:`, {
+        presentationData: presentationData ? 'loaded' : 'null',
+        quizData: quizData ? 'loaded' : 'null',
+        onePagerData: onePagerData ? 'loaded' : 'null',
+        videoLessonData: videoLessonData ? 'loaded' : 'null'
+      });
 
       newProductData.presentation = presentationData;
       newProductData.quiz = quizData;
@@ -444,9 +548,7 @@ const VideoLessonBlock: React.FC<{
             />
           </div>
         ) : (
-          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
-            <div className="text-gray-500">No content available yet</div>
-          </div>
+          <FallbackOnePagerContent />
         )}
       </div>
 
@@ -504,9 +606,7 @@ const PresentationBlock: React.FC<{
             />
           </div>
         ) : (
-          <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
-            <div className="text-gray-500">No slides available yet</div>
-          </div>
+          <FallbackPresentationCarousel />
         )}
       </div>
 
@@ -556,9 +656,7 @@ const QuizBlock: React.FC<{
             onTextChange={() => {}} // No editing in lesson plan view
           />
         ) : (
-          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
-            <div className="text-gray-500">No questions available yet</div>
-          </div>
+          <FallbackQuizCarousel />
         )}
       </div>
 
@@ -611,9 +709,7 @@ const OnePagerBlock: React.FC<{
             />
           </div>
         ) : (
-          <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
-            <div className="text-gray-500">No content available yet</div>
-          </div>
+          <FallbackOnePagerContent />
         )}
       </div>
 
@@ -629,6 +725,196 @@ const OnePagerBlock: React.FC<{
           {prompt}
         </div>
       </div>
+    </div>
+  );
+};
+
+// Fallback carousel components when real data isn't available
+const FallbackPresentationCarousel: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const fallbackSlides = [
+    { title: 'Introduction', content: 'Welcome to this lesson. We will cover the key concepts and objectives outlined in the lesson plan.' },
+    { title: 'Learning Objectives', content: 'By the end of this lesson, you will understand the fundamental principles and be able to apply them effectively.' },
+    { title: 'Key Concepts', content: 'This section will introduce the main topics and provide context for deeper understanding.' },
+    { title: 'Summary', content: 'We will recap the important points covered and outline next steps for continued learning.' }
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % fallbackSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + fallbackSlides.length) % fallbackSlides.length);
+  };
+
+  return (
+    <div className="relative">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[300px]">
+        <div className="text-center h-full flex flex-col justify-center">
+          <h4 className="text-2xl font-bold text-blue-900 mb-4">
+            {fallbackSlides[currentSlide]?.title}
+          </h4>
+          <p className="text-lg text-gray-700 leading-relaxed">
+            {fallbackSlides[currentSlide]?.content}
+          </p>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between mt-4">
+        <button
+          onClick={prevSlide}
+          disabled={fallbackSlides.length <= 1}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Previous
+        </button>
+        
+        <span className="text-sm text-gray-600">
+          Slide {currentSlide + 1} of {fallbackSlides.length} (Preview)
+        </span>
+        
+        <button
+          onClick={nextSlide}
+          disabled={fallbackSlides.length <= 1}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const FallbackQuizCarousel: React.FC = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const fallbackQuestions = [
+    {
+      question: 'What are the main learning objectives of this lesson?',
+      options: ['Understanding key concepts', 'Applying theoretical knowledge', 'Both A and B', 'Neither A nor B'],
+      correct: 2
+    },
+    {
+      question: 'Which approach is most effective for retaining information?',
+      options: ['Passive reading', 'Active participation', 'Memorization only', 'Skipping practice'],
+      correct: 1
+    }
+  ];
+
+  const nextQuestion = () => {
+    setCurrentQuestion((prev) => (prev + 1) % fallbackQuestions.length);
+  };
+
+  const prevQuestion = () => {
+    setCurrentQuestion((prev) => (prev - 1 + fallbackQuestions.length) % fallbackQuestions.length);
+  };
+
+  return (
+    <div className="relative">
+      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+        <div className="mb-4">
+          <h4 className="text-lg font-semibold text-green-900 mb-4">
+            Question {currentQuestion + 1} (Preview)
+          </h4>
+          <p className="text-gray-800 leading-relaxed mb-6">
+            {fallbackQuestions[currentQuestion]?.question}
+          </p>
+          <div className="space-y-3">
+            {fallbackQuestions[currentQuestion]?.options.map((option, index) => (
+              <div 
+                key={index} 
+                className={`p-3 rounded-lg border ${
+                  index === fallbackQuestions[currentQuestion]?.correct 
+                    ? 'bg-green-100 border-green-300 text-green-800' 
+                    : 'bg-white border-gray-200 text-gray-700'
+                }`}
+              >
+                <span className="font-medium mr-2">
+                  {String.fromCharCode(65 + index)}.
+                </span>
+                {option}
+                {index === fallbackQuestions[currentQuestion]?.correct && (
+                  <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between mt-4">
+        <button
+          onClick={prevQuestion}
+          disabled={fallbackQuestions.length <= 1}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Previous
+        </button>
+        
+        <span className="text-sm text-gray-600">
+          Question {currentQuestion + 1} of {fallbackQuestions.length} (Preview)
+        </span>
+        
+        <button
+          onClick={nextQuestion}
+          disabled={fallbackQuestions.length <= 1}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const FallbackOnePagerContent: React.FC = () => {
+  const fallbackOnePagerData = {
+    textTitle: 'Lesson Content Preview',
+    contentBlocks: [
+      {
+        type: 'headline',
+        level: 2,
+        text: 'Key Learning Points',
+        isImportant: true
+      },
+      {
+        type: 'paragraph',
+        text: 'This lesson introduces fundamental concepts that are essential for understanding the subject matter. The content will be structured to build upon previous knowledge while introducing new ideas.'
+      },
+      {
+        type: 'headline',
+        level: 3,
+        text: 'What You Will Learn',
+        isImportant: true
+      },
+      {
+        type: 'bullet_list',
+        items: [
+          'Core principles and foundational concepts',
+          'Practical applications and real-world examples', 
+          'Best practices and common challenges',
+          'Next steps for continued learning'
+        ]
+      },
+      {
+        type: 'paragraph',
+        text: 'The lesson is designed to be engaging and interactive, with opportunities to apply what you learn through exercises and discussions.'
+      }
+    ]
+  };
+
+  return (
+    <div style={{ 
+      '--bg-color': '#EFF6FF',
+      backgroundColor: 'var(--bg-color)'
+    } as React.CSSProperties}>
+      <TextPresentationDisplay 
+        dataToDisplay={fallbackOnePagerData}
+        isEditing={false}
+      />
     </div>
   );
 };
