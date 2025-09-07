@@ -372,32 +372,16 @@ const PresentationBlock: React.FC<{
 }> = ({ title, slides, prompt }) => {
   // Convert simple slides to ComponentBasedSlideDeck format for SmartSlideDeckViewer
   const componentBasedSlideDeck: ComponentBasedSlideDeck = {
-    deckTitle: title,
+    lessonTitle: title,
     theme: 'default',
     slides: slides.map((slide, index) => ({
       slideId: `slide-${index}`,
-      slideTitle: slide.title,
-      slideType: 'text-focus',
-      components: [
-        {
-          id: `content-${index}`,
-          type: 'text',
-          props: {
-            text: slide.content,
-            style: {
-              fontSize: '18px',
-              textAlign: 'left',
-              color: '#333333'
-            }
-          },
-          layout: {
-            x: 50,
-            y: 150,
-            width: 700,
-            height: 400
-          }
-        }
-      ]
+      slideNumber: index + 1,
+      templateId: 'text-focus',
+      props: {
+        title: slide.title,
+        content: slide.content
+      }
     }))
   };
 
@@ -453,14 +437,13 @@ const QuizBlock: React.FC<{
   const quizData = {
     quizTitle: title,
     questions: questions.map((q, index) => ({
-      question_id: `q-${index}`,
       question_type: 'multiple-choice' as const,
       question_text: q.question,
       options: q.options.map((option, optIndex) => ({
-        option_id: `opt-${index}-${optIndex}`,
-        option_text: option,
-        is_correct: optIndex === q.correct
-      }))
+        id: `opt-${index}-${optIndex}`,
+        text: option
+      })),
+      correct_option_id: `opt-${index}-${q.correct}`
     }))
   };
 
