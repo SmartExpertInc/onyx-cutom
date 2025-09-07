@@ -8,8 +8,19 @@ import TextPresentationDisplay from './TextPresentationDisplay';
 import QuizDisplay from './QuizDisplay';
 import { SmartSlideDeckViewer } from './SmartSlideDeckViewer';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
+import Image from 'next/image';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
+
+// Connector configurations with logos
+const connectorConfigs = [
+  { id: 'google_drive', name: 'Google Drive', logoPath: '/api/icons/google-drive.png' },
+  { id: 'slack', name: 'Slack', logoPath: '/api/icons/slack.png' },
+  { id: 'notion', name: 'Notion', logoPath: '/api/icons/notion.png' },
+  { id: 'github', name: 'GitHub', logoPath: '/api/icons/github.png' },
+  { id: 'confluence', name: 'Confluence', logoPath: '/api/icons/confluence.png' },
+  { id: 'teams', name: 'Microsoft Teams', logoPath: '/api/icons/teams.png' }
+];
 
 interface LessonPlanViewProps {
   lessonPlanData: LessonPlanData;
@@ -392,12 +403,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 const formattedName = formatProductName(productName);
 
                 return (
-                                     <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-8 border border-blue-100 hover:shadow-md transition-all duration-300">
+                  <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-8 border border-blue-100 hover:shadow-md transition-all duration-300">
                     <div className="flex flex-col items-center text-center">
                       <div className={`w-16 h-16 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-105 transition-transform duration-300`}>
                         <IconComponent className="w-8 h-8 text-white" />
                       </div>
-                                             <h3 className="text-lg font-semibold text-gray-800">{formattedName}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">{formattedName}</h3>
                     </div>
                   </div>
                 );
@@ -417,16 +428,30 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
             <ul className="space-y-4">
               {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
-                lessonPlanData.materials.map((material, index) => (
-                  <li key={index} className="flex items-start group">
-                    <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                    <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
-                  </li>
-                ))
+                (() => {
+                  // Find the separator index
+                  const separatorIndex = lessonPlanData.materials.findIndex(m => m.includes('Additional Resources'));
+                  const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
+                  
+                  // Filter out empty strings
+                  const filteredSourceMaterials = sourceMaterials.filter(m => m.trim() !== '');
+                  
+                  return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
+                    <li key={index} className="flex items-start group">
+                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                      <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
+                    </li>
+                  )) : (
+                    <li className="flex items-start">
+                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                      <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
+                    </li>
+                  );
+                })()
               ) : (
-                <li className="flex items-start group">
+                <li className="flex items-start">
                   <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
-                  <span className="text-gray-800 leading-relaxed font-medium text-lg">No specific resources identified for this lesson</span>
+                  <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
                 </li>
               )}
             </ul>
@@ -436,34 +461,37 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Connectors */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {(() => {
-              // For now, use common connectors as placeholder since connectors aren't stored in lesson plan data
-              const commonConnectors = ['Google Drive', 'Slack', 'Notion', 'GitHub', 'Teams'];
-              return commonConnectors.map((connector: string, index: number) => (
-                <div key={index} className="group bg-gradient-to-br from-gray-50 to-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all duration-300">
+          <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {connectorConfigs.map((connector) => (
+                <div
+                  key={connector.id}
+                  className="group bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-emerald-300 transition-all duration-300"
+                >
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-3 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
-                      <img
-                        src={`/lib/connector-logos/${connector.toLowerCase().replace(/\s+/g, '-')}.svg`}
-                        alt={`${connector} logo`}
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/lib/connector-logos/default.svg';
-                        }}
+                    <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+                      <Image
+                        src={connector.logoPath}
+                        alt={`${connector.name} logo`}
+                        width={24}
+                        height={24}
+                        className="object-contain w-6 h-6"
+                        priority={false}
+                        unoptimized={true}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-800">{connector}</span>
+                    <h3 className="text-sm font-medium text-gray-800 truncate w-full">
+                      {connector.name}
+                    </h3>
                   </div>
                 </div>
-              ));
-            })()}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -554,222 +582,6 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   );
 };
 
-// Carousel viewers for real data
-const PresentationCarouselViewer: React.FC<{ data: any }> = ({ data }) => {
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  
-  if (!data || !data.slides || data.slides.length === 0) {
-    return <FallbackPresentationCarousel />;
-  }
-
-  const slides = data.slides;
-  const currentSlide = slides[currentSlideIndex];
-
-  const nextSlide = () => {
-    setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  return (
-    <div className="relative">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[400px]">
-        <div className="h-full flex flex-col">
-          <div className="mb-6">
-            <h4 className="text-2xl font-bold text-blue-900 mb-4">
-              {currentSlide.slideTitle || `Slide ${currentSlideIndex + 1}`}
-            </h4>
-          </div>
-          
-          <div className="flex-1 space-y-4">
-            {currentSlide.contentBlocks && currentSlide.contentBlocks.map((block: any, blockIndex: number) => (
-              <div key={blockIndex} className="text-gray-700 leading-relaxed">
-                {block.type === 'headline' && (
-                  <h5 className={`font-semibold text-blue-800 ${
-                    block.level === 1 ? 'text-xl' : 
-                    block.level === 2 ? 'text-lg' : 'text-base'
-                  }`}>
-                    {block.text}
-                  </h5>
-                )}
-                {block.type === 'paragraph' && (
-                  <p className="text-gray-700 leading-relaxed">{block.text}</p>
-                )}
-                {block.type === 'bullet_list' && (
-                  <ul className="list-disc list-inside space-y-2 pl-4">
-                    {block.items.map((item: string, itemIndex: number) => (
-                      <li key={itemIndex} className="text-gray-700">{item}</li>
-                    ))}
-                  </ul>
-                )}
-                {block.type === 'numbered_list' && (
-                  <ol className="list-decimal list-inside space-y-2 pl-4">
-                    {block.items.map((item: string, itemIndex: number) => (
-                      <li key={itemIndex} className="text-gray-700">{item}</li>
-                    ))}
-                  </ol>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-between mt-4">
-        <button
-          onClick={prevSlide}
-          disabled={slides.length <= 1}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
-        </button>
-        
-        <span className="text-sm text-gray-600">
-          Slide {currentSlideIndex + 1} of {slides.length}
-        </span>
-        
-        <button
-          onClick={nextSlide}
-          disabled={slides.length <= 1}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const QuizCarouselViewer: React.FC<{ data: any }> = ({ data }) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  
-  if (!data || !data.questions || data.questions.length === 0) {
-    return <FallbackQuizCarousel />;
-  }
-
-  const questions = data.questions;
-  const currentQuestion = questions[currentQuestionIndex];
-
-  const nextQuestion = () => {
-    setCurrentQuestionIndex((prev) => (prev + 1) % questions.length);
-  };
-
-  const prevQuestion = () => {
-    setCurrentQuestionIndex((prev) => (prev - 1 + questions.length) % questions.length);
-  };
-
-  const renderQuestionContent = () => {
-    if (currentQuestion.question_type === 'multiple-choice') {
-      const correctOptionId = currentQuestion.correct_option_id;
-      return (
-        <div className="space-y-3">
-          {currentQuestion.options.map((option: any, index: number) => (
-            <div 
-              key={option.id} 
-              className={`p-4 rounded-lg border ${
-                option.id === correctOptionId 
-                  ? 'bg-green-100 border-green-300 text-green-800' 
-                  : 'bg-white border-gray-200 text-gray-700'
-              }`}
-            >
-              <span className="font-medium mr-2">
-                {String.fromCharCode(65 + index)}.
-              </span>
-              {option.text}
-              {option.id === correctOptionId && (
-                <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
-              )}
-            </div>
-          ))}
-        </div>
-      );
-    }
-    
-    if (currentQuestion.question_type === 'multi-select') {
-      const correctOptionIds = Array.isArray(currentQuestion.correct_option_ids) 
-        ? currentQuestion.correct_option_ids 
-        : currentQuestion.correct_option_ids?.split(',') || [];
-      
-      return (
-        <div className="space-y-3">
-          {currentQuestion.options.map((option: any, index: number) => {
-            const isCorrect = correctOptionIds.includes(option.id);
-            return (
-              <div 
-                key={option.id} 
-                className={`p-4 rounded-lg border ${
-                  isCorrect 
-                    ? 'bg-green-100 border-green-300 text-green-800' 
-                    : 'bg-white border-gray-200 text-gray-700'
-                }`}
-              >
-                <span className="font-medium mr-2">
-                  {String.fromCharCode(65 + index)}.
-                </span>
-                {option.text}
-                {isCorrect && (
-                  <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    // Default fallback for other question types
-    return (
-      <div className="p-4 bg-gray-50 rounded-lg">
-        <p className="text-gray-600">Question type: {currentQuestion.question_type}</p>
-      </div>
-    );
-  };
-
-  return (
-    <div className="relative">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 min-h-[300px]">
-        <div className="mb-4">
-          <h4 className="text-lg font-semibold text-green-900 mb-4">
-            Question {currentQuestionIndex + 1}
-          </h4>
-          <p className="text-gray-800 leading-relaxed mb-6 text-lg font-medium">
-            {currentQuestion.question_text}
-          </p>
-          {renderQuestionContent()}
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-between mt-4">
-        <button
-          onClick={prevQuestion}
-          disabled={questions.length <= 1}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
-        </button>
-        
-        <span className="text-sm text-gray-600">
-          Question {currentQuestionIndex + 1} of {questions.length}
-        </span>
-        
-        <button
-          onClick={nextQuestion}
-          disabled={questions.length <= 1}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
 // Product-Specific Block Components
 const VideoLessonBlock: React.FC<{
   title: string;
@@ -794,15 +606,15 @@ const VideoLessonBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-          <div style={{ 
-            '--bg-color': '#EFF6FF',
-            backgroundColor: 'var(--bg-color)'
-          } as React.CSSProperties}>
-            <TextPresentationDisplay 
+        <div style={{ 
+          '--bg-color': '#EFF6FF',
+          backgroundColor: 'var(--bg-color)'
+        } as React.CSSProperties}>
+          <TextPresentationDisplay 
               dataToDisplay={data}
-              isEditing={false}
-            />
-          </div>
+            isEditing={false}
+          />
+        </div>
         ) : (
           <FallbackOnePagerContent />
         )}
@@ -848,7 +660,7 @@ const PresentationBlock: React.FC<{
             <div className="text-gray-500">Loading slides...</div>
           </div>
         ) : data ? (
-          <PresentationCarouselViewer data={data} />
+          <CarouselSlideDeckViewer deck={data} />
         ) : (
           <FallbackPresentationCarousel />
         )}
@@ -894,7 +706,7 @@ const QuizBlock: React.FC<{
             <div className="text-gray-500">Loading questions...</div>
           </div>
         ) : data ? (
-          <QuizCarouselViewer data={data} />
+          <CarouselQuizDisplay dataToDisplay={data} />
         ) : (
           <FallbackQuizCarousel />
         )}
@@ -939,15 +751,15 @@ const OnePagerBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-          <div style={{ 
-            '--bg-color': '#EFF6FF',
-            backgroundColor: 'var(--bg-color)'
-          } as React.CSSProperties}>
-            <TextPresentationDisplay 
+        <div style={{ 
+          '--bg-color': '#EFF6FF',
+          backgroundColor: 'var(--bg-color)'
+        } as React.CSSProperties}>
+                     <TextPresentationDisplay 
               dataToDisplay={data}
-              isEditing={false}
-            />
-          </div>
+             isEditing={false}
+           />
+        </div>
         ) : (
           <FallbackOnePagerContent />
         )}
@@ -1155,6 +967,184 @@ const FallbackOnePagerContent: React.FC = () => {
         dataToDisplay={fallbackOnePagerData as any}
         isEditing={false}
       />
+    </div>
+    );
+};
+
+// Carousel version of SmartSlideDeckViewer - exact copy but with carousel navigation
+const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ deck }) => {
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  
+  if (!deck || !deck.slides || deck.slides.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
+        <div className="text-gray-500">No slides available</div>
+      </div>
+    );
+  }
+
+  const nextSlide = () => {
+    setCurrentSlideIndex((prev) => (prev + 1) % deck.slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlideIndex((prev) => (prev - 1 + deck.slides.length) % deck.slides.length);
+  };
+
+  const currentSlide = deck.slides[currentSlideIndex];
+
+  return (
+    <div style={{
+      width: '100%',
+      minHeight: '600px',
+      backgroundColor: '#f8f9fa',
+      borderRadius: '8px',
+      position: 'relative'
+    }}>
+      {/* Single Slide Display - Exact same as SmartSlideDeckViewer */}
+      <div style={{ padding: '20px' }}>
+        <div
+          className="professional-slide relative"
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+            minHeight: '500px'
+          }}
+        >
+          <div className="slide-content">
+            <SmartSlideDeckViewer
+              deck={{ ...deck, slides: [currentSlide] }}
+              isEditable={false}
+              showFormatInfo={false}
+              enableAutomaticImageGeneration={false}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Carousel Navigation */}
+      <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-4">
+        <button
+          onClick={prevSlide}
+          disabled={deck.slides.length <= 1}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Previous
+        </button>
+        
+        <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+          Slide {currentSlideIndex + 1} of {deck.slides.length}
+        </span>
+        
+        <button
+          onClick={nextSlide}
+          disabled={deck.slides.length <= 1}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+        >
+          Next
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Carousel version of QuizDisplay - exact copy but with carousel navigation
+const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+  if (!dataToDisplay || !dataToDisplay.questions || dataToDisplay.questions.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
+        <div className="text-gray-500">No questions available</div>
+      </div>
+    );
+  }
+
+  const questions = Array.isArray(dataToDisplay.questions) ? dataToDisplay.questions : [];
+  
+  const nextQuestion = () => {
+    setCurrentQuestionIndex((prev) => (prev + 1) % questions.length);
+  };
+
+  const prevQuestion = () => {
+    setCurrentQuestionIndex((prev) => (prev - 1 + questions.length) % questions.length);
+  };
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const questionNumber = currentQuestionIndex + 1;
+
+  // Render single question using exact same logic as QuizDisplay
+  const renderSingleQuestion = (question: any, index: number) => {
+    return (
+      <div className="p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="flex items-start mb-4">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2563eb] text-white font-semibold mr-3">
+            {questionNumber}
+          </span>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-black">{question.question_text}</h3>
+          </div>
+        </div>
+        
+        {/* Render options based on question type */}
+        {question.question_type === 'multiple-choice' && (
+          <div className="space-y-3">
+            {question.options.map((option: any, optIndex: number) => (
+              <div 
+                key={option.id}
+                className={`p-3 rounded-lg border ${
+                  option.id === question.correct_option_id
+                    ? 'bg-green-100 border-green-300 text-green-800' 
+                    : 'bg-white border-gray-200 text-gray-700'
+                }`}
+              >
+                <span className="font-medium mr-2">
+                  {String.fromCharCode(65 + optIndex)}.
+                </span>
+                {option.text}
+                {option.id === question.correct_option_id && (
+                  <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative">
+      {/* Single Question Display */}
+      {renderSingleQuestion(currentQuestion, currentQuestionIndex)}
+      
+      {/* Carousel Navigation */}
+      <div className="flex items-center justify-center gap-4 mt-6">
+        <button
+          onClick={prevQuestion}
+          disabled={questions.length <= 1}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Previous
+        </button>
+        
+        <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
+          Question {currentQuestionIndex + 1} of {questions.length}
+        </span>
+        
+        <button
+          onClick={nextQuestion}
+          disabled={questions.length <= 1}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+        >
+          Next
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </button>
+      </div>
     </div>
   );
 };
