@@ -406,6 +406,67 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           </div>
         </div>
 
+        {/* Resources */}
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+              <Wrench className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
+          </div>
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
+            <ul className="space-y-4">
+              {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
+                lessonPlanData.materials.map((material, index) => (
+                  <li key={index} className="flex items-start group">
+                    <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                    <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="flex items-start group">
+                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                  <span className="text-gray-800 leading-relaxed font-medium text-lg">No specific resources identified for this lesson</span>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* Connectors */}
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+              <Lightbulb className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {(() => {
+              // For now, use common connectors as placeholder since connectors aren't stored in lesson plan data
+              const commonConnectors = ['Google Drive', 'Slack', 'Notion', 'GitHub', 'Teams'];
+              return commonConnectors.map((connector: string, index: number) => (
+                <div key={index} className="group bg-gradient-to-br from-gray-50 to-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all duration-300">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-3 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                      <img
+                        src={`/lib/connector-logos/${connector.toLowerCase().replace(/\s+/g, '-')}.svg`}
+                        alt={`${connector} logo`}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/lib/connector-logos/default.svg';
+                        }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-gray-800">{connector}</span>
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+        </div>
+
         {/* Product-Specific Content Blocks */}
         {(() => {
           // Extract unique product types from contentDevelopmentSpecifications
@@ -493,6 +554,222 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   );
 };
 
+// Carousel viewers for real data
+const PresentationCarouselViewer: React.FC<{ data: any }> = ({ data }) => {
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  
+  if (!data || !data.slides || data.slides.length === 0) {
+    return <FallbackPresentationCarousel />;
+  }
+
+  const slides = data.slides;
+  const currentSlide = slides[currentSlideIndex];
+
+  const nextSlide = () => {
+    setCurrentSlideIndex((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  return (
+    <div className="relative">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[400px]">
+        <div className="h-full flex flex-col">
+          <div className="mb-6">
+            <h4 className="text-2xl font-bold text-blue-900 mb-4">
+              {currentSlide.slideTitle || `Slide ${currentSlideIndex + 1}`}
+            </h4>
+          </div>
+          
+          <div className="flex-1 space-y-4">
+            {currentSlide.contentBlocks && currentSlide.contentBlocks.map((block: any, blockIndex: number) => (
+              <div key={blockIndex} className="text-gray-700 leading-relaxed">
+                {block.type === 'headline' && (
+                  <h5 className={`font-semibold text-blue-800 ${
+                    block.level === 1 ? 'text-xl' : 
+                    block.level === 2 ? 'text-lg' : 'text-base'
+                  }`}>
+                    {block.text}
+                  </h5>
+                )}
+                {block.type === 'paragraph' && (
+                  <p className="text-gray-700 leading-relaxed">{block.text}</p>
+                )}
+                {block.type === 'bullet_list' && (
+                  <ul className="list-disc list-inside space-y-2 pl-4">
+                    {block.items.map((item: string, itemIndex: number) => (
+                      <li key={itemIndex} className="text-gray-700">{item}</li>
+                    ))}
+                  </ul>
+                )}
+                {block.type === 'numbered_list' && (
+                  <ol className="list-decimal list-inside space-y-2 pl-4">
+                    {block.items.map((item: string, itemIndex: number) => (
+                      <li key={itemIndex} className="text-gray-700">{item}</li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between mt-4">
+        <button
+          onClick={prevSlide}
+          disabled={slides.length <= 1}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Previous
+        </button>
+        
+        <span className="text-sm text-gray-600">
+          Slide {currentSlideIndex + 1} of {slides.length}
+        </span>
+        
+        <button
+          onClick={nextSlide}
+          disabled={slides.length <= 1}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const QuizCarouselViewer: React.FC<{ data: any }> = ({ data }) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+  if (!data || !data.questions || data.questions.length === 0) {
+    return <FallbackQuizCarousel />;
+  }
+
+  const questions = data.questions;
+  const currentQuestion = questions[currentQuestionIndex];
+
+  const nextQuestion = () => {
+    setCurrentQuestionIndex((prev) => (prev + 1) % questions.length);
+  };
+
+  const prevQuestion = () => {
+    setCurrentQuestionIndex((prev) => (prev - 1 + questions.length) % questions.length);
+  };
+
+  const renderQuestionContent = () => {
+    if (currentQuestion.question_type === 'multiple-choice') {
+      const correctOptionId = currentQuestion.correct_option_id;
+      return (
+        <div className="space-y-3">
+          {currentQuestion.options.map((option: any, index: number) => (
+            <div 
+              key={option.id} 
+              className={`p-4 rounded-lg border ${
+                option.id === correctOptionId 
+                  ? 'bg-green-100 border-green-300 text-green-800' 
+                  : 'bg-white border-gray-200 text-gray-700'
+              }`}
+            >
+              <span className="font-medium mr-2">
+                {String.fromCharCode(65 + index)}.
+              </span>
+              {option.text}
+              {option.id === correctOptionId && (
+                <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    if (currentQuestion.question_type === 'multi-select') {
+      const correctOptionIds = Array.isArray(currentQuestion.correct_option_ids) 
+        ? currentQuestion.correct_option_ids 
+        : currentQuestion.correct_option_ids?.split(',') || [];
+      
+      return (
+        <div className="space-y-3">
+          {currentQuestion.options.map((option: any, index: number) => {
+            const isCorrect = correctOptionIds.includes(option.id);
+            return (
+              <div 
+                key={option.id} 
+                className={`p-4 rounded-lg border ${
+                  isCorrect 
+                    ? 'bg-green-100 border-green-300 text-green-800' 
+                    : 'bg-white border-gray-200 text-gray-700'
+                }`}
+              >
+                <span className="font-medium mr-2">
+                  {String.fromCharCode(65 + index)}.
+                </span>
+                {option.text}
+                {isCorrect && (
+                  <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // Default fallback for other question types
+    return (
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <p className="text-gray-600">Question type: {currentQuestion.question_type}</p>
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative">
+      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 min-h-[300px]">
+        <div className="mb-4">
+          <h4 className="text-lg font-semibold text-green-900 mb-4">
+            Question {currentQuestionIndex + 1}
+          </h4>
+          <p className="text-gray-800 leading-relaxed mb-6 text-lg font-medium">
+            {currentQuestion.question_text}
+          </p>
+          {renderQuestionContent()}
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between mt-4">
+        <button
+          onClick={prevQuestion}
+          disabled={questions.length <= 1}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 mr-1" />
+          Previous
+        </button>
+        
+        <span className="text-sm text-gray-600">
+          Question {currentQuestionIndex + 1} of {questions.length}
+        </span>
+        
+        <button
+          onClick={nextQuestion}
+          disabled={questions.length <= 1}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Product-Specific Block Components
 const VideoLessonBlock: React.FC<{
   title: string;
@@ -571,19 +848,7 @@ const PresentationBlock: React.FC<{
             <div className="text-gray-500">Loading slides...</div>
           </div>
         ) : data ? (
-          <div style={{
-            width: '100%',
-            minHeight: '600px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px'
-          }}>
-            <SmartSlideDeckViewer
-              deck={data}
-              isEditable={false}
-              showFormatInfo={false}
-              enableAutomaticImageGeneration={false}
-            />
-          </div>
+          <PresentationCarouselViewer data={data} />
         ) : (
           <FallbackPresentationCarousel />
         )}
@@ -629,11 +894,7 @@ const QuizBlock: React.FC<{
             <div className="text-gray-500">Loading questions...</div>
           </div>
         ) : data ? (
-          <QuizDisplay
-            dataToDisplay={data}
-            isEditing={false}
-            onTextChange={() => {}} // No editing in lesson plan view
-          />
+          <QuizCarouselViewer data={data} />
         ) : (
           <FallbackQuizCarousel />
         )}
