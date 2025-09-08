@@ -376,7 +376,7 @@ const ClientNameModal: React.FC<{
           <DialogTitle className="text-gray-900">
             {t("interface.customizePDF", "Customize PDF")}
           </DialogTitle>
-          <DialogDescription className="text-gray-700">
+          <DialogDescription className="text-gray-600">
             {t(
               "interface.customizePDFDescription",
               "Enter a client name and select which folders/products to include in the PDF."
@@ -404,7 +404,7 @@ const ClientNameModal: React.FC<{
                 }
               }}
               placeholder={t("interface.enterClientName", "Enter client name")}
-              className="placeholder:text-gray-600 text-gray-900"
+              className="border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-300"
               autoFocus
             />
           </div>
@@ -426,7 +426,7 @@ const ClientNameModal: React.FC<{
                     <Checkbox
                       checked={isAllSelected}
                       onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
-                      className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
+                      // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
@@ -450,7 +450,7 @@ const ClientNameModal: React.FC<{
                           onCheckedChange={(checked) =>
                             handleFolderSelection(folder.id, checked as boolean)
                           }
-                          className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
+                          // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -504,7 +504,7 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
+                                  // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                                 />
                                 <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                                   {project.title}
@@ -590,13 +590,14 @@ const ClientNameModal: React.FC<{
               type="button"
               variant="outline"
               onClick={handleCancel}
+              className="text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
             >
               {t("common.cancel", "Cancel")}
             </Button>
             <Button
               type="submit"
               disabled={!hasAnySelection}
-              variant={hasAnySelection ? "default" : "secondary"}
+              className={hasAnySelection ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer" : "bg-gray-300 text-gray-500 cursor-not-allowed"}
             >
               {t("common.downloadPdf", "Download PDF")}
             </Button>
