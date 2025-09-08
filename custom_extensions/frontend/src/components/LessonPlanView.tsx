@@ -94,7 +94,8 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          lineHeight: '1.6'
+          lineHeight: '1.6',
+          color: 'inherit'
         }}
         rows={1}
       />
@@ -118,7 +119,8 @@ function InlineEditor({
         outline: 'none',
         boxShadow: 'none',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        color: 'inherit'
       }}
     />
   );
@@ -223,8 +225,23 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
   // Update local state when props change
   useEffect(() => {
+    // Try to load from localStorage first if no onUpdate callback provided
+    if (!onUpdate && typeof window !== 'undefined') {
+      try {
+        const storageKey = `lesson_plan_${lessonPlanData.lessonTitle}`;
+        const savedData = localStorage.getItem(storageKey);
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          console.log('📥 [LESSON_PLAN] Loaded from localStorage:', storageKey);
+          setEditableLessonPlanData(parsedData);
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [LESSON_PLAN] Failed to load from localStorage:', error);
+      }
+    }
     setEditableLessonPlanData(lessonPlanData);
-  }, [lessonPlanData]);
+  }, [lessonPlanData, onUpdate]);
 
   // Save handlers
   const handleUpdateLessonPlanData = (updatedData: LessonPlanData) => {
@@ -234,7 +251,17 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       console.log('✅ [LESSON_PLAN] Calling onUpdate callback');
       onUpdate(updatedData);
     } else {
-      console.log('⚠️ [LESSON_PLAN] No onUpdate callback provided');
+      console.log('⚠️ [LESSON_PLAN] No onUpdate callback provided - changes saved locally only');
+      // Save to localStorage as fallback for demo purposes
+      if (typeof window !== 'undefined') {
+        try {
+          const storageKey = `lesson_plan_${editableLessonPlanData.lessonTitle}`;
+          localStorage.setItem(storageKey, JSON.stringify(updatedData));
+          console.log('💾 [LESSON_PLAN] Saved to localStorage:', storageKey);
+        } catch (error) {
+          console.error('❌ [LESSON_PLAN] Failed to save to localStorage:', error);
+        }
+      }
     }
   };
 
@@ -1870,22 +1897,38 @@ export default LessonPlanView;
 // Add CSS for the inline editors
 const styles = `
   .inline-editor-input, .inline-editor-textarea {
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid #3b82f6;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid #3b82f6 !important;
     border-radius: 4px;
     padding: 2px 4px;
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
     color: inherit !important;
-    line-height: inherit;
+    line-height: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+    -webkit-appearance: none;
   }
   
   .inline-editor-input:focus, .inline-editor-textarea:focus {
-    outline: none;
-    border-color: #1d4ed8;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
     color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+  }
+
+  /* Override any default browser styles */
+  .inline-editor-input::-webkit-input-placeholder,
+  .inline-editor-textarea::-webkit-input-placeholder {
+    color: inherit !important;
+    opacity: 0.6;
+  }
+  
+  .inline-editor-input::-moz-placeholder,
+  .inline-editor-textarea::-moz-placeholder {
+    color: inherit !important;
+    opacity: 0.6;
   }
 `;
 
