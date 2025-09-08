@@ -289,6 +289,54 @@ export default function VideoEditorHeader({
     }
   };
 
+  // Save generated video as a product in the database
+  const saveVideoAsProduct = async (jobId: string) => {
+    try {
+      console.log('🎬 [VIDEO_GENERATION] Saving video as product for job:', jobId);
+      
+      // Get the first slide data for the product name
+      const firstSlide = componentBasedSlideDeck?.slides?.[0] || videoLessonData?.slides?.[0];
+      const productName = firstSlide?.props?.title || firstSlide?.slideTitle || videoTitle || 'Generated Video';
+      
+      // Create project data following the golden reference pattern
+      const projectData = {
+        projectName: productName,
+        microProductName: productName,
+        design_template_id: 1, // Use a default template ID for video products
+        microProductContent: {
+          videoJobId: jobId,
+          videoUrl: `/api/custom-projects-backend/presentations/${jobId}/video`,
+          thumbnailUrl: `/api/custom-projects-backend/presentations/${jobId}/thumbnail`,
+          generatedAt: new Date().toISOString(),
+          sourceSlides: componentBasedSlideDeck?.slides || videoLessonData?.slides || [],
+          component_name: "VideoProductDisplay" // Use the new component type
+        }
+      };
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(projectData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save video as product: ${response.status}`);
+      }
+
+      const savedProject = await response.json();
+      console.log('🎬 [VIDEO_GENERATION] Video saved as product:', savedProject);
+      
+      return savedProject;
+      
+    } catch (error) {
+      console.error('🎬 [VIDEO_GENERATION] Failed to save video as product:', error);
+      // Don't throw error - this is not critical for the main flow
+    }
+  };
+
   // Main video generation function - transferred from VideoDownloadButton
   const handleVideoGeneration = async () => {
     console.log('🎬 [VIDEO_GENERATION] handleVideoGeneration called');
@@ -467,6 +515,10 @@ export default function VideoEditorHeader({
               // Auto-download the video
               console.log('🎬 [VIDEO_GENERATION] Starting video download...');
               await downloadVideo(newJobId);
+              
+              // Save video as a product in the database
+              console.log('🎬 [VIDEO_GENERATION] Saving video as product...');
+              await saveVideoAsProduct(newJobId);
             } else if (statusData.status === 'failed') {
               clearInterval(pollInterval);
               setGenerationStatus('error');
@@ -951,6 +1003,9 @@ export default function VideoEditorHeader({
         generationProgress={generationProgress}
         generationJobId={generationJobId}
         generationError={generationError}
+        videoLessonData={videoLessonData}
+        componentBasedSlideDeck={componentBasedSlideDeck}
+        currentSlideId={currentSlideId}
       />
 
       {/* Upgrade Modal */}

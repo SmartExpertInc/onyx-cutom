@@ -10,6 +10,9 @@ interface GenerationCompletedModalProps {
   generationProgress?: number;
   generationJobId?: string | null;
   generationError?: string | null;
+  videoLessonData?: any;
+  componentBasedSlideDeck?: any;
+  currentSlideId?: string;
 }
 
 export default function GenerationCompletedModal({ 
@@ -19,10 +22,63 @@ export default function GenerationCompletedModal({
   generationStatus = 'idle',
   generationProgress = 0,
   generationJobId,
-  generationError
+  generationError,
+  videoLessonData,
+  componentBasedSlideDeck,
+  currentSlideId
 }: GenerationCompletedModalProps) {
   const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
+
+  // Download video function
+  const downloadVideo = async () => {
+    if (!generationJobId) return;
+    
+    try {
+      console.log('🎬 [GENERATION_MODAL] Downloading video for job:', generationJobId);
+      
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const downloadResponse = await fetch(`${CUSTOM_BACKEND_URL}/presentations/${generationJobId}/video`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'video/mp4',
+        },
+        credentials: 'same-origin',
+      });
+
+      if (!downloadResponse.ok) {
+        throw new Error(`Download failed: ${downloadResponse.status}`);
+      }
+
+      // Create blob and download
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `video_${generationJobId}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('🎬 [GENERATION_MODAL] Video downloaded successfully');
+      
+    } catch (error) {
+      console.error('🎬 [GENERATION_MODAL] Download failed:', error);
+      alert('Download failed. Please try again.');
+    }
+  };
+
+  // Get first slide data for initial display
+  const getFirstSlideData = () => {
+    if (componentBasedSlideDeck && componentBasedSlideDeck.slides && componentBasedSlideDeck.slides.length > 0) {
+      return componentBasedSlideDeck.slides[0];
+    }
+    if (videoLessonData && videoLessonData.slides && videoLessonData.slides.length > 0) {
+      return videoLessonData.slides[0];
+    }
+    return null;
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -192,42 +248,62 @@ export default function GenerationCompletedModal({
 
         {/* Main Content */}
         <div className="flex-1 px-6 py-6 bg-gray-50 flex flex-col items-center justify-center">
-          {/* Generation Status Content */}
-          {generationStatus === 'generating' && (
-            <div className="w-80 h-48 bg-gray-200 rounded-lg flex flex-col items-center justify-center">
-              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-              <span className="text-gray-700 text-sm font-medium mb-2">Generating your video...</span>
-              <span className="text-gray-500 text-xs">{generationProgress}% complete</span>
-            </div>
-          )}
-          
-          {generationStatus === 'completed' && (
-            <div className="w-80 h-48 bg-green-100 rounded-lg flex flex-col items-center justify-center border-2 border-green-300">
-              <svg className="w-12 h-12 text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-green-800 text-sm font-medium mb-2">Video generated successfully!</span>
-              <span className="text-green-600 text-xs">Your video has been downloaded</span>
-            </div>
-          )}
-          
-          {generationStatus === 'error' && (
-            <div className="w-80 h-48 bg-red-100 rounded-lg flex flex-col items-center justify-center border-2 border-red-300">
-              <svg className="w-12 h-12 text-red-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span className="text-red-800 text-sm font-medium mb-2">Generation failed</span>
-              {generationError && (
-                <span className="text-red-600 text-xs text-center px-4">{generationError}</span>
-              )}
-            </div>
-          )}
-          
-          {generationStatus === 'idle' && (
-            <div className="w-80 h-48 bg-gray-300 rounded-lg flex items-center justify-center">
-              <span className="text-gray-500 text-sm">Video will be displayed here</span>
-            </div>
-          )}
+          {/* Content Container - 1:1 scale */}
+          <div className="w-80 h-80 bg-white rounded-lg shadow-lg overflow-hidden flex items-center justify-center">
+            {generationStatus === 'generating' && (
+              <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <span className="text-gray-700 text-sm font-medium mb-2">Generating your video...</span>
+                <span className="text-gray-500 text-xs">{generationProgress}% complete</span>
+              </div>
+            )}
+            
+            {generationStatus === 'completed' && generationJobId && (
+              <video 
+                className="w-full h-full object-cover"
+                controls
+                preload="metadata"
+              >
+                <source src={`/api/custom-projects-backend/presentations/${generationJobId}/video`} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            )}
+            
+            {generationStatus === 'error' && (
+              <div className="w-full h-full bg-red-100 flex flex-col items-center justify-center border-2 border-red-300">
+                <svg className="w-12 h-12 text-red-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span className="text-red-800 text-sm font-medium mb-2">Generation failed</span>
+                {generationError && (
+                  <span className="text-red-600 text-xs text-center px-4">{generationError}</span>
+                )}
+              </div>
+            )}
+            
+            {generationStatus === 'idle' && (() => {
+              const firstSlide = getFirstSlideData();
+              if (firstSlide) {
+                return (
+                  <div className="w-full h-full bg-white p-4 flex flex-col">
+                    <div className="text-lg font-semibold text-gray-800 mb-2 text-center">
+                      {firstSlide.props?.title || firstSlide.slideTitle || 'First Slide'}
+                    </div>
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="text-gray-600 text-sm text-center">
+                        {firstSlide.props?.content || firstSlide.displayedText || 'Slide content will be displayed here'}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">First slide will be displayed here</span>
+                </div>
+              );
+            })()}
+          </div>
 
           {/* Progress Bar - show during generation */}
           {generationStatus === 'generating' && (
@@ -250,12 +326,39 @@ export default function GenerationCompletedModal({
         <div className="p-6 pt-3 border-t border-gray-200">
           <div className="flex justify-end">
             {generationStatus === 'completed' && (
-              <button className="bg-white text-black border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-black">
-                  <path fill="currentColor" fillRule="evenodd" d="M9.929 3.132a2.078 2.078 0 1 1 2.94 2.94l-.65.648a.75.75 0 0 0 1.061 1.06l.649-.648a3.579 3.579 0 0 0-5.06-5.06L6.218 4.72a3.578 3.578 0 0 0 0 5.06a.75.75 0 0 0 1.061-1.06a2.078 2.078 0 0 1 0-2.94L9.93 3.132Zm-.15 3.086a.75.75 0 0 0-1.057 1.064c.816.81.818 2.13.004 2.942l-2.654 2.647a2.08 2.08 0 0 1-2.94-2.944l.647-.647a.75.75 0 0 0-1.06-1.06l-.648.647a3.58 3.58 0 0 0 5.06 5.066l2.654-2.647a3.575 3.575 0 0 0-.007-5.068Z" clipRule="evenodd"/>
-                </svg>
-                Copy invite link
-              </button>
+              <div className="relative" data-download-dropdown>
+                <button 
+                  onClick={() => setIsDownloadDropdownOpen(!isDownloadDropdownOpen)}
+                  className="bg-white text-black border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" className="w-4 h-4 text-black">
+                    <path fill="currentColor" fillRule="evenodd" d="M8 2a.75.75 0 0 1 .75.75v8.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V2.75A.75.75 0 0 1 8 2Z" clipRule="evenodd"/>
+                  </svg>
+                  Download
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {isDownloadDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          downloadVideo();
+                          setIsDownloadDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download MP4
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
