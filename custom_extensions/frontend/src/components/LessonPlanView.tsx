@@ -1538,7 +1538,7 @@ const FallbackQuizCarousel: React.FC = () => {
             <button
               onClick={prevQuestion}
               disabled={fallbackQuestions.length <= 1}
-              className="flex items-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-10 h-10 mr-1" />
               Previous
@@ -1551,7 +1551,7 @@ const FallbackQuizCarousel: React.FC = () => {
             <button
               onClick={nextQuestion}
               disabled={fallbackQuestions.length <= 1}
-              className="flex items-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
               <ChevronRight className="w-10 h-10 ml-1" />
@@ -1845,7 +1845,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
       <button
         onClick={prevQuestion}
         disabled={questions.length <= 1}
-        className="absolute left-4 top-1/3 transform -translate-y-1/2 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute left-4 top-1/3 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft className="w-16 h-16" />
       </button>
@@ -1871,7 +1871,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
       <button
         onClick={nextQuestion}
         disabled={questions.length <= 1}
-        className="absolute right-4 top-1/3 transform -translate-y-1/2 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute right-4 top-1/3 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight className="w-16 h-16" />
       </button>
