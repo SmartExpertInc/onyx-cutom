@@ -144,7 +144,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
         deck.slides.forEach((slide: unknown, index: number) => {
           const s = slide as ComponentBasedSlide;
-          console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
+          console.log(`📄 Slide ${index + 1} (${s.templateId}):`, {
             slideId: s.slideId,
             templateId: s.templateId,
             props: s.props
