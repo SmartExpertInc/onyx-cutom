@@ -1693,7 +1693,7 @@ const ProjectCard: React.FC<{
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="w-60 bg-white border border-gray-100 shadow-2xl" 
+            className="w-60 bg-white border border-gray-100 shadow-2xl text-gray-900" 
             align="end"
             side={menuPosition === "above" ? "top" : "bottom"}
             onClick={(e) => e.stopPropagation()}
