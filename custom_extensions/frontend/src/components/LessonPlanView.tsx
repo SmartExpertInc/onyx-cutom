@@ -551,12 +551,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Connectors */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
             <ul className="space-y-4">
               {connectorConfigs.map((connector) => (
                 <li key={connector.id} className="flex items-center group">
@@ -606,7 +606,7 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&_.p-4]:!p-0 [&_.sm\\:p-6]:!p-0 [&_.md\\:p-8]:!p-0">
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
             <TextPresentationDisplay 
               dataToDisplay={data}
               isEditing={false}
@@ -619,13 +619,13 @@ const VideoLessonBlock: React.FC<{
       </div>
 
             {/* Video Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
         <div className="mb-4">
-          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+          <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             VIDEO LESSON CREATION PROMPT:
           </h4>
         </div>
-        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
           {prompt}
         </div>
       </div>
@@ -663,13 +663,13 @@ const PresentationBlock: React.FC<{
       </div>
 
       {/* Presentation Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
         <div className="mb-4">
-          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+          <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             PRESENTATION CREATION PROMPT:
           </h4>
         </div>
-        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
           {prompt}
         </div>
       </div>
@@ -707,13 +707,13 @@ const QuizBlock: React.FC<{
       </div>
 
       {/* Quiz Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
         <div className="mb-4">
-          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+          <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             QUIZ CREATION PROMPT:
           </h4>
         </div>
-        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
           {prompt}
         </div>
       </div>
@@ -756,13 +756,13 @@ const OnePagerBlock: React.FC<{
       </div>
 
       {/* One-Pager Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
         <div className="mb-4">
-          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+          <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             ONE-PAGER CREATION PROMPT:
           </h4>
         </div>
-        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
           {prompt}
         </div>
       </div>
@@ -949,7 +949,7 @@ const FallbackOnePagerContent: React.FC = () => {
 
         return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&_.p-4]:!p-0 [&_.sm\\:p-6]:!p-0 [&_.md\\:p-8]:!p-0">
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
         <TextPresentationDisplay 
           dataToDisplay={fallbackOnePagerData as any}
           isEditing={false}
@@ -1017,7 +1017,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             maxWidth: '800px',
             minHeight: '400px',
             maxHeight: '600px',
-            aspectRatio: '16/9',
+
             transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0px)'
           }}
         >
