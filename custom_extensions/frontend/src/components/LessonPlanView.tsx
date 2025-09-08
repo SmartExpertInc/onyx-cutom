@@ -228,25 +228,32 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
   // Save handlers
   const handleUpdateLessonPlanData = (updatedData: LessonPlanData) => {
+    console.log('🔄 [LESSON_PLAN] Updating data:', updatedData);
     setEditableLessonPlanData(updatedData);
     if (onUpdate) {
+      console.log('✅ [LESSON_PLAN] Calling onUpdate callback');
       onUpdate(updatedData);
+    } else {
+      console.log('⚠️ [LESSON_PLAN] No onUpdate callback provided');
     }
   };
 
   const handleLessonTitleSave = (newValue: string) => {
+    console.log('💾 [LESSON_PLAN] Saving lesson title:', newValue);
     const updated = { ...editableLessonPlanData, lessonTitle: newValue };
     handleUpdateLessonPlanData(updated);
     setEditingLessonTitle(false);
   };
 
   const handleShortDescriptionSave = (newValue: string) => {
+    console.log('💾 [LESSON_PLAN] Saving short description:', newValue);
     const updated = { ...editableLessonPlanData, shortDescription: newValue };
     handleUpdateLessonPlanData(updated);
     setEditingShortDescription(false);
   };
 
   const handleObjectiveSave = (index: number, newValue: string) => {
+    console.log('💾 [LESSON_PLAN] Saving objective', index, ':', newValue);
     const updatedObjectives = [...editableLessonPlanData.lessonObjectives];
     updatedObjectives[index] = newValue;
     const updated = { ...editableLessonPlanData, lessonObjectives: updatedObjectives };
@@ -255,6 +262,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   };
 
   const handlePromptSave = (productName: string, newValue: string) => {
+    console.log('💾 [LESSON_PLAN] Saving prompt for', productName, ':', newValue);
     const updatedPrompts = [...editableLessonPlanData.suggestedPrompts];
     
     // Find existing prompt for this product
@@ -267,12 +275,16 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       return false;
     });
 
+    console.log('🔍 [LESSON_PLAN] Found existing prompt at index:', existingIndex);
+
     if (existingIndex >= 0) {
       // Update existing prompt
       updatedPrompts[existingIndex] = newValue;
+      console.log('✏️ [LESSON_PLAN] Updated existing prompt');
     } else {
       // Add new prompt
       updatedPrompts.push(newValue);
+      console.log('➕ [LESSON_PLAN] Added new prompt');
     }
 
     const updated = { ...editableLessonPlanData, suggestedPrompts: updatedPrompts };
@@ -1130,7 +1142,7 @@ const VideoLessonBlock: React.FC<{
           <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-sm [&_li]:!text-sm [&_span]:!text-sm [&_p]:!pl-4 [&_li]:!pl-4 [&_h1]:!pl-4 [&_h2]:!pl-4 [&_h3]:!pl-4">
             <TextPresentationDisplay 
               dataToDisplay={getFilteredData(data)}
-              isEditing={isEditable}
+              isEditing={false}
             />
           </div>
         </div>
@@ -1356,7 +1368,7 @@ const OnePagerBlock: React.FC<{
           <div className="[&_.max-w-3xl]:!max-w-2xl [&_.mx-auto]:!mx-0 [&_p]:!text-sm [&_li]:!text-sm [&_span]:!text-sm [&_p]:!pl-4 [&_li]:!pl-4 [&_h1]:!pl-4 [&_h2]:!pl-4 [&_h3]:!pl-4">
             <TextPresentationDisplay 
                 dataToDisplay={data}
-               isEditing={isEditable}
+               isEditing={false}
              />
           </div>
         </div>
@@ -1865,7 +1877,7 @@ const styles = `
     font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
-    color: inherit;
+    color: inherit !important;
     line-height: inherit;
   }
   
@@ -1873,6 +1885,7 @@ const styles = `
     outline: none;
     border-color: #1d4ed8;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    color: inherit !important;
   }
 `;
 
