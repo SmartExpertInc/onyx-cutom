@@ -1717,6 +1717,42 @@ export default function ProjectInstanceViewPage() {
             lessonPlanData={lessonPlanData}
             allUserMicroproducts={allUserMicroproducts}
             parentProjectName={parentProjectNameForCurrentView}
+            onUpdate={async (updatedData) => {
+              console.log('💾 [LESSON_PLAN_SAVE] Saving lesson plan data:', updatedData);
+              
+              // Create the save payload
+              const payload = { microProductContent: updatedData };
+              
+              // Get headers for the request
+              const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+              const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+              if (devUserId && process.env.NODE_ENV === 'development') {
+                saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+              }
+
+              try {
+                const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+                  method: 'PUT',
+                  headers: saveOperationHeaders,
+                  body: JSON.stringify(payload),
+                });
+
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('❌ [LESSON_PLAN_SAVE] Failed to save:', response.status, errorText);
+                  throw new Error(`Failed to save: ${response.status}`);
+                }
+
+                const responseData = await response.json();
+                console.log('✅ [LESSON_PLAN_SAVE] Successfully saved lesson plan data:', responseData);
+
+                // Optionally refresh the page data to get the latest version
+                await fetchPageData(projectId);
+              } catch (error: any) {
+                console.error('💥 [LESSON_PLAN_SAVE] Error saving lesson plan:', error);
+                alert(`Failed to save lesson plan changes: ${error.message}`);
+              }
+            }}
           />
         );
       default:

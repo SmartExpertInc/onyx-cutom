@@ -95,8 +95,9 @@ function InlineEditor({
           boxSizing: 'border-box',
           display: 'block',
           lineHeight: '1.6',
-          color: 'inherit'
-        }}
+          color: style?.color || 'inherit',
+          WebkitTextFillColor: style?.color || 'inherit'
+        } as any}
         rows={1}
       />
     );
@@ -120,8 +121,9 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         boxSizing: 'border-box',
-        color: 'inherit'
-      }}
+        color: style?.color || 'inherit',
+        WebkitTextFillColor: style?.color || 'inherit'
+      } as any}
     />
   );
 }
@@ -141,6 +143,11 @@ interface LessonPlanViewProps {
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   isEditable?: boolean;
+  /** 
+   * Callback function to save changes to database.
+   * REQUIRED for persistence - without this, changes will only be kept in local state.
+   * Example: onUpdate={(data) => saveLessonPlanToDatabase(data)}
+   */
   onUpdate?: (updatedData: LessonPlanData) => void;
 }
 
@@ -237,6 +244,14 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       onUpdate(updatedData);
     } else {
       console.warn('⚠️ [LESSON_PLAN] No onUpdate callback provided - changes will not be saved to database');
+      console.warn('💡 [LESSON_PLAN] To save changes, pass an onUpdate prop:');
+      console.warn(`   <LessonPlanView 
+     lessonPlanData={data} 
+     onUpdate={(updatedData) => {
+       // Save to your database here
+       console.log('Saving to database:', updatedData);
+     }}
+   />`);
     }
   };
 
@@ -1878,15 +1893,18 @@ const styles = `
   .inline-editor-input, .inline-editor-textarea {
     background: rgba(255, 255, 255, 0.9) !important;
     border: 2px solid #3b82f6 !important;
-    border-radius: 4px;
-    padding: 2px 4px;
+    border-radius: 4px !important;
+    padding: 2px 4px !important;
     font-family: inherit !important;
     font-size: inherit !important;
     font-weight: inherit !important;
     color: inherit !important;
     line-height: inherit !important;
     -webkit-text-fill-color: inherit !important;
-    -webkit-appearance: none;
+    -moz-text-fill-color: inherit !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
   }
   
   .inline-editor-input:focus, .inline-editor-textarea:focus {
@@ -1895,19 +1913,57 @@ const styles = `
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
     color: inherit !important;
     -webkit-text-fill-color: inherit !important;
+    -moz-text-fill-color: inherit !important;
+  }
+
+  .inline-editor-input:active, .inline-editor-textarea:active {
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+    -moz-text-fill-color: inherit !important;
   }
 
   /* Override any default browser styles */
   .inline-editor-input::-webkit-input-placeholder,
   .inline-editor-textarea::-webkit-input-placeholder {
     color: inherit !important;
-    opacity: 0.6;
+    opacity: 0.6 !important;
   }
   
   .inline-editor-input::-moz-placeholder,
   .inline-editor-textarea::-moz-placeholder {
     color: inherit !important;
-    opacity: 0.6;
+    opacity: 0.6 !important;
+  }
+
+  .inline-editor-input::placeholder,
+  .inline-editor-textarea::placeholder {
+    color: inherit !important;
+    opacity: 0.6 !important;
+  }
+
+  /* Force color inheritance for specific text colors */
+  .text-gray-800 .inline-editor-input,
+  .text-gray-800 .inline-editor-textarea {
+    color: rgb(31 41 55) !important;
+    -webkit-text-fill-color: rgb(31 41 55) !important;
+  }
+
+  .text-gray-700 .inline-editor-input,
+  .text-gray-700 .inline-editor-textarea {
+    color: rgb(55 65 81) !important;
+    -webkit-text-fill-color: rgb(55 65 81) !important;
+  }
+
+  .text-gray-900 .inline-editor-input,
+  .text-gray-900 .inline-editor-textarea {
+    color: rgb(17 24 39) !important;
+    -webkit-text-fill-color: rgb(17 24 39) !important;
+  }
+
+  .text-blue-700 .inline-editor-input,
+  .text-blue-700 .inline-editor-textarea {
+    color: rgb(29 78 216) !important;
+    -webkit-text-fill-color: rgb(29 78 216) !important;
   }
 `;
 
