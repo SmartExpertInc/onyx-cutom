@@ -59,6 +59,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -340,56 +352,31 @@ const ClientNameModal: React.FC<{
   // Check if any items are selected (folders or projects)
   const hasAnySelection = selectedFolders.size > 0 || selectedProjects.size > 0;
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30"
-      onClick={handleBackdropClick}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
-        <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer"
-          onClick={onClose}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
             {t("interface.customizePDF", "Customize PDF")}
-          </h2>
-          <p className="text-gray-600">
+          </DialogTitle>
+          <DialogDescription>
             {t(
               "interface.customizePDFDescription",
               "Enter a client name and select which folders/products to include in the PDF."
             )}
-          </p>
-        </div>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
+            <Label
               htmlFor="client-name"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
               {t("interface.clientNameOptional", "Client Name (optional)")}
-            </label>
-            <input
+            </Label>
+            <Input
               id="client-name"
               type="text"
               value={clientName}
@@ -401,7 +388,6 @@ const ClientNameModal: React.FC<{
                 }
               }}
               placeholder={t("interface.enterClientName", "Enter client name")}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300 cursor-text"
               autoFocus
             />
           </div>
@@ -419,17 +405,15 @@ const ClientNameModal: React.FC<{
                   {selectedProjects.size} {t("interface.selected", "selected")}
                 </span>
                 {(folders.length > 0 || unassignedProjects.length > 0) && (
-                  <label className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
-                    <input
-                      type="checkbox"
+                  <Label className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
+                    <Checkbox
                       checked={isAllSelected}
-                      onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
+                      onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
                     </span>
-                  </label>
+                  </Label>
                 )}
               </div>
             </div>
@@ -442,14 +426,12 @@ const ClientNameModal: React.FC<{
                   </div>
                   {folders.map((folder) => (
                     <div key={folder.id} className="mb-2">
-                      <label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
-                        <input
-                          type="checkbox"
+                      <Label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
+                        <Checkbox
                           checked={selectedFolders.has(folder.id)}
-                          onChange={(e) =>
-                            handleFolderSelection(folder.id, e.target.checked)
+                          onCheckedChange={(checked) =>
+                            handleFolderSelection(folder.id, checked as boolean)
                           }
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -477,22 +459,21 @@ const ClientNameModal: React.FC<{
                               : t("interface.items", "items")}
                           </span>
                         </div>
-                      </label>
+                      </Label>
 
                       {/* Projects in this folder */}
                       {folderProjects[folder.id] &&
                         folderProjects[folder.id].length > 0 && (
                           <div className="ml-8 mt-2 space-y-1">
                             {folderProjects[folder.id].map((project) => (
-                              <label
+                              <Label
                                 key={project.id}
                                 className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group"
                               >
-                                <input
-                                  type="checkbox"
+                                <Checkbox
                                   checked={selectedProjects.has(project.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
                                       setSelectedProjects(
                                         (prev) => new Set([...prev, project.id])
                                       );
@@ -504,12 +485,11 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                                 />
                                 <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
                                   {project.title}
                                 </span>
-                              </label>
+                              </Label>
                             ))}
                           </div>
                         )}
@@ -529,15 +509,14 @@ const ClientNameModal: React.FC<{
                   </div>
                   <div className="space-y-1">
                     {unassignedProjects.map((project) => (
-                      <label
+                      <Label
                         key={project.id}
                         className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selectedProjects.has(project.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
+                          onCheckedChange={(checked) => {
+                            if (checked) {
                               setSelectedProjects(
                                 (prev) => new Set([...prev, project.id])
                               );
@@ -549,12 +528,11 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
                         <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
                           {project.title}
                         </span>
-                      </label>
+                      </Label>
                     ))}
                   </div>
                 </div>
@@ -587,28 +565,24 @@ const ClientNameModal: React.FC<{
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={handleCancel}
-              className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300 cursor-pointer"
             >
               {t("common.cancel", "Cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={!hasAnySelection}
-              className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-semibold shadow-sm ${
-                hasAnySelection
-                  ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              variant={hasAnySelection ? "default" : "secondary"}
             >
               {t("common.downloadPdf", "Download PDF")}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -1686,10 +1660,10 @@ const ProjectCard: React.FC<{
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
-              ref={buttonRef}
+          ref={buttonRef}
               variant="menu"
-            >
-              <MoreHorizontal size={16} />
+        >
+          <MoreHorizontal size={16} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
@@ -1734,75 +1708,75 @@ const ProjectCard: React.FC<{
             ) : (
               <>
                 <DropdownMenuItem>
-                  <Share2 size={16} className="text-gray-500" />
-                  <span>{t("actions.share", "Share...")}</span>
+                    <Share2 size={16} className="text-gray-500" />
+                    <span>{t("actions.share", "Share...")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setMenuOpen(false);
-                    setRenameModalOpen(true);
-                  }}
-                >
-                  <PenLine size={16} className="text-gray-500" />
-                  <span>{t("actions.rename", "Rename...")}</span>
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setMenuOpen(false);
+                      setRenameModalOpen(true);
+                    }}
+                  >
+                    <PenLine size={16} className="text-gray-500" />
+                    <span>{t("actions.rename", "Rename...")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Star size={16} className="text-gray-500" />
-                  <span>
-                    {t("actions.addToFavorites", "Add to favorites")}
-                  </span>
+                    <Star size={16} className="text-gray-500" />
+                    <span>
+                      {t("actions.addToFavorites", "Add to favorites")}
+                    </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDuplicateProject}>
-                  <Copy size={16} className="text-gray-500" />
-                  <span>{t("actions.duplicate", "Duplicate")}</span>
+                    <Copy size={16} className="text-gray-500" />
+                    <span>{t("actions.duplicate", "Duplicate")}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <LinkIcon size={16} className="text-gray-500" />
-                  <span>{t("actions.copyLink", "Copy link")}</span>
+                    <LinkIcon size={16} className="text-gray-500" />
+                    <span>{t("actions.copyLink", "Copy link")}</span>
                 </DropdownMenuItem>
-                {isOutline && (
+                  {isOutline && (
                   <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      setShowSettingsModal(true);
-                    }}
-                  >
-                    <Settings size={16} className="text-gray-500" />
-                    <span>{t("actions.settings", "Settings")}</span>
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        setShowSettingsModal(true);
+                      }}
+                    >
+                      <Settings size={16} className="text-gray-500" />
+                      <span>{t("actions.settings", "Settings")}</span>
                   </DropdownMenuItem>
-                )}
-                {folderId && (
+                  )}
+                  {folderId && (
                   <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      handleRemoveFromFolder();
-                    }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        handleRemoveFromFolder();
+                      }}
                     className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
-                  >
-                    <FolderMinus size={16} className="text-orange-500" />
-                    <span>
-                      {t("actions.removeFromFolder", "Remove from Folder")}
-                    </span>
+                    >
+                      <FolderMinus size={16} className="text-orange-500" />
+                      <span>
+                        {t("actions.removeFromFolder", "Remove from Folder")}
+                      </span>
                   </DropdownMenuItem>
-                )}
+                  )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setMenuOpen(false);
-                    handleTrashRequest(e);
-                  }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setMenuOpen(false);
+                      handleTrashRequest(e);
+                    }}
                   variant="destructive"
-                >
-                  <Trash2 size={14} />
-                  <span>{t("actions.sendToTrash", "Send to trash")}</span>
+                  >
+                    <Trash2 size={14} />
+                    <span>{t("actions.sendToTrash", "Send to trash")}</span>
                 </DropdownMenuItem>
               </>
             )}
@@ -4310,11 +4284,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   asChild
                 >
                   <div>
-                    <Plus size={16} className="text-white" />
-                    {t("interface.createNew", "Create new")}
-                    <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                      AI
-                    </span>
+                  <Plus size={16} className="text-white" />
+                  {t("interface.createNew", "Create new")}
+                  <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                    AI
+                  </span>
                   </div>
                 </Button>
               </Link>
