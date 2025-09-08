@@ -1671,7 +1671,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0px)'
           }}
         >
-          <div style={{ width: '100%', height: '100%' }} className="[&_*]:!text-sm [&_h1]:!text-lg [&_h2]:!text-base [&_h3]:!text-sm [&_h4]:!text-sm [&_h5]:!text-xs [&_h6]:!text-xs">
+          <div style={{ width: '100%', height: '100%' }} className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_h4]:!text-lg [&_h5]:!text-base [&_h6]:!text-sm">
             <ComponentBasedSlideRenderer
               slide={currentSlide}
               isEditable={false}
