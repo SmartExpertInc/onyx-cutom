@@ -502,6 +502,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <LayoutTemplate size={18} />
           <span>{t('interface.templates', 'Templates')}</span>
         </Link>
+        <Link href="/create/commercial-proposal" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+          <Presentation size={18} />
+          <span>{t('interface.commercialProposal', 'Commercial Proposal')}</span>
+        </Link>
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Palette size={18} />
           <span>{t('interface.themes', 'Themes')}</span>
