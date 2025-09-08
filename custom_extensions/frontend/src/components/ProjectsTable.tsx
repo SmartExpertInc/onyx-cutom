@@ -52,10 +52,13 @@ import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { Button } from "@/components/ui/button"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -1680,22 +1683,21 @@ const ProjectCard: React.FC<{
         </div>
       </Link>
       <div className="absolute bottom-4 right-3" ref={menuRef}>
-        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-          <PopoverTrigger asChild>
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
             <Button
               ref={buttonRef}
               variant="menu"
             >
               <MoreHorizontal size={16} />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-60 p-1 bg-white border border-gray-100 shadow-2xl" 
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="w-60" 
             align="end"
             side={menuPosition === "above" ? "top" : "bottom"}
-            onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-3 py-2 border-b border-gray-100">
+            <DropdownMenuLabel>
               <p className="font-semibold text-sm text-gray-900 truncate">
                 {project.title}
               </p>
@@ -1705,132 +1707,106 @@ const ProjectCard: React.FC<{
                   formatDate(project.createdAt)
                 )}
               </p>
-            </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
             {isTrashMode ? (
-              <div className="py-1">
-                <Button
-                  onClick={handleRestoreProject}
-                  variant="menu-item"
-                  className="w-full justify-start"
-                >
+              <>
+                <DropdownMenuItem onClick={handleRestoreProject}>
                   <RefreshCw size={14} />
                   <span>{t("actions.restore", "Restore")}</span>
-                </Button>
-                <Button
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     setMenuOpen(false);
                     setPermanentDeleteConfirmOpen(true);
                   }}
-                  variant="menu-item-red"
-                  className="w-full justify-start"
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
                 >
                   <Trash2 size={14} />
                   <span>
                     {t("actions.deletePermanently", "Delete permanently")}
                   </span>
-                </Button>
-              </div>
+                </DropdownMenuItem>
+              </>
             ) : (
               <>
-                <div className="py-1">
-                  <Button 
-                    variant="menu-item"
-                    className="w-full justify-start"
-                  >
-                    <Share2 size={16} className="text-gray-500" />
-                    <span>{t("actions.share", "Share...")}</span>
-                  </Button>
-                  <Button
+                <DropdownMenuItem>
+                  <Share2 size={16} className="text-gray-500" />
+                  <span>{t("actions.share", "Share...")}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    setRenameModalOpen(true);
+                  }}
+                >
+                  <PenLine size={16} className="text-gray-500" />
+                  <span>{t("actions.rename", "Rename...")}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Star size={16} className="text-gray-500" />
+                  <span>
+                    {t("actions.addToFavorites", "Add to favorites")}
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDuplicateProject}>
+                  <Copy size={16} className="text-gray-500" />
+                  <span>{t("actions.duplicate", "Duplicate")}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LinkIcon size={16} className="text-gray-500" />
+                  <span>{t("actions.copyLink", "Copy link")}</span>
+                </DropdownMenuItem>
+                {isOutline && (
+                  <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
-                      setRenameModalOpen(true);
+                      setShowSettingsModal(true);
                     }}
-                    variant="menu-item"
-                    className="w-full justify-start"
                   >
-                    <PenLine size={16} className="text-gray-500" />
-                    <span>{t("actions.rename", "Rename...")}</span>
-                  </Button>
-                  <Button 
-                    variant="menu-item"
-                    className="w-full justify-start"
+                    <Settings size={16} className="text-gray-500" />
+                    <span>{t("actions.settings", "Settings")}</span>
+                  </DropdownMenuItem>
+                )}
+                {folderId && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setMenuOpen(false);
+                      handleRemoveFromFolder();
+                    }}
+                    className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
                   >
-                    <Star size={16} className="text-gray-500" />
+                    <FolderMinus size={16} className="text-orange-500" />
                     <span>
-                      {t("actions.addToFavorites", "Add to favorites")}
+                      {t("actions.removeFromFolder", "Remove from Folder")}
                     </span>
-                  </Button>
-                  <Button
-                    onClick={handleDuplicateProject}
-                    variant="menu-item"
-                    className="w-full justify-start"
-                  >
-                    <Copy size={16} className="text-gray-500" />
-                    <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </Button>
-                  <Button 
-                    variant="menu-item"
-                    className="w-full justify-start"
-                  >
-                    <LinkIcon size={16} className="text-gray-500" />
-                    <span>{t("actions.copyLink", "Copy link")}</span>
-                  </Button>
-                  {isOutline && (
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        setShowSettingsModal(true);
-                      }}
-                      variant="menu-item"
-                      className="w-full justify-start"
-                    >
-                      <Settings size={16} className="text-gray-500" />
-                      <span>{t("actions.settings", "Settings")}</span>
-                    </Button>
-                  )}
-                  {folderId && (
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        handleRemoveFromFolder();
-                      }}
-                      variant="menu-item-orange"
-                      className="w-full justify-start"
-                    >
-                      <FolderMinus size={16} className="text-orange-500" />
-                      <span>
-                        {t("actions.removeFromFolder", "Remove from Folder")}
-                      </span>
-                    </Button>
-                  )}
-                </div>
-                <div className="py-1 border-t border-gray-100">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      handleTrashRequest(e);
-                    }}
-                    variant="menu-item-red"
-                    className="w-full justify-start"
-                  >
-                    <Trash2 size={14} />
-                    <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </Button>
-                </div>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    handleTrashRequest(e);
+                  }}
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                >
+                  <Trash2 size={14} />
+                  <span>{t("actions.sendToTrash", "Send to trash")}</span>
+                </DropdownMenuItem>
               </>
             )}
-          </PopoverContent>
-        </Popover>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {permanentDeleteConfirmOpen && (
