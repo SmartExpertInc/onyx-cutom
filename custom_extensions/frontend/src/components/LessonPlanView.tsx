@@ -1442,10 +1442,10 @@ const FallbackPresentationCarousel: React.FC = () => {
         <div className="relative">
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[300px]">
             <div className="text-center h-full flex flex-col justify-center">
-              <h4 className="text-2xl font-bold text-blue-900 mb-4">
+              <h4 className="text-lg font-bold text-blue-900 mb-4">
             {fallbackSlides[currentSlide]?.title}
               </h4>
-          <p className="text-lg text-gray-700 leading-relaxed">
+          <p className="text-sm text-gray-700 leading-relaxed">
             {fallbackSlides[currentSlide]?.content}
               </p>
             </div>
@@ -1671,7 +1671,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0px)'
           }}
         >
-          <div style={{ width: '100%', height: '100%' }}>
+          <div style={{ width: '100%', height: '100%' }} className="[&_*]:!text-sm [&_h1]:!text-lg [&_h2]:!text-base [&_h3]:!text-sm [&_h4]:!text-sm [&_h5]:!text-xs [&_h6]:!text-xs">
             <ComponentBasedSlideRenderer
               slide={currentSlide}
               isEditable={false}
