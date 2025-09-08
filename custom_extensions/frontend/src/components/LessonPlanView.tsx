@@ -74,30 +74,19 @@ function InlineEditor({
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
+        className={`${editingTextareaClass} ${className.replace(/text-\w+/g, '').replace(/font-\w+/g, '')}`}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder={placeholder}
         style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
+          fontSize: 'inherit',
+          fontWeight: 'inherit',
+          lineHeight: 'inherit',
           width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6',
-          color: style?.color || 'inherit',
-          WebkitTextFillColor: style?.color || 'inherit'
-        } as any}
+          ...style
+        }}
         rows={1}
       />
     );
@@ -106,7 +95,7 @@ function InlineEditor({
   return (
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
+      className={`${editingInputClass} ${className.replace(/text-\w+/g, '').replace(/font-\w+/g, '')}`}
       type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
@@ -114,16 +103,12 @@ function InlineEditor({
       onBlur={handleBlur}
       placeholder={placeholder}
       style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
+        fontSize: 'inherit',
+        fontWeight: 'inherit',
+        lineHeight: 'inherit',
         width: '100%',
-        boxSizing: 'border-box',
-        color: style?.color || 'inherit',
-        WebkitTextFillColor: style?.color || 'inherit'
-      } as any}
+        ...style
+      }}
     />
   );
 }
@@ -143,11 +128,6 @@ interface LessonPlanViewProps {
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
   isEditable?: boolean;
-  /** 
-   * Callback function to save changes to database.
-   * REQUIRED for persistence - without this, changes will only be kept in local state.
-   * Example: onUpdate={(data) => saveLessonPlanToDatabase(data)}
-   */
   onUpdate?: (updatedData: LessonPlanData) => void;
 }
 
@@ -232,26 +212,43 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
   // Update local state when props change
   useEffect(() => {
+    // Try to load from localStorage first if no onUpdate callback provided
+    if (!onUpdate && typeof window !== 'undefined') {
+      try {
+        const storageKey = `lesson_plan_${lessonPlanData.lessonTitle}`;
+        const savedData = localStorage.getItem(storageKey);
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          console.log('📥 [LESSON_PLAN] Loaded from localStorage:', storageKey);
+          setEditableLessonPlanData(parsedData);
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [LESSON_PLAN] Failed to load from localStorage:', error);
+      }
+    }
     setEditableLessonPlanData(lessonPlanData);
-  }, [lessonPlanData]);
+  }, [lessonPlanData, onUpdate]);
 
   // Save handlers
   const handleUpdateLessonPlanData = (updatedData: LessonPlanData) => {
     console.log('🔄 [LESSON_PLAN] Updating data:', updatedData);
     setEditableLessonPlanData(updatedData);
     if (onUpdate) {
-      console.log('✅ [LESSON_PLAN] Calling onUpdate callback for database save');
+      console.log('✅ [LESSON_PLAN] Calling onUpdate callback');
       onUpdate(updatedData);
     } else {
-      console.warn('⚠️ [LESSON_PLAN] No onUpdate callback provided - changes will not be saved to database');
-      console.warn('💡 [LESSON_PLAN] To save changes, pass an onUpdate prop:');
-      console.warn(`   <LessonPlanView 
-     lessonPlanData={data} 
-     onUpdate={(updatedData) => {
-       // Save to your database here
-       console.log('Saving to database:', updatedData);
-     }}
-   />`);
+      console.log('⚠️ [LESSON_PLAN] No onUpdate callback provided - changes saved locally only');
+      // Save to localStorage as fallback for demo purposes
+      if (typeof window !== 'undefined') {
+        try {
+          const storageKey = `lesson_plan_${editableLessonPlanData.lessonTitle}`;
+          localStorage.setItem(storageKey, JSON.stringify(updatedData));
+          console.log('💾 [LESSON_PLAN] Saved to localStorage:', storageKey);
+        } catch (error) {
+          console.error('❌ [LESSON_PLAN] Failed to save to localStorage:', error);
+        }
+      }
     }
   };
 
@@ -1189,8 +1186,8 @@ const VideoLessonBlock: React.FC<{
             className={`text-gray-800 leading-relaxed whitespace-pre-wrap font-medium ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2' : ''}`}
             onClick={() => isEditable && onPromptEditStart?.('video-lesson')}
           >
-            {prompt}
-          </div>
+          {prompt}
+        </div>
         )}
       </div>
     </div>
@@ -1262,8 +1259,8 @@ const PresentationBlock: React.FC<{
             className={`text-gray-800 leading-relaxed whitespace-pre-wrap font-medium ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2' : ''}`}
             onClick={() => isEditable && onPromptEditStart?.('presentation')}
           >
-            {prompt}
-          </div>
+          {prompt}
+        </div>
         )}
       </div>
     </div>
@@ -1335,8 +1332,8 @@ const QuizBlock: React.FC<{
             className={`text-gray-800 leading-relaxed whitespace-pre-wrap font-medium ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2' : ''}`}
             onClick={() => isEditable && onPromptEditStart?.('quiz')}
           >
-            {prompt}
-          </div>
+          {prompt}
+        </div>
         )}
       </div>
     </div>
@@ -1415,8 +1412,8 @@ const OnePagerBlock: React.FC<{
             className={`text-gray-800 leading-relaxed whitespace-pre-wrap font-medium ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2' : ''}`}
             onClick={() => isEditable && onPromptEditStart?.('one-pager')}
           >
-            {prompt}
-          </div>
+          {prompt}
+        </div>
         )}
       </div>
     </div>
@@ -1457,26 +1454,26 @@ const FallbackPresentationCarousel: React.FC = () => {
           <div className="flex items-center justify-between mt-4">
             <button
               onClick={prevSlide}
-          disabled={fallbackSlides.length <= 1}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={fallbackSlides.length <= 1}
+              className="flex items-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="w-6 h-6 mr-1" />
               Previous
             </button>
             
             <span className="text-sm text-gray-600">
-          Slide {currentSlide + 1} of {fallbackSlides.length} (Preview)
+              Slide {currentSlide + 1} of {fallbackSlides.length} (Preview)
             </span>
             
             <button
               onClick={nextSlide}
-          disabled={fallbackSlides.length <= 1}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={fallbackSlides.length <= 1}
+              className="flex items-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-6 h-6 ml-1" />
             </button>
-      </div>
+          </div>
     </div>
   );
 };
@@ -1540,24 +1537,24 @@ const FallbackQuizCarousel: React.FC = () => {
           <div className="flex items-center justify-between mt-4">
             <button
               onClick={prevQuestion}
-          disabled={fallbackQuestions.length <= 1}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={fallbackQuestions.length <= 1}
+              className="flex items-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="w-6 h-6 mr-1" />
               Previous
             </button>
             
             <span className="text-sm text-gray-600">
-          Question {currentQuestion + 1} of {fallbackQuestions.length} (Preview)
+              Question {currentQuestion + 1} of {fallbackQuestions.length} (Preview)
             </span>
             
             <button
               onClick={nextQuestion}
-          disabled={fallbackQuestions.length <= 1}
-              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={fallbackQuestions.length <= 1}
+              className="flex items-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-6 h-6 ml-1" />
             </button>
           </div>
         </div>
@@ -1654,7 +1651,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       <button
         onClick={prevSlide}
         disabled={deck.slides.length <= 1}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronLeft className="w-8 h-8" />
       </button>
@@ -1693,7 +1690,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       <button
         onClick={nextSlide}
         disabled={deck.slides.length <= 1}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <ChevronRight className="w-8 h-8" />
       </button>
@@ -1843,19 +1840,19 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   };
 
   return (
-    <div className="relative">
-      {/* Question Content - Centered with arrows positioned relative to question area */}
-      <div className="flex items-center justify-center w-full max-w-4xl mx-auto px-16">
-        {/* Left Arrow */}
-        <button
-          onClick={prevQuestion}
-          disabled={questions.length <= 1}
-          className="absolute left-4 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
-          style={{ top: '40%', transform: 'translateY(-50%)' }}
-        >
-          <ChevronLeft className="w-8 h-8" />
-        </button>
+    <div className="relative flex items-start justify-center">
+      {/* Left Arrow - positioned to align with question content */}
+      <button
+        onClick={prevQuestion}
+        disabled={questions.length <= 1}
+        className="absolute left-4 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        style={{ top: '60px' }} // Align with question header area
+      >
+        <ChevronLeft className="w-8 h-8" />
+      </button>
 
+      {/* Question Content - Centered */}
+      <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
         <div 
           className="transition-transform duration-300 ease-in-out w-full"
           style={{
@@ -1864,114 +1861,29 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
         >
           {renderQuestion(currentQuestion, currentQuestionIndex)}
         </div>
-
-        {/* Right Arrow */}
-        <button
-          onClick={nextQuestion}
-          disabled={questions.length <= 1}
-          className="absolute right-4 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
-          style={{ top: '40%', transform: 'translateY(-50%)' }}
-        >
-          <ChevronRight className="w-8 h-8" />
-        </button>
-      </div>
         
-      {/* Question Counter - Now outside the arrow positioning */}
-      <div className="flex justify-center mt-4">
-        <div className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
+        {/* Question Counter */}
+        <div className="mt-4 text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
           Question {currentQuestionIndex + 1} of {questions.length}
         </div>
       </div>
+
+      {/* Right Arrow - positioned to align with question content */}
+      <button
+        onClick={nextQuestion}
+        disabled={questions.length <= 1}
+        className="absolute right-4 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        style={{ top: '60px' }} // Align with question header area
+      >
+        <ChevronRight className="w-8 h-8" />
+      </button>
     </div>
   );
 };
 
 export default LessonPlanView;
 
-// Add CSS for the inline editors
-const styles = `
-  .inline-editor-input, .inline-editor-textarea {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 2px solid #3b82f6 !important;
-    border-radius: 4px !important;
-    padding: 2px 4px !important;
-    font-family: inherit !important;
-    font-size: inherit !important;
-    font-weight: inherit !important;
-    color: inherit !important;
-    line-height: inherit !important;
-    -webkit-text-fill-color: inherit !important;
-    -moz-text-fill-color: inherit !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    appearance: none !important;
-  }
-  
-  .inline-editor-input:focus, .inline-editor-textarea:focus {
-    outline: none !important;
-    border-color: #1d4ed8 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-    color: inherit !important;
-    -webkit-text-fill-color: inherit !important;
-    -moz-text-fill-color: inherit !important;
-  }
-
-  .inline-editor-input:active, .inline-editor-textarea:active {
-    color: inherit !important;
-    -webkit-text-fill-color: inherit !important;
-    -moz-text-fill-color: inherit !important;
-  }
-
-  /* Override any default browser styles */
-  .inline-editor-input::-webkit-input-placeholder,
-  .inline-editor-textarea::-webkit-input-placeholder {
-    color: inherit !important;
-    opacity: 0.6 !important;
-  }
-  
-  .inline-editor-input::-moz-placeholder,
-  .inline-editor-textarea::-moz-placeholder {
-    color: inherit !important;
-    opacity: 0.6 !important;
-  }
-
-  .inline-editor-input::placeholder,
-  .inline-editor-textarea::placeholder {
-    color: inherit !important;
-    opacity: 0.6 !important;
-  }
-
-  /* Force color inheritance for specific text colors */
-  .text-gray-800 .inline-editor-input,
-  .text-gray-800 .inline-editor-textarea {
-    color: rgb(31 41 55) !important;
-    -webkit-text-fill-color: rgb(31 41 55) !important;
-  }
-
-  .text-gray-700 .inline-editor-input,
-  .text-gray-700 .inline-editor-textarea {
-    color: rgb(55 65 81) !important;
-    -webkit-text-fill-color: rgb(55 65 81) !important;
-  }
-
-  .text-gray-900 .inline-editor-input,
-  .text-gray-900 .inline-editor-textarea {
-    color: rgb(17 24 39) !important;
-    -webkit-text-fill-color: rgb(17 24 39) !important;
-  }
-
-  .text-blue-700 .inline-editor-input,
-  .text-blue-700 .inline-editor-textarea {
-    color: rgb(29 78 216) !important;
-    -webkit-text-fill-color: rgb(29 78 216) !important;
-  }
-`;
-
-// Inject styles
-if (typeof document !== 'undefined' && !document.getElementById('lesson-plan-inline-editor-styles')) {
-  const styleSheet = document.createElement('style');
-  styleSheet.id = 'lesson-plan-inline-editor-styles';
-  styleSheet.textContent = styles;
-  document.head.appendChild(styleSheet);
-}
+// CSS classes for inline editors - based on course outline approach
+const editingInputClass = "bg-white border-2 border-blue-500 rounded px-1 py-0.5 text-black outline-none focus:ring-1 focus:ring-blue-500";
+const editingTextareaClass = `${editingInputClass} min-h-[50px] resize-none`;
  
