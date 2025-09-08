@@ -330,10 +330,10 @@ export const CreateContentTypeModal = ({
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-amber-900">Lesson Plan</span>
+                        <span className="text-sm font-semibold text-amber-900">Lesson Draft</span>
                         <span className="text-xs bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 px-2 py-1 rounded-full border border-amber-200">Already created</span>
                       </div>
-                      <p className="text-xs text-amber-800">View lesson plan with objectives and materials</p>
+                      <p className="text-xs text-amber-800">View lesson draft with objectives and materials</p>
                     </div>
                   </div>
                 </button>
@@ -341,7 +341,7 @@ export const CreateContentTypeModal = ({
                   onClick={onRefreshLessonPlan}
                   disabled={!!isRefreshingLessonPlan}
                   className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-lg border border-amber-300 transition-all duration-300 ${isRefreshingLessonPlan ? 'bg-amber-200 cursor-not-allowed' : 'bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 hover:shadow-md'}`}
-                  title="Generate new lesson plan"
+                  title="Generate new lesson draft"
                 >
                   {isRefreshingLessonPlan ? (
                     <Loader2 size={18} className="animate-spin text-amber-700" />
@@ -370,11 +370,11 @@ export const CreateContentTypeModal = ({
               <div className="text-left flex-1">
                 <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
                     <span className="text-sm sm:text-base font-semibold text-gray-900">
-                      {isGeneratingLessonPlan ? 'Generating Lesson Plan...' : 'Lesson Plan'}
+                      {isGeneratingLessonPlan ? 'Generating Lesson Draft...' : 'Lesson Draft'}
                     </span>
                 </div>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                    {isGeneratingLessonPlan ? 'Please wait while we generate your lesson plan...' : 'Technical specification with lesson objectives'}
+                    {isGeneratingLessonPlan ? 'Please wait while we generate your lesson draft...' : 'Technical specification with lesson objectives'}
                   </p>
               </div>
             </div>

@@ -101,13 +101,13 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-amber-900">Lesson Plan</h3>
+                        <h3 className="text-lg font-bold text-amber-900">Lesson Draft</h3>
                         <span className="text-xs bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 px-2 py-1 rounded-full font-medium border border-amber-200">
                           Available
                         </span>
                       </div>
                       <p className="text-sm text-amber-800 leading-relaxed">
-                        View lesson plan with objectives and materials
+                        View lesson draft with objectives and materials
                       </p>
                     </div>
                   </div>
@@ -123,7 +123,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
                       ? 'bg-amber-200 cursor-not-allowed' 
                       : 'bg-gradient-to-br from-amber-100 to-orange-100 hover:from-amber-200 hover:to-orange-200 hover:shadow-md'
                   } group`}
-                  title="Generate new lesson plan"
+                  title="Generate new lesson draft"
                 >
                   {isRefreshingLessonPlan ? (
                     <Loader2 size={18} className="animate-spin text-amber-700" />
