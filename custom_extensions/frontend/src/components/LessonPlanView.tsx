@@ -19,12 +19,9 @@ const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
 
 // Connector configurations with logos - exact same paths as SmartDrive
 const connectorConfigs = [
-  { id: 'google_drive', name: 'Google Drive', logoPath: '/Google_Drive.svg' },
-  { id: 'slack', name: 'Slack', logoPath: '/Slack.png' },
   { id: 'notion', name: 'Notion', logoPath: '/Notion.png' },
-  { id: 'github', name: 'GitHub', logoPath: '/Github.png' },
-  { id: 'confluence', name: 'Confluence', logoPath: '/Confluence.png' },
-  { id: 'teams', name: 'Microsoft Teams', logoPath: '/Teams.png' }
+  { id: 'dropbox', name: 'Dropbox', logoPath: '/Dropbox.png' },
+  { id: 'salesforce', name: 'Salesforce', logoPath: '/Salesforce.png' }
 ];
 
 interface LessonPlanViewProps {
@@ -780,6 +777,30 @@ const VideoLessonBlock: React.FC<{
   product?: ProjectListItem;
   timingData?: { creationTimes: any; completionTimes: any } | null;
 }> = ({ title, data, prompt, loading, product, timingData }) => {
+  // Filter out title and first paragraph from one-pager content
+  const getFilteredData = (originalData: any) => {
+    if (!originalData || !originalData.contentBlocks) {
+      return originalData;
+    }
+
+    const filteredBlocks = originalData.contentBlocks.filter((block: any, index: number) => {
+      // Skip first title block (usually headline type)
+      if (index === 0 && (block.type === 'headline' || block.type === 'title')) {
+        return false;
+      }
+      // Skip first paragraph block after title
+      if (index === 1 && block.type === 'paragraph') {
+        return false;
+      }
+      return true;
+    });
+
+    return {
+      ...originalData,
+      contentBlocks: filteredBlocks
+    };
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
@@ -789,10 +810,10 @@ const VideoLessonBlock: React.FC<{
           </div>
           <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        {product && timingData && (
+        {timingData && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            <span>Creation time: {timingData.creationTimes.videoLesson}</span>
-            <span>Completion time: {timingData.completionTimes.videoLesson}</span>
+            <span>Creation time: {timingData.creationTimes.videoLesson || 'N/A'}</span>
+            <span>Completion time: {timingData.completionTimes.videoLesson || 'N/A'}</span>
           </div>
         )}
       </div>
@@ -807,7 +828,7 @@ const VideoLessonBlock: React.FC<{
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
           <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-lg [&_li]:!text-lg [&_span]:!text-lg">
             <TextPresentationDisplay 
-              dataToDisplay={data}
+              dataToDisplay={getFilteredData(data)}
               isEditing={false}
             />
           </div>
