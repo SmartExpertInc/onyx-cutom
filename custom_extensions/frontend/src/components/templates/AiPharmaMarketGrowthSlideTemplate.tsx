@@ -118,7 +118,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               )}
             </div>
 
-            <div style={{ flexGrow: 1, backgroundColor: '#20324a', height: '78px', borderRadius: '6px', position: 'relative' }}>
+            <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
               {/* Label editable */}
               <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', minHeight: '24px' }}>
                 {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
