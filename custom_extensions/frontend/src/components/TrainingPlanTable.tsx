@@ -306,12 +306,82 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   projectAdvancedRates,
   columnVisibility,
 }) => {
-    // --- MOCK DATA FOR DEMO PURPOSES ---
-    // These would be replaced by real data in production
-    const mockQuiz = true;
-    const mockOnePager = false;
-    const mockVideoPresentation = true;
-    const mockLessonPresentation = false;
+  // Function to process lessons and populate content type boolean flags from recommendations
+  const processLessonContentTypes = (lesson: any) => {
+    const processedLesson = { ...lesson };
+    
+    // Initialize all flags to false
+    processedLesson.quiz = false;
+    processedLesson.onePager = false;
+    processedLesson.videoPresentation = false;
+    processedLesson.lessonPresentation = false;
+    
+    // Check if we have recommended content types
+    if (lesson.recommended_content_types?.primary && Array.isArray(lesson.recommended_content_types.primary)) {
+      const primaryTypes = lesson.recommended_content_types.primary;
+      
+      console.log(`🔍 Processing lesson "${lesson.title}" with recommended types:`, primaryTypes);
+      
+      // Map content type names to boolean flags
+      primaryTypes.forEach((contentType: string) => {
+        switch (contentType) {
+          case 'presentation':
+          case 'lessonPresentation':
+            processedLesson.lessonPresentation = true;
+            console.log(`  ✓ Set lessonPresentation = true for "${contentType}"`);
+            break;
+          case 'one-pager':
+          case 'textPresentation':
+            processedLesson.onePager = true;
+            console.log(`  ✓ Set onePager = true for "${contentType}"`);
+            break;
+          case 'quiz':
+          case 'multiple-choice':
+            processedLesson.quiz = true;
+            console.log(`  ✓ Set quiz = true for "${contentType}"`);
+            break;
+          case 'video-lesson':
+          case 'videoLesson':
+            processedLesson.videoPresentation = true;
+            console.log(`  ✓ Set videoPresentation = true for "${contentType}"`);
+            break;
+          default:
+            console.log(`  ⚠️  Unknown content type: "${contentType}"`);
+        }
+      });
+    } else {
+      console.log(`🔍 No recommended content types found for lesson "${lesson.title}", using fallback flags`);
+      // Fallback: if no recommendations, check if the boolean flags are already set
+      // (in case they come from another source)
+      processedLesson.quiz = lesson.quiz || false;
+      processedLesson.onePager = lesson.onePager || false;
+      processedLesson.videoPresentation = lesson.videoPresentation || false;
+      processedLesson.lessonPresentation = lesson.lessonPresentation || false;
+    }
+    
+    console.log(`📋 Final flags for "${lesson.title}":`, {
+      quiz: processedLesson.quiz,
+      onePager: processedLesson.onePager,
+      videoPresentation: processedLesson.videoPresentation,
+      lessonPresentation: processedLesson.lessonPresentation
+    });
+    
+    return processedLesson;
+  };
+
+  // Process the training plan data to populate content type flags
+  const processedDataToDisplay = useMemo(() => {
+    if (!dataToDisplay) return dataToDisplay;
+    
+    return {
+      ...dataToDisplay,
+      sections: dataToDisplay.sections?.map((section: any) => ({
+        ...section,
+        lessons: section.lessons?.map(processLessonContentTypes) || []
+      })) || []
+    };
+  }, [dataToDisplay]);
+
   const router = useRouter();
   
   // Inline editing state management
@@ -1626,7 +1696,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const currentTheme = themeConfig[theme as keyof typeof themeConfig] || themeConfig.cherry;
   const iconBaseColor = currentTheme.iconColor;
-  const sections = dataToDisplay?.sections;
+  const sections = processedDataToDisplay?.sections;
   const mainTitle = dataToDisplay?.mainTitle;
   const lang = dataToDisplay?.detectedLanguage === 'ru' ? 'ru' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : dataToDisplay?.detectedLanguage === 'es' ? 'es' : 'en';
   const localized = localizationConfig[lang];
