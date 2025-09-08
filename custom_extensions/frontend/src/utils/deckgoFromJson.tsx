@@ -10,17 +10,20 @@ import {
 } from '@/types/pdfLesson';
 
 /* -------- Render individual list items (handles nested structures) ---------- */
-const renderListItem = (item: any, index: number): React.ReactNode => {
+type NestedListItem = string | { type: 'bullet_list' | 'numbered_list'; items: NestedListItem[] } | Record<string, unknown>;
+
+const renderListItem = (item: NestedListItem, index: number): React.ReactNode => {
   if (typeof item === 'string') {
     return <span key={index}>{item}</span>;
   }
   
-  if (typeof item === 'object' && item.type) {
+  if (typeof item === 'object' && item && 'type' in item) {
+    const typed = item as { type: string; items?: NestedListItem[] };
     switch (item.type) {
       case 'bullet_list':
         return (
           <ul key={index} className="nested-bullet-list">
-            {item.items.map((subItem: any, subIndex: number) => (
+            {typed.items?.map((subItem: NestedListItem, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
             ))}
           </ul>
@@ -28,7 +31,7 @@ const renderListItem = (item: any, index: number): React.ReactNode => {
       case 'numbered_list':
         return (
           <ol key={index} className="nested-numbered-list">
-            {item.items.map((subItem: any, subIndex: number) => (
+            {typed.items?.map((subItem: NestedListItem, subIndex: number) => (
               <li key={subIndex}>{renderListItem(subItem, subIndex)}</li>
             ))}
           </ol>

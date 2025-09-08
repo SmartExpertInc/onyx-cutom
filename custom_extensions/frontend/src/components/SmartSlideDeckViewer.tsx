@@ -305,8 +305,11 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       return;
     }
 
-    // Generate slide title from template props
-    const slideTitle = template.defaultProps.title || `Slide ${componentDeck.slides.length + 1}`;
+    // Generate slide title from template props (type-safe)
+    const templateTitle = (template.defaultProps as Record<string, unknown>).title;
+    const slideTitle = (typeof templateTitle === 'string' && templateTitle.length > 0)
+      ? templateTitle
+      : `Slide ${componentDeck.slides.length + 1}`;
 
     // Create new slide with BOTH frontend and backend compatible structure
     const newSlide: ComponentBasedSlide & { slideTitle?: string } = {
@@ -315,9 +318,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slideTitle: slideTitle, // ← CRITICAL: Add slideTitle for backend compatibility
       templateId: templateId,
       props: {
-        ...template.defaultProps,
+        ...(template.defaultProps as Record<string, unknown>),
         title: slideTitle, // ← Keep title in props for frontend template rendering
-        content: template.defaultProps.content || 'Add your content here...'
+        content: ((): string => {
+          const c = (template.defaultProps as Record<string, unknown>).content;
+          return typeof c === 'string' && c.length > 0 ? c : 'Add your content here...';
+        })()
       },
       metadata: {
         createdAt: new Date().toISOString(),

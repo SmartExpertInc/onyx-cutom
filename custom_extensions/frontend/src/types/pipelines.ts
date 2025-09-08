@@ -1,5 +1,5 @@
 // custom_extensions/frontend/src/types/pipelines.ts
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// Removed disable-any; types below avoid any
 
 export interface PromptTemplate {
   id: string;
@@ -19,8 +19,8 @@ export interface Pipeline {
   discovery_prompts_list?: string[] | null; 
   structuring_prompts_list?: string[] | null;
   // Remove or mark as deprecated if the backend no longer sends these for the list endpoint
-  discovery_prompts?: { [key: string]: string } | null; // Potentially remove if backend fully switched
-  structuring_prompts?: { [key: string]: string } | null; // Potentially remove
+  discovery_prompts?: Record<string, string> | null; // Potentially remove if backend fully switched
+  structuring_prompts?: Record<string, string> | null; // Potentially remove
   created_at: string; // Or Date
 }
 // For form data (Create)
@@ -41,8 +41,8 @@ export interface Pipeline {
   pipeline_description?: string | null;
   is_discovery_prompts: boolean;
   is_structuring_prompts: boolean;
-  discovery_prompts?: { [key: string]: string } | null; 
-  structuring_prompts?: { [key: string]: string } | null;
+  discovery_prompts?: Record<string, string> | null; 
+  structuring_prompts?: Record<string, string> | null;
   created_at: string; // Or Date
 }
 
