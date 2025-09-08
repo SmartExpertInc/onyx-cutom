@@ -602,7 +602,7 @@ const VideoLessonBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <TextPresentationDisplay 
               dataToDisplay={data}
             isEditing={false}
@@ -626,7 +626,7 @@ const VideoLessonBlock: React.FC<{
             <strong>**Video Creation Prompt:**</strong>
           </div>
           <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
-            {prompt}
+          {prompt}
           </div>
         </div>
       </div>
@@ -966,8 +966,8 @@ const FallbackOnePagerContent: React.FC = () => {
     ]
   };
 
-    return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      return (
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
       <TextPresentationDisplay 
         dataToDisplay={fallbackOnePagerData as any}
         isEditing={false}
@@ -979,6 +979,7 @@ const FallbackOnePagerContent: React.FC = () => {
 // Carousel version of SmartSlideDeckViewer - smaller slides with side arrows
 const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ deck }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   if (!deck || !deck.slides || deck.slides.length === 0) {
     return (
@@ -989,11 +990,21 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
   }
 
   const nextSlide = () => {
-    setCurrentSlideIndex((prev) => (prev + 1) % deck.slides.length);
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % deck.slides.length);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const prevSlide = () => {
-    setCurrentSlideIndex((prev) => (prev - 1 + deck.slides.length) % deck.slides.length);
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlideIndex((prev) => (prev - 1 + deck.slides.length) % deck.slides.length);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const currentSlide = deck.slides[currentSlideIndex];
@@ -1011,15 +1022,17 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
 
             {/* Slide Content - Proper 16:9 Landscape Aspect Ratio */}
       <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-16">
-        <div
-          className="professional-slide relative bg-white overflow-hidden"
+                <div
+          className="professional-slide relative bg-white overflow-hidden transition-all duration-300 ease-in-out"
           style={{
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
             width: '100%',
             maxWidth: '800px',
             height: '450px',
-            aspectRatio: '16/9'
+            aspectRatio: '16/9',
+            opacity: isTransitioning ? 0.7 : 1,
+            transform: isTransitioning ? 'scale(0.98)' : 'scale(1)'
           }}
         >
           <div style={{ width: '100%', height: '100%' }}>
@@ -1054,6 +1067,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(true); // Always show answers in lesson plan view
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   if (!dataToDisplay || !dataToDisplay.questions || dataToDisplay.questions.length === 0) {
   return (
@@ -1066,11 +1080,21 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   const questions = Array.isArray(dataToDisplay.questions) ? dataToDisplay.questions : [];
   
   const nextQuestion = () => {
-    setCurrentQuestionIndex((prev) => (prev + 1) % questions.length);
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentQuestionIndex((prev) => (prev + 1) % questions.length);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const prevQuestion = () => {
-    setCurrentQuestionIndex((prev) => (prev - 1 + questions.length) % questions.length);
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentQuestionIndex((prev) => (prev - 1 + questions.length) % questions.length);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -1103,30 +1127,12 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
                     {String.fromCharCode(65 + optIndex)}.
                   </span>
                   <span className="text-black">{option.text}</span>
-                  {showResult && option.id === question.correct_option_id && (
-                    <CheckCircle className="ml-2 w-5 h-5 text-green-600" />
-                  )}
                 </div>
               </div>
             </div>
           ))}
         </div>
-        {showResult && (
-          <div className={`mt-4 p-3 rounded-md ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-            <div className="flex">
-              {isCorrect ? (
-                <CheckCircle className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-5 h-5 text-red-600 mr-2 flex-shrink-0 mt-0.5" />
-              )}
-              <div className="text-sm">
-                <div className={`font-medium ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                  {isCorrect ? 'Correct!' : 'Incorrect'}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     );
   };
@@ -1165,9 +1171,6 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
               <div className="ml-3 flex-1">
                 <div className="flex items-center">
                   <span className="text-black">{option.text}</span>
-                  {showResult && correctIds.includes(option.id) && (
-                    <CheckCircle className="ml-2 w-5 h-5 text-green-600" />
-                  )}
                 </div>
               </div>
             </div>
@@ -1210,7 +1213,15 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
 
       {/* Question Content - Centered */}
       <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
-        {renderQuestion(currentQuestion, currentQuestionIndex)}
+        <div 
+          className="transition-all duration-300 ease-in-out w-full"
+          style={{
+            opacity: isTransitioning ? 0.7 : 1,
+            transform: isTransitioning ? 'translateY(10px)' : 'translateY(0px)'
+          }}
+        >
+          {renderQuestion(currentQuestion, currentQuestionIndex)}
+        </div>
         
         {/* Question Counter */}
         <div className="mt-4 text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
