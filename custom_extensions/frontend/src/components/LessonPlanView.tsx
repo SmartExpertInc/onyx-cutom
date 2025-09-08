@@ -331,7 +331,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Description</h2>
           </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-blue-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-blue-100">
             <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
               {lessonPlanData.lessonTitle}
             </h3>
@@ -349,7 +349,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Learning Objectives</h2>
           </div>
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-8 border border-blue-100">
             <ul className="space-y-4">
               {lessonPlanData.lessonObjectives.map((objective, index) => (
                 <li key={index} className="flex items-start group">
@@ -515,7 +515,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
           </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-cyan-100">
             <ul className="space-y-4">
               {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
                 (() => {
@@ -556,7 +556,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-cyan-100">
             <ul className="space-y-4">
               {connectorConfigs.map((connector) => (
                 <li key={connector.id} className="flex items-center group">
@@ -619,7 +619,7 @@ const VideoLessonBlock: React.FC<{
       </div>
 
             {/* Video Creation Prompt */}
-      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-lg p-6">
         <div className="mb-4">
           <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             VIDEO LESSON CREATION PROMPT:
@@ -663,7 +663,7 @@ const PresentationBlock: React.FC<{
       </div>
 
       {/* Presentation Creation Prompt */}
-      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-lg p-6">
         <div className="mb-4">
           <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             PRESENTATION CREATION PROMPT:
@@ -707,7 +707,7 @@ const QuizBlock: React.FC<{
       </div>
 
       {/* Quiz Creation Prompt */}
-      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-lg p-6">
         <div className="mb-4">
           <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             QUIZ CREATION PROMPT:
@@ -756,7 +756,7 @@ const OnePagerBlock: React.FC<{
       </div>
 
       {/* One-Pager Creation Prompt */}
-      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-md p-6">
+      <div className="bg-[#EFF6FF] border border-blue-200 rounded-xl shadow-lg p-6">
         <div className="mb-4">
           <h4 className="text-blue-700 font-bold text-lg uppercase tracking-wide">
             ONE-PAGER CREATION PROMPT:
@@ -853,7 +853,7 @@ const FallbackQuizCarousel: React.FC = () => {
 
   return (
         <div className="relative">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 border border-green-100">
             <div className="mb-4">
               <h4 className="text-lg font-semibold text-green-900 mb-4">
             Question {currentQuestion + 1} (Preview)
@@ -1013,11 +1013,11 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
           style={{
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-            width: '100%',
+                        width: '100%',
             maxWidth: '800px',
+            aspectRatio: '16/10', // Slightly more flexible than 16:9
             minHeight: '400px',
             maxHeight: '600px',
-
             transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0px)'
           }}
         >
