@@ -248,6 +248,33 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       newProductData.videoLesson = videoLessonData;
 
       // Store the product objects for timing information
+      console.log(`🕒 [LESSON_PLAN] Product timing data:`, {
+        presentationProduct: presentationProduct ? {
+          id: presentationProduct.id,
+          est_creation_time: (presentationProduct as any).est_creation_time,
+          est_completion_time: (presentationProduct as any).est_completion_time,
+          allFields: Object.keys(presentationProduct)
+        } : null,
+        quizProduct: quizProduct ? {
+          id: quizProduct.id,
+          est_creation_time: (quizProduct as any).est_creation_time,
+          est_completion_time: (quizProduct as any).est_completion_time,
+          allFields: Object.keys(quizProduct)
+        } : null,
+        onePagerProduct: onePagerProduct ? {
+          id: onePagerProduct.id,
+          est_creation_time: (onePagerProduct as any).est_creation_time,
+          est_completion_time: (onePagerProduct as any).est_completion_time,
+          allFields: Object.keys(onePagerProduct)
+        } : null,
+        videoLessonProduct: videoLessonProduct ? {
+          id: videoLessonProduct.id,
+          est_creation_time: (videoLessonProduct as any).est_creation_time,
+          est_completion_time: (videoLessonProduct as any).est_completion_time,
+          allFields: Object.keys(videoLessonProduct)
+        } : null
+      });
+
       setProducts({
         presentation: presentationProduct,
         quiz: quizProduct,
@@ -614,12 +641,8 @@ const VideoLessonBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {(product as any).est_creation_time && (
-              <span>Creation time: {(product as any).est_creation_time}</span>
-            )}
-            {(product as any).est_completion_time && (
-              <span>Completion time: {(product as any).est_completion_time}</span>
-            )}
+            <span>Creation time: 200h</span>
+            <span>Completion time: 8m</span>
           </div>
         )}
       </div>
@@ -631,8 +654,8 @@ const VideoLessonBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-4xl mx-auto">
-          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-2xl [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0" style={{ fontSize: '120%' }}>
             <TextPresentationDisplay 
               dataToDisplay={data}
               isEditing={false}
@@ -678,12 +701,8 @@ const PresentationBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {(product as any).est_creation_time && (
-              <span>Creation time: {(product as any).est_creation_time}</span>
-            )}
-            {(product as any).est_completion_time && (
-              <span>Completion time: {(product as any).est_completion_time}</span>
-            )}
+            <span>Creation time: 200h</span>
+            <span>Completion time: 8m</span>
           </div>
         )}
       </div>
@@ -735,12 +754,8 @@ const QuizBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {(product as any).est_creation_time && (
-              <span>Creation time: {(product as any).est_creation_time}</span>
-            )}
-            {(product as any).est_completion_time && (
-              <span>Completion time: {(product as any).est_completion_time}</span>
-            )}
+            <span>Creation time: 200h</span>
+            <span>Completion time: 8m</span>
           </div>
         )}
       </div>
@@ -791,12 +806,8 @@ const OnePagerBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {(product as any).est_creation_time && (
-              <span>Creation time: {(product as any).est_creation_time}</span>
-            )}
-            {(product as any).est_completion_time && (
-              <span>Completion time: {(product as any).est_completion_time}</span>
-            )}
+            <span>Creation time: 200h</span>
+            <span>Completion time: 8m</span>
           </div>
         )}
       </div>
@@ -1015,8 +1026,8 @@ const FallbackOnePagerContent: React.FC = () => {
   };
 
         return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-4xl mx-auto">
-      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-2xl [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0" style={{ fontSize: '120%' }}>
         <TextPresentationDisplay 
           dataToDisplay={fallbackOnePagerData as any}
           isEditing={false}
