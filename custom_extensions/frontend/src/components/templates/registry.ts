@@ -46,7 +46,11 @@ import { ResourcesListSlideTemplate } from './ResourcesListSlideTemplate';
 import { CourseRulesTimelineSlideTemplate } from './CourseRulesTimelineSlideTemplate';
 import { ResilienceBehaviorsSlideTemplate } from './ResilienceBehaviorsSlideTemplate';
 import { SoftSkillsTypesSlideTemplate } from './SoftSkillsTypesSlideTemplate';
-// Removed legacy WIP templates; new 1:1 templates will be registered below
+import { PhishingRiseSlideTemplate } from './PhishingRiseSlideTemplate';
+import { AiPharmaMarketGrowthSlideTemplate } from './AiPharmaMarketGrowthSlideTemplate';
+import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
+import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
+import { ConnectionSlideTemplate } from './ConnectionSlideTemplate';
 
 
 
@@ -1375,6 +1379,26 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       contentColor: { type: 'color', label: 'Content Color', default: '#666666' },
       accentColor: { type: 'color', label: 'Accent Color', default: '#ff6b35' },
       companyName: { type: 'text', label: 'Company Name', required: true }
+    }
+  },
+
+  // New: Connection slide (dark UI with venn and bottom tabs)
+  'connection-slide': {
+    id: 'connection-slide',
+    name: 'Connection Slide',
+    description: 'Dark split layout with venn diagram and bottom navigation',
+    category: 'content',
+    icon: '🕸️',
+    component: ConnectionSlideTemplate,
+    defaultProps: {
+      title: 'Connection',
+      description: 'Connections create trust, encourage open communication, and build a culture of collaboration.',
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 400 },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
     }
   },
 
