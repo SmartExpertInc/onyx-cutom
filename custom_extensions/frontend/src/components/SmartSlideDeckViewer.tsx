@@ -741,7 +741,18 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   Popular Templates
                 </div>
                 {availableTemplates
-                  .filter(template => ['content-slide', 'bullet-points', 'two-column', 'title-slide'].includes(template.id))
+                  .filter(template => [
+                    'content-slide',
+                    'bullet-points',
+                    'two-column',
+                    'title-slide',
+                    // Feature the new exact-design slides at the top
+                    'ai-pharma-market-growth-slide',
+                    'phishing-rise-slide',
+                    'kpi-update-slide',
+                    'interest-growth-slide',
+                    'connection-slide'
+                  ].includes(template.id))
                   .map((template) => (
                     <button
                       key={template.id}
