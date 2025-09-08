@@ -22,6 +22,30 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         gradient:
           "bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] text-white shadow-lg hover:opacity-90 active:scale-95 transition-all",
+        import:
+          "bg-white text-gray-800 border border-gray-300 shadow-sm hover:bg-gray-50 active:scale-95 transition-all",
+        filter:
+          "text-gray-600 hover:bg-gray-100 transition-colors",
+        "filter-active":
+          "bg-white shadow-sm border border-gray-200 text-black",
+        sort:
+          "text-black hover:text-gray-700 transition-colors",
+        columns:
+          "text-black hover:text-gray-700 transition-colors",
+        download:
+          "bg-blue-600 text-white hover:bg-blue-700 transition-colors",
+        view:
+          "p-1.5 rounded-md cursor-pointer",
+        "view-active":
+          "p-1.5 rounded-md cursor-pointer bg-white shadow-sm",
+        menu:
+          "w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer",
+        "menu-item":
+          "flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer",
+        "menu-item-orange":
+          "flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer",
+        "menu-item-red":
+          "flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

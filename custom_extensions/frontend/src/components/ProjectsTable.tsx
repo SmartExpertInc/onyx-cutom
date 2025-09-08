@@ -51,6 +51,11 @@ import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { Button } from "@/components/ui/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -1675,29 +1680,19 @@ const ProjectCard: React.FC<{
         </div>
       </Link>
       <div className="absolute bottom-4 right-3" ref={menuRef}>
-        <button
-          ref={buttonRef}
-          onClick={handleMenuToggle}
-          className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
-        >
-          <MoreHorizontal size={16} />
-        </button>
-        {menuOpen && (
-          <div
-            data-modal-portal="true"
-            className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-              menuPosition === "above" ? "bottom-auto mb-2" : "top-auto mt-2"
-            }`}
-            style={{
-              left: buttonRef.current
-                ? buttonRef.current.getBoundingClientRect().right - 240
-                : 0,
-              top: buttonRef.current
-                ? menuPosition === "above"
-                  ? buttonRef.current.getBoundingClientRect().top - 320
-                  : buttonRef.current.getBoundingClientRect().bottom + 8
-                : 0,
-            }}
+        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              ref={buttonRef}
+              variant="menu"
+            >
+              <MoreHorizontal size={16} />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-60 p-1" 
+            align="end"
+            side={menuPosition === "above" ? "top" : "bottom"}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-3 py-2 border-b border-gray-100">
@@ -1713,113 +1708,129 @@ const ProjectCard: React.FC<{
             </div>
             {isTrashMode ? (
               <div className="py-1">
-                <button
+                <Button
                   onClick={handleRestoreProject}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  variant="menu-item"
+                  className="w-full justify-start"
                 >
                   <RefreshCw size={14} />
                   <span>{t("actions.restore", "Restore")}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     setMenuOpen(false);
                     setPermanentDeleteConfirmOpen(true);
                   }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  variant="menu-item-red"
+                  className="w-full justify-start"
                 >
                   <Trash2 size={14} />
                   <span>
                     {t("actions.deletePermanently", "Delete permanently")}
                   </span>
-                </button>
+                </Button>
               </div>
             ) : (
               <>
                 <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button 
+                    variant="menu-item"
+                    className="w-full justify-start"
+                  >
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    variant="menu-item"
+                    className="w-full justify-start"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </Button>
+                  <Button 
+                    variant="menu-item"
+                    className="w-full justify-start"
+                  >
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    variant="menu-item"
+                    className="w-full justify-start"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </Button>
+                  <Button 
+                    variant="menu-item"
+                    className="w-full justify-start"
+                  >
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </button>
+                  </Button>
                   {isOutline && (
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                      variant="menu-item"
+                      className="w-full justify-start"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
-                    </button>
+                    </Button>
                   )}
                   {folderId && (
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
+                      variant="menu-item-orange"
+                      className="w-full justify-start"
                     >
                       <FolderMinus size={16} className="text-orange-500" />
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <div className="py-1 border-t border-gray-100">
-                  <button
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                    variant="menu-item-red"
+                    className="w-full justify-start"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
-          </div>
-        )}
+          </PopoverContent>
+        </Popover>
       </div>
 
       {permanentDeleteConfirmOpen && (
@@ -4330,10 +4341,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </div>
                 </Button>
               </Link>
-            <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm cursor-pointer">
+            <Button 
+              variant="import" 
+              className="rounded-full font-semibold"
+            >
               {t("interface.import", "Import")}
               <ChevronsUpDown size={16} className="text-gray-500" />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -4344,38 +4358,39 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             {filters.map((filter) => {
               const Icon = filterIcons[filter];
               return (
-                <button
+                <Button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeFilter === filter
-                      ? "bg-white shadow-sm border border-gray-200 text-black"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                  variant={activeFilter === filter ? "filter-active" : "filter"}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold"
                 >
                   <Icon size={16} />
                   {filter}
-                </button>
+                </Button>
               );
             })}
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer">
+            <Button 
+              variant="sort" 
+              className="flex items-center gap-2 text-sm font-semibold"
+            >
               <ArrowUpDown size={16} className="text-gray-800" />
               {t("interface.sort", "Sort")}
-            </button>
+            </Button>
 
             {/* Columns Dropdown - only show in list view */}
             {viewMode === "list" && (
               <div className="relative" data-columns-dropdown>
-                <button
+                <Button
                   onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
-                  className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer"
+                  variant="columns"
+                  className="flex items-center gap-2 text-sm font-semibold"
                 >
                   <List size={16} className="text-gray-800" />
                   {t("interface.columns", "Columns")}
                   <ChevronDown size={14} className="text-gray-600" />
-                </button>
+                </Button>
 
                 {showColumnsDropdown && (
                   <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -4458,9 +4473,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
             {/* PDF Download Button - only show in list view */}
             {viewMode === "list" && (
-              <button
+              <Button
                 onClick={handlePdfDownload}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
+                variant="download"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold"
                 title={t(
                   "interface.downloadPDF",
                   "Download projects list as PDF"
@@ -4468,26 +4484,22 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               >
                 <ArrowDownToLine size={16} />
                 {t("common.downloadPdf", "Download PDF")}
-              </button>
+              </Button>
             )}
 
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
-              <button
+              <Button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md cursor-pointer ${
-                  viewMode === "grid" ? "bg-white shadow-sm" : ""
-                }`}
+                variant={viewMode === "grid" ? "view-active" : "view"}
               >
                 <LayoutGrid size={16} className="text-gray-800" />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-md cursor-pointer ${
-                  viewMode === "list" ? "bg-white shadow-sm" : ""
-                }`}
+                variant={viewMode === "list" ? "view-active" : "view"}
               >
                 <List size={16} className="text-gray-800" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
