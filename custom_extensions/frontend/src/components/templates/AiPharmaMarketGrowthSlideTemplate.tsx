@@ -115,7 +115,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
         <ClickableImagePlaceholder
           imagePath={doctorImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ doctorImagePath: p })}
-          size="XLARGE"
+          size="LARGE"
           position="CENTER"
           description="Doctor"
           isEditable={isEditable}

@@ -8,7 +8,7 @@ import { SlideTheme } from '@/types/slideThemes';
 export interface BaseTemplateProps {
   slideId: string;
   isEditable?: boolean;
-  onUpdate?: (props: any) => void;
+  onUpdate?: (props: Record<string, unknown>) => void;
   voiceoverText?: string; // Optional voiceover text for video lessons
 }
 
@@ -19,8 +19,8 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<BaseTemplateProps & any>;
-  defaultProps: Record<string, any>;
+  component: React.ComponentType<BaseTemplateProps & Record<string, unknown>>;
+  defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }
 
@@ -29,8 +29,8 @@ export interface PropDefinition {
   label: string;
   description?: string;
   required?: boolean;
-  default?: any;
-  options?: Array<{value: any; label: string}>; // For select type
+  default?: unknown;
+  options?: Array<{value: unknown; label: string}>; // For select type
   min?: number; // For number type
   max?: number; // For number type
   maxLength?: number; // For text type
@@ -47,7 +47,7 @@ export interface ComponentBasedSlide {
   slideId: string;
   slideNumber: number;
   templateId: string;
-  props: Record<string, any>;
+  props: Record<string, unknown>;
   voiceoverText?: string; // Optional voiceover text for video lessons
   metadata?: {
     createdAt?: string;
@@ -113,7 +113,7 @@ export interface BigImageLeftProps extends BaseTemplateProps {
   imagePath?: string; // Path to uploaded image
 }
 
-export interface BigImageTopProps extends BigImageLeftProps {}
+export type BigImageTopProps = BigImageLeftProps;
 
 export interface QuoteCenterProps extends BaseTemplateProps {
   quote: string;
@@ -261,9 +261,9 @@ export interface LegacySlide {
   slideId: string;
   slideNumber: number;
   slideTitle: string;
-  contentBlocks: any[];
+  contentBlocks: Array<Record<string, unknown>>;
   deckgoTemplate?: string;
-  imagePlaceholders?: any[];
+  imagePlaceholders?: Array<Record<string, unknown>>;
 }
 
 export interface MigrationResult {
@@ -275,8 +275,8 @@ export interface MigrationResult {
 
 export interface SlideEditor {
   templateId: string;
-  props: Record<string, any>;
-  onPropsChange: (newProps: Record<string, any>) => void;
+  props: Record<string, unknown>;
+  onPropsChange: (newProps: Record<string, unknown>) => void;
   onTemplateChange: (newTemplateId: string) => void;
 }
 
@@ -659,8 +659,8 @@ export interface EditableField {
   key: string;
   label: string;
   type: PropDefinition['type'];
-  value: any;
-  onChange: (value: any) => void;
+  value: unknown;
+  onChange: (value: unknown) => void;
   validation?: {
     required?: boolean;
     minLength?: number;

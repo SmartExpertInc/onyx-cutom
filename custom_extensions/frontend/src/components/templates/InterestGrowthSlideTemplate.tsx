@@ -98,7 +98,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ rightImagePath: p })}
-          size="XLARGE"
+          size="LARGE"
           position="CENTER"
           description="Right image"
           isEditable={isEditable}
