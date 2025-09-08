@@ -2311,7 +2311,7 @@ export default function CommercialProposalPage() {
                 </div>
 
                 <div className="flex flex-col gap-[20px] pt-[20px]">
-                  <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold">SmartExpert</span></h4>
+                  <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold"> SmartExpert</span></h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -2345,9 +2345,10 @@ export default function CommercialProposalPage() {
                   alt=""
                   className="absolute xl:hidden"
                   style={{
-                    width: '434.2254638671875px',
-                    height: '203.0202178955078px',
-                    left: '-61.61px',
+                    width: '434px',
+                    height: '203px',
+                    left: '0',
+                    top: '0',
                     opacity: 1,
                     zIndex: 1
                   }}
@@ -2357,14 +2358,15 @@ export default function CommercialProposalPage() {
                   alt=""
                   className="absolute hidden xl:block"
                   style={{
-                    width: '718.9225463867188px',
-                    height: '413.3057556152344px',
-                    left: '-114.8px',
+                    width: '719px',
+                    height: '413px',
+                    left: '0',
+                    top: '0',
                     opacity: 1,
                     zIndex: 1
                   }}
                 />
-                
+
                 <span className="text-white text-[22px] xl:text-[26px] font-semibold relative z-10">Итого:</span>
                 
                 <div className="flex flex-col gap-[30px] relative z-10">
