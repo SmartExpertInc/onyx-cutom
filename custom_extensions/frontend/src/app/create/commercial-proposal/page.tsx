@@ -1635,33 +1635,33 @@ export default function CommercialProposalPage() {
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[472px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
-                  <table className="w-full min-w-[470px] xl:min-w-0 border border-[#E0E0E0] rounded-[6px] overflow-hidden shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)]">
+                  <table className="w-full min-w-[470px] xl:min-w-0 border border-[#E0E0E0] rounded-[6px] xl:rounded-none overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)]">
                     <thead>
                       <tr className="bg-[#F5F5F5]">
-                        <th className="px-4 py-3 text-left text-[14px] font-semibold text-gray-900 xl:border-r xl:border-[#E0E0E0]">Пакет</th>
-                        <th className="px-4 py-3 text-left text-[14px] font-semibold text-gray-900 xl:border-r xl:border-[#E0E0E0]">Кол-во часов</th>
-                        <th className="px-4 py-3 text-left text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Стоимость</th>
-                        <th className="px-4 py-3 text-left text-[14px] font-medium text-gray-900">Ставка за час</th>
+                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Пакет</th>
+                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Кол-во часов</th>
+                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Стоимость</th>
+                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold">Ставка за час</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 1</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">30 часов</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">$2,250</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900">$75 / час</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Pack 1</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">30 часов</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">$2,250</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium">$75 / час</td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 2</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">50 часов</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">$3,500</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900">$70 / час</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Pack 2</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">50 часов</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">$3,500</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium">$70 / час</td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 3</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">100 часов</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">$5,900</td>
-                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900">$59 / час</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Pack 3</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">100 часов</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">$5,900</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium">$59 / час</td>
                       </tr>
                     </tbody>
                   </table>
@@ -2338,10 +2338,36 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <div className="xl:w-[490px] flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
-                <span className="text-white text-[22px] xl:text-[26px] font-semibold">Итого:</span>
+              <div className="relative xl:w-[490px] flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
+                {/* Background images with absolute positioning */}
+                <img 
+                  src="/images/commercial-bg-2-mobile.png"
+                  alt=""
+                  className="absolute xl:hidden"
+                  style={{
+                    width: '434.2254638671875px',
+                    height: '203.0202178955078px',
+                    left: '-61.61px',
+                    opacity: 1,
+                    zIndex: 1
+                  }}
+                />
+                <img 
+                  src="/images/commercial-bg-2-desktop.png"
+                  alt=""
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '718.9225463867188px',
+                    height: '413.3057556152344px',
+                    left: '-114.8px',
+                    opacity: 1,
+                    zIndex: 1
+                  }}
+                />
                 
-                <div className="flex flex-col gap-[30px]">
+                <span className="text-white text-[22px] xl:text-[26px] font-semibold relative z-10">Итого:</span>
+                
+                <div className="flex flex-col gap-[30px] relative z-10">
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">$750</span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Пробный пакет методолога</span>
@@ -2358,7 +2384,7 @@ export default function CommercialProposalPage() {
                   </div>
                   
                   <div 
-                    className="w-100% xl:mt-[9px] relative w-full mx-auto block pl-[2px] pt-[2px]"
+                    className="w-100% xl:mt-[9px] relative w-full mx-auto block pl-[2px] pt-[2px] z-10"
                     style={{
                       boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A, 0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608'
                     }}
