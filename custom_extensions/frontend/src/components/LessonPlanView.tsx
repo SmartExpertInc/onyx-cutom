@@ -10,9 +10,99 @@ import { SmartSlideDeckViewer } from './SmartSlideDeckViewer';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
 import { AnyQuizQuestion, MultipleChoiceQuestion, MultiSelectQuestion, MatchingQuestion, SortingQuestion, OpenAnswerQuestion } from '@/types/quizTypes';
+import { TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock } from '@/types/textPresentation';
 import Image from 'next/image';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
+
+// No-padding version of TextPresentationDisplay for lesson plan
+const NoPaddingTextPresentationDisplay: React.FC<{ dataToDisplay: TextPresentationData | null; isEditing?: boolean }> = ({ dataToDisplay, isEditing = false }) => {
+  if (!dataToDisplay || !dataToDisplay.contentBlocks) {
+    return <div className="p-4 text-center text-gray-500">No content available</div>;
+  }
+
+  const parseAndStyleText = (text: string) => {
+    if (!text) return text;
+    
+    // Handle bold text **text**
+    let styledText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Handle italic text *text*
+    styledText = styledText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+    
+    return styledText;
+  };
+
+  const renderContentBlock = (block: AnyContentBlock, index: number) => {
+    switch (block.type) {
+      case 'headline': {
+        const headlineBlock = block as HeadlineBlock;
+        const level = headlineBlock.level || 1;
+        const text = parseAndStyleText(headlineBlock.text);
+        const isImportant = headlineBlock.isImportant;
+        
+        const HeadingTag = `h${Math.min(level, 6)}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+        const sizeClass = level === 1 ? 'text-3xl' : level === 2 ? 'text-2xl' : level === 3 ? 'text-xl' : 'text-lg';
+        const colorClass = isImportant ? 'text-red-600' : 'text-black';
+        
+        return (
+          <HeadingTag 
+            key={index}
+            className={`${sizeClass} font-bold ${colorClass} mb-4 leading-tight`}
+            dangerouslySetInnerHTML={{ __html: text }}
+          />
+        );
+      }
+      
+      case 'paragraph': {
+        const paragraphBlock = block as ParagraphBlock;
+        const text = parseAndStyleText(paragraphBlock.text);
+        const isRecommendation = paragraphBlock.isRecommendation;
+        
+        const className = isRecommendation 
+          ? 'text-black leading-normal mb-4 pl-3 border-l-3 border-red-500 py-2'
+          : 'text-black leading-normal mb-4';
+        
+        return (
+          <p 
+            key={index}
+            className={className}
+            dangerouslySetInnerHTML={{ __html: text }}
+          />
+        );
+      }
+      
+      case 'bullet_list': {
+        const bulletBlock = block as BulletListBlock;
+        return (
+          <ul key={index} className="list-disc list-inside mb-4 text-black space-y-2">
+            {bulletBlock.items?.map((item, itemIndex) => (
+              <li key={itemIndex} dangerouslySetInnerHTML={{ __html: parseAndStyleText(item) }} />
+            ))}
+          </ul>
+        );
+      }
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="bg-blue-50 p-6">
+      {dataToDisplay.textTitle && (
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-black mb-2">{dataToDisplay.textTitle}</h1>
+          <hr className="border-t-2 border-red-500" />
+        </div>
+      )}
+      
+      <div className="space-y-4">
+        {dataToDisplay.contentBlocks.map((block, index) => renderContentBlock(block, index))}
+      </div>
+    </div>
+  );
+};
 
 // Connector configurations with logos - exact same paths as SmartDrive
 const connectorConfigs = [
@@ -603,7 +693,7 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <TextPresentationDisplay 
+          <NoPaddingTextPresentationDisplay 
               dataToDisplay={data}
             isEditing={false}
           />
@@ -613,21 +703,15 @@ const VideoLessonBlock: React.FC<{
         )}
       </div>
 
-      {/* Video Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-red-600 px-4 py-3 flex items-center">
-          <Play className="w-5 h-5 text-white mr-3" />
-          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
-            VIDEO LESSON
+            {/* Video Creation Prompt */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="mb-4">
+          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+            VIDEO LESSON CREATION PROMPT:
           </h4>
         </div>
-        <div className="p-6">
-          <div className="text-gray-800 leading-relaxed font-medium">
-            <strong>**Video Creation Prompt:**</strong>
-          </div>
-          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
+        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
           {prompt}
-          </div>
         </div>
       </div>
     </div>
@@ -664,20 +748,14 @@ const PresentationBlock: React.FC<{
       </div>
 
       {/* Presentation Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-blue-600 px-4 py-3 flex items-center">
-          <Presentation className="w-5 h-5 text-white mr-3" />
-          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
-            PRESENTATION
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="mb-4">
+          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+            PRESENTATION CREATION PROMPT:
           </h4>
         </div>
-        <div className="p-6">
-          <div className="text-gray-800 leading-relaxed font-medium">
-            <strong>**Presentation Creation Prompt:**</strong>
-          </div>
-          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
-            {prompt}
-          </div>
+        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          {prompt}
         </div>
       </div>
     </div>
@@ -714,20 +792,14 @@ const QuizBlock: React.FC<{
       </div>
 
       {/* Quiz Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-green-600 px-4 py-3 flex items-center">
-          <FileQuestion className="w-5 h-5 text-white mr-3" />
-          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
-            QUIZ
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="mb-4">
+          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+            QUIZ CREATION PROMPT:
           </h4>
         </div>
-        <div className="p-6">
-          <div className="text-gray-800 leading-relaxed font-medium">
-            <strong>**Quiz Creation Prompt:**</strong>
-          </div>
-          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
-            {prompt}
-          </div>
+        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          {prompt}
         </div>
       </div>
     </div>
@@ -769,20 +841,14 @@ const OnePagerBlock: React.FC<{
       </div>
 
       {/* One-Pager Creation Prompt */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-orange-600 px-4 py-3 flex items-center">
-          <ScrollText className="w-5 h-5 text-white mr-3" />
-          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
-            ONE-PAGER
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="mb-4">
+          <h4 className="text-blue-600 font-semibold text-lg uppercase tracking-wide">
+            ONE-PAGER CREATION PROMPT:
           </h4>
         </div>
-        <div className="p-6">
-          <div className="text-gray-800 leading-relaxed font-medium">
-            <strong>**One-Pager Creation Prompt:**</strong>
-          </div>
-          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
-            {prompt}
-          </div>
+        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          {prompt}
         </div>
       </div>
     </div>
@@ -966,9 +1032,9 @@ const FallbackOnePagerContent: React.FC = () => {
     ]
   };
 
-      return (
+        return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <TextPresentationDisplay 
+      <NoPaddingTextPresentationDisplay 
         dataToDisplay={fallbackOnePagerData as any}
         isEditing={false}
       />
@@ -1023,16 +1089,16 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             {/* Slide Content - Proper 16:9 Landscape Aspect Ratio */}
       <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-16">
                 <div
-          className="professional-slide relative bg-white overflow-hidden transition-all duration-300 ease-in-out"
+          className="professional-slide relative bg-white overflow-hidden transition-transform duration-300 ease-in-out"
           style={{
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
             width: '100%',
             maxWidth: '800px',
-            height: '450px',
+            minHeight: '400px',
+            maxHeight: '500px',
             aspectRatio: '16/9',
-            opacity: isTransitioning ? 0.7 : 1,
-            transform: isTransitioning ? 'scale(0.98)' : 'scale(1)'
+            transform: isTransitioning ? 'translateX(-20px)' : 'translateX(0px)'
           }}
         >
           <div style={{ width: '100%', height: '100%' }}>
@@ -1041,8 +1107,8 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
               isEditable={false}
               theme="default"
             />
-          </div>
         </div>
+      </div>
         
         {/* Slide Counter */}
         <div className="mt-4 text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
@@ -1131,9 +1197,9 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
               </div>
             </div>
           ))}
-        </div>
-
       </div>
+      
+        </div>
     );
   };
 
@@ -1166,7 +1232,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
                   {correctIds.includes(option.id) && (
                     <div className="w-2 h-2 bg-white" />
                   )}
-        </div>
+      </div>
       </div>
               <div className="ml-3 flex-1">
                 <div className="flex items-center">
@@ -1214,10 +1280,9 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
       {/* Question Content - Centered */}
       <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
         <div 
-          className="transition-all duration-300 ease-in-out w-full"
+          className="transition-transform duration-300 ease-in-out w-full"
           style={{
-            opacity: isTransitioning ? 0.7 : 1,
-            transform: isTransitioning ? 'translateY(10px)' : 'translateY(0px)'
+            transform: isTransitioning ? 'translateX(-30px)' : 'translateX(0px)'
           }}
         >
           {renderQuestion(currentQuestion, currentQuestionIndex)}
