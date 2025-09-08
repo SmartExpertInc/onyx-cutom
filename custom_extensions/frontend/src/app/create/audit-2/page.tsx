@@ -412,13 +412,13 @@ export default function AuditPage() {
 
                 {/* Second Card */}
                 <div 
-                  className="w-full max-w-[300px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
+                  className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
                   style={{ minHeight: '256px', maxHeight: '256px' }}
                 >
                   <Image 
                     src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
                     alt="Audit section 3 card 2 mobile" 
-                    width={281}
+                    width={271}
                     height={226}
                     className="w-full h-[226px] object-cover"
                     style={{ maxHeight: '226px' }}
