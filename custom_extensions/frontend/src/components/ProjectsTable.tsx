@@ -373,10 +373,10 @@ const ClientNameModal: React.FC<{
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg bg-white">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-gray-900">
             {t("interface.customizePDF", "Customize PDF")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-700">
             {t(
               "interface.customizePDFDescription",
               "Enter a client name and select which folders/products to include in the PDF."
@@ -426,7 +426,7 @@ const ClientNameModal: React.FC<{
                     <Checkbox
                       checked={isAllSelected}
                       onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
-                      className="border-gray-400 data-[state=checked]:bg-gray-800 data-[state=checked]:border-gray-800"
+                      className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
@@ -450,7 +450,7 @@ const ClientNameModal: React.FC<{
                           onCheckedChange={(checked) =>
                             handleFolderSelection(folder.id, checked as boolean)
                           }
-                          className="border-gray-400 data-[state=checked]:bg-gray-800 data-[state=checked]:border-gray-800"
+                          className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -504,7 +504,7 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  className="border-gray-400 data-[state=checked]:bg-gray-800 data-[state=checked]:border-gray-800"
+                                  className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                                 />
                                 <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                                   {project.title}
@@ -548,7 +548,7 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          className="border-gray-400 data-[state=checked]:bg-gray-800 data-[state=checked]:border-gray-800"
+                          className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                         />
                         <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                           {project.title}
