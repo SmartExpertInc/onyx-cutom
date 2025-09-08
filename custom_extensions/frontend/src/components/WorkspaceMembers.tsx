@@ -49,6 +49,22 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   // User role state
   const [currentUserRole, setCurrentUserRole] = useState<WorkspaceRole | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Function to map backend role names to display names
+  const getRoleDisplayName = (roleName: string): string => {
+    switch (roleName.toLowerCase()) {
+      case 'learning_architect':
+      case 'moderator':
+        return 'Learning Architect';
+      case 'learning_designer':
+      case 'member':
+        return 'Learning Designer';
+      case 'admin':
+        return 'Admin';
+      default:
+        return roleName;
+    }
+  };
   
   // Portal container for modals
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
@@ -700,7 +716,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         >
                           {roles.map((role) => (
                             <option key={role.id} value={role.id} style={{ color: role.text_color }}>
-                              {role.name}
+                              {getRoleDisplayName(role.name)}
                             </option>
                           ))}
                         </select>
@@ -814,7 +830,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                   <option value="">Select a role</option>
                   {roles.map(role => (
                     <option key={role.id} value={role.id}>
-                      {role.name}
+                      {getRoleDisplayName(role.name)}
                     </option>
                   ))}
                 </select>
