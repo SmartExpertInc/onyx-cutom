@@ -532,7 +532,7 @@ export default function AuditPage() {
                     <span className="font-semibold text-[20px]">Выгорание</span>
                   </div>
                   <p className="font-normal text-[14px] text-[#71717A]">
-                    Средняя продолжительность работы в HVAC-компаниях — <span className="font-medium text-[#09090B]">менее 14 месяцев.</span>
+                    Средняя продолжительность работы в<br className="hidden xl:block"/> HVAC-компаниях — <span className="font-medium text-[#09090B]">менее 14 месяцев.</span>
                   </p>
                 </div>
 
@@ -571,7 +571,7 @@ export default function AuditPage() {
                     <span className="font-semibold text-[20px]">Убытки $10К–$18К</span>
                   </div>
                   <p className="font-normal text-[14px] text-[#71717A]">
-                    <span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.
+                    <span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой<br className="hidden xl:block"/> позиции в год, включая упущенную<br className="hidden xl:block"/> прибыль, переработки и простои.
                   </p>
                 </div>
                 
@@ -1028,7 +1028,7 @@ export default function AuditPage() {
                 
                 <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
                   <div className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-4-desktop.png)' }}>
-                    <div className="absolute bottom-[10px] left-[15px] flex gap-[6px] items-center">
+                    <div className="absolute bottom-[10px] left-[6px] xl:left-[20px] flex gap-[6px] items-center">
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
                         <path d="M9.40625 17.9991C11.4802 16.6687 13.9454 16.2774 16.6063 17.06V15.7687H16.1758C15.1584 15.7687 14.3758 14.947 14.3758 13.9687V12.7948C14.3758 11.7774 15.1976 10.9948 16.1758 10.9948H16.6063V8.41218C13.9454 7.62958 11.4802 8.02088 9.40625 9.35132V17.9991Z" fill="#0F58F9"/>
@@ -1046,7 +1046,7 @@ export default function AuditPage() {
                       </span>
                     </div>
                     
-                    <div className="absolute bottom-[10px] right-[15px] flex gap-[6px] items-center">
+                    <div className="absolute bottom-[10px] right-[6px] xl:right-[20px] flex gap-[6px] items-center">
                       <span className="font-medium text-[12px] text-white">
                         5.0
                       </span>
@@ -1108,7 +1108,7 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] xl:hidden">
-                        Корпоративная культура и стандарты работы в Vogue Lashes & Spa
+                        Корпоративная культура и<br className="xl:hidden"/> стандарты работы в Vogue<br className="xl:hidden"/> Lashes & Spa
                       </h5>
 
                       {/* Module 1 Expandable Content */}
@@ -1168,7 +1168,7 @@ export default function AuditPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Локация и планировка: требования к помещению
+                                    Локация и планировка:<br className="xl:hidden"/> требования к помещению
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1193,7 +1193,7 @@ export default function AuditPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Финансовая модель и управление бюджетом
+                                    Финансовая модель и<br className="xl:hidden"/> управление бюджетом
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1243,7 +1243,7 @@ export default function AuditPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Работа с поставщиками и закупка материалов
+                                    Работа с поставщиками<br className="xl:hidden"/> и закупка материалов
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1268,7 +1268,7 @@ export default function AuditPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Требования к оборудованию и его размещение
+                                    Требования к оборудованию<br className="xl:hidden"/> и его размещение
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1293,7 +1293,7 @@ export default function AuditPage() {
                               <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                 <div className="grid grid-cols-3 gap-[20px] items-center">
                                   <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                    Тест по запуску и организации салона
+                                    Тест по запуску и<br className="xl:hidden"/> организации салона
                                   </div>
                                   <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
                                     <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1536,7 +1536,7 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] xl:hidden">
-                        Подбор и управление персоналом
+                        Подбор и управление<br className="xl:hidden"/> персоналом
                       </h5>
                     </div>
 
@@ -1572,7 +1572,7 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] xl:hidden">
-                        Маркетинг и привлечение клиентов
+                        Маркетинг и<br className="xl:hidden"/> привлечение клиентов
                       </h5>
                     </div>
 
@@ -1608,7 +1608,7 @@ export default function AuditPage() {
                       </div>
                       
                       <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                        Финансовый контроль и развитие бизнеса
+                        Финансовый контроль<br className="xl:hidden"/> и развитие бизнеса
                       </h5>
                     </div>
                   </div>
@@ -1871,7 +1871,7 @@ export default function AuditPage() {
               </h3>
 
               <div 
-                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] xl:mb-[40px] xl:bg-center"
+                className="h-[180px] xl:h-[571px] border border-[#E0E0E0] rounded-[2px] mb-[15px] xl:mb-[40px] xl:bg-center"
                 style={{ 
                   backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-service-3-image-1-desktop.png)',
                   backgroundSize: 'cover',
@@ -2132,7 +2132,7 @@ export default function AuditPage() {
               </div>
               
               <div 
-                className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px]"
+                className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
                 style={{ background: '#EBF2FF87' }}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1 xl:h-[13px] xl:w-[13px]">
