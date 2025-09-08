@@ -1690,7 +1690,7 @@ const ProjectCard: React.FC<{
             </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-60 p-1" 
+            className="w-60 p-1 bg-white border border-gray-100 shadow-2xl" 
             align="end"
             side={menuPosition === "above" ? "top" : "bottom"}
             onClick={(e) => e.stopPropagation()}
