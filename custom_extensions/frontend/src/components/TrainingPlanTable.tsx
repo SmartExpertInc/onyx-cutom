@@ -1790,17 +1790,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const qualityTierVisible = visibleColumns.qualityTier;
     
     return [
-      { key: 'module', width: 3.5 },
-      { key: 'knowledgeCheck', width: qualityTierVisible ? 1.5 : 2 },
-      { key: 'contentAvailability', width: 2 },
-      { key: 'informationSource', width: 1.5 },
+      { key: 'module', width: qualityTierVisible ? 5 : 7 },  // modules_span in PDF = 20 - (2+2+3+4+2+2) = 5 when qt visible, or 20 - (4+2+3+0+2+2) = 7 when qt hidden
+      { key: 'knowledgeCheck', width: qualityTierVisible ? 2 : 4 },  // span_kc = 2 when qt visible, 4 when qt hidden (matching PDF)
+      { key: 'contentAvailability', width: 2 },  // span_ca = 2 (matching PDF)
+      { key: 'informationSource', width: 3 },  // span_src = 3 (matching PDF)
+      { key: 'qualityTier', width: qualityTierVisible ? 4 : 0 },  // span_qt = 4 when visible, 0 when hidden (matching PDF)
+      { key: 'estCreationTime', width: 2 },  // span_time = 2 (matching PDF)
+      { key: 'estCompletionTime', width: 2 },  // span_ct = 2 (matching PDF)
       { key: 'quiz', width: 1.1 },
       { key: 'onePager', width: 1.2 },
       { key: 'videoPresentation', width: 1.2 },
       { key: 'lessonPresentation', width: 2 },
-      { key: 'qualityTier', width: qualityTierVisible ? 2 : 0 },
-      { key: 'estCreationTime', width: 2 },
-      { key: 'estCompletionTime', width: 2 },
     ];
   };
 
