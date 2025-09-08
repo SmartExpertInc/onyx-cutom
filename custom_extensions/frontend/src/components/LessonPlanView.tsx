@@ -225,43 +225,18 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
 
   // Update local state when props change
   useEffect(() => {
-    // Try to load from localStorage first if no onUpdate callback provided
-    if (!onUpdate && typeof window !== 'undefined') {
-      try {
-        const storageKey = `lesson_plan_${lessonPlanData.lessonTitle}`;
-        const savedData = localStorage.getItem(storageKey);
-        if (savedData) {
-          const parsedData = JSON.parse(savedData);
-          console.log('📥 [LESSON_PLAN] Loaded from localStorage:', storageKey);
-          setEditableLessonPlanData(parsedData);
-          return;
-        }
-      } catch (error) {
-        console.error('❌ [LESSON_PLAN] Failed to load from localStorage:', error);
-      }
-    }
     setEditableLessonPlanData(lessonPlanData);
-  }, [lessonPlanData, onUpdate]);
+  }, [lessonPlanData]);
 
   // Save handlers
   const handleUpdateLessonPlanData = (updatedData: LessonPlanData) => {
     console.log('🔄 [LESSON_PLAN] Updating data:', updatedData);
     setEditableLessonPlanData(updatedData);
     if (onUpdate) {
-      console.log('✅ [LESSON_PLAN] Calling onUpdate callback');
+      console.log('✅ [LESSON_PLAN] Calling onUpdate callback for database save');
       onUpdate(updatedData);
     } else {
-      console.log('⚠️ [LESSON_PLAN] No onUpdate callback provided - changes saved locally only');
-      // Save to localStorage as fallback for demo purposes
-      if (typeof window !== 'undefined') {
-        try {
-          const storageKey = `lesson_plan_${editableLessonPlanData.lessonTitle}`;
-          localStorage.setItem(storageKey, JSON.stringify(updatedData));
-          console.log('💾 [LESSON_PLAN] Saved to localStorage:', storageKey);
-        } catch (error) {
-          console.error('❌ [LESSON_PLAN] Failed to save to localStorage:', error);
-        }
-      }
+      console.warn('⚠️ [LESSON_PLAN] No onUpdate callback provided - changes will not be saved to database');
     }
   };
 
@@ -1664,9 +1639,9 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       <button
         onClick={prevSlide}
         disabled={deck.slides.length <= 1}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronLeft className="w-5 h-5" />
+        <ChevronLeft className="w-8 h-8" />
       </button>
 
             {/* Slide Content - Proper 16:9 Landscape Aspect Ratio */}
@@ -1703,9 +1678,9 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       <button
         onClick={nextSlide}
         disabled={deck.slides.length <= 1}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronRight className="w-5 h-5" />
+        <ChevronRight className="w-8 h-8" />
       </button>
     </div>
   );
@@ -1853,18 +1828,19 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   };
 
   return (
-    <div className="relative flex items-center justify-center">
-      {/* Left Arrow */}
-      <button
-        onClick={prevQuestion}
-        disabled={questions.length <= 1}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
+    <div className="relative">
+      {/* Question Content - Centered with arrows positioned relative to question area */}
+      <div className="flex items-center justify-center w-full max-w-4xl mx-auto px-16">
+        {/* Left Arrow */}
+        <button
+          onClick={prevQuestion}
+          disabled={questions.length <= 1}
+          className="absolute left-4 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
+          style={{ top: '40%', transform: 'translateY(-50%)' }}
+        >
+          <ChevronLeft className="w-8 h-8" />
+        </button>
 
-      {/* Question Content - Centered */}
-      <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
         <div 
           className="transition-transform duration-300 ease-in-out w-full"
           style={{
@@ -1873,21 +1849,24 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
         >
           {renderQuestion(currentQuestion, currentQuestionIndex)}
         </div>
+
+        {/* Right Arrow */}
+        <button
+          onClick={nextQuestion}
+          disabled={questions.length <= 1}
+          className="absolute right-4 flex items-center justify-center text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors z-10"
+          style={{ top: '40%', transform: 'translateY(-50%)' }}
+        >
+          <ChevronRight className="w-8 h-8" />
+        </button>
+      </div>
         
-        {/* Question Counter */}
-        <div className="mt-4 text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
+      {/* Question Counter - Now outside the arrow positioning */}
+      <div className="flex justify-center mt-4">
+        <div className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
           Question {currentQuestionIndex + 1} of {questions.length}
         </div>
       </div>
-
-      {/* Right Arrow */}
-      <button
-        onClick={nextQuestion}
-        disabled={questions.length <= 1}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
     </div>
   );
 };
