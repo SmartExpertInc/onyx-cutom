@@ -1637,60 +1637,126 @@ export default function CommercialProposalPage() {
               Стартовый пакет - всё,<br className="xl:hidden"/> что<br className="hidden xl:block"/> нужно для запуска<br className="xl:hidden"/> обучения
             </h3>
 
-            <div className="px-[15px] py-[20px]">
-              <div className="flex flex-col gap-[20px]">
-                <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
+            <div className="flex flex-col xl:px-[30px] xl:py-[30px] xl:flex-row gap-[30px] xl:gap-[100px]">
+              <div className="flex flex-col gap-[20xp] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] xl:border-0 rounded-[4px]" style={{borderWidth: '0.6px'}}>
+                <div className="flex flex-col gap-[20px] py-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
+                  <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
 
-                <div>
-                  <ul className="space-y-[12px]">
-                    <li className="flex items-center gap-[10px]">
-                      <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
-                      </svg>
-                      <span className="text-[16px]">Пробный пакет — <span className="font-semibold">10 часов работы</span></span>
-                    </li>
-                    <li className="flex items-center gap-[10px]">
-                      <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
-                      </svg>
-                      <span className="text-[16px]">Помощь в создании курсов, тестов и структуры</span>
-                    </li>
-                    <li className="flex items-center gap-[10px]">
-                      <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
-                      </svg>
-                      <span className="text-[16px] font-semibold">$750 единовременно</span>
-                    </li>
-                  </ul>
+                  <div>
+                    <ul className="space-y-[12px]">
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px]">Пробный пакет — <span className="font-semibold">10 часов работы</span></span>
+                      </li>
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px]">Помощь в создании курсов, тестов и структуры</span>
+                      </li>
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px] font-semibold">$750 единовременно</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-[20px] py-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
+                  <h4 className="text-[18px] font-semibold">Платформа <span className="text-[18px] text-[#0F58F9] font-semibold">ContentBuilder.ai</span></h4>
+
+                  <div>
+                    <ul className="space-y-[12px]">
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px]">Генерация курсов, презентаций, видеоуроков</span>
+                      </li>
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px]">Включено 500 <span className="font-semibold">AI-кредитов</span></span>
+                      </li>
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px] font-semibold">$100 в месяц</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-[20px] py-[20px]">
+                  <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold">SmartExpert</span></h4>
+
+                  <div>
+                    <ul className="space-y-[12px]">
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px]">Обучение, онбординг, база знаний, отчёты</span>
+                      </li>
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px]">До <span className="font-semibold">200 пользователей</span></span>
+                      </li>
+                      <li className="flex gap-[10px]">
+                        <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
+                        </svg>
+                        <span className="text-[16px] font-semibold">$250 в месяц (со скидкой 50% до конца 2025)</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="relative bg-[#3E3AD9] rounded-t-lg px-8 xl:px-[255px] pt-[30px] xl:pt-[71px] pb-[100px] xl:pb-[172px] flex flex-col items-center justify-center overflow-hidden">
               
-
-              <div className="flex flex-col gap-[30px] xl:gap-[40px] z-10 relative">
-                <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] text-[#09090B] text-center">
-                  Записаться на демонстрацию
-                </h2>
+              <div className="flex flex-col gap-[15px] bg-[#3E3AD9] rounded-t-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
+                <span className="text-white text-[22px] xl:text-[26px] font-semibold">Итого:</span>
                 
-                <div 
-                  className="relative w-fit mx-auto block pl-[2px] pt-[2px]"
-                  style={{
-                    boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
-                  }}
-                >
+                <div className="flex flex-col gap-[30px]">
+                  <div className="flex flex-col gap-[5px] xl:gap-[2px]">
+                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">$750</span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Пробный пакет методолога</span>
+                  </div>
+
+                  <div className="flex flex-col gap-[5px] xl:gap-[2px]">
+                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">$350</span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Подписка на 2 платформы</span>
+                  </div>
+
+                  <div className="flex flex-col gap-[5px] xl:gap-[2px]">
+                    <span className="text-white text-[46px] xl:text-[60px] font-semibold">7-14 дней</span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Всё готово к запуску</span>
+                  </div>
+                  
                   <div 
-                    className="absolute inset-0 px-12 py-3.5 rounded-md"
+                    className="xl:mt-[9px] relative w-fit mx-auto block pl-[2px] pt-[2px]"
                     style={{
-                      background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)'
+                      boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
                     }}
-                  ></div>
-                  <button 
-                    className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
                   >
-                    <span className="text-white font-semibold text-[16px] xl:text-[18px]">Забронировать</span>
-                  </button>
+                    <div 
+                      className="absolute inset-0 px-12 py-3.5 rounded-md"
+                      style={{
+                        background: 'linear-gradient(88.48deg, #00C8FF -2.87%, #5CFFC3 36.43%, #18FFF0 64.64%, #5263FF 99.86%)'                    }}
+                    ></div>
+                    <button 
+                      className="font-semibold text-[16px] w-fit mx-auto block bg-white px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
+                    >
+                      <span className="font-semibold text-[16px] xl:text-[18px]">Забронировать</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
