@@ -1457,7 +1457,7 @@ const FallbackPresentationCarousel: React.FC = () => {
               disabled={fallbackSlides.length <= 1}
               className="flex items-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-8 h-8 mr-1" />
+              <ChevronLeft className="w-10 h-10 mr-1" />
               Previous
             </button>
             
@@ -1471,7 +1471,7 @@ const FallbackPresentationCarousel: React.FC = () => {
               className="flex items-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
-              <ChevronRight className="w-8 h-8 ml-1" />
+              <ChevronRight className="w-10 h-10 ml-1" />
             </button>
           </div>
     </div>
@@ -1540,7 +1540,7 @@ const FallbackQuizCarousel: React.FC = () => {
               disabled={fallbackQuestions.length <= 1}
               className="flex items-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-8 h-8 mr-1" />
+              <ChevronLeft className="w-10 h-10 mr-1" />
               Previous
             </button>
             
@@ -1554,7 +1554,7 @@ const FallbackQuizCarousel: React.FC = () => {
               className="flex items-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
-              <ChevronRight className="w-8 h-8 ml-1" />
+              <ChevronRight className="w-10 h-10 ml-1" />
             </button>
           </div>
         </div>
@@ -1651,9 +1651,9 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       <button
         onClick={prevSlide}
         disabled={deck.slides.length <= 1}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute -left-2 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronLeft className="w-12 h-12" />
+        <ChevronLeft className="w-16 h-16" />
       </button>
 
             {/* Slide Content - Proper 16:9 Landscape Aspect Ratio */}
@@ -1690,9 +1690,9 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
       <button
         onClick={nextSlide}
         disabled={deck.slides.length <= 1}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute -right-2 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronRight className="w-12 h-12" />
+        <ChevronRight className="w-16 h-16" />
       </button>
     </div>
   );
@@ -1841,13 +1841,13 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
 
   return (
     <div className="relative flex items-center justify-center">
-      {/* Left Arrow - positioned to align with question block center */}
+      {/* Left Arrow - positioned a bit higher than center */}
       <button
         onClick={prevQuestion}
         disabled={questions.length <= 1}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute left-4 top-1/3 transform -translate-y-1/2 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronLeft className="w-12 h-12" />
+        <ChevronLeft className="w-16 h-16" />
       </button>
 
       {/* Question Content - Centered */}
@@ -1867,13 +1867,13 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
         </div>
       </div>
 
-      {/* Right Arrow - positioned to align with question block center */}
+      {/* Right Arrow - positioned a bit higher than center */}
       <button
         onClick={nextQuestion}
         disabled={questions.length <= 1}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="absolute right-4 top-1/3 transform -translate-y-1/2 z-10 flex items-center justify-center text-green-600 hover:text-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        <ChevronRight className="w-12 h-12" />
+        <ChevronRight className="w-16 h-16" />
       </button>
     </div>
   );
