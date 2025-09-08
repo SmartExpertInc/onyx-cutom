@@ -2049,7 +2049,7 @@ export default function AuditPage() {
                   className="w-full xl:h-[490px] xl:w-[470px]"
                 />
 
-                <div className="flex flex-col gap-[15px]">
+                <div className="flex flex-col gap-[15px] xl:flex-1">
                   <div className="px-[18px] py-[8px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] w-fit">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M13.809 6.75093C10.2631 5.77179 9.5257 5.03362 8.54645 1.48836C8.51534 1.37561 8.41295 1.29785 8.29631 1.29785C8.17967 1.29785 8.07729 1.37561 8.04618 1.48836C7.06704 5.03429 6.32888 5.77168 2.78361 6.75093C2.67086 6.78204 2.59375 6.88442 2.59375 7.00106C2.59375 7.1177 2.67151 7.22009 2.78361 7.25119C6.32954 8.23033 7.06693 8.9685 8.04618 12.5138C8.07729 12.6265 8.17967 12.7043 8.29631 12.7043C8.41295 12.7043 8.51534 12.6265 8.54645 12.5138C9.52559 8.96784 10.2638 8.23045 13.809 7.25119C13.9218 7.22009 13.9989 7.1177 13.9989 7.00106C13.9989 6.88442 13.9211 6.78204 13.809 6.75093Z" fill="#09090B"/>
@@ -2062,7 +2062,7 @@ export default function AuditPage() {
                     </span>
                   </div>
 
-                  <div className="xl:mb-[5px]">
+                  <div>
                     <span className="font-bold text-[30px] leading-[120%]">
                       <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> часов
                     </span>
