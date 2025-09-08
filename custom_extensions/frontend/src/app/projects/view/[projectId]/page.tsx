@@ -270,6 +270,9 @@ export default function ProjectInstanceViewPage() {
   // Theme picker state for slide decks
   const [showThemePicker, setShowThemePicker] = useState(false);
 
+  // Theme picker state for training plans
+  const [showTrainingPlanThemePicker, setShowTrainingPlanThemePicker] = useState(false);
+
   // Role access control state
   const [roleAccess, setRoleAccess] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
@@ -321,12 +324,20 @@ export default function ProjectInstanceViewPage() {
           setShowEmailRoleDropdown(null);
         }
       }
+      // Close training plan theme picker
+      if (showTrainingPlanThemePicker) {
+        const target = e.target as Node;
+        const themePickerSection = document.querySelector('[data-theme-picker-section]');
+        if (themePickerSection && !themePickerSection.contains(target)) {
+          setShowTrainingPlanThemePicker(false);
+        }
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown, showEmailRoleDropdown]);
+  }, [showColumnDropdown, showRoleDropdown, showGeneralAccessDropdown, showEmailRoleDropdown, showTrainingPlanThemePicker]);
 
   const handleColumnVisibilityChange = (column: string, checked: boolean) => {
     setColumnVisibility(prev => ({
@@ -500,6 +511,40 @@ export default function ProjectInstanceViewPage() {
     } catch (error) {
       console.error('Failed to change email role:', error);
     }
+  };
+
+  // Function to handle training plan theme change
+  const handleTrainingPlanThemeChange = async (newTheme: string) => {
+    if (!projectInstanceData?.project_id || !editableData) return;
+    
+    try {
+      // Update the editable data with new theme
+      const updatedData = { ...editableData, theme: newTheme };
+      setEditableData(updatedData);
+      
+      // Save the updated theme to backend
+      const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectInstanceData.project_id}`, {
+        method: 'PUT', 
+        headers: saveOperationHeaders, 
+        body: JSON.stringify({ microProductContent: updatedData }),
+      });
+
+      if (response.ok) {
+        console.log('Theme updated successfully');
+      } else {
+        console.error('Failed to update theme');
+      }
+    } catch (error) {
+      console.error('Error updating theme:', error);
+    }
+    
+    setShowTrainingPlanThemePicker(false);
   };
 
   const handleRemoveEmail = async (email: string) => {
@@ -1824,6 +1869,61 @@ export default function ProjectInstanceViewPage() {
               >
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
+            )}
+
+            {/* Theme Picker button for Training Plans */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+              <div className="relative" data-theme-picker-section>
+                <button
+                  onClick={() => setShowTrainingPlanThemePicker(!showTrainingPlanThemePicker)}
+                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                  title="Change theme"
+                >
+                  <Palette size={16} className="mr-2" /> Theme
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
+
+                {showTrainingPlanThemePicker && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-20 py-2">
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                      Select Theme
+                    </div>
+                    {[
+                      { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
+                      { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
+                      { id: 'wine', label: 'Wine', color: '#0540AB' },
+                      { id: 'vanilla', label: 'Vanilla (Engenuity)', color: '#8776A0' },
+                      { id: 'terracotta', label: 'Terracotta (Deloitte)', color: '#2D7C21' },
+                      { id: 'zephyr', label: 'Zephyr', color: '#0540AB' }
+                    ].map((theme) => {
+                      const trainingPlanData = editableData as TrainingPlanData | null;
+                      const currentTheme = trainingPlanData?.theme || 'cherry';
+                      const isSelected = currentTheme === theme.id;
+                      
+                      return (
+                        <button
+                          key={theme.id}
+                          onClick={() => handleTrainingPlanThemeChange(theme.id)}
+                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${
+                            isSelected ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
+                          }`}
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full border border-gray-300"
+                            style={{ backgroundColor: theme.color }}
+                          />
+                          <span className="flex-1">{theme.label}</span>
+                          {isSelected && (
+                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Role Visibility Dropdown - only for Training Plans */}

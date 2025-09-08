@@ -306,82 +306,12 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   projectAdvancedRates,
   columnVisibility,
 }) => {
-  // Function to process lessons and populate content type boolean flags from recommendations
-  const processLessonContentTypes = (lesson: any) => {
-    const processedLesson = { ...lesson };
-    
-    // Initialize all flags to false
-    processedLesson.quiz = false;
-    processedLesson.onePager = false;
-    processedLesson.videoPresentation = false;
-    processedLesson.lessonPresentation = false;
-    
-    // Check if we have recommended content types
-    if (lesson.recommended_content_types?.primary && Array.isArray(lesson.recommended_content_types.primary)) {
-      const primaryTypes = lesson.recommended_content_types.primary;
-      
-      console.log(`🔍 Processing lesson "${lesson.title}" with recommended types:`, primaryTypes);
-      
-      // Map content type names to boolean flags
-      primaryTypes.forEach((contentType: string) => {
-        switch (contentType) {
-          case 'presentation':
-          case 'lessonPresentation':
-            processedLesson.lessonPresentation = true;
-            console.log(`  ✓ Set lessonPresentation = true for "${contentType}"`);
-            break;
-          case 'one-pager':
-          case 'textPresentation':
-            processedLesson.onePager = true;
-            console.log(`  ✓ Set onePager = true for "${contentType}"`);
-            break;
-          case 'quiz':
-          case 'multiple-choice':
-            processedLesson.quiz = true;
-            console.log(`  ✓ Set quiz = true for "${contentType}"`);
-            break;
-          case 'video-lesson':
-          case 'videoLesson':
-            processedLesson.videoPresentation = true;
-            console.log(`  ✓ Set videoPresentation = true for "${contentType}"`);
-            break;
-          default:
-            console.log(`  ⚠️  Unknown content type: "${contentType}"`);
-        }
-      });
-    } else {
-      console.log(`🔍 No recommended content types found for lesson "${lesson.title}", using fallback flags`);
-      // Fallback: if no recommendations, check if the boolean flags are already set
-      // (in case they come from another source)
-      processedLesson.quiz = lesson.quiz || false;
-      processedLesson.onePager = lesson.onePager || false;
-      processedLesson.videoPresentation = lesson.videoPresentation || false;
-      processedLesson.lessonPresentation = lesson.lessonPresentation || false;
-    }
-    
-    console.log(`📋 Final flags for "${lesson.title}":`, {
-      quiz: processedLesson.quiz,
-      onePager: processedLesson.onePager,
-      videoPresentation: processedLesson.videoPresentation,
-      lessonPresentation: processedLesson.lessonPresentation
-    });
-    
-    return processedLesson;
-  };
-
-  // Process the training plan data to populate content type flags
-  const processedDataToDisplay = useMemo(() => {
-    if (!dataToDisplay) return dataToDisplay;
-    
-    return {
-      ...dataToDisplay,
-      sections: dataToDisplay.sections?.map((section: any) => ({
-        ...section,
-        lessons: section.lessons?.map(processLessonContentTypes) || []
-      })) || []
-    };
-  }, [dataToDisplay]);
-
+    // --- MOCK DATA FOR DEMO PURPOSES ---
+    // These would be replaced by real data in production
+    const mockQuiz = true;
+    const mockOnePager = false;
+    const mockVideoPresentation = true;
+    const mockLessonPresentation = false;
   const router = useRouter();
   
   // Inline editing state management
@@ -1304,7 +1234,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const hasOnePager = !!existingOnePager;
 
     const section = (sections || []).find(s => s.title === moduleName);
-    const lessonObj = section?.lessons?.find((l: LessonType) => l.title === lessonTitle);
+    const lessonObj = section?.lessons?.find(l => l.title === lessonTitle);
     const effectiveTier = String(getEffectiveLessonTier(section, lessonObj));
     const persisted = extractPersistedRecommendations(lessonObj, effectiveTier);
     const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
@@ -1696,7 +1626,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
 
   const currentTheme = themeConfig[theme as keyof typeof themeConfig] || themeConfig.cherry;
   const iconBaseColor = currentTheme.iconColor;
-  const sections = processedDataToDisplay?.sections;
+  const sections = dataToDisplay?.sections;
   const mainTitle = dataToDisplay?.mainTitle;
   const lang = dataToDisplay?.detectedLanguage === 'ru' ? 'ru' : dataToDisplay?.detectedLanguage === 'uk' ? 'uk' : dataToDisplay?.detectedLanguage === 'es' ? 'es' : 'en';
   const localized = localizationConfig[lang];
@@ -2002,7 +1932,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         onUpdateRecommendations={(newPrimary) => {
           const sectionIdx = sections?.findIndex(s => s.title === contentModalState.moduleName) ?? -1;
           if (sectionIdx >= 0) {
-            const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex((l: LessonType) => l.title === contentModalState.lessonTitle) ?? -1;
+            const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex(l => l.title === contentModalState.lessonTitle) ?? -1;
             if (lessonIdx >= 0 && onTextChange) {
               const section = sections?.[sectionIdx];
               const lessonObj = section?.lessons?.[lessonIdx];
