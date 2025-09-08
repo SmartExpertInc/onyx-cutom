@@ -77,7 +77,13 @@ const NoPaddingTextPresentationDisplay: React.FC<{ dataToDisplay: TextPresentati
         return (
           <ul key={index} className="list-disc list-inside mb-4 text-black space-y-2">
             {bulletBlock.items?.map((item, itemIndex) => (
-              <li key={itemIndex} dangerouslySetInnerHTML={{ __html: parseAndStyleText(item) }} />
+              <li key={itemIndex}>
+                {typeof item === 'string' ? (
+                  <span dangerouslySetInnerHTML={{ __html: parseAndStyleText(item) }} />
+                ) : (
+                  renderContentBlock(item as AnyContentBlock, itemIndex)
+                )}
+              </li>
             ))}
           </ul>
         );
