@@ -553,7 +553,7 @@ export default function AuditPage() {
               </div>
 
               <Image 
-                src="/custom-projects-ui/images/audit-section-4-image.png" 
+                src="/custom-projects-ui/images/audit-section-4-image-desktop.png" 
                 alt="Кадровый кризис в HVAC-отрасли" 
                 width={360}
                 height={280}
