@@ -303,14 +303,14 @@ export default function VideoEditorHeader({
         projectName: productName,
         microProductName: productName,
         design_template_id: 1, // Use a default template ID for video products
-        microProductContent: {
+        aiResponse: JSON.stringify({
           videoJobId: jobId,
           videoUrl: `/api/custom-projects-backend/presentations/${jobId}/video`,
           thumbnailUrl: `/api/custom-projects-backend/presentations/${jobId}/thumbnail`,
           generatedAt: new Date().toISOString(),
           sourceSlides: componentBasedSlideDeck?.slides || videoLessonData?.slides || [],
           component_name: "VideoProductDisplay" // Use the new component type
-        }
+        })
       };
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
