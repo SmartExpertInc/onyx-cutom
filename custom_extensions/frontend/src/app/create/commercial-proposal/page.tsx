@@ -2250,12 +2250,12 @@ export default function CommercialProposalPage() {
             </h3>
 
             <div 
-              className="flex flex-col xl:px-[30px] xl:py-[30px] xl:flex-row gap-[30px] xl:gap-[100px] xl:border xl:border-[1px] xl:border-[#E0E0E0] rounded-[8px]"
+              className="flex flex-col xl:px-[30px] xl:py-[30px] xl:flex-row gap-[30px] xl:gap-[100px] xl:border xl:border-[1px] xl:border-[#E0E0E0] rounded-[8px] xl:items-stretch"
               style={{
                 boxShadow: '0px 24px 24px -8px #2A334608, 0px 10px 10px -5px #2A334608'
               }}
             >
-              <div className="flex flex-col gap-[20px] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0">
+              <div className="flex flex-col gap-[20px] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0 xl:flex-1">
                 <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
                   <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
 
@@ -2338,7 +2338,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <div className="relative xl:w-[490px] flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px] overflow-hidden">
+              <div className="relative xl:w-[490px] xl:flex-shrink-0 flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px] overflow-hidden">
                 {/* Background images with absolute positioning */}
                 <img 
                   src="/custom-projects-ui/images/commercial-bg-2-mobile.png"
