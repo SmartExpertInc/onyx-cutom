@@ -13245,6 +13245,10 @@ async def download_project_instance_pdf(
     time: Optional[str] = Query(None),
     estCompletionTime: Optional[str] = Query(None),
     qualityTier: Optional[str] = Query(None),
+    quiz: Optional[str] = Query(None),
+    onePager: Optional[str] = Query(None),
+    videoPresentation: Optional[str] = Query(None),
+    lessonPresentation: Optional[str] = Query(None),
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -13529,9 +13533,13 @@ async def download_project_instance_pdf(
                 'knowledgeCheck': knowledgeCheck == '1' if knowledgeCheck else True,
                 'contentAvailability': contentAvailability == '1' if contentAvailability else True,
                 'informationSource': informationSource == '1' if informationSource else True,
-                'time': time == '1' if time else True,
+                'estCreationTime': time == '1' if time else True,
                 'estCompletionTime': estCompletionTime == '1' if estCompletionTime else True,
                 'qualityTier': qualityTier == '1' if qualityTier else False,  # Hidden by default
+                'quiz': quiz == '1' if quiz else False,
+                'onePager': onePager == '1' if onePager else False,
+                'videoPresentation': videoPresentation == '1' if videoPresentation else False,
+                'lessonPresentation': lessonPresentation == '1' if lessonPresentation else False,
             }
             context_for_jinja['columnVisibility'] = column_visibility
 

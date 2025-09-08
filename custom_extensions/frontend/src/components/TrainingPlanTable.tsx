@@ -139,10 +139,10 @@ interface TrainingPlanTableProps {
 }
 
 const localizationConfig = {
-  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения", qualityTier: "Уровень качества", quiz: "Викторина", onePager: "Одностраничный", videoPresentation: "Видео презентация", lessonPresentation: "Презентация урока" },
-  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time", qualityTier: "Quality Tier", quiz: "Quiz", onePager: "One-Pager", videoPresentation: "Video Presentation", lessonPresentation: "Lesson Presentation" },
-  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення", qualityTier: "Рівень якості", quiz: "Вікторина", onePager: "Односторінковий", videoPresentation: "Відеопрезентація", lessonPresentation: "Презентація уроку" },
-  es: { moduleAndLessons: "Módulo y Lecciones", knowledgeCheck: "Verificación de conocimientos", contentAvailability: "Disponibilidad de contenido", source: "Fuente de información", time: "Tiempo Est. Creación", estCreationTime: "Tiempo Est. Creación", estCompletionTime: "Tiempo Est. Finalización", qualityTier: "Nivel de Calidad", quiz: "Prueba", onePager: "Una página", videoPresentation: "Presentación en vídeo", lessonPresentation: "Presentación de la lección" },
+  ru: { moduleAndLessons: "Модуль и уроки", knowledgeCheck: "Проверка знаний", contentAvailability: "Наличие контента", source: "Источник информации", time: "Оц. время создания", estCreationTime: "Оц. время создания", estCompletionTime: "Оц. время завершения", qualityTier: "Уровень качества", quiz: "Викторина", onePager: "Одностраничный", videoPresentation: "Видео урок", lessonPresentation: "Презентация" },
+  en: { moduleAndLessons: "Module / Lesson", knowledgeCheck: "Assessment Type", contentAvailability: "Content Volume", source: "Source", time: "Est. Creation Time", estCreationTime: "Est. Creation Time", estCompletionTime: "Est. Completion Time", qualityTier: "Quality Tier", quiz: "Quiz", onePager: "One-Pager", videoPresentation: "Video lesson", lessonPresentation: "Presentation" },
+  uk: { moduleAndLessons: "Модуль та уроки", knowledgeCheck: "Перевірка знань", contentAvailability: "Наявність контенту", source: "Джерело інформації", time: "Оц. час створення", estCreationTime: "Оц. час створення", estCompletionTime: "Оц. час завершення", qualityTier: "Рівень якості", quiz: "Вікторина", onePager: "Односторінковий", videoPresentation: "Відео урок", lessonPresentation: "Презентація" },
+  es: { moduleAndLessons: "Módulo y Lecciones", knowledgeCheck: "Verificación de conocimientos", contentAvailability: "Disponibilidad de contenido", source: "Fuente de información", time: "Tiempo Est. Creación", estCreationTime: "Tiempo Est. Creación", estCompletionTime: "Tiempo Est. Finalización", qualityTier: "Nivel de Calidad", quiz: "Prueba", onePager: "Una página", videoPresentation: "Presentación de la lección", lessonPresentation: "Presentación" },
 };
 
 const tierLabels = {
@@ -1790,17 +1790,17 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const qualityTierVisible = visibleColumns.qualityTier;
     
     return [
-      { key: 'module', width: 7 },  // modules_span in PDF = 20 - (2+2+3+4+2+2) = 5 when qt visible, or 20 - (4+2+3+0+2+2) = 7 when qt hidden
-      { key: 'knowledgeCheck', width: qualityTierVisible ? 2 : 4 },  // span_kc = 2 when qt visible, 4 when qt hidden (matching PDF)
-      { key: 'contentAvailability', width: 2 },  // span_ca = 2 (matching PDF)
-      { key: 'informationSource', width: 3 },  // span_src = 3 (matching PDF)
-      { key: 'qualityTier', width: qualityTierVisible ? 4 : 0 },  // span_qt = 4 when visible, 0 when hidden (matching PDF)
-      { key: 'estCreationTime', width: 2 },  // span_time = 2 (matching PDF)
-      { key: 'estCompletionTime', width: 2 },  // span_ct = 2 (matching PDF)
-      { key: 'quiz', width: 2 },
-      { key: 'onePager', width: 2 },
-      { key: 'videoPresentation', width: 2 },
+      { key: 'module', width: 3.5 },
+      { key: 'knowledgeCheck', width: qualityTierVisible ? 1.5 : 2 },
+      { key: 'contentAvailability', width: 2 },
+      { key: 'informationSource', width: 1.5 },
+      { key: 'quiz', width: 1.1 },
+      { key: 'onePager', width: 1.2 },
+      { key: 'videoPresentation', width: 1.2 },
       { key: 'lessonPresentation', width: 2 },
+      { key: 'qualityTier', width: qualityTierVisible ? 2 : 0 },
+      { key: 'estCreationTime', width: 2 },
+      { key: 'estCompletionTime', width: 2 },
     ];
   };
 
@@ -1813,6 +1813,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   });
 
   const gridTemplate = activeColumns.map((c) => `${c.width}fr`).join(' ');
+  // const gridTemplate = `repeat(${activeColumns.length}, minmax(100px, 1fr))`;
 
   if (!dataToDisplay) {
     return <div className="p-8 text-center">Training plan data is unavailable for display.</div>;
@@ -2187,6 +2188,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
           {activeColumns.map((col, idx) => {
             const borderClasses = idx < activeColumns.length - 1 ? 'border-r border-gray-400' : '';
             const common = `px-2 ${borderClasses}`;
+            const breakStyle: React.CSSProperties = { wordBreak: 'break-all', overflowWrap: 'break-word' };
             switch (col.key) {
               case 'module':
                 return (
@@ -2211,7 +2213,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
               case 'videoPresentation':
                 return <div key={col.key} className={common}>{localized.videoPresentation}</div>;
               case 'lessonPresentation':
-                return <div key={col.key} className={common}>{localized.lessonPresentation}</div>;
+                return <div key={col.key} className={common} style={breakStyle}>{localized.lessonPresentation}</div>;
 
               default:
                 return null;
@@ -2527,13 +2529,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                             </div>
                           );
                         case 'quiz':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockQuiz ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.quiz ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'onePager':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockOnePager ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.onePager ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'videoPresentation':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockVideoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.videoPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         case 'lessonPresentation':
-                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{mockLessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
+                          return <div key={col.key} className={`flex items-center justify-center ${commonCls}`}>{lesson.lessonPresentation ? <TickIcon /> : <CrossIcon />}</div>;
                         default:
                           return <div key={col.key} className={commonCls}></div>;
                       }

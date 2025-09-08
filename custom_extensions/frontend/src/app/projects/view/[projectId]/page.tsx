@@ -315,7 +315,11 @@ export default function ProjectInstanceViewPage() {
       }
       // Close email role dropdown
       if (showEmailRoleDropdown) {
-        setShowEmailRoleDropdown(null);
+        const target = e.target as Node;
+        const emailRoleSection = document.querySelector('[data-email-role-section]');
+        if (emailRoleSection && !emailRoleSection.contains(target)) {
+          setShowEmailRoleDropdown(null);
+        }
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -1362,13 +1366,18 @@ export default function ProjectInstanceViewPage() {
 
     // Add column visibility settings for Training Plan PDFs
     if (projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN) {
-        queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
-        queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
-        queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
-        queryParams.append('time', columnVisibility.estCreationTime ? '1' : '0');
-        queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
-        queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
+      queryParams.append('knowledgeCheck', columnVisibility.knowledgeCheck ? '1' : '0');
+      queryParams.append('contentAvailability', columnVisibility.contentAvailability ? '1' : '0');
+      queryParams.append('informationSource', columnVisibility.informationSource ? '1' : '0');
+      queryParams.append('quiz', columnVisibility.quiz ? '1' : '0');
+      queryParams.append('onePager', columnVisibility.onePager ? '1' : '0');
+      queryParams.append('videoPresentation', columnVisibility.videoPresentation ? '1' : '0');
+      queryParams.append('lessonPresentation', columnVisibility.lessonPresentation ? '1' : '0');
+      queryParams.append('time', columnVisibility.estCreationTime ? '1' : '0');
+      queryParams.append('estCompletionTime', columnVisibility.estCompletionTime ? '1' : '0');
+      queryParams.append('qualityTier', columnVisibility.qualityTier ? '1' : '0');
     }
+
 
     if (queryParams.toString()) {
       pdfUrl += `?${queryParams.toString()}`;
@@ -1888,11 +1897,11 @@ export default function ProjectInstanceViewPage() {
                                 <div key={email} className="flex items-center justify-between p-2 bg-white rounded-lg min-h-[52px]">
                                 <div className="flex items-center">
                                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium mr-3">
-                                    {email.charAt(0).toUpperCase()}
+                                      {email.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="text-sm text-gray-900">{email}</span>
                                   </div>
-                                  <span className="text-sm text-gray-900">{email}</span>
-                                </div>
-                                  <div className="relative">
+                                  <div className="relative" data-email-role-section>
                                     <div
                                       className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded"
                                       onClick={() => setShowEmailRoleDropdown(showEmailRoleDropdown === email ? null : email)}
@@ -1907,24 +1916,20 @@ export default function ProjectInstanceViewPage() {
                                     {showEmailRoleDropdown === email && (
                                       <div className="fixed bg-white border border-gray-300 rounded-lg shadow-lg z-[10001] p-2 min-w-32 max-h-48 overflow-y-auto" style={{
                                         top: '50%',
-                                        left: '50%',
+                                        left: '55%',
                                         transform: 'translate(-50%, -50%)'
                                       }}>
                                         <div className="space-y-1">
                                           {predefinedRoles.map((role) => (
                                             <div
                                               key={role.id}
-                                              className="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
+                                              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-50 ${currentRole === role.id ? 'bg-blue-50' : ''}`}
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleEmailRoleChange(email, role.id);
+                                                setShowEmailRoleDropdown(null);
                                               }}
                                             >
-                                              <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
-                                                {currentRole === role.id && (
-                                                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                                )}
-                                              </div>
                                               <span className="text-sm font-medium text-gray-900">{role.label}</span>
                               </div>
                             ))}
@@ -2128,8 +2133,8 @@ export default function ProjectInstanceViewPage() {
               </>
             )}
 
-            {/* Column Visibility Dropdown - only for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+            {/* Column Visibility Dropdown - for all component types */}
+            {projectInstanceData && (
               <div className="relative" ref={columnDropdownRef}>
                 <button
                   onClick={() => setShowColumnDropdown(!showColumnDropdown)}
@@ -2144,61 +2149,69 @@ export default function ProjectInstanceViewPage() {
                 {showColumnDropdown && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
                     <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
+
                     <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.knowledgeCheck}
-                          onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.contentAvailability}
-                          onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.informationSource}
-                          onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.source}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.estCreationTime}
-                          onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.estCompletionTime}
-                          onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.qualityTier}
-                          onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
-                      </label>
+                      {/* Training Plan specific columns */}
+                      {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+                        <>
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.knowledgeCheck}
+                              onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
+                              className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.contentAvailability}
+                              onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
+                              className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.informationSource}
+                              onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
+                              className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.source}</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.estCreationTime}
+                              onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
+                              className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.estCompletionTime}
+                              onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
+                              className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.qualityTier}
+                              onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
+                              className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
+                          </label>
+                        </>
+                      )}
+
+                      {/* Common columns for all component types */}
                       <label className="flex items-center">
                         <input
                           type="checkbox"
@@ -2224,7 +2237,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Video Presentation</span>
+                        <span className="text-sm text-gray-700">Video Lesson</span>
                       </label>
                       <label className="flex items-center">
                         <input
@@ -2233,7 +2246,7 @@ export default function ProjectInstanceViewPage() {
                           onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
                           className="mr-2 text-blue-600 focus:ring-blue-500"
                         />
-                        <span className="text-sm text-gray-700">Lesson Presentation</span>
+                        <span className="text-sm text-gray-700">Presentation</span>
                       </label>
                     </div>
                   </div>
