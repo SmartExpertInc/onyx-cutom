@@ -1718,6 +1718,12 @@ export default function ProjectInstanceViewPage() {
             allUserMicroproducts={allUserMicroproducts}
             parentProjectName={parentProjectNameForCurrentView}
             onUpdate={async (updatedData) => {
+              if (!projectId) {
+                console.error('❌ [LESSON_PLAN_SAVE] No project ID available for saving');
+                alert('Error: No project ID available for saving');
+                return;
+              }
+
               console.log('💾 [LESSON_PLAN_SAVE] Saving lesson plan data:', updatedData);
               
               // Create the save payload
