@@ -70,22 +70,6 @@ export default function Projects2ViewPage() {
   // NEW: Settings panel state for video lesson buttons
   const [activeSettingsPanel, setActiveSettingsPanel] = useState<string | null>(null);
 
-  // NEW: Calculate optimal scale for slides based on available space
-  const calculateOptimalScale = () => {
-    // Increased base scale to take more of the grey area space
-    const baseScale = 0.95;
-    
-    // Adjust based on aspect ratio
-    let aspectRatioScale = 1;
-    if (aspectRatio === '9:16') {
-      aspectRatioScale = 1.0; // Full scale for portrait
-    } else if (aspectRatio === '1:1') {
-      aspectRatioScale = 0.95; // Slightly smaller for square
-    }
-    
-    return baseScale * aspectRatioScale;
-  };
-
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
     if (!videoLessonData) return;
@@ -637,42 +621,49 @@ export default function Projects2ViewPage() {
 
             {isComponentBasedVideoLesson && componentBasedSlideDeck ? (
               <div 
-                className="bg-white rounded-md shadow-lg relative overflow-hidden z-0 compact-slide-mode"
-                style={{
-                  width: '95%',
-                  height: '95%',
-                  maxWidth: aspectRatio === '16:9' 
-                    ? 'calc((100vh - 145px) * 0.8 * 0.95 * 16 / 9)'
-                    : aspectRatio === '9:16'
-                    ? 'calc((100vh - 145px) * 0.8 * 0.95 * 9 / 16)'
-                    : 'calc((100vh - 145px) * 0.8 * 0.95)',
-                  maxHeight: 'calc((100vh - 145px) * 0.8 * 0.95)',
-                  // Center and scale the slide
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: `translate(-50%, -50%) scale(${calculateOptimalScale()})`,
-                  transformOrigin: 'center center'
-                }}
+                className="bg-white rounded-md shadow-lg relative overflow-hidden compact-slide-mode flex items-center justify-center w-full h-full"
               >
-                <ComponentBasedSlideDeckRenderer
-                  slides={componentBasedSlideDeck.slides}
-                  selectedSlideId={currentSlideId}
-                  isEditable={true}
-                  onSlideUpdate={(updatedSlide) => {
-                    // Handle slide updates for component-based slides
-                    if (componentBasedSlideDeck) {
-                      const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
-                        slide.slideId === updatedSlide.slideId ? updatedSlide : slide
-                      );
-                      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
-                      setComponentBasedSlideDeck(updatedDeck);
-                      // Save to backend
-                      saveVideoLessonData(updatedDeck);
-                    }
+                {/* Slide Content - Using same approach as LessonPlanView carousel */}
+                <div
+                  className="professional-slide relative bg-white overflow-hidden"
+                  style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                    width: '100%',
+                    maxWidth: aspectRatio === '16:9' ? '900px' 
+                      : aspectRatio === '9:16' ? '400px'
+                      : '800px',
+                    aspectRatio: aspectRatio === '16:9' ? '16/10' 
+                      : aspectRatio === '9:16' ? '9/16'
+                      : '1/1',
+                    minHeight: '400px',
+                    maxHeight: aspectRatio === '9:16' ? '600px' : '500px',
                   }}
-                  theme="default"
-                />
+                >
+                  <div 
+                    style={{ width: '100%', height: '100%' }} 
+                    className="[&_p]:!text-sm [&_div]:!text-sm [&_span]:!text-sm [&_li]:!text-sm [&_h1]:!text-2xl [&_h2]:!text-xl [&_h3]:!text-lg [&_h4]:!text-base [&_h5]:!text-sm [&_h6]:!text-xs"
+                  >
+                    <ComponentBasedSlideDeckRenderer
+                      slides={componentBasedSlideDeck.slides}
+                      selectedSlideId={currentSlideId}
+                      isEditable={true}
+                      onSlideUpdate={(updatedSlide) => {
+                        // Handle slide updates for component-based slides
+                        if (componentBasedSlideDeck) {
+                          const updatedSlides = componentBasedSlideDeck.slides.map(slide =>
+                            slide.slideId === updatedSlide.slideId ? updatedSlide : slide
+                          );
+                          const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                          setComponentBasedSlideDeck(updatedDeck);
+                          // Save to backend
+                          saveVideoLessonData(updatedDeck);
+                        }
+                      }}
+                      theme="default"
+                    />
+                  </div>
+                </div>
               </div>
             ) : (
               <VideoLessonDisplay 
