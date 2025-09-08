@@ -94,6 +94,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   parentProjectName
 }) => {
   const [productData, setProductData] = useState<{[key: string]: any}>({});
+  const [products, setProducts] = useState<{[key: string]: ProjectListItem | undefined}>({});
   const [loading, setLoading] = useState(false);
 
   // Fetch real product data for this lesson
@@ -245,6 +246,14 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       newProductData.quiz = quizData;
       newProductData.onePager = onePagerData;
       newProductData.videoLesson = videoLessonData;
+
+      // Store the product objects for timing information
+      setProducts({
+        presentation: presentationProduct,
+        quiz: quizProduct,
+        onePager: onePagerProduct,
+        videoLesson: videoLessonProduct
+      });
 
       setProductData(newProductData);
       setLoading(false);
@@ -463,6 +472,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   data={productData.videoLesson || productData.onePager}
                   prompt={prompt}
                   loading={loading}
+                  product={products.videoLesson}
                 />
               );
             }
@@ -475,6 +485,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   data={productData.presentation}
                   prompt={prompt}
                   loading={loading}
+                  product={products.presentation}
                 />
               );
             }
@@ -487,6 +498,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   data={productData.quiz}
                   prompt={prompt}
                   loading={loading}
+                  product={products.quiz}
                 />
               );
             }
@@ -499,6 +511,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   data={productData.onePager}
                   prompt={prompt}
                   loading={loading}
+                  product={products.onePager}
                 />
               );
             }
@@ -588,14 +601,27 @@ const VideoLessonBlock: React.FC<{
   data: any;
   prompt: string;
   loading: boolean;
-}> = ({ title, data, prompt, loading }) => {
+  product?: ProjectListItem;
+}> = ({ title, data, prompt, loading, product }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-      <div className="flex items-center mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-          <Play className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <Play className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+        {product && (
+          <div className="flex gap-6 text-blue-600 font-semibold">
+            {product.creation_time && (
+              <span>Creation time: {product.creation_time}</span>
+            )}
+            {product.completion_time && (
+              <span>Completion time: {product.completion_time}</span>
+            )}
+          </div>
+        )}
       </div>
       
       {/* One-Pager Content */}
@@ -605,8 +631,8 @@ const VideoLessonBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-4xl mx-auto">
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-2xl [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
             <TextPresentationDisplay 
               dataToDisplay={data}
               isEditing={false}
@@ -638,15 +664,28 @@ const PresentationBlock: React.FC<{
   data: any;
   prompt: string;
   loading: boolean;
-}> = ({ title, data, prompt, loading }) => {
+  product?: ProjectListItem;
+}> = ({ title, data, prompt, loading, product }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-      <div className="flex items-center mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-          <Presentation className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <Presentation className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+        {product && (
+          <div className="flex gap-6 text-blue-600 font-semibold">
+            {product.creation_time && (
+              <span>Creation time: {product.creation_time}</span>
+            )}
+            {product.completion_time && (
+              <span>Completion time: {product.completion_time}</span>
+            )}
+          </div>
+        )}
       </div>
       
       {/* Slide Display using SmartSlideDeckViewer */}
@@ -682,15 +721,28 @@ const QuizBlock: React.FC<{
   data: any;
   prompt: string;
   loading: boolean;
-}> = ({ title, data, prompt, loading }) => {
+  product?: ProjectListItem;
+}> = ({ title, data, prompt, loading, product }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-      <div className="flex items-center mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-          <FileQuestion className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <FileQuestion className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+        {product && (
+          <div className="flex gap-6 text-blue-600 font-semibold">
+            {product.creation_time && (
+              <span>Creation time: {product.creation_time}</span>
+            )}
+            {product.completion_time && (
+              <span>Completion time: {product.completion_time}</span>
+            )}
+          </div>
+        )}
       </div>
       
       {/* Quiz Display using QuizDisplay component */}
@@ -726,14 +778,27 @@ const OnePagerBlock: React.FC<{
   data: any;
   prompt: string;
   loading: boolean;
-}> = ({ title, data, prompt, loading }) => {
+  product?: ProjectListItem;
+}> = ({ title, data, prompt, loading, product }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-      <div className="flex items-center mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-          <ScrollText className="w-6 h-6 text-white" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <ScrollText className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
+        {product && (
+          <div className="flex gap-6 text-blue-600 font-semibold">
+            {product.creation_time && (
+              <span>Creation time: {product.creation_time}</span>
+            )}
+            {product.completion_time && (
+              <span>Completion time: {product.completion_time}</span>
+            )}
+          </div>
+        )}
       </div>
       
       {/* One-Pager Content */}
@@ -744,11 +809,13 @@ const OnePagerBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-          <TextPresentationDisplay 
-              dataToDisplay={data}
-             isEditing={false}
-           />
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm max-w-4xl mx-auto">
+          <div className="[&_.max-w-3xl]:!max-w-2xl [&_.mx-auto]:!mx-0">
+            <TextPresentationDisplay 
+                dataToDisplay={data}
+               isEditing={false}
+             />
+          </div>
         </div>
         ) : (
           <FallbackOnePagerContent />
@@ -948,8 +1015,8 @@ const FallbackOnePagerContent: React.FC = () => {
   };
 
         return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-4xl mx-auto">
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-2xl [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0">
         <TextPresentationDisplay 
           dataToDisplay={fallbackOnePagerData as any}
           isEditing={false}
@@ -1014,10 +1081,10 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
                         width: '100%',
-            maxWidth: '800px',
+            maxWidth: '1000px',
             aspectRatio: '16/10', // Slightly more flexible than 16:9
-            minHeight: '400px',
-            maxHeight: '600px',
+            minHeight: '500px',
+            maxHeight: '750px',
             transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0px)'
           }}
         >
