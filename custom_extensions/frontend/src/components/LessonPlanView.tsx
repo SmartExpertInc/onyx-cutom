@@ -698,39 +698,38 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           <div className="flex items-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Wrench className="w-6 h-6 text-white" />
-      </div>
+            </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
           </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-cyan-100">
-            <ul className="space-y-4">
-              {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
-                (() => {
-                  // Find the separator index
-                  const separatorIndex = lessonPlanData.materials.findIndex(m => m.includes('Additional Resources'));
-                  const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
-                  
-                  // Filter out empty strings
-                  const filteredSourceMaterials = sourceMaterials.filter(m => m.trim() !== '');
-                  
-                  return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
-                    <li key={index} className="flex items-start group">
-                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                      <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
-                    </li>
-                  )) : (
-                    <li className="flex items-start">
-                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
-                      <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
-                    </li>
-                  );
-                })()
-              ) : (
-                <li className="flex items-start">
-                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
-                  <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
-                </li>
-              )}
-            </ul>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(() => {
+              // Mock data for now - preserving original logic structure
+              const mockResources = [
+                'Role_and_Responsibility_Matrix_RACI.xlsx',
+                'Corporate_Structure_Overview.pptx',
+                'Company_Org_Chart_Official_Q3_2025.pdf',
+                'Our_Business_Units_and_Divisions.docx',
+                'Leadership_Bios_and_Direct_Reports.pdf',
+                'Employee_Handbook_Section_2_Our_Structure.pdf'
+              ];
+
+              // Original logic (commented out but preserved):
+              // const separatorIndex = lessonPlanData.materials?.findIndex(m => m.includes('Additional Resources')) || -1;
+              // const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
+              // const filteredSourceMaterials = sourceMaterials?.filter(m => m.trim() !== '') || [];
+              // const resourcesToShow = filteredSourceMaterials.length > 0 ? filteredSourceMaterials : mockResources;
+              
+              const resourcesToShow = mockResources;
+
+              return resourcesToShow.map((material, index) => (
+                <div key={index} className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-4 border border-cyan-200 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <div className="flex items-start">
+                    <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-3 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                    <span className="text-gray-800 leading-relaxed font-medium text-sm">{material}</span>
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
         </div>
 
