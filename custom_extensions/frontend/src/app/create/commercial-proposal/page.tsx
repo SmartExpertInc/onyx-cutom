@@ -1515,7 +1515,7 @@ export default function CommercialProposalPage() {
             </div>
 
             {/* Service 4 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 4:
@@ -1625,9 +1625,9 @@ export default function CommercialProposalPage() {
                 }}
               >
                 <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$750<span className="text-[26px] font-bold xl:hidden">/месяц</span></span>
+                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$750<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
 
-                <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">$750<span className="hidden xl:inline-block text-[26px] font-bold"> 10 ч./месяц</span></span>
+                <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">$750 <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
@@ -1667,7 +1667,7 @@ export default function CommercialProposalPage() {
                   </table>
                 </div>
 
-                <div className="flex items-center gap-2 xl:hidden">
+                <div className="flex items-center justify-between xl:hidden">
                   <span className="text-[#71717A] font-medium">Scroll</span>
 
                   <svg width="227" height="14" viewBox="0 0 227 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2237,7 +2237,7 @@ export default function CommercialProposalPage() {
                   <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                 </svg>
                 <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
-                  <span className="text-[14px] xl:text-[22px] font-medium">Использованные часы<br className="xl:hidden"/> списываются согласно тайм-<br className="xl:hidden"/>трекеру.</span> Вы можете<br className="xl:hidden"/> приостановить или завершить<br className="xl:hidden"/> сотрудничество в любой момент,<br className="xl:hidden"/> оплата за неиспользованные часы<br className="xl:hidden"/> возвращаются вам в полном<br className="xl:hidden"/> объёме
+                  <span className="text-[14px] xl:text-[22px] font-medium text-[#09090B]">Использованные часы<br className="xl:hidden"/> списываются согласно тайм-<br className="xl:hidden"/>трекеру.</span> Вы можете<br className="xl:hidden"/> приостановить или завершить<br className="xl:hidden"/> сотрудничество в любой момент,<br className="xl:hidden"/> оплата за неиспользованные часы<br className="xl:hidden"/> возвращаются вам в полном<br className="xl:hidden"/> объёме
                 </span>
               </div> 
             </div>
