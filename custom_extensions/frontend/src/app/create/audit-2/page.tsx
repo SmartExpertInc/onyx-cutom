@@ -612,7 +612,7 @@ export default function AuditPage() {
               </h3>
 
               <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:
+                Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:
               </h3>
               
               <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
