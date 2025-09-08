@@ -701,35 +701,35 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
           </div>
-          <div className="space-y-3">
-            {(() => {
-              // Mock data for now - preserving original logic structure
-              const mockResources = [
-                'Role_and_Responsibility_Matrix_RACI.xlsx',
-                'Corporate_Structure_Overview.pptx',
-                'Company_Org_Chart_Official_Q3_2025.pdf',
-                'Our_Business_Units_and_Divisions.docx',
-                'Leadership_Bios_and_Direct_Reports.pdf',
-                'Employee_Handbook_Section_2_Our_Structure.pdf'
-              ];
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-cyan-100">
+            <ul className="space-y-4">
+              {(() => {
+                // Mock data for now - preserving original logic structure
+                const mockResources = [
+                  'Role_and_Responsibility_Matrix_RACI.xlsx',
+                  'Corporate_Structure_Overview.pptx',
+                  'Company_Org_Chart_Official_Q3_2025.pdf',
+                  'Our_Business_Units_and_Divisions.docx',
+                  'Leadership_Bios_and_Direct_Reports.pdf',
+                  'Employee_Handbook_Section_2_Our_Structure.pdf'
+                ];
 
-              // Original logic (commented out but preserved):
-              // const separatorIndex = lessonPlanData.materials?.findIndex(m => m.includes('Additional Resources')) || -1;
-              // const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
-              // const filteredSourceMaterials = sourceMaterials?.filter(m => m.trim() !== '') || [];
-              // const resourcesToShow = filteredSourceMaterials.length > 0 ? filteredSourceMaterials : mockResources;
-              
-              const resourcesToShow = mockResources;
+                // Original logic (commented out but preserved):
+                // const separatorIndex = lessonPlanData.materials?.findIndex(m => m.includes('Additional Resources')) || -1;
+                // const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
+                // const filteredSourceMaterials = sourceMaterials?.filter(m => m.trim() !== '') || [];
+                // const resourcesToShow = filteredSourceMaterials.length > 0 ? filteredSourceMaterials : mockResources;
+                
+                const resourcesToShow = mockResources;
 
-              return resourcesToShow.map((material, index) => (
-                <div key={index} className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl p-4 border border-cyan-200 shadow-sm hover:shadow-md transition-all duration-300 group">
-                  <div className="flex items-start">
-                    <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-3 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                    <span className="text-gray-800 leading-relaxed font-medium text-sm">{material}</span>
-                  </div>
-                </div>
-              ));
-            })()}
+                return resourcesToShow.map((material, index) => (
+                  <li key={index} className="flex items-start group">
+                    <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                    <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
+                  </li>
+                ));
+              })()}
+            </ul>
           </div>
         </div>
 
@@ -741,7 +741,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {connectorConfigs.map((connector) => (
               <div key={connector.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 group">
                 <div className="flex items-center">
@@ -783,12 +783,12 @@ const VideoLessonBlock: React.FC<{
     }
 
     const filteredBlocks = originalData.contentBlocks.filter((block: any, index: number) => {
-      // Skip any headline/title blocks (not just first one)
-      if (block.type === 'headline' || block.type === 'title') {
+      // Skip first title block (usually headline type)
+      if (index === 0 && (block.type === 'headline' || block.type === 'title')) {
         return false;
       }
-      // Skip first paragraph block 
-      if (index === 0 && block.type === 'paragraph') {
+      // Skip first paragraph block after title
+      if (index === 1 && block.type === 'paragraph') {
         return false;
       }
       return true;
@@ -825,7 +825,7 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-          <div className="pl-4 [&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-base [&_li]:!text-lg [&_span]:!text-lg">
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-sm [&_li]:!text-sm [&_span]:!text-sm pl-4">
             <TextPresentationDisplay 
               dataToDisplay={getFilteredData(data)}
               isEditing={false}
@@ -994,7 +994,7 @@ const OnePagerBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm max-w-4xl mx-auto">
-          <div className="[&_.max-w-3xl]:!max-w-2xl [&_.mx-auto]:!mx-0">
+          <div className="[&_.max-w-3xl]:!max-w-2xl [&_.mx-auto]:!mx-0 [&_p]:!text-sm [&_li]:!text-sm [&_span]:!text-sm pl-4">
             <TextPresentationDisplay 
                 dataToDisplay={data}
                isEditing={false}
@@ -1200,7 +1200,7 @@ const FallbackOnePagerContent: React.FC = () => {
 
         return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-lg [&_li]:!text-lg [&_span]:!text-lg">
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-sm [&_li]:!text-sm [&_span]:!text-sm pl-4">
         <TextPresentationDisplay 
           dataToDisplay={fallbackOnePagerData as any}
           isEditing={false}
