@@ -602,10 +602,7 @@ const VideoLessonBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-        <div style={{ 
-          '--bg-color': '#EFF6FF',
-          backgroundColor: 'var(--bg-color)'
-        } as React.CSSProperties}>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
           <TextPresentationDisplay 
               dataToDisplay={data}
             isEditing={false}
@@ -617,15 +614,20 @@ const VideoLessonBlock: React.FC<{
       </div>
 
       {/* Video Creation Prompt */}
-      <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-4 md:p-6 border border-red-100">
-        <div className="flex items-center mb-3">
-          <Play className="w-5 h-5 text-red-600 mr-2" />
-          <h4 className="font-bold text-red-800 text-base md:text-lg uppercase tracking-wide">
-            Video Creation Prompt
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-red-600 px-4 py-3 flex items-center">
+          <Play className="w-5 h-5 text-white mr-3" />
+          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
+            VIDEO LESSON
           </h4>
         </div>
-        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
-          {prompt}
+        <div className="p-6">
+          <div className="text-gray-800 leading-relaxed font-medium">
+            <strong>**Video Creation Prompt:**</strong>
+          </div>
+          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
+            {prompt}
+          </div>
         </div>
       </div>
     </div>
@@ -662,15 +664,20 @@ const PresentationBlock: React.FC<{
       </div>
 
       {/* Presentation Creation Prompt */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-100">
-        <div className="flex items-center mb-3">
-          <Presentation className="w-5 h-5 text-blue-600 mr-2" />
-          <h4 className="font-bold text-blue-800 text-base md:text-lg uppercase tracking-wide">
-            Presentation Creation Prompt
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-blue-600 px-4 py-3 flex items-center">
+          <Presentation className="w-5 h-5 text-white mr-3" />
+          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
+            PRESENTATION
           </h4>
         </div>
-        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
-          {prompt}
+        <div className="p-6">
+          <div className="text-gray-800 leading-relaxed font-medium">
+            <strong>**Presentation Creation Prompt:**</strong>
+          </div>
+          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
+            {prompt}
+          </div>
         </div>
       </div>
     </div>
@@ -707,15 +714,20 @@ const QuizBlock: React.FC<{
       </div>
 
       {/* Quiz Creation Prompt */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 md:p-6 border border-green-100">
-        <div className="flex items-center mb-3">
-          <FileQuestion className="w-5 h-5 text-green-600 mr-2" />
-          <h4 className="font-bold text-green-800 text-base md:text-lg uppercase tracking-wide">
-            Quiz Creation Prompt
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-green-600 px-4 py-3 flex items-center">
+          <FileQuestion className="w-5 h-5 text-white mr-3" />
+          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
+            QUIZ
           </h4>
         </div>
-        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
-          {prompt}
+        <div className="p-6">
+          <div className="text-gray-800 leading-relaxed font-medium">
+            <strong>**Quiz Creation Prompt:**</strong>
+          </div>
+          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
+            {prompt}
+          </div>
         </div>
       </div>
     </div>
@@ -745,11 +757,8 @@ const OnePagerBlock: React.FC<{
             <div className="text-gray-500">Loading content...</div>
           </div>
         ) : data ? (
-        <div style={{ 
-          '--bg-color': '#EFF6FF',
-          backgroundColor: 'var(--bg-color)'
-        } as React.CSSProperties}>
-                     <TextPresentationDisplay 
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <TextPresentationDisplay 
               dataToDisplay={data}
              isEditing={false}
            />
@@ -760,15 +769,20 @@ const OnePagerBlock: React.FC<{
       </div>
 
       {/* One-Pager Creation Prompt */}
-      <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 md:p-6 border border-orange-100">
-        <div className="flex items-center mb-3">
-          <ScrollText className="w-5 h-5 text-orange-600 mr-2" />
-          <h4 className="font-bold text-orange-800 text-base md:text-lg uppercase tracking-wide">
-            One-Pager Creation Prompt
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-orange-600 px-4 py-3 flex items-center">
+          <ScrollText className="w-5 h-5 text-white mr-3" />
+          <h4 className="text-white font-semibold text-lg uppercase tracking-wide">
+            ONE-PAGER
           </h4>
         </div>
-        <div className="text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
-          {prompt}
+        <div className="p-6">
+          <div className="text-gray-800 leading-relaxed font-medium">
+            <strong>**One-Pager Creation Prompt:**</strong>
+          </div>
+          <div className="text-gray-700 leading-relaxed mt-2 whitespace-pre-wrap">
+            {prompt}
+          </div>
         </div>
       </div>
     </div>
@@ -952,17 +966,14 @@ const FallbackOnePagerContent: React.FC = () => {
     ]
   };
 
-  return (
-    <div style={{ 
-      '--bg-color': '#EFF6FF',
-      backgroundColor: 'var(--bg-color)'
-    } as React.CSSProperties}>
+    return (
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
       <TextPresentationDisplay 
         dataToDisplay={fallbackOnePagerData as any}
         isEditing={false}
       />
-      </div>
-    );
+    </div>
+  );
 };
 
 // Carousel version of SmartSlideDeckViewer - smaller slides with side arrows
@@ -988,7 +999,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
   const currentSlide = deck.slides[currentSlideIndex];
 
   return (
-    <div className="relative flex items-center justify-center" style={{ minHeight: '400px' }}>
+    <div className="relative flex items-center justify-center" style={{ minHeight: '500px' }}>
       {/* Left Arrow */}
       <button
         onClick={prevSlide}
@@ -998,22 +1009,26 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
         <ChevronLeft className="w-5 h-5" />
       </button>
 
-            {/* Slide Content - 16:9 Aspect Ratio and Centered */}
-      <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
+            {/* Slide Content - Proper 16:9 Landscape Aspect Ratio */}
+      <div className="flex flex-col items-center justify-center w-full max-w-6xl mx-auto px-16">
         <div
-          className="professional-slide relative bg-white w-full"
+          className="professional-slide relative bg-white overflow-hidden"
           style={{
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-            maxWidth: '560px',
+            width: '100%',
+            maxWidth: '800px',
+            height: '450px',
             aspectRatio: '16/9'
           }}
         >
-          <ComponentBasedSlideRenderer
-            slide={currentSlide}
-            isEditable={false}
-            theme="default"
-          />
+          <div style={{ width: '100%', height: '100%' }}>
+            <ComponentBasedSlideRenderer
+              slide={currentSlide}
+              isEditable={false}
+              theme="default"
+            />
+          </div>
         </div>
         
         {/* Slide Counter */}
