@@ -15,100 +15,7 @@ import Image from 'next/image';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
 
-// No-padding version of TextPresentationDisplay for lesson plan
-const NoPaddingTextPresentationDisplay: React.FC<{ dataToDisplay: TextPresentationData | null; isEditing?: boolean }> = ({ dataToDisplay, isEditing = false }) => {
-  if (!dataToDisplay || !dataToDisplay.contentBlocks) {
-    return <div className="p-4 text-center text-gray-500">No content available</div>;
-  }
 
-  const parseAndStyleText = (text: string) => {
-    if (!text) return text;
-    
-    // Handle bold text **text**
-    let styledText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Handle italic text *text*
-    styledText = styledText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
-    
-    return styledText;
-  };
-
-  const renderContentBlock = (block: AnyContentBlock, index: number) => {
-    switch (block.type) {
-      case 'headline': {
-        const headlineBlock = block as HeadlineBlock;
-        const level = headlineBlock.level || 1;
-        const text = parseAndStyleText(headlineBlock.text);
-        const isImportant = headlineBlock.isImportant;
-        
-        const HeadingTag = `h${Math.min(level, 6)}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-        const sizeClass = level === 1 ? 'text-3xl' : level === 2 ? 'text-2xl' : level === 3 ? 'text-xl' : 'text-lg';
-        const colorClass = isImportant ? 'text-red-600' : 'text-black';
-        
-        return (
-          <HeadingTag 
-            key={index}
-            className={`${sizeClass} font-bold ${colorClass} mb-4 leading-tight`}
-            dangerouslySetInnerHTML={{ __html: text }}
-          />
-        );
-      }
-      
-      case 'paragraph': {
-        const paragraphBlock = block as ParagraphBlock;
-        const text = parseAndStyleText(paragraphBlock.text);
-        const isRecommendation = paragraphBlock.isRecommendation;
-        
-        const className = isRecommendation 
-          ? 'text-black leading-normal mb-4 pl-3 border-l-3 border-red-500 py-2'
-          : 'text-black leading-normal mb-4';
-        
-        return (
-          <p 
-            key={index}
-            className={className}
-            dangerouslySetInnerHTML={{ __html: text }}
-          />
-        );
-      }
-      
-      case 'bullet_list': {
-        const bulletBlock = block as BulletListBlock;
-        return (
-          <ul key={index} className="list-disc list-inside mb-4 text-black space-y-2">
-            {bulletBlock.items?.map((item, itemIndex) => (
-              <li key={itemIndex}>
-                {typeof item === 'string' ? (
-                  <span dangerouslySetInnerHTML={{ __html: parseAndStyleText(item) }} />
-                ) : (
-                  renderContentBlock(item as AnyContentBlock, itemIndex)
-                )}
-              </li>
-            ))}
-          </ul>
-        );
-      }
-      
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="bg-blue-50 p-6">
-      {dataToDisplay.textTitle && (
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-black mb-2">{dataToDisplay.textTitle}</h1>
-          <hr className="border-t-2 border-red-500" />
-        </div>
-      )}
-      
-      <div className="space-y-4">
-        {dataToDisplay.contentBlocks.map((block, index) => renderContentBlock(block, index))}
-      </div>
-    </div>
-  );
-};
 
 // Connector configurations with logos - exact same paths as SmartDrive
 const connectorConfigs = [
@@ -699,10 +606,12 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <NoPaddingTextPresentationDisplay 
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&_.p-4]:!p-0 [&_.sm\\:p-6]:!p-0 [&_.md\\:p-8]:!p-0">
+            <TextPresentationDisplay 
               dataToDisplay={data}
-            isEditing={false}
-          />
+              isEditing={false}
+            />
+          </div>
         </div>
         ) : (
           <FallbackOnePagerContent />
@@ -1040,10 +949,12 @@ const FallbackOnePagerContent: React.FC = () => {
 
         return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <NoPaddingTextPresentationDisplay 
-        dataToDisplay={fallbackOnePagerData as any}
-        isEditing={false}
-      />
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&_.p-4]:!p-0 [&_.sm\\:p-6]:!p-0 [&_.md\\:p-8]:!p-0">
+        <TextPresentationDisplay 
+          dataToDisplay={fallbackOnePagerData as any}
+          isEditing={false}
+        />
+      </div>
     </div>
   );
 };
@@ -1052,6 +963,7 @@ const FallbackOnePagerContent: React.FC = () => {
 const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ deck }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
   
   if (!deck || !deck.slides || deck.slides.length === 0) {
     return (
@@ -1063,6 +975,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
 
   const nextSlide = () => {
     if (isTransitioning) return;
+    setSlideDirection('right');
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentSlideIndex((prev) => (prev + 1) % deck.slides.length);
@@ -1072,6 +985,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
 
   const prevSlide = () => {
     if (isTransitioning) return;
+    setSlideDirection('left');
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentSlideIndex((prev) => (prev - 1 + deck.slides.length) % deck.slides.length);
@@ -1102,9 +1016,9 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             width: '100%',
             maxWidth: '800px',
             minHeight: '400px',
-            maxHeight: '500px',
+            maxHeight: '600px',
             aspectRatio: '16/9',
-            transform: isTransitioning ? 'translateX(-20px)' : 'translateX(0px)'
+            transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-20px)' : 'translateX(20px)') : 'translateX(0px)'
           }}
         >
           <div style={{ width: '100%', height: '100%' }}>
@@ -1140,6 +1054,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(true); // Always show answers in lesson plan view
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
   
   if (!dataToDisplay || !dataToDisplay.questions || dataToDisplay.questions.length === 0) {
   return (
@@ -1153,6 +1068,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   
   const nextQuestion = () => {
     if (isTransitioning) return;
+    setSlideDirection('right');
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentQuestionIndex((prev) => (prev + 1) % questions.length);
@@ -1162,6 +1078,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
 
   const prevQuestion = () => {
     if (isTransitioning) return;
+    setSlideDirection('left');
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentQuestionIndex((prev) => (prev - 1 + questions.length) % questions.length);
@@ -1288,7 +1205,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
         <div 
           className="transition-transform duration-300 ease-in-out w-full"
           style={{
-            transform: isTransitioning ? 'translateX(-30px)' : 'translateX(0px)'
+            transform: isTransitioning ? (slideDirection === 'right' ? 'translateX(-30px)' : 'translateX(30px)') : 'translateX(0px)'
           }}
         >
           {renderQuestion(currentQuestion, currentQuestionIndex)}
