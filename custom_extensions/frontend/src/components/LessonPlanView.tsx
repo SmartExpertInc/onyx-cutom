@@ -302,11 +302,30 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       // Find any product from the parent project to get the project ID
       const parentProduct = allUserMicroproducts.find(mp => mp.projectName === parentProjectName);
       
+      // Quality tier default rates
+      const getDefaultRateForTier = (tier: string | undefined): number => {
+        switch (tier) {
+          case 'basic': return 100;
+          case 'interactive': return 200;
+          case 'advanced': return 300;
+          case 'immersive': return 700;
+          default: return 200; // Default to interactive tier
+        }
+      };
+      
       if (!parentProduct) {
         console.warn(`⏱️ [LESSON_PLAN] No parent product found for project: ${parentProjectName}`);
-        // Use defaults
+        // Use interactive defaults
+        const defaultCompletionTimes = { presentation: 8, quiz: 6, onePager: 3, videoLesson: 4 };
+        const defaultRate = 200;
+        
         setTimingData({
-          creationTimes: { presentation: '200h', quiz: '200h', onePager: '200h', videoLesson: '200h' },
+          creationTimes: { 
+            presentation: `${Math.round((defaultCompletionTimes.presentation * defaultRate) / 60)}h`,
+            quiz: `${Math.round((defaultCompletionTimes.quiz * defaultRate) / 60)}h`,
+            onePager: `${Math.round((defaultCompletionTimes.onePager * defaultRate) / 60)}h`,
+            videoLesson: `${Math.round((defaultCompletionTimes.videoLesson * defaultRate) / 60)}h`
+          },
           completionTimes: { presentation: '8m', quiz: '6m', onePager: '3m', videoLesson: '4m' }
         });
         return;
@@ -320,12 +339,22 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           console.log(`⏱️ [LESSON_PLAN] Project settings:`, projectSettings);
           
           // Extract timing configuration
-          const customRate = projectSettings.custom_rate || 200;
+          const qualityTier = projectSettings.quality_tier;
+          const defaultRateForTier = getDefaultRateForTier(qualityTier);
+          const customRate = projectSettings.custom_rate || defaultRateForTier;
           const isAdvanced = projectSettings.is_advanced || false;
           const advancedRates = projectSettings.advanced_rates || {};
           const completionTimes = projectSettings.completion_times || {};
           
-          // Calculate creation times (in hours)
+          // Get completion times (in minutes)
+          const completionMinutes = {
+            presentation: completionTimes.presentation || 8,
+            quiz: completionTimes.quiz || 6,
+            onePager: completionTimes.one_pager || 3,
+            videoLesson: completionTimes.video_lesson || 4
+          };
+          
+          // Calculate creation rates (multiplier)
           const creationRates = isAdvanced ? {
             presentation: advancedRates.presentation || customRate,
             quiz: advancedRates.quiz || customRate,
@@ -338,25 +367,30 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             videoLesson: customRate
           };
           
-          // Get completion times (in minutes)
-          const completionMinutes = {
-            presentation: completionTimes.presentation || 8,
-            quiz: completionTimes.quiz || 6,
-            onePager: completionTimes.one_pager || 3,
-            videoLesson: completionTimes.video_lesson || 4
+          // Calculate creation times by multiplying completion time * rate (convert to hours)
+          const creationHours = {
+            presentation: Math.round((completionMinutes.presentation * creationRates.presentation) / 60),
+            quiz: Math.round((completionMinutes.quiz * creationRates.quiz) / 60),
+            onePager: Math.round((completionMinutes.onePager * creationRates.onePager) / 60),
+            videoLesson: Math.round((completionMinutes.videoLesson * creationRates.videoLesson) / 60)
           };
           
           console.log(`⏱️ [LESSON_PLAN] Calculated timing data:`, {
+            qualityTier,
+            defaultRateForTier,
+            customRate,
+            isAdvanced,
             creationRates,
-            completionMinutes
+            completionMinutes,
+            creationHours
           });
           
           setTimingData({
             creationTimes: {
-              presentation: `${creationRates.presentation}h`,
-              quiz: `${creationRates.quiz}h`,
-              onePager: `${creationRates.onePager}h`,
-              videoLesson: `${creationRates.videoLesson}h`
+              presentation: `${creationHours.presentation}h`,
+              quiz: `${creationHours.quiz}h`,
+              onePager: `${creationHours.onePager}h`,
+              videoLesson: `${creationHours.videoLesson}h`
             },
             completionTimes: {
               presentation: `${completionMinutes.presentation}m`,
@@ -367,15 +401,31 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           });
         } else {
           console.warn(`⏱️ [LESSON_PLAN] Failed to fetch project settings, using defaults`);
+          const defaultCompletionTimes = { presentation: 8, quiz: 6, onePager: 3, videoLesson: 4 };
+          const defaultRate = 200;
+          
           setTimingData({
-            creationTimes: { presentation: '200h', quiz: '200h', onePager: '200h', videoLesson: '200h' },
+            creationTimes: { 
+              presentation: `${Math.round((defaultCompletionTimes.presentation * defaultRate) / 60)}h`,
+              quiz: `${Math.round((defaultCompletionTimes.quiz * defaultRate) / 60)}h`,
+              onePager: `${Math.round((defaultCompletionTimes.onePager * defaultRate) / 60)}h`,
+              videoLesson: `${Math.round((defaultCompletionTimes.videoLesson * defaultRate) / 60)}h`
+            },
             completionTimes: { presentation: '8m', quiz: '6m', onePager: '3m', videoLesson: '4m' }
           });
         }
       } catch (error) {
         console.error(`⏱️ [LESSON_PLAN] Error fetching timing data:`, error);
+        const defaultCompletionTimes = { presentation: 8, quiz: 6, onePager: 3, videoLesson: 4 };
+        const defaultRate = 200;
+        
         setTimingData({
-          creationTimes: { presentation: '200h', quiz: '200h', onePager: '200h', videoLesson: '200h' },
+          creationTimes: { 
+            presentation: `${Math.round((defaultCompletionTimes.presentation * defaultRate) / 60)}h`,
+            quiz: `${Math.round((defaultCompletionTimes.quiz * defaultRate) / 60)}h`,
+            onePager: `${Math.round((defaultCompletionTimes.onePager * defaultRate) / 60)}h`,
+            videoLesson: `${Math.round((defaultCompletionTimes.videoLesson * defaultRate) / 60)}h`
+          },
           completionTimes: { presentation: '8m', quiz: '6m', onePager: '3m', videoLesson: '4m' }
         });
       }
@@ -755,7 +805,7 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-4xl [&_h2]:!text-3xl [&_h3]:!text-2xl [&_p]:!text-xl [&_li]:!text-xl [&_span]:!text-xl">
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-lg [&_li]:!text-lg [&_span]:!text-lg">
             <TextPresentationDisplay 
               dataToDisplay={data}
               isEditing={false}
@@ -1130,7 +1180,7 @@ const FallbackOnePagerContent: React.FC = () => {
 
         return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-4xl [&_h2]:!text-3xl [&_h3]:!text-2xl [&_p]:!text-xl [&_li]:!text-xl [&_span]:!text-xl">
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-lg [&_li]:!text-lg [&_span]:!text-lg">
         <TextPresentationDisplay 
           dataToDisplay={fallbackOnePagerData as any}
           isEditing={false}
