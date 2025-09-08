@@ -298,11 +298,57 @@ export default function VideoEditorHeader({
       const firstSlide = componentBasedSlideDeck?.slides?.[0] || videoLessonData?.slides?.[0];
       const productName = firstSlide?.props?.title || firstSlide?.slideTitle || videoTitle || 'Generated Video';
       
+      // Find or create video product template
+      let videoTemplateId = 1; // Default fallback
+      try {
+        const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`);
+        if (templatesResponse.ok) {
+          const templates = await templatesResponse.json();
+          const videoTemplate = templates.find((t: any) => t.component_name === 'VideoProductDisplay');
+          
+          if (videoTemplate) {
+            videoTemplateId = videoTemplate.id;
+            console.log('🎬 [VIDEO_GENERATION] Found existing video template:', videoTemplateId);
+          } else {
+            // Create video product template
+            const newTemplate = {
+              template_name: 'Video Product',
+              template_structuring_prompt: JSON.stringify({
+                videoJobId: 'string',
+                videoUrl: 'string',
+                thumbnailUrl: 'string',
+                generatedAt: 'string',
+                sourceSlides: 'array',
+                component_name: 'VideoProductDisplay'
+              }),
+              microproduct_type: 'video_product',
+              component_name: 'VideoProductDisplay'
+            };
+            
+            const createResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates/add`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newTemplate)
+            });
+            
+            if (createResponse.ok) {
+              const createdTemplate = await createResponse.json();
+              videoTemplateId = createdTemplate.id;
+              console.log('🎬 [VIDEO_GENERATION] Created new video template:', videoTemplateId);
+            } else {
+              console.warn('🎬 [VIDEO_GENERATION] Failed to create video template, using default:', videoTemplateId);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('🎬 [VIDEO_GENERATION] Error handling video template, using default:', error);
+      }
+      
       // Create project data following the golden reference pattern
       const projectData = {
         projectName: productName,
         microProductName: productName,
-        design_template_id: 1, // Use a default template ID for video products
+        design_template_id: videoTemplateId, // Use the video product template
         aiResponse: JSON.stringify({
           videoJobId: jobId,
           videoUrl: `/api/custom-projects-backend/presentations/${jobId}/video`,

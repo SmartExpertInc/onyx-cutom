@@ -11912,6 +11912,31 @@ Return ONLY the JSON object.
 
             Return ONLY the JSON object.
             """
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # For video products, we don't need LLM parsing since the content is already structured
+            # The aiResponse contains the video metadata as JSON
+            try:
+                video_metadata = json.loads(project_data.aiResponse)
+                # Store the video metadata directly without LLM parsing
+                parsed_content_model_instance = video_metadata
+                logger.info(f"Video product created with metadata: {video_metadata.get('videoJobId', 'unknown')}")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse video metadata JSON: {e}")
+                # Create a fallback structure
+                parsed_content_model_instance = {
+                    "videoJobId": "unknown",
+                    "videoUrl": "",
+                    "thumbnailUrl": "",
+                    "generatedAt": datetime.now().isoformat(),
+                    "sourceSlides": [],
+                    "component_name": "VideoProductDisplay"
+                }
+            
+            # Skip LLM parsing for video products
+            target_content_model = None
+            default_error_instance = None
+            llm_json_example = ""
+            component_specific_instructions = ""
         else:
             logger.warning(f"Unknown component_name '{selected_design_template.component_name}' for DT ID {selected_design_template.id}. Defaulting to TrainingPlanDetails for parsing.")
             target_content_model = TrainingPlanDetails
@@ -11920,20 +11945,29 @@ Return ONLY the JSON object.
             component_specific_instructions = "Parse the content according to the JSON example provided."
 
 
-        if hasattr(default_error_instance, 'detectedLanguage'):
+        # Skip LLM parsing for video products since they already have structured content
+        if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # parsed_content_model_instance is already set in the video product case above
+            logger.info(f"Video product created, skipping LLM parsing")
+        else:
+            if hasattr(default_error_instance, 'detectedLanguage'):
                 default_error_instance.detectedLanguage = detect_language(project_data.aiResponse)
 
-        parsed_content_model_instance = await parse_ai_response_with_llm(
-            ai_response=project_data.aiResponse,
-            project_name=project_data.projectName,
-            target_model=target_content_model,
-            default_error_model_instance=default_error_instance,
-            dynamic_instructions=component_specific_instructions,
-            target_json_example=llm_json_example
-        )
+            parsed_content_model_instance = await parse_ai_response_with_llm(
+                ai_response=project_data.aiResponse,
+                project_name=project_data.projectName,
+                target_model=target_content_model,
+                default_error_model_instance=default_error_instance,
+                dynamic_instructions=component_specific_instructions,
+                target_json_example=llm_json_example
+            )
 
-        logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
-        logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
+        if selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            logger.info(f"Video Product Created: {type(parsed_content_model_instance).__name__}")
+            logger.info(f"Video Product Content (first 200 chars): {str(parsed_content_model_instance)[:200]}")
+        else:
+            logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
+            logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
 
         # Inject theme for slide decks from the finalize request
         if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
@@ -11988,6 +12022,10 @@ Return ONLY the JSON object.
             content_to_store_for_db = content_dict
             
             logger.info(f"Applied slide prop normalization for {len(normalized_slides)} slides")
+        elif selected_design_template.component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+            # For video products, the content is already a dictionary
+            content_to_store_for_db = parsed_content_model_instance
+            logger.info(f"Video product content prepared for DB storage")
         else:
             content_to_store_for_db = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
             
