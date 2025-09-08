@@ -4315,17 +4315,21 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <Button asChild>
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-                <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
-                  <Plus size={16} className="text-white" />
-                  {t("interface.createNew", "Create new")}
-                  <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                    AI
-                  </span>
-                </button>
+                <Button 
+                  variant="gradient" 
+                  className="rounded-full font-semibold"
+                  asChild
+                >
+                  <div>
+                    <Plus size={16} className="text-white" />
+                    {t("interface.createNew", "Create new")}
+                    <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                      AI
+                    </span>
+                  </div>
+                </Button>
               </Link>
-            </Button>
             <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm cursor-pointer">
               {t("interface.import", "Import")}
               <ChevronsUpDown size={16} className="text-gray-500" />
