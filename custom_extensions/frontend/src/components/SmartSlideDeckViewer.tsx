@@ -869,12 +869,22 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         <VoiceoverPanel
           isOpen={isVoiceoverPanelOpen}
           onClose={() => setIsVoiceoverPanelOpen(false)}
-          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => ({
-            slideId: slide.slideId,
-            slideNumber: slide.slideNumber || 0,
-            slideTitle: (slide as any).slideTitle || `Slide ${slide.slideNumber || 0}`,
-            voiceoverText: slide.voiceoverText || slide.props?.voiceoverText
-          }))}
+          slides={componentDeck.slides.map((slide: ComponentBasedSlide) => {
+            const rawTitle = (slide as unknown as { slideTitle?: unknown }).slideTitle;
+            const slideTitle = typeof rawTitle === 'string' && rawTitle.length > 0
+              ? rawTitle
+              : `Slide ${slide.slideNumber || 0}`;
+
+            const vt = (slide.voiceoverText ?? (slide.props as Record<string, unknown>)?.voiceoverText);
+            const voiceoverText = typeof vt === 'string' ? vt : undefined;
+
+            return {
+              slideId: slide.slideId,
+              slideNumber: slide.slideNumber || 0,
+              slideTitle,
+              voiceoverText
+            };
+          })}
           currentSlideId={currentSlideId}
           onSlideSelect={(slideId) => {
             setCurrentSlideId(slideId);
