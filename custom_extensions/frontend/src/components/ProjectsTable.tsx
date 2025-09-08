@@ -363,7 +363,7 @@ const ClientNameModal: React.FC<{
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg bg-white">
         <DialogHeader>
           <DialogTitle>
             {t("interface.customizePDF", "Customize PDF")}
