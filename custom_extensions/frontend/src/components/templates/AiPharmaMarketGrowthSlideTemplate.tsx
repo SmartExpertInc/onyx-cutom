@@ -118,7 +118,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               )}
             </div>
 
-            <div style={{ flexGrow: 1, backgroundColor: '#2c3e55', height: '78px', borderRadius: '6px', position: 'relative' }}>
+            <div style={{ flexGrow: 1, backgroundColor: '#20324a', height: '78px', borderRadius: '6px', position: 'relative' }}>
               {/* Label editable */}
               <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', minHeight: '24px' }}>
                 {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
@@ -135,7 +135,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
               {/* Width resizable via drag */}
               <div
-                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2c3e55', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default' }}
+                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2c3e55', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative' }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const container = (e.currentTarget.parentElement as HTMLElement);
@@ -154,7 +154,33 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   window.addEventListener('mousemove', onMove);
                   window.addEventListener('mouseup', onUp);
                 }}
-              />
+              >
+                {/* Drag handle */}
+                {isEditable && (
+                  <div
+                    style={{ position: 'absolute', right: 0, top: 0, width: '10px', height: '100%', backgroundColor: 'rgba(255,255,255,0.25)', cursor: 'ew-resize', borderTopRightRadius: '6px', borderBottomRightRadius: '6px' }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      if (!isEditable) return;
+                      const container = (e.currentTarget.parentElement!.parentElement as HTMLElement);
+                      const containerRect = container.getBoundingClientRect();
+                      const onMove = (me: MouseEvent) => {
+                        const rel = Math.min(Math.max((me.clientX - containerRect.left) / containerRect.width, 0), 1);
+                        const nb = [...currentBars];
+                        nb[i] = { ...nb[i], widthPercent: Math.round(rel * 100) };
+                        setCurrentBars(nb);
+                        onUpdate && onUpdate({ bars: nb });
+                      };
+                      const onUp = () => {
+                        window.removeEventListener('mousemove', onMove);
+                        window.removeEventListener('mouseup', onUp);
+                      };
+                      window.addEventListener('mousemove', onMove);
+                      window.addEventListener('mouseup', onUp);
+                    }}
+                  />
+                )}
+              </div>
             </div>
 
             {isEditable && (
