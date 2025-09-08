@@ -46,10 +46,7 @@ import { ResourcesListSlideTemplate } from './ResourcesListSlideTemplate';
 import { CourseRulesTimelineSlideTemplate } from './CourseRulesTimelineSlideTemplate';
 import { ResilienceBehaviorsSlideTemplate } from './ResilienceBehaviorsSlideTemplate';
 import { SoftSkillsTypesSlideTemplate } from './SoftSkillsTypesSlideTemplate';
-import { PhishingRiseSlideTemplate } from './PhishingRiseSlideTemplate';
-import { AiPharmaMarketGrowthSlideTemplate } from './AiPharmaMarketGrowthSlideTemplate';
-import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
-import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
+// Removed legacy WIP templates; new 1:1 templates will be registered below
 
 
 
@@ -1774,7 +1771,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'phishing-rise-slide': {
+  /* Placeholder: new 1:1 templates will replace these identifiers */
+  /* 'phishing-rise-slide': {
     id: 'phishing-rise-slide',
     name: 'Phishing Rise Slide',
     description: 'Two-column slide with narrative and black bar chart',
@@ -1802,9 +1800,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       actorImagePath: { type: 'image', label: 'Actor Image' },
       actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
     }
-  },
+  }, */
 
-  'ai-pharma-market-growth-slide': {
+  /* 'ai-pharma-market-growth-slide': {
     id: 'ai-pharma-market-growth-slide',
     name: 'AI Pharma Market Growth Slide',
     description: 'Rounded light panel with left labels and right doctor photo',
@@ -1830,9 +1828,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       doctorImageAlt: { type: 'text', label: 'Right Image Alt Text' },
       panelBackgroundColor: { type: 'color', label: 'Panel Color' }
     }
-  },
+  }, */
 
-  'kpi-update-slide': {
+  /* 'kpi-update-slide': {
     id: 'kpi-update-slide',
     name: 'KPI Update Slide',
     description: 'Light report slide with big KPI values and footer',
@@ -1862,9 +1860,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       footerCenter: { type: 'text', label: 'Footer Center' },
       footerRight: { type: 'text', label: 'Footer Right' }
     }
-  },
+  }, */
 
-  'interest-growth-slide': {
+  /* 'interest-growth-slide': {
     id: 'interest-growth-slide',
     name: 'Interest Growth Slide',
     description: 'Left 2x2 cards with percentages and right photo panel',
@@ -1890,7 +1888,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       rightImageAlt: { type: 'text', label: 'Right Image Alt Text' },
       rightPanelColor: { type: 'color', label: 'Right Panel Color' }
     }
-  },
+  }, */
 
 
   'table-of-contents-slide': {
