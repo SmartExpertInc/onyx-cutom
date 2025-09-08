@@ -1634,34 +1634,34 @@ export default function CommercialProposalPage() {
                 <h4 className="text-[20px] font-semibold">Тарифные пакеты:</h4>
 
                 {/* Pricing Table */}
-                <div className="w-full max-w-[470px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
+                <div className="w-full max-w-[472px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
                   <table className="w-full min-w-[470px] xl:min-w-0 border border-[#E0E0E0] rounded-[6px] overflow-hidden shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)]">
                     <thead>
                       <tr className="bg-[#F5F5F5]">
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Пакет</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Кол-во часов</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Стоимость</th>
-                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Ставка за час</th>
+                        <th className="px-4 py-3 text-left text-[14px] font-semibold text-gray-900 xl:border-r xl:border-[#E0E0E0]">Пакет</th>
+                        <th className="px-4 py-3 text-left text-[14px] font-semibold text-gray-900 xl:border-r xl:border-[#E0E0E0]">Кол-во часов</th>
+                        <th className="px-4 py-3 text-left text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Стоимость</th>
+                        <th className="px-4 py-3 text-left text-[14px] font-medium text-gray-900">Ставка за час</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 1</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">30 часов</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">$2,250</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">$75 / час</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 1</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">30 часов</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">$2,250</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900">$75 / час</td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 2</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">50 часов</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">$3,500</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">$70 / час</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 2</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">50 часов</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">$3,500</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900">$70 / час</td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 3</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">100 часов</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 xl:border-r xl:border-[#E0E0E0]">$5,900</td>
-                        <td className="px-4 py-3 text-sm text-gray-900">$59 / час</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">Pack 3</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">100 часов</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900 xl:border-r xl:border-[#E0E0E0]">$5,900</td>
+                        <td className="px-4 py-3 text-[14px] font-medium text-gray-900">$59 / час</td>
                       </tr>
                     </tbody>
                   </table>
