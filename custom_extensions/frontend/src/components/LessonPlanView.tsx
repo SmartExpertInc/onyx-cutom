@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BookOpen, Target, FileText, Package, Wrench, Lightbulb, Eye, Play, Presentation, FileQuestion, ScrollText, ChevronRight, Home, GraduationCap, Layers, Info, ChevronLeft, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { LessonPlanData } from '@/types/projectSpecificTypes';
 import { ProjectListItem } from '@/types/products';
@@ -15,7 +15,114 @@ import Image from 'next/image';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
 
+// InlineEditor component for editable text
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
 
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          minHeight: '1.6em',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={1}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}
+    />
+  );
+}
 
 // Connector configurations with logos - exact same paths as SmartDrive
 const connectorConfigs = [
@@ -31,6 +138,8 @@ interface LessonPlanViewProps {
   lessonName?: string;
   allUserMicroproducts?: ProjectListItem[];
   parentProjectName?: string;
+  isEditable?: boolean;
+  onUpdate?: (updatedData: LessonPlanData) => void;
 }
 
 // Helper function to find microproduct by title (same as in TrainingPlanTable)
@@ -88,7 +197,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   moduleName = "Introduction to the Company", 
   lessonName,
   allUserMicroproducts,
-  parentProjectName
+  parentProjectName,
+  isEditable = true,
+  onUpdate
 }) => {
   const [productData, setProductData] = useState<{[key: string]: any}>({});
   const [products, setProducts] = useState<{[key: string]: ProjectListItem | undefined}>({});
@@ -97,6 +208,50 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
     creationTimes: { presentation: string, quiz: string, onePager: string, videoLesson: string },
     completionTimes: { presentation: string, quiz: string, onePager: string, videoLesson: string }
   } | null>(null);
+
+  // Editing states
+  const [editingLessonTitle, setEditingLessonTitle] = useState(false);
+  const [editingShortDescription, setEditingShortDescription] = useState(false);
+  const [editingObjective, setEditingObjective] = useState<number | null>(null);
+  const [editingCourseName, setEditingCourseName] = useState(false);
+  const [editingModuleName, setEditingModuleName] = useState(false);
+  const [editingLessonName, setEditingLessonName] = useState(false);
+
+  // Local editable data state
+  const [editableLessonPlanData, setEditableLessonPlanData] = useState(lessonPlanData);
+
+  // Update local state when props change
+  useEffect(() => {
+    setEditableLessonPlanData(lessonPlanData);
+  }, [lessonPlanData]);
+
+  // Save handlers
+  const handleUpdateLessonPlanData = (updatedData: LessonPlanData) => {
+    setEditableLessonPlanData(updatedData);
+    if (onUpdate) {
+      onUpdate(updatedData);
+    }
+  };
+
+  const handleLessonTitleSave = (newValue: string) => {
+    const updated = { ...editableLessonPlanData, lessonTitle: newValue };
+    handleUpdateLessonPlanData(updated);
+    setEditingLessonTitle(false);
+  };
+
+  const handleShortDescriptionSave = (newValue: string) => {
+    const updated = { ...editableLessonPlanData, shortDescription: newValue };
+    handleUpdateLessonPlanData(updated);
+    setEditingShortDescription(false);
+  };
+
+  const handleObjectiveSave = (index: number, newValue: string) => {
+    const updatedObjectives = [...editableLessonPlanData.lessonObjectives];
+    updatedObjectives[index] = newValue;
+    const updated = { ...editableLessonPlanData, lessonObjectives: updatedObjectives };
+    handleUpdateLessonPlanData(updated);
+    setEditingObjective(null);
+  };
 
   // Fetch real product data for this lesson
   useEffect(() => {
@@ -470,7 +625,24 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Course</p>
-                  <p className="text-sm font-semibold text-gray-800">{courseName}</p>
+                  {isEditable && editingCourseName ? (
+                    <InlineEditor
+                      initialValue={courseName}
+                      onSave={(newValue) => {
+                        setEditingCourseName(false);
+                        // You can add course name update logic here if needed
+                      }}
+                      onCancel={() => setEditingCourseName(false)}
+                      className="text-sm font-semibold text-gray-800"
+                    />
+                  ) : (
+                    <p 
+                      className={`text-sm font-semibold text-gray-800 ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-1 py-0.5 -mx-1' : ''}`}
+                      onClick={() => isEditable && setEditingCourseName(true)}
+                    >
+                      {courseName}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -482,7 +654,24 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Module</p>
-                  <p className="text-sm font-semibold text-gray-800">{moduleName}</p>
+                  {isEditable && editingModuleName ? (
+                    <InlineEditor
+                      initialValue={moduleName}
+                      onSave={(newValue) => {
+                        setEditingModuleName(false);
+                        // You can add module name update logic here if needed
+                      }}
+                      onCancel={() => setEditingModuleName(false)}
+                      className="text-sm font-semibold text-gray-800"
+                    />
+                  ) : (
+                    <p 
+                      className={`text-sm font-semibold text-gray-800 ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-1 py-0.5 -mx-1' : ''}`}
+                      onClick={() => isEditable && setEditingModuleName(true)}
+                    >
+                      {moduleName}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -494,7 +683,25 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Lesson</p>
-                  <p className="text-sm font-semibold text-gray-800">{lessonName || lessonPlanData.lessonTitle}</p>
+                  {isEditable && editingLessonName ? (
+                    <InlineEditor
+                      initialValue={lessonName || editableLessonPlanData.lessonTitle}
+                      onSave={(newValue) => {
+                        setEditingLessonName(false);
+                        // Update lesson title in the data
+                        handleLessonTitleSave(newValue);
+                      }}
+                      onCancel={() => setEditingLessonName(false)}
+                      className="text-sm font-semibold text-gray-800"
+                    />
+                  ) : (
+                    <p 
+                      className={`text-sm font-semibold text-gray-800 ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-1 py-0.5 -mx-1' : ''}`}
+                      onClick={() => isEditable && setEditingLessonName(true)}
+                    >
+                      {lessonName || editableLessonPlanData.lessonTitle}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -510,12 +717,39 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Description</h2>
           </div>
           <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-blue-100">
-            <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
-              {lessonPlanData.lessonTitle}
-            </h3>
-            <p className="text-lg text-gray-700 leading-relaxed">
-              {lessonPlanData.shortDescription}
-            </p>
+            {isEditable && editingLessonTitle ? (
+              <InlineEditor
+                initialValue={editableLessonPlanData.lessonTitle}
+                onSave={handleLessonTitleSave}
+                onCancel={() => setEditingLessonTitle(false)}
+                className="text-2xl font-bold text-gray-900 mb-3 tracking-tight"
+                style={{ fontSize: '1.5rem', lineHeight: '2rem', fontWeight: '700' }}
+              />
+            ) : (
+              <h3 
+                className={`text-2xl font-bold text-gray-900 mb-3 tracking-tight ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2' : ''}`}
+                onClick={() => isEditable && setEditingLessonTitle(true)}
+              >
+                {editableLessonPlanData.lessonTitle}
+              </h3>
+            )}
+            {isEditable && editingShortDescription ? (
+              <InlineEditor
+                initialValue={editableLessonPlanData.shortDescription}
+                onSave={handleShortDescriptionSave}
+                onCancel={() => setEditingShortDescription(false)}
+                multiline={true}
+                className="text-lg text-gray-700 leading-relaxed"
+                style={{ fontSize: '1.125rem', lineHeight: '1.75rem' }}
+              />
+            ) : (
+              <p 
+                className={`text-lg text-gray-700 leading-relaxed ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2' : ''}`}
+                onClick={() => isEditable && setEditingShortDescription(true)}
+              >
+                {editableLessonPlanData.shortDescription}
+              </p>
+            )}
           </div>
         </div>
 
@@ -529,10 +763,26 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           </div>
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-8 border border-blue-100">
             <ul className="space-y-4">
-              {lessonPlanData.lessonObjectives.map((objective, index) => (
+              {editableLessonPlanData.lessonObjectives.map((objective, index) => (
                 <li key={index} className="flex items-start group">
                   <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                  <span className="text-gray-800 leading-relaxed font-medium text-lg">{objective}</span>
+                  {isEditable && editingObjective === index ? (
+                    <InlineEditor
+                      initialValue={objective}
+                      onSave={(newValue) => handleObjectiveSave(index, newValue)}
+                      onCancel={() => setEditingObjective(null)}
+                      multiline={true}
+                      className="text-gray-800 leading-relaxed font-medium text-lg flex-1"
+                      style={{ fontSize: '1.125rem', lineHeight: '1.75rem' }}
+                    />
+                  ) : (
+                    <span 
+                      className={`text-gray-800 leading-relaxed font-medium text-lg ${isEditable ? 'cursor-pointer hover:bg-gray-100 rounded px-2 py-1 -mx-2 flex-1' : ''}`}
+                      onClick={() => isEditable && setEditingObjective(index)}
+                    >
+                      {objective}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -1481,4 +1731,33 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
 };
 
 export default LessonPlanView;
+
+// Add CSS for the inline editors
+const styles = `
+  .inline-editor-input, .inline-editor-textarea {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #3b82f6;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    line-height: inherit;
+  }
+  
+  .inline-editor-input:focus, .inline-editor-textarea:focus {
+    outline: none;
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('lesson-plan-inline-editor-styles')) {
+  const styleSheet = document.createElement('style');
+  styleSheet.id = 'lesson-plan-inline-editor-styles';
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}
  
