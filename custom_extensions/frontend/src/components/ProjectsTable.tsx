@@ -426,7 +426,6 @@ const ClientNameModal: React.FC<{
                     <Checkbox
                       checked={isAllSelected}
                       onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
-                      // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
@@ -450,7 +449,6 @@ const ClientNameModal: React.FC<{
                           onCheckedChange={(checked) =>
                             handleFolderSelection(folder.id, checked as boolean)
                           }
-                          // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -504,7 +502,6 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                                 />
                                 <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                                   {project.title}
@@ -548,7 +545,6 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                         />
                         <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                           {project.title}
