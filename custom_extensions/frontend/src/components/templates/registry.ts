@@ -46,6 +46,10 @@ import { ResourcesListSlideTemplate } from './ResourcesListSlideTemplate';
 import { CourseRulesTimelineSlideTemplate } from './CourseRulesTimelineSlideTemplate';
 import { ResilienceBehaviorsSlideTemplate } from './ResilienceBehaviorsSlideTemplate';
 import { SoftSkillsTypesSlideTemplate } from './SoftSkillsTypesSlideTemplate';
+import { PhishingRiseSlideTemplate } from './PhishingRiseSlideTemplate';
+import { AiPharmaMarketGrowthSlideTemplate } from './AiPharmaMarketGrowthSlideTemplate';
+import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
+import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
 
 
 
@@ -1767,6 +1771,124 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       cards: { type: 'array', label: 'Cards', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' }
+    }
+  },
+
+  'phishing-rise-slide': {
+    id: 'phishing-rise-slide',
+    name: 'Phishing Rise Slide',
+    description: 'Two-column slide with narrative and black bar chart',
+    category: 'content',
+    icon: '📈',
+    component: PhishingRiseSlideTemplate,
+    defaultProps: {
+      title: 'Phishing rise',
+      description: 'This has become a growing threat in the world of today... documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been a noted that 93% of phishing emails are now ransomware.',
+      bars: [
+        { year: '2019', valueLabel: '33M$', height: 160 },
+        { year: '2020', valueLabel: '39M$', height: 200 },
+        { year: '2021', valueLabel: '55M$', height: 330 },
+        { year: '2022', valueLabel: '44M$', height: 270 },
+        { year: '2023', valueLabel: '67M$', height: 420 },
+        { year: '2024', valueLabel: '35M$', height: 210 }
+      ],
+      actorImagePath: '',
+      actorImageAlt: 'Actor image'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 600 },
+      bars: { type: 'array', label: 'Bars', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' },
+      actorImageAlt: { type: 'text', label: 'Actor Image Alt Text' }
+    }
+  },
+
+  'ai-pharma-market-growth-slide': {
+    id: 'ai-pharma-market-growth-slide',
+    name: 'AI Pharma Market Growth Slide',
+    description: 'Rounded light panel with left labels and right doctor photo',
+    category: 'content',
+    icon: '🏥',
+    component: AiPharmaMarketGrowthSlideTemplate,
+    defaultProps: {
+      title: 'AI Pharma\nMarket Growth',
+      bars: [
+        { year: '2012', label: '$10 million', widthPercent: 24 },
+        { year: '2016', label: '$100 million', widthPercent: 72 },
+        { year: '2020', label: '$700 million', widthPercent: 92 },
+        { year: '2030', label: '$9000 billion', widthPercent: 100 }
+      ],
+      doctorImagePath: '',
+      doctorImageAlt: 'Doctor',
+      panelBackgroundColor: '#dfeeff'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 80 },
+      bars: { type: 'array', label: 'Bars', required: true },
+      doctorImagePath: { type: 'image', label: 'Right Image' },
+      doctorImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      panelBackgroundColor: { type: 'color', label: 'Panel Color' }
+    }
+  },
+
+  'kpi-update-slide': {
+    id: 'kpi-update-slide',
+    name: 'KPI Update Slide',
+    description: 'Light report slide with big KPI values and footer',
+    category: 'content',
+    icon: '📑',
+    component: KpiUpdateSlideTemplate,
+    defaultProps: {
+      title: 'KPI Update',
+      items: [
+        { value: '10%', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '75', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '86%', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' },
+        { value: '1M', description: 'With so much data, it can be tempting to measure everything-or at least things that are easiest to measure. However, you need to be sure you\'re' }
+      ],
+      profileImagePath: '',
+      profileImageAlt: 'Profile',
+      footerLeft: 'Company name',
+      footerCenter: 'KPI Report',
+      footerRight: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 60 },
+      items: { type: 'array', label: 'Items', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
+      footerLeft: { type: 'text', label: 'Footer Left' },
+      footerCenter: { type: 'text', label: 'Footer Center' },
+      footerRight: { type: 'text', label: 'Footer Right' }
+    }
+  },
+
+  'interest-growth-slide': {
+    id: 'interest-growth-slide',
+    name: 'Interest Growth Slide',
+    description: 'Left 2x2 cards with percentages and right photo panel',
+    category: 'content',
+    icon: '🧭',
+    component: InterestGrowthSlideTemplate,
+    defaultProps: {
+      title: 'Interest',
+      cards: [
+        { label: 'Interest growth', percentage: '50%' },
+        { label: 'Interest growth', percentage: '140%' },
+        { label: 'Interest growth', percentage: '128%' },
+        { label: 'Interest growth', percentage: '100%' }
+      ],
+      rightImagePath: '',
+      rightImageAlt: 'Person',
+      rightPanelColor: '#3a5bf0'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 60 },
+      cards: { type: 'array', label: 'Cards', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' },
+      rightImageAlt: { type: 'text', label: 'Right Image Alt Text' },
+      rightPanelColor: { type: 'color', label: 'Right Panel Color' }
     }
   },
 

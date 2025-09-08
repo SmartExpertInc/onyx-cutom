@@ -638,6 +638,10 @@ export type TemplateId =
   | 'course-rules-timeline-slide'
   | 'resilience-behaviors-slide'
   | 'soft-skills-types-slide'
+  | 'phishing-rise-slide'
+  | 'ai-pharma-market-growth-slide'
+  | 'kpi-update-slide'
+  | 'interest-growth-slide'
 ;
 
 export interface TemplatePreview {
@@ -928,4 +932,66 @@ export interface SoftSkillsTypesSlideProps extends BaseTemplateProps {
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
+}
+
+// --- New pixel-perfect slides (from user-provided designs) ---
+
+export interface PhishingRiseSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  bars: Array<{
+    year: string;
+    valueLabel: string; // e.g., "33M$"
+    height: number; // pixel height for the bar
+  }>;
+  actorImagePath?: string;
+  actorImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface AiPharmaMarketGrowthSlideProps extends BaseTemplateProps {
+  title: string;
+  bars: Array<{
+    year: string;
+    label: string; // e.g., "$10 million"
+    widthPercent: number; // 0-100
+  }>;
+  doctorImagePath?: string;
+  doctorImageAlt?: string;
+  panelBackgroundColor?: string; // left rounded panel color
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+}
+
+export interface KpiUpdateSlideProps extends BaseTemplateProps {
+  title: string; // "KPI Update"
+  items: Array<{
+    value: string; // e.g., "10%", "1M"
+    description: string;
+  }>;
+  profileImagePath?: string;
+  profileImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  footerLeft?: string;
+  footerCenter?: string;
+  footerRight?: string;
+}
+
+export interface InterestGrowthSlideProps extends BaseTemplateProps {
+  title: string; // "Interest"
+  cards: Array<{
+    label: string; // e.g., "Interest growth"
+    percentage: string; // e.g., "50%"
+  }>;
+  rightImagePath?: string;
+  rightImageAlt?: string;
+  backgroundColor?: string;
+  titleColor?: string;
+  contentColor?: string;
+  rightPanelColor?: string;
 }
