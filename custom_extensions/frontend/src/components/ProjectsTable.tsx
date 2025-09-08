@@ -388,7 +388,7 @@ const ClientNameModal: React.FC<{
           <div>
             <Label
               htmlFor="client-name"
-              className="block text-sm font-semibold text-gray-900 mb-2"
+              className="block text-sm font-semibold text-gray-700 mb-2"
             >
               {t("interface.clientNameOptional", "Client Name (optional)")}
             </Label>
@@ -411,7 +411,7 @@ const ClientNameModal: React.FC<{
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <Label className="block text-sm font-semibold text-gray-900">
+              <Label className="block text-sm font-semibold text-gray-700">
                 {t(
                   "interface.selectFoldersAndProducts",
                   "Select Folders & Products"
@@ -439,7 +439,7 @@ const ClientNameModal: React.FC<{
               {/* Folders */}
               {folders.length > 0 && (
                 <div className="mb-4">
-                  <div className="text-xs font-semibold text-gray-800 mb-3 uppercase tracking-wide">
+                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">
                     {t("interface.pdfFolders", "Folders")}
                   </div>
                   {folders.map((folder) => (
@@ -521,7 +521,7 @@ const ClientNameModal: React.FC<{
               {/* Unassigned Projects */}
               {unassignedProjects.length > 0 && (
                 <div>
-                  <div className="text-xs font-semibold text-gray-800 mb-3 uppercase tracking-wide">
+                  <div className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">
                     {t(
                       "interface.pdfUnassignedProducts",
                       "Unassigned Products"
@@ -548,7 +548,7 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
+                          // className="border-gray-400 data-[state=checked]:bg-gray-500 data-[state=checked]:border-gray-700"
                         />
                         <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                           {project.title}
