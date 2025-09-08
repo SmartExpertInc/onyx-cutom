@@ -701,7 +701,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-3">
             {(() => {
               // Mock data for now - preserving original logic structure
               const mockResources = [
@@ -741,10 +741,10 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 md:p-8 border border-cyan-100">
-            <ul className="space-y-4">
-              {connectorConfigs.map((connector) => (
-                <li key={connector.id} className="flex items-center group">
+          <div className="space-y-3">
+            {connectorConfigs.map((connector) => (
+              <div key={connector.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 group">
+                <div className="flex items-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm mr-4 flex-shrink-0">
                     <Image
                       src={connector.logoPath}
@@ -757,9 +757,9 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                     />
                   </div>
                   <span className="text-gray-800 leading-relaxed font-medium text-lg">{connector.name}</span>
-                </li>
-              ))}
-            </ul>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -783,12 +783,12 @@ const VideoLessonBlock: React.FC<{
     }
 
     const filteredBlocks = originalData.contentBlocks.filter((block: any, index: number) => {
-      // Skip first title block (usually headline type)
-      if (index === 0 && (block.type === 'headline' || block.type === 'title')) {
+      // Skip any headline/title blocks (not just first one)
+      if (block.type === 'headline' || block.type === 'title') {
         return false;
       }
-      // Skip first paragraph block after title
-      if (index === 1 && block.type === 'paragraph') {
+      // Skip first paragraph block 
+      if (index === 0 && block.type === 'paragraph') {
         return false;
       }
       return true;
@@ -825,7 +825,7 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-lg [&_li]:!text-lg [&_span]:!text-lg">
+          <div className="pl-4 [&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-3xl [&_h2]:!text-2xl [&_h3]:!text-xl [&_p]:!text-base [&_li]:!text-lg [&_span]:!text-lg">
             <TextPresentationDisplay 
               dataToDisplay={getFilteredData(data)}
               isEditing={false}
