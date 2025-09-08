@@ -147,7 +147,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
           )}
         </div>
-        <div style={paragraph}>
+        {/* Stable description block to avoid shifting when editing */}
+        <div style={{ ...paragraph, minHeight: '104px' }}>
           {isEditable && editingDescription ? (
             <ImprovedInlineEditor
               initialValue={description}
@@ -155,7 +156,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDescription(false); }}
               onCancel={() => setEditingDescription(false)}
               className="phishing-description-editor"
-              style={{ ...paragraph }}
+              style={{ ...paragraph, minHeight: 'auto' }}
             />
           ) : (
             <div onClick={() => isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
@@ -191,16 +192,18 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
         <div style={chart}>
           {currentBars.map((b, idx) => (
             <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-              {isEditable && editingBar?.index === idx && editingBar?.field === 'valueLabel' ? (
-                <ImprovedInlineEditor
-                  initialValue={b.valueLabel}
-                  onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], valueLabel: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
-                  onCancel={() => setEditingBar(null)}
-                  style={{ color: '#8d96a3', marginBottom: '8px', fontSize: '14px' }}
-                />
-              ) : (
-                <div style={{ color: '#8d96a3', marginBottom: '8px', fontSize: '14px' }} onClick={() => isEditable && setEditingBar({ index: idx, field: 'valueLabel' })}>{b.valueLabel}</div>
-              )}
+              <div style={{ minHeight: '22px' }}>
+                {isEditable && editingBar?.index === idx && editingBar?.field === 'valueLabel' ? (
+                  <ImprovedInlineEditor
+                    initialValue={b.valueLabel}
+                    onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], valueLabel: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                    onCancel={() => setEditingBar(null)}
+                    style={{ color: '#8d96a3', fontSize: '14px' }}
+                  />
+                ) : (
+                  <div style={{ color: '#8d96a3', fontSize: '14px' }} onClick={() => isEditable && setEditingBar({ index: idx, field: 'valueLabel' })}>{b.valueLabel}</div>
+                )}
+              </div>
 
               <div
                 style={{ width: '90px', height: `${b.height}px`, backgroundColor: '#0d0d0d', position: 'relative', cursor: isEditable ? 'ns-resize' : 'default' }}
@@ -221,16 +224,18 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 }}
               />
 
-              {isEditable && editingBar?.index === idx && editingBar?.field === 'year' ? (
-                <ImprovedInlineEditor
-                  initialValue={b.year}
-                  onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
-                  onCancel={() => setEditingBar(null)}
-                  style={{ ...yearStyle }}
-                />
-              ) : (
-                <div style={yearStyle} onClick={() => isEditable && setEditingBar({ index: idx, field: 'year' })}>{b.year}</div>
-              )}
+              <div style={{ ...yearStyle, minHeight: '20px' }}>
+                {isEditable && editingBar?.index === idx && editingBar?.field === 'year' ? (
+                  <ImprovedInlineEditor
+                    initialValue={b.year}
+                    onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                    onCancel={() => setEditingBar(null)}
+                    style={{ ...yearStyle }}
+                  />
+                ) : (
+                  <div onClick={() => isEditable && setEditingBar({ index: idx, field: 'year' })}>{b.year}</div>
+                )}
+              </div>
 
               {isEditable && (
                 <button

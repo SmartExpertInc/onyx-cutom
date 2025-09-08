@@ -173,16 +173,18 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
-          {isEditable && editingLogoText ? (
-            <ImprovedInlineEditor
-              initialValue={logoText}
-              onSave={(v) => { onUpdate && onUpdate({ logoText: v }); setEditingLogoText(false); }}
-              onCancel={() => setEditingLogoText(false)}
-              style={{ color: '#c9cbd1', fontSize: '16px' }}
-            />
-          ) : (
-            <div style={{ color: '#c9cbd1', fontSize: '16px', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingLogoText(true)}>{logoText}</div>
-          )}
+          <div style={{ minHeight: '22px' }}>
+            {isEditable && editingLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={logoText}
+                onSave={(v) => { onUpdate && onUpdate({ logoText: v }); setEditingLogoText(false); }}
+                onCancel={() => setEditingLogoText(false)}
+                style={{ color: '#c9cbd1', fontSize: '16px' }}
+              />
+            ) : (
+              <div style={{ color: '#c9cbd1', fontSize: '16px', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingLogoText(true)}>{logoText}</div>
+            )}
+          </div>
         </div>
       </div>
 

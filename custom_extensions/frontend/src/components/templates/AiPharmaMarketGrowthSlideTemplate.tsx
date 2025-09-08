@@ -104,29 +104,33 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
         {currentBars.map((b, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '18px', position: 'relative' }}>
             {/* Year editable */}
-            {isEditable && editingBar?.index === i && editingBar?.field === 'year' ? (
-              <ImprovedInlineEditor
-                initialValue={b.year}
-                onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
-                onCancel={() => setEditingBar(null)}
-                style={{ width: '50px', color: '#6c7a8a' }}
-              />
-            ) : (
-              <div style={{ width: '50px', color: '#6c7a8a' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
-            )}
+            <div style={{ width: '50px', minHeight: '22px' }}>
+              {isEditable && editingBar?.index === i && editingBar?.field === 'year' ? (
+                <ImprovedInlineEditor
+                  initialValue={b.year}
+                  onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                  onCancel={() => setEditingBar(null)}
+                  style={{ width: '50px', color: '#6c7a8a' }}
+                />
+              ) : (
+                <div style={{ color: '#6c7a8a' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
+              )}
+            </div>
 
             <div style={{ flexGrow: 1, backgroundColor: '#2c3e55', height: '78px', borderRadius: '6px', position: 'relative' }}>
               {/* Label editable */}
-              {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
-                <ImprovedInlineEditor
-                  initialValue={b.label}
-                  onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
-                  onCancel={() => setEditingBar(null)}
-                  style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#cde1ff', fontSize: '22px' }}
-                />
-              ) : (
-                <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#cde1ff', fontSize: '22px' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}>{b.label}</div>
-              )}
+              <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', minHeight: '24px' }}>
+                {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
+                  <ImprovedInlineEditor
+                    initialValue={b.label}
+                    onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                    onCancel={() => setEditingBar(null)}
+                    style={{ color: '#cde1ff', fontSize: '22px' }}
+                  />
+                ) : (
+                  <div style={{ color: '#cde1ff', fontSize: '22px' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}>{b.label}</div>
+                )}
+              </div>
 
               {/* Width resizable via drag */}
               <div

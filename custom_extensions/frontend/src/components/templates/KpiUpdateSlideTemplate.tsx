@@ -120,30 +120,36 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         {/* KPI rows */}
         {currentItems.map((it, i) => (
           <React.Fragment key={i}>
-            {isEditable && editingItem?.index === i && editingItem?.field === 'value' ? (
-              <ImprovedInlineEditor
-                initialValue={it.value}
-                onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
-                onCancel={() => setEditingItem(null)}
-                className="kpi-value-editor"
-                style={{ fontSize: i === 3 ? '104px' : '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px' }}
-              />
-            ) : (
-              <div style={{ fontSize: i === 3 ? '104px' : '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
-            )}
+            {/* Value cell with fixed block to avoid layout shift */}
+            <div style={{ minHeight: '112px', display: 'flex', alignItems: 'flex-end' }}>
+              {isEditable && editingItem?.index === i && editingItem?.field === 'value' ? (
+                <ImprovedInlineEditor
+                  initialValue={it.value}
+                  onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
+                  onCancel={() => setEditingItem(null)}
+                  className="kpi-value-editor"
+                  style={{ fontSize: '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px', lineHeight: 1 }}
+                />
+              ) : (
+                <div style={{ fontSize: '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px', lineHeight: 1 }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
+              )}
+            </div>
 
-            {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
-              <ImprovedInlineEditor
-                initialValue={it.description}
-                multiline={true}
-                onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
-                onCancel={() => setEditingItem(null)}
-                className="kpi-desc-editor"
-                style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px' }}
-              />
-            ) : (
-              <div style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
-            )}
+            {/* Description cell with fixed min height */}
+            <div style={{ minHeight: '52px' }}>
+              {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
+                <ImprovedInlineEditor
+                  initialValue={it.description}
+                  multiline={true}
+                  onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
+                  onCancel={() => setEditingItem(null)}
+                  className="kpi-desc-editor"
+                  style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px', minHeight: 'auto' }}
+                />
+              ) : (
+                <div style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
+              )}
+            </div>
           </React.Fragment>
         ))}
 
