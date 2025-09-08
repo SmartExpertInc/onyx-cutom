@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
 interface VideoProductData {
   videoJobId: string;
   videoUrl: string;
@@ -36,7 +38,12 @@ export default function VideoProductDisplay({
 
   const handleDownload = async () => {
     try {
-      const response = await fetch(dataToDisplay.videoUrl, {
+      // Construct full URL for video download
+      const fullVideoUrl = dataToDisplay.videoUrl.startsWith('http') 
+        ? dataToDisplay.videoUrl 
+        : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`;
+      
+      const response = await fetch(fullVideoUrl, {
         method: 'GET',
         headers: {
           'Accept': 'video/mp4',
@@ -96,11 +103,19 @@ export default function VideoProductDisplay({
               className="w-full h-full object-contain"
               controls
               preload="metadata"
-              poster={dataToDisplay.thumbnailUrl}
+              poster={dataToDisplay.thumbnailUrl ? 
+                (dataToDisplay.thumbnailUrl.startsWith('http') 
+                  ? dataToDisplay.thumbnailUrl 
+                  : `${CUSTOM_BACKEND_URL}${dataToDisplay.thumbnailUrl}`) 
+                : undefined}
               onPlay={() => setIsVideoPlaying(true)}
               onPause={() => setIsVideoPlaying(false)}
             >
-              <source src={dataToDisplay.videoUrl} type="video/mp4" />
+              <source src={
+                dataToDisplay.videoUrl.startsWith('http') 
+                  ? dataToDisplay.videoUrl 
+                  : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+              } type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
