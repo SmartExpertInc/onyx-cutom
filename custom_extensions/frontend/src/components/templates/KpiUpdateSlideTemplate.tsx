@@ -63,14 +63,14 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
 
   const itemsArea: React.CSSProperties = {
     position: 'absolute',
-    left: '48px',
-    right: '48px',
-    top: '140px',
+    left: '56px',
+    right: '64px',
+    top: '164px',
     bottom: '120px',
     display: 'grid',
-    gridTemplateColumns: '320px 1fr',
-    rowGap: '64px',
-    columnGap: '48px',
+    gridTemplateColumns: '240px 1fr',
+    rowGap: '88px',
+    columnGap: '72px',
     alignItems: 'center'
   };
 
@@ -102,9 +102,9 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
       </div>
 
       <div style={itemsArea}>
-        {/* Left profile image */}
-        <div style={{ gridColumn: '1 / 2', gridRow: '1 / span 3', alignSelf: 'end' }}>
-          <div style={{ width: '128px', height: '128px', borderRadius: '50%', overflow: 'hidden' }}>
+        {/* Left profile image (bottom-left as on mock) */}
+        <div style={{ gridColumn: '1 / 2', gridRow: '3 / span 2', alignSelf: 'end' }}>
+          <div style={{ width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
               onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
@@ -121,22 +121,22 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         {currentItems.map((it, i) => (
           <React.Fragment key={i}>
             {/* Value cell with fixed block to avoid layout shift */}
-            <div style={{ minHeight: '112px', display: 'flex', alignItems: 'flex-end' }}>
+            <div style={{ minHeight: '116px', display: 'flex', alignItems: 'flex-end' }}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'value' ? (
                 <ImprovedInlineEditor
                   initialValue={it.value}
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-value-editor"
-                  style={{ fontSize: '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px', lineHeight: 1 }}
+                  style={{ fontSize: '112px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-1px', lineHeight: 1 }}
                 />
               ) : (
-                <div style={{ fontSize: '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px', lineHeight: 1 }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
+                <div style={{ fontSize: '112px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-1px', lineHeight: 1 }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
               )}
             </div>
 
             {/* Description cell with fixed min height */}
-            <div style={{ minHeight: '52px' }}>
+            <div style={{ minHeight: '64px' }}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
                 <ImprovedInlineEditor
                   initialValue={it.description}
@@ -144,10 +144,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-desc-editor"
-                  style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px', minHeight: 'auto' }}
+                  style={{ color: '#8a8f86', lineHeight: 1.65, fontSize: '18px', minHeight: 'auto', maxWidth: '740px' }}
                 />
               ) : (
-                <div style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
+                <div style={{ color: '#8a8f86', lineHeight: 1.65, fontSize: '18px', maxWidth: '740px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
               )}
             </div>
           </React.Fragment>
