@@ -19,6 +19,7 @@ import TrainingPlanTableComponent from '@/components/TrainingPlanTable';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
 import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
+import VideoProductDisplay from '@/components/VideoProductDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
@@ -75,6 +76,7 @@ const COMPONENT_NAME_PDF_LESSON = "PdfLessonDisplay";
 const COMPONENT_NAME_SLIDE_DECK = "SlideDeckDisplay";
 const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
+const COMPONENT_NAME_VIDEO_PRODUCT = "VideoProductDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 
@@ -1415,6 +1417,16 @@ export default function ProjectInstanceViewPage() {
             onTextChange={handleTextChange} 
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
+          />
+        );
+      case COMPONENT_NAME_VIDEO_PRODUCT:
+        const videoProductData = editableData as any; // Video product data is stored as a dictionary
+        return (
+          <VideoProductDisplay
+            dataToDisplay={videoProductData}
+            isEditing={isEditing}
+            onTextChange={handleTextChange}
+            parentProjectName={parentProjectName}
           />
         );
       default:

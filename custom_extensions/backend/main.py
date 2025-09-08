@@ -12100,6 +12100,10 @@ Return ONLY the JSON object.
                         db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
+                elif component_name_from_db == COMPONENT_NAME_VIDEO_PRODUCT:
+                    # For video products, return the raw dictionary data
+                    final_content_for_response = db_content_dict
+                    logger.info("Re-parsed as VideoProductDisplay (raw dictionary).")
                 else:
                     logger.warning(f"Unknown component_name '{component_name_from_db}' when re-parsing content from DB on add. Attempting generic TrainingPlanDetails fallback.")
                     # Round hours to integers before parsing to prevent float validation errors
