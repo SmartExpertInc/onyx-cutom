@@ -284,8 +284,8 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
-                                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
-                  <GraduationCap className="w-3 h-3 text-white" />
+                                 <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-600 rounded-md flex items-center justify-center">
+                   <GraduationCap className="w-3 h-3 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Course</p>
@@ -308,7 +308,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-md flex items-center justify-center">
+                <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md flex items-center justify-center">
                   <BookOpen className="w-3 h-3 text-white" />
                 </div>
                 <div>
@@ -405,12 +405,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                 const formattedName = formatProductName(productName);
 
                 return (
-                  <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-8 border border-blue-100 hover:shadow-md transition-all duration-300">
+                                     <div key={index} className="group bg-gradient-to-br from-slate-50 to-blue-50 rounded-lg p-8 border border-blue-100 hover:shadow-md transition-all duration-300">
                     <div className="flex flex-col items-center text-center">
                       <div className={`w-16 h-16 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center mb-4 shadow-md group-hover:scale-105 transition-transform duration-300`}>
                         <IconComponent className="w-8 h-8 text-white" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-800">{formattedName}</h3>
+                                             <h3 className="text-lg font-semibold text-gray-800">{formattedName}</h3>
                     </div>
                   </div>
                 );
@@ -507,12 +507,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Resources */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Wrench className="w-6 h-6 text-white" />
-            </div>
+      </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
           </div>
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-100">
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
             <ul className="space-y-4">
               {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
                 (() => {
@@ -525,19 +525,19 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   
                   return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
                     <li key={index} className="flex items-start group">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
                       <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
                     </li>
                   )) : (
                     <li className="flex items-start">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
                       <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
                     </li>
                   );
                 })()
               ) : (
                 <li className="flex items-start">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
                   <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
                 </li>
               )}
@@ -548,12 +548,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Connectors */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-100">
+          <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
             <ul className="space-y-4">
               {connectorConfigs.map((connector) => (
                 <li key={connector.id} className="flex items-center group">
@@ -794,40 +794,40 @@ const FallbackPresentationCarousel: React.FC = () => {
   };
 
   return (
-    <div className="relative">
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[300px]">
-        <div className="text-center h-full flex flex-col justify-center">
-          <h4 className="text-2xl font-bold text-blue-900 mb-4">
+        <div className="relative">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100 min-h-[300px]">
+            <div className="text-center h-full flex flex-col justify-center">
+              <h4 className="text-2xl font-bold text-blue-900 mb-4">
             {fallbackSlides[currentSlide]?.title}
-          </h4>
+              </h4>
           <p className="text-lg text-gray-700 leading-relaxed">
             {fallbackSlides[currentSlide]?.content}
-          </p>
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-between mt-4">
-        <button
-          onClick={prevSlide}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={prevSlide}
           disabled={fallbackSlides.length <= 1}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
-        </button>
-        
-        <span className="text-sm text-gray-600">
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <span className="text-sm text-gray-600">
           Slide {currentSlide + 1} of {fallbackSlides.length} (Preview)
-        </span>
-        
-        <button
-          onClick={nextSlide}
+            </span>
+            
+            <button
+              onClick={nextSlide}
           disabled={fallbackSlides.length <= 1}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
       </div>
     </div>
   );
@@ -857,62 +857,62 @@ const FallbackQuizCarousel: React.FC = () => {
   };
 
   return (
-    <div className="relative">
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-        <div className="mb-4">
-          <h4 className="text-lg font-semibold text-green-900 mb-4">
+        <div className="relative">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+            <div className="mb-4">
+              <h4 className="text-lg font-semibold text-green-900 mb-4">
             Question {currentQuestion + 1} (Preview)
-          </h4>
-          <p className="text-gray-800 leading-relaxed mb-6">
+              </h4>
+              <p className="text-gray-800 leading-relaxed mb-6">
             {fallbackQuestions[currentQuestion]?.question}
-          </p>
-          <div className="space-y-3">
+              </p>
+              <div className="space-y-3">
             {fallbackQuestions[currentQuestion]?.options.map((option, index) => (
-              <div 
-                key={index} 
-                className={`p-3 rounded-lg border ${
+                  <div 
+                    key={index} 
+                    className={`p-3 rounded-lg border ${
                   index === fallbackQuestions[currentQuestion]?.correct 
-                    ? 'bg-green-100 border-green-300 text-green-800' 
-                    : 'bg-white border-gray-200 text-gray-700'
-                }`}
-              >
-                <span className="font-medium mr-2">
-                  {String.fromCharCode(65 + index)}.
-                </span>
-                {option}
+                        ? 'bg-green-100 border-green-300 text-green-800' 
+                        : 'bg-white border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    <span className="font-medium mr-2">
+                      {String.fromCharCode(65 + index)}.
+                    </span>
+                    {option}
                 {index === fallbackQuestions[currentQuestion]?.correct && (
-                  <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
-                )}
+                      <span className="ml-2 text-green-600 font-semibold">✓ Correct</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={prevQuestion}
+          disabled={fallbackQuestions.length <= 1}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <span className="text-sm text-gray-600">
+          Question {currentQuestion + 1} of {fallbackQuestions.length} (Preview)
+            </span>
+            
+            <button
+              onClick={nextQuestion}
+          disabled={fallbackQuestions.length <= 1}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
           </div>
         </div>
-      </div>
-      
-      <div className="flex items-center justify-between mt-4">
-        <button
-          onClick={prevQuestion}
-          disabled={fallbackQuestions.length <= 1}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
-        </button>
-        
-        <span className="text-sm text-gray-600">
-          Question {currentQuestion + 1} of {fallbackQuestions.length} (Preview)
-        </span>
-        
-        <button
-          onClick={nextQuestion}
-          disabled={fallbackQuestions.length <= 1}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
-      </div>
-    </div>
   );
 };
 
@@ -961,7 +961,7 @@ const FallbackOnePagerContent: React.FC = () => {
         dataToDisplay={fallbackOnePagerData as any}
         isEditing={false}
       />
-    </div>
+      </div>
     );
 };
 
@@ -973,7 +973,7 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
     return (
       <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
         <div className="text-gray-500">No slides available</div>
-      </div>
+        </div>
     );
   }
 
@@ -998,16 +998,14 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
         <ChevronLeft className="w-5 h-5" />
       </button>
 
-      {/* Slide Content - Smaller and Centered */}
+            {/* Slide Content - 16:9 Aspect Ratio and Centered */}
       <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
         <div
-          className="professional-slide relative bg-white"
+          className="professional-slide relative bg-white w-full"
           style={{
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-            width: '100%',
-            height: '280px',
-            maxWidth: '497px',
+            maxWidth: '560px',
             aspectRatio: '16/9'
           }}
         >
@@ -1043,10 +1041,10 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   const [showAnswers, setShowAnswers] = useState(true); // Always show answers in lesson plan view
   
   if (!dataToDisplay || !dataToDisplay.questions || dataToDisplay.questions.length === 0) {
-    return (
+  return (
       <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
         <div className="text-gray-500">No questions available</div>
-      </div>
+        </div>
     );
   }
 
@@ -1082,7 +1080,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
                   {option.id === question.correct_option_id && (
                     <div className="w-2 h-2 bg-white rounded-full" />
                   )}
-                </div>
+      </div>
               </div>
               <div className="ml-3 flex-1">
                 <div className="flex items-center">
@@ -1147,8 +1145,8 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
                   {correctIds.includes(option.id) && (
                     <div className="w-2 h-2 bg-white" />
                   )}
-                </div>
-              </div>
+        </div>
+      </div>
               <div className="ml-3 flex-1">
                 <div className="flex items-center">
                   <span className="text-black">{option.text}</span>
@@ -1176,7 +1174,7 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
           </span>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-black">{question.question_text}</h3>
-          </div>
+        </div>
         </div>
         {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
         {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
