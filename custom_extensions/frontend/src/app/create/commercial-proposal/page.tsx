@@ -1638,7 +1638,7 @@ export default function CommercialProposalPage() {
             </h3>
 
             <div 
-              className="flex flex-col xl:px-[30px] xl:py-[30px] xl:flex-row gap-[30px] xl:gap-[100px] xl:border xl:border-[1px] xlborder-[#E0E0E0] rounded-[8px]"
+              className="flex flex-col xl:px-[30px] xl:py-[30px] xl:flex-row gap-[30px] xl:gap-[100px] xl:border xl:border-[1px] xl:border-[#E0E0E0] rounded-[8px]"
               style={{
                 boxShadow: '0px 24px 24px -8px #2A334608, 0px 10px 10px -5px #2A334608'
               }}
@@ -1726,7 +1726,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
+              <div className="xl:w-[490px] flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
                 <span className="text-white text-[22px] xl:text-[26px] font-semibold">Итого:</span>
                 
                 <div className="flex flex-col gap-[30px]">
