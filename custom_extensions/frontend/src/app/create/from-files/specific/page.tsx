@@ -71,42 +71,10 @@ const mockConnectors: Connector[] = [
   },
   {
     id: 4,
-    name: 'Slack - Team Communications',
-    source: 'slack',
+    name: 'Salesforce - CRM Data',
+    source: 'salesforce',
     status: 'active',
-    total_docs_indexed: 2341,
-    access_type: 'private'
-  },
-  {
-    id: 5,
-    name: 'GitHub - Code Repository',
-    source: 'github',
-    status: 'active',
-    total_docs_indexed: 445,
-    access_type: 'private'
-  },
-  {
-    id: 6,
-    name: 'Confluence - Knowledge Base',
-    source: 'confluence',
-    status: 'paused',
-    total_docs_indexed: 678,
-    access_type: 'private'
-  },
-  {
-    id: 7,
-    name: 'SharePoint - Company Documents',
-    source: 'sharepoint',
-    status: 'error',
-    total_docs_indexed: 0,
-    access_type: 'private'
-  },
-  {
-    id: 8,
-    name: 'HubSpot - CRM Data',
-    source: 'hubspot',
-    status: 'active',
-    total_docs_indexed: 567,
+    total_docs_indexed: 823,
     access_type: 'private'
   }
 ];
@@ -126,33 +94,10 @@ export default function CreateFromSpecificFilesPage() {
   const loadConnectors = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/manage/admin/connector/status', {
-        credentials: 'same-origin',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Filter to only show private connectors (Smart Drive connectors)
-        const privateConnectors = data
-          .filter((connector: any) => connector.access_type === 'private')
-          .map((connector: any) => ({
-            id: connector.cc_pair_id,
-            name: connector.name || `Connector ${connector.cc_pair_id}`,
-            source: connector.connector.source,
-            status: connector.connector.status || 'unknown',
-            last_sync_at: connector.last_sync_at,
-            total_docs_indexed: connector.total_docs_indexed || 0,
-            last_error: connector.last_error,
-            access_type: connector.access_type
-          }));
-        setConnectors(privateConnectors);
-      } else {
-        console.error('Failed to fetch connectors:', response.status);
-        // Fallback to mock data if API fails
-        setConnectors(mockConnectors);
-      }
+      // For now, always use mock data
+      setConnectors(mockConnectors);
     } catch (error) {
-      console.error('Failed to fetch connectors:', error);
+      console.error('Failed to load connectors:', error);
       // Fallback to mock data
       setConnectors(mockConnectors);
     } finally {
