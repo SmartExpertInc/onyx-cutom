@@ -349,6 +349,16 @@ export default function ProjectInstanceViewPage() {
               : 'No content blocks or not array'
           });
           setEditableData(copiedDetails as TextPresentationData);
+        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
+          console.log('🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details:', {
+            copiedDetails,
+            copiedDetailsStringified: JSON.stringify(copiedDetails, null, 2),
+            videoJobId: copiedDetails?.videoJobId,
+            videoUrl: copiedDetails?.videoUrl,
+            thumbnailUrl: copiedDetails?.thumbnailUrl,
+            component_name: copiedDetails?.component_name
+          });
+          setEditableData(copiedDetails as any); // Video product data is stored as a dictionary
         } else {
           setEditableData(copiedDetails); 
         }
@@ -366,6 +376,16 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
           setEditableData({ textTitle: instanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
+        } else if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
+          console.log('🎬 [VIDEO_PRODUCT_DATA] No details data, setting default video product data');
+          setEditableData({ 
+            videoJobId: 'unknown',
+            videoUrl: '',
+            thumbnailUrl: '',
+            generatedAt: new Date().toISOString(),
+            sourceSlides: [],
+            component_name: 'VideoProductDisplay'
+          } as any);
         } else {
           setEditableData(null);
         }
@@ -1421,6 +1441,9 @@ export default function ProjectInstanceViewPage() {
         );
       case COMPONENT_NAME_VIDEO_PRODUCT:
         const videoProductData = editableData as any; // Video product data is stored as a dictionary
+        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData:', editableData);
+        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type:', typeof editableData);
+        console.log('🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys:', editableData ? Object.keys(editableData) : 'null');
         return (
           <VideoProductDisplay
             dataToDisplay={videoProductData}

@@ -32,6 +32,9 @@ export default function VideoProductDisplay({
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Received data:', dataToDisplay);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data type:', typeof dataToDisplay);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data keys:', dataToDisplay ? Object.keys(dataToDisplay) : 'null');
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video URL:', dataToDisplay?.videoUrl);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL:', dataToDisplay?.thumbnailUrl);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID:', dataToDisplay?.videoJobId);
 
   if (!dataToDisplay) {
     return (
