@@ -1304,7 +1304,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     const hasOnePager = !!existingOnePager;
 
     const section = (sections || []).find(s => s.title === moduleName);
-    const lessonObj = section?.lessons?.find(l => l.title === lessonTitle);
+    const lessonObj = section?.lessons?.find((l: LessonType) => l.title === lessonTitle);
     const effectiveTier = String(getEffectiveLessonTier(section, lessonObj));
     const persisted = extractPersistedRecommendations(lessonObj, effectiveTier);
     const recommended = persisted || computeRecommendations(lessonTitle, effectiveTier, { hasLesson, hasQuiz, hasOnePager, hasVideoLesson });
@@ -2002,7 +2002,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
         onUpdateRecommendations={(newPrimary) => {
           const sectionIdx = sections?.findIndex(s => s.title === contentModalState.moduleName) ?? -1;
           if (sectionIdx >= 0) {
-            const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex(l => l.title === contentModalState.lessonTitle) ?? -1;
+            const lessonIdx = sections?.[sectionIdx]?.lessons?.findIndex((l: LessonType) => l.title === contentModalState.lessonTitle) ?? -1;
             if (lessonIdx >= 0 && onTextChange) {
               const section = sections?.[sectionIdx];
               const lessonObj = section?.lessons?.[lessonIdx];
