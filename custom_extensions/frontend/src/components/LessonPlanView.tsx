@@ -284,8 +284,8 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
-                                 <div className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-600 rounded-md flex items-center justify-center">
-                   <GraduationCap className="w-3 h-3 text-white" />
+                                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center">
+                  <GraduationCap className="w-3 h-3 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Course</p>
@@ -308,7 +308,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             
             <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md flex items-center justify-center">
+                <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-md flex items-center justify-center">
                   <BookOpen className="w-3 h-3 text-white" />
                 </div>
                 <div>
@@ -507,12 +507,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Resources */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Wrench className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
           </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-100">
             <ul className="space-y-4">
               {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
                 (() => {
@@ -525,19 +525,19 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   
                   return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
                     <li key={index} className="flex items-start group">
-                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                      <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
                       <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
                     </li>
                   )) : (
                     <li className="flex items-start">
-                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                      <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
                       <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
                     </li>
                   );
                 })()
               ) : (
                 <li className="flex items-start">
-                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                  <div className="w-3 h-3 bg-blue-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
                   <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
                 </li>
               )}
@@ -548,12 +548,12 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
         {/* Connectors */}
         <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
           <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
               <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
           </div>
-          <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6 border border-blue-100">
             <ul className="space-y-4">
               {connectorConfigs.map((connector) => (
                 <li key={connector.id} className="flex items-center group">
@@ -597,7 +597,6 @@ const VideoLessonBlock: React.FC<{
       
       {/* One-Pager Content */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Content Script (One-Pager)</h3>
         {loading ? (
           <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
             <div className="text-gray-500">Loading content...</div>
@@ -651,7 +650,6 @@ const PresentationBlock: React.FC<{
       
       {/* Slide Display using SmartSlideDeckViewer */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Presentation Slides</h3>
         {loading ? (
           <div className="flex items-center justify-center h-96 bg-gray-50 rounded-xl">
             <div className="text-gray-500">Loading slides...</div>
@@ -697,7 +695,6 @@ const QuizBlock: React.FC<{
       
       {/* Quiz Display using QuizDisplay component */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Quiz Questions</h3>
         {loading ? (
           <div className="flex items-center justify-center h-40 bg-gray-50 rounded-xl">
             <div className="text-gray-500">Loading questions...</div>
@@ -1009,8 +1006,9 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
             width: '100%',
-            height: '350px',
-            maxWidth: '600px'
+            height: '280px',
+            maxWidth: '497px',
+            aspectRatio: '16/9'
           }}
         >
           <ComponentBasedSlideRenderer
