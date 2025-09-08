@@ -78,14 +78,22 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     backgroundColor: '#1b1b1b'
   };
 
-  const venn: React.CSSProperties = {
+  const vennWrapper: React.CSSProperties = {
     position: 'absolute',
-    right: '80px',
-    top: '120px',
+    right: '72px',
+    top: '96px',
+    width: '640px',
+    height: '640px'
+  };
+  const bigCircle: React.CSSProperties = {
+    position: 'absolute',
+    left: '40px',
+    top: '40px',
     width: '560px',
     height: '560px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.08)'
   };
 
   const small: React.CSSProperties = {
@@ -94,8 +102,9 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     height: '360px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     top: '240px',
-    right: '220px'
+    left: '80px'
   };
 
   const smallRight: React.CSSProperties = {
@@ -104,6 +113,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     height: '360px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     top: '240px',
     right: '40px'
   };
@@ -228,15 +238,18 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           isEditable={isEditable}
           style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.35)' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.25), rgba(0,0,0,0.25))' }} />
-        <div style={venn} />
-        <div style={small} />
-        <div style={smallRight} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35))' }} />
+        {/* Venn circles */}
+        <div style={vennWrapper}>
+          <div style={bigCircle} />
+          <div style={small} />
+          <div style={smallRight} />
+        </div>
 
         {/* Venn labels */}
-        <div style={{ position: 'absolute', right: '80px', top: '120px', width: '560px', height: '560px', pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none' }}>
           {/* Culture (top center of big circle) */}
-          <div style={{ position: 'absolute', left: '50%', top: '36px', transform: 'translateX(-50%)', color: '#d1d5db', opacity: 0.85, fontSize: '22px', pointerEvents: 'auto' }}>
+          <div style={{ position: 'absolute', left: '50%', top: '56px', transform: 'translateX(-50%)', color: '#d1d5db', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'culture' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.culture}
@@ -250,7 +263,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Managers (center of left small circle) */}
-          <div style={{ position: 'absolute', left: '152px', top: '300px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
+          <div style={{ position: 'absolute', left: '200px', top: '360px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'managers' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.managers}
@@ -264,7 +277,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Teams (center of right small circle) */}
-          <div style={{ position: 'absolute', right: '68px', top: '300px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
+          <div style={{ position: 'absolute', right: '108px', top: '360px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'teams' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.teams}

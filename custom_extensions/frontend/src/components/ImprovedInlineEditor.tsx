@@ -92,6 +92,8 @@ export function ImprovedInlineEditor({
     margin: '0',
     padding: '0',
     display: 'block',
+    // Чтобы не происходил горизонтальный скачок, по умолчанию занимаем всю ширину контейнера
+    width: (style && typeof style.width !== 'undefined') ? style.width : '100%',
     // Сохраняем все важные стили из исходного элемента
     ...style,
   };
