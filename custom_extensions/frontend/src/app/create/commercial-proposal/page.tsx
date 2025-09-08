@@ -1639,7 +1639,7 @@ export default function CommercialProposalPage() {
 
             <div className="flex flex-col xl:px-[30px] xl:py-[30px] xl:flex-row gap-[30px] xl:gap-[100px]">
               <div className="flex flex-col gap-[20xp] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] xl:border-0 rounded-[4px]" style={{borderWidth: '0.6px'}}>
-                <div className="flex flex-col gap-[20px] py-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
+                <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
                   <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
 
                   <div>
@@ -1693,7 +1693,7 @@ export default function CommercialProposalPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-[20px] py-[20px]">
+                <div className="flex flex-col gap-[20px] pt-[20px]">
                   <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold">SmartExpert</span></h4>
 
                   <div>
@@ -1721,7 +1721,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <div className="flex flex-col gap-[15px] bg-[#3E3AD9] rounded-t-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
+              <div className="flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
                 <span className="text-white text-[22px] xl:text-[26px] font-semibold">Итого:</span>
                 
                 <div className="flex flex-col gap-[30px]">
@@ -1741,7 +1741,7 @@ export default function CommercialProposalPage() {
                   </div>
                   
                   <div 
-                    className="xl:mt-[9px] relative w-fit mx-auto block pl-[2px] pt-[2px]"
+                    className="w-100% xl:mt-[9px] relative w-fit mx-auto block pl-[2px] pt-[2px]"
                     style={{
                       boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A'
                     }}
