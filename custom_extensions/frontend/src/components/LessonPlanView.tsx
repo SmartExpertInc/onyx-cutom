@@ -14,14 +14,14 @@ import Image from 'next/image';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
 
-// Connector configurations with logos
+// Connector configurations with logos - exact same paths as SmartDrive
 const connectorConfigs = [
-  { id: 'google_drive', name: 'Google Drive', logoPath: '/api/icons/google-drive.png' },
-  { id: 'slack', name: 'Slack', logoPath: '/api/icons/slack.png' },
-  { id: 'notion', name: 'Notion', logoPath: '/api/icons/notion.png' },
-  { id: 'github', name: 'GitHub', logoPath: '/api/icons/github.png' },
-  { id: 'confluence', name: 'Confluence', logoPath: '/api/icons/confluence.png' },
-  { id: 'teams', name: 'Microsoft Teams', logoPath: '/api/icons/teams.png' }
+  { id: 'google_drive', name: 'Google Drive', logoPath: '/Google_Drive.svg' },
+  { id: 'slack', name: 'Slack', logoPath: '/Slack.png' },
+  { id: 'notion', name: 'Notion', logoPath: '/Notion.png' },
+  { id: 'github', name: 'GitHub', logoPath: '/Github.png' },
+  { id: 'confluence', name: 'Confluence', logoPath: '/Confluence.png' },
+  { id: 'teams', name: 'Microsoft Teams', logoPath: '/Teams.png' }
 ];
 
 interface LessonPlanViewProps {
@@ -419,76 +419,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
           </div>
         </div>
 
-        {/* Resources */}
-        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <Wrench className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
-          </div>
-          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
-            <ul className="space-y-4">
-              {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
-                (() => {
-                  // Find the separator index
-                  const separatorIndex = lessonPlanData.materials.findIndex(m => m.includes('Additional Resources'));
-                  const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
-                  
-                  // Filter out empty strings
-                  const filteredSourceMaterials = sourceMaterials.filter(m => m.trim() !== '');
-                  
-                  return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
-                    <li key={index} className="flex items-start group">
-                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
-                      <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
-                    </li>
-                  )) : (
-                    <li className="flex items-start">
-                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
-                      <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
-                    </li>
-                  );
-                })()
-              ) : (
-                <li className="flex items-start">
-                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
-                  <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
-                </li>
-              )}
-            </ul>
-          </div>
-        </div>
 
-        {/* Connectors */}
-        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
-              <Lightbulb className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
-          </div>
-          <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
-            <ul className="space-y-4">
-              {connectorConfigs.map((connector) => (
-                <li key={connector.id} className="flex items-center group">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm mr-4 flex-shrink-0">
-                    <Image
-                      src={connector.logoPath}
-                      alt={`${connector.name} logo`}
-                      width={32}
-                      height={32}
-                      className="object-contain w-8 h-8"
-                      priority={false}
-                      unoptimized={true}
-                    />
-                  </div>
-                  <span className="text-gray-800 leading-relaxed font-medium text-lg">{connector.name}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
 
         {/* Product-Specific Content Blocks */}
         {(() => {
@@ -572,6 +503,77 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
             return null;
           }).filter(Boolean);
         })()}
+
+        {/* Resources */}
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+              <Wrench className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Resources</h2>
+          </div>
+          <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 border border-cyan-100">
+            <ul className="space-y-4">
+              {lessonPlanData.materials && lessonPlanData.materials.length > 0 ? (
+                (() => {
+                  // Find the separator index
+                  const separatorIndex = lessonPlanData.materials.findIndex(m => m.includes('Additional Resources'));
+                  const sourceMaterials = separatorIndex > 0 ? lessonPlanData.materials.slice(0, separatorIndex) : lessonPlanData.materials;
+                  
+                  // Filter out empty strings
+                  const filteredSourceMaterials = sourceMaterials.filter(m => m.trim() !== '');
+                  
+                  return filteredSourceMaterials.length > 0 ? filteredSourceMaterials.map((material, index) => (
+                    <li key={index} className="flex items-start group">
+                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform"></div>
+                      <span className="text-gray-800 leading-relaxed font-medium text-lg">{material}</span>
+                    </li>
+                  )) : (
+                    <li className="flex items-start">
+                      <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                      <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
+                    </li>
+                  );
+                })()
+              ) : (
+                <li className="flex items-start">
+                  <div className="w-3 h-3 bg-cyan-500 rounded-full mt-2 mr-4 flex-shrink-0 shadow-sm"></div>
+                  <span className="text-gray-600 leading-relaxed font-medium text-lg">No specific resources specified for this lesson</span>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* Connectors */}
+        <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center mr-4 shadow-md">
+              <Lightbulb className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">Connectors</h2>
+          </div>
+          <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 md:p-6 border border-emerald-100">
+            <ul className="space-y-4">
+              {connectorConfigs.map((connector) => (
+                <li key={connector.id} className="flex items-center group">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm mr-4 flex-shrink-0">
+                    <Image
+                      src={connector.logoPath}
+                      alt={`${connector.name} logo`}
+                      width={32}
+                      height={32}
+                      className="object-contain w-8 h-8"
+                      priority={false}
+                      unoptimized={true}
+                    />
+                  </div>
+                  <span className="text-gray-800 leading-relaxed font-medium text-lg">{connector.name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -966,7 +968,7 @@ const FallbackOnePagerContent: React.FC = () => {
     );
 };
 
-// Carousel version of SmartSlideDeckViewer - clean slide rendering without extra UI
+// Carousel version of SmartSlideDeckViewer - smaller slides with side arrows
 const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ deck }) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   
@@ -989,24 +991,26 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
   const currentSlide = deck.slides[currentSlideIndex];
 
   return (
-    <div style={{
-      width: '100%',
-      minHeight: '600px',
-      backgroundColor: '#f8f9fa',
-      borderRadius: '8px',
-      position: 'relative'
-    }}>
-      {/* Clean Slide Display - Just the slide content */}
-      <div style={{ padding: '20px' }}>
+    <div className="relative flex items-center justify-center" style={{ minHeight: '400px' }}>
+      {/* Left Arrow */}
+      <button
+        onClick={prevSlide}
+        disabled={deck.slides.length <= 1}
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      {/* Slide Content - Smaller and Centered */}
+      <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
         <div
-          className="professional-slide relative"
+          className="professional-slide relative bg-white"
           style={{
-            backgroundColor: 'white',
             borderRadius: '12px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-            minHeight: '500px',
             width: '100%',
-            height: '500px'
+            height: '350px',
+            maxWidth: '600px'
           }}
         >
           <ComponentBasedSlideRenderer
@@ -1015,32 +1019,21 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
             theme="default"
           />
         </div>
+        
+        {/* Slide Counter */}
+        <div className="mt-4 text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
+          Slide {currentSlideIndex + 1} of {deck.slides.length}
+        </div>
       </div>
 
-      {/* Carousel Navigation */}
-      <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-4">
-        <button
-          onClick={prevSlide}
-          disabled={deck.slides.length <= 1}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
-        </button>
-        
-        <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
-          Slide {currentSlideIndex + 1} of {deck.slides.length}
-        </span>
-        
-        <button
-          onClick={nextSlide}
-          disabled={deck.slides.length <= 1}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
-        >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
-      </div>
+      {/* Right Arrow */}
+      <button
+        onClick={nextSlide}
+        disabled={deck.slides.length <= 1}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
     </div>
   );
 };
@@ -1194,34 +1187,34 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   };
 
   return (
-    <div className="relative">
-      {/* Single Question Display */}
-      {renderQuestion(currentQuestion, currentQuestionIndex)}
-      
-      {/* Carousel Navigation */}
-      <div className="flex items-center justify-center gap-4 mt-6">
-        <button
-          onClick={prevQuestion}
-          disabled={questions.length <= 1}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
-        >
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Previous
-        </button>
+    <div className="relative flex items-center justify-center">
+      {/* Left Arrow */}
+      <button
+        onClick={prevQuestion}
+        disabled={questions.length <= 1}
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      {/* Question Content - Centered */}
+      <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto px-16">
+        {renderQuestion(currentQuestion, currentQuestionIndex)}
         
-        <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
+        {/* Question Counter */}
+        <div className="mt-4 text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm border">
           Question {currentQuestionIndex + 1} of {questions.length}
-        </span>
-        
-        <button
-          onClick={nextQuestion}
-          disabled={questions.length <= 1}
-          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
-        >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </button>
+        </div>
       </div>
+
+      {/* Right Arrow */}
+      <button
+        onClick={nextQuestion}
+        disabled={questions.length <= 1}
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
     </div>
   );
 };
