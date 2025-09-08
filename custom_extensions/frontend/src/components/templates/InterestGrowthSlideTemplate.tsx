@@ -66,7 +66,8 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    position: 'relative'
   };
 
   const rightPanel: React.CSSProperties = {
@@ -100,37 +101,66 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
       <div style={cardsGrid}>
         {cardList.slice(0, 4).map((c, i) => (
-          <div key={i} style={cardStyle}>
-            {isEditable && editingCard?.index === i && editingCard?.field === 'label' ? (
-              <ImprovedInlineEditor
-                initialValue={c.label}
-                onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], label: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
-                onCancel={() => setEditingCard(null)}
-                style={{ color: '#6b6b6b', fontSize: '16px' }}
-              />
-            ) : (
-              <div style={{ color: '#6b6b6b', fontSize: '16px' }} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
-            )}
-            {isEditable && editingCard?.index === i && editingCard?.field === 'percentage' ? (
-              <ImprovedInlineEditor
-                initialValue={c.percentage}
-                onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
-                onCancel={() => setEditingCard(null)}
-                style={{ fontSize: '88px', fontWeight: 800 }}
-              />
-            ) : (
-              <div style={{ fontSize: '88px', fontWeight: 800 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
-            )}
+          <div
+            key={i}
+            style={cardStyle}
+            onMouseEnter={(e) => {
+              const btn = e.currentTarget.querySelector('.card-delete-btn') as HTMLElement | null;
+              if (btn) btn.style.opacity = '1';
+            }}
+            onMouseLeave={(e) => {
+              const btn = e.currentTarget.querySelector('.card-delete-btn') as HTMLElement | null;
+              if (btn) btn.style.opacity = '0';
+            }}
+          >
+            {/* Label (fixed height to avoid shift) */}
+            <div style={{ minHeight: '22px' }}>
+              {isEditable && editingCard?.index === i && editingCard?.field === 'label' ? (
+                <ImprovedInlineEditor
+                  initialValue={c.label}
+                  onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], label: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
+                  onCancel={() => setEditingCard(null)}
+                  style={{ color: '#6b6b6b', fontSize: '16px' }}
+                />
+              ) : (
+                <div style={{ color: '#6b6b6b', fontSize: '16px' }} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
+              )}
+            </div>
+
+            {/* Percentage (fixed height to avoid shift) */}
+            <div style={{ minHeight: '88px', display: 'flex', alignItems: 'flex-end' }}>
+              {isEditable && editingCard?.index === i && editingCard?.field === 'percentage' ? (
+                <ImprovedInlineEditor
+                  initialValue={c.percentage}
+                  onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
+                  onCancel={() => setEditingCard(null)}
+                  style={{ fontSize: '88px', fontWeight: 800, lineHeight: 1 }}
+                />
+              ) : (
+                <div style={{ fontSize: '88px', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
+              )}
+            </div>
+
+            {/* Hover-only delete button (absolute, no layout shift) */}
             {isEditable && (
-              <button onClick={() => { if (cardList.length>1){ const next=cardList.filter((_,idx)=>idx!==i); setCardList(next); onUpdate && onUpdate({ cards: next }); } }}
-                style={{ alignSelf: 'flex-end', background: '#fff', border: '1px solid #ddd', color: '#333', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer' }}>
+              <button
+                className="card-delete-btn"
+                onClick={() => { if (cardList.length>1){ const next=cardList.filter((_,idx)=>idx!==i); setCardList(next); onUpdate && onUpdate({ cards: next }); } }}
+                style={{ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', border: '1px solid #ddd', color: '#333', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', opacity: 0, transition: 'opacity 120ms ease' }}
+              >
                 Delete
               </button>
             )}
           </div>
         ))}
+
         {isEditable && (
-          <button onClick={() => { const next=[...cardList, { label: 'Interest growth', percentage: '50%' }]; setCardList(next); onUpdate && onUpdate({ cards: next }); }} style={{ background: '#222', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer' }}>Add card</button>
+          <button
+            onClick={() => { const next=[...cardList, { label: 'Interest growth', percentage: '50%' }]; setCardList(next); onUpdate && onUpdate({ cards: next }); }}
+            style={{ background: '#222', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer' }}
+          >
+            Add card
+          </button>
         )}
       </div>
 
