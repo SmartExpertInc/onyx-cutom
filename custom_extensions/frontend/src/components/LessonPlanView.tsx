@@ -96,6 +96,10 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
   const [productData, setProductData] = useState<{[key: string]: any}>({});
   const [products, setProducts] = useState<{[key: string]: ProjectListItem | undefined}>({});
   const [loading, setLoading] = useState(false);
+  const [timingData, setTimingData] = useState<{
+    creationTimes: { presentation: string, quiz: string, onePager: string, videoLesson: string },
+    completionTimes: { presentation: string, quiz: string, onePager: string, videoLesson: string }
+  } | null>(null);
 
   // Fetch real product data for this lesson
   useEffect(() => {
@@ -283,7 +287,98 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
       });
 
       setProductData(newProductData);
+      
+      // Fetch timing data from parent project settings
+      await fetchTimingData();
+      
       setLoading(false);
+    };
+
+    const fetchTimingData = async () => {
+      if (!parentProjectName || !allUserMicroproducts) return;
+      
+      console.log(`⏱️ [LESSON_PLAN] Fetching timing data for parentProjectName: "${parentProjectName}"`);
+      
+      // Find any product from the parent project to get the project ID
+      const parentProduct = allUserMicroproducts.find(mp => mp.projectName === parentProjectName);
+      
+      if (!parentProduct) {
+        console.warn(`⏱️ [LESSON_PLAN] No parent product found for project: ${parentProjectName}`);
+        // Use defaults
+        setTimingData({
+          creationTimes: { presentation: '200h', quiz: '200h', onePager: '200h', videoLesson: '200h' },
+          completionTimes: { presentation: '8m', quiz: '6m', onePager: '3m', videoLesson: '4m' }
+        });
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${parentProduct.id}`);
+        
+        if (response.ok) {
+          const projectSettings = await response.json();
+          console.log(`⏱️ [LESSON_PLAN] Project settings:`, projectSettings);
+          
+          // Extract timing configuration
+          const customRate = projectSettings.custom_rate || 200;
+          const isAdvanced = projectSettings.is_advanced || false;
+          const advancedRates = projectSettings.advanced_rates || {};
+          const completionTimes = projectSettings.completion_times || {};
+          
+          // Calculate creation times (in hours)
+          const creationRates = isAdvanced ? {
+            presentation: advancedRates.presentation || customRate,
+            quiz: advancedRates.quiz || customRate,
+            onePager: advancedRates.one_pager || customRate,
+            videoLesson: advancedRates.video_lesson || customRate
+          } : {
+            presentation: customRate,
+            quiz: customRate,
+            onePager: customRate,
+            videoLesson: customRate
+          };
+          
+          // Get completion times (in minutes)
+          const completionMinutes = {
+            presentation: completionTimes.presentation || 8,
+            quiz: completionTimes.quiz || 6,
+            onePager: completionTimes.one_pager || 3,
+            videoLesson: completionTimes.video_lesson || 4
+          };
+          
+          console.log(`⏱️ [LESSON_PLAN] Calculated timing data:`, {
+            creationRates,
+            completionMinutes
+          });
+          
+          setTimingData({
+            creationTimes: {
+              presentation: `${creationRates.presentation}h`,
+              quiz: `${creationRates.quiz}h`,
+              onePager: `${creationRates.onePager}h`,
+              videoLesson: `${creationRates.videoLesson}h`
+            },
+            completionTimes: {
+              presentation: `${completionMinutes.presentation}m`,
+              quiz: `${completionMinutes.quiz}m`,
+              onePager: `${completionMinutes.onePager}m`,
+              videoLesson: `${completionMinutes.videoLesson}m`
+            }
+          });
+        } else {
+          console.warn(`⏱️ [LESSON_PLAN] Failed to fetch project settings, using defaults`);
+          setTimingData({
+            creationTimes: { presentation: '200h', quiz: '200h', onePager: '200h', videoLesson: '200h' },
+            completionTimes: { presentation: '8m', quiz: '6m', onePager: '3m', videoLesson: '4m' }
+          });
+        }
+      } catch (error) {
+        console.error(`⏱️ [LESSON_PLAN] Error fetching timing data:`, error);
+        setTimingData({
+          creationTimes: { presentation: '200h', quiz: '200h', onePager: '200h', videoLesson: '200h' },
+          completionTimes: { presentation: '8m', quiz: '6m', onePager: '3m', videoLesson: '4m' }
+        });
+      }
     };
 
     fetchProductData();
@@ -500,6 +595,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   prompt={prompt}
                   loading={loading}
                   product={products.videoLesson}
+                  timingData={timingData}
                 />
               );
             }
@@ -513,6 +609,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   prompt={prompt}
                   loading={loading}
                   product={products.presentation}
+                  timingData={timingData}
                 />
               );
             }
@@ -526,6 +623,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   prompt={prompt}
                   loading={loading}
                   product={products.quiz}
+                  timingData={timingData}
                 />
               );
             }
@@ -539,6 +637,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                   prompt={prompt}
                   loading={loading}
                   product={products.onePager}
+                  timingData={timingData}
                 />
               );
             }
@@ -629,7 +728,8 @@ const VideoLessonBlock: React.FC<{
   prompt: string;
   loading: boolean;
   product?: ProjectListItem;
-}> = ({ title, data, prompt, loading, product }) => {
+  timingData?: { creationTimes: any; completionTimes: any } | null;
+}> = ({ title, data, prompt, loading, product, timingData }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
@@ -639,10 +739,10 @@ const VideoLessonBlock: React.FC<{
           </div>
           <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        {product && (
+        {product && timingData && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            <span>Creation time: 200h</span>
-            <span>Completion time: 8m</span>
+            <span>Creation time: {timingData.creationTimes.videoLesson}</span>
+            <span>Completion time: {timingData.completionTimes.videoLesson}</span>
           </div>
         )}
       </div>
@@ -655,7 +755,7 @@ const VideoLessonBlock: React.FC<{
           </div>
         ) : data ? (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0" style={{ fontSize: '120%' }}>
+          <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-4xl [&_h2]:!text-3xl [&_h3]:!text-2xl [&_p]:!text-xl [&_li]:!text-xl [&_span]:!text-xl">
             <TextPresentationDisplay 
               dataToDisplay={data}
               isEditing={false}
@@ -688,7 +788,8 @@ const PresentationBlock: React.FC<{
   prompt: string;
   loading: boolean;
   product?: ProjectListItem;
-}> = ({ title, data, prompt, loading, product }) => {
+  timingData?: { creationTimes: any; completionTimes: any } | null;
+}> = ({ title, data, prompt, loading, product, timingData }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
@@ -699,10 +800,10 @@ const PresentationBlock: React.FC<{
           </div>
           <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        {product && (
+        {product && timingData && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            <span>Creation time: 200h</span>
-            <span>Completion time: 8m</span>
+            <span>Creation time: {timingData.creationTimes.presentation}</span>
+            <span>Completion time: {timingData.completionTimes.presentation}</span>
           </div>
         )}
       </div>
@@ -741,7 +842,8 @@ const QuizBlock: React.FC<{
   prompt: string;
   loading: boolean;
   product?: ProjectListItem;
-}> = ({ title, data, prompt, loading, product }) => {
+  timingData?: { creationTimes: any; completionTimes: any } | null;
+}> = ({ title, data, prompt, loading, product, timingData }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
@@ -752,10 +854,10 @@ const QuizBlock: React.FC<{
           </div>
           <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        {product && (
+        {product && timingData && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            <span>Creation time: 200h</span>
-            <span>Completion time: 8m</span>
+            <span>Creation time: {timingData.creationTimes.quiz}</span>
+            <span>Completion time: {timingData.completionTimes.quiz}</span>
           </div>
         )}
       </div>
@@ -794,7 +896,8 @@ const OnePagerBlock: React.FC<{
   prompt: string;
   loading: boolean;
   product?: ProjectListItem;
-}> = ({ title, data, prompt, loading, product }) => {
+  timingData?: { creationTimes: any; completionTimes: any } | null;
+}> = ({ title, data, prompt, loading, product, timingData }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 md:p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
@@ -804,10 +907,10 @@ const OnePagerBlock: React.FC<{
           </div>
           <h2 className="text-xl md:text-2xl font-semibold text-gray-900">{title}</h2>
         </div>
-        {product && (
+        {product && timingData && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            <span>Creation time: 200h</span>
-            <span>Completion time: 8m</span>
+            <span>Creation time: {timingData.creationTimes.onePager}</span>
+            <span>Completion time: {timingData.completionTimes.onePager}</span>
           </div>
         )}
       </div>
@@ -1027,7 +1130,7 @@ const FallbackOnePagerContent: React.FC = () => {
 
         return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
-      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0" style={{ fontSize: '120%' }}>
+      <div className="[&_.min-h-screen]:!min-h-0 [&_.min-h-screen]:!p-0 [&_.shadow-lg]:!shadow-none [&_.mx-auto]:!mx-0 [&_.my-6]:!my-0 [&_.max-w-3xl]:!max-w-none [&>div:first-child]:!p-0 [&>div:first-child>div:first-child]:!p-0 [&_h1]:!text-4xl [&_h2]:!text-3xl [&_h3]:!text-2xl [&_p]:!text-xl [&_li]:!text-xl [&_span]:!text-xl">
         <TextPresentationDisplay 
           dataToDisplay={fallbackOnePagerData as any}
           isEditing={false}
