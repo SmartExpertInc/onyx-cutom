@@ -71,6 +71,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -922,7 +930,7 @@ const FolderRow: React.FC<{
   return (
     <>
       {/* Folder row */}
-      <tr
+      <TableRow
         key={`folder-${folder.id}`}
         data-folder-id={folder.id}
         className={`hover:bg-gray-50 transition group ${
@@ -972,7 +980,7 @@ const FolderRow: React.FC<{
         onClick={() => toggleFolder(folder.id)}
       >
         {columnVisibility.title && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             <span
               className="inline-flex items-center"
               style={{ paddingLeft: `${level * 20}px` }}
@@ -1019,46 +1027,46 @@ const FolderRow: React.FC<{
                   : t("interface.items", "items")}
               </span>
             </span>
-          </td>
+          </TableCell>
         )}
         {columnVisibility.type && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             -
-          </td>
+          </TableCell>
         )}
         {columnVisibility.created && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {formatDate(folder.created_at)}
-          </td>
+          </TableCell>
         )}
         {columnVisibility.creator && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <span className="inline-flex items-center">
               <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                 <span className="text-xs font-bold text-gray-700">Y</span>
               </span>
               You
             </span>
-          </td>
+          </TableCell>
         )}
         {columnVisibility.numberOfLessons && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalLessons = getTotalLessonsInFolder(folder);
               return totalLessons > 0 ? totalLessons : "-";
             })()}
-          </td>
+          </TableCell>
         )}
         {columnVisibility.estCreationTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalHours = getTotalHoursInFolder(folder);
               return totalHours > 0 ? `${totalHours}h` : "-";
             })()}
-          </td>
+          </TableCell>
         )}
         {columnVisibility.estCompletionTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalCompletionTime =
                 getTotalCompletionTimeInFolder(folder);
@@ -1066,9 +1074,9 @@ const FolderRow: React.FC<{
                 ? formatCompletionTimeLocalized(totalCompletionTime)
                 : "-";
             })()}
-          </td>
+          </TableCell>
         )}
-        <td
+        <TableCell
           className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
           onClick={(e) => e.stopPropagation()}
         >
@@ -1078,14 +1086,14 @@ const FolderRow: React.FC<{
             trashMode={trashMode}
             onDeleteFolder={handleDeleteFolder}
           />
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
 
       {/* Expanded folder content - projects */}
       {isExpanded &&
         folderProjectsList.length > 0 &&
         folderProjectsList.map((p: Project, projectIndex: number) => (
-          <tr
+          <TableRow
             key={`folder-project-${p.id}`}
             className={`hover:bg-gray-50 transition group bg-gray-50 ${
               !getModalState()
@@ -1135,7 +1143,7 @@ const FolderRow: React.FC<{
             }}
           >
             {columnVisibility.title && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <span
                   className="inline-flex items-center"
                   style={{ paddingLeft: `${(level + 1) * 20}px` }}
@@ -1171,10 +1179,10 @@ const FolderRow: React.FC<{
                     title={p.title}
                   />
                 </span>
-              </td>
+              </TableCell>
             )}
             {columnVisibility.type && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
                   <span className="text-gray-500 font-medium">
                     {getProductTypeDisplayName(p.designMicroproductType)}
@@ -1182,52 +1190,52 @@ const FolderRow: React.FC<{
                 ) : (
                   "-"
                 )}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.created && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatDate(p.createdAt)}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.creator && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <span className="inline-flex items-center">
                   <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                     <span className="text-xs font-bold text-gray-700">Y</span>
                   </span>
                   You
                 </span>
-              </td>
+              </TableCell>
             )}
             {columnVisibility.numberOfLessons && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {(() => {
                   const lessonData = lessonDataCache[p.id];
                   return lessonData ? lessonData.lessonCount : "-";
                 })()}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.estCreationTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {(() => {
                   const lessonData = lessonDataCache[p.id];
                   return lessonData && lessonData.totalHours
                     ? `${lessonData.totalHours}h`
                     : "-";
                 })()}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.estCompletionTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {(() => {
                   const lessonData = lessonDataCache[p.id];
                   return lessonData
                     ? formatCompletionTimeLocalized(lessonData.completionTime)
                     : "-";
                 })()}
-              </td>
+              </TableCell>
             )}
-            <td
+            <TableCell
               className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
               onClick={(e) => e.stopPropagation()}
             >
@@ -1240,21 +1248,21 @@ const FolderRow: React.FC<{
                 onDeletePermanently={handleDeletePermanently}
                 folderId={folder.id}
               />
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         ))}
 
       {/* Loading state for folder projects */}
       {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
-        <tr>
-          <td
+        <TableRow>
+          <TableCell
             colSpan={Object.values(columnVisibility).filter(Boolean).length + 1}
             className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
             style={{ paddingLeft: `${(level + 1) * 20}px` }}
           >
             Loading projects...
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
 
       {/* Recursively render child folders */}
@@ -4489,15 +4497,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 user-select: none;
               }
             `}</style>
-            <table
+            <Table
               className={`min-w-full divide-y divide-gray-200 ${
                 resizingColumn ? "resizing" : ""
               }`}
             >
-              <thead className="bg-gray-50">
-                <tr>
+              <TableHeader className="bg-gray-50">
+                <TableRow>
                   {columnVisibility.title && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.title}%` }}
                     >
@@ -4506,10 +4514,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "title")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.created && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.created}%` }}
                     >
@@ -4518,10 +4526,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "created")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.type && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
@@ -4530,10 +4538,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "type")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.creator && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.creator}%` }}
                     >
@@ -4542,10 +4550,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "creator")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.numberOfLessons && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
                     >
@@ -4556,10 +4564,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           handleResizeStart(e, "numberOfLessons")
                         }
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.estCreationTime && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.estCreationTime}%` }}
                     >
@@ -4570,10 +4578,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           handleResizeStart(e, "estCreationTime")
                         }
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.estCompletionTime && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
                     >
@@ -4584,17 +4592,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           handleResizeStart(e, "estCompletionTime")
                         }
                       />
-                    </th>
+                    </TableHead>
                   )}
-                  <th
+                  <TableHead
                     className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     style={{ width: "80px" }}
                   >
                     {t("interface.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="bg-white divide-y divide-gray-100">
                 {/* Show nested folders as expandable rows when not viewing a specific folder */}
                 {!trashMode &&
                   folderId === null &&
@@ -4635,7 +4643,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 {!trashMode &&
                   folderId === null &&
                   visibleUnassignedProjects.map((p: Project, index: number) => (
-                    <tr
+                    <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
                         !getModalState()
@@ -4685,7 +4693,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             <div
                               className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
@@ -4717,10 +4725,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               title={p.title}
                             />
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -4728,15 +4736,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           ) : (
                             "-"
                           )}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
@@ -4745,28 +4753,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData && lessonData.totalHours
                               ? `${lessonData.totalHours}h`
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData
@@ -4775,9 +4783,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
-                      <td
+                      <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -4790,14 +4798,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           onDeletePermanently={handleDeletePermanently}
                           folderId={folderId}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
 
                 {/* Show projects for specific folder or all projects in trash mode */}
                 {(trashMode || folderId !== null) &&
                   visibleProjects.map((p: Project, index: number) => (
-                    <tr
+                    <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
                         !getModalState()
@@ -4847,7 +4855,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             <div
                               className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
@@ -4879,10 +4887,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               title={p.title}
                             />
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -4890,15 +4898,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           ) : (
                             "-"
                           )}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
@@ -4907,28 +4915,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData && lessonData.totalHours
                               ? `${lessonData.totalHours}h`
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData
@@ -4937,9 +4945,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
-                      <td
+                      <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -4952,11 +4960,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           onDeletePermanently={handleDeletePermanently}
                           folderId={folderId}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )
       ) : (
