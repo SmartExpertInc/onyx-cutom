@@ -1693,11 +1693,12 @@ const ProjectCard: React.FC<{
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
-            className="w-60" 
+            className="w-60 bg-white border border-gray-100 shadow-2xl" 
             align="end"
             side={menuPosition === "above" ? "top" : "bottom"}
+            onClick={(e) => e.stopPropagation()}
           >
-            <DropdownMenuLabel>
+            <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
               <p className="font-semibold text-sm text-gray-900 truncate">
                 {project.title}
               </p>
@@ -1722,7 +1723,7 @@ const ProjectCard: React.FC<{
                     setMenuOpen(false);
                     setPermanentDeleteConfirmOpen(true);
                   }}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  variant="destructive"
                 >
                   <Trash2 size={14} />
                   <span>
@@ -1798,7 +1799,7 @@ const ProjectCard: React.FC<{
                     setMenuOpen(false);
                     handleTrashRequest(e);
                   }}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  variant="destructive"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.sendToTrash", "Send to trash")}</span>
