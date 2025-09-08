@@ -28,6 +28,11 @@ export default function VideoProductDisplay({
 }: VideoProductDisplayProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
+  // Debug logging to understand the data structure
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Received data:', dataToDisplay);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data type:', typeof dataToDisplay);
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data keys:', dataToDisplay ? Object.keys(dataToDisplay) : 'null');
+
   if (!dataToDisplay) {
     return (
       <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -38,6 +43,11 @@ export default function VideoProductDisplay({
 
   const handleDownload = async () => {
     try {
+      // Check if videoUrl exists
+      if (!dataToDisplay.videoUrl) {
+        throw new Error('Video URL is not available');
+      }
+      
       // Construct full URL for video download
       const fullVideoUrl = dataToDisplay.videoUrl.startsWith('http') 
         ? dataToDisplay.videoUrl 
@@ -99,25 +109,31 @@ export default function VideoProductDisplay({
         {/* Video Content */}
         <div className="p-6">
           <div className="aspect-video bg-black rounded-lg overflow-hidden">
-            <video
-              className="w-full h-full object-contain"
-              controls
-              preload="metadata"
-              poster={dataToDisplay.thumbnailUrl ? 
-                (dataToDisplay.thumbnailUrl.startsWith('http') 
-                  ? dataToDisplay.thumbnailUrl 
-                  : `${CUSTOM_BACKEND_URL}${dataToDisplay.thumbnailUrl}`) 
-                : undefined}
-              onPlay={() => setIsVideoPlaying(true)}
-              onPause={() => setIsVideoPlaying(false)}
-            >
-              <source src={
-                dataToDisplay.videoUrl.startsWith('http') 
-                  ? dataToDisplay.videoUrl 
-                  : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
-              } type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            {dataToDisplay.videoUrl ? (
+              <video
+                className="w-full h-full object-contain"
+                controls
+                preload="metadata"
+                poster={dataToDisplay.thumbnailUrl ? 
+                  (dataToDisplay.thumbnailUrl.startsWith('http') 
+                    ? dataToDisplay.thumbnailUrl 
+                    : `${CUSTOM_BACKEND_URL}${dataToDisplay.thumbnailUrl}`) 
+                  : undefined}
+                onPlay={() => setIsVideoPlaying(true)}
+                onPause={() => setIsVideoPlaying(false)}
+              >
+                <source src={
+                  dataToDisplay.videoUrl.startsWith('http') 
+                    ? dataToDisplay.videoUrl 
+                    : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                } type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-white">Video URL not available</span>
+              </div>
+            )}
           </div>
         </div>
 
