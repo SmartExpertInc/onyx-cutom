@@ -168,8 +168,8 @@ DEFAULT_ROLES = {
         ],
         "is_default": True
     },
-    "moderator": {
-        "name": "Moderator",
+    "learning_architect": {
+        "name": "Learning Architect",
         "color": "#ECFDF5",
         "text_color": "#047857",
         "permissions": [
@@ -184,8 +184,8 @@ DEFAULT_ROLES = {
         ],
         "is_default": True
     },
-    "member": {
-        "name": "Member",
+    "learning_designer": {
+        "name": "Learning Designer",
         "color": "#EFF6FF",
         "text_color": "#1E40AF",
         "permissions": [

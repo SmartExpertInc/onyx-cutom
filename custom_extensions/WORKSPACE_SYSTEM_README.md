@@ -120,7 +120,7 @@ CREATE TABLE product_access (
   - Control product access
   - Cannot be removed or modified
 
-### Moderator Role
+### Learning Architect Role
 - **Permissions**: Content and member management
 - **Color**: Green (#ECFDF5)
 - **Capabilities**:
@@ -129,7 +129,7 @@ CREATE TABLE product_access (
   - Grant/revoke product access
   - Cannot manage roles or delete workspace
 
-### Member Role
+### Learning Designer Role
 - **Permissions**: Basic collaboration
 - **Color**: Blue (#EFF6FF)
 - **Capabilities**:

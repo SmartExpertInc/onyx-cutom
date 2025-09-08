@@ -462,7 +462,7 @@ class WorkspaceService:
             # if workspace and workspace.created_by == user_id:
             #     return True
             # 
-            # # Check if user has admin or moderator role
+            # # Check if user has admin or learning_architect role
             # role = await WorkspaceService.get_member_role(workspace_id, user_id)
             # if role and 'manage_members' in role['permissions']:
             #     return True
