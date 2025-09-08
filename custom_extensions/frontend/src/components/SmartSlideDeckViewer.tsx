@@ -85,9 +85,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   const currentThemeData = getSlideTheme(currentTheme || DEFAULT_SLIDE_THEME);
 
   // Check if any slide has voiceover text
-  const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => 
-    slide.voiceoverText || slide.props?.voiceoverText
-  );
+  const hasAnyVoiceover = hasVoiceover && componentDeck?.slides?.some((slide: ComponentBasedSlide) => {
+    const vt = slide.voiceoverText ?? (slide.props as Record<string, unknown>)?.voiceoverText;
+    return typeof vt === 'string' && vt.length > 0;
+  });
 
   // Get available templates
   const availableTemplates = getAllTemplates();
@@ -129,9 +130,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
         }
 
         // Validate that slides have templateId and props (component-based format)
-        const hasValidFormat = deck.slides.every((slide: any) => 
-          slide.hasOwnProperty('templateId') && slide.hasOwnProperty('props')
-        );
+        const hasValidFormat = deck.slides.every((slide: unknown) => {
+          const s = slide as ComponentBasedSlide;
+          return typeof s.templateId === 'string' && typeof s.props === 'object' && s.props !== null;
+        });
 
         if (!hasValidFormat) {
           setError('Slides must be in component-based format with templateId and props.');
@@ -140,11 +142,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
         // 🔍 DETAILED LOGGING: Let's see what props are actually coming from backend
         console.log('🔍 RAW SLIDES DATA FROM BACKEND:');
-        deck.slides.forEach((slide: any, index: number) => {
+        deck.slides.forEach((slide: unknown, index: number) => {
+          const s = slide as ComponentBasedSlide;
           console.log(`📄 Slide ${index + 1} (${slide.templateId}):`, {
-            slideId: slide.slideId,
-            templateId: slide.templateId,
-            props: slide.props
+            slideId: s.slideId,
+            templateId: s.templateId,
+            props: s.props
           });
         });
 
@@ -160,7 +163,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
           themeColors: currentThemeData.colors,
-          templates: deck.slides.map((s: any) => s.templateId)
+          templates: deck.slides.map((s: ComponentBasedSlide) => s.templateId)
           });
         
       } catch (err) {

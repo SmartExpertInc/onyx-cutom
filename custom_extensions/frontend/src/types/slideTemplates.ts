@@ -19,7 +19,9 @@ export interface TemplateComponentInfo {
   category: 'title' | 'content' | 'media' | 'layout' | 'special';
   icon: string;
   previewImage?: string;
-  component: React.ComponentType<BaseTemplateProps & Record<string, unknown>>;
+  // Using broad props type here to accommodate many specialized templates
+  // The registry ensures we pass the correct props at runtime
+  component: React.ComponentType<any>;
   defaultProps: Record<string, unknown>;
   propSchema: Record<string, PropDefinition>;
 }
