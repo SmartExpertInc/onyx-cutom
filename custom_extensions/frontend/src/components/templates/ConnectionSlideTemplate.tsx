@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import YourLogo from '../YourLogo';
 
 export interface ConnectionSlideProps extends BaseTemplateProps {
   title?: string;
@@ -161,31 +162,13 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     <div className="connection-slide inter-theme" style={slide}>
       {/* Top bar with logo */}
       <div style={topBar}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '50%', overflow: 'hidden', border: '1px solid #3b3b3b' }}>
-            <ClickableImagePlaceholder
-              imagePath={logoPath}
-              onImageUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
-              size="SMALL"
-              position="CENTER"
-              description="Logo"
-              isEditable={isEditable}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          </div>
-          <div style={{ minHeight: '22px' }}>
-            {isEditable && editingLogoText ? (
-              <ImprovedInlineEditor
-                initialValue={logoText}
-                onSave={(v) => { onUpdate && onUpdate({ logoText: v }); setEditingLogoText(false); }}
-                onCancel={() => setEditingLogoText(false)}
-                style={{ color: '#c9cbd1', fontSize: '16px' }}
-              />
-            ) : (
-              <div style={{ color: '#c9cbd1', fontSize: '16px', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingLogoText(true)}>{logoText}</div>
-            )}
-          </div>
-        </div>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#c9cbd1"
+          text={logoText}
+        />
       </div>
 
       <div style={left}>

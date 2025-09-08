@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { InterestGrowthSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { theme?: SlideTheme | string }>= ({
@@ -165,6 +166,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
       </div>
 
       <div style={rightPanel}>
+        {/* Optional unified logo in the top-left of the right panel if needed in future */}
         <div style={{ ...cornerLine, left: '24px', top: '24px', borderRight: 'none', borderBottom: 'none' }} />
         <div style={{ ...cornerLine, right: '24px', top: '24px', borderLeft: 'none', borderBottom: 'none' }} />
         <div style={{ ...cornerLine, left: '24px', bottom: '24px', borderRight: 'none', borderTop: 'none' }} />
