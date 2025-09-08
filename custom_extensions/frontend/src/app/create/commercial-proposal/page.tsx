@@ -2255,7 +2255,7 @@ export default function CommercialProposalPage() {
                 boxShadow: '0px 24px 24px -8px #2A334608, 0px 10px 10px -5px #2A334608'
               }}
             >
-              <div className="flex flex-col gap-[20xp] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0">
+              <div className="flex flex-col gap-[20px] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0">
                 <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
                   <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
 
@@ -2338,10 +2338,10 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <div className="relative xl:w-[490px] flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px]">
+              <div className="relative xl:w-[490px] flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px] overflow-hidden">
                 {/* Background images with absolute positioning */}
                 <img 
-                  src="/images/commercial-bg-2-mobile.png"
+                  src="/custom-projects-ui/images/commercial-bg-2-mobile.png"
                   alt=""
                   className="absolute xl:hidden"
                   style={{
@@ -2353,7 +2353,7 @@ export default function CommercialProposalPage() {
                   }}
                 />
                 <img 
-                  src="/images/commercial-bg-2-desktop.png"
+                  src="/custom-projects-ui/images/commercial-bg-2-desktop.png"
                   alt=""
                   className="absolute hidden xl:block"
                   style={{
@@ -2384,7 +2384,7 @@ export default function CommercialProposalPage() {
                   </div>
                   
                   <div 
-                    className="w-100% xl:mt-[9px] relative w-full mx-auto block pl-[2px] pt-[2px] z-10"
+                    className="xl:mt-[9px] relative w-full mx-auto block pl-[2px] pt-[2px] z-10"
                     style={{
                       boxShadow: '0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A, 0px 24px 24px -8px #2A334608, 0px 5px 5px -2.5px #2A334608'
                     }}
