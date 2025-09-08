@@ -614,11 +614,11 @@ const VideoLessonBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {product.creation_time && (
-              <span>Creation time: {product.creation_time}</span>
+            {(product as any).est_creation_time && (
+              <span>Creation time: {(product as any).est_creation_time}</span>
             )}
-            {product.completion_time && (
-              <span>Completion time: {product.completion_time}</span>
+            {(product as any).est_completion_time && (
+              <span>Completion time: {(product as any).est_completion_time}</span>
             )}
           </div>
         )}
@@ -678,11 +678,11 @@ const PresentationBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {product.creation_time && (
-              <span>Creation time: {product.creation_time}</span>
+            {(product as any).est_creation_time && (
+              <span>Creation time: {(product as any).est_creation_time}</span>
             )}
-            {product.completion_time && (
-              <span>Completion time: {product.completion_time}</span>
+            {(product as any).est_completion_time && (
+              <span>Completion time: {(product as any).est_completion_time}</span>
             )}
           </div>
         )}
@@ -735,11 +735,11 @@ const QuizBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {product.creation_time && (
-              <span>Creation time: {product.creation_time}</span>
+            {(product as any).est_creation_time && (
+              <span>Creation time: {(product as any).est_creation_time}</span>
             )}
-            {product.completion_time && (
-              <span>Completion time: {product.completion_time}</span>
+            {(product as any).est_completion_time && (
+              <span>Completion time: {(product as any).est_completion_time}</span>
             )}
           </div>
         )}
@@ -791,11 +791,11 @@ const OnePagerBlock: React.FC<{
         </div>
         {product && (
           <div className="flex gap-6 text-blue-600 font-semibold">
-            {product.creation_time && (
-              <span>Creation time: {product.creation_time}</span>
+            {(product as any).est_creation_time && (
+              <span>Creation time: {(product as any).est_creation_time}</span>
             )}
-            {product.completion_time && (
-              <span>Completion time: {product.completion_time}</span>
+            {(product as any).est_completion_time && (
+              <span>Completion time: {(product as any).est_completion_time}</span>
             )}
           </div>
         )}
