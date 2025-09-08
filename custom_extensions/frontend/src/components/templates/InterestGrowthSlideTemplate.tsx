@@ -43,7 +43,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
   const titleStyle: React.CSSProperties = {
     gridColumn: '1 / 2',
-    fontSize: '72px',
+    fontSize: '96px',
     color: '#222',
     fontWeight: 800,
     letterSpacing: '-0.5px',
