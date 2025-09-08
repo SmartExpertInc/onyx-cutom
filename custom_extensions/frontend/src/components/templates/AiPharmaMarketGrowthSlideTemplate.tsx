@@ -27,6 +27,8 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [currentBars, setCurrentBars] = useState(bars);
+  const [editingBar, setEditingBar] = useState<{ index: number; field: 'label' | 'year' | 'widthPercent' } | null>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -99,15 +101,77 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
       {/* Bars */}
       <div style={barsArea}>
-        {bars.map((b, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-            <div style={{ width: '50px', color: '#6c7a8a' }}>{b.year}</div>
+        {currentBars.map((b, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '18px', position: 'relative' }}>
+            {/* Year editable */}
+            {isEditable && editingBar?.index === i && editingBar?.field === 'year' ? (
+              <ImprovedInlineEditor
+                initialValue={b.year}
+                onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                onCancel={() => setEditingBar(null)}
+                style={{ width: '50px', color: '#6c7a8a' }}
+              />
+            ) : (
+              <div style={{ width: '50px', color: '#6c7a8a' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
+            )}
+
             <div style={{ flexGrow: 1, backgroundColor: '#2c3e55', height: '78px', borderRadius: '6px', position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#cde1ff', fontSize: '22px' }}>{b.label}</div>
-              <div style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2c3e55', borderRadius: '6px' }} />
+              {/* Label editable */}
+              {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
+                <ImprovedInlineEditor
+                  initialValue={b.label}
+                  onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                  onCancel={() => setEditingBar(null)}
+                  style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#cde1ff', fontSize: '22px' }}
+                />
+              ) : (
+                <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#cde1ff', fontSize: '22px' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}>{b.label}</div>
+              )}
+
+              {/* Width resizable via drag */}
+              <div
+                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2c3e55', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default' }}
+                onMouseDown={(e) => {
+                  if (!isEditable) return;
+                  const container = (e.currentTarget.parentElement as HTMLElement);
+                  const containerRect = container.getBoundingClientRect();
+                  const onMove = (me: MouseEvent) => {
+                    const rel = Math.min(Math.max((me.clientX - containerRect.left) / containerRect.width, 0), 1);
+                    const nb = [...currentBars];
+                    nb[i] = { ...nb[i], widthPercent: Math.round(rel * 100) };
+                    setCurrentBars(nb);
+                    onUpdate && onUpdate({ bars: nb });
+                  };
+                  const onUp = () => {
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                  };
+                  window.addEventListener('mousemove', onMove);
+                  window.addEventListener('mouseup', onUp);
+                }}
+              />
             </div>
+
+            {isEditable && (
+              <button
+                onClick={() => { const nb=currentBars.filter((_,idx)=>idx!==i); setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
+                style={{ position: 'absolute', right: '-8px', top: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                aria-label="Delete bar"
+              >
+                ×
+              </button>
+            )}
           </div>
         ))}
+
+        {isEditable && (
+          <button
+            onClick={() => { const nb=[...currentBars, { year: '2035', label: 'New item', widthPercent: 50 }]; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
+            style={{ alignSelf: 'flex-start', marginLeft: '50px', background: '#2c3e55', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
+          >
+            Add bar
+          </button>
+        )}
       </div>
 
       {/* Right doctor image */}
