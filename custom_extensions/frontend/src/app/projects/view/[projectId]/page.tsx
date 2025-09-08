@@ -406,11 +406,9 @@ export default function ProjectInstanceViewPage() {
 
   // Predefined roles (kept for UI compatibility, but now integrated with workspace roles)
   const predefinedRoles = [
-    { id: 'admin', label: 'Admin', description: 'Full access to all features' },
-    { id: 'viewer', label: 'Viewer', description: 'Can view content only' },
-    { id: 'editor', label: 'Editor', description: 'Can view and edit content' },
-    { id: 'member', label: 'Member', description: 'Basic access to content' },
-    { id: 'manager', label: 'Manager', description: 'Can manage projects and assign tasks' }
+    { id: 'admin', label: 'Admin', description: 'Full access to all features and content management' },
+    { id: 'learning_architect', label: 'Learning Architect', description: 'Can design and structure learning experiences' },
+    { id: 'learning_designer', label: 'Learning Designer', description: 'Can create and edit learning content' }
   ];
 
   // Helper functions for role and email management (now integrated with backend)
@@ -1785,7 +1783,6 @@ export default function ProjectInstanceViewPage() {
             )}
 
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-              projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK || 
               projectInstanceData.component_name === COMPONENT_NAME_VIDEO_LESSON_PRESENTATION ? (
                 <VideoDownloadButton
                   projectName={projectInstanceData.name}

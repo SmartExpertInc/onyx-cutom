@@ -649,9 +649,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                   {t('interface.memberName', 'Name')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t('interface.memberEmail', 'Email')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('interface.memberRole', 'Role')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -668,7 +665,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredMembers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-lg font-medium">{t('interface.noMembers', 'No workspace members found')}</p>
                     <p className="text-sm">{searchTerm || statusFilter ? 'Try adjusting your search or filter criteria.' : 'Get started by adding your first team member.'}</p>
@@ -686,9 +683,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                           <div className="text-sm font-medium text-gray-900">{member.user_name || member.user_id}</div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {member.user_email || 'No email'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span

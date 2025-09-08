@@ -1184,7 +1184,11 @@ const FolderRow: React.FC<{
                   <DynamicText
                     text={p.title}
                     columnWidthPercent={columnWidths.title}
-                    href={trashMode ? "#" : `/projects/view/${p.id}`}
+                    href={trashMode ? "#" : (
+                      p.designMicroproductType === "Video Lesson Presentation" 
+                        ? `/projects-2/view/${p.id}`
+                        : `/projects/view/${p.id}`
+                    )}
                     title={p.title}
                   />
                 </span>
@@ -1582,7 +1586,11 @@ const ProjectCard: React.FC<{
       }}
     >
       <Link
-        href={isTrashMode ? "#" : `/projects/view/${project.id}`}
+        href={isTrashMode ? "#" : (
+          project.designMicroproductType === "Video Lesson Presentation" 
+            ? `/projects-2/view/${project.id}`
+            : `/projects/view/${project.id}`
+        )}
         onClick={handleCardClick}
         className="block"
       >
@@ -4756,7 +4764,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             <DynamicText
                               text={p.title}
                               columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : `/projects/view/${p.id}`}
+                              href={trashMode ? "#" : (
+                                p.designMicroproductType === "Video Lesson Presentation" 
+                                  ? `/projects-2/view/${p.id}`
+                                  : `/projects/view/${p.id}`
+                              )}
                               title={p.title}
                             />
                           </span>
@@ -4918,7 +4930,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             <DynamicText
                               text={p.title}
                               columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : `/projects/view/${p.id}`}
+                              href={trashMode ? "#" : (
+                                p.designMicroproductType === "Video Lesson Presentation" 
+                                  ? `/projects-2/view/${p.id}`
+                                  : `/projects/view/${p.id}`
+                              )}
                               title={p.title}
                             />
                           </span>
