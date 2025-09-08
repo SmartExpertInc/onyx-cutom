@@ -25,6 +25,8 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [cardList, setCardList] = useState(cards);
+  const [editingCard, setEditingCard] = useState<{ index: number; field: 'label' | 'percentage' } | null>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -41,32 +43,43 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
   const titleStyle: React.CSSProperties = {
     gridColumn: '1 / 2',
-    fontSize: '64px',
-    color: '#333',
-    fontWeight: 700
+    fontSize: '72px',
+    color: '#222',
+    fontWeight: 800,
+    letterSpacing: '-0.5px',
+    marginTop: '8px'
   };
 
   const cardsGrid: React.CSSProperties = {
     gridColumn: '1 / 2',
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '20px',
-    alignContent: 'start'
+    gap: '24px',
+    alignContent: 'start',
+    marginTop: '12px'
   };
 
   const cardStyle: React.CSSProperties = {
-    border: '2px solid #d8d8d8',
-    minHeight: '220px',
-    padding: '24px',
+    border: '2px solid #d9d9d9',
+    minHeight: '260px',
+    padding: '28px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    backgroundColor: '#fff'
   };
 
   const rightPanel: React.CSSProperties = {
     gridColumn: '2 / 3',
     backgroundColor: rightPanelColor,
     position: 'relative'
+  };
+
+  const cornerLine: React.CSSProperties = {
+    position: 'absolute',
+    width: '96px',
+    height: '96px',
+    border: '2px solid rgba(255,255,255,0.8)'
   };
 
   return (
@@ -86,15 +99,46 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
       </div>
 
       <div style={cardsGrid}>
-        {cards.slice(0, 4).map((c, i) => (
+        {cardList.slice(0, 4).map((c, i) => (
           <div key={i} style={cardStyle}>
-            <div style={{ color: '#6b6b6b', fontSize: '16px' }}>{c.label}</div>
-            <div style={{ fontSize: '72px', fontWeight: 700 }}>{c.percentage}</div>
+            {isEditable && editingCard?.index === i && editingCard?.field === 'label' ? (
+              <ImprovedInlineEditor
+                initialValue={c.label}
+                onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], label: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
+                onCancel={() => setEditingCard(null)}
+                style={{ color: '#6b6b6b', fontSize: '16px' }}
+              />
+            ) : (
+              <div style={{ color: '#6b6b6b', fontSize: '16px' }} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
+            )}
+            {isEditable && editingCard?.index === i && editingCard?.field === 'percentage' ? (
+              <ImprovedInlineEditor
+                initialValue={c.percentage}
+                onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
+                onCancel={() => setEditingCard(null)}
+                style={{ fontSize: '88px', fontWeight: 800 }}
+              />
+            ) : (
+              <div style={{ fontSize: '88px', fontWeight: 800 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
+            )}
+            {isEditable && (
+              <button onClick={() => { if (cardList.length>1){ const next=cardList.filter((_,idx)=>idx!==i); setCardList(next); onUpdate && onUpdate({ cards: next }); } }}
+                style={{ alignSelf: 'flex-end', background: '#fff', border: '1px solid #ddd', color: '#333', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer' }}>
+                Delete
+              </button>
+            )}
           </div>
         ))}
+        {isEditable && (
+          <button onClick={() => { const next=[...cardList, { label: 'Interest growth', percentage: '50%' }]; setCardList(next); onUpdate && onUpdate({ cards: next }); }} style={{ background: '#222', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer' }}>Add card</button>
+        )}
       </div>
 
       <div style={rightPanel}>
+        <div style={{ ...cornerLine, left: '24px', top: '24px', borderRight: 'none', borderBottom: 'none' }} />
+        <div style={{ ...cornerLine, right: '24px', top: '24px', borderLeft: 'none', borderBottom: 'none' }} />
+        <div style={{ ...cornerLine, left: '24px', bottom: '24px', borderRight: 'none', borderTop: 'none' }} />
+        <div style={{ ...cornerLine, right: '24px', bottom: '24px', borderLeft: 'none', borderTop: 'none' }} />
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ rightImagePath: p })}

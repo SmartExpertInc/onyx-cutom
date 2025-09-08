@@ -29,6 +29,9 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const [editingTitle, setEditingTitle] = useState(false);
   const [currentItems, setCurrentItems] = useState(items);
   const [editingItem, setEditingItem] = useState<{ index: number; field: 'value' | 'description' } | null>(null);
+  const [editingFooterLeft, setEditingFooterLeft] = useState(false);
+  const [editingFooterCenter, setEditingFooterCenter] = useState(false);
+  const [editingFooterRight, setEditingFooterRight] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -44,8 +47,8 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     left: '40px',
     right: '40px',
     top: '40px',
-    height: '4px',
-    backgroundColor: '#e5e3de',
+    height: '3px',
+    backgroundColor: '#e8e6e1',
     borderRadius: '2px'
   };
 
@@ -65,8 +68,8 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     top: '140px',
     bottom: '120px',
     display: 'grid',
-    gridTemplateColumns: 'auto 1fr',
-    rowGap: '56px',
+    gridTemplateColumns: '320px 1fr',
+    rowGap: '64px',
     columnGap: '48px',
     alignItems: 'center'
   };
@@ -75,9 +78,9 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     position: 'absolute',
     left: '40px',
     right: '40px',
-    bottom: '72px',
-    height: '4px',
-    backgroundColor: '#e5e3de',
+    bottom: '64px',
+    height: '3px',
+    backgroundColor: '#e8e6e1',
     borderRadius: '2px'
   };
 
@@ -123,10 +126,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                 onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                 onCancel={() => setEditingItem(null)}
                 className="kpi-value-editor"
-                style={{ fontSize: i === 3 ? '100px' : '96px', color: '#33382e', fontWeight: 700, textAlign: 'right' }}
+                style={{ fontSize: i === 3 ? '104px' : '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px' }}
               />
             ) : (
-              <div style={{ fontSize: i === 3 ? '100px' : '96px', color: '#33382e', fontWeight: 700, textAlign: 'right' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
+              <div style={{ fontSize: i === 3 ? '104px' : '104px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-0.5px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
             )}
 
             {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
@@ -136,10 +139,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                 onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                 onCancel={() => setEditingItem(null)}
                 className="kpi-desc-editor"
-                style={{ color: '#8a8f86', lineHeight: 1.6 }}
+                style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px' }}
               />
             ) : (
-              <div style={{ color: '#8a8f86', lineHeight: 1.6 }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
+              <div style={{ color: '#8a8f86', lineHeight: 1.6, fontSize: '16px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
             )}
           </React.Fragment>
         ))}
@@ -165,10 +168,43 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
       </div>
 
       <div style={footerLine} />
-      {/* Footer texts */}
-      <div style={{ position: 'absolute', left: '40px', bottom: '32px', color: '#babbb2', fontSize: '14px' }}>{footerLeft}</div>
-      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '32px', color: '#babbb2', fontSize: '14px' }}>{footerCenter}</div>
-      <div style={{ position: 'absolute', right: '40px', bottom: '32px', color: '#babbb2', fontSize: '14px' }}>{footerRight}</div>
+      {/* Footer texts (editable) */}
+      <div style={{ position: 'absolute', left: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
+        {isEditable && editingFooterLeft ? (
+          <ImprovedInlineEditor
+            initialValue={footerLeft}
+            onSave={(v) => { onUpdate && onUpdate({ footerLeft: v }); setEditingFooterLeft(false); }}
+            onCancel={() => setEditingFooterLeft(false)}
+            style={{ color: '#babbb2', fontSize: '14px' }}
+          />
+        ) : (
+          <span onClick={() => isEditable && setEditingFooterLeft(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerLeft}</span>
+        )}
+      </div>
+      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
+        {isEditable && editingFooterCenter ? (
+          <ImprovedInlineEditor
+            initialValue={footerCenter}
+            onSave={(v) => { onUpdate && onUpdate({ footerCenter: v }); setEditingFooterCenter(false); }}
+            onCancel={() => setEditingFooterCenter(false)}
+            style={{ color: '#babbb2', fontSize: '14px' }}
+          />
+        ) : (
+          <span onClick={() => isEditable && setEditingFooterCenter(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerCenter}</span>
+        )}
+      </div>
+      <div style={{ position: 'absolute', right: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
+        {isEditable && editingFooterRight ? (
+          <ImprovedInlineEditor
+            initialValue={footerRight}
+            onSave={(v) => { onUpdate && onUpdate({ footerRight: v }); setEditingFooterRight(false); }}
+            onCancel={() => setEditingFooterRight(false)}
+            style={{ color: '#babbb2', fontSize: '14px' }}
+          />
+        ) : (
+          <span onClick={() => isEditable && setEditingFooterRight(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerRight}</span>
+        )}
+      </div>
     </div>
   );
 };
