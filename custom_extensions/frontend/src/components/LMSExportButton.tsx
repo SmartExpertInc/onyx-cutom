@@ -88,24 +88,18 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 min-h-[80px]">
-      <button
-        onClick={handleExport}
-        disabled={!hasSelectedProducts || isExporting}
-        className={getButtonClass()}
-      >
-        {isExporting ? (
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-        ) : (
-          <Upload size={18} />
-        )}
-        {getButtonText()}
-      </button>
-      
-      <div className="h-5 flex items-center">
-        {/* Removed selected count text */}
-      </div>
-    </div>
+    <button
+      onClick={handleExport}
+      disabled={!hasSelectedProducts || isExporting}
+      className={getButtonClass()}
+    >
+      {isExporting ? (
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+      ) : (
+        <Upload size={18} />
+      )}
+      {getButtonText()}
+    </button>
   );
 };
 
