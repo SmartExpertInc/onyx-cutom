@@ -269,6 +269,11 @@ export default function ProjectInstanceViewPage() {
 
     try {
       const instanceApiUrl = `${CUSTOM_BACKEND_URL}/projects/view/${currentProjectIdStr}`;
+      console.log('🎬 [CRITICAL DEBUG] Frontend requesting project data:', {
+        currentProjectIdStr,
+        instanceApiUrl,
+        timestamp: new Date().toISOString()
+      });
       const instanceResPromise = fetch(instanceApiUrl, { cache: 'no-store', headers: commonHeaders });
       const listApiUrl = `${CUSTOM_BACKEND_URL}/projects`;
       const listResPromise = fetch(listApiUrl, { cache: 'no-store', headers: commonHeaders });
@@ -290,6 +295,15 @@ export default function ProjectInstanceViewPage() {
         instanceDataStringified: JSON.stringify(instanceData, null, 2),
         details: instanceData.details,
         detailsStringified: JSON.stringify(instanceData.details, null, 2),
+        componentName: instanceData.component_name,
+        hasDetails: !!instanceData.details
+      });
+      
+      // 🔍 CRITICAL DEBUG: Verify project ID match
+      console.log('🎬 [CRITICAL DEBUG] Project ID verification:', {
+        requestedProjectId: currentProjectIdStr,
+        receivedProjectId: instanceData.project_id,
+        projectIdMatch: currentProjectIdStr === instanceData.project_id?.toString(),
         componentName: instanceData.component_name,
         hasDetails: !!instanceData.details
       });
