@@ -1342,7 +1342,7 @@ export default function CourseOutlineClient() {
                   </div>
 
                   {/* Main card */}
-                  <Card className="flex-1 rounded-r-xl">
+                  <Card className="flex-1 rounded-r-xl border-gray-300">
                     <CardContent className="p-5">
                     {/* Module title */}
                     <Input
@@ -1392,7 +1392,7 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleAddModule}
-                variant="outline"
+                variant="download"
                 className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
               >
                 <Plus size={18} />
@@ -1425,7 +1425,7 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <Card className="w-full mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <Card className="w-full mb-4 bg-white" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <CardContent className="p-4 flex flex-col gap-3">
                   <Textarea
                     value={editPrompt}
@@ -1482,7 +1482,7 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-            <Card className="px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+            <Card className="px-6 pt-5 pb-6 bg-white flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
               <CardContent className="p-0">
             <div className="flex items-center justify-between">
                 <div className="flex flex-col">
@@ -1626,7 +1626,6 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleGenerateFinal}
-                variant="download"
                 className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
                 disabled={loading || isGenerating}
               >
@@ -1642,7 +1641,7 @@ export default function CourseOutlineClient() {
             disabled
             variant="outline"
             size="sm"
-            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
+            className="w-9 h-9 bg-white rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
             aria-label={t('interface.courseOutline.helpComingSoon', 'Help (coming soon)')}
           >
             ?
