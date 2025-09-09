@@ -48,17 +48,17 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     whiteSpace: 'pre-line',
     fontSize: '38px',
     fontWeight: 800,
-    color: '#242536',
+    color: '#343244',
     letterSpacing: '-0.4px',
     maxWidth: '520px'
   };
 
   const paragraph: React.CSSProperties = {
     position: 'absolute',
-    right: '96px',
-    top: '72px',
-    width: '480px',
-    color: '#8c93a3',
+    right: '70px',
+    top: '80px',
+    maxWidth: '418px',
+    color: '#6E6D73',
     fontSize: '16px',
     lineHeight: 1.6
   };
@@ -75,10 +75,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
 
   const avatarHolder: React.CSSProperties = {
     position: 'absolute',
-    left: '280px',
-    bottom: '32px',
-    width: '240px',
-    height: '420px',
+    left: '360px',
+    bottom: '-3px',
+    width: '360px',
+    height: '605px',
     zIndex: 2
   };
 
@@ -152,7 +152,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
       </div>
 
       {/* Rounded panel with editable line chart */}
-      <div style={panel}>
+{/*       <div style={panel}>
         <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 }}>
           <path d={pathD} fill="none" stroke={lineColor} strokeWidth={3} />
           {curvePoints.map((p, idx) => (
@@ -161,7 +161,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             </g>
           ))}
         </svg>
-      </div>
+      </div> */}
 
       {/* Avatar overlays the panel */}
       <div style={avatarHolder}>

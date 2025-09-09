@@ -26,11 +26,11 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#ffffff', fontFamily: currentTheme.fonts.titleFont };
 
-  const rightText: React.CSSProperties = { position:'absolute', right:'96px', top:'140px', width:'520px' };
+  const rightText: React.CSSProperties = { position:'absolute', right:'20px', top:'30px', width:'502px' };
   const titleStyle: React.CSSProperties = { fontSize:'52px', fontWeight:800, color:'#151515', letterSpacing:'-0.5px' };
   const descStyle: React.CSSProperties = { marginTop:'12px', color:'#8C8C8C', fontSize:'15px', lineHeight:1.6 };
 
-  const circles: React.CSSProperties = { position:'absolute', left:'-120px', top:'-120px', width:'880px', height:'880px' };
+  const circles: React.CSSProperties = { position:'absolute', left:'20px', bottom:'25px', width:'620px' };
   const actorHolder: React.CSSProperties = { position:'absolute', right:'96px', bottom:'56px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#111' };
 
   return (
@@ -63,7 +63,7 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
 
       {/* Actor avatar */}
       <div style={actorHolder}>
-        <ClickableImagePlaceholder imagePath={actorImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ actorImagePath:p })} size="LARGE" position="CENTER" description="Actor" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={actorImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ actorImagePath:p })} size="LARGE" position="CENTER" description="Actor" isEditable={isEditable} style={{ width:'100%', height:'100%', marginTop: '4px', objectFit:'cover' }} />
       </div>
     </div>
   );
