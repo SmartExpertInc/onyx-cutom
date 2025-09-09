@@ -194,10 +194,10 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       <div style={rightArea}>
         {/* Y labels */}
         <div style={yLabels}>
-          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>70</span></div>
-          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>60</span></div>
-          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>40</span></div>
-          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>20</span></div>
+          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>70</span></div>
+          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>60</span></div>
+          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>40</span></div>
+          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>20</span></div>
           <div><span style={yPillStyle}>0</span></div>
         </div>
 

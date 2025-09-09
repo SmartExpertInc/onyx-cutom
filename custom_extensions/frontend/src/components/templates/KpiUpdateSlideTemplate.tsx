@@ -54,12 +54,6 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
 
   const headerLineCap: React.CSSProperties = {
     position: 'absolute',
-    right: '40px',
-    top: '36px',
-    width: '32px',
-    height: '12px',
-    backgroundColor: '#E0DED9',
-    borderRadius: '999px'
   };
 
   const titleStyle: React.CSSProperties = {
@@ -81,13 +75,13 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     gridTemplateColumns: '380px 1fr',
     gridAutoRows: 'minmax(120px, auto)',
     rowGap: '68px',
-    columnGap: '72px',
+    columnGap: '15px 72px',
     alignItems: 'center'
   };
 
   const valueStyle: React.CSSProperties = {
-    fontSize: '128px',
-    color: '#2F342C',
+    fontSize: '72px',
+    color: '#3B3E36',
     fontWeight: 700,
     textAlign: 'right',
     letterSpacing: '-3px',
@@ -97,10 +91,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   };
 
   const descStyle: React.CSSProperties = {
-    color: '#A9AEA6',
+    color: '#878783',
     lineHeight: 1.65,
     fontSize: '16px',
-    maxWidth: '760px'
+    maxWidth: '530px'
   };
 
   const footerLine: React.CSSProperties = {
@@ -115,12 +109,6 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
 
   const footerLineCap: React.CSSProperties = {
     position: 'absolute',
-    left: '40px',
-    bottom: '58px',
-    width: '32px',
-    height: '12px',
-    backgroundColor: '#E3E1DC',
-    borderRadius: '999px'
   };
 
   return (
