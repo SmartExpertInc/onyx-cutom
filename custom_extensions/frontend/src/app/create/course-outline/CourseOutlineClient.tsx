@@ -1255,7 +1255,7 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 variant="outline"
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black flex items-center gap-1"
               >
                 {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
               </Button>
