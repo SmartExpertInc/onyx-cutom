@@ -294,6 +294,24 @@ export default function ProjectInstanceViewPage() {
         hasDetails: !!instanceData.details
       });
       
+      // 🔍 CRITICAL DEBUG: For video products, log the exact data structure
+      if (instanceData.component_name === COMPONENT_NAME_VIDEO_PRODUCT) {
+        const videoDetails = instanceData.details as any;
+        console.log('🎬 [CRITICAL DEBUG] Video product data analysis:', {
+          componentName: instanceData.component_name,
+          hasDetails: !!instanceData.details,
+          detailsType: typeof instanceData.details,
+          detailsKeys: instanceData.details ? Object.keys(instanceData.details) : 'no details',
+          detailsContent: instanceData.details,
+          hasVideoUrl: videoDetails?.videoUrl ? 'YES' : 'NO',
+          hasVideoJobId: videoDetails?.videoJobId ? 'YES' : 'NO',
+          hasThumbnailUrl: videoDetails?.thumbnailUrl ? 'YES' : 'NO',
+          videoUrlValue: videoDetails?.videoUrl,
+          videoJobIdValue: videoDetails?.videoJobId,
+          thumbnailUrlValue: videoDetails?.thumbnailUrl
+        });
+      }
+      
       setProjectInstanceData(instanceData);
       
       if (typeof window !== 'undefined' && instanceData.sourceChatSessionId) {
@@ -371,29 +389,43 @@ export default function ProjectInstanceViewPage() {
             videoJobIdValue: copiedDetails?.videoJobId
           });
           
-          // 🔧 FIX: Ensure video data is preserved - check both copiedDetails and instanceData root
-          const videoDataToSet = (copiedDetails?.videoUrl || copiedDetails?.videoJobId || copiedDetails?.thumbnailUrl) 
-            ? copiedDetails 
-            : {
-                ...copiedDetails,
-                // Check if video data is in the root of instanceData (backend might be returning it there)
-                videoUrl: (instanceData as any).videoUrl || copiedDetails?.videoUrl,
-                videoJobId: (instanceData as any).videoJobId || copiedDetails?.videoJobId,
-                thumbnailUrl: (instanceData as any).thumbnailUrl || copiedDetails?.thumbnailUrl,
-                generatedAt: (instanceData as any).generatedAt || copiedDetails?.generatedAt,
-                sourceSlides: (instanceData as any).sourceSlides || copiedDetails?.sourceSlides,
-                component_name: instanceData.component_name || copiedDetails?.component_name
-              };
-          
-          console.log('🎬 [VIDEO_PRODUCT_DATA] Final video data being set:', {
-            originalCopiedDetails: copiedDetails,
-            finalVideoData: videoDataToSet,
-            hasVideoUrl: 'videoUrl' in videoDataToSet,
-            hasThumbnailUrl: 'thumbnailUrl' in videoDataToSet,
-            hasVideoJobId: 'videoJobId' in videoDataToSet
-          });
-          
-          setEditableData(videoDataToSet as any); // Video product data is stored as a dictionary
+          // 🔧 FIX: Check if we have video data, if not, check for nested data or use fallback
+          if (copiedDetails?.videoUrl && copiedDetails?.videoJobId) {
+            // We have proper video data
+            setEditableData(copiedDetails as any);
+          } else {
+            // 🔍 DEBUG: Check if video data is nested somewhere else
+            console.log('🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found in copiedDetails, checking for nested data...');
+            console.log('🎬 [VIDEO_PRODUCT_DATA] Full copiedDetails structure:', JSON.stringify(copiedDetails, null, 2));
+            
+            // Check if video data is in a nested property
+            let videoData = null;
+            if (copiedDetails && typeof copiedDetails === 'object') {
+              // Look for video data in any nested object
+              for (const [key, value] of Object.entries(copiedDetails)) {
+                if (value && typeof value === 'object' && ('videoUrl' in value || 'videoJobId' in value)) {
+                  console.log(`🎬 [VIDEO_PRODUCT_DATA] ⚠️ FOUND VIDEO DATA IN NESTED PROPERTY '${key}':`, value);
+                  videoData = value;
+                  break;
+                }
+              }
+            }
+            
+            if (videoData) {
+              setEditableData(videoData as any);
+            } else {
+              // Fallback: create default video product data
+              console.log('🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found anywhere, using fallback');
+              setEditableData({
+                videoJobId: 'unknown',
+                videoUrl: '',
+                thumbnailUrl: '',
+                generatedAt: new Date().toISOString(),
+                sourceSlides: [],
+                component_name: 'VideoProductDisplay'
+              } as any);
+            }
+          }
         } else {
           setEditableData(copiedDetails); 
         }
