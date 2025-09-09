@@ -263,20 +263,20 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       {/* Search and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search course outlines..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-700"
           />
         </div>
 
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
         >
           <option value="all">All Types</option>
           {productTypes.map(type => (
@@ -288,9 +288,9 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
         <button
           onClick={handleSelectAllFiltered}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-900"
         >
-          {allFilteredSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+          {allFilteredSelected ? <CheckSquare size={16} className="text-gray-700" /> : <Square size={16} className="text-gray-700" />}
           {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
         </button>
       </div>
@@ -300,7 +300,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex flex-col items-center">
             <TableOfContents size={48} className="text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg font-medium mb-2">
+            <p className="text-gray-800 text-lg font-medium mb-2">
               {courseOutlines.length === 0
                 ? t('interface.noCourseOutlines', 'No course outlines found')
                 : searchTerm || typeFilter !== 'all'
@@ -308,7 +308,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                 : t('interface.noProductsAvailable', 'No course outlines available for export')}
             </p>
             {courseOutlines.length === 0 && (
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-600 text-sm">
                 Create some course outlines first to export them to Smart Expert LMS.
               </p>
             )}
@@ -339,29 +339,27 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
             return (
               <div
                 key={product.id}
-                className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border relative cursor-pointer ${
-                  isSelected
-                    ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'
-                    : 'border-gray-200 hover:border-gray-300'
+                className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-pointer ${
+                  isSelected ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
                 }`}
                 onClick={() => onProductToggle(product.id)}
               >
                 {/* Selection indicator */}
-                <div className="absolute top-3 right-3 z-10">
+                <div className="absolute top-2 right-2 z-10">
                   {isSelected ? (
-                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                      <CheckSquare size={16} className="text-white" />
+                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                      <CheckSquare size={14} className="text-white" />
                     </div>
                   ) : (
                     <div className="w-6 h-6 border-2 border-gray-300 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Square size={16} className="text-gray-400" />
+                      <Square size={14} className="text-gray-600" />
                     </div>
                   )}
                 </div>
                 
-                {/* Card header with gradient */}
+                {/* Card header with gradient - matching ProjectsTable exactly */}
                 <div
-                  className="relative h-40 rounded-t-xl"
+                  className="relative h-40 rounded-t-lg"
                   style={{
                     backgroundColor: bgColor,
                     backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
@@ -369,64 +367,51 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                     )}99)`,
                   }}
                 >
-                  {/* Product type icon */}
+                  {/* Product type icon - matching ProjectsTable positioning */}
                   <div
-                    className="absolute top-3 left-3 bg-white rounded-lg p-2 shadow-sm"
-                    style={{ zIndex: 2 }}
+                    style={{
+                      position: "absolute",
+                      top: 8,
+                      left: 8,
+                      background: "#fff",
+                      borderRadius: "6px",
+                      padding: "4px",
+                      zIndex: 2,
+                      backdropFilter: "blur(2px)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
                     {getProductTypeIcon(product.design_microproduct_type || product.designMicroproductType)}
                   </div>
                   
-                  {/* Title overlay */}
+                  {/* Title overlay - matching ProjectsTable exactly */}
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
                     <h3
-                      className="font-bold text-lg text-center leading-tight"
+                      className="font-bold text-lg text-center truncate max-w-full"
                       title={productName}
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textShadow: '0 1px 3px rgba(0,0,0,0.3)'
-                      }}
                     >
                       {productName}
                     </h3>
                   </div>
                 </div>
                 
-                {/* Card content */}
+                {/* Card content - matching ProjectsTable exactly */}
                 <div className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-100 px-2 py-1 rounded">
-                      {getProductTypeDisplayName(product.design_microproduct_type || product.designMicroproductType)}
-                    </span>
-                    {product.quality_tier && (
-                      <div className="flex items-center gap-1">
-                        <div 
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: getTierColor(product.quality_tier) }}
-                        />
-                        <span className="text-xs text-gray-500 capitalize">
-                          {product.quality_tier}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
                   <h3
-                    className="font-semibold text-gray-800 mb-3 text-sm leading-tight"
+                    className="font-semibold text-gray-800 mb-2 truncate text-sm max-w-full"
                     title={productName}
-                    style={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
                   >
                     {productName}
                   </h3>
-                  
+                  <div className="flex items-center text-xs text-gray-600 mb-3">
+                    <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
+                      <span className="text-gray-700 uppercase tracking-wide font-medium">
+                        {getProductTypeDisplayName(product.design_microproduct_type || product.designMicroproductType)}
+                      </span>
+                    </div>
+                  </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div
@@ -439,11 +424,12 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                         <span className="text-sm font-medium text-gray-900">
                           {t('interface.createdByYou', 'Created by you')}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-600">
                           {new Date(product.created_at || product.createdAt || Date.now()).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
+                    <div className="w-7 h-7" />
                   </div>
                 </div>
               </div>
