@@ -1261,37 +1261,33 @@ export default function CommercialProposalPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                    <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px]">
-                      <div 
-                        className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
-                        style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
-                      >
-                        1
-                      </div>
-                      
-                      <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                        Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
-                        <span className="text-[#0F58F9]">материалы</span><br className="hidden xl:block"/> (тексты,<br className="xl:hidden"/>
-                        инструкции, PDF, видео и др.)
-                      </h5>
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden px-[15px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]">
+                    <div 
+                      className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                      style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
+                    >
+                      1
                     </div>
+                    
+                    <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
+                      Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
+                      <span className="text-[#0F58F9]">материалы</span><br className="hidden xl:block"/> (тексты,<br className="xl:hidden"/>
+                      инструкции, PDF, видео и др.)
+                    </h5>
                   </div>
 
                   {/* Card 2 */}
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                    <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px]">
-                      <div 
-                        className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
-                        style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
-                      >
-                        2
-                      </div>
-                      
-                      <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                        Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты,<br className="xl:hidden"/> видео и презентации</span>
-                      </h5>
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden px-[15px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]">
+                    <div 
+                      className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
+                      style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
+                    >
+                      2
                     </div>
+                    
+                    <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
+                      Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты,<br className="xl:hidden"/> видео и презентации</span>
+                    </h5>
                   </div>
                 </div>
               </div>
