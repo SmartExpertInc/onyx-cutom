@@ -1144,8 +1144,91 @@ export default function CommercialProposalPage() {
                       </h5>
                     </div>
                   </div>
+
+                  <div 
+                    className="flex flex-col gap-[15px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                    style={{
+                      background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
+                      borderRadius: '6px',
+                      boxShadow: '2px 2px 10px 0px #0000001A'
+                    }}
+                  >
+                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
+                    <span className="text-[60px] font-bold text-[#0F58F9]">$900<span className="text-[26px] font-bold text-[#09090B]">/курс</span></span>
+                  </div>
+
+                  <div className="flex flex-col gap-[20px] xl:gap-[40px]">
+                <h4 className="text-[20px] font-semibold">Тарифные пакеты:</h4>
+
+                {/* Pricing Table */}
+                <div className="w-full max-w-[690px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
+                  <div className="w-full min-w-[690px] xl:min-w-0 rounded-[6px] overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
+                    {/* Table Header */}
+                    <div className="bg-[#F5F5F5] px-4 py-3">
+                      <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4">
+                        <div className="text-[14px] xl:text-[22px] font-semibold">
+                          Пакет
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                          Стоимость
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                          Итого
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Table Rows */}
+                    <div className="bg-white">
+                      {/* Row 1 */}
+                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-semibold">
+                            1 курс
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            $900/курс
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            $900
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 2 */}
+                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-semibold">
+                            3 курса
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            $750/курс
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            $2250
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 3 */}
+                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-semibold">
+                            10 курсов
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            $600/курс
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            $6000
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
+              </div>
+                </div>
               </div>
             </div>
 
@@ -1215,7 +1298,7 @@ export default function CommercialProposalPage() {
               
               <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-[20px] xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] mb-[15px] xl:mb-[40px]">
                 <div 
-                  className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
+                  className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] xl:bg-[linear-gradient(240.17deg,#F5F8FF_34.29%,rgba(203,220,255,0.55)_107.22%)] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px]"
                 >
                   <h4 className="font-semibold text-[20px] xl:text-[32px]">
                     AI capabilities:
@@ -1337,7 +1420,7 @@ export default function CommercialProposalPage() {
                     </span>
                   </div>
 
-                  <span className="text-[60px] font-bold text-[#0F58F9]">$100<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
+                  <span className="text-[60px] xl:text-[70px] font-bold text-[#0F58F9]">$100<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
 
                   <div className="h-[1px] bg-[#D2E3F1] bt-[5px]"></div>
 
@@ -1354,7 +1437,7 @@ export default function CommercialProposalPage() {
                           </defs>
                         </svg>
 
-                        <span className="text-[14px]">При необходимости можно <span className="font-semibold">докупить дополнительные кредиты,</span> если базового пакета недостаточно</span>
+                        <span className="text-[14px] xl:text-[18px] text-[#71717A]">Включает <span className="font-semibold text-[#09090B]">500 AI-кредитов</span> на генерацию и редактирование</span>
                       </li>
                       <li className="flex gap-[12px]">
                         <svg width="14" height="29" viewBox="0 0 14 29" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
@@ -1367,7 +1450,7 @@ export default function CommercialProposalPage() {
                           </defs>
                         </svg>
 
-                        <span className="text-[14px]">Включает <span className="font-semibold">500 AI-кредитов</span> на генерацию и редактирование</span>
+                        <span className="text-[14px] xl:text-[18px] text-[#71717A]">При необходимости можно <span className="font-semibold text-[#09090B]">докупить дополнительные кредиты,</span> если базового пакета недостаточно</span>
                       </li>
                     </ul>
                   </div>
