@@ -1055,7 +1055,7 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <Alert className="bg-green-50 border border-green-200">
+          <Alert className="bg-green-50 border border-green-200 p-4 mb-4">
             <div className="flex items-center gap-2 text-green-800 p-4 font-medium mb-4">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromText', 'Creating from text')}
@@ -1090,7 +1090,7 @@ function GenerateProductPicker() {
                 : "bg-white/70 text-gray-700 hover:bg-white"
             }`}
           >
-            <CourseOutlineIcon size={48} />
+            <CourseOutlineIcon size={58} />
             <span className="text-sm font-medium leading-tight">{t('interface.generate.courseOutline', 'Course Outline')}</span>
           </Button>
           <Button 
