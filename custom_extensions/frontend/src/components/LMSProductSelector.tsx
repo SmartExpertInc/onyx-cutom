@@ -208,24 +208,21 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <TableOfContents size={24} className="text-blue-600" />
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                {t('interface.lmsSelectCourseOutlines', 'Select course outlines to export')}
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Choose which course outlines to export to Smart Expert LMS
-              </p>
-            </div>
+      <div className="flex flex-col gap-4">
+        {/* Subtle Header */}
+        <div className="flex items-center gap-2">
+          <TableOfContents size={18} className="text-gray-500" />
+          <div>
+            <h2 className="text-lg font-medium text-gray-700">
+              {t('interface.lmsSelectCourseOutlines', 'Select course outlines to export')}
+            </h2>
+            <p className="text-xs text-gray-500">
+              Choose which course outlines to export to Smart Expert LMS
+            </p>
           </div>
-          
-          <LMSExportButton selectedProducts={selectedProducts} />
         </div>
 
-        {/* Search Controls */}
+        {/* Search Controls with Export Button */}
         <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
@@ -251,6 +248,8 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
             </div>
             {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
           </button>
+
+          <LMSExportButton selectedProducts={selectedProducts} />
         </div>
       </div>
 
