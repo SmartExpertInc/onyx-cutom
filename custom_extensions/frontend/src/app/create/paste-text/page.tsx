@@ -101,13 +101,17 @@ export default function PasteTextPage() {
 
         {/* Text input area */}
         <div className="w-full">
-          <Textarea />
-          <textarea
+          <Textarea 
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
+            className="w-full h-96 p-6" />
+          {/* <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
             className="w-full h-96 p-6 rounded-xl border border-gray-300 bg-white shadow-sm text-gray-900 placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-base leading-relaxed"
-          />
+          /> */}
           <div className="mt-2 flex justify-between items-center">
             <div className="text-sm text-gray-500">
               {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
