@@ -50,11 +50,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
   const { t, language } = useLanguage();
 
   // Determine display title - copied logic from ProjectsTable
-  const productType = product.design_microproduct_type || product.designMicroproductType || '';
-  const isOutline = productType.toLowerCase() === "training plan";
-  const displayTitle = isOutline
-    ? (product.microproduct_name || product.projectName || product.name || product.title || 'Product')
-    : (product.microproduct_name || product.projectName || product.instanceName || product.name || product.title || 'Product');
+  const displayTitle = product.title || product.microproduct_name || product.projectName || product.name || 'Product';
 
   // String to color function - exact copy from ProjectsTable
   const stringToColor = (str: string): string => {
@@ -129,25 +125,23 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
             )}99)`,
           }}
         >
-          {productType && (
-            <div
-              style={{
-                position: "absolute",
-                top: 8,
-                left: 8,
-                background: "#fff",
-                borderRadius: "6px",
-                padding: "4px",
-                zIndex: 2,
-                backdropFilter: "blur(2px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {getDesignMicroproductIcon(productType)}
-            </div>
-          )}
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              background: "#fff",
+              borderRadius: "6px",
+              padding: "4px",
+              zIndex: 2,
+              backdropFilter: "blur(2px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {getDesignMicroproductIcon("Training Plan")}
+          </div>
           <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
             <h3
               className="font-bold text-lg text-center truncate max-w-full"

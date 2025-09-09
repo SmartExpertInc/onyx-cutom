@@ -208,55 +208,44 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-3">
-          <TableOfContents size={24} className="text-blue-600" />
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              {t('interface.lmsSelectCourseOutlines', 'Select course outlines to export')}
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Choose which course outlines to export to Smart Expert LMS
-            </p>
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <TableOfContents size={24} className="text-blue-600" />
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {t('interface.lmsSelectCourseOutlines', 'Select course outlines to export')}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Choose which course outlines to export to Smart Expert LMS
+              </p>
+            </div>
           </div>
-        </div>
-        
-        <LMSExportButton selectedProducts={selectedProducts} />
-      </div>
-
-      {/* Search and Filter Controls */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
-          <input
-            type="text"
-            placeholder="Search course outlines..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-700"
-          />
+          
+          <LMSExportButton selectedProducts={selectedProducts} />
         </div>
 
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-        >
-          <option value="all">All Types</option>
-          {productTypes.map(type => (
-            <option key={type} value={type}>
-              {getProductTypeDisplayName(type)}
-            </option>
-          ))}
-        </select>
+        {/* Search Controls */}
+        <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
+            <input
+              type="text"
+              placeholder="Search course outlines..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-700"
+            />
+          </div>
 
-        <button
-          onClick={handleSelectAllFiltered}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-900"
-        >
-          {allFilteredSelected ? <CheckSquare size={16} className="text-gray-700" /> : <Square size={16} className="text-gray-700" />}
-          {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
-        </button>
+          <button
+            onClick={handleSelectAllFiltered}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-900"
+          >
+            {allFilteredSelected ? <CheckSquare size={16} className="text-gray-700" /> : <Square size={16} className="text-gray-700" />}
+            {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
+          </button>
+        </div>
       </div>
 
       {/* Course Outlines Grid */}
