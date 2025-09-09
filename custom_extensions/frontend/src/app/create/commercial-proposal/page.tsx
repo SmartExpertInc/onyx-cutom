@@ -1522,7 +1522,7 @@ export default function CommercialProposalPage() {
                 }}
               >
                 <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$350<span className="text-[26px] font-bold text-[#09090B]">/месяц</span></span>
+                <span className="text-[60px] font-bold text-[#0F58F9]">$350<span className="text-[26px] font-bold text-[#09090B]">/месяц</span></span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
@@ -1534,10 +1534,10 @@ export default function CommercialProposalPage() {
                     {/* Table Header */}
                     <div className="bg-[#F5F5F5] px-4 py-3">
                       <div className="grid grid-cols-3 gap-4">
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:pb-2">
+                        <div className="text-[14px] xl:text-[22px] font-semibold">
                           Кол-во пользователей
                         </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:pb-2">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Месячная цена (со скидкой)
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold">
@@ -1551,10 +1551,10 @@ export default function CommercialProposalPage() {
                       {/* Row 1 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium">
                             до 100
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $350
                           </div>
                           <div className="text-[14px] xl:text-[22px]">
@@ -1566,10 +1566,10 @@ export default function CommercialProposalPage() {
                       {/* Row 2 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium">
                             до 200
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $500
                           </div>
                           <div className="text-[14px] xl:text-[22px]">
@@ -1581,10 +1581,10 @@ export default function CommercialProposalPage() {
                       {/* Row 3 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium">
                             201-500
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $1000
                           </div>
                           <div className="text-[14px] xl:text-[22px]">
@@ -1596,10 +1596,10 @@ export default function CommercialProposalPage() {
                       {/* Row 4 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium">
                             501-1000
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $1800
                           </div>
                           <div className="text-[14px] xl:text-[22px]">
@@ -2300,13 +2300,13 @@ export default function CommercialProposalPage() {
                     {/* Table Header */}
                     <div className="bg-[#F5F5F5] px-4 py-3">
                       <div className="grid grid-cols-4 gap-4">
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                        <div className="text-[14px] xl:text-[22px] font-semibold">
                           Пакет
                         </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Кол-во часов
                         </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Стоимость
                         </div>
                         <div className="text-[14px] xl:text-[22px] font-semibold">
@@ -2320,13 +2320,13 @@ export default function CommercialProposalPage() {
                       {/* Row 1 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 1
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             30 часов
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $2,250
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium">
@@ -2338,13 +2338,13 @@ export default function CommercialProposalPage() {
                       {/* Row 2 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 2
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             50 часов
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $3,500
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium">
@@ -2356,13 +2356,13 @@ export default function CommercialProposalPage() {
                       {/* Row 3 */}
                       <div className="px-4 py-3 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 3
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             100 часов
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4 xl:py-1">
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $5,900
                           </div>
                           <div className="text-[14px] xl:text-[22px] font-medium">
