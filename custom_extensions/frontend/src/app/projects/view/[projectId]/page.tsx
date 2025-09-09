@@ -371,7 +371,29 @@ export default function ProjectInstanceViewPage() {
             videoJobIdValue: copiedDetails?.videoJobId
           });
           
-          setEditableData(copiedDetails as any); // Video product data is stored as a dictionary
+          // 🔧 FIX: Ensure video data is preserved - check both copiedDetails and instanceData root
+          const videoDataToSet = (copiedDetails?.videoUrl || copiedDetails?.videoJobId || copiedDetails?.thumbnailUrl) 
+            ? copiedDetails 
+            : {
+                ...copiedDetails,
+                // Check if video data is in the root of instanceData (backend might be returning it there)
+                videoUrl: (instanceData as any).videoUrl || copiedDetails?.videoUrl,
+                videoJobId: (instanceData as any).videoJobId || copiedDetails?.videoJobId,
+                thumbnailUrl: (instanceData as any).thumbnailUrl || copiedDetails?.thumbnailUrl,
+                generatedAt: (instanceData as any).generatedAt || copiedDetails?.generatedAt,
+                sourceSlides: (instanceData as any).sourceSlides || copiedDetails?.sourceSlides,
+                component_name: instanceData.component_name || copiedDetails?.component_name
+              };
+          
+          console.log('🎬 [VIDEO_PRODUCT_DATA] Final video data being set:', {
+            originalCopiedDetails: copiedDetails,
+            finalVideoData: videoDataToSet,
+            hasVideoUrl: 'videoUrl' in videoDataToSet,
+            hasThumbnailUrl: 'thumbnailUrl' in videoDataToSet,
+            hasVideoJobId: 'videoJobId' in videoDataToSet
+          });
+          
+          setEditableData(videoDataToSet as any); // Video product data is stored as a dictionary
         } else {
           setEditableData(copiedDetails); 
         }
