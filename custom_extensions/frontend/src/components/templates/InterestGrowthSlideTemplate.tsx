@@ -54,7 +54,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     gridColumn: '1 / 2',
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gridTemplateRows: 'repeat(2, 225px)',
+    gridTemplateRows: 'auto auto',
     gap: '24px',
     alignContent: 'start',
     marginTop: '12px'
@@ -62,19 +62,20 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
   const cardStyle: React.CSSProperties = {
     border: '2px solid #d9d9d9',
-    minHeight: '260px',
     padding: '28px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'end',
     backgroundColor: '#fff',
-    position: 'relative'
+    position: 'relative',
+    alignSelf: 'start'
   };
 
   const rightPanel: React.CSSProperties = {
-    gridColumn: '2 / 3',
-    backgroundColor: rightPanelColor,
-    position: 'relative'
+    width: '430px',
+    backgroundColor: '#4D70D4',
+    position: 'relative',
+    height: '100%'
   };
 
   const cornerLine: React.CSSProperties = {
@@ -101,10 +102,16 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
       </div>
 
       <div style={cardsGrid}>
-        {cardList.slice(0, 4).map((c, i) => (
+        {cardList.slice(0, 4).map((c, i) => {
+          const isRightTop = i === 1;
+          const isRightBottom = i === 3;
+          const cardHeight = isRightTop ? 300 : (isRightBottom ? 75 : 225);
+          const percentageFontSize = isRightBottom ? '48px' : '79px';
+          const percentageMinHeight = isRightBottom ? 0 : 88;
+          return (
           <div
             key={i}
-            style={cardStyle}
+            style={{ ...cardStyle, height: `${cardHeight}px` }}
             onMouseEnter={(e) => {
               const btn = e.currentTarget.querySelector('.card-delete-btn') as HTMLElement | null;
               if (btn) btn.style.opacity = '1';
@@ -129,16 +136,16 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
             </div>
 
             {/* Percentage (fixed height to avoid shift) */}
-            <div style={{ minHeight: '88px', display: 'flex', alignItems: 'flex-end' }}>
+            <div style={{ minHeight: `${percentageMinHeight}px`, display: 'flex', alignItems: 'flex-end' }}>
               {isEditable && editingCard?.index === i && editingCard?.field === 'percentage' ? (
                 <ImprovedInlineEditor
                   initialValue={c.percentage}
                   onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
                   onCancel={() => setEditingCard(null)}
-                  style={{ fontSize: '79px', color: '#202022', fontWeight: 800, lineHeight: 1 }}
+                  style={{ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 }}
                 />
               ) : (
-                <div style={{ fontSize: '79px', color: '#202022', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
+                <div style={{ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
               )}
             </div>
 
@@ -153,15 +160,15 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
               </button>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div style={rightPanel}>
         {/* Optional unified logo in the top-left of the right panel if needed in future */}
-        <div style={{ ...cornerLine, left: '24px', top: '24px', borderRight: 'none', borderBottom: 'none' }} />
-        <div style={{ ...cornerLine, right: '24px', top: '24px', borderLeft: 'none', borderBottom: 'none' }} />
-        <div style={{ ...cornerLine, left: '24px', bottom: '24px', borderRight: 'none', borderTop: 'none' }} />
-        <div style={{ ...cornerLine, right: '24px', bottom: '24px', borderLeft: 'none', borderTop: 'none' }} />
+        <div style={{ ...cornerLine, width: '120px', borderTop: 'none', borderLeft: 'none' }} />
+        <div style={{ ...cornerLine, height: '120px', right: '0', top: '50%', transform: 'translateY(-50%)', borderRight: 'none' }} />
+        <div style={{ ...cornerLine, width: '100px', height: '60px', left: '50px', bottom: '0px', borderBottom: 'none' }} />
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ rightImagePath: p })}
@@ -169,7 +176,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           position="CENTER"
           description="Right image"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ position: 'relative', top: '24px', width: '339px', height: '491px', objectFit: 'cover' }}
         />
       </div>
     </div>
