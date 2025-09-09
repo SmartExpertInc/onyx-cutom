@@ -29,8 +29,8 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       // Simulate export process
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // In a real implementation, this would make an API call to export the products
-      console.log('Exporting products:', Array.from(selectedProducts));
+      // In a real implementation, this would make an API call to export the course outlines
+      console.log('Exporting course outlines:', Array.from(selectedProducts));
       
       setExportStatus('success');
       onExportComplete?.();
@@ -104,13 +104,13 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       
       {!hasSelectedProducts && (
         <p className="text-sm text-gray-500 text-center">
-          {t('interface.lmsNoProductsSelected', 'Please select at least one product to export')}
+          {t('interface.lmsNoProductsSelected', 'Please select at least one course outline to export')}
         </p>
       )}
       
       {hasSelectedProducts && (
         <p className="text-sm text-gray-600 text-center">
-          {selectedProducts.size} product{selectedProducts.size !== 1 ? 's' : ''} selected
+          {selectedProducts.size} course outline{selectedProducts.size !== 1 ? 's' : ''} selected
         </p>
       )}
     </div>

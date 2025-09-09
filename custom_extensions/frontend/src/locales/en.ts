@@ -440,9 +440,11 @@ export const en = {
     lmsAccountNo: "No, I need to create one",
     lmsSetupWaiting: "Setting up your account...",
     lmsSelectProducts: "Select products to export",
+    lmsSelectCourseOutlines: "Select course outlines to export",
+    noCourseOutlines: "No course outlines found",
     lmsExport: "Export to LMS",
     lmsExporting: "Exporting...",
-    lmsNoProductsSelected: "Please select at least one product to export",
+    lmsNoProductsSelected: "Please select at least one course outline to export",
 
     // Offers page
     searchOffers: "Search offers...",

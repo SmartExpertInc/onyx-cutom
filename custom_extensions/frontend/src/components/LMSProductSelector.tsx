@@ -118,15 +118,17 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
     fetchProducts();
   }, [fetchProducts]);
 
-  // Filter products based on search and type
-  const filteredProducts = products.filter(product => {
+  // Filter products to show only course outlines (Training Plan) and apply search/type filters
+  const courseOutlines = products.filter(product => product.designMicroproductType === 'Training Plan');
+  
+  const filteredProducts = courseOutlines.filter(product => {
     const matchesSearch = product.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false;
     const matchesType = typeFilter === 'all' || product.designMicroproductType === typeFilter;
     return matchesSearch && matchesType;
   });
 
-  // Get unique product types for filter
-  const productTypes = Array.from(new Set(products.map(p => p.designMicroproductType)));
+  // Get unique product types for filter (only from course outlines)
+  const productTypes = Array.from(new Set(courseOutlines.map(p => p.designMicroproductType)));
 
   const allFilteredSelected = filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts.has(p.id));
 
@@ -174,9 +176,17 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">
-          {t('interface.lmsSelectProducts', 'Select products to export')}
-        </h2>
+        <div className="flex items-center gap-3">
+          <TableOfContents size={24} className="text-blue-600" />
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {t('interface.lmsSelectCourseOutlines', 'Select course outlines to export')}
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Choose which course outlines to export to Smart Expert LMS
+            </p>
+          </div>
+        </div>
         
         <LMSExportButton selectedProducts={selectedProducts} />
       </div>
@@ -216,67 +226,159 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         </button>
       </div>
 
-      {/* Products Grid */}
+      {/* Course Outlines Grid */}
       {filteredProducts.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-gray-500">
-            {searchTerm || typeFilter !== 'all' 
-              ? 'No products found matching your criteria' 
-              : 'No products available'}
-          </p>
+          <div className="flex flex-col items-center">
+            <TableOfContents size={48} className="text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg font-medium mb-2">
+              {courseOutlines.length === 0
+                ? t('interface.noCourseOutlines', 'No course outlines found')
+                : searchTerm || typeFilter !== 'all'
+                ? t('interface.noProductsFound', 'No course outlines match your criteria')
+                : t('interface.noProductsAvailable', 'No course outlines available for export')}
+            </p>
+            {courseOutlines.length === 0 && (
+              <p className="text-gray-400 text-sm">
+                Create some course outlines first to export them to Smart Expert LMS.
+              </p>
+            )}
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className={`bg-white border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                selectedProducts.has(product.id)
-                  ? 'border-blue-500 bg-blue-50 shadow-sm'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-              onClick={() => onProductToggle(product.id)}
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 mt-1">
-                  {selectedProducts.has(product.id) ? (
-                    <CheckSquare size={20} className="text-blue-600" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map(product => {
+            const isSelected = selectedProducts.has(product.id);
+            const stringToColor = (str: string): string => {
+              let hash = 0;
+              if (!str) return "#CCCCCC";
+              for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+              }
+              let color = "#";
+              for (let i = 0; i < 3; i++) {
+                let value = (hash >> (i * 8)) & 0xff;
+                color += ("00" + value.toString(16)).substr(-2);
+              }
+              return color;
+            };
+            
+            const bgColor = stringToColor(product.name);
+            const avatarColor = stringToColor(product.user_id || 'user');
+            
+            return (
+              <div
+                key={product.id}
+                className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border relative cursor-pointer ${
+                  isSelected
+                    ? 'border-blue-500 ring-2 ring-blue-200 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+                onClick={() => onProductToggle(product.id)}
+              >
+                {/* Selection indicator */}
+                <div className="absolute top-3 right-3 z-10">
+                  {isSelected ? (
+                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                      <CheckSquare size={16} className="text-white" />
+                    </div>
                   ) : (
-                    <Square size={20} className="text-gray-400" />
+                    <div className="w-6 h-6 border-2 border-gray-300 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Square size={16} className="text-gray-400" />
+                    </div>
                   )}
                 </div>
                 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
+                {/* Card header with gradient */}
+                <div
+                  className="relative h-40 rounded-t-xl"
+                  style={{
+                    backgroundColor: bgColor,
+                    backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
+                      product.name.split("").reverse().join("")
+                    )}99)`,
+                  }}
+                >
+                  {/* Product type icon */}
+                  <div
+                    className="absolute top-3 left-3 bg-white rounded-lg p-2 shadow-sm"
+                    style={{ zIndex: 2 }}
+                  >
                     {getProductTypeIcon(product.designMicroproductType)}
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                      {getProductTypeDisplayName(product.designMicroproductType)}
-                    </span>
                   </div>
                   
-                  <h3 className="font-medium text-gray-900 truncate mb-2" title={product.name}>
+                  {/* Title overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
+                    <h3
+                      className="font-bold text-lg text-center leading-tight"
+                      title={product.name}
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                      }}
+                    >
+                      {product.name}
+                    </h3>
+                  </div>
+                </div>
+                
+                {/* Card content */}
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-100 px-2 py-1 rounded">
+                      {getProductTypeDisplayName(product.designMicroproductType)}
+                    </span>
+                    {product.quality_tier && (
+                      <div className="flex items-center gap-1">
+                        <div 
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: getTierColor(product.quality_tier) }}
+                        />
+                        <span className="text-xs text-gray-500 capitalize">
+                          {product.quality_tier}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <h3
+                    className="font-semibold text-gray-800 mb-3 text-sm leading-tight"
+                    title={product.name}
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
                     {product.name}
                   </h3>
                   
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <div 
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: getTierColor(product.quality_tier) }}
-                      />
-                      <span className="text-xs text-gray-500 capitalize">
-                        {product.quality_tier || 'interactive'}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                        style={{ backgroundColor: avatarColor }}
+                      >
+                        {(product.user_id || 'U').slice(0, 1).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">
+                          {t('interface.createdByYou', 'Created by you')}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(product.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
-                    
-                    <span className="text-xs text-gray-400">
-                      {new Date(product.created_at).toLocaleDateString()}
-                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -285,7 +387,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-blue-800">
-              <strong>{selectedProducts.size}</strong> product{selectedProducts.size !== 1 ? 's' : ''} selected for export
+              <strong>{selectedProducts.size}</strong> course outline{selectedProducts.size !== 1 ? 's' : ''} selected for export
             </p>
             <button
               onClick={onDeselectAll}

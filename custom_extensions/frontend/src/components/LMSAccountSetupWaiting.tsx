@@ -14,7 +14,7 @@ const LMSAccountSetupWaiting: React.FC<LMSAccountSetupWaitingProps> = ({
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Use the exact HTML content from the workspace owner API response
+    // Create a simplified LMS setup page without external dependencies to avoid CORS issues
     const lmsSetupContent = `<!DOCTYPE html>
 <html lang="en">
 
@@ -22,31 +22,154 @@ const LMSAccountSetupWaiting: React.FC<LMSAccountSetupWaitingProps> = ({
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="google" content="notranslate">
-    <meta name="robots" content="noindex, nofollow"/>
-    <meta name="csrf-token" content="5zb89YK8oksDpSUp3xwqifzzdvBG8NsMvpQsPgoT">
-    <link rel="apple-touch-icon" sizes="57x57" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="60x60" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="72x72" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="76x76" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="114x114" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="120x120" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="144x144" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="152x152" href="/favicon.ico">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="96x96" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
-
-    <title>SE PROJECT</title>
-
-        <link rel="preload" as="style" href="https://dev.smartexpert.net/build/assets/20250902/main2.css" /><link rel="stylesheet" href="https://dev.smartexpert.net/build/assets/20250902/main2.css" />                
-
+    <meta name="description" content="Smart Expert LMS Workspace Setup">
+    <title>Smart Expert LMS - Workspace Setup</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .logo {
+            color: #667eea;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .info-box {
+            background: #f8f9ff;
+            border: 2px solid #e1e8ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .info-box strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .user-info {
+            background: #e8f5e8;
+            border: 2px solid #c3e6c3;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .user-info h3 {
+            color: #2d5a2d;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .user-detail {
+            margin: 5px 0;
+            color: #4a7c59;
+            font-size: 14px;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .demo-note {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
 

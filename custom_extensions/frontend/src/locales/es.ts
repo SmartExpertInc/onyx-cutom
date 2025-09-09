@@ -414,9 +414,11 @@ export const es = {
     lmsAccountNo: "No, necesito crear una",
     lmsSetupWaiting: "Configurando tu cuenta...",
     lmsSelectProducts: "Seleccionar productos para exportar",
+    lmsSelectCourseOutlines: "Seleccionar esquemas de curso para exportar",
+    noCourseOutlines: "No se encontraron esquemas de curso",
     lmsExport: "Exportar a LMS",
     lmsExporting: "Exportando...",
-    lmsNoProductsSelected: "Por favor, selecciona al menos un producto para exportar",
+    lmsNoProductsSelected: "Por favor, selecciona al menos un esquema de curso para exportar",
 
     // Offers page
     searchOffers: "Buscar ofertas...",

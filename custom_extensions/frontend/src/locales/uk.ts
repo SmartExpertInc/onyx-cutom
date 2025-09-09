@@ -404,9 +404,11 @@ export const uk = {
     lmsAccountNo: "Ні, мені потрібно створити обліковий запис",
     lmsSetupWaiting: "Налаштування вашого облікового запису...",
     lmsSelectProducts: "Виберіть продукти для експорту",
+    lmsSelectCourseOutlines: "Виберіть плани курсів для експорту",
+    noCourseOutlines: "Плани курсів не знайдено",
     lmsExport: "Експорт до LMS",
     lmsExporting: "Експорт...",
-    lmsNoProductsSelected: "Будь ласка, виберіть принаймні один продукт для експорту",
+    lmsNoProductsSelected: "Будь ласка, виберіть принаймні один план курсу для експорту",
 
     // Offers page
     searchOffers: "Пошук пропозицій...",

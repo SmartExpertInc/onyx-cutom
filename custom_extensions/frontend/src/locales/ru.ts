@@ -418,9 +418,11 @@ export const ru = {
     lmsAccountNo: "Нет, мне нужно создать аккаунт",
     lmsSetupWaiting: "Настройка вашего аккаунта...",
     lmsSelectProducts: "Выберите продукты для экспорта",
+    lmsSelectCourseOutlines: "Выберите планы курсов для экспорта",
+    noCourseOutlines: "Планы курсов не найдены",
     lmsExport: "Экспорт в LMS",
     lmsExporting: "Экспорт...",
-    lmsNoProductsSelected: "Пожалуйста, выберите хотя бы один продукт для экспорта",
+    lmsNoProductsSelected: "Пожалуйста, выберите хотя бы один план курса для экспорта",
 
     // Offers page
     searchOffers: "Поиск предложений...",
