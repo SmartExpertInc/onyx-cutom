@@ -103,12 +103,6 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       </button>
       
       <div className="h-5 flex items-center">
-        {!hasSelectedProducts && (
-          <p className="text-sm text-gray-500 text-center">
-            {t('interface.lmsNoProductsSelected', 'Please select at least one course outline to export')}
-          </p>
-        )}
-        
         {hasSelectedProducts && (
           <p className="text-sm text-gray-600 text-center">
             {selectedProducts.size} course outline{selectedProducts.size !== 1 ? 's' : ''} selected

@@ -209,19 +209,6 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
-        {/* Subtle Header */}
-        <div className="flex items-center gap-2">
-          <TableOfContents size={18} className="text-gray-500" />
-          <div>
-            <h2 className="text-lg font-medium text-gray-700">
-              {t('interface.lmsSelectCourseOutlines', 'Select course outlines to export')}
-            </h2>
-            <p className="text-xs text-gray-500">
-              Choose which course outlines to export to Smart Expert LMS
-            </p>
-          </div>
-        </div>
-
         {/* Search Controls with Export Button */}
         <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <div className="relative flex-1">
@@ -251,6 +238,11 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
           <LMSExportButton selectedProducts={selectedProducts} />
         </div>
+
+        {/* Small subtitle under search bar */}
+        <p className="text-xs text-gray-500 -mt-2">
+          Choose which course outlines to export to Smart Expert LMS
+        </p>
       </div>
 
       {/* Course Outlines Grid */}
