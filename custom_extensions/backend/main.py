@@ -11966,8 +11966,8 @@ Return ONLY the JSON object.
             logger.info(f"Video Product Created: {type(parsed_content_model_instance).__name__}")
             logger.info(f"Video Product Content (first 200 chars): {str(parsed_content_model_instance)[:200]}")
         else:
-        logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
-        logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
+            logger.info(f"LLM Parsing Result Type: {type(parsed_content_model_instance).__name__}")
+            logger.info(f"LLM Parsed Content (first 200 chars): {str(parsed_content_model_instance.model_dump_json())[:200]}") # Use model_dump_json()
 
         # Inject theme for slide decks from the finalize request
         if (selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 
