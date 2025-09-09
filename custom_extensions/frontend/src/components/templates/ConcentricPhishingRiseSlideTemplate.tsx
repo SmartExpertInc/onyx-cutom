@@ -61,9 +61,6 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
         )}
       </div>
 
-      <div style={{ position:'absolute', left:'20px', bottom:'25px', backgroundColor: 'orange'}}>
-      </div>
-
       {/* Actor avatar */}
       <div style={actorHolder}>
         <ClickableImagePlaceholder imagePath={actorImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ actorImagePath:p })} size="LARGE" position="CENTER" description="Actor" isEditable={isEditable} style={{ width:'100%', height:'100%', marginTop: '4px', objectFit:'cover' }} />

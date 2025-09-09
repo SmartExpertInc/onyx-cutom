@@ -152,16 +152,11 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
       </div>
 
       {/* Rounded panel with editable line chart */}
-{/*       <div style={panel}>
+      <div style={panel}>
         <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 }}>
           <path d={pathD} fill="none" stroke={lineColor} strokeWidth={3} />
-          {curvePoints.map((p, idx) => (
-            <g key={idx} transform={`translate(${p.x},${p.y})`}>
-              <circle cx={0} cy={0} r={3} fill="#ffffff" stroke={lineColor} strokeWidth={2} onMouseDown={(e) => startDrag(idx, e)} style={{ cursor: isEditable ? 'grab' : 'default' }} />
-            </g>
-          ))}
         </svg>
-      </div> */}
+      </div>
 
       {/* Avatar overlays the panel */}
       <div style={avatarHolder}>
