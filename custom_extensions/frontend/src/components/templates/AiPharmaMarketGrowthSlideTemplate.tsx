@@ -92,7 +92,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
             className="ai-pharma-title-editor"
-            style={{ ...titleStyle, position: 'relative' }}
+            style={{ ...titleStyle}}
           />
         ) : (
           <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
