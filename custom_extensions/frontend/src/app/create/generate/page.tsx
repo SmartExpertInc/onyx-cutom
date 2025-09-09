@@ -1102,7 +1102,7 @@ function GenerateProductPicker() {
 
         {/* Tab selector */}
         <div className="flex justify-center gap-4 mb-4">
-        <TabButton
+          <TabButton
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
             active={activeProduct === "Course Outline"}

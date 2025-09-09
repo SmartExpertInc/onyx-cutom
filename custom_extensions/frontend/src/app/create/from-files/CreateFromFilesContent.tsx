@@ -20,6 +20,10 @@ import {
   FolderResponse,
 } from "../../../components/documents/DocumentsContext";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 enum SortType {
   TimeCreated = "Time Created",
@@ -105,14 +109,16 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <button
+        <Button
           onClick={(e) => {
             e.stopPropagation();
             onToggleSelect();
           }}
-          className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-colors ${
+          variant={isSelected ? "default" : "outline"}
+          size="sm"
+          className={`flex items-center gap-1 rounded-full ${
             isSelected
-              ? "bg-blue-100 text-blue-700 border border-blue-300"
+              ? "bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200"
               : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200"
           }`}
         >
@@ -124,7 +130,7 @@ const CreateFolderItem: React.FC<CreateFolderItemProps> = ({
           ) : (
             t("interface.fromFiles.select", "Select")
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -165,30 +171,14 @@ const CreateFolderModal: React.FC<{
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop with blur */}
-      <div
-        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-        onClick={handleClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
             {t("interface.fromFiles.createNewFolder", "Create New Folder")}
-          </h2>
-          <button
-            onClick={handleClose}
-            disabled={isSubmitting}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -198,7 +188,7 @@ const CreateFolderModal: React.FC<{
             >
               {t("interface.fromFiles.folderName", "Folder Name *")}
             </label>
-            <input
+            <Input
               id="folder-name"
               type="text"
               value={name}
@@ -208,7 +198,7 @@ const CreateFolderModal: React.FC<{
                 "interface.fromFiles.enterFolderName",
                 "Enter folder name"
               )}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+              //className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
               autoFocus
             />
           </div>
@@ -220,7 +210,7 @@ const CreateFolderModal: React.FC<{
             >
               {t("interface.fromFiles.description", "Description (optional)")}
             </label>
-            <textarea
+            <Textarea
               id="folder-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -230,23 +220,23 @@ const CreateFolderModal: React.FC<{
                 "Enter folder description"
               )}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 placeholder-gray-500"
+              // className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 placeholder-gray-500"
             />
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
+            <Button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors disabled:opacity-50"
+              variant="outline"
             >
               {t("interface.fromFiles.cancel", "Cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={!name.trim() || isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -259,11 +249,11 @@ const CreateFolderModal: React.FC<{
                   {t("interface.fromFiles.createFolder", "Create Folder")}
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -502,7 +492,7 @@ export default function CreateFromFilesContent() {
         {/* Search bar and Create Folder button */}
         <div className="flex items-center justify-between mb-6">
           <div className="relative w-full max-w-md">
-            <input
+            <Input
               type="text"
               placeholder={t(
                 "interface.fromFiles.searchFolders",
@@ -510,16 +500,17 @@ export default function CreateFromFilesContent() {
               )}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
+              // className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
             />
           </div>
-          <button
+          <Button
             onClick={() => setIsCreateModalOpen(true)}
-            className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+            className="ml-4 inline-flex items-center gap-2"
+            //className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
           >
             <Plus className="h-4 w-4" />
             {t("interface.fromFiles.newFolder", "New Folder")}
-          </button>
+          </Button>
         </div>
 
         {/* Selected items summary and action */}
@@ -543,22 +534,25 @@ export default function CreateFromFilesContent() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={clearSelectedItems}
-                  className="px-3 py-1 text-sm border border-blue-300 text-blue-700 rounded-md hover:bg-blue-100"
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
                 >
                   {t("interface.fromFiles.clearSelection", "Clear Selection")}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleCreateFromSelected}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="flex items-center gap-2"
+                  // className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   <Sparkles className="h-4 w-4" />
                   {t(
                     "interface.fromFiles.createFromFiles",
                     "Create from these files"
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -567,36 +561,42 @@ export default function CreateFromFilesContent() {
         {/* Sorting header */}
         <div className="border-b border-gray-200 mb-4">
           <div className="flex items-center gap-4 py-2 text-sm font-medium text-gray-600">
-            <button
+            <Button
               onClick={() => handleSortChange(SortType.Alphabetical)}
               onMouseEnter={() => setHoveredColumn(SortType.Alphabetical)}
               onMouseLeave={() => setHoveredColumn(null)}
-              className="flex items-center hover:text-gray-900"
+              variant="ghost"
+              size="sm"
+              className="flex items-center hover:text-gray-900 h-auto p-0 font-medium"
             >
               {t("interface.fromFiles.name", "Name")}
               {renderSortIndicator(SortType.Alphabetical)}
               {renderHoverIndicator(SortType.Alphabetical)}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleSortChange(SortType.TimeCreated)}
               onMouseEnter={() => setHoveredColumn(SortType.TimeCreated)}
               onMouseLeave={() => setHoveredColumn(null)}
-              className="flex items-center hover:text-gray-900"
+              variant="ghost"
+              size="sm"
+              className="flex items-center hover:text-gray-900 h-auto p-0 font-medium"
             >
               {t("interface.fromFiles.created", "Created")}
               {renderSortIndicator(SortType.TimeCreated)}
               {renderHoverIndicator(SortType.TimeCreated)}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleSortChange(SortType.Tokens)}
               onMouseEnter={() => setHoveredColumn(SortType.Tokens)}
               onMouseLeave={() => setHoveredColumn(null)}
-              className="flex items-center hover:text-gray-900"
+              variant="ghost"
+              size="sm"
+              className="flex items-center hover:text-gray-900 h-auto p-0 font-medium"
             >
               {t("interface.fromFiles.files", "Files")}
               {renderSortIndicator(SortType.Tokens)}
               {renderHoverIndicator(SortType.Tokens)}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -649,53 +649,6 @@ export default function CreateFromFilesContent() {
         </div>
       </div>
 
-      {/* Create folder modal */}
-      {isCreatingFolder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium mb-4">
-              {t("interface.fromFiles.createNewFolder", "Create New Folder")}
-            </h3>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const name = formData.get("name") as string;
-                if (name.trim()) {
-                  handleCreateFolder(name.trim(), "");
-                  setIsCreatingFolder(false);
-                }
-              }}
-            >
-              <input
-                name="name"
-                type="text"
-                placeholder={t(
-                  "interface.fromFiles.enterFolderName",
-                  "Folder name"
-                )}
-                autoFocus
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 mb-4"
-              />
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsCreatingFolder(false)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  {t("interface.fromFiles.cancel", "Cancel")}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  {t("interface.fromFiles.createFolder", "Create")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* New create folder modal */}
       <CreateFolderModal
