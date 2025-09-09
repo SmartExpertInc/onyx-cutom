@@ -220,7 +220,6 @@ const CreateFolderModal: React.FC<{
                 "Enter folder description"
               )}
               rows={3}
-              // className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 placeholder-gray-500"
             />
           </div>
 
@@ -539,7 +538,7 @@ export default function CreateFromFilesContent() {
                   onClick={clearSelectedItems}
                   variant="outline"
                   size="sm"
-                  className="border-blue-300 px-1 text-blue-700 hover:bg-blue-200 bg-blue-100"
+                  className="border-blue-300 px-2 py-2 text-blue-700 hover:bg-blue-200 bg-blue-100"
                 >
                   {t("interface.fromFiles.clearSelection", "Clear Selection")}
                 </Button>
