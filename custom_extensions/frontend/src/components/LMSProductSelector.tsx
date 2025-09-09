@@ -91,6 +91,9 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         headers['X-Dev-Onyx-User-ID'] = devUserId;
       }
 
+      console.log('🔍 LMS Export: Fetching products from:', `${CUSTOM_BACKEND_URL}/projects`);
+      console.log('🔍 LMS Export: Request headers:', headers);
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects`, {
         headers,
         cache: 'no-store',
@@ -98,6 +101,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       });
 
       if (!response.ok) {
+        console.error('❌ LMS Export: Response not OK:', response.status, response.statusText);
         if (response.status === 401 || response.status === 403) {
           throw new Error('Unauthorized');
         }
@@ -105,9 +109,47 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       }
 
       const data = await response.json();
+      console.log('📦 LMS Export: Fetched products:', data);
+      console.log('📦 LMS Export: Total products count:', data.length);
+      
+      // Log first product structure to understand the data format
+      if (data.length > 0) {
+        console.log('🔍 LMS Export: Sample product structure:', data[0]);
+        console.log('🔍 LMS Export: Sample product keys:', Object.keys(data[0]));
+      }
+      
+      // Log product types
+      const productTypes = data.map((p: any) => ({
+        id: p.id,
+        name: p.name || p.title || p.instanceName,
+        type: p.designMicroproductType,
+        created: p.created_at || p.createdAt,
+        allFields: Object.keys(p)
+      }));
+      console.log('📋 LMS Export: Product types breakdown:', productTypes);
+      
+      // Check for different possible field names for product type
+      const typeFields = data.map((p: any) => ({
+        id: p.id,
+        designMicroproductType: p.designMicroproductType,
+        productType: p.productType,
+        type: p.type,
+        microproductType: p.microproductType
+      }));
+      console.log('🔍 LMS Export: Type field variations:', typeFields);
+      
+      // Log course outlines specifically
+      const courseOutlines = data.filter((p: any) => p.designMicroproductType === 'Training Plan');
+      console.log('🎯 LMS Export: Found course outlines:', courseOutlines.length);
+      console.log('🎯 LMS Export: Course outline details:', courseOutlines.map((p: any) => ({
+        id: p.id,
+        name: p.name || p.title || p.instanceName,
+        type: p.designMicroproductType
+      })));
+
       setProducts(data);
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error('❌ LMS Export: Error fetching products:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
       setLoading(false);
@@ -119,13 +161,35 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   }, [fetchProducts]);
 
   // Filter products to show only course outlines (Training Plan) and apply search/type filters
-  const courseOutlines = products.filter(product => product.designMicroproductType === 'Training Plan');
+  // Use case-insensitive comparison like ProjectsTable does
+  const courseOutlines = products.filter(product => {
+    const productType = (product.designMicroproductType || '').toLowerCase();
+    const isTrainingPlan = productType === 'training plan';
+    console.log(`🔍 LMS Export: Product ${product.id} type: "${product.designMicroproductType}" -> "${productType}" -> isTrainingPlan: ${isTrainingPlan}`);
+    return isTrainingPlan;
+  });
+  
+  console.log('🔄 LMS Export: Filtering - Total products:', products.length);
+  console.log('🔄 LMS Export: Filtering - Course outlines found:', courseOutlines.length);
+  console.log('🔄 LMS Export: Filtering - Search term:', searchTerm);
+  console.log('🔄 LMS Export: Filtering - Type filter:', typeFilter);
   
   const filteredProducts = courseOutlines.filter(product => {
-    const matchesSearch = product.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false;
-    const matchesType = typeFilter === 'all' || product.designMicroproductType === typeFilter;
+    const productName = product.name || product.title || product.instanceName || '';
+    const matchesSearch = searchTerm === '' || productName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'all' || (product.designMicroproductType || '').toLowerCase() === typeFilter.toLowerCase();
+    
+    console.log(`🔍 LMS Export: Product "${productName}" - Search match: ${matchesSearch}, Type match: ${matchesType}`);
+    
     return matchesSearch && matchesType;
   });
+
+  console.log('✅ LMS Export: Final filtered products:', filteredProducts.length);
+  console.log('✅ LMS Export: Final filtered product details:', filteredProducts.map(p => ({
+    id: p.id,
+    name: p.name || p.title,
+    type: p.designMicroproductType
+  })));
 
   // Get unique product types for filter (only from course outlines)
   const productTypes = Array.from(new Set(courseOutlines.map(p => p.designMicroproductType)));
