@@ -67,9 +67,9 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
 
   const itemsArea: React.CSSProperties = {
     position: 'absolute',
-    left: '56px',
+    left: '125px',
     right: '56px',
-    top: '168px',
+    top: '80px',
     bottom: '148px',
     display: 'grid',
     gridTemplateColumns: '380px 1fr',
@@ -80,7 +80,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   };
 
   const valueStyle: React.CSSProperties = {
-    fontSize: '72px',
+    fontSize: '66px',
     color: '#3B3E36',
     fontWeight: 700,
     textAlign: 'right',
@@ -94,8 +94,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const descStyle: React.CSSProperties = {
     color: '#878783',
     lineHeight: 1.65,
-    fontSize: '16px',
-    maxWidth: '530px'
+    fontSize: '15px',
+    maxWidth: '530px',
+    marginLeft: '50px',
+    marginTop: '-28px'
   };
 
   const footerLine: React.CSSProperties = {
@@ -166,32 +168,13 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             </div>
           </React.Fragment>
         ))}
-
-        {isEditable && (
-          <div style={{ gridColumn: '1 / -1', marginTop: '8px' }}>
-            <button
-              onClick={() => { const ni=[...currentItems, { value: '10%', description: 'New metric description' }]; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); }}
-              style={{ background: '#33382e', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', marginRight: '8px' }}
-            >
-              Add row
-            </button>
-            {currentItems.length > 1 && (
-              <button
-                onClick={() => { const ni=currentItems.slice(0, -1); setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); }}
-                style={{ background: '#e5e3de', color: '#33382e', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
-              >
-                Remove last
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       <div style={footerLine} />
       <div style={footerLineCap} />
 
       {/* Profile image absolute bottom-left */}
-      <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#2B3127', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
