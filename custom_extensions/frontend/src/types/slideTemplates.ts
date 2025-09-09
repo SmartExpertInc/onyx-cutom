@@ -803,12 +803,8 @@ export interface KpiReportChartSlideProps extends BaseTemplateProps {
 export interface EnterpriseRoadmapSlideProps extends BaseTemplateProps {
   title: string;
   description: string;
-  tableData: Array<{
-    featureName: string;
-    status: string;
-    dueDate: string;
-    assignee: string;
-  }>;
+  headers?: string[]; // optional, default to [Feature Name, Status, Due Date, Assignee]
+  tableData: Array<Record<string, string>>; // flexible rows keyed by current headers
   profileImagePath?: string;
   profileImageAlt?: string;
   companyName?: string;

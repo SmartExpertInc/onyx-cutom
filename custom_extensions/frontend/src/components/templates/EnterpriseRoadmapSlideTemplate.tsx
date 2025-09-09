@@ -10,6 +10,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   slideId,
   title = 'Enterprise Offerings: Roadmap',
   description = 'These KPIs typically measure performance in a shorter time frame, and are focused on organizational processes and efficiencies. Some examples include sales by region, average monthly transportation costs and cost per acquisition (CPA)',
+  headers,
   tableData = [
     { featureName: 'Mobile optimization', status: 'Testing', dueDate: '14 April', assignee: 'Julius' },
     { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
@@ -28,7 +29,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
-  const [rows, setRows] = useState(tableData);
+  const defaultHeaders = headers && headers.length ? headers : ['Feature Name','Status','Due Date','Assignee'];
+  const [cols, setCols] = useState<string[]>(defaultHeaders);
+  const [rows, setRows] = useState<Record<string,string>[]>(tableData as Record<string,string>[]);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: currentTheme.fonts.titleFont };
   const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'4px', background:'#E6E5E3', borderRadius:'999px' };
@@ -37,8 +40,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const descStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'152px', width:'720px', color:'#9EA59A', fontSize:'16px', lineHeight:1.6 };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', background:'#2C3327', color:'#FFFFFF', padding:'14px 18px', borderRadius:'6px', fontWeight:600, letterSpacing:0.2 };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', padding:'14px 18px', background: i%2===1 ? '#EDECE8' : '#FFFFFF', borderRadius:'8px', marginTop:'12px', fontSize:'15px', color:'#676E64' });
+  const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2C3327', color:'#FFFFFF', padding:'14px 18px', borderRadius:'6px', fontWeight:600, letterSpacing:0.2 };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'14px 18px', background: i%2===1 ? '#EDECE8' : '#FFFFFF', borderRadius:'8px', marginTop:'12px', fontSize:'15px', color:'#676E64' });
 
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
   const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'13px' };
@@ -68,20 +72,60 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       </div>
 
       <div style={tableWrap}>
+        {/* Headers row with inline edit and column controls */}
         <div style={theadStyle}>
-          <div>Feature Name</div>
-          <div>Status</div>
-          <div>Due Date</div>
-          <div>Assignee</div>
+          {cols.map((h, idx)=> (
+            <div key={idx} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+              {isEditable ? (
+                <ImprovedInlineEditor
+                  initialValue={h}
+                  onSave={(v)=>{ const nc=[...cols]; nc[idx]=v; setCols(nc); onUpdate && onUpdate({ headers: nc, tableData: rows }); }}
+                  onCancel={()=>{}}
+                  style={{ color:'#fff', fontWeight:600 }}
+                />
+              ) : (
+                <div>{h}</div>
+              )}
+              {isEditable && (
+                <button onClick={()=>{ if(cols.length>1){ const nc=cols.filter((_,i)=>i!==idx); setCols(nc); const nr=rows.map(r=>{ const {[h]:_, ...rest}=r; return rest;}); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); } }} style={{ marginLeft:'auto', background:'transparent', border:'none', color:'#fff', cursor:'pointer' }}>×</button>
+              )}
+            </div>
+          ))}
+          {isEditable && (
+            <button onClick={()=>{ const name=`Column ${cols.length+1}`; const nc=[...cols, name]; const nr=rows.map(r=> ({ ...r, [name]: '' })); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }} style={{ background:'#fff', color:'#2C3327', border:'none', borderRadius:4, padding:'4px 8px', cursor:'pointer' }}>+ Add column</button>
+          )}
         </div>
+
+        {/* Rows */}
         {rows.map((r, i)=> (
           <div key={i} style={rowStyle(i)}>
-            <div>{r.featureName}</div>
-            <div>{r.status}</div>
-            <div>{r.dueDate}</div>
-            <div>{r.assignee}</div>
+            {cols.map((h, cidx)=> (
+              <div key={cidx}>
+                {isEditable ? (
+                  <ImprovedInlineEditor
+                    initialValue={r[h] || ''}
+                    onSave={(v)=>{ const nr=[...rows]; nr[i] = { ...nr[i], [h]: v }; setRows(nr); onUpdate && onUpdate({ tableData: nr, headers: cols }); }}
+                    onCancel={()=>{}}
+                    style={{ fontSize:'15px', color:'#676E64' }}
+                  />
+                ) : (
+                  <div>{r[h] || ''}</div>
+                )}
+              </div>
+            ))}
+            {isEditable && (
+              <div style={{ display:'flex', justifyContent:'flex-end', gap:'8px' }}>
+                <button onClick={()=>{ const nr=rows.filter((_,ri)=>ri!==i); setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ background:'#fff', color:'#2C3327', border:'1px solid #DAD9D6', borderRadius:4, padding:'4px 8px', cursor:'pointer' }}>Delete</button>
+              </div>
+            )}
           </div>
         ))}
+
+        {isEditable && (
+          <div style={{ marginTop:'10px' }}>
+            <button onClick={()=>{ const blank: Record<string,string> = {}; cols.forEach(h=> blank[h]=''); const nr=[...rows, blank]; setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ background:'#2C3327', color:'#fff', border:'none', borderRadius:6, padding:'6px 10px', cursor:'pointer' }}>+ Add row</button>
+          </div>
+        )}
       </div>
 
       <div style={bottomLine} />
