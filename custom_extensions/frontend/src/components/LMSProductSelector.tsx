@@ -143,7 +143,8 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   console.log('🔄 LMS Export: Filtering - Type filter:', typeFilter);
   
   const filteredProducts = courseOutlines.filter(product => {
-    const productName = product.microproduct_name || product.projectName || product.name || product.title || product.instanceName || '';
+    // Use same name priority as LMSProductCard: projectName as primary source
+    const productName = product.projectName || product.title || product.microproduct_name || product.name || '';
     const matchesSearch = searchTerm === '' || productName.toLowerCase().includes(searchTerm.toLowerCase());
     const productType = product.design_microproduct_type || product.designMicroproductType || '';
     const matchesType = typeFilter === 'all' || productType.toLowerCase() === typeFilter.toLowerCase();
