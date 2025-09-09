@@ -46,24 +46,27 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
   // Left content area
   const leftArea: React.CSSProperties = {
-    padding: '64px 56px 56px 64px',
+    padding: '35px 56px 56px 64px',
     position: 'relative',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    // right-side soft shadow to match design separation
+    boxShadow: '24px 0 48px -24px rgba(0,0,0,0.16)',
+    zIndex: 1
   };
 
   const largeFaintTitle: React.CSSProperties = {
     fontSize: '64px',
     fontWeight: 700,
     letterSpacing: '-0.5px',
-    color: '#efe9f7' // soft violet-tinted light heading
+    color: '#F1ECEE' // soft violet-tinted light heading
   };
 
   const paragraph: React.CSSProperties = {
     marginTop: '24px',
     maxWidth: '560px',
     lineHeight: 1.7,
-    color: '#b7b1cc', // light desaturated violet like in the reference
-    fontSize: '16px'
+    color: '#CEC0E9', // light desaturated violet like in the reference
+    fontSize: '14px'
   };
 
   const avatarHolder: React.CSSProperties = {
