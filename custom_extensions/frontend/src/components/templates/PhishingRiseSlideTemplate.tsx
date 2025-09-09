@@ -46,22 +46,23 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
   // Left content area
   const leftArea: React.CSSProperties = {
-    padding: '48px 48px 48px 48px',
+    padding: '64px 56px 56px 64px',
     position: 'relative',
     backgroundColor: '#ffffff'
   };
 
   const largeFaintTitle: React.CSSProperties = {
-    fontSize: '56px',
+    fontSize: '64px',
     fontWeight: 700,
-    color: '#e9e9ee'
+    letterSpacing: '-0.5px',
+    color: '#efe9f7' // soft violet-tinted light heading
   };
 
   const paragraph: React.CSSProperties = {
     marginTop: '24px',
-    maxWidth: '540px',
-    lineHeight: 1.6,
-    color: '#a6a7b0',
+    maxWidth: '560px',
+    lineHeight: 1.7,
+    color: '#b7b1cc', // light desaturated violet like in the reference
     fontSize: '16px'
   };
 
@@ -73,7 +74,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     height: '120px',
     borderRadius: '50%',
     overflow: 'hidden',
-    border: '3px solid #c6b9ff'
+    border: '2px solid #7f5af0' // subtle purple ring
   };
 
   // Right chart area
@@ -90,6 +91,19 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     fontSize: '14px'
   };
 
+  const yPillStyle: React.CSSProperties = {
+    display: 'inline-block',
+    padding: '6px 12px',
+    borderRadius: '999px',
+    background: '#f6f6fb',
+    border: '1px solid #eef0f3',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+    lineHeight: 1,
+    color: '#8d96a3',
+    minWidth: '40px',
+    textAlign: 'center'
+  };
+
   const chart: React.CSSProperties = {
     position: 'absolute',
     right: '48px',
@@ -98,13 +112,13 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     top: '72px',
     display: 'flex',
     alignItems: 'flex-end',
-    gap: '36px',
-    borderLeft: '1px solid #f0f0f0'
+    gap: '44px',
+    // no gridlines in the reference; keep background clean
   };
 
   const yearStyle: React.CSSProperties = {
     textAlign: 'center',
-    color: '#777',
+    color: '#8d96a3',
     marginTop: '8px',
     fontSize: '14px'
   };
@@ -181,11 +195,11 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       <div style={rightArea}>
         {/* Y labels */}
         <div style={yLabels}>
-          <div style={{ marginBottom: '64px' }}>70</div>
-          <div style={{ marginBottom: '64px' }}>60</div>
-          <div style={{ marginBottom: '64px' }}>40</div>
-          <div style={{ marginBottom: '64px' }}>20</div>
-          <div>0</div>
+          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>70</span></div>
+          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>60</span></div>
+          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>40</span></div>
+          <div style={{ marginBottom: '64px' }}><span style={yPillStyle}>20</span></div>
+          <div><span style={yPillStyle}>0</span></div>
         </div>
 
         {/* Bars */}
@@ -206,7 +220,15 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               </div>
 
               <div
-                style={{ width: '90px', height: `${b.height}px`, backgroundColor: '#0d0d0d', position: 'relative', cursor: isEditable ? 'ns-resize' : 'default' }}
+                style={{
+                  width: '96px',
+                  height: `${b.height}px`,
+                  backgroundColor: '#0b0b0b',
+                  position: 'relative',
+                  cursor: isEditable ? 'ns-resize' : 'default',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+                  borderRadius: '2px'
+                }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const startY = e.clientY;
