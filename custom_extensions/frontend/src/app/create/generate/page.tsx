@@ -1928,16 +1928,15 @@ function GenerateProductPicker() {
               <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
                 {Array.from({ length: 6 }).map((_, index) =>
                   examples[index] ? (
-                    <Button
+                    <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      variant="outline"
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
-                      <span className="text-center leading-tight px-6">{examples[index]}</span>
-                      <span className="absolute top-2 right-2 text-blue-400 text-lg font-bold">+</span>
-                    </Button>
+                      <span className="text-center leading-tight pr-6">{examples[index]}</span>
+                      <span className="absolute top-2 right-3 text-blue-400 text-lg font-bold">+</span>
+                    </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
                   )
