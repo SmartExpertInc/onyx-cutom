@@ -12297,17 +12297,27 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
             try:
                 # Parse JSON string to dict
                 details_dict = json.loads(details_data)
-                # Round hours to integers before returning
-                details_dict = round_hours_in_content(details_dict)
-                parsed_details = details_dict
-                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
+                # For video products, preserve the original structure without rounding hours
+                if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+                    parsed_details = details_dict
+                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product parsed from JSON string (preserving structure): {json.dumps(parsed_details, indent=2)}")
+                else:
+                    # Round hours to integers before returning for other content types
+                    details_dict = round_hours_in_content(details_dict)
+                    parsed_details = details_dict
+                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
             except (json.JSONDecodeError, TypeError) as e:
                 logger.error(f"Failed to parse microproduct_content JSON for project {project_id}: {e}")
                 parsed_details = None
         else:
-            # Already a dict, just round hours
-            parsed_details = round_hours_in_content(details_data)
-            logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
+            # For video products, preserve the original structure without rounding hours
+            if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+                parsed_details = details_data
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product already dict (preserving structure): {json.dumps(parsed_details, indent=2)}")
+            else:
+                # Already a dict, just round hours for other content types
+                parsed_details = round_hours_in_content(details_data)
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
     
     # 🔍 BACKEND VIEW RESULT LOGGING
     if parsed_details and 'contentBlocks' in parsed_details:
@@ -12342,6 +12352,8 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
             logger.info(f"🎬 [CRITICAL DEBUG] Response has videoUrl: {response_data.details.videoUrl}")
         elif isinstance(response_data.details, dict) and 'videoUrl' in response_data.details:
             logger.info(f"🎬 [CRITICAL DEBUG] Response dict has videoUrl: {response_data.details['videoUrl']}")
+            logger.info(f"🎬 [CRITICAL DEBUG] Response dict has videoJobId: {response_data.details.get('videoJobId', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] Response dict has thumbnailUrl: {response_data.details.get('thumbnailUrl', 'NOT_FOUND')}")
         else:
             logger.info(f"🎬 [CRITICAL DEBUG] Response has NO videoUrl!")
     
