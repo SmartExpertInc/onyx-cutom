@@ -504,7 +504,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             </h1>
             <Button
               onClick={() => getFolderDetails(folderId)}
-              variant="outline"
+              variant="ghost"
               size="sm"
             >
               {t('actions.refresh', 'Refresh')}
@@ -619,7 +619,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
         </div>
 
         {/* Files Section */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-white">
           <CardContent className="p-6 border-b">
             <div className="flex items-center justify-between">
               <div>
