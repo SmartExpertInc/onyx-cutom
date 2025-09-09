@@ -120,7 +120,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
         : "bg-white/70 text-gray-700 hover:bg-white"
     }`}
   >
-    {Icon && <Icon size={70} />}
+    {Icon && <Icon size={48} />}
     <span className="text-sm font-medium leading-tight">{label}</span>
   </Button>
 );
@@ -1078,16 +1078,16 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <Alert className="bg-green-50 border border-green-200">
-            <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
+          <Alert className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 text-green-800 font-medium mb-3">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromText', 'Creating from text')}
             </div>
-            <AlertDescription className="text-green-700">
-              <p className="font-medium">
+            <AlertDescription className="text-green-700 space-y-2">
+              <p className="font-medium text-green-800">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
-              <p className="mt-1 text-green-600">
+              <p className="text-green-600 leading-relaxed">
                 {textMode === 'context' 
                   ? t('interface.generate.aiWillUseTextAsContext', 'The AI will use your text as reference material and context to create new educational content.')
                   : t('interface.generate.aiWillBuildUponText', 'The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.')}
@@ -1923,7 +1923,7 @@ function GenerateProductPicker() {
                       className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
-                      <span className="text-center leading-tight px-6">{examples[index]}</span>
+                      <span className="text-center leading-tight px-8 pr-6">{examples[index]}</span>
                       <span className="absolute top-2 right-2 text-blue-400 text-lg font-bold">+</span>
                     </Button>
                   ) : (
