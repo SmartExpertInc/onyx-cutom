@@ -1165,7 +1165,7 @@ export default function CommercialProposalPage() {
                   <div className="w-full rounded-[6px] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
                     {/* Table Header */}
                     <div className="bg-[#F5F5F5] px-4 py-3">
-                      <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="text-[14px] xl:text-[22px] font-semibold">
                           Пакет
                         </div>
@@ -1182,7 +1182,7 @@ export default function CommercialProposalPage() {
                     <div className="bg-white">
                       {/* Row 1 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             1 курс
                           </div>
@@ -1197,7 +1197,7 @@ export default function CommercialProposalPage() {
                       
                       {/* Row 2 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             3 курса
                           </div>
@@ -1212,7 +1212,7 @@ export default function CommercialProposalPage() {
                       
                       {/* Row 3 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             10 курсов
                           </div>
@@ -1647,7 +1647,7 @@ export default function CommercialProposalPage() {
                   <div className="w-full min-w-[690px] xl:min-w-0 rounded-[6px] overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
                     {/* Table Header */}
                     <div className="bg-[#F5F5F5] px-4 py-3">
-                      <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="text-[14px] xl:text-[22px] font-semibold">
                           Кол-во пользователей
                         </div>
@@ -1664,7 +1664,7 @@ export default function CommercialProposalPage() {
                     <div className="bg-white">
                       {/* Row 1 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             до 100
                           </div>
@@ -1679,7 +1679,7 @@ export default function CommercialProposalPage() {
                       
                       {/* Row 2 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             до 200
                           </div>
@@ -1694,7 +1694,7 @@ export default function CommercialProposalPage() {
                       
                       {/* Row 3 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             201-500
                           </div>
@@ -1709,7 +1709,7 @@ export default function CommercialProposalPage() {
                       
                       {/* Row 4 */}
                       <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4 items-center">
+                        <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             501-1000
                           </div>
