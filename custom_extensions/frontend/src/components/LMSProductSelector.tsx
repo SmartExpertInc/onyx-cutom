@@ -14,7 +14,7 @@ interface LMSProductSelectorProps {
 }
 
 // Helper function to get product type icon
-const getProductTypeIcon = (type: string): React.ReactElement => {
+const getProductTypeIcon = (type: string | undefined): React.ReactElement => {
   const iconSize = 20;
   const iconClass = "text-gray-600";
 
@@ -35,7 +35,9 @@ const getProductTypeIcon = (type: string): React.ReactElement => {
 };
 
 // Helper function to get product type display name
-const getProductTypeDisplayName = (type: string): string => {
+const getProductTypeDisplayName = (type: string | undefined): string => {
+  if (!type) return "Unknown";
+  
   switch (type) {
     case "Training Plan":
       return "Course Outline";
@@ -192,7 +194,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   })));
 
   // Get unique product types for filter (only from course outlines)
-  const productTypes = Array.from(new Set(courseOutlines.map(p => p.designMicroproductType)));
+  const productTypes = Array.from(new Set(courseOutlines.map(p => p.designMicroproductType).filter(Boolean)));
 
   const allFilteredSelected = filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts.has(p.id));
 
@@ -327,8 +329,8 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
               return color;
             };
             
-            const bgColor = stringToColor(product.name);
-            const avatarColor = stringToColor(product.user_id || 'user');
+            const bgColor = stringToColor(product.name || product.title || 'Product');
+            const avatarColor = stringToColor((product.user_id || 'user'));
             
             return (
               <div
@@ -359,7 +361,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                   style={{
                     backgroundColor: bgColor,
                     backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-                      product.name.split("").reverse().join("")
+                      (product.name || product.title || '').split("").reverse().join("")
                     )}99)`,
                   }}
                 >
@@ -434,7 +436,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                           {t('interface.createdByYou', 'Created by you')}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {new Date(product.created_at).toLocaleDateString()}
+                          {new Date(product.created_at || product.createdAt || Date.now()).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
