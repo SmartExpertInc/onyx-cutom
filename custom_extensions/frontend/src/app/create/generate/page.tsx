@@ -1055,12 +1055,12 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <Alert className="bg-green-50 border border-green-200 p-4 mb-4">
-            <div className="flex items-center gap-2 text-green-800 p-4 font-medium mb-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromText', 'Creating from text')}
             </div>
-            <AlertDescription className="text-green-700">
+            <div className="text-green-700">
               <p className="font-medium">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
@@ -1074,8 +1074,8 @@ function GenerateProductPicker() {
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
-            </AlertDescription>
-          </Alert>
+            </div>
+          </div>
         )}
 
         {/* Tab selector */}
@@ -1090,7 +1090,7 @@ function GenerateProductPicker() {
                 : "bg-white/70 text-gray-700 hover:bg-white"
             }`}
           >
-            <CourseOutlineIcon size={58} />
+            <CourseOutlineIcon size={40} />
             <span className="text-sm font-medium leading-tight">{t('interface.generate.courseOutline', 'Course Outline')}</span>
           </Button>
           <Button 
@@ -1103,7 +1103,7 @@ function GenerateProductPicker() {
                 : "bg-white/70 text-gray-700 hover:bg-white"
             }`}
           >
-            <VideoScriptIcon size={48} />
+            <VideoScriptIcon size={40} />
             <span className="text-sm font-medium leading-tight">{t('interface.generate.videoLesson', 'Video Lesson')}</span>
           </Button>
           <Button 
@@ -1116,7 +1116,7 @@ function GenerateProductPicker() {
                 : "bg-white/70 text-gray-700 hover:bg-white"
             }`}
           >
-            <QuizIcon size={48} />
+            <QuizIcon size={40} />
             <span className="text-sm font-medium leading-tight">{t('interface.generate.quiz', 'Quiz')}</span>
           </Button>
           <Button
@@ -1129,7 +1129,7 @@ function GenerateProductPicker() {
                 : "bg-white/70 text-gray-700 hover:bg-white"
             }`}
           >
-            <LessonPresentationIcon size={48} />
+            <LessonPresentationIcon size={40} />
             <span className="text-sm font-medium leading-tight">{t('interface.generate.presentation', 'Presentation')}</span>
           </Button>
           <Button
@@ -1142,7 +1142,7 @@ function GenerateProductPicker() {
                 : "bg-white/70 text-gray-700 hover:bg-white"
             }`}
           >
-            <TextPresentationIcon size={48} />
+            <TextPresentationIcon size={40} />
             <span className="text-sm font-medium leading-tight">{t('interface.generate.onePager', 'One-Pager')}</span>
           </Button>
         </div>
