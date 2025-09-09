@@ -1373,6 +1373,7 @@ export default function CommercialProposalPage() {
                   </div>
                 </div>
               </div>
+            </div>
 
             {/* Service 3 */}
             <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
