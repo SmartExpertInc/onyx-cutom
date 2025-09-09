@@ -1553,17 +1553,18 @@ export default function CourseOutlineClient() {
                       { id: "medium", label: t('interface.courseOutline.medium', 'Medium'), icon: <AlignCenter size={14} /> },
                       { id: "detailed", label: t('interface.courseOutline.detailed', 'Detailed'), icon: <AlignRight size={14} /> },
                     ].map((opt) => (
-                      <button
+                      <Button
                         key={opt.id}
                         type="button"
                         onClick={() => setTextDensity(opt.id as any)}
-                        className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${
-                          textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'
+                        variant={textDensity === opt.id ? "default" : "ghost"}
+                        className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors rounded-none ${
+                          textDensity === opt.id ? 'bg-[#d6e6fd] hover:bg-[#d6e6fd]' : 'bg-white hover:bg-gray-50'
                         }`}
                       >
                         {opt.icon}
                         {opt.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>

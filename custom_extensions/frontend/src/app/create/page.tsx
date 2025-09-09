@@ -198,6 +198,12 @@ export default function DataSourceLanding() {
             pillLabel={t('interface.popular', 'POPULAR')}
           />
           <OptionCard
+            Icon={FileText}
+            title={t('interface.courseOutline', 'TEST')}
+            description={t('interface.courseOutlineDescription', 'Create a course outline with AI')}
+            href="/create/test-pg"
+          />
+          <OptionCard
             Icon={UploadCloud}
             title={t('interface.importFileOrUrl', 'Import file or URL')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
