@@ -12329,18 +12329,35 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     web_link_path = None
     pdf_link_path = None
     # 🔍 CRITICAL DEBUG: Log the exact response being sent to frontend
-    response_data = MicroProductApiResponse(
-        name=project_instance_name, slug=project_slug, project_id=project_id,
-        design_template_id=row_dict["design_template_id"], component_name=component_name,
-        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
-        sourceChatSessionId=row_dict.get("source_chat_session_id"),
-        parentProjectName=row_dict.get('project_name'),
-        custom_rate=row_dict.get("custom_rate"),
-        quality_tier=row_dict.get("quality_tier"),
-        is_advanced=row_dict.get("is_advanced"),
-        advanced_rates=row_dict.get("advanced_rates")
-        # folder_id is not in MicroProductApiResponse, but can be added if needed
-    )
+    # For video products, ensure we preserve the raw dictionary without Pydantic validation
+    if component_name == COMPONENT_NAME_VIDEO_PRODUCT and parsed_details:
+        # Create response with raw video metadata to avoid Pydantic validation issues
+        response_data = MicroProductApiResponse(
+            name=project_instance_name, slug=project_slug, project_id=project_id,
+            design_template_id=row_dict["design_template_id"], component_name=component_name,
+            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+            sourceChatSessionId=row_dict.get("source_chat_session_id"),
+            parentProjectName=row_dict.get('project_name'),
+            custom_rate=row_dict.get("custom_rate"),
+            quality_tier=row_dict.get("quality_tier"),
+            is_advanced=row_dict.get("is_advanced"),
+            advanced_rates=row_dict.get("advanced_rates")
+        )
+        # Override the details field to ensure it remains as raw dict
+        response_data.details = parsed_details
+    else:
+        # For other content types, use normal processing
+        response_data = MicroProductApiResponse(
+            name=project_instance_name, slug=project_slug, project_id=project_id,
+            design_template_id=row_dict["design_template_id"], component_name=component_name,
+            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+            sourceChatSessionId=row_dict.get("source_chat_session_id"),
+            parentProjectName=row_dict.get('project_name'),
+            custom_rate=row_dict.get("custom_rate"),
+            quality_tier=row_dict.get("quality_tier"),
+            is_advanced=row_dict.get("is_advanced"),
+            advanced_rates=row_dict.get("advanced_rates")
+        )
     
     # 🔍 CRITICAL DEBUG: For video products, log the exact response being sent
     if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
@@ -12351,11 +12368,12 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         if hasattr(response_data.details, 'videoUrl'):
             logger.info(f"🎬 [CRITICAL DEBUG] Response has videoUrl: {response_data.details.videoUrl}")
         elif isinstance(response_data.details, dict) and 'videoUrl' in response_data.details:
-            logger.info(f"🎬 [CRITICAL DEBUG] Response dict has videoUrl: {response_data.details['videoUrl']}")
-            logger.info(f"🎬 [CRITICAL DEBUG] Response dict has videoJobId: {response_data.details.get('videoJobId', 'NOT_FOUND')}")
-            logger.info(f"🎬 [CRITICAL DEBUG] Response dict has thumbnailUrl: {response_data.details.get('thumbnailUrl', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoUrl: {response_data.details['videoUrl']}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoJobId: {response_data.details.get('videoJobId', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has thumbnailUrl: {response_data.details.get('thumbnailUrl', 'NOT_FOUND')}")
+            logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Video metadata preserved successfully!")
         else:
-            logger.info(f"🎬 [CRITICAL DEBUG] Response has NO videoUrl!")
+            logger.info(f"🎬 [CRITICAL DEBUG] ❌ Response has NO videoUrl!")
     
     return response_data
 
