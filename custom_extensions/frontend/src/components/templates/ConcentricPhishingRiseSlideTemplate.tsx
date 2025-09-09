@@ -27,23 +27,23 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#ffffff', fontFamily: currentTheme.fonts.titleFont };
 
   const rightText: React.CSSProperties = { position:'absolute', right:'96px', top:'140px', width:'520px' };
-  const titleStyle: React.CSSProperties = { fontSize:'64px', fontWeight:800, color:'#151515', letterSpacing:'-0.5px' };
-  const descStyle: React.CSSProperties = { marginTop:'12px', color:'#8C8C8C', fontSize:'16px', lineHeight:1.6 };
+  const titleStyle: React.CSSProperties = { fontSize:'52px', fontWeight:800, color:'#151515', letterSpacing:'-0.5px' };
+  const descStyle: React.CSSProperties = { marginTop:'12px', color:'#8C8C8C', fontSize:'15px', lineHeight:1.6 };
 
-  const circles: React.CSSProperties = { position:'absolute', left:'-160px', top:'-120px', width:'1000px', height:'1000px' };
-  const actorHolder: React.CSSProperties = { position:'absolute', right:'96px', bottom:'72px', width:'180px', height:'180px', borderRadius:'50%', overflow:'hidden', background:'#111' };
+  const circles: React.CSSProperties = { position:'absolute', left:'-120px', top:'-120px', width:'880px', height:'880px' };
+  const actorHolder: React.CSSProperties = { position:'absolute', right:'96px', bottom:'56px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#111' };
 
   return (
     <div className="concentric-phishing-rise-slide inter-theme" style={slide}>
       {/* Concentric circles */}
-      <svg viewBox="0 0 1000 1000" style={circles}>
-        <circle cx="500" cy="500" r="460" fill="#fff" stroke="#111" strokeWidth="2" />
-        <circle cx="500" cy="640" r="320" fill="#0a0a0a" stroke="#0a0a0a" strokeWidth="2" />
-        <circle cx="500" cy="860" r="140" fill="#fff" stroke="#fff" strokeWidth="2" />
+      <svg viewBox="0 0 880 880" style={circles}>
+        <circle cx="440" cy="440" r="400" fill="#fff" stroke="#111" strokeWidth="2" />
+        <circle cx="440" cy="560" r="280" fill="#0a0a0a" stroke="#0a0a0a" strokeWidth="2" />
+        <circle cx="440" cy="760" r="120" fill="#fff" stroke="#fff" strokeWidth="2" />
         {/* Labels */}
-        <text x="280" y="320" fill="#151515" fontSize="120" fontWeight="800">{bigLabel}</text>
-        <text x="390" y="640" fill="#ffffff" fontSize="84" fontWeight="800">{mediumLabel}</text>
-        <text x="450" y="880" fill="#151515" fontSize="56" fontWeight="800">{smallLabel}</text>
+        <text x="220" y="290" fill="#151515" fontSize="100" fontWeight="800">{bigLabel}</text>
+        <text x="340" y="560" fill="#ffffff" fontSize="72" fontWeight="800">{mediumLabel}</text>
+        <text x="380" y="780" fill="#151515" fontSize="48" fontWeight="800">{smallLabel}</text>
       </svg>
 
       {/* Right section */}

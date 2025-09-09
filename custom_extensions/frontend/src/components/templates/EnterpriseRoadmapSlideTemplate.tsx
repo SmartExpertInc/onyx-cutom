@@ -31,17 +31,17 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [rows, setRows] = useState(tableData);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: currentTheme.fonts.titleFont };
-  const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'40px', height:'4px', background:'#E6E5E3', borderRadius:'999px' };
-  const avatarArea: React.CSSProperties = { position:'absolute', left:'56px', top:'110px', width:'140px', height:'140px', borderRadius:'50%', overflow:'hidden', background:'#253020' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'230px', top:'118px', fontSize:'34px', color:'#585955', fontWeight:600 };
-  const descStyle: React.CSSProperties = { position:'absolute', left:'230px', top:'172px', width:'780px', color:'#9EA59A', fontSize:'18px', lineHeight:1.6 };
+  const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'4px', background:'#E6E5E3', borderRadius:'999px' };
+  const avatarArea: React.CSSProperties = { position:'absolute', left:'56px', top:'96px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#253020' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'104px', fontSize:'30px', color:'#585955', fontWeight:600 };
+  const descStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'152px', width:'720px', color:'#9EA59A', fontSize:'16px', lineHeight:1.6 };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'290px' };
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', background:'#2E3529', color:'#FFFFFF', padding:'14px 20px', borderRadius:'4px' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', padding:'14px 20px', background: i%2===0 ? '#F0EFEC' : '#FFFFFF', border:'1px solid #ECEBE8', borderTop:'none' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', background:'#2E3529', color:'#FFFFFF', padding:'12px 16px', borderRadius:'4px' };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', padding:'12px 16px', background: i%2===0 ? '#F0EFEC' : '#FFFFFF', border:'1px solid #ECEBE8', borderTop:'none', fontSize:'15px' });
 
-  const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'64px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
-  const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'14px' };
+  const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
+  const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'13px' };
 
   return (
     <div className="enterprise-roadmap-slide inter-theme" style={slide}>

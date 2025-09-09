@@ -44,9 +44,9 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
     left: '64px',
-    top: '72px',
+    top: '64px',
     whiteSpace: 'pre-line',
-    fontSize: '48px',
+    fontSize: '38px',
     fontWeight: 800,
     color: '#242536',
     letterSpacing: '-0.4px',
@@ -56,10 +56,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const paragraph: React.CSSProperties = {
     position: 'absolute',
     right: '96px',
-    top: '84px',
-    width: '520px',
+    top: '72px',
+    width: '480px',
     color: '#8c93a3',
-    fontSize: '18px',
+    fontSize: '16px',
     lineHeight: 1.6
   };
 
@@ -67,18 +67,18 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     position: 'absolute',
     left: '64px',
     right: '64px',
-    bottom: '64px',
-    top: '240px',
+    bottom: '56px',
+    top: '210px',
     backgroundColor: panelColor,
     borderRadius: '36px'
   };
 
   const avatarHolder: React.CSSProperties = {
     position: 'absolute',
-    left: '300px',
-    bottom: '48px',
-    width: '320px',
-    height: '520px',
+    left: '280px',
+    bottom: '32px',
+    width: '240px',
+    height: '420px',
     zIndex: 2
   };
 
@@ -154,10 +154,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
       {/* Rounded panel with editable line chart */}
       <div style={panel}>
         <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 }}>
-          <path d={pathD} fill="none" stroke={lineColor} strokeWidth={3.5} />
+          <path d={pathD} fill="none" stroke={lineColor} strokeWidth={3} />
           {curvePoints.map((p, idx) => (
             <g key={idx} transform={`translate(${p.x},${p.y})`}>
-              <circle cx={0} cy={0} r={3.5} fill="#ffffff" stroke={lineColor} strokeWidth={2.5} onMouseDown={(e) => startDrag(idx, e)} style={{ cursor: isEditable ? 'grab' : 'default' }} />
+              <circle cx={0} cy={0} r={3} fill="#ffffff" stroke={lineColor} strokeWidth={2} onMouseDown={(e) => startDrag(idx, e)} style={{ cursor: isEditable ? 'grab' : 'default' }} />
             </g>
           ))}
         </svg>

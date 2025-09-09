@@ -28,12 +28,12 @@ export const FinancialImpactMosaicSlideTemplate: React.FC<FinancialImpactMosaicS
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#101e28', fontFamily: currentTheme.fonts.titleFont, color:'#e5e7eb' };
 
-  const grid: React.CSSProperties = { position:'absolute', inset: '0 0 0 0', display:'grid', gridTemplateColumns:'1.1fr 1.9fr', gridTemplateRows:'1.2fr 1fr', gap:'16px', padding:'16px' };
+  const grid: React.CSSProperties = { position:'absolute', inset: '0 0 0 0', display:'grid', gridTemplateColumns:'1.1fr 1.9fr', gridTemplateRows:'1.15fr 0.85fr', gap:'12px', padding:'12px' };
   const leftTop: React.CSSProperties = { background:'#e65f42', display:'flex', alignItems:'center', justifyContent:'center' };
-  const leftBottom: React.CSSProperties = { background:'#e65f42', display:'flex', alignItems:'flex-end', padding:'32px', fontSize:'56px', fontWeight:800, lineHeight:1.05 };
+  const leftBottom: React.CSSProperties = { background:'#e65f42', display:'flex', alignItems:'flex-end', padding:'24px', fontSize:'46px', fontWeight:800, lineHeight:1.06 };
   const centerTop: React.CSSProperties = { background:'#0f2330', position:'relative' };
-  const centerMidLeft: React.CSSProperties = { background:'#0f2330', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'56px', fontWeight:800 };
-  const centerMidRight: React.CSSProperties = { background:'#0f2330', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'56px', fontWeight:800 };
+  const centerMidLeft: React.CSSProperties = { background:'#0f2330', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'46px', fontWeight:800 };
+  const centerMidRight: React.CSSProperties = { background:'#0f2330', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'46px', fontWeight:800 };
   const rightBottom: React.CSSProperties = { background:'#0f2330', position:'relative' };
 
   return (
@@ -41,16 +41,16 @@ export const FinancialImpactMosaicSlideTemplate: React.FC<FinancialImpactMosaicS
       <div style={grid}>
         {/* Left column top: Avatar */}
         <div style={leftTop}>
-          <div style={{ width:'300px', height:'420px', background:'#111' }}>
+          <div style={{ width:'260px', height:'360px', background:'#111' }}>
             <ClickableImagePlaceholder imagePath={leftAvatarPath} onImageUploaded={(p)=>onUpdate&&onUpdate({ leftAvatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
           </div>
         </div>
 
         {/* Center-top KPI */}
         <div style={centerTop}>
-          <div style={{ position:'absolute', right:'32px', top:'32px', textAlign:'right' }}>
-            <div style={{ fontSize:'76px', fontWeight:800 }}>{kpiTitle}</div>
-            <div style={{ marginTop:'8px', color:'#9aa3ac', fontSize:'22px' }}>{kpiSubtitle}</div>
+          <div style={{ position:'absolute', right:'24px', top:'24px', textAlign:'right' }}>
+            <div style={{ fontSize:'64px', fontWeight:800 }}>{kpiTitle}</div>
+            <div style={{ marginTop:'6px', color:'#9aa3ac', fontSize:'19px' }}>{kpiSubtitle}</div>
           </div>
           <ClickableImagePlaceholder imagePath={topRightImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ topRightImagePath:p })} size="LARGE" position="CENTER" description="Top image" isEditable={isEditable} style={{ position:'absolute', inset: '0 0 0 0', objectFit:'cover', opacity:0.22 }} />
         </div>
@@ -79,7 +79,7 @@ export const FinancialImpactMosaicSlideTemplate: React.FC<FinancialImpactMosaicS
         {/* Right bottom photo + footer */}
         <div style={rightBottom}>
           <ClickableImagePlaceholder imagePath={bottomRightImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ bottomRightImagePath:p })} size="LARGE" position="CENTER" description="Bottom image" isEditable={isEditable} style={{ position:'absolute', inset:'0 0 0 0', objectFit:'cover' }} />
-          <div style={{ position:'absolute', bottom:'16px', right:'32px', display:'flex', gap:'36px', color:'#c0c7cd' }}>
+          <div style={{ position:'absolute', bottom:'12px', right:'24px', display:'flex', gap:'28px', color:'#c0c7cd', fontSize:'14px' }}>
             <div>{footerDate}</div>
             <div>{footerPage}</div>
           </div>

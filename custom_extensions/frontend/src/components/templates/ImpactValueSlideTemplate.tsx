@@ -37,25 +37,17 @@ export const ImpactValueSlideTemplate: React.FC<ImpactValueSlideProps & { theme?
     overflow: 'hidden'
   };
 
-  const header: React.CSSProperties = {
-    position: 'absolute', left: '64px', top: '40px', color: '#1E1F20', fontSize: '18px'
-  };
-  const headerRight: React.CSSProperties = {
-    position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '40px', color: '#1E1F20', fontSize: '18px'
-  };
-  const leftCol: React.CSSProperties = {
-    position: 'absolute', left: '64px', top: '88px', bottom: '64px', width: '32%'
-  };
-  const titleStyle: React.CSSProperties = {
-    whiteSpace: 'pre-line', fontSize: '92px', fontWeight: 800, color: '#1E1F20', letterSpacing: '-1px', lineHeight: 0.95
-  };
-  const divider: React.CSSProperties = { position: 'absolute', top: '64px', bottom: '64px', width: '6px', backgroundColor: 'rgba(0,0,0,0.12)', left: '50%' };
-  const divider2: React.CSSProperties = { position: 'absolute', top: '64px', bottom: '64px', width: '6px', backgroundColor: 'rgba(0,0,0,0.12)', left: '75%' };
+  const header: React.CSSProperties = { position: 'absolute', left: '48px', top: '28px', color: '#1E1F20', fontSize: '16px' };
+  const headerRight: React.CSSProperties = { position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '28px', color: '#1E1F20', fontSize: '16px' };
+  const leftCol: React.CSSProperties = { position: 'absolute', left: '48px', top: '72px', bottom: '48px', width: '30%' };
+  const titleStyle: React.CSSProperties = { whiteSpace: 'pre-line', fontSize: '76px', fontWeight: 800, color: '#1E1F20', letterSpacing: '-1px', lineHeight: 0.98 };
+  const divider: React.CSSProperties = { position: 'absolute', top: '56px', bottom: '56px', width: '4px', backgroundColor: 'rgba(0,0,0,0.12)', left: '50%' };
+  const divider2: React.CSSProperties = { position: 'absolute', top: '56px', bottom: '56px', width: '4px', backgroundColor: 'rgba(0,0,0,0.12)', left: '75%' };
 
-  const metricArea: React.CSSProperties = { position: 'absolute', left: '50%', right: '0', top: '120px', height: '200px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' };
-  const metricNumber: React.CSSProperties = { fontSize: '120px', fontWeight: 900, color: '#1F211F', textAlign: 'center', letterSpacing: '-3px' };
-  const imageRow: React.CSSProperties = { position: 'absolute', left: '36%', right: '64px', top: '360px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '40px' };
-  const captionRow: React.CSSProperties = { position: 'absolute', left: '36%', right: '64px', top: '560px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '40px', color: '#5E5F5B', fontSize: '20px', textAlign: 'center' };
+  const metricArea: React.CSSProperties = { position: 'absolute', left: '50%', right: '0', top: '96px', height: '160px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' };
+  const metricNumber: React.CSSProperties = { fontSize: '92px', fontWeight: 900, color: '#1F211F', textAlign: 'center', letterSpacing: '-2px' };
+  const imageRow: React.CSSProperties = { position: 'absolute', left: '36%', right: '48px', top: '290px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px' };
+  const captionRow: React.CSSProperties = { position: 'absolute', left: '36%', right: '48px', top: '480px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px', color: '#5E5F5B', fontSize: '18px', textAlign: 'center' };
 
   return (
     <div className="impact-value-slide inter-theme" style={slide}>
@@ -89,7 +81,7 @@ export const ImpactValueSlideTemplate: React.FC<ImpactValueSlideProps & { theme?
           <div onClick={()=>isEditable&&setEditingTitle(true)} style={{cursor:isEditable?'pointer':'default', ...titleStyle}}>{title}</div>
         )}
 
-        <div style={{ position: 'absolute', left: 0, bottom: 0, width: '340px', height: '340px', backgroundColor: '#121417' }}>
+        <div style={{ position: 'absolute', left: 0, bottom: 0, width: '280px', height: '280px', backgroundColor: '#121417' }}>
           <ClickableImagePlaceholder imagePath={''} onImageUploaded={(p)=>onUpdate&&onUpdate({ leftAvatarPath: p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
       </div>
