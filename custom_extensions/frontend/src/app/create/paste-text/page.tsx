@@ -6,6 +6,9 @@ import { Home as HomeIcon, ChevronRight, FileText, Sparkles, ArrowLeft } from "l
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function PasteTextPage() {
   const router = useRouter();
@@ -82,12 +85,16 @@ export default function PasteTextPage() {
       }}
     >
       {/* back button absolute top-left */}
-      <Link
-        href="/create"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-black hover:text-black-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="absolute top-6 left-6 rounded-full border-gray-300 bg-white text-black hover:text-black hover:bg-gray-50"
       >
-        <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
-      </Link>
+        <Link href="/create">
+          <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
+        </Link>
+      </Button>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
@@ -117,10 +124,12 @@ export default function PasteTextPage() {
               {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
             </div>
             {warning && (
-              <div className={`text-sm font-medium ${warning.color} flex items-center gap-1`}>
-                <span className="w-2 h-2 rounded-full bg-current"></span>
-                {warning.message}
-              </div>
+              <Alert className={`${warning.type === 'warning' ? 'border-orange-200 bg-orange-50' : 'border-blue-200 bg-blue-50'} ${warning.color}`}>
+                <AlertDescription className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-current"></span>
+                  {warning.message}
+                </AlertDescription>
+              </Alert>
             )}
           </div>
         </div>
@@ -133,64 +142,69 @@ export default function PasteTextPage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Use as context option */}
-            <button
-              onClick={() => setMode("context")}
-              className={`p-6 rounded-xl border-2 transition-all text-left ${
+            <Card 
+              className={`cursor-pointer transition-all ${
                 mode === "context"
                   ? "border-blue-500 bg-white shadow-lg"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
+              onClick={() => setMode("context")}
             >
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${
-                  mode === "context" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
-                }`}>
-                  <FileText size={24} />
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-lg ${
+                    mode === "context" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
+                  }`}>
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsContext', 'Use as Context')}</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsContext', 'Use as Context')}</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
-                  </p>
-                </div>
-              </div>
-            </button>
+              </CardContent>
+            </Card>
 
             {/* Use as base option */}
-            <button
-              onClick={() => setMode("base")}
-              className={`p-6 rounded-xl border-2 transition-all text-left ${
+            <Card 
+              className={`cursor-pointer transition-all ${
                 mode === "base"
                   ? "border-blue-500 bg-white shadow-lg"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
+              onClick={() => setMode("base")}
             >
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${
-                  mode === "base" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
-                }`}>
-                  <Sparkles size={24} />
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-lg ${
+                    mode === "base" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
+                  }`}>
+                    <Sparkles size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsBase', 'Use as Base')}</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsBase', 'Use as Base')}</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
-                  </p>
-                </div>
-              </div>
-            </button>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
         {/* Continue button */}
-        <button
+        <Button
           onClick={handleContinue}
           disabled={!text.trim() || !mode}
-          className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center gap-2"
+          size="lg"
+          className="px-8 py-3 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-lg font-semibold shadow-lg"
         >
           <Sparkles size={20} />
           {t('interface.pasteText.continueToGenerate', 'Continue to Generate')}
-        </button>
+        </Button>
       </div>
     </main>
   );
