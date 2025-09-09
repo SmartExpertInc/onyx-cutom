@@ -41,54 +41,54 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
       <svg viewBox="0 0 880 880" style={circles}>
         <circle cx="440" cy="440" r="400" fill="#fff" stroke="#111" strokeWidth="2" />
         <circle cx="440" cy="560" r="280" fill="#0a0a0a" stroke="#0a0a0a" strokeWidth="2" />
-        <circle cx="440" cy="760" r="120" fill="#fff" stroke="#fff" strokeWidth="2" />
+        <circle cx="440" cy="720" r="120" fill="#fff" stroke="#fff" strokeWidth="2" />
         {/* Titles */}
-        <text x="285" y="210" fill="#222" fontSize="18" fontWeight="600">Big circle data</text>
-        <text x="330" y="520" fill="#ffffff" fontSize="18" fontWeight="600">Medium circle data</text>
-        <text x="355" y="720" fill="#222" fontSize="18" fontWeight="600">Small circle data</text>
+        <text x="370" y="130" fill="#222" fontSize="18" fontWeight="600">Big circle data</text>
+        <text x="353" y="380" fill="#C1C1C1" fontSize="18" fontWeight="600">Medium circle data</text>
+        <text x="370" y="670" fill="#222" fontSize="18" fontWeight="600">Small circle data</text>
       </svg>
 
       {/* Editable numbers overlay to match screenshot positioning */}
       <div style={overlay}>
         {/* Big */}
-        <div style={{ position:'absolute', left:'210px', top:'180px', pointerEvents:'auto' }}>
+        <div style={{ position:'absolute', left:'217px', top:'109ox', pointerEvents:'auto' }}>
           {isEditable && editingNumber === 'big' ? (
             <ImprovedInlineEditor
               initialValue={bigLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ bigLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'100px', fontWeight:800, color:'#151515', lineHeight:1 }}
+              style={{ fontSize:'75px', fontWeight:800, color:'#151515', lineHeight:1 }}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('big')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'100px', fontWeight:800, color:'#151515', lineHeight:1 }}>{bigLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('big')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'75px', fontWeight:800, color:'#151515', lineHeight:1 }}>{bigLabel}</div>
           )}
         </div>
 
         {/* Medium */}
-        <div style={{ position:'absolute', left:'310px', top:'430px', pointerEvents:'auto' }}>
+        <div style={{ position:'absolute', left:'245px', top:'288px', pointerEvents:'auto' }}>
           {isEditable && editingNumber === 'medium' ? (
             <ImprovedInlineEditor
               initialValue={mediumLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ mediumLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'72px', fontWeight:800, color:'#ffffff', lineHeight:1 }}
+              style={{ fontSize:'60px', fontWeight:800, color:'#ffffff', lineHeight:1 }}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('medium')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'72px', fontWeight:800, color:'#ffffff', lineHeight:1 }}>{mediumLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('medium')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'60px', fontWeight:800, color:'#ffffff', lineHeight:1 }}>{mediumLabel}</div>
           )}
         </div>
 
         {/* Small */}
-        <div style={{ position:'absolute', left:'345px', top:'575px', pointerEvents:'auto' }}>
+        <div style={{ position:'absolute', left:'265px', top:'488px', pointerEvents:'auto' }}>
           {isEditable && editingNumber === 'small' ? (
             <ImprovedInlineEditor
               initialValue={smallLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ smallLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'48px', fontWeight:800, color:'#151515', lineHeight:1 }}
+              style={{ fontSize:'40px', fontWeight:800, color:'#151515', lineHeight:1 }}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('small')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'48px', fontWeight:800, color:'#151515', lineHeight:1 }}>{smallLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('small')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'40px', fontWeight:800, color:'#151515', lineHeight:1 }}>{smallLabel}</div>
           )}
         </div>
       </div>

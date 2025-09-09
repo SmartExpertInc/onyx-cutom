@@ -36,9 +36,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const titleStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'104px', fontSize:'30px', color:'#585955', fontWeight:600 };
   const descStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'152px', width:'720px', color:'#9EA59A', fontSize:'16px', lineHeight:1.6 };
 
-  const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'290px' };
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', background:'#2E3529', color:'#FFFFFF', padding:'12px 16px', borderRadius:'4px' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', padding:'12px 16px', background: i%2===0 ? '#F0EFEC' : '#FFFFFF', border:'1px solid #ECEBE8', borderTop:'none', fontSize:'15px' });
+  const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', background:'#2C3327', color:'#FFFFFF', padding:'14px 18px', borderRadius:'6px', fontWeight:600, letterSpacing:0.2 };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns:'2fr 1.1fr 1fr 1fr', padding:'14px 18px', background: i%2===1 ? '#EDECE8' : '#FFFFFF', borderRadius:'8px', marginTop:'12px', fontSize:'15px', color:'#676E64' });
 
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
   const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'13px' };
