@@ -28,13 +28,37 @@ export default function VideoProductDisplay({
 }: VideoProductDisplayProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
-  // Debug logging to understand the data structure
+  // 🔍 ENHANCED DEBUG: Detailed data structure analysis
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Received data:', dataToDisplay);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data type:', typeof dataToDisplay);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Data keys:', dataToDisplay ? Object.keys(dataToDisplay) : 'null');
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure:', JSON.stringify(dataToDisplay, null, 2));
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video URL:', dataToDisplay?.videoUrl);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL:', dataToDisplay?.thumbnailUrl);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID:', dataToDisplay?.videoJobId);
+  
+  // 🔍 CRITICAL DEBUG: Check for nested data structure
+  if (dataToDisplay && typeof dataToDisplay === 'object') {
+    console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...');
+    console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property:', 'videoUrl' in dataToDisplay);
+    console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property:', 'thumbnailUrl' in dataToDisplay);
+    console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property:', 'videoJobId' in dataToDisplay);
+    
+    // Check if data might be nested in another property
+    Object.keys(dataToDisplay).forEach(key => {
+      const value = dataToDisplay[key];
+      if (value && typeof value === 'object') {
+        console.log(`🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in '${key}':`, value);
+        if (value.videoUrl || value.thumbnailUrl || value.videoJobId) {
+          console.log(`🎬 [VIDEO_PRODUCT_DISPLAY] ⚠️ FOUND VIDEO DATA IN NESTED OBJECT '${key}'!`, {
+            videoUrl: value.videoUrl,
+            thumbnailUrl: value.thumbnailUrl,
+            videoJobId: value.videoJobId
+          });
+        }
+      }
+    });
+  }
 
   if (!dataToDisplay) {
     return (

@@ -358,6 +358,19 @@ export default function ProjectInstanceViewPage() {
             thumbnailUrl: copiedDetails?.thumbnailUrl,
             component_name: copiedDetails?.component_name
           });
+          
+          // 🔍 CRITICAL DEBUG: Log the exact data being set
+          console.log('🎬 [VIDEO_PRODUCT_DATA] About to set editableData with:', {
+            type: typeof copiedDetails,
+            keys: Object.keys(copiedDetails || {}),
+            hasVideoUrl: 'videoUrl' in (copiedDetails || {}),
+            hasThumbnailUrl: 'thumbnailUrl' in (copiedDetails || {}),
+            hasVideoJobId: 'videoJobId' in (copiedDetails || {}),
+            videoUrlValue: copiedDetails?.videoUrl,
+            thumbnailUrlValue: copiedDetails?.thumbnailUrl,
+            videoJobIdValue: copiedDetails?.videoJobId
+          });
+          
           setEditableData(copiedDetails as any); // Video product data is stored as a dictionary
         } else {
           setEditableData(copiedDetails); 
