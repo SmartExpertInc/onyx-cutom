@@ -7,6 +7,12 @@ import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown } from "lucid
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -103,8 +109,9 @@ interface TabButtonProps {
 }
 
 const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) => (
-  <button
+  <Button
     type="button"
+    variant="outline"
     onClick={onClick}
     className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
       active
@@ -114,7 +121,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
   >
     {Icon && <Icon size={64} />}
     <span className="text-sm font-medium leading-tight">{label}</span>
-  </button>
+  </Button>
 );
 
 function GenerateProductPicker() {
@@ -1049,12 +1056,12 @@ function GenerateProductPicker() {
 
         {/* File context indicator */}
         {isFromFiles && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <Alert className="bg-blue-50 border border-blue-200">
             <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromFiles', 'Creating from files')}
             </div>
-            <div className="text-sm text-blue-700">
+            <AlertDescription className="text-blue-700">
               {folderIds.length > 0 && (
                 <p>{folderIds.length} {folderIds.length !== 1 ? t('interface.generate.foldersSelectedPlural', 'folders selected') : t('interface.generate.foldersSelected', 'folder selected')}</p>
               )}
@@ -1064,18 +1071,18 @@ function GenerateProductPicker() {
               <p className="mt-1 text-blue-600">
                 {t('interface.generate.aiWillUseDocuments', 'The AI will use your selected documents as source material to create educational content.')}
               </p>
-            </div>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
         {/* Text context indicator */}
         {isFromText && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <Alert className="bg-green-50 border border-green-200">
             <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromText', 'Creating from text')}
             </div>
-            <div className="text-sm text-green-700">
+            <AlertDescription className="text-green-700">
               <p className="font-medium">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
@@ -1089,8 +1096,8 @@ function GenerateProductPicker() {
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
-            </div>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
         {/* Tab selector */}
@@ -1168,18 +1175,21 @@ function GenerateProductPicker() {
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
                 <div className="flex gap-3">
-                  <button
+                  <Button
                     onClick={() => setUseExistingOutline(true)}
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
+                    size="sm"
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
                   >
                     {t('interface.generate.yesContentFromOutline', 'Yes, content for the presentation from the outline')}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setUseExistingOutline(false)}
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
+                    variant="outline"
+                    size="sm"
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
                   >
                     {t('interface.generate.noStandalone', 'No, I want standalone presentation')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -1294,7 +1304,7 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                <button
+                <Button
                   onClick={() => {
                     setUseExistingOutline(null);
                     setSelectedOutlineId(null);
@@ -1302,10 +1312,12 @@ function GenerateProductPicker() {
                     setLessonsForModule([]);
                     setSelectedLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
+                  variant="outline"
+                  size="sm"
+                  className="border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -1319,18 +1331,21 @@ function GenerateProductPicker() {
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
                 <div className="flex gap-3">
-                  <button
+                  <Button
                     onClick={() => setUseExistingQuizOutline(true)}
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
+                    size="sm"
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
                   >
                     {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setUseExistingQuizOutline(false)}
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
+                    variant="outline"
+                    size="sm"
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
                   >
                     {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -1409,10 +1424,11 @@ function GenerateProductPicker() {
                           <option value="ru">{t('interface.russian', 'Russian')}</option>
                         </select>
                         <div className="relative question-types-dropdown">
-                          <button
+                          <Button
                             type="button"
+                            variant="outline"
                             onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
+                            className="rounded-full border border-gray-300 bg-white/90 text-black flex items-center gap-2 min-w-[200px]"
                           >
                             <span>
                               {selectedQuestionTypes.length === 0
@@ -1422,7 +1438,7 @@ function GenerateProductPicker() {
                                 : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                             </span>
                             <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                          </button>
+                          </Button>
                           {showQuestionTypesDropdown && (
                             <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                                                         {[
@@ -1482,10 +1498,11 @@ function GenerateProductPicker() {
                       <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
                     </select>
                     <div className="relative question-types-dropdown">
-                      <button
+                      <Button
                         type="button"
+                        variant="outline"
                         onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
+                        className="rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
                       >
                         <span>
                           {selectedQuestionTypes.length === 0
@@ -1495,7 +1512,7 @@ function GenerateProductPicker() {
                             : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                         </span>
                         <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                      </button>
+                      </Button>
                       {showQuestionTypesDropdown && (
                         <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                           {[
@@ -1539,7 +1556,7 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                <button
+                <Button
                   onClick={() => {
                     setUseExistingQuizOutline(null);
                     setSelectedQuizOutlineId(null);
@@ -1547,10 +1564,12 @@ function GenerateProductPicker() {
                     setQuizLessonsForModule([]);
                     setSelectedQuizLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -1564,18 +1583,21 @@ function GenerateProductPicker() {
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
                 <div className="flex gap-3">
-                  <button
+                  <Button
                     onClick={() => setUseExistingTextOutline(true)}
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium cursor-pointer"
+                    size="sm"
+                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
                   >
                     {t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setUseExistingTextOutline(false)}
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium cursor-pointer"
+                    variant="outline"
+                    size="sm"
+                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
                   >
                     {t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -1661,14 +1683,15 @@ function GenerateProductPicker() {
                           <option value="long">{t('interface.generate.long', 'Long')}</option>
                         </select>
                         <div className="relative text-styles-dropdown">
-                          <button
+                          <Button
                             type="button"
+                            variant="outline"
                             onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
                             className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                           >
                             <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                             <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
-                          </button>
+                          </Button>
                           {showTextStylesDropdown && (
                             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                               {[
@@ -1729,14 +1752,15 @@ function GenerateProductPicker() {
                       <option value="long">{t('interface.generate.long', 'Long')}</option>
                     </select>
                     <div className="relative text-styles-dropdown">
-                      <button
+                      <Button
                         type="button"
+                        variant="outline"
                         onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
                         className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                       >
                         <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                         <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
-                      </button>
+                      </Button>
                       {showTextStylesDropdown && (
                         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
                           {[
@@ -1772,7 +1796,7 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                <button
+                <Button
                   onClick={() => {
                     setUseExistingTextOutline(null);
                     setSelectedTextOutlineId(null);
@@ -1780,10 +1804,12 @@ function GenerateProductPicker() {
                     setTextLessonsForModule([]);
                     setSelectedTextLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -1823,10 +1849,10 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
             {/* Simple prompt input */}
             <div className="w-full">
-            <textarea
+            <Textarea
               ref={promptRef}
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
@@ -1848,15 +1874,16 @@ function GenerateProductPicker() {
               <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
                 {Array.from({ length: 6 }).map((_, index) =>
                   examples[index] ? (
-                    <button
+                    <Button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      variant="outline"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
                       <span className="absolute top-2 right-3 text-blue-400 text-lg font-bold">+</span>
-                    </button>
+                    </Button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
                   )
@@ -1885,7 +1912,7 @@ function GenerateProductPicker() {
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
           (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText))) && (
           <div className="flex justify-center mt-6">
-            <button
+            <Button
               onClick={() => {
                 switch (activeProduct) {
                   case "Course Outline":
@@ -1905,7 +1932,8 @@ function GenerateProductPicker() {
                     break;
                 }
               }}
-              className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors cursor-pointer"
+              size="lg"
+              className="flex items-center gap-2 px-10 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold shadow transition-colors"
               style={{ minWidth: 240 }}
             >
               <Sparkles size={20} />
@@ -1914,7 +1942,7 @@ function GenerateProductPicker() {
               {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
               {activeProduct === "Quiz" && t('interface.generate.generateQuiz', 'Generate Quiz')}
               {activeProduct === "One-Pager" && t('interface.generate.generateOnePager', 'Generate One-Pager')}
-            </button>
+            </Button>
           </div>
         )}
         </div> {/* close inner flex container */}
