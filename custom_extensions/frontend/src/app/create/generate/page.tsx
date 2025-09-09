@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -1719,48 +1720,39 @@ function GenerateProductPicker() {
                             <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
                           </SelectContent>
                         </Select>
-                        <div className="relative text-styles-dropdown">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
-                            className=" flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
-                          >
+                        <Select open={showTextStylesDropdown} onOpenChange={setShowTextStylesDropdown}>
+                          <SelectTrigger className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]">
                             <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                            <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
-                          </Button>
-                          {showTextStylesDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                              {[
-                                { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                                { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                                { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                                { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                                { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                                { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                                { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                                { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                                { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
-                              ].map((option) => (
-                                <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={textStyles.includes(option.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setTextStyles([...textStyles, option.value]);
-                                      } else {
-                                        setTextStyles(textStyles.filter(s => s !== option.value));
-                                      }
-                                    }}
-                                    className="mr-3"
-                                  />
-                                  <span className="text-sm">{option.label}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60 overflow-y-auto">
+                            {[
+                              { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
+                              { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
+                              { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
+                              { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
+                              { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
+                              { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
+                              { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
+                              { value: "icons", label: t('interface.generate.icons', 'Icons') },
+                              { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                            ].map((option) => (
+                              <div key={option.value} className="flex items-center px-2 py-1.5 hover:bg-gray-50 cursor-pointer">
+                                <Checkbox
+                                  checked={textStyles.includes(option.value)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setTextStyles([...textStyles, option.value]);
+                                    } else {
+                                      setTextStyles(textStyles.filter(s => s !== option.value));
+                                    }
+                                  }}
+                                  className="mr-3"
+                                />
+                                <span className="text-sm">{option.label}</span>
+                              </div>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </>
                     )}
                   </>
