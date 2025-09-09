@@ -1178,8 +1178,8 @@ export default function CommercialProposalPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
-                  <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                    <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                    <div className="pt-[15px] pl-[15px] pr-[12px] pb-[25px] xl:px-[15px] xl:flex xl:flex-col xl:gap-[25px]">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                         style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1196,8 +1196,8 @@ export default function CommercialProposalPage() {
                   </div>
 
                   {/* Card 2 */}
-                  <div className="h-[350px] xl:w-[551px] xl:h-[392px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
-                    <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px] xl:items-center">
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden">
+                    <div className="pt-[15px] px-[15px] pb-[25px] xl:flex xl:flex-col xl:gap-[25px]">
                       <div 
                         className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                         style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1549,7 +1549,7 @@ export default function CommercialProposalPage() {
                     {/* Table Rows */}
                     <div className="bg-white">
                       {/* Row 1 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             до 100
@@ -1564,7 +1564,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 2 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             до 200
@@ -1579,7 +1579,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 3 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             201-500
@@ -1594,7 +1594,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 4 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             501-1000
@@ -2318,7 +2318,7 @@ export default function CommercialProposalPage() {
                     {/* Table Rows */}
                     <div className="bg-white">
                       {/* Row 1 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 1
@@ -2336,7 +2336,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 2 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 2
@@ -2354,7 +2354,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 3 */}
-                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-3 xl:h-[70px] xl:flex xl:items-center border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 3
