@@ -240,9 +240,11 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         </div>
 
         {/* Small subtitle under search bar */}
-        <p className="text-xs text-gray-500 -mt-2">
-          Choose which course outlines to export to Smart Expert LMS
-        </p>
+        <div className="flex items-center justify-center -mt-2">
+          <p className="text-xs text-gray-600 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
+            Choose which course outlines to export to Smart Expert LMS
+          </p>
+        </div>
       </div>
 
       {/* Course Outlines Grid */}

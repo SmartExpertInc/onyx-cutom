@@ -103,11 +103,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       </button>
       
       <div className="h-5 flex items-center">
-        {hasSelectedProducts && (
-          <p className="text-sm text-gray-600 text-center">
-            {selectedProducts.size} course outline{selectedProducts.size !== 1 ? 's' : ''} selected
-          </p>
-        )}
+        {/* Removed selected count text */}
       </div>
     </div>
   );
