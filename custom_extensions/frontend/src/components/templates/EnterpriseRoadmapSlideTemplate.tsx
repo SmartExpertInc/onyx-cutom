@@ -32,6 +32,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const defaultHeaders = headers && headers.length ? headers : ['Feature Name','Status','Due Date','Assignee'];
   const [cols, setCols] = useState<string[]>(defaultHeaders);
   const [rows, setRows] = useState<Record<string,string>[]>(tableData as Record<string,string>[]);
+  const [hoveredHeader, setHoveredHeader] = useState<number | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: currentTheme.fonts.titleFont };
   const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'4px', background:'#E6E5E3', borderRadius:'999px' };
@@ -41,8 +43,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2C3327', color:'#FFFFFF', padding:'14px 18px', borderRadius:'6px', fontWeight:600, letterSpacing:0.2 };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'14px 18px', background: i%2===1 ? '#EDECE8' : '#FFFFFF', borderRadius:'8px', marginTop:'12px', fontSize:'15px', color:'#676E64' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2C3327', color:'#FFFFFF', padding:'14px 18px', borderRadius:'4px', fontWeight:600, letterSpacing:0.2, position:'relative' };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'14px 18px', background: i%2===0 ? '#FFFFFF' : '#ECEBE8', fontSize:'15px', color:'#676E64', borderRadius:'6px', marginTop:'12px' });
+  const smallIcon: React.CSSProperties = { width:'22px', height:'22px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', lineHeight:1, cursor:'pointer', boxShadow:'0 1px 2px rgba(0,0,0,0.15)' };
 
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
   const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'13px' };
@@ -75,55 +78,48 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         {/* Headers row with inline edit and column controls */}
         <div style={theadStyle}>
           {cols.map((h, idx)=> (
-            <div key={idx} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-              {isEditable ? (
-                <ImprovedInlineEditor
-                  initialValue={h}
-                  onSave={(v)=>{ const nc=[...cols]; nc[idx]=v; setCols(nc); onUpdate && onUpdate({ headers: nc, tableData: rows }); }}
-                  onCancel={()=>{}}
-                  style={{ color:'#fff', fontWeight:600 }}
-                />
-              ) : (
-                <div>{h}</div>
-              )}
-              {isEditable && (
-                <button onClick={()=>{ if(cols.length>1){ const nc=cols.filter((_,i)=>i!==idx); setCols(nc); const nr=rows.map(r=>{ const {[h]:_, ...rest}=r; return rest;}); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); } }} style={{ marginLeft:'auto', background:'transparent', border:'none', color:'#fff', cursor:'pointer' }}>×</button>
+            <div key={idx} style={{ position:'relative' }} onMouseEnter={()=>setHoveredHeader(idx)} onMouseLeave={()=>setHoveredHeader(null)}>
+              <div>{h}</div>
+              {isEditable && hoveredHeader === idx && (
+                <div style={{ position:'absolute', top:'-10px', right:'-10px', display:'flex', gap:'6px' }}>
+                  <div
+                    title="Remove column"
+                    onClick={()=>{ if(cols.length>1){ const nc=cols.filter((_,i)=>i!==idx); const key=h; const nr=rows.map(r=>{ const { [key]:_, ...rest } = r; return rest;}); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }}
+                    style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>×</div>
+                  <div
+                    title="Add column to the right"
+                    onClick={()=>{ const name=`Column ${cols.length+1}`; const nc=[...cols.slice(0, idx+1), name, ...cols.slice(idx+1)]; const nr=rows.map(r=>{ const entries=Object.entries(r); const before=Object.fromEntries(entries.slice(0, idx+1)); const after=Object.fromEntries(entries.slice(idx+1)); return { ...before, [name]: '', ...after };}); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }}
+                    style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
+                </div>
               )}
             </div>
           ))}
           {isEditable && (
-            <button onClick={()=>{ const name=`Column ${cols.length+1}`; const nc=[...cols, name]; const nr=rows.map(r=> ({ ...r, [name]: '' })); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }} style={{ background:'#fff', color:'#2C3327', border:'none', borderRadius:4, padding:'4px 8px', cursor:'pointer' }}>+ Add column</button>
+            <div style={{ position:'absolute', right:'8px', top:'50%', transform:'translateY(-50%)' }}>
+              <div title="Add column" onClick={()=>{ const name=`Column ${cols.length+1}`; const nc=[...cols, name]; const nr=rows.map(r=> ({ ...r, [name]: '' })); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
+            </div>
           )}
         </div>
 
         {/* Rows */}
         {rows.map((r, i)=> (
-          <div key={i} style={rowStyle(i)}>
-            {cols.map((h, cidx)=> (
-              <div key={cidx}>
-                {isEditable ? (
-                  <ImprovedInlineEditor
-                    initialValue={r[h] || ''}
-                    onSave={(v)=>{ const nr=[...rows]; nr[i] = { ...nr[i], [h]: v }; setRows(nr); onUpdate && onUpdate({ tableData: nr, headers: cols }); }}
-                    onCancel={()=>{}}
-                    style={{ fontSize:'15px', color:'#676E64' }}
-                  />
-                ) : (
-                  <div>{r[h] || ''}</div>
-                )}
-              </div>
-            ))}
-            {isEditable && (
-              <div style={{ display:'flex', justifyContent:'flex-end', gap:'8px' }}>
-                <button onClick={()=>{ const nr=rows.filter((_,ri)=>ri!==i); setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ background:'#fff', color:'#2C3327', border:'1px solid #DAD9D6', borderRadius:4, padding:'4px 8px', cursor:'pointer' }}>Delete</button>
+          <div key={i} style={{ position:'relative' }} onMouseEnter={()=>setHoveredRow(i)} onMouseLeave={()=>setHoveredRow(null)}>
+            <div style={rowStyle(i)}>
+              {cols.map((h, cidx)=> (
+                <div key={cidx}>{r[h] || ''}</div>
+              ))}
+            </div>
+            {isEditable && hoveredRow === i && (
+              <div style={{ position:'absolute', right:'-10px', top:'50%', transform:'translateY(-50%)' }}>
+                <div title="Remove row" onClick={()=>{ const nr=rows.filter((_,ri)=>ri!==i); setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>×</div>
               </div>
             )}
           </div>
         ))}
 
         {isEditable && (
-          <div style={{ marginTop:'10px' }}>
-            <button onClick={()=>{ const blank: Record<string,string> = {}; cols.forEach(h=> blank[h]=''); const nr=[...rows, blank]; setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ background:'#2C3327', color:'#fff', border:'none', borderRadius:6, padding:'6px 10px', cursor:'pointer' }}>+ Add row</button>
+          <div style={{ position:'absolute', right:'8px', bottom:'-36px' }}>
+            <div title="Add row" onClick={()=>{ const blank: Record<string,string> = {}; cols.forEach(h=> blank[h]=''); const nr=[...rows, blank]; setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
           </div>
         )}
       </div>
