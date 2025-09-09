@@ -1530,42 +1530,48 @@ export default function ProjectInstanceViewPage() {
                     <ChevronDown size={16} className="ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 p-4" align="end">
+                <DropdownMenuContent className="w-64 p-4 bg-white" align="end" onCloseAutoFocus={(e) => e.preventDefault()}>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
                   <div className="space-y-2">
                     <DropdownMenuCheckboxItem
                       checked={columnVisibility.knowledgeCheck}
                       onCheckedChange={(checked) => handleColumnVisibilityChange('knowledgeCheck', checked)}
+                      onSelect={(e) => e.preventDefault()}
                     >
                       {columnLabels.assessmentType}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={columnVisibility.contentAvailability}
                       onCheckedChange={(checked) => handleColumnVisibilityChange('contentAvailability', checked)}
+                      onSelect={(e) => e.preventDefault()}
                     >
                       {columnLabels.contentVolume}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={columnVisibility.informationSource}
                       onCheckedChange={(checked) => handleColumnVisibilityChange('informationSource', checked)}
+                      onSelect={(e) => e.preventDefault()}
                     >
                       {columnLabels.source}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={columnVisibility.estCreationTime}
                       onCheckedChange={(checked) => handleColumnVisibilityChange('estCreationTime', checked)}
+                      onSelect={(e) => e.preventDefault()}
                     >
                       {columnLabels.estCreationTime}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={columnVisibility.estCompletionTime}
                       onCheckedChange={(checked) => handleColumnVisibilityChange('estCompletionTime', checked)}
+                      onSelect={(e) => e.preventDefault()}
                     >
                       {columnLabels.estCompletionTime}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
                       checked={columnVisibility.qualityTier}
                       onCheckedChange={(checked) => handleColumnVisibilityChange('qualityTier', checked)}
+                      onSelect={(e) => e.preventDefault()}
                     >
                       {columnLabels.qualityTier}
                     </DropdownMenuCheckboxItem>
