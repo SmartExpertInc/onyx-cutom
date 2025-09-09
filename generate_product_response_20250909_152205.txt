@@ -1,0 +1,33 @@
+Request Details:
+URL: https://dev.smartexpert.net/api/v1/generate-product
+Method: POST
+Token: $2y$12$r5QySSqmYsCvg9DczLhx0ewIhoTsYwNDDD4P8XuHNswtNpEdjQOYm
+Email: mykolavolyn3ts@gmail.com
+File: file.json
+Timestamp: 2025-09-09T15:22:05.977405
+
+==================================================
+
+Response Details:
+Status Code: 200
+Status: SUCCESS
+Headers:
+  Server: nginx
+  Date: Tue, 09 Sep 2025 13:22:07 GMT
+  Content-Type: application/json
+  Transfer-Encoding: chunked
+  Connection: keep-alive
+  Cache-Control: private, must-revalidate
+  pragma: no-cache
+  expires: -1
+  X-RateLimit-Limit: 1000
+  X-RateLimit-Remaining: 999
+  Access-Control-Allow-Origin: *
+  Set-Cookie: XSRF-TOKEN=eyJpdiI6ImREZTRjRlNMdUJycVJkWEJvT29CelE9PSIsInZhbHVlIjoib2NGVGcwakZ2OHdZbXJFbStleDZRdHZqSVk3N2JXbThSczFqR0dZYUJCZFIvZnBnZDJPYWp6UWZOYm1ESUJaa2xTZG43djJEU3ZKWFpkUDE2RzNDditWTktzNnZtY084WEdDQlFtWDc1RXZKQVZNRVl3QzBqYm9LdkMwUy9pWWIiLCJtYWMiOiI4MDhiMTk1YTZmNDFjNmY1Yjc3OGE2NzRjNzFiYmIzMDIzMDFkMGZlOWNjYjFiMzBmNWY2NDFkMWRhYjRiZWRlIiwidGFnIjoiIn0%3D; expires=Thu, 11 Sep 2025 13:22:07 GMT; Max-Age=172800; path=/; domain=.dev.smartexpert.net; secure; samesite=lax, laravel_session=eyJpdiI6IlJ6eUh0OFhzQWR1QVUyem5mUll3bFE9PSIsInZhbHVlIjoiRW5MbTZORVBEYmkxNmkvam1ZWkpNT1RTRWIwV3p5c2xtWXMzQzdxUkNaNzkyY0MrUWcvbkx3OVpRRFgyMmFsSVVCTWtJbDhLaHcveXZiTE95cU0zR0FpNU5Od0hlbXIwbjZ6SDViV1ZkUE96a1lIOUcwLzVyNzI4UlFDenZwMEciLCJtYWMiOiIxMDcwNDJkNTA0NzI5MmU3Njc0NzlmZjA5OGQ3ZGU4OTY4OTgxMWVjNjRkZjcxYjk4NjJhN2EyMDA3ZDVhMWRmIiwidGFnIjoiIn0%3D; expires=Thu, 11 Sep 2025 13:22:07 GMT; Max-Age=172800; path=/; domain=.dev.smartexpert.net; secure; httponly; samesite=lax
+
+==================================================
+
+Response Body:
+{
+  "status": "success"
+}

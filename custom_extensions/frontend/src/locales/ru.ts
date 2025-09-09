@@ -351,6 +351,7 @@ export const ru = {
     products: "Продукты",
     smartDrive: "Умный диск",
     offers: "Предложения",
+    exportToLMS: "Экспорт в LMS",
     trash: "Корзина",
     getUnlimitedAI: "Получить неограниченный ИИ",
     credits: "кредитов",
@@ -410,6 +411,16 @@ export const ru = {
       error: "ошибка",
       paused: "приостановлен"
     },
+
+    // LMS Export
+    lmsAccountQuestion: "У вас есть аккаунт на Smart Expert LMS?",
+    lmsAccountYes: "Да, у меня есть аккаунт",
+    lmsAccountNo: "Нет, мне нужно создать аккаунт",
+    lmsSetupWaiting: "Настройка вашего аккаунта...",
+    lmsSelectProducts: "Выберите продукты для экспорта",
+    lmsExport: "Экспорт в LMS",
+    lmsExporting: "Экспорт...",
+    lmsNoProductsSelected: "Пожалуйста, выберите хотя бы один продукт для экспорта",
 
     // Offers page
     searchOffers: "Поиск предложений...",

@@ -350,6 +350,7 @@ export const es = {
     products: "Productos",
     smartDrive: "Disco Inteligente",
     offers: "Ofertas",
+    exportToLMS: "Exportar a LMS",
     trash: "Papelera",
     getUnlimitedAI: "Obtener IA ilimitada",
     credits: "créditos",
@@ -406,6 +407,16 @@ export const es = {
       error: "error",
       paused: "pausado"
     },
+
+    // LMS Export
+    lmsAccountQuestion: "¿Tienes una cuenta en Smart Expert LMS?",
+    lmsAccountYes: "Sí, tengo una cuenta",
+    lmsAccountNo: "No, necesito crear una",
+    lmsSetupWaiting: "Configurando tu cuenta...",
+    lmsSelectProducts: "Seleccionar productos para exportar",
+    lmsExport: "Exportar a LMS",
+    lmsExporting: "Exportando...",
+    lmsNoProductsSelected: "Por favor, selecciona al menos un producto para exportar",
 
     // Offers page
     searchOffers: "Buscar ofertas...",

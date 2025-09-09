@@ -26,7 +26,8 @@ import {
   ChevronRight,
   LayoutTemplate,
   HardDrive,
-  FileText
+  FileText,
+  Upload
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -36,6 +37,10 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
 import WorkspaceMembers from '../../components/WorkspaceMembers';
 import useFeaturePermission from '../../hooks/useFeaturePermission';
+import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
+import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
+import LMSProductSelector from '../../components/LMSProductSelector';
+import { LMSAccountStatus } from '../../types/lmsTypes';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -471,6 +476,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Users size={18} />
           <span>{t('interface.workspace', 'Workspace')}</span>
         </Link>
+        <Link
+          href="/projects?tab=export-lms"
+          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+          onClick={() => onFolderSelect(null)}
+        >
+          <Upload size={18} />
+          <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
+        </Link>
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
@@ -540,7 +553,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean; isExportLMS: boolean }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -571,6 +584,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace }: { isTrash: boo
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
     if (isWorkspace) return t('interface.workspace', 'Workspace');
+    if (isExportLMS) return t('interface.exportToLMS', 'Export to LMS');
     return t('interface.products', 'Products');
   };
 
@@ -599,6 +613,7 @@ const ProjectsPageInner: React.FC = () => {
   const isSmartDrive = currentTab === 'smart-drive';
   const isOffers = currentTab === 'offers';
   const isWorkspace = currentTab === 'workspace';
+  const isExportLMS = currentTab === 'export-lms';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
@@ -607,6 +622,11 @@ const ProjectsPageInner: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
   const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
+  
+  // LMS Export states
+  const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
+  const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
+  const [showAccountModal, setShowAccountModal] = useState(false);
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {
@@ -829,6 +849,39 @@ const ProjectsPageInner: React.FC = () => {
     }
   };
 
+  // LMS Export handlers
+  const handleLMSAccountStatus = (status: LMSAccountStatus) => {
+    setLmsAccountStatus(status);
+  };
+
+  const handleProductToggle = (productId: number) => {
+    setSelectedProducts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAllProducts = () => {
+    // This would need to be implemented with the actual products list
+    // For now, it's a placeholder
+  };
+
+  const handleDeselectAllProducts = () => {
+    setSelectedProducts(new Set());
+  };
+
+  // Show account modal when first visiting LMS tab
+  useEffect(() => {
+    if (isExportLMS && lmsAccountStatus === 'unknown') {
+      setShowAccountModal(true);
+    }
+  }, [isExportLMS, lmsAccountStatus]);
+
   // Show loading state while checking authentication
   if (isLoading) {
     return (
@@ -850,7 +903,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} isExportLMS={isExportLMS} />
         <main className="flex-1 overflow-y-auto p-8">
           {isSmartDrive ? (
             <SmartDriveConnectors />
@@ -858,6 +911,20 @@ const ProjectsPageInner: React.FC = () => {
             <OffersTable companyId={selectedFolderId} />
           ) : isWorkspace ? (
             <WorkspaceMembers />
+          ) : isExportLMS ? (
+            <>
+              {lmsAccountStatus === 'no-account' && (
+                <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
+              )}
+              {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
+                <LMSProductSelector
+                  selectedProducts={selectedProducts}
+                  onProductToggle={handleProductToggle}
+                  onSelectAll={handleSelectAllProducts}
+                  onDeselectAll={handleDeselectAllProducts}
+                />
+              )}
+            </>
           ) : (
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}
@@ -880,6 +947,11 @@ const ProjectsPageInner: React.FC = () => {
           selectedClient={selectedClientForOffer}
         />
       )}
+      <LMSAccountCheckModal
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
+        onAccountStatus={handleLMSAccountStatus}
+      />
     </div>
   );
 };

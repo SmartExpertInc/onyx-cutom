@@ -1,0 +1,269 @@
+{
+    "mainTitle": "Code Optimization Course",
+    "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d478",
+    "sections": [
+      {
+        "id": "№1",
+        "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "title": "Introduction to Code Optimization",
+        "lessons": [
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d480",
+            "title": "Understanding Code Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d481",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d482",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d483",
+            "title": "Common Code Optimization Techniques",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d484",
+                  "type": "onepager",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/4321/download/new-employee-onboarding-organizational-structure_1959645f.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d485",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d486",
+            "title": "Tools for Code Analysis",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d487",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d488",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "№2",
+        "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d489",
+        "title": "Performance Metrics",
+        "lessons": [
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d490",
+            "title": "Measuring Code Performance",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d491",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d492",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d493",
+            "title": "Analyzing Execution Time",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d494",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d495",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d496",
+            "title": "Memory Usage Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d497",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d498",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d499",
+            "title": "Profiling Tools and Techniques",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d500",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d501",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "№3",
+        "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d502",
+        "title": "Advanced Optimization Techniques",
+        "lessons": [
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d503",
+            "title": "Algorithm Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d504",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d505",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d506",
+            "title": "Data Structure Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d507",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d508",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d509",
+            "title": "Concurrency and Parallelism",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d510",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d511",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "№4",
+        "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d512",
+        "title": "Best Practices and Case Studies",
+        "lessons": [
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d513",
+            "title": "Best Practices for Code Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d514",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d515",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d516",
+            "title": "Case Studies in Code Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d517",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d518",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          },
+          {
+            "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d519",
+            "title": "Future Trends in Code Optimization",
+            "recommended_content_types": {
+              "primary": [
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d520",
+                  "type": "presentation",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/342115/download/slide-deck_aa5f499b.pdf"
+                },
+                {
+                  "uid": "f47ac10b-58cc-4372-a567-0e02b2c3d521",
+                  "type": "quiz",
+                  "link": "http://ml-dev.contentbuilder.ai/smartdrive/s/1234/download/quiz%20%281%29.cbai"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+  

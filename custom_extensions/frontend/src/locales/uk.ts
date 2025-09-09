@@ -337,6 +337,7 @@ export const uk = {
     products: "Продукти",
     smartDrive: "Розумний диск",
     offers: "Пропозиції",
+    exportToLMS: "Експорт до LMS",
     trash: "Кошик",
     getUnlimitedAI: "Отримати необмежений ШІ",
     credits: "кредитів",
@@ -396,6 +397,16 @@ export const uk = {
       error: "помилка",
       paused: "призупинений"
     },
+
+    // LMS Export
+    lmsAccountQuestion: "Чи є у вас обліковий запис на Smart Expert LMS?",
+    lmsAccountYes: "Так, у мене є обліковий запис",
+    lmsAccountNo: "Ні, мені потрібно створити обліковий запис",
+    lmsSetupWaiting: "Налаштування вашого облікового запису...",
+    lmsSelectProducts: "Виберіть продукти для експорту",
+    lmsExport: "Експорт до LMS",
+    lmsExporting: "Експорт...",
+    lmsNoProductsSelected: "Будь ласка, виберіть принаймні один продукт для експорту",
 
     // Offers page
     searchOffers: "Пошук пропозицій...",

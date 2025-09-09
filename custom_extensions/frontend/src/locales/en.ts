@@ -371,6 +371,7 @@ export const en = {
     products: "Products",
     smartDrive: "Smart Drive",
     offers: "Offers",
+    exportToLMS: "Export to LMS",
     trash: "Trash",
     getUnlimitedAI: "Get unlimited AI",
     credits: "credits",
@@ -432,6 +433,16 @@ export const en = {
       error: "error",
       paused: "paused"
     },
+
+    // LMS Export
+    lmsAccountQuestion: "Do you have an account on Smart Expert LMS?",
+    lmsAccountYes: "Yes, I have an account",
+    lmsAccountNo: "No, I need to create one",
+    lmsSetupWaiting: "Setting up your account...",
+    lmsSelectProducts: "Select products to export",
+    lmsExport: "Export to LMS",
+    lmsExporting: "Exporting...",
+    lmsNoProductsSelected: "Please select at least one product to export",
 
     // Offers page
     searchOffers: "Search offers...",
