@@ -1,506 +1,77 @@
-backend logs:
-
-custom_backend-1  |           "height": 0,
-custom_backend-1  |           "_exists": true,
-custom_backend-1  |           "visible": true
-custom_backend-1  |         }
-custom_backend-1  |       ],
-custom_backend-1  |       "avatar": {
-custom_backend-1  |         "code": "neyson.business",
-custom_backend-1  |         "gender": "male",
-custom_backend-1  |         "type": null,
-custom_backend-1  |         "limit": 300,
-custom_backend-1  |         "canvas": "https://d3u63mhbhkevz8.cloudfront.net/common/neyson/business/neyson.png"
-custom_backend-1  |       },
-custom_backend-1  |       "story": {
-custom_backend-1  |         "isTooComplex": false
-custom_backend-1  |       },
-custom_backend-1  |       "id": 791921348133
-custom_backend-1  |     }
-custom_backend-1  |   ],
-custom_backend-1  |   "tags": [
-custom_backend-1  |     "api",
-custom_backend-1  |     "video_lesson",
-custom_backend-1  |     "generated",
-custom_backend-1  |     "presentation"
-custom_backend-1  |   ],
-custom_backend-1  |   "deleted": false,
-custom_backend-1  |   "status": "draft",
-custom_backend-1  |   "verified": false,
-custom_backend-1  |   "public": false,
-custom_backend-1  |   "parentFolderDeleted": false,
-custom_backend-1  |   "version": 0,
-custom_backend-1  |   "userId": "64c1c506675755202ee364c1",
-custom_backend-1  |   "accountId": "64c1c506675755202ee364c2",
-custom_backend-1  |   "_id": "68c04601ee49137cdcb550a9",
-custom_backend-1  |   "comments": [],
-custom_backend-1  |   "createdAt": "2025-09-09T15:21:37.466Z",
-custom_backend-1  |   "updatedAt": "2025-09-09T15:21:37.466Z",
-custom_backend-1  |   "__v": 0
-custom_backend-1  | }
-custom_backend-1  | INFO:app.services.video_generation_service:🎬 [ELAI_VIDEO_GENERATION] Video created successfully: 68c04601ee49137cdcb550a9
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video created with ID: 68c04601ee49137cdcb550a9
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://apis.elai.io/api/v1/videos/render/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video render started for 68c04601ee49137cdcb550a9
-custom_backend-1  | INFO:app.services.presentation_service:Waiting for avatar video completion: 68c04601ee49137cdcb550a9
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Starting avatar video wait loop with 30s intervals
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: validating, progress: 80%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: validating, Progress: 80%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 0.2s
-custom_backend-1  | INFO:     172.18.0.12:54312 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54324 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54332 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54334 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54340 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43664 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43666 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43678 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43682 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43698 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54952 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54958 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54964 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54980 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #2)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:22:06.777563
-custom_backend-1  | INFO:     172.18.0.12:54986 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 30.6s
-custom_backend-1  | INFO:     172.18.0.12:50550 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50562 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50574 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50582 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50596 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33490 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33502 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33506 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33510 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33518 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51164 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51174 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51190 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51204 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #3)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:22:36.805882
-custom_backend-1  | INFO:     172.18.0.12:51218 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 61.0s
-custom_backend-1  | INFO:     172.18.0.12:45400 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:45414 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:45416 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:45424 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:45426 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54836 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54852 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54856 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54860 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54876 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38292 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38294 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38308 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38320 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #4)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:23:06.835469
-custom_backend-1  | INFO:     172.18.0.12:38326 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50610 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 91.4s
-custom_backend-1  | INFO:     172.18.0.12:50626 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50630 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50634 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50636 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39438 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39442 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39444 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39454 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39462 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34356 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34360 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34362 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34364 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #5)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:23:36.862271
-custom_backend-1  | INFO:     172.18.0.12:34368 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48888 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 121.8s
-custom_backend-1  | WARNING:main:Auto-cleaned stuck project creation lock: b9ad451e-4c02-4008-9965-d5931ff02aa0:course 'how to start learning spanish'
-custom_backend-1  | INFO:     172.18.0.12:48894 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48910 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48916 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48920 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46256 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46264 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46272 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46284 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46292 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46956 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46970 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46984 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46996 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #6)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:24:06.891586
-custom_backend-1  | INFO:     172.18.0.12:46998 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49620 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 152.2s
-custom_backend-1  | INFO:     172.18.0.12:49630 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49634 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49644 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49658 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40308 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40314 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40330 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40342 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40352 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47800 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47816 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47830 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47834 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #7)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:24:36.918623
-custom_backend-1  | INFO:     172.18.0.12:47844 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54304 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 182.6s
-custom_backend-1  | INFO:     172.18.0.12:54310 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54326 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54334 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54342 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39786 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39788 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39800 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39814 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39820 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52054 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52070 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52084 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52096 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #8)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:25:06.945640
-custom_backend-1  | INFO:     172.18.0.12:52098 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37172 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 213.2s
-custom_backend-1  | INFO:     172.18.0.12:37182 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37194 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37202 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37218 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54346 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54362 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54368 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54376 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54382 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42560 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42572 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42582 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42596 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #9)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:25:36.972529
-custom_backend-1  | INFO:     172.18.0.12:42600 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57602 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57614 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 243.5s
-custom_backend-1  | INFO:     172.18.0.12:57618 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57634 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57638 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54606 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54614 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54616 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54618 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54630 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34710 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34712 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34726 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34740 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #10)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:26:06.998604
-custom_backend-1  | INFO:     172.18.0.12:34746 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35494 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35496 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: rendering, progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: rendering, Progress: 50%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 274.0s
-custom_backend-1  | INFO:     172.18.0.12:35506 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35520 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35532 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37576 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37580 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37590 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37592 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37608 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56058 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56070 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56084 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56100 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=30.0% (beat #11)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:26:37.024242
-custom_backend-1  | INFO:     172.18.0.12:56106 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50242 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50252 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/videos/68c04601ee49137cdcb550a9 "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:app.services.video_generation_service:Video 68c04601ee49137cdcb550a9 status: ready, progress: 100%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Avatar video status: ready, Progress: 100%
-custom_backend-1  | INFO:app.services.presentation_service:💓 [AVATAR_WAITING] Elapsed time: 304.5s
-custom_backend-1  | INFO:app.services.presentation_service:Downloading avatar video: https://apis.elai.io/public/video/68c04601ee49137cdcb550a9.mp4?s=df517ddebe3d7c60c8dac450e095ef7d5383f7b6a59e3c61e108dec3d8895b97
-custom_backend-1  | INFO:     172.18.0.12:50266 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Avatar video downloaded: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [_GENERATE_WITH_TRADITIONAL_METHOD] Traditional method completed: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: processing→processing, 30.0%→60.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Timestamp: 2025-09-09T15:26:43.504302
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Progress updated: 30.0% → 60.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [SINGLE_SLIDE_PROCESSING] Avatar video generated: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [SINGLE_SLIDE_PROCESSING] Composing final video
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Starting video composition: picture_in_picture
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Input files:
-custom_backend-1  | INFO:app.services.video_composer_service:  - Slide video: output/clean_videos/avatar_slide_avatar-service-slide_20250909_152043.mp4
-custom_backend-1  | INFO:app.services.video_composer_service:  - Avatar video: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.video_composer_service:  - Output path: output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4
-custom_backend-1  | INFO:app.services.video_composer_service:  - Resolution: (1920, 1080)
-custom_backend-1  | INFO:app.services.video_composer_service:  - Quality: high
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Video analysis:
-custom_backend-1  | INFO:app.services.video_composer_service:  - Slide duration: 60.0s, dimensions: (1920, 1080)
-custom_backend-1  | INFO:app.services.video_composer_service:  - Avatar duration: 9.28s, dimensions: (1920, 1080)
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Using SimpleVideoComposer (OpenCV-based)
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Eliminating dual-approach complexity
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] SimpleVideoComposer initialized
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Avatar template: {'width': 935, 'height': 843, 'x': 925, 'y': 118}
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Starting video composition
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Input files:
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Slide video: output/clean_videos/avatar_slide_avatar-service-slide_20250909_152043.mp4
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Avatar video: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Output path: output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4
-custom_backend-1  | WARNING:app.services.simple_video_composer:No video stream found in output/clean_videos/avatar_slide_avatar-service-slide_20250909_152043.mp4
-custom_backend-1  | WARNING:app.services.simple_video_composer:No video stream found in output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Video properties:
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Slide: {'width': 1920, 'height': 1080, 'fps': 25.0, 'duration': 10.0}
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Avatar: {'width': 1920, 'height': 1080, 'fps': 25.0, 'duration': 10.0}
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Starting frame-by-frame composition
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition setup:
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Output dimensions: 1920x1080
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Output FPS: 25.0
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Slide frames: 1500
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Avatar frames: 232
-custom_backend-1  | INFO:app.services.simple_video_composer:  - Total frames to process: 1500
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Processing frames with CROPPING (not resizing) to maintain avatar aspect ratio...
-custom_backend-1  | INFO:     172.18.0.12:50280 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 0%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 0%
-custom_backend-1  | INFO:     172.18.0.12:50290 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 5%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 5%
-custom_backend-1  | INFO:     172.18.0.12:58992 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59000 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 10%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 10%
-custom_backend-1  | INFO:     172.18.0.12:59002 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 15%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 15%
-custom_backend-1  | INFO:     172.18.0.12:59018 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 20%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 20%
-custom_backend-1  | INFO:     172.18.0.12:59030 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 25%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 25%
-custom_backend-1  | INFO:     172.18.0.12:58708 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 30%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 30%
-custom_backend-1  | INFO:     172.18.0.12:58720 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 35%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 35%
-custom_backend-1  | INFO:     172.18.0.12:58730 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 40%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 40%
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 45%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 45%
-custom_backend-1  | INFO:     172.18.0.12:58732 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 50%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 50%
-custom_backend-1  | INFO:     172.18.0.12:58746 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 55%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 55%
-custom_backend-1  | INFO:     172.18.0.12:49892 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 60%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 60%
-custom_backend-1  | INFO:     172.18.0.12:49898 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 65%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 65%
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 70%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 70%
-custom_backend-1  | INFO:     172.18.0.12:49900 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 75%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 75%
-custom_backend-1  | INFO:     172.18.0.12:49910 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 80%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 80%
-custom_backend-1  | INFO:     172.18.0.12:49918 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 85%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 85%
-custom_backend-1  | INFO:     172.18.0.12:52010 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 90%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 90%
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 95%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 95%
-custom_backend-1  | INFO:     172.18.0.12:52024 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 100%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 100%
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition completed: 1500 frames processed
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Output video created: 7622134 bytes
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Adding audio to composed video
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] FFmpeg audio command: ffmpeg -i temp/simple_compositions/temp_composition_1757431605.mp4 -i output/presentations/avatar_68c04601ee49137cdcb550a9.mp4 -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest -y output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: status=processing, progress=60.0% (beat #12)
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T15:27:22.760881
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Audio merge completed successfully
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Final video created: 1.81 MB
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Video composition completed successfully: output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4
-custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Temporary directory cleaned up
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Simple composition completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: processing→processing, 60.0%→90.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Timestamp: 2025-09-09T15:27:23.293043
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Progress updated: 60.0% → 90.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/clean_videos/avatar_slide_avatar-service-slide_20250909_152043.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/presentations/avatar_68c04601ee49137cdcb550a9.mp4
-custom_backend-1  | INFO:app.services.presentation_service:Step 4: Creating thumbnail for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [THUMBNAIL_CREATION] Starting thumbnail creation for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.video_composer_service:Creating thumbnail from video
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Executing FFmpeg command for: Thumbnail creation
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Command: ffmpeg -i output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4 -ss 5.0 -vframes 1 -q:v 2 -y output/presentations/thumbnail_1a272fa8-d067-401a-a7b7-a160d4c03c02.jpg
-custom_backend-1  | INFO:     172.18.0.12:52038 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Process completed with return code: 0
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Stderr: ffmpeg version 7.1.1-1+b1 Copyright (c) 2000-2025 the FFmpeg developers
-custom_backend-1  |   built with gcc 14 (Debian 14.2.0-19)
-custom_backend-1  |   configuration: --prefix=/usr --extra-version=1+b1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-libmfx --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libcaca --enable-libdvdnav --enable-libdvdread --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
-custom_backend-1  |   libavutil      59. 39.100 / 59. 39.100
-custom_backend-1  |   libavcodec     61. 19.101 / 61. 19.101
-custom_backend-1  |   libavformat    61.  7.100 / 61.  7.100
-custom_backend-1  |   libavdevice    61.  3.100 / 61.  3.100
-custom_backend-1  |   libavfilter    10.  4.100 / 10.  4.100
-custom_backend-1  |   libswscale      8.  3.100 /  8.  3.100
-custom_backend-1  |   libswresample   5.  3.100 /  5.  3.100
-custom_backend-1  |   libpostproc    58.  3.100 / 58.  3.100
-custom_backend-1  | Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4':
-custom_backend-1  |   Metadata:
-custom_backend-1  |     major_brand     : isom
-custom_backend-1  |     minor_version   : 512
-custom_backend-1  |     compatible_brands: isomiso2mp41
-custom_backend-1  |     encoder         : Lavf61.7.100
-custom_backend-1  |   Duration: 00:00:09.30, start: 0.000000, bitrate: 1634 kb/s
-custom_backend-1  |   Stream #0:0[0x1](und): Video: mpeg4 (Simple Profile) (mp4v / 0x7634706D), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 1565 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
-custom_backend-1  |       Metadata:
-custom_backend-1  |         handler_name    : VideoHandler
-custom_backend-1  |         vendor_id       : [0][0][0][0]
-custom_backend-1  |   Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 24000 Hz, mono, fltp, 66 kb/s (default)
-custom_backend-1  |       Metadata:
-custom_backend-1  |         handler_name    : SoundHandler
-custom_backend-1  |         vendor_id       : [0][0][0][0]
-custom_backend-1  | Stream mapping:
-custom_backend-1  |   Stream #0:0 -> #0:0 (mpeg4 (native) -> mjpeg (native))
-custom_backend-1  | Press [q] to stop, [?] for help
-custom_backend-1  | Output #0, image2, to 'output/presentations/thumbnail_1a272fa8-d067-401a-a7b7-a160d4c03c02.jpg':
-custom_backend-1  |   Metadata:
-custom_backend-1  |     major_brand     : isom
-custom_backend-1  |     minor_version   : 512
-custom_backend-1  |     compatible_brands: isomiso2mp41
-custom_backend-1  |     encoder         : Lavf61.7.100
-custom_backend-1  |   Stream #0:0(und): Video: mjpeg, yuv420p(pc, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
-custom_backend-1  |       Metadata:
-custom_backend-1  |         handler_name    : VideoHandler
-custom_backend-1  |         vendor_id       : [0][0][0][0]
-custom_backend-1  |         encoder         : Lavc61.19.101 mjpeg
-custom_backend-1  |       Side data:
-custom_backend-1  |         cpb: bitrate max/min/avg: 0/0/200000 buffer size: 0 vbv_delay: N/A
-custom_backend-1  | [image2 @ 0x62ff38e81340] The specified filename 'output/presentations/thumbnail_1a272fa8-d067-401a-a7b7-a160d4c03c02.jpg' does not contain an image sequence pattern or a pattern is invalid.
-custom_backend-1  | [image2 @ 0x62ff38e81340] Use a pattern such as %03d for an image sequence or use the -update option (with -frames:v 1 if needed) to write a single image.
-custom_backend-1  | [out#0/image2 @ 0x62ff38e97a80] video:55KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
-custom_backend-1  | frame=    1 fps=0.8 q=2.0 Lsize=N/A time=00:00:00.04 bitrate=N/A speed=0.0314x
-custom_backend-1  |
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Thumbnail creation completed successfully
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file: output/presentations/thumbnail_1a272fa8-d067-401a-a7b7-a160d4c03c02.jpg
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file size: 55910 bytes
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [THUMBNAIL_CREATION] Thumbnail creation completed successfully for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Starting final completion for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Presentation 1a272fa8-d067-401a-a7b7-a160d4c03c02 processing completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Final video path: output/presentations/presentation_1a272fa8-d067-401a-a7b7-a160d4c03c02.mp4
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Thumbnail path: output/presentations/thumbnail_1a272fa8-d067-401a-a7b7-a160d4c03c02.jpg
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02 total processing time: 402.3 seconds
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job start time: 2025-09-09 15:20:42.770601
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job completion time: 2025-09-09 15:27:25.081857
-custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] LONG PROCESSING TIME DETECTED: 402.3s
-custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] This may cause frontend polling timeout!
-custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Frontend likely stopped polling before backend completion
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Updating job status to completed for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] About to send FINAL 100% status to frontend...
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02: processing→completed, 90.0%→100.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Timestamp: 2025-09-09T15:27:25.082856
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Status changed: processing → completed
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Progress updated: 90.0% → 100.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Job status update completed successfully for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] ✅ FINAL 100% STATUS SENT TO FRONTEND!
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Stopping heartbeat for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Stopped heartbeat for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Heartbeat stopped successfully for job 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Job 1a272fa8-d067-401a-a7b7-a160d4c03c02 marked as completed with all URLs set
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Frontend should now receive completion status and trigger download
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] *** COMPLETION PROCESS FINISHED FOR JOB 1a272fa8-d067-401a-a7b7-a160d4c03c02 ***
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Heartbeat task cancelled for job 1a272fa8-d067-401a-a7b7-a160d4c03c02 after 12 beats
-custom_backend-1  | INFO:     172.18.0.12:52040 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52054 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52070 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video HTTP/1.1" 206 Partial Content
-custom_backend-1  | INFO:     172.18.0.12:52072 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video HTTP/1.1" 206 Partial Content
-custom_backend-1  | INFO:     172.18.0.12:52076 - "GET /api/custom/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video HTTP/1.1" 206 Partial Content
-custom_backend-1  | INFO:     172.18.0.12:37660 - "GET /api/custom/design_templates HTTP/1.1" 200 OK
-custom_backend-1  | ERROR:asyncio:Task was destroyed but it is pending!
-custom_backend-1  | task: <Task pending name='Task-887' coro=<ProfessionalPresentationService._schedule_job_cleanup() done, defined at /app/app/services/presentation_service.py:1395> wait_for=<Future pending cb=[<TaskWakeupMethWrapper object at 0x772775bc7820>()]>>
+backend:
+custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
+custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
+custom_backend-1  | INFO:main:Video generation service imported successfully
+custom_backend-1  | INFO:app.services.video_composer_service:Professional Video Composer initialized
+custom_backend-1  | INFO:app.services.presentation_service:Professional Presentation Service initialized
+custom_backend-1  | INFO:main:Presentation service imported successfully
+custom_backend-1  | INFO:     Started server process [1]
+custom_backend-1  | INFO:     Waiting for application startup.
+custom_backend-1  | INFO:main:Custom Backend starting...
+custom_backend-1  | INFO:main:'projects' table ensured and updated.
+custom_backend-1  | INFO:main:'microproduct_pipelines' table ensured.
+custom_backend-1  | INFO:main:'projects' table ensured and updated with 'source_chat_session_id'.
+custom_backend-1  | INFO:main:'design_templates' table ensured.
+custom_backend-1  | INFO:main:'trashed_projects' table ensured (soft-delete).
+custom_backend-1  | INFO:main:'user_credits' table ensured.
+custom_backend-1  | INFO:main:Updated credit_transactions table to support admin_removal type
+custom_backend-1  | INFO:main:'credit_transactions' table ensured.
+custom_backend-1  | INFO:main:Attempting to connect to Onyx database: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | WARNING:main:Failed to connect to postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db: database "onyx_db" does not exist
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres
+custom_backend-1  | INFO:main:Found 3 Onyx users to migrate
+custom_backend-1  | INFO:main:Populated user_credits table with 3 existing Onyx users (100 credits each).
+custom_backend-1  | INFO:main:Added quality_tier column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default 'medium' tier
+custom_backend-1  | INFO:main:Created index for quality_tier column
+custom_backend-1  | INFO:main:Added custom_rate column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default custom_rate
+custom_backend-1  | INFO:main:Created index for custom_rate column
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to projects table
+custom_backend-1  | INFO:main:Created indexes for project-level custom_rate and quality_tier columns
+custom_backend-1  | INFO:main:Ensured is_advanced, advanced_rates, and completion_times on project_folders
+custom_backend-1  | INFO:main:Ensured is_advanced, advanced_rates, and completion_times on projects
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to trashed_projects table
+custom_backend-1  | INFO:main:Applying critical fix: Ensuring order and completion_time columns are TEXT type
+custom_backend-1  | INFO:main:Successfully set projects.order and projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set default values for empty order and completion_time fields
+custom_backend-1  | INFO:main:Projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:Trashed_projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:'request_analytics' table ensured.
+custom_backend-1  | INFO:main:AI parser tracking columns added to request_analytics table.
+custom_backend-1  | INFO:main:Added is_standalone column to projects table.
+custom_backend-1  | INFO:main:Added is_standalone column to trashed_projects table.
+custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NULL for existing products.
+custom_backend-1  | INFO:main:'smartdrive_accounts' table ensured.
+custom_backend-1  | INFO:main:'smartdrive_imports' table ensured.
+custom_backend-1  | INFO:main:'user_connectors' table ensured.
+custom_backend-1  | INFO:main:'offers' table ensured.
+custom_backend-1  | INFO:main:Smart Drive database migrations completed successfully.
+custom_backend-1  | INFO:main:'feature_definitions' table ensured.
+custom_backend-1  | INFO:main:Migrated user_features.user_id column to TEXT type.
+custom_backend-1  | INFO:main:'user_features' table ensured.
+custom_backend-1  | INFO:main:Seeded 1 feature definitions.
+custom_backend-1  | INFO:main:Deactivated 7 unused feature definitions.
+custom_backend-1  | INFO:main:Created feature entries for 3 existing users.
+custom_backend-1  | INFO:main:Database schema migration completed successfully.
+custom_backend-1  | INFO:     Application startup complete.
+custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:Video product created with metadata: 1a272fa8-d067-401a-a7b7-a160d4c03c02
-custom_backend-1  | INFO:main:Video product created, skipping LLM parsing
-custom_backend-1  | INFO:main:Video Product Created: dict
-custom_backend-1  | INFO:main:Video Product Content (first 200 chars): {'videoJobId': '1a272fa8-d067-401a-a7b7-a160d4c03c02', 'videoUrl': '/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video', 'thumbnailUrl': '/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/thu
-custom_backend-1  | INFO:main:Video product content prepared for DB storage
-custom_backend-1  | INFO:main:Content prepared for DB storage (first 200 chars of JSON): {'videoJobId': '1a272fa8-d067-401a-a7b7-a160d4c03c02', 'videoUrl': '/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video', 'thumbnailUrl': '/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/thu
-custom_backend-1  | INFO:main:Re-parsed as VideoProductDisplay (raw dictionary).
-custom_backend-1  | INFO:     172.18.0.12:37662 - "POST /api/custom/projects/add HTTP/1.1" 201 Created
-custom_backend-1  | ERROR:app.services.video_generation_service:Error fetching avatars: unable to perform operation on <TCPTransport closed=True reading=False 0x5821efcf4df0>; the handler is closed
-custom_backend-1  | INFO:     172.18.0.12:42826 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:42840 - "GET /api/custom/features/check/ai_audit_templates HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:42842 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42858 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42854 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:42868 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42884 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 78 - Raw details_data type: <class 'dict'>
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 78 - Video product already dict (preserving structure): {
-custom_backend-1  |   "videoUrl": "/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/video",
-custom_backend-1  |   "videoJobId": "1a272fa8-d067-401a-a7b7-a160d4c03c02",
-custom_backend-1  |   "generatedAt": "2025-09-09T15:27:48.785Z",
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 79 - Raw details_data type: <class 'dict'>
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 79 - Video product already dict (preserving structure): {
+custom_backend-1  |   "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+custom_backend-1  |   "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+custom_backend-1  |   "generatedAt": "2025-09-09T15:57:10.254Z",
 custom_backend-1  |   "sourceSlides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
@@ -527,150 +98,256 @@ custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
 custom_backend-1  |     }
 custom_backend-1  |   ],
-custom_backend-1  |   "thumbnailUrl": "/presentations/1a272fa8-d067-401a-a7b7-a160d4c03c02/thumbnail",
+custom_backend-1  |   "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
 custom_backend-1  |   "component_name": "VideoProductDisplay"
 custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 78 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Sending response to frontend for Project 78:
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 79 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Sending response to frontend for Project 79:
 custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response component_name: VideoProductDisplay
-custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response details type: <class 'main.TrainingPlanDetails'>
-custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response details content: mainTitle=None sections=[] detectedLanguage=None displayOptions=None theme='cherry'
-custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response has NO videoUrl!
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response details type: <class 'dict'>
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response details content: {'videoUrl': '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', 'videoJobId': '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', 'generatedAt': '2025-09-09T15:57:10.254Z', 'sourceSlides': [{'props': {'title': 'Why Learn Spanish?', 'content': 'Learning Spanish opens up a world of opportunities.', 'subtitle': '', 'avatarAlt': 'Avatar', 'avatarPath': '', 'titleColor': '#e91e63', 'companyName': 'Company name', 'contentColor': '#e91e63', 'subtitleColor': '#000000', 'voiceoverText': "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can", 'backgroundColor': '#ffffff'}, 'slideId': 'slide-1757431184773-0t0d0ipaf', 'metadata': {'createdAt': '2025-09-09T15:19:44.773Z', 'updatedAt': '2025-09-09T15:20:08.009Z'}, 'slideTitle': 'Клиентский сервис - это основа успеха', 'templateId': 'avatar-service-slide', 'slideNumber': 1, 'voiceoverText': "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"}], 'thumbnailUrl': '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', 'component_name': 'VideoProductDisplay'}
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoUrl: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoJobId: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has thumbnailUrl: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Video metadata preserved successfully!
+custom_backend-1  | INFO:     172.18.0.12:50692 - "GET /api/custom/projects/view/79 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:50706 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:42894 - "GET /api/custom/projects/view/78 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42902 - "GET /api/custom/projects HTTP/1.1" 200 OK
-
-frontend logs:
-🎬 [VIDEO_GENERATION] Polling job status for: 1a272fa8-d067-401a-a7b7-a160d4c03c02
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Status response: 
-{success: true, jobId: '1a272fa8-d067-401a-a7b7-a160d4c03c02', status: 'processing', progress: 60, error: null, …}
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Job progress: 60 Status: processing
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Polling job status for: 1a272fa8-d067-401a-a7b7-a160d4c03c02
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Status response: 
-{success: true, jobId: '1a272fa8-d067-401a-a7b7-a160d4c03c02', status: 'processing', progress: 90, error: null, …}
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Job progress: 90 Status: processing
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Polling job status for: 1a272fa8-d067-401a-a7b7-a160d4c03c02
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Status response: 
-{success: true, jobId: '1a272fa8-d067-401a-a7b7-a160d4c03c02', status: 'completed', progress: 100, error: null, …}
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Job progress: 100 Status: completed
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Video generation completed successfully!
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Starting video download...
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Downloading video for job: 1a272fa8-d067-401a-a7b7-a160d4c03c02
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Download response status: 200
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Creating blob and initiating download...
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Video downloaded successfully!
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Saving video as product...
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Saving video as product for job: 1a272fa8-d067-401a-a7b7-a160d4c03c02
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Found existing video template: 3
-9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Video saved as product: 
-{id: 78, onyx_user_id: 'b9ad451e-4c02-4008-9965-d5931ff02aa0', project_name: 'Why Learn Spanish?', product_type: 'video_product', microproduct_type: 'Video Product', …}
-advanced_rates
-: 
-null
-completion_times
-: 
-null
-created_at
-: 
-"2025-09-09T15:27:49.355534Z"
-custom_rate
-: 
-null
-design_template_id
-: 
-3
-id
-: 
-78
-is_advanced
-: 
-null
-microproduct_content
-: 
-detectedLanguage
-: 
-null
-displayOptions
-: 
-null
-mainTitle
-: 
-null
-sections
-: 
-[]
-theme
-: 
-"cherry"
-[[Prototype]]
-: 
-Object
-microproduct_name
-: 
-"Why Learn Spanish?"
-microproduct_type
-: 
-"Video Product"
-onyx_user_id
-: 
-"b9ad451e-4c02-4008-9965-d5931ff02aa0"
-product_type
-: 
-"video_product"
-project_name
-: 
-"Why Learn Spanish?"
-quality_tier
-: 
-null
-[[Prototype]]
-: 
-Object
+custom_backend-1  | INFO:     172.18.0.12:50700 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50716 - "GET /api/custom/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50718 - "GET /api/custom/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37514 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37526 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37502 - "GET /api/custom/features/check/ai_audit_templates HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37510 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37542 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37550 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 79 - Raw details_data type: <class 'dict'>
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 79 - Video product already dict (preserving structure): {
+custom_backend-1  |   "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+custom_backend-1  |   "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+custom_backend-1  |   "generatedAt": "2025-09-09T15:57:10.254Z",
+custom_backend-1  |   "sourceSlides": [
+custom_backend-1  |     {
+custom_backend-1  |       "props": {
+custom_backend-1  |         "title": "Why Learn Spanish?",
+custom_backend-1  |         "content": "Learning Spanish opens up a world of opportunities.",
+custom_backend-1  |         "subtitle": "",
+custom_backend-1  |         "avatarAlt": "Avatar",
+custom_backend-1  |         "avatarPath": "",
+custom_backend-1  |         "titleColor": "#e91e63",
+custom_backend-1  |         "companyName": "Company name",
+custom_backend-1  |         "contentColor": "#e91e63",
+custom_backend-1  |         "subtitleColor": "#000000",
+custom_backend-1  |         "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+custom_backend-1  |         "backgroundColor": "#ffffff"
+custom_backend-1  |       },
+custom_backend-1  |       "slideId": "slide-1757431184773-0t0d0ipaf",
+custom_backend-1  |       "metadata": {
+custom_backend-1  |         "createdAt": "2025-09-09T15:19:44.773Z",
+custom_backend-1  |         "updatedAt": "2025-09-09T15:20:08.009Z"
+custom_backend-1  |       },
+custom_backend-1  |       "slideTitle": "\u041a\u043b\u0438\u0435\u043d\u0442\u0441\u043a\u0438\u0439 \u0441\u0435\u0440\u0432\u0438\u0441 - \u044d\u0442\u043e \u043e\u0441\u043d\u043e\u0432\u0430 \u0443\u0441\u043f\u0435\u0445\u0430",
+custom_backend-1  |       "templateId": "avatar-service-slide",
+custom_backend-1  |       "slideNumber": 1,
+custom_backend-1  |       "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
+custom_backend-1  |   "component_name": "VideoProductDisplay"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 79 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Sending response to frontend for Project 79:
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response component_name: VideoProductDisplay
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response details type: <class 'dict'>
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] Response details content: {'videoUrl': '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', 'videoJobId': '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', 'generatedAt': '2025-09-09T15:57:10.254Z', 'sourceSlides': [{'props': {'title': 'Why Learn Spanish?', 'content': 'Learning Spanish opens up a world of opportunities.', 'subtitle': '', 'avatarAlt': 'Avatar', 'avatarPath': '', 'titleColor': '#e91e63', 'companyName': 'Company name', 'contentColor': '#e91e63', 'subtitleColor': '#000000', 'voiceoverText': "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can", 'backgroundColor': '#ffffff'}, 'slideId': 'slide-1757431184773-0t0d0ipaf', 'metadata': {'createdAt': '2025-09-09T15:19:44.773Z', 'updatedAt': '2025-09-09T15:20:08.009Z'}, 'slideTitle': 'Клиентский сервис - это основа успеха', 'templateId': 'avatar-service-slide', 'slideNumber': 1, 'voiceoverText': "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"}], 'thumbnailUrl': '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', 'component_name': 'VideoProductDisplay'}
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoUrl: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has videoJobId: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Response dict has thumbnailUrl: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+custom_backend-1  | INFO:main:🎬 [CRITICAL DEBUG] ✅ FIXED: Video metadata preserved successfully!
+custom_backend-1  | INFO:     172.18.0.12:37558 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37556 - "GET /api/custom/projects/view/79 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37570 - "GET /api/custom/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37578 - "GET /api/custom/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video HTTP/1.1" 200 OK
 
 
-🎬 [CRITICAL DEBUG] Frontend requesting project data: {currentProjectIdStr: '78', instanceApiUrl: '/api/custom-projects-backend/projects/view/78', timestamp: '2025-09-09T15:30:07.465Z'}
-page-63ac21d9b1e4a0f2.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Why Learn Spanish?",\n  "slug": "why-l… "is_advanced": false,\n  "advanced_rates": null\n}', details: {…}, detailsStringified: '{\n  "mainTitle": null,\n  "sections": [],\n  "detect…,\n  "displayOptions": null,\n  "theme": "cherry"\n}', componentName: 'VideoProductDisplay', …}
-page-63ac21d9b1e4a0f2.js:1 🎬 [CRITICAL DEBUG] Project ID verification: {requestedProjectId: '78', receivedProjectId: 78, projectIdMatch: true, componentName: 'VideoProductDisplay', hasDetails: true}
-page-63ac21d9b1e4a0f2.js:1 🎬 [CRITICAL DEBUG] Video product data analysis: {componentName: 'VideoProductDisplay', hasDetails: true, detailsType: 'object', detailsKeys: Array(5), detailsContent: {…}, …}
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details: {copiedDetails: {…}, copiedDetailsStringified: '{\n  "mainTitle": null,\n  "sections": [],\n  "detect…,\n  "displayOptions": null,\n  "theme": "cherry"\n}', videoJobId: undefined, videoUrl: undefined, thumbnailUrl: undefined, …}
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] About to set editableData with: {type: 'object', keys: Array(5), hasVideoUrl: false, hasThumbnailUrl: false, hasVideoJobId: false, …}
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found in copiedDetails, checking for nested data...
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] Full copiedDetails structure: {
-  "mainTitle": null,
-  "sections": [],
-  "detectedLanguage": null,
-  "displayOptions": null,
-  "theme": "cherry"
-}
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found anywhere, using fallback
-/custom-projects-ui/projects/view/78:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
-/custom-projects-ui/projects/view/78:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-page-63ac21d9b1e4a0f2.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData: {videoJobId: 'unknown', videoUrl: '', thumbnailUrl: '', generatedAt: '2025-09-09T15:30:08.254Z', sourceSlides: Array(0), …}
-page-63ac21d9b1e4a0f2.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type: object
-page-63ac21d9b1e4a0f2.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys: (6) ['videoJobId', 'videoUrl', 'thumbnailUrl', 'generatedAt', 'sourceSlides', 'component_name']
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoJobId: 'unknown', videoUrl: '', thumbnailUrl: '', generatedAt: '2025-09-09T15:30:08.254Z', sourceSlides: Array(0), …}
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoJobId', 'videoUrl', 'thumbnailUrl', 'generatedAt', 'sourceSlides', 'component_name']
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
-  "videoJobId": "unknown",
-  "videoUrl": "",
-  "thumbnailUrl": "",
-  "generatedAt": "2025-09-09T15:30:08.254Z",
-  "sourceSlides": [],
+frontend:
+🎨 Font styles applied to Chudo and Forta themes
+page-e5e761f334c805df.js:1 🎬 [CRITICAL DEBUG] Frontend requesting project data: {currentProjectIdStr: '79', instanceApiUrl: '/api/custom-projects-backend/projects/view/79', timestamp: '2025-09-09T17:11:43.622Z'}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Loaded saved avatar from localStorage: {avatar: {…}, selectedVariant: {…}}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Saved avatar not found in fetched list, using first available
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Selected first avatar as default: Mikhailo
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Saved avatar to localStorage: {avatar: {…}, selectedVariant: {…}}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
+page-e5e761f334c805df.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Why Learn Spanish?",\n  "slug": "why-l… "is_advanced": false,\n  "advanced_rates": null\n}', details: {…}, detailsStringified: '{\n  "videoUrl": "/presentations/5c10dbaa-abc6-4a72…ail",\n  "component_name": "VideoProductDisplay"\n}', componentName: 'VideoProductDisplay', …}
+page-e5e761f334c805df.js:1 🎬 [CRITICAL DEBUG] Project ID verification: {requestedProjectId: '79', receivedProjectId: 79, projectIdMatch: true, componentName: 'VideoProductDisplay', hasDetails: true}
+page-e5e761f334c805df.js:1 🎬 [CRITICAL DEBUG] Video product data analysis: {componentName: 'VideoProductDisplay', hasDetails: true, detailsType: 'object', detailsKeys: Array(6), detailsContent: {…}, …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details: {copiedDetails: {…}, copiedDetailsStringified: '{\n  "videoUrl": "/presentations/5c10dbaa-abc6-4a72…ail",\n  "component_name": "VideoProductDisplay"\n}', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DATA] About to set editableData with: {type: 'object', keys: Array(6), hasVideoUrl: true, hasThumbnailUrl: true, hasVideoJobId: true, …}
+page-e5e761f334c805df.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type: object
+page-e5e761f334c805df.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+  "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+  "generatedAt": "2025-09-09T15:57:10.254Z",
+  "sourceSlides": [
+    {
+      "props": {
+        "title": "Why Learn Spanish?",
+        "content": "Learning Spanish opens up a world of opportunities.",
+        "subtitle": "",
+        "avatarAlt": "Avatar",
+        "avatarPath": "",
+        "titleColor": "#e91e63",
+        "companyName": "Company name",
+        "contentColor": "#e91e63",
+        "subtitleColor": "#000000",
+        "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+        "backgroundColor": "#ffffff"
+      },
+      "slideId": "slide-1757431184773-0t0d0ipaf",
+      "metadata": {
+        "createdAt": "2025-09-09T15:19:44.773Z",
+        "updatedAt": "2025-09-09T15:20:08.009Z"
+      },
+      "slideTitle": "Клиентский сервис - это основа успеха",
+      "templateId": "avatar-service-slide",
+      "slideNumber": 1,
+      "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+    }
+  ],
+  "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
   "component_name": "VideoProductDisplay"
 }
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: 
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: 
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: unknown
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
-page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': []
-1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': [{…}]
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PLAYER] Video loading started
+1684-77cc8bacad49b839.js:1 🎬 [VIDEO_PLAYER] Video error: n {_reactName: 'onError', _targetInst: null, type: 'error', nativeEvent: Event, target: source, …}
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+onError @ page-e5e761f334c805df.js:1
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+  "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+  "generatedAt": "2025-09-09T15:57:10.254Z",
+  "sourceSlides": [
+    {
+      "props": {
+        "title": "Why Learn Spanish?",
+        "content": "Learning Spanish opens up a world of opportunities.",
+        "subtitle": "",
+        "avatarAlt": "Avatar",
+        "avatarPath": "",
+        "titleColor": "#e91e63",
+        "companyName": "Company name",
+        "contentColor": "#e91e63",
+        "subtitleColor": "#000000",
+        "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+        "backgroundColor": "#ffffff"
+      },
+      "slideId": "slide-1757431184773-0t0d0ipaf",
+      "metadata": {
+        "createdAt": "2025-09-09T15:19:44.773Z",
+        "updatedAt": "2025-09-09T15:20:08.009Z"
+      },
+      "slideTitle": "Клиентский сервис - это основа успеха",
+      "templateId": "avatar-service-slide",
+      "slideNumber": 1,
+      "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+    }
+  ],
+  "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
+  "component_name": "VideoProductDisplay"
+}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': [{…}]
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+  "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+  "generatedAt": "2025-09-09T15:57:10.254Z",
+  "sourceSlides": [
+    {
+      "props": {
+        "title": "Why Learn Spanish?",
+        "content": "Learning Spanish opens up a world of opportunities.",
+        "subtitle": "",
+        "avatarAlt": "Avatar",
+        "avatarPath": "",
+        "titleColor": "#e91e63",
+        "companyName": "Company name",
+        "contentColor": "#e91e63",
+        "subtitleColor": "#000000",
+        "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+        "backgroundColor": "#ffffff"
+      },
+      "slideId": "slide-1757431184773-0t0d0ipaf",
+      "metadata": {
+        "createdAt": "2025-09-09T15:19:44.773Z",
+        "updatedAt": "2025-09-09T15:20:08.009Z"
+      },
+      "slideTitle": "Клиентский сервис - это основа успеха",
+      "templateId": "avatar-service-slide",
+      "slideNumber": 1,
+      "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+    }
+  ],
+  "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
+  "component_name": "VideoProductDisplay"
+}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': [{…}]
+79:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
+79:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
 (anonymous) @ 1684-77cc8bacad49b839.js:1
 (anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
-1684-77cc8bacad49b839.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
+1684-77cc8bacad49b839.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont thin font
     at HTMLLinkElement.<anonymous> (layout-7dd727b8c68f91f5.js:1:4167)
 (anonymous) @ 1684-77cc8bacad49b839.js:1
 l @ layout-7dd727b8c68f91f5.js:1
@@ -727,21 +404,223 @@ iS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
 (anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
 w @ 1684-77cc8bacad49b839.js:1Understand this error
 layout-7dd727b8c68f91f5.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-/custom-projects-ui/projects/view/78:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
-/custom-projects-ui/projects/view/78:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Why Learn Spanish?" (video_product) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
+7page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Hello" (video_product) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Hello" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Welcome to Your Spanish Learning Journey!" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+3page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Video Lesson Presentation) included - standalone content
+5page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Video Lesson Presentation) included - standalone content
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course on AI tools for teachers of the high school" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Slide Deck) included - standalone content
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
+2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
+page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Slide Deck) included - standalone content
+/custom-projects-ui/projects:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
+/custom-projects-ui/projects:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
+page-bc3f952b8bfe7f9b.js:1 Folder Projects Map: {}
+page-bc3f952b8bfe7f9b.js:1 Updated Folders: []
+page-bc3f952b8bfe7f9b.js:1 Folder Tree: []
+page-e5e761f334c805df.js:1 🎬 [CRITICAL DEBUG] Frontend requesting project data: {currentProjectIdStr: '79', instanceApiUrl: '/api/custom-projects-backend/projects/view/79', timestamp: '2025-09-09T17:11:53.029Z'}
+page-e5e761f334c805df.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Why Learn Spanish?",\n  "slug": "why-l… "is_advanced": false,\n  "advanced_rates": null\n}', details: {…}, detailsStringified: '{\n  "videoUrl": "/presentations/5c10dbaa-abc6-4a72…ail",\n  "component_name": "VideoProductDisplay"\n}', componentName: 'VideoProductDisplay', …}
+page-e5e761f334c805df.js:1 🎬 [CRITICAL DEBUG] Project ID verification: {requestedProjectId: '79', receivedProjectId: 79, projectIdMatch: true, componentName: 'VideoProductDisplay', hasDetails: true}
+page-e5e761f334c805df.js:1 🎬 [CRITICAL DEBUG] Video product data analysis: {componentName: 'VideoProductDisplay', hasDetails: true, detailsType: 'object', detailsKeys: Array(6), detailsContent: {…}, …}
+79:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
+79:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
 1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
 (anonymous) @ 1684-77cc8bacad49b839.js:1
 (anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
-/custom-projects-ui/projects/view/78:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
-/custom-projects-ui/projects/view/78:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details: {copiedDetails: {…}, copiedDetailsStringified: '{\n  "videoUrl": "/presentations/5c10dbaa-abc6-4a72…ail",\n  "component_name": "VideoProductDisplay"\n}', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DATA] About to set editableData with: {type: 'object', keys: Array(6), hasVideoUrl: true, hasThumbnailUrl: true, hasVideoJobId: true, …}
+page-e5e761f334c805df.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type: object
+page-e5e761f334c805df.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+  "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+  "generatedAt": "2025-09-09T15:57:10.254Z",
+  "sourceSlides": [
+    {
+      "props": {
+        "title": "Why Learn Spanish?",
+        "content": "Learning Spanish opens up a world of opportunities.",
+        "subtitle": "",
+        "avatarAlt": "Avatar",
+        "avatarPath": "",
+        "titleColor": "#e91e63",
+        "companyName": "Company name",
+        "contentColor": "#e91e63",
+        "subtitleColor": "#000000",
+        "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+        "backgroundColor": "#ffffff"
+      },
+      "slideId": "slide-1757431184773-0t0d0ipaf",
+      "metadata": {
+        "createdAt": "2025-09-09T15:19:44.773Z",
+        "updatedAt": "2025-09-09T15:20:08.009Z"
+      },
+      "slideTitle": "Клиентский сервис - это основа успеха",
+      "templateId": "avatar-service-slide",
+      "slideNumber": 1,
+      "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+    }
+  ],
+  "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
+  "component_name": "VideoProductDisplay"
+}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': [{…}]
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PLAYER] Video loading started
+1684-77cc8bacad49b839.js:1 🎬 [VIDEO_PLAYER] Video error: n {_reactName: 'onError', _targetInst: null, type: 'error', nativeEvent: Event, target: source, …}
 (anonymous) @ 1684-77cc8bacad49b839.js:1
-(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
-1684-77cc8bacad49b839.js:1 Download failed: Error: Video URL is not available
-    at c (page-63ac21d9b1e4a0f2.js:1:143808)
-    at iX (4bd1b696-4fd0ea18c6d24e6e.js:1:132400)
-    at 4bd1b696-4fd0ea18c6d24e6e.js:1:138478
-    at nS (4bd1b696-4fd0ea18c6d24e6e.js:1:18818)
-    at i2 (4bd1b696-4fd0ea18c6d24e6e.js:1:133633)
-    at s7 (4bd1b696-4fd0ea18c6d24e6e.js:1:159683)
-    at s5 (4bd1b696-4fd0ea18c6d24e6e.js:1:159505)
+onError @ page-e5e761f334c805df.js:1
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+  "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+  "generatedAt": "2025-09-09T15:57:10.254Z",
+  "sourceSlides": [
+    {
+      "props": {
+        "title": "Why Learn Spanish?",
+        "content": "Learning Spanish opens up a world of opportunities.",
+        "subtitle": "",
+        "avatarAlt": "Avatar",
+        "avatarPath": "",
+        "titleColor": "#e91e63",
+        "companyName": "Company name",
+        "contentColor": "#e91e63",
+        "subtitleColor": "#000000",
+        "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+        "backgroundColor": "#ffffff"
+      },
+      "slideId": "slide-1757431184773-0t0d0ipaf",
+      "metadata": {
+        "createdAt": "2025-09-09T15:19:44.773Z",
+        "updatedAt": "2025-09-09T15:20:08.009Z"
+      },
+      "slideTitle": "Клиентский сервис - это основа успеха",
+      "templateId": "avatar-service-slide",
+      "slideNumber": 1,
+      "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+    }
+  ],
+  "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
+  "component_name": "VideoProductDisplay"
+}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': [{…}]
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video', videoJobId: '5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c', generatedAt: '2025-09-09T15:57:10.254Z', sourceSlides: Array(1), thumbnailUrl: '/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail', …}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoUrl', 'videoJobId', 'generatedAt', 'sourceSlides', 'thumbnailUrl', 'component_name']
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video",
+  "videoJobId": "5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c",
+  "generatedAt": "2025-09-09T15:57:10.254Z",
+  "sourceSlides": [
+    {
+      "props": {
+        "title": "Why Learn Spanish?",
+        "content": "Learning Spanish opens up a world of opportunities.",
+        "subtitle": "",
+        "avatarAlt": "Avatar",
+        "avatarPath": "",
+        "titleColor": "#e91e63",
+        "companyName": "Company name",
+        "contentColor": "#e91e63",
+        "subtitleColor": "#000000",
+        "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can",
+        "backgroundColor": "#ffffff"
+      },
+      "slideId": "slide-1757431184773-0t0d0ipaf",
+      "metadata": {
+        "createdAt": "2025-09-09T15:19:44.773Z",
+        "updatedAt": "2025-09-09T15:20:08.009Z"
+      },
+      "slideTitle": "Клиентский сервис - это основа успеха",
+      "templateId": "avatar-service-slide",
+      "slideNumber": 1,
+      "voiceoverText": "Welcome to our course on learning Spanish! In this lesson, we'll explore the many reasons why learning Spanish is beneficial and how it can"
+    }
+  ],
+  "thumbnailUrl": "/presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail",
+  "component_name": "VideoProductDisplay"
+}
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/video
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: /presentations/5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c/thumbnail
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: 5c10dbaa-abc6-4a72-adbc-5d6e58e41f0c
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-e5e761f334c805df.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': [{…}]

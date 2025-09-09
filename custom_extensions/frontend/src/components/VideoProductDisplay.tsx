@@ -28,6 +28,18 @@ export default function VideoProductDisplay({
 }: VideoProductDisplayProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Retry function for failed video loads
+  const retryVideoLoad = () => {
+    if (retryCount < 3) {
+      setRetryCount(prev => prev + 1);
+      setVideoError(null);
+      console.log(`🎬 [VIDEO_PLAYER] Retrying video load (attempt ${retryCount + 1}/3)`);
+    } else {
+      setVideoError('Video failed to load after multiple attempts. Please refresh the page.');
+    }
+  };
 
   // 🔍 ENHANCED DEBUG: Detailed data structure analysis
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Received data:', dataToDisplay);
@@ -37,6 +49,12 @@ export default function VideoProductDisplay({
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video URL:', dataToDisplay?.videoUrl);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL:', dataToDisplay?.thumbnailUrl);
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID:', dataToDisplay?.videoJobId);
+  
+  // Test the full video URL
+  const fullVideoUrl = dataToDisplay?.videoUrl?.startsWith('http') 
+    ? dataToDisplay.videoUrl 
+    : `${CUSTOM_BACKEND_URL}${dataToDisplay?.videoUrl}`;
+  console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Full Video URL:', fullVideoUrl);
   
   // 🔍 CRITICAL DEBUG: Check for nested data structure
   if (dataToDisplay && typeof dataToDisplay === 'object') {
@@ -139,10 +157,10 @@ export default function VideoProductDisplay({
           <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
             {dataToDisplay.videoUrl ? (
               <video
-                key={dataToDisplay.videoUrl}
+                key={`${dataToDisplay.videoUrl}-${retryCount}`}
                 className="w-full h-full object-contain"
                 controls
-                preload="auto"
+                preload="metadata"
                 playsInline
                 crossOrigin="anonymous"
                 poster={dataToDisplay.thumbnailUrl ? 
@@ -156,16 +174,50 @@ export default function VideoProductDisplay({
                 onCanPlay={() => console.log('🎬 [VIDEO_PLAYER] Video can start playing')}
                 onError={(e) => {
                   console.error('🎬 [VIDEO_PLAYER] Video error:', e);
-                  setVideoError('Failed to load video');
+                  console.error('🎬 [VIDEO_PLAYER] Video error details:', {
+                    error: e.nativeEvent,
+                    target: e.target,
+                    videoUrl: dataToDisplay.videoUrl,
+                    fullUrl: dataToDisplay.videoUrl.startsWith('http') 
+                      ? dataToDisplay.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                  });
+                  setVideoError('Failed to load video. Please check the video file.');
+                }}
+                onAbort={() => {
+                  console.log('🎬 [VIDEO_PLAYER] Video loading aborted');
+                  setVideoError('Video loading was interrupted');
+                }}
+                onStalled={() => {
+                  console.log('🎬 [VIDEO_PLAYER] Video loading stalled');
+                  setVideoError('Video loading stalled. Please try again.');
                 }}
                 onLoadStart={() => console.log('🎬 [VIDEO_PLAYER] Video loading started')}
                 onLoadedMetadata={() => console.log('🎬 [VIDEO_PLAYER] Video metadata loaded')}
               >
-                <source src={
-                  dataToDisplay.videoUrl.startsWith('http') 
-                    ? dataToDisplay.videoUrl 
-                    : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
-                } type="video/mp4" />
+                <source 
+                  src={
+                    dataToDisplay.videoUrl.startsWith('http') 
+                      ? dataToDisplay.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                  } 
+                  type="video/mp4" 
+                  onError={(e) => {
+                    console.error('🎬 [VIDEO_PLAYER] MP4 source error:', e);
+                    setVideoError('MP4 video source failed to load');
+                  }}
+                />
+                <source 
+                  src={
+                    dataToDisplay.videoUrl.startsWith('http') 
+                      ? dataToDisplay.videoUrl 
+                      : `${CUSTOM_BACKEND_URL}${dataToDisplay.videoUrl}`
+                  } 
+                  type="video/webm" 
+                  onError={(e) => {
+                    console.error('🎬 [VIDEO_PLAYER] WebM source error:', e);
+                  }}
+                />
                 Your browser does not support the video tag.
               </video>
             ) : (
@@ -180,12 +232,22 @@ export default function VideoProductDisplay({
                 <div className="text-white text-center">
                   <p className="text-lg font-semibold">Video Error</p>
                   <p className="text-sm">{videoError}</p>
-                  <button 
-                    onClick={() => setVideoError(null)}
-                    className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                  >
-                    Dismiss
-                  </button>
+                  <div className="mt-4 space-x-2">
+                    {retryCount < 3 && (
+                      <button 
+                        onClick={retryVideoLoad}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Retry ({retryCount}/3)
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => setVideoError(null)}
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
