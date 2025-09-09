@@ -95,7 +95,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     color: '#878783',
     lineHeight: 1.65,
     fontSize: '15px',
-    maxWidth: '530px',
+    maxWidth: '500px',
     marginLeft: '50px',
     marginTop: '-28px'
   };

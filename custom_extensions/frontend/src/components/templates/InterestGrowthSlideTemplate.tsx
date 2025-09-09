@@ -44,17 +44,17 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
   const titleStyle: React.CSSProperties = {
     gridColumn: '1 / 2',
-    fontSize: '96px',
-    color: '#222',
+    fontSize: '65px',
+    color: '#2A2B2C',
     fontWeight: 800,
     letterSpacing: '-0.5px',
-    marginTop: '8px'
   };
 
   const cardsGrid: React.CSSProperties = {
     gridColumn: '1 / 2',
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
+    gridTemplateRows: 'repeat(2, 225px)',
     gap: '24px',
     alignContent: 'start',
     marginTop: '12px'
@@ -66,7 +66,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     padding: '28px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'end',
     backgroundColor: '#fff',
     position: 'relative'
   };
@@ -121,10 +121,10 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
                   initialValue={c.label}
                   onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], label: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
                   onCancel={() => setEditingCard(null)}
-                  style={{ color: '#6b6b6b', fontSize: '16px' }}
+                  style={{ color: '#606060', fontSize: '16px' }}
                 />
               ) : (
-                <div style={{ color: '#6b6b6b', fontSize: '16px' }} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
+                <div style={{ color: '#606060', fontSize: '16px' }} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
               )}
             </div>
 
@@ -135,10 +135,10 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
                   initialValue={c.percentage}
                   onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
                   onCancel={() => setEditingCard(null)}
-                  style={{ fontSize: '88px', fontWeight: 800, lineHeight: 1 }}
+                  style={{ fontSize: '79px', color: '#202022', fontWeight: 800, lineHeight: 1 }}
                 />
               ) : (
-                <div style={{ fontSize: '88px', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
+                <div style={{ fontSize: '79px', color: '#202022', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
               )}
             </div>
 
@@ -154,15 +154,6 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
             )}
           </div>
         ))}
-
-        {isEditable && (
-          <button
-            onClick={() => { const next=[...cardList, { label: 'Interest growth', percentage: '50%' }]; setCardList(next); onUpdate && onUpdate({ cards: next }); }}
-            style={{ background: '#222', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 12px', cursor: 'pointer' }}
-          >
-            Add card
-          </button>
-        )}
       </div>
 
       <div style={rightPanel}>
