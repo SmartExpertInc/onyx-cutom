@@ -101,6 +101,28 @@ const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
+interface TabButtonProps {
+  label: string;
+  Icon?: React.ElementType;
+  active?: boolean;
+  onClick?: () => void;
+}
+
+const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
+      active
+        ? "bg-white shadow text-brand-primary border border-brand-primary"
+        : "bg-white/70 text-gray-700 hover:bg-white"
+    }`}
+  >
+    {Icon && <Icon size={64} />}
+    <span className="text-sm font-medium leading-tight">{label}</span>
+  </button>
+);
+
 
 function GenerateProductPicker() {
   const { t } = useLanguage();
@@ -1080,71 +1102,36 @@ function GenerateProductPicker() {
 
         {/* Tab selector */}
         <div className="flex justify-center gap-4 mb-4">
-          <Button
-            type="button"
-            variant="outline"
+        <TabButton
+            label={t('interface.generate.courseOutline', 'Course Outline')}
+            Icon={CourseOutlineIcon}
+            active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
-            className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
-              activeProduct === "Course Outline"
-                ? "bg-white shadow text-brand-primary border border-brand-primary"
-                : "bg-white/70 text-gray-700 hover:bg-white"
-            }`}
-          >
-            <CourseOutlineIcon size={40} />
-            <span className="text-sm font-medium leading-tight">{t('interface.generate.courseOutline', 'Course Outline')}</span>
-          </Button>
-          <Button 
-            type="button"
-            variant="outline"
+          />
+          <TabButton 
+            label={t('interface.generate.videoLesson', 'Video Lesson')} 
+            Icon={VideoScriptIcon} 
+            active={activeProduct === "Video Lesson"}
             onClick={() => setActiveProduct("Video Lesson")}
-            className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
-              activeProduct === "Video Lesson"
-                ? "bg-white shadow text-brand-primary border border-brand-primary"
-                : "bg-white/70 text-gray-700 hover:bg-white"
-            }`}
-          >
-            <VideoScriptIcon size={40} />
-            <span className="text-sm font-medium leading-tight">{t('interface.generate.videoLesson', 'Video Lesson')}</span>
-          </Button>
-          <Button 
-            type="button"
-            variant="outline"
+          />
+          <TabButton 
+            label={t('interface.generate.quiz', 'Quiz')} 
+            Icon={QuizIcon} 
+            active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
-            className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
-              activeProduct === "Quiz"
-                ? "bg-white shadow text-brand-primary border border-brand-primary"
-                : "bg-white/70 text-gray-700 hover:bg-white"
-            }`}
-          >
-            <QuizIcon size={40} />
-            <span className="text-sm font-medium leading-tight">{t('interface.generate.quiz', 'Quiz')}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
+          />
+          <TabButton
+            label={t('interface.generate.presentation', 'Presentation')}
+            Icon={LessonPresentationIcon}
+            active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
-            className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
-              activeProduct === "Presentation"
-                ? "bg-white shadow text-brand-primary border border-brand-primary"
-                : "bg-white/70 text-gray-700 hover:bg-white"
-            }`}
-          >
-            <LessonPresentationIcon size={40} />
-            <span className="text-sm font-medium leading-tight">{t('interface.generate.presentation', 'Presentation')}</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
+          />
+          <TabButton
+            label={t('interface.generate.onePager', 'One-Pager')}
+            Icon={TextPresentationIcon}
+            active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
-            className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
-              activeProduct === "One-Pager"
-                ? "bg-white shadow text-brand-primary border border-brand-primary"
-                : "bg-white/70 text-gray-700 hover:bg-white"
-            }`}
-          >
-            <TextPresentationIcon size={40} />
-            <span className="text-sm font-medium leading-tight">{t('interface.generate.onePager', 'One-Pager')}</span>
-          </Button>
+          />
         </div>
 
         {/* Dropdown chips */}
