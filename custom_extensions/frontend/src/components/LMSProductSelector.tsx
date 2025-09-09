@@ -5,6 +5,7 @@ import { Search, CheckSquare, Square, Presentation, Video, FileText, HelpCircle,
 import { useLanguage } from '../contexts/LanguageContext';
 import { Product } from '../types/lmsTypes';
 import LMSExportButton from './LMSExportButton';
+import LMSProductCard from './LMSProductCard';
 
 interface LMSProductSelectorProps {
   selectedProducts: Set<number>;
@@ -13,28 +14,7 @@ interface LMSProductSelectorProps {
   onDeselectAll: () => void;
 }
 
-// Helper function to get product type icon
-const getProductTypeIcon = (type: string | undefined): React.ReactElement => {
-  const iconSize = 20;
-  const iconClass = "text-gray-600";
-
-  switch (type) {
-    case "Training Plan":
-      return <TableOfContents size={iconSize} className={iconClass} />;
-    case "Quiz":
-      return <HelpCircle size={iconSize} className={iconClass} />;
-    case "Slide Deck":
-      return <Presentation size={iconSize} className={iconClass} />;
-    case "Video Lesson Presentation":
-      return <Video size={iconSize} className={iconClass} />;
-    case "Text Presentation":
-      return <FileText size={iconSize} className={iconClass} />;
-    default:
-      return <FileText size={iconSize} className={iconClass} />;
-  }
-};
-
-// Helper function to get product type display name
+// Helper function to get product type display name (still needed for filter dropdown)
 const getProductTypeDisplayName = (type: string | undefined): string => {
   if (!type) return "Unknown";
   
@@ -47,22 +27,6 @@ const getProductTypeDisplayName = (type: string | undefined): string => {
       return "Onepager";
     default:
       return type;
-  }
-};
-
-// Helper function to get tier color
-const getTierColor = (tier?: string): string => {
-  switch (tier) {
-    case 'basic':
-      return '#22c55e'; // green-500
-    case 'interactive':
-      return '#f97316'; // orange-500
-    case 'advanced':
-      return '#a855f7'; // purple-500
-    case 'immersive':
-      return '#3b82f6'; // blue-500
-    default:
-      return '#f97316'; // orange-500 (interactive as default)
   }
 };
 
@@ -316,125 +280,14 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map(product => {
-            const isSelected = selectedProducts.has(product.id);
-            const stringToColor = (str: string): string => {
-              let hash = 0;
-              if (!str) return "#CCCCCC";
-              for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-              }
-              let color = "#";
-              for (let i = 0; i < 3; i++) {
-                let value = (hash >> (i * 8)) & 0xff;
-                color += ("00" + value.toString(16)).substr(-2);
-              }
-              return color;
-            };
-            
-            const productName = product.microproduct_name || product.projectName || product.name || product.title || 'Product';
-            const bgColor = stringToColor(productName);
-            const avatarColor = stringToColor((product.user_id || 'user'));
-            
-            return (
-              <div
-                key={product.id}
-                className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-pointer ${
-                  isSelected ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
-                }`}
-                onClick={() => onProductToggle(product.id)}
-              >
-                {/* Selection indicator */}
-                <div className="absolute top-2 right-2 z-10">
-                  {isSelected ? (
-                    <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                      <CheckSquare size={14} className="text-white" />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 border-2 border-gray-300 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Square size={14} className="text-gray-600" />
-                    </div>
-                  )}
-                </div>
-                
-                {/* Card header with gradient - matching ProjectsTable exactly */}
-                <div
-                  className="relative h-40 rounded-t-lg"
-                  style={{
-                    backgroundColor: bgColor,
-                    backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-                      productName.split("").reverse().join("")
-                    )}99)`,
-                  }}
-                >
-                  {/* Product type icon - matching ProjectsTable positioning */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 8,
-                      left: 8,
-                      background: "#fff",
-                      borderRadius: "6px",
-                      padding: "4px",
-                      zIndex: 2,
-                      backdropFilter: "blur(2px)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {getProductTypeIcon(product.design_microproduct_type || product.designMicroproductType)}
-                  </div>
-                  
-                  {/* Title overlay - matching ProjectsTable exactly */}
-                  <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
-                    <h3
-                      className="font-bold text-lg text-center truncate max-w-full"
-                      title={productName}
-                    >
-                      {productName}
-                    </h3>
-                  </div>
-                </div>
-                
-                {/* Card content - matching ProjectsTable exactly */}
-                <div className="p-4">
-                  <h3
-                    className="font-semibold text-gray-800 mb-2 truncate text-sm max-w-full"
-                    title={productName}
-                  >
-                    {productName}
-                  </h3>
-                  <div className="flex items-center text-xs text-gray-600 mb-3">
-                    <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
-                      <span className="text-gray-700 uppercase tracking-wide font-medium">
-                        {getProductTypeDisplayName(product.design_microproduct_type || product.designMicroproductType)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                        style={{ backgroundColor: avatarColor }}
-                      >
-                        {(product.user_id || 'U').slice(0, 1).toUpperCase()}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">
-                          {t('interface.createdByYou', 'Created by you')}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          {new Date(product.created_at || product.createdAt || Date.now()).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-7 h-7" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {filteredProducts.map(product => (
+            <LMSProductCard
+              key={product.id}
+              product={product}
+              isSelected={selectedProducts.has(product.id)}
+              onToggleSelect={onProductToggle}
+            />
+          ))}
         </div>
       )}
 
