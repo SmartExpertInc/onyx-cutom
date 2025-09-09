@@ -1540,7 +1540,7 @@ export default function CommercialProposalPage() {
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Месячная цена (со скидкой)
                         </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Средняя цена за пользователя
                         </div>
                       </div>
@@ -1557,7 +1557,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $350
                           </div>
-                          <div className="text-[14px] xl:text-[22px]">
+                          <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             <span className="font-medium">от</span> <span className="font-semibold">$3.50</span>
                           </div>
                         </div>
@@ -1572,7 +1572,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $500
                           </div>
-                          <div className="text-[14px] xl:text-[22px]">
+                          <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             <span className="font-medium">от</span> <span className="font-semibold">$2.50</span>
                           </div>
                         </div>
@@ -1587,7 +1587,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $1000
                           </div>
-                          <div className="text-[14px] xl:text-[22px]">
+                          <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             <span className="font-medium">от</span> <span className="font-semibold">$2.00</span>
                           </div>
                         </div>
@@ -1602,7 +1602,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $1800
                           </div>
-                          <div className="text-[14px] xl:text-[22px]">
+                          <div className="text-[14px] xl:text-[22px] xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             <span className="font-medium">от</span> <span className="font-semibold">$1.80</span>
                           </div>
                         </div>
@@ -2309,7 +2309,7 @@ export default function CommercialProposalPage() {
                         <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Стоимость
                         </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                           Ставка за час
                         </div>
                       </div>
@@ -2329,7 +2329,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $2,250
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $75 / час
                           </div>
                         </div>
@@ -2347,7 +2347,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $3,500
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $70 / час
                           </div>
                         </div>
@@ -2365,7 +2365,7 @@ export default function CommercialProposalPage() {
                           <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $5,900
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
                             $59 / час
                           </div>
                         </div>
