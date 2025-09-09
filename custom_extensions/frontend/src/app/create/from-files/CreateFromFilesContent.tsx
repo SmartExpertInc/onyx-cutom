@@ -507,7 +507,7 @@ export default function CreateFromFilesContent() {
           <Button
             onClick={() => setIsCreateModalOpen(true)}
             className="ml-4 inline-flex items-center gap-2"
-            //className="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+            variant="download"
           >
             <Plus className="h-4 w-4" />
             {t("interface.fromFiles.newFolder", "New Folder")}
@@ -539,7 +539,7 @@ export default function CreateFromFilesContent() {
                   onClick={clearSelectedItems}
                   variant="outline"
                   size="sm"
-                  className="border-blue-300 text-blue-700 hover:bg-blue-200 bg-blue-100"
+                  className="border-blue-300 px-1 text-blue-700 hover:bg-blue-200 bg-blue-100"
                 >
                   {t("interface.fromFiles.clearSelection", "Clear Selection")}
                 </Button>
