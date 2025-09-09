@@ -36,7 +36,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F3F1ED',
+    backgroundColor: '#F9F8F6',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont
@@ -48,7 +48,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     right: '40px',
     top: '40px',
     height: '4px',
-    backgroundColor: '#E0DED9',
+    backgroundColor: '#E6E5E3',
     borderRadius: '999px'
   };
 
@@ -60,7 +60,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     position: 'absolute',
     left: '56px',
     top: '90px',
-    color: '#6E736A',
+    color: '#585955',
     fontSize: '26px',
     fontWeight: 500
   };
@@ -74,7 +74,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     display: 'grid',
     gridTemplateColumns: '380px 1fr',
     gridAutoRows: 'minmax(120px, auto)',
-    rowGap: '68px',
+    rowGap: '10px',
     columnGap: '15px 72px',
     alignItems: 'center'
   };
@@ -87,7 +87,8 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     letterSpacing: '-3px',
     lineHeight: 1,
     whiteSpace: 'nowrap',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginBottom: '50px'
   };
 
   const descStyle: React.CSSProperties = {
@@ -102,8 +103,8 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     left: '40px',
     right: '40px',
     bottom: '64px',
-    height: '4px',
-    backgroundColor: '#E3E1DC',
+    height: '6px',
+    backgroundColor: '#E6E5E3',
     borderRadius: '999px'
   };
 
@@ -134,7 +135,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         {currentItems.map((it, i) => (
           <React.Fragment key={i}>
             {/* Value cell */}
-            <div style={{ minHeight: '116px', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
+            <div style={{ minHeight: '116px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'value' ? (
                 <ImprovedInlineEditor
                   initialValue={it.value}
