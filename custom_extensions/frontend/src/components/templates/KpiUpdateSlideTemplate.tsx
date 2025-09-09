@@ -36,7 +36,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F4F4F0',
+    backgroundColor: '#F3F1ED',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont
@@ -48,7 +48,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     right: '40px',
     top: '40px',
     height: '4px',
-    backgroundColor: '#E3E1DC',
+    backgroundColor: '#E0DED9',
     borderRadius: '999px'
   };
 
@@ -58,17 +58,17 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     top: '36px',
     width: '32px',
     height: '12px',
-    backgroundColor: '#E3E1DC',
+    backgroundColor: '#E0DED9',
     borderRadius: '999px'
   };
 
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
     left: '56px',
-    top: '92px',
-    color: '#6A7167',
-    fontSize: '28px',
-    fontWeight: 600
+    top: '90px',
+    color: '#6E736A',
+    fontSize: '26px',
+    fontWeight: 500
   };
 
   const itemsArea: React.CSSProperties = {
@@ -76,12 +76,31 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     left: '56px',
     right: '56px',
     top: '168px',
-    bottom: '140px',
+    bottom: '148px',
     display: 'grid',
-    gridTemplateColumns: '360px 1fr',
-    rowGap: '56px',
+    gridTemplateColumns: '380px 1fr',
+    gridAutoRows: 'minmax(120px, auto)',
+    rowGap: '68px',
     columnGap: '72px',
     alignItems: 'center'
+  };
+
+  const valueStyle: React.CSSProperties = {
+    fontSize: '128px',
+    color: '#2F342C',
+    fontWeight: 700,
+    textAlign: 'right',
+    letterSpacing: '-3px',
+    lineHeight: 1,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden'
+  };
+
+  const descStyle: React.CSSProperties = {
+    color: '#A9AEA6',
+    lineHeight: 1.65,
+    fontSize: '16px',
+    maxWidth: '760px'
   };
 
   const footerLine: React.CSSProperties = {
@@ -134,10 +153,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-value-editor"
-                  style={{ fontSize: '120px', color: '#2E332C', fontWeight: 800, textAlign: 'right', letterSpacing: '-2px', lineHeight: 1, whiteSpace: 'nowrap' }}
+                  style={{ ...valueStyle }}
                 />
               ) : (
-                <div style={{ fontSize: '120px', color: '#2E332C', fontWeight: 800, textAlign: 'right', letterSpacing: '-2px', lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
+                <div style={valueStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
               )}
             </div>
 
@@ -150,10 +169,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-desc-editor"
-                  style={{ color: '#9CA09A', lineHeight: 1.7, fontSize: '18px', minHeight: 'auto', maxWidth: '760px' }}
+                  style={{ ...descStyle, minHeight: 'auto' }}
                 />
               ) : (
-                <div style={{ color: '#9CA09A', lineHeight: 1.7, fontSize: '18px', maxWidth: '760px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
+                <div style={descStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
               )}
             </div>
           </React.Fragment>
