@@ -3193,7 +3193,7 @@ export default function CommercialProposalPage() {
                 <div className="flex flex-col gap-[30px] relative z-10">
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">$750</span>
-                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Пробный пакет методолога</span>
+                    <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Пробный пакет методолога (разово)</span>
                   </div>
 
                   <div className="flex flex-col gap-[5px] xl:gap-[2px]">
