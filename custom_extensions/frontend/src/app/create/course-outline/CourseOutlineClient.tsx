@@ -1392,8 +1392,7 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleAddModule}
-                variant="download"
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
+                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium bg-[#F0F0FF] hover:bg-[#F0F4FF] active:scale-95 transition"
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
@@ -1623,7 +1622,7 @@ export default function CourseOutlineClient() {
               {lessonsTotal} {t('interface.courseOutline.lessonsTotal', 'lessons total')}
             </span>
             <div className="flex items-center gap-3">
-              <Button
+              <button
                 type="button"
                 onClick={handleGenerateFinal}
                 className={`px-24 py-3 rounded-full ${currentTheme.accentBg} text-white text-lg font-semibold ${currentTheme.accentBgHover} active:scale-95 shadow-lg transition-transform disabled:opacity-50 flex items-center justify-center gap-2`}
@@ -1631,7 +1630,7 @@ export default function CourseOutlineClient() {
               >
                 <Sparkles size={18} />
                 <span className="select-none font-semibold">{t('interface.courseOutline.generate', 'Generate')}</span>
-              </Button>
+              </button>
             </div>
           </div>
 
