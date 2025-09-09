@@ -1344,7 +1344,7 @@ export default function CommercialProposalPage() {
                   <div>
                     <ul className="space-y-[15px]">
                       <li className="flex gap-[12px]">
-                        <svg width="14" height="29" viewBox="0 0 14 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="14" height="29" viewBox="0 0 14 29" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M6.56224 4.51955C6.74343 4.16015 7.25657 4.16015 7.43776 4.51955L8.3828 6.39412C9.13884 7.89376 10.3562 9.11116 11.8559 9.86719L13.7304 10.8122C14.0898 10.9934 14.0899 11.5066 13.7304 11.6878L11.8559 12.6328C10.3562 13.3888 9.13884 14.6062 8.38281 16.1059L7.43776 17.9804C7.25657 18.3398 6.74343 18.3399 6.56224 17.9804L5.61719 16.1059C4.86116 14.6062 3.64376 13.3888 2.14412 12.6328L0.269552 11.6878C-0.0898497 11.5066 -0.089851 10.9934 0.26955 10.8122L2.14412 9.86719C3.64376 9.11116 4.86116 7.89376 5.61719 6.39412L6.56224 4.51955Z" fill="url(#paint0_radial_385_14755)"/>
                           <defs>
                           <radialGradient id="paint0_radial_385_14755" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(4.90244 9.8878) rotate(49.844) scale(10.263)">
@@ -1357,7 +1357,7 @@ export default function CommercialProposalPage() {
                         <span className="text-[14px]">При необходимости можно <span className="font-semibold">докупить дополнительные кредиты,</span> если базового пакета недостаточно</span>
                       </li>
                       <li className="flex gap-[12px]">
-                        <svg width="14" height="29" viewBox="0 0 14 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="14" height="29" viewBox="0 0 14 29" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M6.56224 4.51955C6.74343 4.16015 7.25657 4.16015 7.43776 4.51955L8.3828 6.39412C9.13884 7.89376 10.3562 9.11116 11.8559 9.86719L13.7304 10.8122C14.0898 10.9934 14.0899 11.5066 13.7304 11.6878L11.8559 12.6328C10.3562 13.3888 9.13884 14.6062 8.38281 16.1059L7.43776 17.9804C7.25657 18.3398 6.74343 18.3399 6.56224 17.9804L5.61719 16.1059C4.86116 14.6062 3.64376 13.3888 2.14412 12.6328L0.269552 11.6878C-0.0898497 11.5066 -0.089851 10.9934 0.26955 10.8122L2.14412 9.86719C3.64376 9.11116 4.86116 7.89376 5.61719 6.39412L6.56224 4.51955Z" fill="url(#paint0_radial_385_14755)"/>
                           <defs>
                           <radialGradient id="paint0_radial_385_14755" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(4.90244 9.8878) rotate(49.844) scale(10.263)">
@@ -1561,7 +1561,7 @@ export default function CommercialProposalPage() {
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[690px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
-                  <div className="w-full min-w-[470px] xl:min-w-0 rounded-[6px] overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
+                  <div className="w-full min-w-[690px] xl:min-w-0 rounded-[6px] overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
                     {/* Table Header */}
                     <div className="bg-[#F5F5F5] px-4 py-3">
                       <div className="grid grid-cols-[1fr_1fr_1.1fr] gap-4">
