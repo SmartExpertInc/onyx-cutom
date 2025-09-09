@@ -43,8 +43,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2C3327', color:'#FFFFFF', padding:'14px 18px', borderRadius:'4px', fontWeight:600, letterSpacing:0.2, position:'relative' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'14px 18px', background: i%2===0 ? '#FFFFFF' : '#ECEBE8', fontSize:'15px', color:'#676E64', borderRadius:'6px', marginTop:'12px' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2F342A', color:'#FFFFFF', padding:'16px 20px', borderRadius:'2px', fontWeight:600, letterSpacing:0.2, position:'relative' };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'16px 20px', background: i%2===0 ? '#FFFFFF' : '#EFEDE9', fontSize:'15px', color:'#676E64', borderRadius:'4px', marginTop:'12px' });
   const smallIcon: React.CSSProperties = { width:'22px', height:'22px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', lineHeight:1, cursor:'pointer', boxShadow:'0 1px 2px rgba(0,0,0,0.15)' };
 
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
