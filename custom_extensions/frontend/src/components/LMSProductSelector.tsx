@@ -87,7 +87,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       // Log product types
       const productTypes = data.map((p: any) => ({
         id: p.id,
-        name: p.microproduct_name || p.projectName || p.name || p.title,
+        name: p.projectName || p.microproduct_name || p.name || p.title,
         type: p.design_microproduct_type || p.designMicroproductType,
         created: p.created_at || p.createdAt,
         allFields: Object.keys(p)
@@ -110,7 +110,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       console.log('🎯 LMS Export: Found course outlines:', courseOutlines.length);
       console.log('🎯 LMS Export: Course outline details:', courseOutlines.map((p: any) => ({
         id: p.id,
-        name: p.microproduct_name || p.projectName || p.name || p.title,
+        name: p.projectName || p.microproduct_name || p.name || p.title,
         type: p.design_microproduct_type || p.designMicroproductType
       })));
 
@@ -143,7 +143,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   console.log('🔄 LMS Export: Filtering - Type filter:', typeFilter);
   
   const filteredProducts = courseOutlines.filter(product => {
-    const productName = product.microproduct_name || product.projectName || product.name || product.title || product.instanceName || '';
+    const productName = product.projectName || product.microproduct_name || product.name || product.title || product.instanceName || '';
     const matchesSearch = searchTerm === '' || productName.toLowerCase().includes(searchTerm.toLowerCase());
     const productType = product.design_microproduct_type || product.designMicroproductType || '';
     const matchesType = typeFilter === 'all' || productType.toLowerCase() === typeFilter.toLowerCase();
