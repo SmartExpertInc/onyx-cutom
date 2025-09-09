@@ -123,8 +123,8 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       // Log product types
       const productTypes = data.map((p: any) => ({
         id: p.id,
-        name: p.name || p.title || p.instanceName,
-        type: p.designMicroproductType,
+        name: p.microproduct_name || p.projectName || p.name || p.title,
+        type: p.design_microproduct_type || p.designMicroproductType,
         created: p.created_at || p.createdAt,
         allFields: Object.keys(p)
       }));
@@ -133,6 +133,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       // Check for different possible field names for product type
       const typeFields = data.map((p: any) => ({
         id: p.id,
+        design_microproduct_type: p.design_microproduct_type,
         designMicroproductType: p.designMicroproductType,
         productType: p.productType,
         type: p.type,
@@ -140,13 +141,13 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
       }));
       console.log('🔍 LMS Export: Type field variations:', typeFields);
       
-      // Log course outlines specifically
-      const courseOutlines = data.filter((p: any) => p.designMicroproductType === 'Training Plan');
+      // Log course outlines specifically using correct field names
+      const courseOutlines = data.filter((p: any) => (p.design_microproduct_type || '').toLowerCase() === 'training plan');
       console.log('🎯 LMS Export: Found course outlines:', courseOutlines.length);
       console.log('🎯 LMS Export: Course outline details:', courseOutlines.map((p: any) => ({
         id: p.id,
-        name: p.name || p.title || p.instanceName,
-        type: p.designMicroproductType
+        name: p.microproduct_name || p.projectName || p.name || p.title,
+        type: p.design_microproduct_type || p.designMicroproductType
       })));
 
       setProducts(data);
@@ -164,10 +165,11 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
   // Filter products to show only course outlines (Training Plan) and apply search/type filters
   // Use case-insensitive comparison like ProjectsTable does
+  // Note: API returns design_microproduct_type, not designMicroproductType
   const courseOutlines = products.filter(product => {
-    const productType = (product.designMicroproductType || '').toLowerCase();
+    const productType = (product.design_microproduct_type || product.designMicroproductType || '').toLowerCase();
     const isTrainingPlan = productType === 'training plan';
-    console.log(`🔍 LMS Export: Product ${product.id} type: "${product.designMicroproductType}" -> "${productType}" -> isTrainingPlan: ${isTrainingPlan}`);
+    console.log(`🔍 LMS Export: Product ${product.id} type: "${product.design_microproduct_type || product.designMicroproductType}" -> "${productType}" -> isTrainingPlan: ${isTrainingPlan}`);
     return isTrainingPlan;
   });
   
@@ -177,9 +179,10 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   console.log('🔄 LMS Export: Filtering - Type filter:', typeFilter);
   
   const filteredProducts = courseOutlines.filter(product => {
-    const productName = product.name || product.title || product.instanceName || '';
+    const productName = product.microproduct_name || product.projectName || product.name || product.title || product.instanceName || '';
     const matchesSearch = searchTerm === '' || productName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === 'all' || (product.designMicroproductType || '').toLowerCase() === typeFilter.toLowerCase();
+    const productType = product.design_microproduct_type || product.designMicroproductType || '';
+    const matchesType = typeFilter === 'all' || productType.toLowerCase() === typeFilter.toLowerCase();
     
     console.log(`🔍 LMS Export: Product "${productName}" - Search match: ${matchesSearch}, Type match: ${matchesType}`);
     
@@ -194,7 +197,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   })));
 
   // Get unique product types for filter (only from course outlines)
-  const productTypes = Array.from(new Set(courseOutlines.map(p => p.designMicroproductType).filter(Boolean)));
+  const productTypes = Array.from(new Set(courseOutlines.map(p => p.design_microproduct_type || p.designMicroproductType).filter(Boolean)));
 
   const allFilteredSelected = filteredProducts.length > 0 && filteredProducts.every(p => selectedProducts.has(p.id));
 
@@ -329,7 +332,8 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
               return color;
             };
             
-            const bgColor = stringToColor(product.name || product.title || 'Product');
+            const productName = product.microproduct_name || product.projectName || product.name || product.title || 'Product';
+            const bgColor = stringToColor(productName);
             const avatarColor = stringToColor((product.user_id || 'user'));
             
             return (
@@ -361,7 +365,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                   style={{
                     backgroundColor: bgColor,
                     backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-                      (product.name || product.title || '').split("").reverse().join("")
+                      productName.split("").reverse().join("")
                     )}99)`,
                   }}
                 >
@@ -370,14 +374,14 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                     className="absolute top-3 left-3 bg-white rounded-lg p-2 shadow-sm"
                     style={{ zIndex: 2 }}
                   >
-                    {getProductTypeIcon(product.designMicroproductType)}
+                    {getProductTypeIcon(product.design_microproduct_type || product.designMicroproductType)}
                   </div>
                   
                   {/* Title overlay */}
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
                     <h3
                       className="font-bold text-lg text-center leading-tight"
-                      title={product.name}
+                      title={productName}
                       style={{
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
@@ -386,7 +390,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                         textShadow: '0 1px 3px rgba(0,0,0,0.3)'
                       }}
                     >
-                      {product.name}
+                      {productName}
                     </h3>
                   </div>
                 </div>
@@ -395,7 +399,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xs font-medium text-gray-500 uppercase tracking-wide bg-gray-100 px-2 py-1 rounded">
-                      {getProductTypeDisplayName(product.designMicroproductType)}
+                      {getProductTypeDisplayName(product.design_microproduct_type || product.designMicroproductType)}
                     </span>
                     {product.quality_tier && (
                       <div className="flex items-center gap-1">
@@ -412,7 +416,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                   
                   <h3
                     className="font-semibold text-gray-800 mb-3 text-sm leading-tight"
-                    title={product.name}
+                    title={productName}
                     style={{
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
@@ -420,7 +424,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                       overflow: 'hidden',
                     }}
                   >
-                    {product.name}
+                    {productName}
                   </h3>
                   
                   <div className="flex items-center justify-between">
