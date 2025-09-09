@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -119,7 +120,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
         : "bg-white/70 text-gray-700 hover:bg-white"
     }`}
   >
-    {Icon && <Icon size={64} />}
+    {Icon && <Icon size={70} />}
     <span className="text-sm font-medium leading-tight">{label}</span>
   </Button>
 );
@@ -1137,34 +1138,37 @@ function GenerateProductPicker() {
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
           <div className="flex flex-wrap justify-center gap-2 mb-2">
-            <select
-              value={modulesCount}
-              onChange={(e) => setModulesCount(Number(e.target.value))}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                <option key={n} value={n}>{n} {t('interface.generate.modules', 'Modules')}</option>
-              ))}
-            </select>
-            <select
-              value={lessonsPerModule}
-              onChange={(e) => setLessonsPerModule(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-                <option key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</option>
-              ))}
-            </select>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              <option value="en">{t('interface.english', 'English')}</option>
-              <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-              <option value="es">{t('interface.spanish', 'Spanish')}</option>
-              <option value="ru">{t('interface.russian', 'Russian')}</option>
-            </select>
+            <Select value={modulesCount.toString()} onValueChange={(value) => setModulesCount(Number(value))}>
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
+                  <SelectItem key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         )}
 
@@ -1201,79 +1205,89 @@ function GenerateProductPicker() {
                 {useExistingOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <select
-                      value={selectedOutlineId ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedOutlineId(val ? Number(val) : null);
+                    <Select
+                      value={selectedOutlineId?.toString() ?? ""}
+                      onValueChange={(value) => {
+                        setSelectedOutlineId(value ? Number(value) : null);
                         // clear module & lesson selections when outline changes
                         setSelectedModuleIndex(null);
                         setLessonsForModule([]);
                         setSelectedLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="">Select Outline</option>
-                      {outlines.map((o) => (
-                        <option key={o.id} value={o.id}>{o.name}</option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder="Select Outline" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {outlines.map((o) => (
+                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedOutlineId && (
-                      <select
-                        value={selectedModuleIndex ?? ""}
-                        onChange={(e) => {
-                          const idx = e.target.value ? Number(e.target.value) : null;
+                      <Select
+                        value={selectedModuleIndex?.toString() ?? ""}
+                        onValueChange={(value) => {
+                          const idx = value ? Number(value) : null;
                           setSelectedModuleIndex(idx);
                           setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
                           setSelectedLesson("");
                         }}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">Select Module</option>
-                        {modulesForOutline.map((m, idx) => (
-                          <option key={idx} value={idx}>{m.name}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder="Select Module" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {modulesForOutline.map((m, idx) => (
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedModuleIndex !== null && (
-                      <select
+                      <Select
                         value={selectedLesson}
-                        onChange={(e) => setSelectedLesson(e.target.value)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        onValueChange={setSelectedLesson}
                       >
-                        <option value="">Select Lesson</option>
-                        {lessonsForModule.map((l) => (
-                          <option key={l} value={l}>{l}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder="Select Lesson" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lessonsForModule.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
                       <>
-                        <select
-                          value={language}
-                          onChange={(e) => setLanguage(e.target.value)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="en">{t('interface.generate.english', 'English')}</option>
-                          <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-                          <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-                          <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-                        </select>
-                        <select
-                          value={slidesCount}
-                          onChange={(e) => setSlidesCount(Number(e.target.value))}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                            <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
-                          ))}
-                        </select>
+                        <Select value={language} onValueChange={setLanguage}>
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                              <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </>
                     )}
                   </>
@@ -1282,25 +1296,27 @@ function GenerateProductPicker() {
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
-                    <select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      <option value="en">{t('interface.generate.english', 'English')}</option>
-                      <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-                      <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-                      <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-                    </select>
-                    <select
-                      value={slidesCount}
-                      onChange={(e) => setSlidesCount(Number(e.target.value))}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                        <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
-                      ))}
-                    </select>
+                    <Select value={language} onValueChange={setLanguage}>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
+                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                          <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </>
                 )}
 
@@ -1314,7 +1330,7 @@ function GenerateProductPicker() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
                 </Button>
@@ -1357,72 +1373,81 @@ function GenerateProductPicker() {
                 {useExistingQuizOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <select
-                      value={selectedQuizOutlineId ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedQuizOutlineId(val ? Number(val) : null);
+                    <Select
+                      value={selectedQuizOutlineId?.toString() ?? ""}
+                      onValueChange={(value) => {
+                        setSelectedQuizOutlineId(value ? Number(value) : null);
                         // clear module & lesson selections when outline changes
                         setSelectedQuizModuleIndex(null);
                         setQuizLessonsForModule([]);
                         setSelectedQuizLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
-                      {quizOutlines.map((outline) => (
-                        <option key={outline.id} value={outline.id}>
-                          {outline.name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {quizOutlines.map((outline) => (
+                          <SelectItem key={outline.id} value={outline.id.toString()}>
+                            {outline.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedQuizOutlineId && (
-                      <select
-                        value={selectedQuizModuleIndex ?? ""}
-                        onChange={(e) => {
-                          const idx = e.target.value ? Number(e.target.value) : null;
+                      <Select
+                        value={selectedQuizModuleIndex?.toString() ?? ""}
+                        onValueChange={(value) => {
+                          const idx = value ? Number(value) : null;
                           setSelectedQuizModuleIndex(idx);
                           setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
                           setSelectedQuizLesson("");
                         }}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
-                        {quizModulesForOutline.map((m, idx) => (
-                          <option key={idx} value={idx}>{m.name}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quizModulesForOutline.map((m, idx) => (
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedQuizModuleIndex !== null && (
-                      <select
+                      <Select
                         value={selectedQuizLesson}
-                        onChange={(e) => setSelectedQuizLesson(e.target.value)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        onValueChange={setSelectedQuizLesson}
                       >
-                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
-                        {quizLessonsForModule.map((l) => (
-                          <option key={l} value={l}>{l}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quizLessonsForModule.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedQuizLesson && (
                       <>
-                        <select
-                          value={quizLanguage}
-                          onChange={(e) => setQuizLanguage(e.target.value)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="en">{t('interface.english', 'English')}</option>
-                          <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                          <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                          <option value="ru">{t('interface.russian', 'Russian')}</option>
-                        </select>
+                        <Select value={quizLanguage} onValueChange={setQuizLanguage}>
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <div className="relative question-types-dropdown">
                           <Button
                             type="button"
@@ -1470,15 +1495,16 @@ function GenerateProductPicker() {
                             </div>
                           )}
                         </div>
-                        <select
-                          value={quizQuestionCount}
-                          onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          {[5, 10, 15, 20, 25, 30].map((count) => (
-                            <option key={count} value={count}>{count} {t('interface.generate.questions', 'questions')}</option>
-                          ))}
-                        </select>
+                        <Select value={quizQuestionCount.toString()} onValueChange={(value) => setQuizQuestionCount(Number(value))}>
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[5, 10, 15, 20, 25, 30].map((count) => (
+                              <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.questions', 'questions')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </>
                     )}
                   </>
@@ -1487,16 +1513,17 @@ function GenerateProductPicker() {
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
                   <>
-                    <select
-                      value={quizLanguage}
-                      onChange={(e) => setQuizLanguage(e.target.value)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      <option value="en">{t('interface.generate.english', 'English')}</option>
-                      <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-                      <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-                      <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-                    </select>
+                    <Select value={quizLanguage} onValueChange={setQuizLanguage}>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
+                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <div className="relative question-types-dropdown">
                       <Button
                         type="button"
@@ -1544,15 +1571,16 @@ function GenerateProductPicker() {
                         </div>
                       )}
                     </div>
-                    <select
-                      value={quizQuestionCount}
-                      onChange={(e) => setQuizQuestionCount(Number(e.target.value))}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      {[5, 10, 15, 20, 25, 30].map((count) => (
-                        <option key={count} value={count}>{count} {t('interface.generate.questions', 'questions')}</option>
-                      ))}
-                    </select>
+                    <Select value={quizQuestionCount.toString()} onValueChange={(value) => setQuizQuestionCount(Number(value))}>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[5, 10, 15, 20, 25, 30].map((count) => (
+                          <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.questions', 'questions')}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </>
                 )}
 
@@ -1566,7 +1594,7 @@ function GenerateProductPicker() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
                 </Button>
@@ -1609,85 +1637,95 @@ function GenerateProductPicker() {
                 {useExistingTextOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <select
-                      value={selectedTextOutlineId ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setSelectedTextOutlineId(val ? Number(val) : null);
+                    <Select
+                      value={selectedTextOutlineId?.toString() ?? ""}
+                      onValueChange={(value) => {
+                        setSelectedTextOutlineId(value ? Number(value) : null);
                         // clear module & lesson selections when outline changes
                         setSelectedTextModuleIndex(null);
                         setTextLessonsForModule([]);
                         setSelectedTextLesson("");
                       }}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                     >
-                      <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
-                      {textOutlines.map((o) => (
-                        <option key={o.id} value={o.id}>{o.name}</option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {textOutlines.map((o) => (
+                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedTextOutlineId && (
-                      <select
-                        value={selectedTextModuleIndex ?? ""}
-                        onChange={(e) => {
-                          const idx = e.target.value ? Number(e.target.value) : null;
+                      <Select
+                        value={selectedTextModuleIndex?.toString() ?? ""}
+                        onValueChange={(value) => {
+                          const idx = value ? Number(value) : null;
                           setSelectedTextModuleIndex(idx);
                           setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
                           setSelectedTextLesson("");
                         }}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
-                        {textModulesForOutline.map((m, idx) => (
-                          <option key={idx} value={idx}>{m.name}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {textModulesForOutline.map((m, idx) => (
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedTextModuleIndex !== null && (
-                      <select
+                      <Select
                         value={selectedTextLesson}
-                        onChange={(e) => setSelectedTextLesson(e.target.value)}
-                        className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        onValueChange={setSelectedTextLesson}
                       >
-                        <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
-                        {textLessonsForModule.map((l) => (
-                          <option key={l} value={l}>{l}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {textLessonsForModule.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedTextLesson && (
                       <>
-                        <select
-                          value={textLanguage}
-                          onChange={(e) => setTextLanguage(e.target.value)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="en">{t('interface.english', 'English')}</option>
-                          <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                          <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                          <option value="ru">{t('interface.russian', 'Russian')}</option>
-                        </select>
-                        <select
-                          value={textLength}
-                          onChange={(e) => setTextLength(e.target.value)}
-                          className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="short">{t('interface.generate.short', 'Short')}</option>
-                          <option value="medium">{t('interface.generate.medium', 'Medium')}</option>
-                          <option value="long">{t('interface.generate.long', 'Long')}</option>
-                        </select>
+                        <Select value={textLanguage} onValueChange={setTextLanguage}>
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Select value={textLength} onValueChange={setTextLength}>
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short">{t('interface.generate.short', 'Short')}</SelectItem>
+                            <SelectItem value="medium">{t('interface.generate.medium', 'Medium')}</SelectItem>
+                            <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <div className="relative text-styles-dropdown">
                           <Button
                             type="button"
                             variant="outline"
                             onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
-                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                            className=" flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                           >
                             <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                             <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
@@ -1732,25 +1770,27 @@ function GenerateProductPicker() {
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
                   <>
-                    <select
-                      value={textLanguage}
-                      onChange={(e) => setTextLanguage(e.target.value)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      <option value="en">{t('interface.generate.english', 'English')}</option>
-                      <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-                      <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-                      <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-                    </select>
-                    <select
-                      value={textLength}
-                      onChange={(e) => setTextLength(e.target.value)}
-                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                    >
-                      <option value="short">{t('interface.generate.short', 'Short')}</option>
-                      <option value="medium">{t('interface.generate.medium', 'Medium')}</option>
-                      <option value="long">{t('interface.generate.long', 'Long')}</option>
-                    </select>
+                    <Select value={textLanguage} onValueChange={setTextLanguage}>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
+                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={textLength} onValueChange={setTextLength}>
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="short">{t('interface.generate.short', 'Short')}</SelectItem>
+                        <SelectItem value="medium">{t('interface.generate.medium', 'Medium')}</SelectItem>
+                        <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <div className="relative text-styles-dropdown">
                       <Button
                         type="button"
@@ -1806,7 +1846,7 @@ function GenerateProductPicker() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
                 </Button>
@@ -1818,25 +1858,27 @@ function GenerateProductPicker() {
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
           <div className="flex flex-wrap justify-center gap-2 mb-4">
-            <select
-              value={slidesCount}
-              onChange={(e) => setSlidesCount(Number(e.target.value))}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => (
-                <option key={count} value={count}>{count} {t('interface.generate.slides', 'slides')}</option>
-              ))}
-            </select>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-            >
-              <option value="en">{t('interface.english', 'English')}</option>
-              <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-              <option value="es">{t('interface.spanish', 'Spanish')}</option>
-              <option value="ru">{t('interface.russian', 'Russian')}</option>
-            </select>
+            <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => (
+                  <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.slides', 'slides')}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         )}
 
