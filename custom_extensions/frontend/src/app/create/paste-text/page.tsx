@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Home as HomeIcon, ChevronRight, FileText, Sparkles, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function PasteTextPage() {
   const router = useRouter();
@@ -100,6 +101,7 @@ export default function PasteTextPage() {
 
         {/* Text input area */}
         <div className="w-full">
+          <Textarea />
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
