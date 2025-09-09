@@ -12318,7 +12318,8 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     
     web_link_path = None
     pdf_link_path = None
-    return MicroProductApiResponse(
+    # 🔍 CRITICAL DEBUG: Log the exact response being sent to frontend
+    response_data = MicroProductApiResponse(
         name=project_instance_name, slug=project_slug, project_id=project_id,
         design_template_id=row_dict["design_template_id"], component_name=component_name,
         webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
@@ -12330,6 +12331,21 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
         advanced_rates=row_dict.get("advanced_rates")
         # folder_id is not in MicroProductApiResponse, but can be added if needed
     )
+    
+    # 🔍 CRITICAL DEBUG: For video products, log the exact response being sent
+    if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
+        logger.info(f"🎬 [CRITICAL DEBUG] Sending response to frontend for Project {project_id}:")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response details type: {type(response_data.details)}")
+        logger.info(f"🎬 [CRITICAL DEBUG] Response details content: {response_data.details}")
+        if hasattr(response_data.details, 'videoUrl'):
+            logger.info(f"🎬 [CRITICAL DEBUG] Response has videoUrl: {response_data.details.videoUrl}")
+        elif isinstance(response_data.details, dict) and 'videoUrl' in response_data.details:
+            logger.info(f"🎬 [CRITICAL DEBUG] Response dict has videoUrl: {response_data.details['videoUrl']}")
+        else:
+            logger.info(f"🎬 [CRITICAL DEBUG] Response has NO videoUrl!")
+    
+    return response_data
 
 @app.get("/api/custom/pdf/folder/{folder_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_folder_as_pdf(

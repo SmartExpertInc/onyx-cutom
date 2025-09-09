@@ -1,165 +1,364 @@
-frontend video view page:
-themes
-layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
-layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Response status: 200
-layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Avatar data received: Object
-1684-77cc8bacad49b839.js:1 🎭 [AVATAR_MANAGER] Error fetching avatars: Error: unable to perform operation on <TCPTransport closed=True reading=False 0x60cdec171550>; the handler is closed
-    at g (layout-7dd727b8c68f91f5.js:1:1793)
-window.console.error @ 1684-77cc8bacad49b839.js:1Understand this error
-4page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Hello" (video_product) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Hello" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Welcome to Your Spanish Learning Journey!" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-3page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
-2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Video Lesson Presentation) included - standalone content
-5page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Video Lesson Presentation) included - standalone content
-2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Video Lesson Presentation) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course on AI tools for teachers of the high school" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
-2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Step to analyze the market" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Code Optimization Course" (Slide Deck) included - standalone content
-2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "New Employee Onboarding" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
-2page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "How to choose the right pricing strategy" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Junior AI/ML Engineer Training" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Customer journey mapping" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "A guide to investing in real estate" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 ✅ [FILTER] "Course 'How to start learning Spanish'" (Slide Deck) included - standalone content
-page-bc3f952b8bfe7f9b.js:1 Folder Projects Map: Object
-page-bc3f952b8bfe7f9b.js:1 Updated Folders: Array(0)
-page-bc3f952b8bfe7f9b.js:1 Folder Tree: Array(0)
-page-10c0a7c2b80fa4b6.js:1 📥 [FETCH DATA] Received from backend: Object
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details: Object
-page-10c0a7c2b80fa4b6.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData: Object
-page-10c0a7c2b80fa4b6.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type: object
-page-10c0a7c2b80fa4b6.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys: Array(5)
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: Object
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: Array(5)
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: undefined
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: undefined
-page-10c0a7c2b80fa4b6.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: undefined
-73:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
-73:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
-window.console.error @ 1684-77cc8bacad49b839.js:1Understand this error
-1684-77cc8bacad49b839.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont bold font
-    at n.onerror (layout-7dd727b8c68f91f5.js:1:4167)
-window.console.error @ 1684-77cc8bacad49b839.js:1Understand this error
-layout-7dd727b8c68f91f5.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-73:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
-73:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
-window.console.error @ 1684-77cc8bacad49b839.js:1Understand this error
-73:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
-73:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
-1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+VIDEO GENERATION FRONTEND LOGS:
 
-backend video generation finish and view page:
+🎬 [VIDEO_GENERATION] Job progress: 90 Status: processing
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Polling job status for: bea0eba1-492c-4797-afe6-d1ae9bca908b
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Status response: {success: true, jobId: 'bea0eba1-492c-4797-afe6-d1ae9bca908b', status: 'completed', progress: 100, error: null, …}
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Job progress: 100 Status: completed
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Video generation completed successfully!
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Starting video download...
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Downloading video for job: bea0eba1-492c-4797-afe6-d1ae9bca908b
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Download response status: 200
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Creating blob and initiating download...
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Video downloaded successfully!
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Saving video as product...
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Saving video as product for job: bea0eba1-492c-4797-afe6-d1ae9bca908b
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Found existing video template: 3
+9360-d682a459b1f9312b.js:1 🎬 [VIDEO_GENERATION] Video saved as product: {id: 74, onyx_user_id: 'b9ad451e-4c02-4008-9965-d5931ff02aa0', project_name: 'Hello', product_type: 'video_product', microproduct_type: 'Video Product', …}
+
+
+video generation backend logs:
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 80%
+custom_backend-1  | INFO:     172.18.0.12:56658 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 85%
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 85%
+custom_backend-1  | INFO:     172.18.0.12:54136 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 90%
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 90%
+custom_backend-1  | INFO:     172.18.0.12:54142 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 95%
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 95%
+custom_backend-1  | INFO:     172.18.0.12:54148 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Composition progress: 100%
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition progress: 100%
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Frame composition completed: 1500 frames processed
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Output video created: 6167749 bytes
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Adding audio to composed video
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] FFmpeg audio command: ffmpeg -i temp/simple_compositions/temp_composition_1757416653.mp4 -i output/presentations/avatar_68c00c6fee49137cdcb1173d.mp4 -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 -shortest -y output/presentations/presentation_bea0eba1-492c-4797-afe6-d1ae9bca908b.mp4
+custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Job bea0eba1-492c-4797-afe6-d1ae9bca908b: status=processing, progress=60.0% (beat #5)
+custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Keeping connection alive - 2025-09-09T11:18:14.028297
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Audio merge completed successfully
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Final video created: 1.96 MB
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Video composition completed successfully: output/presentations/presentation_bea0eba1-492c-4797-afe6-d1ae9bca908b.mp4
+custom_backend-1  | INFO:app.services.simple_video_composer:🎬 [SIMPLE_COMPOSER] Temporary directory cleaned up
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [VIDEO_COMPOSITION] Simple composition completed successfully
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Job bea0eba1-492c-4797-afe6-d1ae9bca908b: processing→processing, 60.0%→90.0%
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Timestamp: 2025-09-09T11:18:14.525262
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Progress updated: 60.0% → 90.0%
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: output/presentations/presentation_bea0eba1-492c-4797-afe6-d1ae9bca908b.mp4
+custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/clean_videos/avatar_slide_avatar-service-slide_20250909_111337.mp4
+custom_backend-1  | INFO:app.services.presentation_service:Cleaned up temporary file: output/presentations/avatar_68c00c6fee49137cdcb1173d.mp4
+custom_backend-1  | INFO:app.services.presentation_service:Step 4: Creating thumbnail for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [THUMBNAIL_CREATION] Starting thumbnail creation for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.video_composer_service:Creating thumbnail from video
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Executing FFmpeg command for: Thumbnail creation
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Command: ffmpeg -i output/presentations/presentation_bea0eba1-492c-4797-afe6-d1ae9bca908b.mp4 -ss 5.0 -vframes 1 -q:v 2 -y output/presentations/thumbnail_bea0eba1-492c-4797-afe6-d1ae9bca908b.jpg
+custom_backend-1  | INFO:     172.18.0.12:54162 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Process completed with return code: 0
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Stderr: ffmpeg version 7.1.1-1+b1 Copyright (c) 2000-2025 the FFmpeg developers
+custom_backend-1  |   built with gcc 14 (Debian 14.2.0-19)
+custom_backend-1  |   configuration: --prefix=/usr --extra-version=1+b1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-libmfx --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libcaca --enable-libdvdnav --enable-libdvdread --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+custom_backend-1  |   libavutil      59. 39.100 / 59. 39.100
+custom_backend-1  |   libavcodec     61. 19.101 / 61. 19.101
+custom_backend-1  |   libavformat    61.  7.100 / 61.  7.100
+custom_backend-1  |   libavdevice    61.  3.100 / 61.  3.100
+custom_backend-1  |   libavfilter    10.  4.100 / 10.  4.100
+custom_backend-1  |   libswscale      8.  3.100 /  8.  3.100
+custom_backend-1  |   libswresample   5.  3.100 /  5.  3.100
+custom_backend-1  |   libpostproc    58.  3.100 / 58.  3.100
+custom_backend-1  | Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'output/presentations/presentation_bea0eba1-492c-4797-afe6-d1ae9bca908b.mp4':
+custom_backend-1  |   Metadata:
+custom_backend-1  |     major_brand     : isom
+custom_backend-1  |     minor_version   : 512
+custom_backend-1  |     compatible_brands: isomiso2mp41
+custom_backend-1  |     encoder         : Lavf61.7.100
+custom_backend-1  |   Duration: 00:00:08.62, start: 0.000000, bitrate: 1904 kb/s
+custom_backend-1  |   Stream #0:0[0x1](und): Video: mpeg4 (Simple Profile) (mp4v / 0x7634706D), yuv420p, 1920x1080 [SAR 1:1 DAR 16:9], 1834 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+custom_backend-1  |       Metadata:
+custom_backend-1  |         handler_name    : VideoHandler
+custom_backend-1  |         vendor_id       : [0][0][0][0]
+custom_backend-1  |   Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 24000 Hz, mono, fltp, 69 kb/s (default)
+custom_backend-1  |       Metadata:
+custom_backend-1  |         handler_name    : SoundHandler
+custom_backend-1  |         vendor_id       : [0][0][0][0]
+custom_backend-1  | Stream mapping:
+custom_backend-1  |   Stream #0:0 -> #0:0 (mpeg4 (native) -> mjpeg (native))
+custom_backend-1  | Press [q] to stop, [?] for help
+custom_backend-1  | Output #0, image2, to 'output/presentations/thumbnail_bea0eba1-492c-4797-afe6-d1ae9bca908b.jpg':
+custom_backend-1  |   Metadata:
+custom_backend-1  |     major_brand     : isom
+custom_backend-1  |     minor_version   : 512
+custom_backend-1  |     compatible_brands: isomiso2mp41
+custom_backend-1  |     encoder         : Lavf61.7.100
+custom_backend-1  |   Stream #0:0(und): Video: mjpeg, yuv420p(pc, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)
+custom_backend-1  |       Metadata:
+custom_backend-1  |         handler_name    : VideoHandler
+custom_backend-1  |         vendor_id       : [0][0][0][0]
+custom_backend-1  |         encoder         : Lavc61.19.101 mjpeg
+custom_backend-1  |       Side data:
+custom_backend-1  |         cpb: bitrate max/min/avg: 0/0/200000 buffer size: 0 vbv_delay: N/A
+custom_backend-1  | [image2 @ 0x5674d18df080] The specified filename 'output/presentations/thumbnail_bea0eba1-492c-4797-afe6-d1ae9bca908b.jpg' does not contain an image sequence pattern or a pattern is invalid.
+custom_backend-1  | [image2 @ 0x5674d18df080] Use a pattern such as %03d for an image sequence or use the -update option (with -frames:v 1 if needed) to write a single image.
+custom_backend-1  | [out#0/image2 @ 0x5674d1905500] video:51KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+custom_backend-1  | frame=    1 fps=0.8 q=2.0 Lsize=N/A time=00:00:00.04 bitrate=N/A speed=0.0338x
+custom_backend-1  |
 custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Thumbnail creation completed successfully
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file: output/presentations/thumbnail_dc2f0f39-19b4-480d-9405-dd47c6042f18.jpg
-custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file size: 39013 bytes
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [THUMBNAIL_CREATION] Thumbnail creation completed successfully for job dc2f0f39-19b4-480d-9405-dd47c6042f18
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Starting final completion for job dc2f0f39-19b4-480d-9405-dd47c6042f18
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Presentation dc2f0f39-19b4-480d-9405-dd47c6042f18 processing completed successfully
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Final video path: output/presentations/presentation_dc2f0f39-19b4-480d-9405-dd47c6042f18.mp4
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Thumbnail path: output/presentations/thumbnail_dc2f0f39-19b4-480d-9405-dd47c6042f18.jpg
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job dc2f0f39-19b4-480d-9405-dd47c6042f18 total processing time: 236.5 seconds
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job start time: 2025-09-09 08:22:17.094293
-custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job completion time: 2025-09-09 08:26:13.633384
-custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] LONG PROCESSING TIME DETECTED: 236.5s
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file: output/presentations/thumbnail_bea0eba1-492c-4797-afe6-d1ae9bca908b.jpg
+custom_backend-1  | INFO:app.services.video_composer_service:🎬 [FFMPEG_EXECUTION] Output file size: 52152 bytes
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [THUMBNAIL_CREATION] Thumbnail creation completed successfully for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Starting final completion for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Presentation bea0eba1-492c-4797-afe6-d1ae9bca908b processing completed successfully
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Final video path: output/presentations/presentation_bea0eba1-492c-4797-afe6-d1ae9bca908b.mp4
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Thumbnail path: output/presentations/thumbnail_bea0eba1-492c-4797-afe6-d1ae9bca908b.jpg
+custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job bea0eba1-492c-4797-afe6-d1ae9bca908b total processing time: 278.8 seconds
+custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job start time: 2025-09-09 11:13:37.262501
+custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Job completion time: 2025-09-09 11:18:16.014780
+custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] LONG PROCESSING TIME DETECTED: 278.8s
 custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] This may cause frontend polling timeout!
 custom_backend-1  | WARNING:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] Frontend likely stopped polling before backend completion
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Updating job status to completed for job dc2f0f39-19b4-480d-9405-dd47c6042f18
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Updating job status to completed for job bea0eba1-492c-4797-afe6-d1ae9bca908b
 custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] About to send FINAL 100% status to frontend...
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Job dc2f0f39-19b4-480d-9405-dd47c6042f18: processing→completed, 90.0%→100.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Timestamp: 2025-09-09T08:26:13.633898
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Job bea0eba1-492c-4797-afe6-d1ae9bca908b: processing→completed, 90.0%→100.0%
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Timestamp: 2025-09-09T11:18:16.018023
 custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Status changed: processing → completed
 custom_backend-1  | INFO:app.services.presentation_service:🎬 [JOB_STATUS_UPDATE] Progress updated: 90.0% → 100.0%
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Job status update completed successfully for job dc2f0f39-19b4-480d-9405-dd47c6042f18
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Job status update completed successfully for job bea0eba1-492c-4797-afe6-d1ae9bca908b
 custom_backend-1  | INFO:app.services.presentation_service:🔍 [ROOT_CAUSE_DIAGNOSTIC] ✅ FINAL 100% STATUS SENT TO FRONTEND!
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Stopping heartbeat for job dc2f0f39-19b4-480d-9405-dd47c6042f18
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Stopped heartbeat for job dc2f0f39-19b4-480d-9405-dd47c6042f18
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Heartbeat stopped successfully for job dc2f0f39-19b4-480d-9405-dd47c6042f18
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Job dc2f0f39-19b4-480d-9405-dd47c6042f18 marked as completed with all URLs set
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Stopping heartbeat for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Stopped heartbeat for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Heartbeat stopped successfully for job bea0eba1-492c-4797-afe6-d1ae9bca908b
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Job bea0eba1-492c-4797-afe6-d1ae9bca908b marked as completed with all URLs set
 custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] Frontend should now receive completion status and trigger download
-custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] *** COMPLETION PROCESS FINISHED FOR JOB dc2f0f39-19b4-480d-9405-dd47c6042f18 ***
-custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Heartbeat task cancelled for job dc2f0f39-19b4-480d-9405-dd47c6042f18 after 4 beats
-custom_backend-1  | INFO:     172.18.0.12:33578 - "GET /api/custom/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33580 - "GET /api/custom/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:33584 - "GET /api/custom/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video HTTP/1.1" 206 Partial Content
-custom_backend-1  | INFO:     172.18.0.12:33600 - "GET /api/custom/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video HTTP/1.1" 206 Partial Content
-custom_backend-1  | INFO:     172.18.0.12:33616 - "GET /api/custom/design_templates HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.presentation_service:🎬 [FINAL_COMPLETION] *** COMPLETION PROCESS FINISHED FOR JOB bea0eba1-492c-4797-afe6-d1ae9bca908b ***
+custom_backend-1  | INFO:app.services.presentation_service:💓 [HEARTBEAT] Heartbeat task cancelled for job bea0eba1-492c-4797-afe6-d1ae9bca908b after 5 beats
+custom_backend-1  | INFO:     172.18.0.12:54170 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54174 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54178 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video HTTP/1.1" 206 Partial Content
+custom_backend-1  | INFO:     172.18.0.12:48646 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video HTTP/1.1" 206 Partial Content
+custom_backend-1  | INFO:     172.18.0.12:48648 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video HTTP/1.1" 206 Partial Content
+custom_backend-1  | INFO:     172.18.0.12:48650 - "GET /api/custom/design_templates HTTP/1.1" 200 OK
 custom_backend-1  | ERROR:asyncio:Task was destroyed but it is pending!
-custom_backend-1  | task: <Task pending name='Task-603' coro=<ProfessionalPresentationService._schedule_job_cleanup() done, defined at /app/app/services/presentation_service.py:1395> wait_for=<Future pending cb=[<TaskWakeupMethWrapper object at 0x7912136f7be0>()]>>
-custom_backend-1  | INFO:main:Video product created with metadata: dc2f0f39-19b4-480d-9405-dd47c6042f18
+custom_backend-1  | task: <Task pending name='Task-619' coro=<ProfessionalPresentationService._schedule_job_cleanup() done, defined at /app/app/services/presentation_service.py:1395> wait_for=<Future pending cb=[<TaskWakeupMethWrapper object at 0x7f962bdd0c10>()]>>
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:Video product created with metadata: bea0eba1-492c-4797-afe6-d1ae9bca908b
 custom_backend-1  | INFO:main:Video product created, skipping LLM parsing
 custom_backend-1  | INFO:main:Video Product Created: dict
-custom_backend-1  | INFO:main:Video Product Content (first 200 chars): {'videoJobId': 'dc2f0f39-19b4-480d-9405-dd47c6042f18', 'videoUrl': '/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video', 'thumbnailUrl': '/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/thu
+custom_backend-1  | INFO:main:Video Product Content (first 200 chars): {'videoJobId': 'bea0eba1-492c-4797-afe6-d1ae9bca908b', 'videoUrl': '/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video', 'thumbnailUrl': '/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/thu
 custom_backend-1  | INFO:main:Video product content prepared for DB storage
-custom_backend-1  | INFO:main:Content prepared for DB storage (first 200 chars of JSON): {'videoJobId': 'dc2f0f39-19b4-480d-9405-dd47c6042f18', 'videoUrl': '/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video', 'thumbnailUrl': '/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/thu
+custom_backend-1  | INFO:main:Content prepared for DB storage (first 200 chars of JSON): {'videoJobId': 'bea0eba1-492c-4797-afe6-d1ae9bca908b', 'videoUrl': '/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video', 'thumbnailUrl': '/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/thu
 custom_backend-1  | INFO:main:Re-parsed as VideoProductDisplay (raw dictionary).
-custom_backend-1  | INFO:     172.18.0.12:33620 - "POST /api/custom/projects/add HTTP/1.1" 201 Created
-custom_backend-1  | INFO:     172.18.0.12:33630 - "GET /api/custom/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video HTTP/1.1" 206 Partial Content
-custom_backend-1  | WARNING:main:Auto-cleaned stuck project creation lock: b9ad451e-4c02-4008-9965-d5931ff02aa0:hello
-custom_backend-1  | ERROR:app.services.video_generation_service:Error fetching avatars: unable to perform operation on <TCPTransport closed=True reading=False 0x60cdec171550>; the handler is closed
-custom_backend-1  | INFO:     172.18.0.12:39562 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48664 - "POST /api/custom/projects/add HTTP/1.1" 201 Created
+custom_backend-1  | INFO:     172.18.0.12:48676 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video HTTP/1.1" 206 Partial Content
+custom_backend-1  | INFO:     172.18.0.12:34972 - "GET /api/custom/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video HTTP/1.1" 206 Partial Content
+
+video view page frontend logs:
+🎨 Font styles applied to Chudo and Forta themes
+page-63ac21d9b1e4a0f2.js:1 🎬 [CRITICAL DEBUG] Frontend requesting project data: {currentProjectIdStr: '74', instanceApiUrl: '/api/custom-projects-backend/projects/view/74', timestamp: '2025-09-09T11:32:37.448Z'}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Fetching avatars from API...
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Response status: 200
+page-63ac21d9b1e4a0f2.js:1 📥 [FETCH DATA] Received from backend: {instanceData: {…}, instanceDataStringified: '{\n  "name": "Hello",\n  "slug": "hello",\n  "project… "is_advanced": false,\n  "advanced_rates": null\n}', details: {…}, detailsStringified: '{\n  "mainTitle": null,\n  "sections": [],\n  "detect…,\n  "displayOptions": null,\n  "theme": "cherry"\n}', componentName: 'VideoProductDisplay', …}
+page-63ac21d9b1e4a0f2.js:1 🎬 [CRITICAL DEBUG] Project ID verification: {requestedProjectId: '74', receivedProjectId: 74, projectIdMatch: true, componentName: 'VideoProductDisplay', hasDetails: true}
+page-63ac21d9b1e4a0f2.js:1 🎬 [CRITICAL DEBUG] Video product data analysis: {componentName: 'VideoProductDisplay', hasDetails: true, detailsType: 'object', detailsKeys: Array(5), detailsContent: {…}, …}
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] Setting editableData from backend details: {copiedDetails: {…}, copiedDetailsStringified: '{\n  "mainTitle": null,\n  "sections": [],\n  "detect…,\n  "displayOptions": null,\n  "theme": "cherry"\n}', videoJobId: undefined, videoUrl: undefined, thumbnailUrl: undefined, …}
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] About to set editableData with: {type: 'object', keys: Array(5), hasVideoUrl: false, hasThumbnailUrl: false, hasVideoJobId: false, …}
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found in copiedDetails, checking for nested data...
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] Full copiedDetails structure: {
+  "mainTitle": null,
+  "sections": [],
+  "detectedLanguage": null,
+  "displayOptions": null,
+  "theme": "cherry"
+}
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DATA] ⚠️ No video data found anywhere, using fallback
+page-63ac21d9b1e4a0f2.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData: {videoJobId: 'unknown', videoUrl: '', thumbnailUrl: '', generatedAt: '2025-09-09T11:32:39.031Z', sourceSlides: Array(0), …}
+page-63ac21d9b1e4a0f2.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData type: object
+page-63ac21d9b1e4a0f2.js:1 🎬 [PROJECT_VIEW] VideoProductDisplay case - editableData keys: (6) ['videoJobId', 'videoUrl', 'thumbnailUrl', 'generatedAt', 'sourceSlides', 'component_name']
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Received data: {videoJobId: 'unknown', videoUrl: '', thumbnailUrl: '', generatedAt: '2025-09-09T11:32:39.031Z', sourceSlides: Array(0), …}
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data type: object
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Data keys: (6) ['videoJobId', 'videoUrl', 'thumbnailUrl', 'generatedAt', 'sourceSlides', 'component_name']
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Full data structure: {
+  "videoJobId": "unknown",
+  "videoUrl": "",
+  "thumbnailUrl": "",
+  "generatedAt": "2025-09-09T11:32:39.031Z",
+  "sourceSlides": [],
+  "component_name": "VideoProductDisplay"
+}
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video URL: 
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Thumbnail URL: 
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Video Job ID: unknown
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Checking for nested video data...
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoUrl property: true
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property: true
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property: true
+page-63ac21d9b1e4a0f2.js:1 🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in 'sourceSlides': []
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Avatar data received: {success: true, avatars: Array(65)}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Found avatars: 65
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Loaded saved avatar from localStorage: {avatar: {…}, selectedVariant: {…}}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Saved avatar not found in fetched list, using first available
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Selected first avatar as default: Mikhailo
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Saved avatar to localStorage: {avatar: {…}, selectedVariant: {…}}
+layout-7dd727b8c68f91f5.js:1 🎭 [AVATAR_MANAGER] Default avatar set successfully
+74:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
+74:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
+1684-77cc8bacad49b839.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont regular font
+    at HTMLLinkElement.<anonymous> (layout-7dd727b8c68f91f5.js:1:4167)
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+l @ layout-7dd727b8c68f91f5.js:1
+await in l
+(anonymous) @ layout-7dd727b8c68f91f5.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1
+oq @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+iS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+w @ 1684-77cc8bacad49b839.js:1Understand this error
+layout-7dd727b8c68f91f5.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+1684-77cc8bacad49b839.js:1 Download failed: Error: Video URL is not available
+    at c (page-63ac21d9b1e4a0f2.js:1:143808)
+    at iX (4bd1b696-4fd0ea18c6d24e6e.js:1:132400)
+    at 4bd1b696-4fd0ea18c6d24e6e.js:1:138478
+    at nS (4bd1b696-4fd0ea18c6d24e6e.js:1:18818)
+    at i2 (4bd1b696-4fd0ea18c6d24e6e.js:1:133633)
+    at s7 (4bd1b696-4fd0ea18c6d24e6e.js:1:159683)
+    at s5 (4bd1b696-4fd0ea18c6d24e6e.js:1:159505)
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+c @ page-63ac21d9b1e4a0f2.js:1
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+74:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
+74:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+(anonymous) @ 1684-77cc8bacad49b839.js:1
+(anonymous) @ layout-7dd727b8c68f91f5.js:1Understand this error
+74:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
+74:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+
+video view page backend logs:
+custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
+custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
+custom_backend-1  | INFO:main:Video generation service imported successfully
+custom_backend-1  | INFO:app.services.video_composer_service:Professional Video Composer initialized
+custom_backend-1  | INFO:app.services.presentation_service:Professional Presentation Service initialized
+custom_backend-1  | INFO:main:Presentation service imported successfully
+custom_backend-1  | INFO:     Started server process [1]
+custom_backend-1  | INFO:     Waiting for application startup.
+custom_backend-1  | INFO:main:Custom Backend starting...
+custom_backend-1  | INFO:main:'projects' table ensured and updated.
+custom_backend-1  | INFO:main:'microproduct_pipelines' table ensured.
+custom_backend-1  | INFO:main:'projects' table ensured and updated with 'source_chat_session_id'.
+custom_backend-1  | INFO:main:'design_templates' table ensured.
+custom_backend-1  | INFO:main:'trashed_projects' table ensured (soft-delete).
+custom_backend-1  | INFO:main:'user_credits' table ensured.
+custom_backend-1  | INFO:main:Updated credit_transactions table to support admin_removal type
+custom_backend-1  | INFO:main:'credit_transactions' table ensured.
+custom_backend-1  | INFO:main:Attempting to connect to Onyx database: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | WARNING:main:Failed to connect to postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db: database "onyx_db" does not exist
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres
+custom_backend-1  | INFO:main:Found 3 Onyx users to migrate
+custom_backend-1  | INFO:main:Populated user_credits table with 3 existing Onyx users (100 credits each).
+custom_backend-1  | INFO:main:Added quality_tier column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default 'medium' tier
+custom_backend-1  | INFO:main:Created index for quality_tier column
+custom_backend-1  | INFO:main:Added custom_rate column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default custom_rate
+custom_backend-1  | INFO:main:Created index for custom_rate column
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to projects table
+custom_backend-1  | INFO:main:Created indexes for project-level custom_rate and quality_tier columns
+custom_backend-1  | INFO:main:Ensured is_advanced, advanced_rates, and completion_times on project_folders
+custom_backend-1  | INFO:main:Ensured is_advanced, advanced_rates, and completion_times on projects
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to trashed_projects table
+custom_backend-1  | INFO:main:Applying critical fix: Ensuring order and completion_time columns are TEXT type
+custom_backend-1  | INFO:main:Successfully set projects.order and projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set default values for empty order and completion_time fields
+custom_backend-1  | INFO:main:Projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:Trashed_projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:'request_analytics' table ensured.
+custom_backend-1  | INFO:main:AI parser tracking columns added to request_analytics table.
+custom_backend-1  | INFO:main:Added is_standalone column to projects table.
+custom_backend-1  | INFO:main:Added is_standalone column to trashed_projects table.
+custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NULL for existing products.
+custom_backend-1  | INFO:main:'smartdrive_accounts' table ensured.
+custom_backend-1  | INFO:main:'smartdrive_imports' table ensured.
+custom_backend-1  | INFO:main:'user_connectors' table ensured.
+custom_backend-1  | INFO:main:'offers' table ensured.
+custom_backend-1  | INFO:main:Smart Drive database migrations completed successfully.
+custom_backend-1  | INFO:main:'feature_definitions' table ensured.
+custom_backend-1  | INFO:main:Migrated user_features.user_id column to TEXT type.
+custom_backend-1  | INFO:main:'user_features' table ensured.
+custom_backend-1  | INFO:main:Seeded 1 feature definitions.
+custom_backend-1  | INFO:main:Deactivated 7 unused feature definitions.
+custom_backend-1  | INFO:main:Created feature entries for 3 existing users.
+custom_backend-1  | INFO:main:Database schema migration completed successfully.
+custom_backend-1  | INFO:     Application startup complete.
+custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:39584 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39570 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39600 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:39606 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:39612 - "GET /api/custom/features/check/ai_audit_templates HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:39628 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 73 - Raw details_data type: <class 'dict'>
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 73 - Already dict, after round_hours: {
-custom_backend-1  |   "videoUrl": "/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/video",
-custom_backend-1  |   "videoJobId": "dc2f0f39-19b4-480d-9405-dd47c6042f18",
-custom_backend-1  |   "generatedAt": "2025-09-09T08:26:17.702Z",
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 74 - Raw details_data type: <class 'dict'>
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 74 - Already dict, after round_hours: {
+custom_backend-1  |   "videoUrl": "/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/video",
+custom_backend-1  |   "videoJobId": "bea0eba1-492c-4797-afe6-d1ae9bca908b",
+custom_backend-1  |   "generatedAt": "2025-09-09T11:18:19.868Z",
 custom_backend-1  |   "sourceSlides": [
 custom_backend-1  |     {
 custom_backend-1  |       "props": {
@@ -185,9 +384,13 @@ custom_backend-1  |       "slideNumber": 1,
 custom_backend-1  |       "voiceoverText": null
 custom_backend-1  |     }
 custom_backend-1  |   ],
-custom_backend-1  |   "thumbnailUrl": "/presentations/dc2f0f39-19b4-480d-9405-dd47c6042f18/thumbnail",
+custom_backend-1  |   "thumbnailUrl": "/presentations/bea0eba1-492c-4797-afe6-d1ae9bca908b/thumbnail",
 custom_backend-1  |   "component_name": "VideoProductDisplay"
 custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 73 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:39656 - "GET /api/custom/projects/view/73 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39640 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 74 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:47040 - "GET /api/custom/projects/view/74 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:47060 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47052 - "GET /api/custom/projects HTTP/1.1" 200 OK
