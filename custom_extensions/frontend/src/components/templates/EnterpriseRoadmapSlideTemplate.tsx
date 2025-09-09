@@ -47,6 +47,54 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'16px 20px', background: i%2===0 ? '#FFFFFF' : '#EFEDE9', fontSize:'15px', color:'#676E64', borderRadius:'4px', marginTop:'12px' });
   const smallIcon: React.CSSProperties = { width:'22px', height:'22px', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', lineHeight:1, cursor:'pointer', boxShadow:'0 1px 2px rgba(0,0,0,0.15)' };
 
+  // Handlers (avoid complex inline functions for older parsers)
+  const handleAddColumn = (index?: number) => {
+    const name = `Column ${cols.length + 1}`;
+    const insertAt = typeof index === 'number' ? index + 1 : cols.length;
+    const nextCols = [...cols.slice(0, insertAt), name, ...cols.slice(insertAt)];
+    const nextRows = rows.map((r) => {
+      const result: Record<string, string> = {};
+      nextCols.forEach((h) => {
+        if (h === name) {
+          result[h] = '';
+        } else {
+          result[h] = r[h] || '';
+        }
+      });
+      return result;
+    });
+    setCols(nextCols);
+    setRows(nextRows);
+    onUpdate && onUpdate({ headers: nextCols, tableData: nextRows });
+  };
+
+  const handleRemoveColumn = (index: number) => {
+    if (cols.length <= 1) return;
+    const key = cols[index];
+    const nextCols = cols.filter((_, i) => i !== index);
+    const nextRows = rows.map((r) => {
+      const { [key]: _omit, ...rest } = r;
+      return rest;
+    });
+    setCols(nextCols);
+    setRows(nextRows);
+    onUpdate && onUpdate({ headers: nextCols, tableData: nextRows });
+  };
+
+  const handleAddRow = () => {
+    const blank: Record<string, string> = {};
+    cols.forEach((h) => (blank[h] = ''));
+    const nextRows = [...rows, blank];
+    setRows(nextRows);
+    onUpdate && onUpdate({ headers: cols, tableData: nextRows });
+  };
+
+  const handleRemoveRow = (index: number) => {
+    const nextRows = rows.filter((_, i) => i !== index);
+    setRows(nextRows);
+    onUpdate && onUpdate({ headers: cols, tableData: nextRows });
+  };
+
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
   const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'13px' };
 
@@ -82,21 +130,15 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
               <div>{h}</div>
               {isEditable && hoveredHeader === idx && (
                 <div style={{ position:'absolute', top:'-10px', right:'-10px', display:'flex', gap:'6px' }}>
-                  <div
-                    title="Remove column"
-                    onClick={()=>{ if(cols.length>1){ const nc=cols.filter((_,i)=>i!==idx); const key=h; const nr=rows.map(r=>{ const { [key]:_, ...rest } = r; return rest;}); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }}
-                    style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>×</div>
-                  <div
-                    title="Add column to the right"
-                    onClick={()=>{ const name=`Column ${cols.length+1}`; const nc=[...cols.slice(0, idx+1), name, ...cols.slice(idx+1)]; const nr=rows.map(r=>{ const entries=Object.entries(r); const before=Object.fromEntries(entries.slice(0, idx+1)); const after=Object.fromEntries(entries.slice(idx+1)); return { ...before, [name]: '', ...after };}); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }}
-                    style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
+                  <div title="Remove column" onClick={()=>handleRemoveColumn(idx)} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>×</div>
+                  <div title="Add column to the right" onClick={()=>handleAddColumn(idx)} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
                 </div>
               )}
             </div>
           ))}
           {isEditable && (
             <div style={{ position:'absolute', right:'8px', top:'50%', transform:'translateY(-50%)' }}>
-              <div title="Add column" onClick={()=>{ const name=`Column ${cols.length+1}`; const nc=[...cols, name]; const nr=rows.map(r=> ({ ...r, [name]: '' })); setCols(nc); setRows(nr); onUpdate && onUpdate({ headers:nc, tableData:nr }); }} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
+              <div title="Add column" onClick={()=>handleAddColumn()} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
             </div>
           )}
         </div>
@@ -111,7 +153,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             </div>
             {isEditable && hoveredRow === i && (
               <div style={{ position:'absolute', right:'-10px', top:'50%', transform:'translateY(-50%)' }}>
-                <div title="Remove row" onClick={()=>{ const nr=rows.filter((_,ri)=>ri!==i); setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>×</div>
+                <div title="Remove row" onClick={()=>handleRemoveRow(i)} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>×</div>
               </div>
             )}
           </div>
@@ -119,7 +161,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
         {isEditable && (
           <div style={{ position:'absolute', right:'8px', bottom:'-36px' }}>
-            <div title="Add row" onClick={()=>{ const blank: Record<string,string> = {}; cols.forEach(h=> blank[h]=''); const nr=[...rows, blank]; setRows(nr); onUpdate && onUpdate({ tableData:nr, headers:cols }); }} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
+            <div title="Add row" onClick={handleAddRow} style={{ ...smallIcon, background:'#ffffff', color:'#2C3327', border:'1px solid #DAD9D6' }}>+</div>
           </div>
         )}
       </div>
