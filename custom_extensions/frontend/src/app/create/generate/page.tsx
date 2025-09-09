@@ -1139,7 +1139,7 @@ function GenerateProductPicker() {
         {activeProduct === "Course Outline" && (
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             <Select value={modulesCount.toString()} onValueChange={(value) => setModulesCount(Number(value))}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1149,7 +1149,7 @@ function GenerateProductPicker() {
               </SelectContent>
             </Select>
             <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1159,7 +1159,7 @@ function GenerateProductPicker() {
               </SelectContent>
             </Select>
             <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1923,8 +1923,8 @@ function GenerateProductPicker() {
                       className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full bg-blue-100/80 hover:bg-blue-200/90 transition-colors text-sm font-medium text-blue-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 relative"
                       style={{ backdropFilter: "blur(2px)", minHeight: 56 }}
                     >
-                      <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-2 right-3 text-blue-400 text-lg font-bold">+</span>
+                      <span className="text-center leading-tight px-6">{examples[index]}</span>
+                      <span className="absolute top-2 right-2 text-blue-400 text-lg font-bold">+</span>
                     </Button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
