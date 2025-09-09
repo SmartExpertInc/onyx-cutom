@@ -62,7 +62,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   };
 
   const paragraph: React.CSSProperties = {
-    marginTop: '24px',
+    marginTop: '10px',
     maxWidth: '560px',
     lineHeight: 1.7,
     color: '#CEC0E9', // light desaturated violet like in the reference

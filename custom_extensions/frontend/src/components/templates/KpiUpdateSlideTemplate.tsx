@@ -36,7 +36,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#f7f6f2',
+    backgroundColor: '#F4F4F0',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont
@@ -47,18 +47,28 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     left: '40px',
     right: '40px',
     top: '40px',
-    height: '2px',
-    backgroundColor: '#e6e4df',
-    borderRadius: '2px'
+    height: '4px',
+    backgroundColor: '#E3E1DC',
+    borderRadius: '999px'
+  };
+
+  const headerLineCap: React.CSSProperties = {
+    position: 'absolute',
+    right: '40px',
+    top: '36px',
+    width: '32px',
+    height: '12px',
+    backgroundColor: '#E3E1DC',
+    borderRadius: '999px'
   };
 
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
     left: '56px',
-    top: '90px',
-    color: '#6f756b',
-    fontSize: '26px',
-    fontWeight: 500
+    top: '92px',
+    color: '#6A7167',
+    fontSize: '28px',
+    fontWeight: 600
   };
 
   const itemsArea: React.CSSProperties = {
@@ -66,11 +76,11 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     left: '56px',
     right: '56px',
     top: '168px',
-    bottom: '120px',
+    bottom: '140px',
     display: 'grid',
     gridTemplateColumns: '360px 1fr',
-    rowGap: '72px',
-    columnGap: '64px',
+    rowGap: '56px',
+    columnGap: '72px',
     alignItems: 'center'
   };
 
@@ -79,14 +89,25 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     left: '40px',
     right: '40px',
     bottom: '64px',
-    height: '2px',
-    backgroundColor: '#e6e4df',
-    borderRadius: '2px'
+    height: '4px',
+    backgroundColor: '#E3E1DC',
+    borderRadius: '999px'
+  };
+
+  const footerLineCap: React.CSSProperties = {
+    position: 'absolute',
+    left: '40px',
+    bottom: '58px',
+    width: '32px',
+    height: '12px',
+    backgroundColor: '#E3E1DC',
+    borderRadius: '999px'
   };
 
   return (
     <div className="kpi-update-slide inter-theme" style={slideStyles}>
       <div style={headerLine} />
+      <div style={headerLineCap} />
       <div style={titleStyle}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
@@ -113,10 +134,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-value-editor"
-                  style={{ fontSize: '120px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-2px', lineHeight: 1, whiteSpace: 'nowrap' }}
+                  style={{ fontSize: '120px', color: '#2E332C', fontWeight: 800, textAlign: 'right', letterSpacing: '-2px', lineHeight: 1, whiteSpace: 'nowrap' }}
                 />
               ) : (
-                <div style={{ fontSize: '120px', color: '#2f332b', fontWeight: 800, textAlign: 'right', letterSpacing: '-2px', lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
+                <div style={{ fontSize: '120px', color: '#2E332C', fontWeight: 800, textAlign: 'right', letterSpacing: '-2px', lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
               )}
             </div>
 
@@ -129,10 +150,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-desc-editor"
-                  style={{ color: '#8a8f86', lineHeight: 1.65, fontSize: '18px', minHeight: 'auto', maxWidth: '760px' }}
+                  style={{ color: '#9CA09A', lineHeight: 1.7, fontSize: '18px', minHeight: 'auto', maxWidth: '760px' }}
                 />
               ) : (
-                <div style={{ color: '#8a8f86', lineHeight: 1.65, fontSize: '18px', maxWidth: '760px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
+                <div style={{ color: '#9CA09A', lineHeight: 1.7, fontSize: '18px', maxWidth: '760px' }} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
               )}
             </div>
           </React.Fragment>
@@ -159,6 +180,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
       </div>
 
       <div style={footerLine} />
+      <div style={footerLineCap} />
 
       {/* Profile image absolute bottom-left */}
       <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
