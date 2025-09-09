@@ -44,20 +44,20 @@ export default function VideoProductDisplay({
     console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Has thumbnailUrl property:', 'thumbnailUrl' in dataToDisplay);
     console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Has videoJobId property:', 'videoJobId' in dataToDisplay);
     
-    // Check if data might be nested in another property
-    Object.keys(dataToDisplay).forEach(key => {
-      const value = dataToDisplay[key];
-      if (value && typeof value === 'object') {
-        console.log(`🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in '${key}':`, value);
-        if (value.videoUrl || value.thumbnailUrl || value.videoJobId) {
-          console.log(`🎬 [VIDEO_PRODUCT_DISPLAY] ⚠️ FOUND VIDEO DATA IN NESTED OBJECT '${key}'!`, {
-            videoUrl: value.videoUrl,
-            thumbnailUrl: value.thumbnailUrl,
-            videoJobId: value.videoJobId
-          });
-        }
-      }
-    });
+     // Check if data might be nested in another property
+     Object.keys(dataToDisplay).forEach(key => {
+       const value = (dataToDisplay as any)[key];
+       if (value && typeof value === 'object') {
+         console.log(`🎬 [VIDEO_PRODUCT_DISPLAY] Nested object in '${key}':`, value);
+         if (value.videoUrl || value.thumbnailUrl || value.videoJobId) {
+           console.log(`🎬 [VIDEO_PRODUCT_DISPLAY] ⚠️ FOUND VIDEO DATA IN NESTED OBJECT '${key}'!`, {
+             videoUrl: value.videoUrl,
+             thumbnailUrl: value.thumbnailUrl,
+             videoJobId: value.videoJobId
+           });
+         }
+       }
+     });
   }
 
   if (!dataToDisplay) {
