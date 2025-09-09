@@ -120,7 +120,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
   // Filter products based on search and type
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ?? false;
     const matchesType = typeFilter === 'all' || product.designMicroproductType === typeFilter;
     return matchesSearch && matchesType;
   });
@@ -218,7 +218,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
           <p className="text-gray-500">
             {searchTerm || typeFilter !== 'all' 
               ? 'No products found matching your criteria' 
@@ -230,9 +230,9 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
+              className={`bg-white border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
                 selectedProducts.has(product.id)
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 shadow-sm'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
               onClick={() => onProductToggle(product.id)}
@@ -282,10 +282,18 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
       {/* Selection Summary */}
       {selectedProducts.size > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
-            <strong>{selectedProducts.size}</strong> product{selectedProducts.size !== 1 ? 's' : ''} selected for export
-          </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-blue-800">
+              <strong>{selectedProducts.size}</strong> product{selectedProducts.size !== 1 ? 's' : ''} selected for export
+            </p>
+            <button
+              onClick={onDeselectAll}
+              className="text-xs text-blue-600 hover:text-blue-800 underline"
+            >
+              Clear selection
+            </button>
+          </div>
         </div>
       )}
     </div>
