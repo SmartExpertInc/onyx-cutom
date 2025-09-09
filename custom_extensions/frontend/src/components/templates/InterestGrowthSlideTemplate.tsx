@@ -171,7 +171,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
         {/* Optional unified logo in the top-left of the right panel if needed in future */}
         <div style={{ ...cornerLine, width: '120px', borderTop: 'none', borderLeft: 'none' }} />
         <div style={{ ...cornerLine, height: '120px', right: '0', top: '50%', transform: 'translateY(-50%)', borderRight: 'none' }} />
-        <div style={{ ...cornerLine, width: '100px', height: '60px', left: '50px', bottom: '0px', borderBottom: 'none' }} />
+        <div style={{ ...cornerLine, width: '100px', zIndex: 10, height: '60px', left: '50px', bottom: '0px', borderBottom: 'none' }} />
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ rightImagePath: p })}

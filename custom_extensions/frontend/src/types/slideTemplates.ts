@@ -820,6 +820,54 @@ export interface EnterpriseRoadmapSlideProps extends BaseTemplateProps {
   accentColor?: string;
 }
 
+// Pixel-perfect: High-Performing Teams (title + paragraph + rounded panel with editable line chart and avatar)
+export interface HighPerformingTeamsSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  panelColor?: string;
+  lineColor?: string;
+  points: Array<{ x: number; y: number }>;
+  avatarPath?: string;
+  avatarAlt?: string;
+}
+
+// Pixel-perfect: Impact Value (yellow) – three metrics with images and captions
+export interface ImpactValueSlideProps extends BaseTemplateProps {
+  year: string;
+  subtitle: string;
+  title: string; // multi-line: Impact \n Value
+  metrics: Array<{ number: string; imagePath?: string; caption: string }>;
+  backgroundColor?: string;
+}
+
+// Pixel-perfect: Phishing rise (concentric circles variant)
+export interface ConcentricPhishingRiseSlideProps extends BaseTemplateProps {
+  title: string;
+  description: string;
+  bigLabel: string;
+  mediumLabel: string;
+  smallLabel: string;
+  actorImagePath?: string;
+  actorImageAlt?: string;
+}
+
+// Pixel-perfect: Financial Impact mosaic grid
+export interface FinancialImpactMosaicSlideProps extends BaseTemplateProps {
+  leftTitle: string;
+  kpiTitle: string;
+  kpiSubtitle: string;
+  leftAvatarPath?: string;
+  leftAvatarAlt?: string;
+  topRightImagePath?: string;
+  bottomRightImagePath?: string;
+  midStatLeft: string;
+  midStatRight: string;
+  midStatLeftCaption: string;
+  midStatRightCaption: string;
+  footerDate?: string;
+  footerPage?: string;
+}
+
 export interface KpiBestPracticesSlideProps extends BaseTemplateProps {
   leftImagePath?: string;
   leftImageAlt?: string;

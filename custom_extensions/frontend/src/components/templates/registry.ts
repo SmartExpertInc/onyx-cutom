@@ -51,6 +51,11 @@ import { AiPharmaMarketGrowthSlideTemplate } from './AiPharmaMarketGrowthSlideTe
 import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
 import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
 import { ConnectionSlideTemplate } from './ConnectionSlideTemplate';
+import HighPerformingTeamsSlideTemplate from './HighPerformingTeamsSlideTemplate';
+import ImpactValueSlideTemplate from './ImpactValueSlideTemplate';
+import EnterpriseRoadmapSlideTemplate from './EnterpriseRoadmapSlideTemplate';
+import ConcentricPhishingRiseSlideTemplate from './ConcentricPhishingRiseSlideTemplate';
+import FinancialImpactMosaicSlideTemplate from './FinancialImpactMosaicSlideTemplate';
 
 
 
@@ -1917,6 +1922,39 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
+  // Pixel-perfect: High-Performing Teams
+  'high-performing-teams-slide': {
+    id: 'high-performing-teams-slide',
+    name: 'High-Performing Teams',
+    description: 'Title, paragraph, rounded panel with editable line and avatar',
+    category: 'content',
+    icon: '🟡',
+    component: HighPerformingTeamsSlideTemplate,
+    defaultProps: {
+      title: 'The Power of High-\nPerforming Teams',
+      description: 'High-performing teams are the driving force behind exceptional results. They achieve more, innovate faster, and adapt to challenges with resilience.',
+      panelColor: '#E9B84C',
+      lineColor: '#5A4DF6',
+      points: [
+        { x: 6, y: 72 },
+        { x: 22, y: 58 },
+        { x: 40, y: 64 },
+        { x: 58, y: 48 },
+        { x: 72, y: 42 },
+        { x: 84, y: 38 }
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true, maxLength: 120 },
+      description: { type: 'text', label: 'Description', required: true, maxLength: 400 },
+      panelColor: { type: 'color', label: 'Panel Color' },
+      lineColor: { type: 'color', label: 'Line Color' },
+      points: { type: 'array', label: 'Line Points', required: true },
+      avatarPath: { type: 'image', label: 'Avatar Image' }
+    }
+  },
+
 
   'table-of-contents-slide': {
     id: 'table-of-contents-slide',
@@ -1993,6 +2031,126 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  }
+  ,
+
+  // New: Impact Value (yellow metrics)
+  'impact-value-slide': {
+    id: 'impact-value-slide',
+    name: 'Impact Value Slide',
+    description: 'Yellow background with three big metrics and images',
+    category: 'content',
+    icon: '💛',
+    component: ImpactValueSlideTemplate,
+    defaultProps: {
+      year: '2024',
+      subtitle: 'Presentation',
+      title: 'Impact\nValue',
+      metrics: [
+        { number: '+30%', caption: 'Trust and loyalty' },
+        { number: '$3.9', caption: 'Saved in costs' },
+        { number: '-15%', caption: 'Legal expenses' }
+      ],
+      backgroundColor: '#EAE055'
+    },
+    propSchema: {
+      year: { type: 'text', label: 'Year' },
+      subtitle: { type: 'text', label: 'Subtitle' },
+      title: { type: 'text', label: 'Title', required: true },
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      backgroundColor: { type: 'color', label: 'Background' }
+    }
+  },
+
+  // New: Enterprise Roadmap (table)
+  'enterprise-roadmap-slide': {
+    id: 'enterprise-roadmap-slide',
+    name: 'Enterprise Roadmap Slide',
+    description: 'Light report slide with avatar and zebra table',
+    category: 'content',
+    icon: '📋',
+    component: EnterpriseRoadmapSlideTemplate,
+    defaultProps: {
+      title: 'Enterprise Offerings: Roadmap',
+      description: 'These KPIs typically measure performance in a shorter time frame... (CPA)',
+      tableData: [
+        { featureName: 'Mobile optimization', status: 'Testing', dueDate: '14 April', assignee: 'Julius' },
+        { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+        { featureName: 'Cross-platform sync', status: 'Concept', dueDate: '30 June', assignee: 'Vanessa' }
+      ],
+      companyName: 'Company name',
+      reportType: 'KPI Report',
+      date: 'February 2023'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      tableData: { type: 'array', label: 'Rows', required: true },
+      profileImagePath: { type: 'image', label: 'Profile Image' },
+      companyName: { type: 'text', label: 'Company' },
+      reportType: { type: 'text', label: 'Report' },
+      date: { type: 'text', label: 'Date' }
+    }
+  },
+
+  // New: Concentric Phishing Rise
+  'concentric-phishing-rise-slide': {
+    id: 'concentric-phishing-rise-slide',
+    name: 'Phishing Rise (Concentric)',
+    description: 'Big/medium/small circles with labels and avatar',
+    category: 'content',
+    icon: '⭕',
+    component: ConcentricPhishingRiseSlideTemplate,
+    defaultProps: {
+      title: 'Phishing rise',
+      description: 'This has become a growing threat in the world of today...',
+      bigLabel: '564$',
+      mediumLabel: '321$',
+      smallLabel: '128$'
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      bigLabel: { type: 'text', label: 'Big Label', required: true },
+      mediumLabel: { type: 'text', label: 'Medium Label', required: true },
+      smallLabel: { type: 'text', label: 'Small Label', required: true },
+      actorImagePath: { type: 'image', label: 'Actor Image' }
+    }
+  },
+
+  // New: Financial Impact Mosaic
+  'financial-impact-mosaic-slide': {
+    id: 'financial-impact-mosaic-slide',
+    name: 'Financial Impact Mosaic',
+    description: 'Dark mosaic grid with KPI and two images',
+    category: 'content',
+    icon: '🧩',
+    component: FinancialImpactMosaicSlideTemplate,
+    defaultProps: {
+      leftTitle: 'The financial\nimpact',
+      kpiTitle: '$170 billion',
+      kpiSubtitle: 'Annual cost of US workplace accidents & injuries',
+      midStatLeft: '52%',
+      midStatLeftCaption: 'Reduction in compensation costs',
+      midStatRight: '$4-$6',
+      midStatRightCaption: 'ROI for every $1 invested',
+      footerDate: 'Date Goes Here',
+      footerPage: 'Page Number'
+    },
+    propSchema: {
+      leftTitle: { type: 'text', label: 'Left Title', required: true },
+      kpiTitle: { type: 'text', label: 'KPI Title', required: true },
+      kpiSubtitle: { type: 'text', label: 'KPI Subtitle', required: true },
+      leftAvatarPath: { type: 'image', label: 'Left Avatar' },
+      topRightImagePath: { type: 'image', label: 'Top Image' },
+      bottomRightImagePath: { type: 'image', label: 'Bottom Image' },
+      midStatLeft: { type: 'text', label: 'Mid Stat Left', required: true },
+      midStatLeftCaption: { type: 'text', label: 'Mid Stat Left Caption' },
+      midStatRight: { type: 'text', label: 'Mid Stat Right', required: true },
+      midStatRightCaption: { type: 'text', label: 'Mid Stat Right Caption' },
+      footerDate: { type: 'text', label: 'Footer Date' },
+      footerPage: { type: 'text', label: 'Footer Page' }
     }
   }
 
