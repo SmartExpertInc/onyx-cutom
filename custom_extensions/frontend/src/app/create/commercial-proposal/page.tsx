@@ -1533,30 +1533,30 @@ export default function CommercialProposalPage() {
                   <table className="w-full min-w-[470px] xl:min-w-0 border border-[#E0E0E0] rounded-[6px] xl:rounded-none overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)]">
                     <thead>
                       <tr className="bg-[#F5F5F5]">
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">Кол-во пользователей</th>
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">Месячная цена (со скидкой)</th>
+                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Кол-во пользователей</th>
+                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Месячная цена (со скидкой)</th>
                         <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold">Средняя цена за пользователя</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">до 100</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">$350</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">до 100</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$350</td>
                         <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$3.50</span></td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">до 200</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">$500</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">до 200</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$500</td>
                         <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$2.50</span></td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">201-500</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">$1000</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">201-500</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$1000</td>
                         <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$2.00</span></td>
                       </tr>
                       <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">501-1000</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:relative xl:after:content-[''] xl:after:absolute xl:after:right-0 xl:after:top-2 xl:after:bottom-2 xl:after:w-px xl:after:bg-[#E0E0E0]">$1800</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">501-1000</td>
+                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$1800</td>
                         <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$1.80</span></td>
                       </tr>
                     </tbody>
