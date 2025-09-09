@@ -89,10 +89,10 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
   };
   const bigCircle: React.CSSProperties = {
     position: 'absolute',
-    left: '40px',
-    top: '40px',
-    width: '560px',
-    height: '560px',
+    right: '0',
+    top: '15px',
+    width: '440px',
+    height: '440px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
     backgroundColor: 'rgba(255,255,255,0.08)'
@@ -100,23 +100,23 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
 
   const small: React.CSSProperties = {
     position: 'absolute',
-    width: '360px',
-    height: '360px',
+    width: '180px',
+    height: '180px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
     backgroundColor: 'rgba(255,255,255,0.06)',
-    top: '240px',
-    left: '80px'
+    top: '150px',
+    left: '240px'
   };
 
   const smallRight: React.CSSProperties = {
     position: 'absolute',
-    width: '360px',
-    height: '360px',
+    width: '180px',
+    height: '180px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
     backgroundColor: 'rgba(255,255,255,0.06)',
-    top: '240px',
+    top: '150px',
     right: '40px'
   };
 
@@ -232,7 +232,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         {/* Venn labels */}
         <div style={{ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none' }}>
           {/* Culture (top center of big circle) */}
-          <div style={{ position: 'absolute', left: '50%', top: '56px', transform: 'translateX(-50%)', color: '#d1d5db', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto' }}>
+          <div style={{ position: 'absolute', left: '59%', top: '56px', color: '#B1B0B1', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'culture' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.culture}
@@ -246,7 +246,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Managers (center of left small circle) */}
-          <div style={{ position: 'absolute', left: '200px', top: '360px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
+          <div style={{ position: 'absolute', left: '332px', top: '240px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'managers' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.managers}
@@ -260,7 +260,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Teams (center of right small circle) */}
-          <div style={{ position: 'absolute', right: '108px', top: '360px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
+          <div style={{ position: 'absolute', right: '133px', top: '240px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'teams' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.teams}
@@ -274,7 +274,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Center plus button */}
-          <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', left: '396px', top: '217px', width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: '20px', height: '3px', backgroundColor: '#fff', position: 'absolute' }} />
             <div style={{ width: '3px', height: '20px', backgroundColor: '#fff', position: 'absolute' }} />
           </div>
