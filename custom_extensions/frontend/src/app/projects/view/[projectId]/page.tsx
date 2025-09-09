@@ -28,6 +28,10 @@ import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, ArrowLeft, FolderOpen
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import { createPortal } from 'react-dom';
 
 // Localization config for column labels based on product language
@@ -1455,9 +1459,10 @@ export default function ProjectInstanceViewPage() {
           <div className="flex items-center space-x-3">
             {/* Edit button for editable content types */}
             {canEditContent && (
-              <button
+              <Button
                 onClick={handleToggleEdit}
                 disabled={isSaving}
+                variant={isEditing ? "default" : "outline"}
                 className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center ${
                   isEditing 
                     ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500' 
@@ -1476,13 +1481,14 @@ export default function ProjectInstanceViewPage() {
                     {t('interface.projectView.editContent', 'Edit Content')}
                   </>
                 )}
-              </button>
+              </Button>
             )}
             
             {projectInstanceData && (typeof projectInstanceData.project_id === 'number') && (
-                  <button
+                  <Button
                     onClick={handlePdfDownload}
                     disabled={isSaving}
+                    variant="download"
                     className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
                     title={
                       projectInstanceData.component_name === COMPONENT_NAME_SLIDE_DECK 
@@ -1495,114 +1501,101 @@ export default function ProjectInstanceViewPage() {
                        ? t('interface.projectView.downloadSlideDeckPdf', 'Download PDF')
                        : t('interface.projectView.downloadPdf', 'Download PDF')
                    }
-                  </button>
+                  </Button>
             )}
             
             {/* Smart Edit button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
-              <button
+              <Button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
+                variant="default"
                 className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center"
                 title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
               >
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
-              </button>
+              </Button>
             )}
 
             {/* Column Visibility Dropdown - only for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <div className="relative" ref={columnDropdownRef}>
-                <button
-                  onClick={() => setShowColumnDropdown(!showColumnDropdown)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
-                  title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
-                >
-                  <Info size={16} className="mr-2" />
-                  {t('interface.projectView.columns', 'Columns')}
-                  <ChevronDown size={16} className="ml-1" />
-                </button>
-                
-                {showColumnDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.knowledgeCheck}
-                          onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.contentAvailability}
-                          onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.informationSource}
-                          onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.source}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.estCreationTime}
-                          onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.estCompletionTime}
-                          onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.qualityTier}
-                          onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
-                      </label>
-                    </div>
+              <DropdownMenu open={showColumnDropdown} onOpenChange={setShowColumnDropdown}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                    title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
+                  >
+                    <Info size={16} className="mr-2" />
+                    {t('interface.projectView.columns', 'Columns')}
+                    <ChevronDown size={16} className="ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64 p-4" align="end">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
+                  <div className="space-y-2">
+                    <DropdownMenuCheckboxItem
+                      checked={columnVisibility.knowledgeCheck}
+                      onCheckedChange={(checked) => handleColumnVisibilityChange('knowledgeCheck', checked)}
+                    >
+                      {columnLabels.assessmentType}
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={columnVisibility.contentAvailability}
+                      onCheckedChange={(checked) => handleColumnVisibilityChange('contentAvailability', checked)}
+                    >
+                      {columnLabels.contentVolume}
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={columnVisibility.informationSource}
+                      onCheckedChange={(checked) => handleColumnVisibilityChange('informationSource', checked)}
+                    >
+                      {columnLabels.source}
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={columnVisibility.estCreationTime}
+                      onCheckedChange={(checked) => handleColumnVisibilityChange('estCreationTime', checked)}
+                    >
+                      {columnLabels.estCreationTime}
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={columnVisibility.estCompletionTime}
+                      onCheckedChange={(checked) => handleColumnVisibilityChange('estCompletionTime', checked)}
+                    >
+                      {columnLabels.estCompletionTime}
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={columnVisibility.qualityTier}
+                      onCheckedChange={(checked) => handleColumnVisibilityChange('qualityTier', checked)}
+                    >
+                      {columnLabels.qualityTier}
+                    </DropdownMenuCheckboxItem>
                   </div>
-                )}
-              </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
             {/* Move to Trash button for non-outline microproducts placed as right-most */}
             {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
-              <button
+              <Button
                 onClick={handleMoveToTrash}
+                variant="outline"
                 className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
                 title={t('interface.projectView.moveToTrashTooltip', 'Move this product to Trash')}
               >
                 <Trash2 size={16} className="mr-2" /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
-              </button>
+              </Button>
             )}
           </div>
         </div>
 
         {saveError &&
-          <div className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400 rounded-md text-sm flex items-center">
-            <AlertTriangle size={18} className="mr-2 flex-shrink-0" />
-            <span>{saveError}</span>
-          </div>
+          <Card className="mb-4 p-3 bg-red-100 text-red-700 border border-red-400">
+            <CardContent className="p-0">
+              <div className="flex items-center text-sm">
+                <AlertTriangle size={18} className="mr-2 flex-shrink-0" />
+                <span>{saveError}</span>
+              </div>
+            </CardContent>
+          </Card>
         }
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">

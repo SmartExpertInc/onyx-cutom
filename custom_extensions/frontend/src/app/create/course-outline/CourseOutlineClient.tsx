@@ -1255,12 +1255,12 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 variant="outline"
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black flex items-center gap-1"
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
               >
                 {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 p-3" align="end">
+            <DropdownMenuContent className="w-56 p-3 bg-white" align="end">
               {[
                 { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
                 { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
@@ -1424,7 +1424,7 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <Card className="w-full mb-4 bg-white" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <Card className="w-full mb-4 bg-white border-none" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <CardContent className="p-4 flex flex-col gap-3">
                   <Textarea
                     value={editPrompt}
