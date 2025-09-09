@@ -50,7 +50,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     position: 'relative',
     backgroundColor: '#ffffff',
     // right-side soft shadow to match design separation
-    boxShadow: '24px 0 48px -24px rgba(0,0,0,0.16)',
+    boxShadow: '24px 0 48px -24px rgba(0,0,0,0.1)',
     zIndex: 1
   };
 
@@ -72,12 +72,12 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const avatarHolder: React.CSSProperties = {
     position: 'absolute',
     left: '72px',
-    bottom: '56px',
-    width: '120px',
-    height: '120px',
+    bottom: '40px',
+    width: '140px',
+    height: '140px',
     borderRadius: '50%',
     overflow: 'hidden',
-    border: '2px solid #7f5af0' // subtle purple ring
+    border: '2px solid rgb(171 144 255)' // subtle purple ring
   };
 
   // Right chart area
@@ -97,12 +97,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const yPillStyle: React.CSSProperties = {
     display: 'inline-block',
     padding: '6px 12px',
-    borderRadius: '999px',
-    background: '#f6f6fb',
-    border: '1px solid #eef0f3',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
     lineHeight: 1,
-    color: '#8d96a3',
+    color: '#000000',
     minWidth: '40px',
     textAlign: 'center'
   };
@@ -215,10 +211,10 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                     initialValue={b.valueLabel}
                     onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], valueLabel: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ color: '#8d96a3', fontSize: '14px' }}
+                    style={{ color: '#4F4F4F', fontSize: '14px' }}
                   />
                 ) : (
-                  <div style={{ color: '#8d96a3', fontSize: '14px' }} onClick={() => isEditable && setEditingBar({ index: idx, field: 'valueLabel' })}>{b.valueLabel}</div>
+                  <div style={{ color: '#4F4F4F', fontSize: '14px' }} onClick={() => isEditable && setEditingBar({ index: idx, field: 'valueLabel' })}>{b.valueLabel}</div>
                 )}
               </div>
 

@@ -47,18 +47,18 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     left: '16px',
     right: '16px',
     bottom: '16px',
-    backgroundColor: panelBackgroundColor,
+    backgroundColor: '#DCEAF7',
     borderRadius: '20px'
   };
 
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
-    left: '48px',
-    top: '48px',
-    fontSize: '64px',
+    left: '129px',
+    top: '70px',
+    fontSize: '48px',
     lineHeight: 1.05,
     fontWeight: 700,
-    color: '#243850',
+    color: '#354963',
     whiteSpace: 'pre-line'
   };
 
@@ -74,11 +74,10 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
   const rightImageArea: React.CSSProperties = {
     position: 'absolute',
-    right: '48px',
-    top: '96px',
-    bottom: '96px',
-    width: '34%',
-    backgroundColor: '#4a6cf0'
+    right: '90px',
+    top: '30px',
+    bottom: '97px',
+    height: '96%',
   };
 
   return (
@@ -111,10 +110,10 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   initialValue={b.year}
                   onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                   onCancel={() => setEditingBar(null)}
-                  style={{ width: '50px', color: '#6c7a8a' }}
+                  style={{ width: '50px', color: '#677686' }}
                 />
               ) : (
-                <div style={{ color: '#6c7a8a' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
+                <div style={{ color: '#677686' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
               )}
             </div>
 
@@ -135,7 +134,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
               {/* Width resizable via drag */}
               <div
-                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2c3e55', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative' }}
+                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative' }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const container = (e.currentTarget.parentElement as HTMLElement);
@@ -158,7 +157,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                 {/* Drag handle */}
                 {isEditable && (
                   <div
-                    style={{ position: 'absolute', right: 0, top: 0, width: '10px', height: '100%', backgroundColor: 'rgba(255,255,255,0.25)', cursor: 'ew-resize', borderTopRightRadius: '6px', borderBottomRightRadius: '6px' }}
+                    style={{ position: 'absolute', right: 0, top: 0, width: '10px', height: '100%', cursor: 'ew-resize', borderTopRightRadius: '6px', borderBottomRightRadius: '6px' }}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       if (!isEditable) return;
@@ -186,7 +185,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             {isEditable && (
               <button
                 onClick={() => { const nb=currentBars.filter((_,idx)=>idx!==i); setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
-                style={{ position: 'absolute', right: '-8px', top: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                style={{ position: 'absolute', right: '110px', top: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
                 aria-label="Delete bar"
               >
                 ×
@@ -214,7 +213,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
           position="CENTER"
           description="Doctor"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ width: '100%', height: '100%' }}
         />
       </div>
     </div>
