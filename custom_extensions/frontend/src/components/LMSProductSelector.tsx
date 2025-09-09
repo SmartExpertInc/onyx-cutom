@@ -240,9 +240,15 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
           <button
             onClick={handleSelectAllFiltered}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-900"
+            className="flex items-center gap-3 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-900"
           >
-            {allFilteredSelected ? <CheckSquare size={16} className="text-gray-700" /> : <Square size={16} className="text-gray-700" />}
+            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+              allFilteredSelected 
+                ? 'bg-blue-600 border-blue-600' 
+                : 'border-gray-400 bg-white'
+            }`}>
+              {allFilteredSelected && <CheckSquare size={10} className="text-white" />}
+            </div>
             {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
           </button>
         </div>

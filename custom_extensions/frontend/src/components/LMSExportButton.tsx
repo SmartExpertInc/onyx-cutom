@@ -88,7 +88,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 min-h-[80px]">
       <button
         onClick={handleExport}
         disabled={!hasSelectedProducts || isExporting}
@@ -102,17 +102,19 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
         {getButtonText()}
       </button>
       
-      {!hasSelectedProducts && (
-        <p className="text-sm text-gray-500 text-center">
-          {t('interface.lmsNoProductsSelected', 'Please select at least one course outline to export')}
-        </p>
-      )}
-      
-      {hasSelectedProducts && (
-        <p className="text-sm text-gray-600 text-center">
-          {selectedProducts.size} course outline{selectedProducts.size !== 1 ? 's' : ''} selected
-        </p>
-      )}
+      <div className="h-5 flex items-center">
+        {!hasSelectedProducts && (
+          <p className="text-sm text-gray-500 text-center">
+            {t('interface.lmsNoProductsSelected', 'Please select at least one course outline to export')}
+          </p>
+        )}
+        
+        {hasSelectedProducts && (
+          <p className="text-sm text-gray-600 text-center">
+            {selectedProducts.size} course outline{selectedProducts.size !== 1 ? 's' : ''} selected
+          </p>
+        )}
+      </div>
     </div>
   );
 };

@@ -102,14 +102,14 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
       onClick={handleCardClick}
     >
       {/* Selection indicator */}
-      <div className="absolute top-2 right-2 z-10">
+      <div className="absolute top-3 right-3 z-10">
         {isSelected ? (
-          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
-            <CheckSquare size={14} className="text-white" />
+          <div className="w-5 h-5 bg-blue-600 rounded border-2 border-blue-600 flex items-center justify-center shadow-sm">
+            <CheckSquare size={12} className="text-white" />
           </div>
         ) : (
-          <div className="w-6 h-6 border-2 border-gray-300 rounded-full bg-white opacity-0 group-hover:opacity-100 transition-opacity">
-            <Square size={14} className="text-gray-600" />
+          <div className="w-5 h-5 border-2 border-gray-300 rounded bg-white opacity-0 group-hover:opacity-100 transition-opacity hover:border-gray-400">
+            <Square size={12} className="text-gray-400 opacity-0" />
           </div>
         )}
       </div>
