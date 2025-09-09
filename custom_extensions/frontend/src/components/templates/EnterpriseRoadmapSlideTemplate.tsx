@@ -12,9 +12,12 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   description = 'These KPIs typically measure performance in a shorter time frame, and are focused on organizational processes and efficiencies. Some examples include sales by region, average monthly transportation costs and cost per acquisition (CPA)',
   headers,
   tableData = [
-    { featureName: 'Mobile optimization', status: 'Testing', dueDate: '14 April', assignee: 'Julius' },
+    { featureName: 'Mobile optimization', status: 'Testin', dueDate: '14 April', assignee: 'Julius' },
     { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
-    { featureName: 'Cross-platform sync', status: 'Concept', dueDate: '30 June', assignee: 'Vanessa' }
+    { featureName: 'Cross-platform sync', status: 'Consept', dueDate: '30 June', assignee: 'Vanessa' },
+    { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+    { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' },
+    { featureName: 'App Marketplace', status: 'Implementing', dueDate: '28 May', assignee: 'Ben' }
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile',
@@ -31,7 +34,28 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [editingDesc, setEditingDesc] = useState(false);
   const defaultHeaders = headers && headers.length ? headers : ['Feature Name','Status','Due Date','Assignee'];
   const [cols, setCols] = useState<string[]>(defaultHeaders);
-  const [rows, setRows] = useState<Record<string,string>[]>(tableData as Record<string,string>[]);
+
+  const normalizeRows = (input: any[], colHeaders: string[]): Record<string, string>[] => {
+    return (input || []).map((r: any) => {
+      // If row already uses header labels as keys, keep as is
+      const hasHeaderKeys = colHeaders.every((h) => Object.prototype.hasOwnProperty.call(r, h));
+      if (hasHeaderKeys) return r as Record<string, string>;
+      // Map from camelCase props to visible header labels
+      const mapped: Record<string, string> = {};
+      const map: Record<string, string> = {
+        'Feature Name': r.featureName ?? r.feature ?? r.name ?? '',
+        'Status': r.status ?? '',
+        'Due Date': r.dueDate ?? r.date ?? '',
+        'Assignee': r.assignee ?? r.owner ?? ''
+      };
+      colHeaders.forEach((h) => {
+        mapped[h] = (map[h] ?? '') as string;
+      });
+      return mapped;
+    });
+  };
+
+  const [rows, setRows] = useState<Record<string,string>[]>(normalizeRows(tableData as any[], defaultHeaders));
   const [hoveredHeader, setHoveredHeader] = useState<number | null>(null);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
