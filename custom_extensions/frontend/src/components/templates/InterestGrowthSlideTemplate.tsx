@@ -75,7 +75,8 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     width: '430px',
     backgroundColor: '#4D70D4',
     position: 'relative',
-    height: '100%'
+    marginLeft: '18%',
+    marginTop: '-100px'
   };
 
   const cornerLine: React.CSSProperties = {
@@ -105,13 +106,15 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
         {cardList.slice(0, 4).map((c, i) => {
           const isRightTop = i === 1;
           const isRightBottom = i === 3;
-          const cardHeight = isRightTop ? 300 : (isRightBottom ? 75 : 225);
+          const isLeftBottom = i === 2;
+          const cardMarginTop = isLeftBottom ? -64 : 0;
+          const cardHeight = isRightTop ? 287 : (isRightBottom ? 160 : 225);
           const percentageFontSize = isRightBottom ? '48px' : '79px';
           const percentageMinHeight = isRightBottom ? 0 : 88;
           return (
           <div
             key={i}
-            style={{ ...cardStyle, height: `${cardHeight}px` }}
+            style={{ ...cardStyle, height: `${cardHeight}px`, marginTop: `${cardMarginTop}px` }}
             onMouseEnter={(e) => {
               const btn = e.currentTarget.querySelector('.card-delete-btn') as HTMLElement | null;
               if (btn) btn.style.opacity = '1';
@@ -176,7 +179,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           position="CENTER"
           description="Right image"
           isEditable={isEditable}
-          style={{ position: 'relative', top: '24px', width: '339px', height: '491px', objectFit: 'cover' }}
+          style={{ position: 'relative', top: '24px', width: '405px', height: '595px', objectFit: 'cover' }}
         />
       </div>
     </div>
