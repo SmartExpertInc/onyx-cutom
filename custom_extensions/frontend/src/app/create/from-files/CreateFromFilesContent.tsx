@@ -229,12 +229,13 @@ const CreateFolderModal: React.FC<{
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              variant="outline"
+              variant="secondary"
             >
               {t("interface.fromFiles.cancel", "Cancel")}
             </Button>
             <Button
               type="submit"
+              variant="download"
               disabled={!name.trim() || isSubmitting}
               className="flex items-center gap-2"
             >
@@ -538,14 +539,14 @@ export default function CreateFromFilesContent() {
                   onClick={clearSelectedItems}
                   variant="outline"
                   size="sm"
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100 bg-blue-200"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-200 bg-blue-100"
                 >
                   {t("interface.fromFiles.clearSelection", "Clear Selection")}
                 </Button>
                 <Button
                   onClick={handleCreateFromSelected}
                   className="flex items-center gap-2"
-                  // className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  variant="download"
                 >
                   <Sparkles className="h-4 w-4" />
                   {t(
