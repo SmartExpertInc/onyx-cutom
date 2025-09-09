@@ -538,7 +538,7 @@ export default function CreateFromFilesContent() {
                   onClick={clearSelectedItems}
                   variant="outline"
                   size="sm"
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100 bg-blue-200"
                 >
                   {t("interface.fromFiles.clearSelection", "Clear Selection")}
                 </Button>
