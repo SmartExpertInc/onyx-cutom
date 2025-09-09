@@ -1530,37 +1530,85 @@ export default function CommercialProposalPage() {
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[472px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
-                  <table className="w-full min-w-[470px] xl:min-w-0 border border-[#E0E0E0] rounded-[6px] xl:rounded-none overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)]">
-                    <thead>
-                      <tr className="bg-[#F5F5F5]">
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Кол-во пользователей</th>
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Месячная цена (со скидкой)</th>
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold">Средняя цена за пользователя</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">до 100</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$350</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$3.50</span></td>
-                      </tr>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">до 200</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$500</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$2.50</span></td>
-                      </tr>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">201-500</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$1000</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$2.00</span></td>
-                      </tr>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">501-1000</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">$1800</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px]"><span className="font-medium">от</span> <span className="font-semibold">$1.80</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div className="w-full min-w-[470px] xl:min-w-0 rounded-[6px] xl:rounded-none overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
+                    {/* Table Header */}
+                    <div className="bg-[#F5F5F5] px-4 py-3">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                          Кол-во пользователей
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                          Месячная цена (со скидкой)
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold">
+                          Средняя цена за пользователя
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Table Rows */}
+                    <div className="bg-white">
+                      {/* Row 1 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            до 100
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $350
+                          </div>
+                          <div className="text-[14px] xl:text-[22px]">
+                            <span className="font-medium">от</span> <span className="font-semibold">$3.50</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 2 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            до 200
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $500
+                          </div>
+                          <div className="text-[14px] xl:text-[22px]">
+                            <span className="font-medium">от</span> <span className="font-semibold">$2.50</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 3 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            201-500
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $1000
+                          </div>
+                          <div className="text-[14px] xl:text-[22px]">
+                            <span className="font-medium">от</span> <span className="font-semibold">$2.00</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 4 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            501-1000
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $1800
+                          </div>
+                          <div className="text-[14px] xl:text-[22px]">
+                            <span className="font-medium">от</span> <span className="font-semibold">$1.80</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between xl:hidden">
@@ -2248,36 +2296,82 @@ export default function CommercialProposalPage() {
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[472px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
-                  <table className="w-full min-w-[470px] xl:min-w-0 border border-[#E0E0E0] rounded-[6px] xl:rounded-none overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)]">
-                    <thead>
-                      <tr className="bg-[#F5F5F5]">
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Пакет</th>
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Кол-во часов</th>
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Стоимость</th>
-                        <th className="px-4 py-3 text-left text-[14px] xl:text-[22px] font-semibold">Ставка за час</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Pack 1</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">30 часов</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">$2,250</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium">$75 / час</td>
-                      </tr>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Pack 2</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">50 часов</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">$3,500</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium">$70 / час</td>
-                      </tr>
-                      <tr className="border-t border-[#E0E0E0]">
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">Pack 3</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0]">100 часов</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0]">$5,900</td>
-                        <td className="px-4 py-3 text-[14px] xl:text-[22px] font-medium">$59 / час</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div className="w-full min-w-[470px] xl:min-w-0 rounded-[6px] xl:rounded-none overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
+                    {/* Table Header */}
+                    <div className="bg-[#F5F5F5] px-4 py-3">
+                      <div className="grid grid-cols-4 gap-4">
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                          Пакет
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                          Кол-во часов
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                          Стоимость
+                        </div>
+                        <div className="text-[14px] xl:text-[22px] font-semibold">
+                          Ставка за час
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Table Rows */}
+                    <div className="bg-white">
+                      {/* Row 1 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-4 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            Pack 1
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            30 часов
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $2,250
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium">
+                            $75 / час
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 2 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-4 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            Pack 2
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            50 часов
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $3,500
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium">
+                            $70 / час
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Row 3 */}
+                      <div className="px-4 py-3 border-t border-[#E0E0E0]">
+                        <div className="grid grid-cols-4 gap-4 items-center">
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            Pack 3
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            100 часов
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-r xl:border-[#E0E0E0] xl:pr-4">
+                            $5,900
+                          </div>
+                          <div className="text-[14px] xl:text-[22px] font-medium">
+                            $59 / час
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between xl:hidden">
