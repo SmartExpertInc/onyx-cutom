@@ -27,6 +27,7 @@ export default function VideoProductDisplay({
   parentProjectName
 }: VideoProductDisplayProps) {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
 
   // 🔍 ENHANCED DEBUG: Detailed data structure analysis
   console.log('🎬 [VIDEO_PRODUCT_DISPLAY] Received data:', dataToDisplay);
@@ -135,12 +136,15 @@ export default function VideoProductDisplay({
 
         {/* Video Content */}
         <div className="p-6">
-          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+          <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
             {dataToDisplay.videoUrl ? (
               <video
+                key={dataToDisplay.videoUrl}
                 className="w-full h-full object-contain"
                 controls
-                preload="metadata"
+                preload="auto"
+                playsInline
+                crossOrigin="anonymous"
                 poster={dataToDisplay.thumbnailUrl ? 
                   (dataToDisplay.thumbnailUrl.startsWith('http') 
                     ? dataToDisplay.thumbnailUrl 
@@ -148,6 +152,14 @@ export default function VideoProductDisplay({
                   : undefined}
                 onPlay={() => setIsVideoPlaying(true)}
                 onPause={() => setIsVideoPlaying(false)}
+                onLoadedData={() => console.log('🎬 [VIDEO_PLAYER] Video data loaded successfully')}
+                onCanPlay={() => console.log('🎬 [VIDEO_PLAYER] Video can start playing')}
+                onError={(e) => {
+                  console.error('🎬 [VIDEO_PLAYER] Video error:', e);
+                  setVideoError('Failed to load video');
+                }}
+                onLoadStart={() => console.log('🎬 [VIDEO_PLAYER] Video loading started')}
+                onLoadedMetadata={() => console.log('🎬 [VIDEO_PLAYER] Video metadata loaded')}
               >
                 <source src={
                   dataToDisplay.videoUrl.startsWith('http') 
@@ -159,6 +171,22 @@ export default function VideoProductDisplay({
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <span className="text-white">Video URL not available</span>
+              </div>
+            )}
+            
+            {/* Error Display */}
+            {videoError && (
+              <div className="absolute inset-0 bg-red-900 bg-opacity-75 flex items-center justify-center">
+                <div className="text-white text-center">
+                  <p className="text-lg font-semibold">Video Error</p>
+                  <p className="text-sm">{videoError}</p>
+                  <button 
+                    onClick={() => setVideoError(null)}
+                    className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  >
+                    Dismiss
+                  </button>
+                </div>
               </div>
             )}
           </div>

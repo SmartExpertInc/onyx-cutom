@@ -12303,9 +12303,9 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
                     logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product parsed from JSON string (preserving structure): {json.dumps(parsed_details, indent=2)}")
                 else:
                     # Round hours to integers before returning for other content types
-                    details_dict = round_hours_in_content(details_dict)
-                    parsed_details = details_dict
-                    logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
+                details_dict = round_hours_in_content(details_dict)
+                parsed_details = details_dict
+                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Parsed from JSON string: {json.dumps(parsed_details, indent=2)}")
             except (json.JSONDecodeError, TypeError) as e:
                 logger.error(f"Failed to parse microproduct_content JSON for project {project_id}: {e}")
                 parsed_details = None
@@ -12316,8 +12316,8 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
                 logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Video product already dict (preserving structure): {json.dumps(parsed_details, indent=2)}")
             else:
                 # Already a dict, just round hours for other content types
-                parsed_details = round_hours_in_content(details_data)
-                logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
+            parsed_details = round_hours_in_content(details_data)
+            logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
     
     # 🔍 BACKEND VIEW RESULT LOGGING
     if parsed_details and 'contentBlocks' in parsed_details:
@@ -12332,16 +12332,16 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
     # For video products, ensure we preserve the raw dictionary without Pydantic validation
     if component_name == COMPONENT_NAME_VIDEO_PRODUCT and parsed_details:
         # Create response with raw video metadata to avoid Pydantic validation issues
-        response_data = MicroProductApiResponse(
-            name=project_instance_name, slug=project_slug, project_id=project_id,
-            design_template_id=row_dict["design_template_id"], component_name=component_name,
-            webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
-            sourceChatSessionId=row_dict.get("source_chat_session_id"),
-            parentProjectName=row_dict.get('project_name'),
-            custom_rate=row_dict.get("custom_rate"),
-            quality_tier=row_dict.get("quality_tier"),
-            is_advanced=row_dict.get("is_advanced"),
-            advanced_rates=row_dict.get("advanced_rates")
+    response_data = MicroProductApiResponse(
+        name=project_instance_name, slug=project_slug, project_id=project_id,
+        design_template_id=row_dict["design_template_id"], component_name=component_name,
+        webLinkPath=web_link_path, pdfLinkPath=pdf_link_path, details=parsed_details,
+        sourceChatSessionId=row_dict.get("source_chat_session_id"),
+        parentProjectName=row_dict.get('project_name'),
+        custom_rate=row_dict.get("custom_rate"),
+        quality_tier=row_dict.get("quality_tier"),
+        is_advanced=row_dict.get("is_advanced"),
+        advanced_rates=row_dict.get("advanced_rates")
         )
         # Override the details field to ensure it remains as raw dict
         response_data.details = parsed_details
@@ -12357,7 +12357,7 @@ async def get_project_instance_detail(project_id: int, onyx_user_id: str = Depen
             quality_tier=row_dict.get("quality_tier"),
             is_advanced=row_dict.get("is_advanced"),
             advanced_rates=row_dict.get("advanced_rates")
-        )
+    )
     
     # 🔍 CRITICAL DEBUG: For video products, log the exact response being sent
     if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
