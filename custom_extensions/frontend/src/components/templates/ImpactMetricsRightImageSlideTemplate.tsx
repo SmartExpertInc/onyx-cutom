@@ -72,7 +72,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const metricRow: React.CSSProperties = {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '22px'
+    gap: '35px'
   };
 
   const bullet: React.CSSProperties = {

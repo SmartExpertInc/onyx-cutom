@@ -2075,41 +2075,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   }
   ,
 
-  // Alias preset: Impact Value Statements (light variant of Impact Metrics)
-  'impact-value-statements': {
-    id: 'impact-value-statements',
-    name: 'Impact Value Statements',
-    description: 'Light layout with heading and three impact metrics, right image panel',
-    category: 'content',
-    icon: '🧾',
-    component: ImpactMetricsRightImageSlideTemplate,
-    defaultProps: {
-      showTitle: true,
-      title: 'Impact Value Statements',
-      metrics: [
-        { text: '27% increase in profit margins of companies' },
-        { text: '10% increase in revenue growth led by data-driven decisions' },
-        { text: '50% less failure when engaging stakeholders in decisions' }
-      ],
-      backgroundColor: '#F3F4F6',
-      textColor: '#111827',
-      bulletBg: 'rgba(0,0,0,0.08)',
-      bulletColor: '#5B78E6',
-      rightPanelColor: '#2D63FF'
-    },
-    propSchema: {
-      showTitle: { type: 'boolean', label: 'Show Title' },
-      title: { type: 'text', label: 'Title' },
-      metrics: { type: 'array', label: 'Metrics', required: true },
-      backgroundColor: { type: 'color', label: 'Background' },
-      textColor: { type: 'color', label: 'Text Color' },
-      bulletBg: { type: 'color', label: 'Bullet BG' },
-      bulletColor: { type: 'color', label: 'Bullet Color' },
-      rightPanelColor: { type: 'color', label: 'Right Panel' },
-      rightImagePath: { type: 'image', label: 'Right Image' }
-    }
-  }
-  ,
+  
 
   // New: Pain Points with badge, heading, 3 items and right image panel
   'pain-points': {
