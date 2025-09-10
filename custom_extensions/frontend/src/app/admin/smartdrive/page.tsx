@@ -41,7 +41,7 @@ export default function SmartDriveSettingsPage() {
     setStatus("idle");
     setMessage("");
     try {
-      const resp = await fetch("/api/custom/smartdrive/credentials", {
+      const resp = await fetch("/api/custom-projects-backend/smartdrive/credentials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
