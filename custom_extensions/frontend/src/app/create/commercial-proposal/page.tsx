@@ -616,7 +616,7 @@ export default function CommercialProposalPage() {
                             Модуль 01:
                           </span>
 
-                          <h5 className="hidden xl:block font-medium text-[16px] mb-[8px]">
+                          <h5 className="hidden xl:block font-medium text-[16px] mb-[8px] xl:mb-0">
                             Корпоративная культура и стандарты работы в Vogue Lashes & Spa
                           </h5>
                         </div>
@@ -1109,7 +1109,7 @@ export default function CommercialProposalPage() {
                     </div>
 
                     {/* Module 4*/}
-                    <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module4'] ? 'xl:border-b-0' : ''}`}>
+                    <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module4'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
@@ -1147,7 +1147,7 @@ export default function CommercialProposalPage() {
                 </div>
 
                 <div 
-                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[15px] items-center justify-center text-center"
                   style={{
                     background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                     borderRadius: '6px',
