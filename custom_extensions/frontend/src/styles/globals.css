@@ -127,6 +127,48 @@ html {
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  
+  /* Custom Card Variables */
+  --custom-card-bg: oklch(1 0 0);
+  --custom-card-border: oklch(0.922 0 0);
+  --custom-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --custom-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --custom-card-title: oklch(0.145 0 0);
+  --custom-card-description: oklch(0.556 0 0);
+  --custom-card-icon: oklch(0.6 0.118 184.704);
+  --custom-card-badge-bg: oklch(1 0 0);
+  --custom-card-badge-border: oklch(0.922 0 0);
+  --custom-card-badge-text: oklch(0.6 0.118 184.704);
+  --custom-card-gradient-from: oklch(0.8 0.15 240);
+  --custom-card-gradient-to: oklch(0.9 0.1 280);
+  --custom-card-gradient-opacity: 0.6;
+  
+  /* Generate Page Variables */
+  --generate-bg-gradient-from: oklch(0.98 0.02 240);
+  --generate-bg-gradient-via: oklch(0.96 0.05 240);
+  --generate-bg-gradient-to: oklch(0.94 0.08 280);
+  --generate-title-gradient-from: oklch(0.2 0 0);
+  --generate-title-gradient-via: oklch(0.15 0.1 240);
+  --generate-title-gradient-to: oklch(0.1 0.15 280);
+  --generate-subtitle-color: oklch(0.556 0 0);
+  --generate-back-button-bg: oklch(1 0 0 / 0.6);
+  --generate-back-button-border: oklch(0.922 0 0);
+  --generate-back-button-text: oklch(0.556 0 0);
+  --generate-back-button-hover-bg: oklch(1 0 0 / 0.8);
+  --generate-back-button-hover-text: oklch(0.2 0 0);
+  --generate-alert-bg: oklch(0.96 0.05 240 / 0.8);
+  --generate-alert-border: oklch(0.8 0.1 240 / 0.5);
+  --generate-alert-text: oklch(0.2 0.1 240);
+  --generate-tab-bg: oklch(1 0 0 / 0.7);
+  --generate-tab-border: oklch(0.922 0 0);
+  --generate-tab-active-bg: oklch(1 0 0);
+  --generate-tab-active-border: oklch(0.6 0.118 184.704);
+  --generate-tab-text: oklch(0.556 0 0);
+  --generate-tab-active-text: oklch(0.6 0.118 184.704);
+  --generate-card-bg: oklch(1 0 0);
+  --generate-card-border: oklch(0.922 0 0);
+  --generate-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --generate-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .dark {
@@ -162,6 +204,48 @@ html {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  
+  /* Custom Card Variables - Dark Mode */
+  --custom-card-bg: oklch(0.205 0 0);
+  --custom-card-border: oklch(0.269 0 0);
+  --custom-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --custom-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --custom-card-title: oklch(0.985 0 0);
+  --custom-card-description: oklch(0.708 0 0);
+  --custom-card-icon: oklch(0.696 0.17 162.48);
+  --custom-card-badge-bg: oklch(0.205 0 0);
+  --custom-card-badge-border: oklch(0.269 0 0);
+  --custom-card-badge-text: oklch(0.696 0.17 162.48);
+  --custom-card-gradient-from: oklch(0.4 0.2 240);
+  --custom-card-gradient-to: oklch(0.5 0.15 280);
+  --custom-card-gradient-opacity: 0.8;
+  
+  /* Generate Page Variables - Dark Mode */
+  --generate-bg-gradient-from: oklch(0.1 0.02 240);
+  --generate-bg-gradient-via: oklch(0.12 0.05 240);
+  --generate-bg-gradient-to: oklch(0.14 0.08 280);
+  --generate-title-gradient-from: oklch(0.985 0 0);
+  --generate-title-gradient-via: oklch(0.9 0.1 240);
+  --generate-title-gradient-to: oklch(0.8 0.15 280);
+  --generate-subtitle-color: oklch(0.708 0 0);
+  --generate-back-button-bg: oklch(0.205 0 0 / 0.6);
+  --generate-back-button-border: oklch(0.269 0 0);
+  --generate-back-button-text: oklch(0.708 0 0);
+  --generate-back-button-hover-bg: oklch(0.205 0 0 / 0.8);
+  --generate-back-button-hover-text: oklch(0.985 0 0);
+  --generate-alert-bg: oklch(0.12 0.05 240 / 0.8);
+  --generate-alert-border: oklch(0.2 0.1 240 / 0.5);
+  --generate-alert-text: oklch(0.8 0.1 240);
+  --generate-tab-bg: oklch(0.205 0 0 / 0.7);
+  --generate-tab-border: oklch(0.269 0 0);
+  --generate-tab-active-bg: oklch(0.205 0 0);
+  --generate-tab-active-border: oklch(0.696 0.17 162.48);
+  --generate-tab-text: oklch(0.708 0 0);
+  --generate-tab-active-text: oklch(0.696 0.17 162.48);
+  --generate-card-bg: oklch(0.205 0 0);
+  --generate-card-border: oklch(0.269 0 0);
+  --generate-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --generate-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
