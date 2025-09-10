@@ -1147,7 +1147,7 @@ export default function CommercialProposalPage() {
                 </div>
 
                 <div 
-                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
+                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] my-[20px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
                   style={{
                     background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                     borderRadius: '6px',
@@ -1688,15 +1688,77 @@ export default function CommercialProposalPage() {
               </div>
 
               <div 
-                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center"
+                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                   borderRadius: '6px',
                   boxShadow: '2px 2px 10px 0px #0000001A'
                 }}
               >
-                <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$350<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/месяц</span></span>
+                {/* Mobile circles */}
+                <div 
+                  className="absolute xl:hidden"
+                  style={{
+                    width: '375px',
+                    height: '375px',
+                    top: '-71px',
+                    left: '-163px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <div 
+                  className="absolute xl:hidden"
+                  style={{
+                    width: '375px',
+                    height: '375px',
+                    top: '-71px',
+                    left: '-287px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                {/* Desktop circles - XL only */}
+                <div 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '896px',
+                    height: '896px',
+                    top: '-323px',
+                    left: '-19px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <div 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '896px',
+                    height: '896px',
+                    top: '-323px',
+                    left: '-315px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <div 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '896px',
+                    height: '896px',
+                    top: '-323px',
+                    left: '-611px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%] relative z-10">SmartExpert: быстрое<br /> обучение сотрудников</span>
+                <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9] relative z-10">$350<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/месяц</span></span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
@@ -2452,17 +2514,79 @@ export default function CommercialProposalPage() {
               </div>
 
               <div 
-                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                   borderRadius: '6px',
                   boxShadow: '2px 2px 10px 0px #0000001A'
                 }}
               >
-                <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$750<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
+                {/* Mobile circles */}
+                <div 
+                  className="absolute xl:hidden"
+                  style={{
+                    width: '375px',
+                    height: '375px',
+                    top: '-71px',
+                    left: '-163px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <div 
+                  className="absolute xl:hidden"
+                  style={{
+                    width: '375px',
+                    height: '375px',
+                    top: '-71px',
+                    left: '-287px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                {/* Desktop circles - XL only */}
+                <div 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '896px',
+                    height: '896px',
+                    top: '-323px',
+                    left: '-19px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <div 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '896px',
+                    height: '896px',
+                    top: '-323px',
+                    left: '-315px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <div 
+                  className="absolute hidden xl:block"
+                  style={{
+                    width: '896px',
+                    height: '896px',
+                    top: '-323px',
+                    left: '-611px',
+                    background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                    borderRadius: '50%',
+                    opacity: 1
+                  }}
+                />
+                <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%] relative z-10">SmartExpert: быстрое<br /> обучение сотрудников</span>
+                <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden relative z-10">$750<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
 
-                <span className="hidden xl:inline-block text-[80px] font-bold text-[#0F58F9]">$750 <span className="hidden xl:inline-block text-[40px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
+                <span className="hidden xl:inline-block text-[80px] font-bold text-[#0F58F9] relative z-10">$750 <span className="hidden xl:inline-block text-[40px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
