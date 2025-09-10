@@ -17,7 +17,6 @@ interface OptionCardProps {
   description: string;
   href?: string;
   disabled?: boolean;
-  pillLabel?: string; // e.g. "POPULAR"
   gradientFrom: string;
   gradientTo: string;
   iconColor: string;
@@ -30,7 +29,6 @@ const OptionCard: React.FC<OptionCardProps> = ({
   description,
   href,
   disabled,
-  pillLabel,
   gradientFrom,
   gradientTo,
   iconColor,
@@ -73,35 +71,31 @@ const OptionCard: React.FC<OptionCardProps> = ({
   // Card content shared by both link and non-link versions
   const cardContent = (
     <Card
-      className={`group relative overflow-hidden bg-white border border-gray-200 shadow-lg transition-all duration-300 w-full h-full ${
+      className={`group rounded-3xl relative overflow-hidden bg-white border border-gray-200 shadow-lg transition-all duration-300 w-full h-full ${
         disabled
           ? "opacity-50 cursor-not-allowed"
           : "hover:shadow-xl hover:scale-105 cursor-pointer"
       }`}
     >
       <div 
-        className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-80 rounded-bl-3xl`}
+        className={`absolute top-0 right-0 w-32 h-32 bg-gradient-radial ${gradientFrom} ${gradientTo} opacity-30 blur-xl`}
+        style={{
+          background: `radial-gradient(circle at 30% 30%, ${gradientFrom.replace('from-', '')} 0%, ${gradientTo.replace('to-', '')} 50%, transparent 70%)`
+        }}
       />
       
-      <CardContent className="relative p-0 h-full flex flex-col">
-        {/* Icon section */}
-        <div className="flex items-left justify-center h-32 relative">
-          <div className="relative">
-            <Icon size={48} className={`${iconColor}`} />
-            {pillLabel && (
-              <span className={`absolute -top-2 -right-2 text-[10px] font-bold bg-white ${labelColor} rounded-full px-2 py-1 shadow-md`}>
-                {pillLabel}
-              </span>
-            )}
-          </div>
+      <CardContent className="relative p-6 h-full flex flex-col">
+        {/* Icon section - positioned higher */}
+        <div className="flex items-center justify-center h-24 relative mb-6">
+          <Icon size={48} className={`${iconColor}`} />
         </div>
         
-        {/* Text section */}
-        <div className="flex flex-col items-center gap-2 px-6 pb-6 flex-1 justify-center">
-          <h3 className="font-bold text-lg text-gray-900 text-center leading-tight">
+        {/* Text section with proper spacing */}
+        <div className="flex flex-col items-center gap-3 flex-1 justify-start">
+          <h3 className={`font-bold text-xl text-center leading-tight ${labelColor}`}>
             {title}
           </h3>
-          <p className="text-sm text-gray-600 text-center leading-relaxed max-w-xs">
+          <p className="text-sm text-gray-500 text-center leading-relaxed max-w-xs">
             {description}
           </p>
         </div>
@@ -209,31 +203,30 @@ export default function DataSourceLanding() {
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
             href="/create/paste-text"
-            gradientFrom="from-blue-400"
-            gradientTo="to-blue-200"
+            gradientFrom="from-blue-300"
+            gradientTo="to-purple-200"
             iconColor="text-blue-600"
-            labelColor="text-blue-700"
+            labelColor="text-blue-900"
           />
           <OptionCard
             Icon={Sparkles}
             title={t('interface.generate.title', 'Generate')}
             description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
-            pillLabel={t('interface.popular', 'POPULAR')}
-            gradientFrom="from-orange-400"
-            gradientTo="to-orange-200"
+            gradientFrom="from-orange-300"
+            gradientTo="to-pink-200"
             iconColor="text-orange-600"
-            labelColor="text-orange-700"
+            labelColor="text-orange-900"
           />
           <OptionCard
             Icon={UploadCloud}
             title={t('interface.importFileOrUrl', 'Import file or URL')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
-            gradientFrom="from-purple-400"
-            gradientTo="to-purple-200"
+            gradientFrom="from-purple-300"
+            gradientTo="to-pink-200"
             iconColor="text-purple-600"
-            labelColor="text-purple-700"
+            labelColor="text-purple-900"
           />
         </div>
 
