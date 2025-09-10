@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { CustomCard } from "@/components/ui/custom-card";
 
 export default function PasteTextPage() {
   const router = useRouter();
@@ -131,57 +132,37 @@ export default function PasteTextPage() {
           </h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Use as context option */}
-            <Card 
-              className={`cursor-pointer transition-all ${
+            <CustomCard 
+              Icon={FileText}
+              title={t('interface.pasteText.useAsContext', 'Use as Context')}
+              description={t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
+              onClick={() => setMode("context")}
+              className={`transition-all ${
                 mode === "context"
                   ? "border-blue-500 bg-white shadow-lg"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
-              onClick={() => setMode("context")}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-lg ${
-                    mode === "context" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
-                  }`}>
-                    <FileText size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsContext', 'Use as Context')}</h4>
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Use as base option */}
-            <Card 
-              className={`cursor-pointer transition-all ${
+              gradientFrom="from-blue-300"
+              gradientTo="to-blue-200"
+              iconColor={mode === "context" ? "text-white" : "text-blue-600"}
+              labelColor={mode === "context" ? "text-white" : "text-blue-600"}
+            />
+            
+            <CustomCard 
+              Icon={Sparkles}
+              title={t('interface.pasteText.useAsBase', 'Use as Base')}
+              description={t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
+              onClick={() => setMode("base")}
+              className={`transition-all ${
                 mode === "base"
                   ? "border-blue-500 bg-white shadow-lg"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
-              onClick={() => setMode("base")}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-lg ${
-                    mode === "base" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
-                  }`}>
-                    <Sparkles size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsBase', 'Use as Base')}</h4>
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              gradientFrom="from-purple-300"
+              gradientTo="to-purple-200"
+              iconColor={mode === "base" ? "text-white" : "text-purple-600"}
+              labelColor={mode === "base" ? "text-white" : "text-purple-600"}
+            />
           </div>
         </div>
 
