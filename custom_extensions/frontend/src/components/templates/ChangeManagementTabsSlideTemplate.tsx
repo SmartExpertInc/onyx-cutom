@@ -43,7 +43,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const avatar: React.CSSProperties = { position:'absolute', left:'48px', top:'8px', width:'78px', height:'78px', borderRadius:'0px', overflow:'hidden', background:'#D7EBFF' };
   const headingStyle: React.CSSProperties = { position:'absolute', left:'154px', right:'56px', top:0, fontSize:'42px', fontWeight:800, color:'#2D2D2D', lineHeight:1.2 };
 
-  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'150px', height:'82px', display:'grid', gridTemplateColumns:'1fr 164px 1fr', columnGap:'1px' };
+  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'150px', height:'82px', display:'grid', gridTemplateColumns:'1fr 164px 1fr', columnGap:'1px', alignItems:'center' };
   const capsule: React.CSSProperties = { border:'2px solid #1f2937', borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#434343', fontSize:'12px', height:'100%', background:'#fff' };
   const capsuleActive: React.CSSProperties = { ...capsule, height:'60%', background:'#111111', color:'#A5A5A5', borderColor:'#111111' };
 

@@ -40,15 +40,15 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const [editCol, setEditCol] = useState<{ idx: number; field: 'title' | 'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'180px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
+  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'64px', fontWeight:800, color:'#2b2b2b' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontWeight:800, color:'#202020' };
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', background:'#ffffff', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
-  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'180px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
-  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#D8D8D8', display:'grid', rowGap:'14px' };
-  const colAccent: React.CSSProperties = { ...colBase, background:'#3B46FF', color:'#E2E5FF' };
-  const numberBadge = (n: number): React.CSSProperties => ({ width:'32px', height:'32px', borderRadius:'50%', background:'#111', color:'#fff', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'16px' });
+  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
+  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#CBCBCB', display:'grid', rowGap:'14px' };
+  const colAccent: React.CSSProperties = { ...colBase, background:'#4231EA', color:'#E2E5FF' };
+  const numberBadge = (n: number): React.CSSProperties => ({ width:'32px', height:'32px', borderRadius:'50%', background: n === 2 || 4 ? '#fff' : '#000', color:'#fff', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'16px' });
   const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5 };
   const body: React.CSSProperties = { fontSize:'16px', lineHeight:1.6 };
 
