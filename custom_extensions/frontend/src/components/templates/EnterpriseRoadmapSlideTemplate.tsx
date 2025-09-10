@@ -56,19 +56,19 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   // Static (no edit controls) for pixel-perfect output
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: currentTheme.fonts.titleFont };
-  const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'4px', background:'#E6E5E3', borderRadius:'999px' };
+  const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
   const avatarArea: React.CSSProperties = { position:'absolute', left:'56px', top:'96px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#253020' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'104px', fontSize:'30px', color:'#585955', fontWeight:600 };
   const descStyle: React.CSSProperties = { position:'absolute', left:'208px', top:'152px', width:'720px', color:'#9EA59A', fontSize:'16px', lineHeight:1.6 };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2F342A', color:'#FFFFFF', padding:'16px 20px', borderRadius:'2px', fontWeight:600, letterSpacing:0.2, position:'relative' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'16px 20px', background: i%2===0 ? '#FFFFFF' : '#EFEDE9', fontSize:'15px', color:'#676E64', borderRadius:'4px', marginTop:'12px' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2B3127', color:'#A0A49B', padding:'12px 20px', borderRadius:'2px', fontWeight:600, letterSpacing:0.2, position:'relative' };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'12px 20px', background: i%2===0 ? '#F9F8F6' : '#E5E4E0', fontSize:'15px', color:'#7F7F7A', borderRadius:'2px', marginTop:'0px' });
   // No handlers: static slide (no editing UI)
 
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
-  const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#BABBB2', fontSize:'13px' };
+  const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#A9A8A6', fontSize:'13px' };
 
   return (
     <div className="enterprise-roadmap-slide inter-theme" style={slide}>
