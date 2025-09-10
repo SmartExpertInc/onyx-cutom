@@ -514,106 +514,6 @@ async def log_image_fit_properties(slide_data: dict, slide_index: int = None, te
     
     image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
 
-async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
-    """Log image fit properties specifically for debugging fit styles in PDF."""
-    slide_info = f"slide {slide_index}" if slide_index else "slide"
-    template_info = f" ({template_id})" if template_id else ""
-    
-    image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
-    
-    if isinstance(slide_data, dict):
-        template_id = slide_data.get('templateId', 'Unknown')
-        props = slide_data.get('props', {})
-        
-        # Check if this is a template with images
-        if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
-            image_fit_logger.info(f"Template: {template_id}")
-            
-            # Log image path without base64 data
-            image_path = props.get('imagePath')
-            if image_path:
-                if image_path.startswith('data:'):
-                    image_fit_logger.info(f"Image path: [BASE64 DATA URL - {len(image_path)} characters]")
-                else:
-                    image_fit_logger.info(f"Image path: {image_path}")
-            else:
-                image_fit_logger.info(f"Image path: NOT SET")
-            
-            # Log size and fit properties
-            width_px = props.get('widthPx')
-            height_px = props.get('heightPx')
-            object_fit = props.get('objectFit')
-            image_scale = props.get('imageScale')
-            image_offset = props.get('imageOffset')
-            
-            image_fit_logger.info(f"Width: {width_px}px")
-            image_fit_logger.info(f"Height: {height_px}px")
-            image_fit_logger.info(f"Object fit: {object_fit}")
-            image_fit_logger.info(f"Image scale: {image_scale}")
-            image_fit_logger.info(f"Image offset: {image_offset}")
-            
-            # Check if objectFit is missing
-            if object_fit is None:
-                image_fit_logger.warning(f"⚠️ OBJECT FIT IS MISSING for {slide_info}{template_info}")
-                image_fit_logger.warning(f"⚠️ This will cause PDF to use default 'cover' instead of user-selected fit style")
-            else:
-                image_fit_logger.info(f"✅ Object fit is present: {object_fit}")
-            
-            # Log what the PDF template will receive
-            pdf_object_fit = object_fit if object_fit else 'cover'
-            image_fit_logger.info(f"PDF template will use object-fit: {pdf_object_fit}")
-            
-        elif template_id == 'two-column':
-            image_fit_logger.info(f"Template: {template_id}")
-            
-            # Log left image properties without base64
-            left_image_path = props.get('leftImagePath')
-            left_object_fit = props.get('leftObjectFit')
-            left_width_px = props.get('leftWidthPx')
-            left_height_px = props.get('leftHeightPx')
-            
-            if left_image_path:
-                if left_image_path.startswith('data:'):
-                    image_fit_logger.info(f"Left image path: [BASE64 DATA URL - {len(left_image_path)} characters]")
-                else:
-                    image_fit_logger.info(f"Left image path: {left_image_path}")
-            else:
-                image_fit_logger.info(f"Left image path: NOT SET")
-                
-            image_fit_logger.info(f"Left object fit: {left_object_fit}")
-            image_fit_logger.info(f"Left width: {left_width_px}px")
-            image_fit_logger.info(f"Left height: {left_height_px}px")
-            
-            if left_object_fit is None:
-                image_fit_logger.warning(f"⚠️ LEFT OBJECT FIT IS MISSING for {slide_info}{template_info}")
-            else:
-                image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
-            
-            # Log right image properties without base64
-            right_image_path = props.get('rightImagePath')
-            right_object_fit = props.get('rightObjectFit')
-            right_width_px = props.get('rightWidthPx')
-            right_height_px = props.get('rightHeightPx')
-            
-            if right_image_path:
-                if right_image_path.startswith('data:'):
-                    image_fit_logger.info(f"Right image path: [BASE64 DATA URL - {len(right_image_path)} characters]")
-                else:
-                    image_fit_logger.info(f"Right image path: {right_image_path}")
-            else:
-                image_fit_logger.info(f"Right image path: NOT SET")
-                
-            image_fit_logger.info(f"Right object fit: {right_object_fit}")
-            image_fit_logger.info(f"Right width: {right_width_px}px")
-            image_fit_logger.info(f"Right height: {right_height_px}px")
-            
-            if right_object_fit is None:
-                image_fit_logger.warning(f"⚠️ RIGHT OBJECT FIT IS MISSING for {slide_info}{template_info}")
-            else:
-                image_fit_logger.info(f"✅ Right object fit is present: {right_object_fit}")
-    
-    image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
-
 async def log_html_content(html_content: str, slide_index: int = None, template_id: str = None):
     """Log detailed HTML content analysis for debugging."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
@@ -2911,3 +2811,54 @@ async def log_text_positioning_properties(slide_data: dict, slide_index: int = N
             logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
     
     logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+
+async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
+    """Generate PDF for presentations using existing PDF generator"""
+    from app.core.database import get_connection
+    from fastapi import HTTPException
+
+    async with get_connection() as connection:
+        slides_data = await connection.fetchrow(
+            "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+            product_data['id'], user_id
+        )
+
+    if not slides_data or not slides_data.get('microproduct_content'):
+        raise HTTPException(status_code=404, detail="Presentation content not found")
+
+    output_filename = f"presentation_{product_data['id']}.pdf"
+    pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
+        slides_data['microproduct_content'],
+        'default',
+        output_filename,
+        use_cache=False
+    )
+
+    with open(pdf_path, 'rb') as pdf_file:
+        return pdf_file.read()
+
+
+async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
+    """Generate PDF for one-pagers using existing PDF generator"""
+    from app.core.database import get_connection
+    from fastapi import HTTPException
+
+    async with get_connection() as connection:
+        onepager_data = await connection.fetchrow(
+            "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+            product_data['id'], user_id
+        )
+
+    if not onepager_data or not onepager_data.get('microproduct_content'):
+        raise HTTPException(status_code=404, detail="One-pager content not found")
+
+    output_filename = f"onepager_{product_data['id']}.pdf"
+    pdf_path = await generate_pdf_from_html_template(
+        'onepager_template',
+        onepager_data['microproduct_content'],
+        output_filename,
+        use_cache=False
+    )
+
+    with open(pdf_path, 'rb') as pdf_file:
+        return pdf_file.read()

@@ -26932,3 +26932,104 @@ async def get_workspace_product_access(workspace_id: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to retrieve workspace product access")
+
+
+class LMSExportRequest(BaseModel):
+    productIds: List[int]
+    options: dict = {}
+
+
+def validate_export_request(request: LMSExportRequest):
+    if not request.productIds:
+        raise HTTPException(status_code=400, detail="No products selected")
+    if len(request.productIds) > 10:
+        raise HTTPException(status_code=400, detail="Too many products selected for a single export")
+
+
+@app.post("/api/custom/lms/export")
+async def export_to_lms(
+    request: LMSExportRequest,
+    http_request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Export selected course outlines to LMS format"""
+    from app.services.lms_exporter import export_course_outline_to_lms_format
+
+    validate_export_request(request)
+
+    user_uuid, user_email = await get_user_identifiers_for_workspace(http_request)
+    onyx_user_id = user_uuid
+
+    try:
+        logger.info(f"Starting LMS export for user {onyx_user_id}, products: {request.productIds}")
+
+        async with pool.acquire() as connection:
+            accessible_products = await connection.fetch(
+                """
+                SELECT p.id
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.id = ANY($1::int[]) AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
+                """,
+                request.productIds, onyx_user_id
+            )
+            accessible_ids = [p['id'] for p in accessible_products]
+            if not accessible_ids:
+                raise HTTPException(status_code=404, detail="No accessible course outlines found")
+
+        export_results = []
+        for product_id in accessible_ids:
+            try:
+                course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id)
+                export_results.append(course_structure)
+                logger.info(f"Successfully exported course outline {product_id}")
+            except Exception as e:
+                logger.error(f"Failed to export course outline {product_id}: {e}")
+                export_results.append({
+                    "courseTitle": f"Course {product_id}",
+                    "error": str(e),
+                    "downloadLink": None,
+                    "structure": None
+                })
+
+        return {
+            "success": True,
+            "message": "Export completed",
+            "results": export_results,
+            "status": "completed" if all(r.get("downloadLink") for r in export_results) else "partial"
+        }
+    except Exception as e:
+        logger.error(f"LMS export failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+
+
+@app.get("/api/custom/lms/export/{export_id}/status")
+async def get_export_status(export_id: str):
+    return {"exportId": export_id, "status": "completed", "progress": 100}
+
+
+@app.on_event("startup")
+async def startup_event_lms_exports():
+    try:
+        async with DB_POOL.acquire() as connection:
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS lms_exports (
+                    id SERIAL PRIMARY KEY,
+                    user_id VARCHAR(255) NOT NULL,
+                    product_ids JSONB NOT NULL,
+                    status VARCHAR(50) DEFAULT 'processing',
+                    progress INTEGER DEFAULT 0,
+                    result_data JSONB,
+                    error_message TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    completed_at TIMESTAMP WITH TIME ZONE
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_lms_exports_user_id ON lms_exports(user_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_lms_exports_status ON lms_exports(status);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_lms_exports_created_at ON lms_exports(created_at);")
+            logger.info("'lms_exports' table ensured.")
+    except Exception as e:
+        logger.error(f"Failed to ensure lms_exports table: {e}")

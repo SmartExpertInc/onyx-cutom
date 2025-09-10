@@ -1,0 +1,75 @@
+# custom_extensions/backend/app/services/nextcloud_share.py
+import httpx
+import os
+import xml.etree.ElementTree as ET
+import logging
+from fastapi import HTTPException
+from app.core.database import get_connection
+from app.utils.encryption import decrypt_password
+
+logger = logging.getLogger(__name__)
+
+
+async def create_public_download_link(
+    user_id: str,
+    file_path: str,
+    expiry_days: int = None
+) -> str:
+    """Create public download link via Nextcloud OCS API"""
+
+    if expiry_days is None:
+        try:
+            expiry_days = int(os.environ.get("LMS_EXPORT_EXPIRY_DAYS", "365"))
+        except Exception:
+            expiry_days = 365
+
+    async with get_connection() as connection:
+        account = await connection.fetchrow(
+            "SELECT * FROM smartdrive_accounts WHERE onyx_user_id = $1",
+            user_id
+        )
+        if not account or not account.get("nextcloud_username"):
+            raise HTTPException(status_code=400, detail="SmartDrive not configured")
+
+        nextcloud_username = account["nextcloud_username"]
+        nextcloud_password = decrypt_password(account["nextcloud_password_encrypted"]) if account.get("nextcloud_password_encrypted") else None
+        nextcloud_base_url = account.get("nextcloud_base_url") or 'http://nc1.contentbuilder.ai:8080'
+
+    if not nextcloud_password:
+        raise HTTPException(status_code=400, detail="SmartDrive credentials incomplete")
+
+    ocs_url = f"{nextcloud_base_url}/ocs/v2.php/apps/files_sharing/api/v1/shares"
+
+    from datetime import datetime, timedelta
+    expiry_date = (datetime.now() + timedelta(days=expiry_days)).strftime('%Y-%m-%d')
+
+    data = {
+        'path': file_path,
+        'shareType': 3,  # Public link
+        'permissions': 1,  # Read only
+        'expireDate': expiry_date
+    }
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(
+            ocs_url,
+            data=data,
+            auth=(nextcloud_username, nextcloud_password),
+            headers={'OCS-APIRequest': 'true', 'Accept': 'application/xml'}
+        )
+
+        if response.status_code != 200:
+            logger.error(f"Failed to create public link: {response.status_code} {response.text[:200]}")
+            raise HTTPException(status_code=500, detail="Failed to create public link")
+
+        root = ET.fromstring(response.content)
+        url_element = root.find('.//url')
+        if url_element is not None and url_element.text:
+            share_url = url_element.text
+            token = share_url.rstrip('/').split('/')[-1]
+            public_domain = os.environ.get("NEXTCLOUD_PUBLIC_SHARE_DOMAIN")
+            base_for_public = public_domain if public_domain else nextcloud_base_url
+            download_url = f"{base_for_public}/index.php/s/{token}/download"
+            return download_url
+
+        raise HTTPException(status_code=500, detail="Could not extract share URL") 

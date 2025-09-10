@@ -6,7 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface LMSExportButtonProps {
   selectedProducts: Set<number>;
-  onExportComplete?: () => void;
+  onExportComplete?: (data?: any) => void;
 }
 
 const LMSExportButton: React.FC<LMSExportButtonProps> = ({
@@ -26,29 +26,44 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     setExportStatus('idle');
 
     try {
-      // Simulate export process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('🎓 Starting LMS export for course outlines:', Array.from(selectedProducts));
 
-      // In a real implementation, this would make an API call to export the course outlines
-      console.log('Exporting course outlines:', Array.from(selectedProducts));
-      
-      setExportStatus('success');
-      onExportComplete?.();
-      
-      // Reset status after a delay
-      setTimeout(() => {
-        setExportStatus('idle');
-      }, 3000);
+      const response = await fetch('/api/custom/lms/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productIds: Array.from(selectedProducts)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status}`);
+      }
+
+      const exportData = await response.json();
+
+      if (exportData.success) {
+        setExportStatus('success');
+        console.log('✅ Export completed:', exportData.results);
+        exportData.results.forEach((result: any) => {
+          if (result.downloadLink) {
+            console.log(`📥 Course "${result.courseTitle}" available at: ${result.downloadLink}`);
+          }
+        });
+        onExportComplete?.(exportData);
+      } else {
+        throw new Error('Export completed with errors');
+      }
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error('❌ LMS export failed:', error);
       setExportStatus('error');
-      
-      // Reset status after a delay
-      setTimeout(() => {
-        setExportStatus('idle');
-      }, 3000);
     } finally {
       setIsExporting(false);
+      setTimeout(() => {
+        setExportStatus('idle');
+      }, 5000);
     }
   };
 
