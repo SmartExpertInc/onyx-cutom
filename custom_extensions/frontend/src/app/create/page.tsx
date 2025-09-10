@@ -82,7 +82,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
     >
       {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-54 rotate-45 blur-2xl h-34 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
+        className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-44 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
@@ -181,7 +181,7 @@ export default function DataSourceLanding() {
         <CreatePageHandler />
       </Suspense>
       <main
-        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-indigo-100 to-purple-100"
+        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-blue-100 to-purple-100"
         // style={{
         //   background:
         //     "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
