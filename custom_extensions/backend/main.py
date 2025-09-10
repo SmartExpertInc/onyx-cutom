@@ -26984,9 +26984,9 @@ async def export_to_lms(
         for product_id in accessible_ids:
             logger.info(f"[API:LMS] Exporting course {product_id} ...")
             try:
-                course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id)
+                course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id, user_email)
                 export_results.append(course_structure)
-                logger.info(f"[API:LMS] Course exported | id={product_id} link={course_structure.get('downloadLink')}")
+                logger.info(f"[API:LMS] Course exported | id={product_id} link={course_structure.get('downloadLink')} smartexpert_status={course_structure.get('smartexpert',{}).get('status') if course_structure.get('smartexpert') else None}")
             except Exception as e:
                 logger.error(f"[API:LMS] Course export failed | id={product_id} err={e}")
                 export_results.append({

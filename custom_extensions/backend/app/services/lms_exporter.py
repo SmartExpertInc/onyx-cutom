@@ -9,13 +9,48 @@ from app.services.pdf_generator import generate_presentation_pdf, generate_onepa
 from app.services.smartdrive_uploader import upload_file_to_smartdrive
 from app.services.nextcloud_share import create_public_download_link
 from app.services.quiz_exporter import export_quiz_to_cbai
+import os
+import httpx
 
 logger = logging.getLogger(__name__)
 
 
+async def post_export_to_smartexpert(structure_json: bytes, user_email: str) -> Optional[Dict[str, Any]]:
+    try:
+        api_url = os.environ.get('SMARTEXPERT_API_URL', 'https://dev.smartexpert.net/api/v1/generate-product')
+        api_token = os.environ.get('SMARTEXPERT_API_TOKEN')
+        if not api_token:
+            logger.info("[SmartExpert] SMARTEXPERT_API_TOKEN not set; skipping external POST")
+            return None
+        logger.info(f"[SmartExpert] Posting export for email={user_email} to {api_url}")
+        data = {
+            'token': api_token,
+            'email': user_email
+        }
+        files = {
+            'file': ('file.json', structure_json, 'application/json')
+        }
+        # Using httpx for async multipart
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(api_url, data=data, files=files)
+            status = response.status_code
+            logger.info(f"[SmartExpert] Response status={status}")
+            try:
+                resp_json = response.json()
+                logger.info(f"[SmartExpert] Response body JSON: {str(resp_json)[:500]}")
+            except Exception:
+                resp_json = {'text': response.text[:500]}
+                logger.info(f"[SmartExpert] Response body TEXT: {resp_json['text']}")
+            return {'status': status, 'body': resp_json}
+    except Exception as e:
+        logger.error(f"[SmartExpert] POST failed: {e}")
+        return None
+
+
 async def export_course_outline_to_lms_format(
     course_outline_id: int,
-    user_id: str
+    user_id: str,
+    user_email: str
 ) -> dict:
     logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id}")
 
@@ -358,13 +393,16 @@ async def export_course_outline_to_lms_format(
 
     structure = prune_structure(structure)
 
-    # Upload final structure JSON
+    # Upload final structure JSON and post to SmartExpert
     structure_json = json.dumps(structure, indent=2).encode('utf-8')
     structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder)
     structure_download_link = await create_public_download_link(user_id, structure_path)
 
+    smartexpert_result = await post_export_to_smartexpert(structure_json, user_email)
+
     return {
         "courseTitle": main_title,
         "downloadLink": structure_download_link,
-        "structure": structure
+        "structure": structure,
+        "smartexpert": smartexpert_result
     } 
