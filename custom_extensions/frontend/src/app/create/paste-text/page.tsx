@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { HeadTextCustom } from "@/components/ui/head-text-custom";
 
 export default function PasteTextPage() {
   const router = useRouter();
@@ -87,9 +88,9 @@ export default function PasteTextPage() {
       {/* back button absolute top-left */}
       <Button
         asChild
-        variant="outline"
+        variant="back"
         size="sm"
-        className="absolute top-6 left-6 rounded-full border-gray-300 bg-white text-black hover:text-black hover:bg-gray-50"
+        // className="absolute top-6 left-6 rounded-full border-gray-300 bg-white text-black hover:text-black hover:bg-gray-50"
       >
         <Link href="/create">
           <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
@@ -99,12 +100,10 @@ export default function PasteTextPage() {
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">
         {/* Headings */}
-        <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">{t('interface.pasteText.title', 'Paste Your Text')}</h1>
-          <p className="text-base sm:text-lg text-gray-600">
-            {t('interface.pasteText.subtitle', 'Enter or paste your text content below and choose how you\'d like to use it')}
-          </p>
-        </div>
+        <HeadTextCustom 
+          text={t('interface.pasteText.title', 'Paste Your Text')} 
+          description={t('interface.pasteText.subtitle', 'Enter or paste your text content below and choose how you\'d like to use it')}
+        />
 
         {/* Text input area */}
         <div className="w-full">
