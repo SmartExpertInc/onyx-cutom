@@ -82,7 +82,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       const exportData = finalPayload || (await response.json());
 
       if (exportData?.success) {
-        setExportStatus('success');
+      setExportStatus('success');
         console.log('✅ Export completed:', exportData.results);
         exportData.results?.forEach((result: any) => {
           if (result.downloadLink) {

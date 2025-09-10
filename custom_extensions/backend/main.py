@@ -27054,41 +27054,6 @@ async def export_to_lms(
 async def get_export_status(export_id: str):
     return {"exportId": export_id, "status": "completed", "progress": 100}
 
-@app.post("/api/custom/lms/create-workspace-owner")
-async def create_workspace_owner(http_request: Request):
-    """Create SmartExpert Workspace Owner using user's email and provided or default token."""
-    try:
-        user_uuid, user_email = await get_user_identifiers_for_workspace(http_request)
-        if not user_email:
-            raise HTTPException(status_code=400, detail="Unable to resolve user email from session")
-        name_part = user_email.split("@")[0]
-        try:
-            body = await http_request.json()
-        except Exception:
-            body = {}
-        token = (body or {}).get("token")
-        try:
-            from app.services.lms_exporter import DEFAULT_SMARTEXPERT_TOKEN
-        except Exception:
-            DEFAULT_SMARTEXPERT_TOKEN = None
-        if not token:
-            token = DEFAULT_SMARTEXPERT_TOKEN
-        params = {"name": name_part, "email": user_email, "token": token or ""}
-        target_url = "https://dev.smartexpert.net/store-workspace-owner"
-        logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part}")
-        import httpx
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            resp = await client.get(target_url, params=params, headers={"User-Agent": "Custom Extensions Backend"})
-            ok = resp.status_code == 200
-            logger.info(f"[API:LMS] Workspace owner create result | status={resp.status_code}")
-            return {"success": ok, "status": resp.status_code, "email": user_email, "data": resp.text}
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"[API:LMS] Workspace owner create failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Workspace owner creation failed: {str(e)}")
-
-
 @app.on_event("startup")
 async def startup_event_lms_exports():
     try:

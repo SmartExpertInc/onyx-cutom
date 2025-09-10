@@ -42,9 +42,12 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
       const data = await resp.json();
       if (resp.ok && data?.success) {
         persistChoice('no-success');
-        // Success toast
+        if (data?.redirectUrl) {
+          try { window.open(data.redirectUrl, '_blank'); } catch {}
+        }
+        const email = data?.email || '';
         const toast = document.createElement('div');
-        toast.textContent = t('interface.lmsAccountCreated', 'SmartExpert account for your email is created successfully! Password is sent to the email');
+        toast.textContent = t('interface.lmsAccountCreated', `SmartExpert account for the ${email} is created successfully! Password is sent to the email`);
         toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
         document.body.appendChild(toast);
         setTimeout(() => { toast.remove(); }, 6000);
