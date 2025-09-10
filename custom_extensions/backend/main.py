@@ -26989,8 +26989,16 @@ async def export_to_lms(
 
         for product_id in accessible_ids:
             try:
+                start_ts = asyncio.get_event_loop().time()
                 yield (json.dumps({"type": "progress", "message": f"Exporting course {product_id}...", "productId": product_id}) + "\n").encode()
-                course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id, user_email, request.token)
+                export_task = asyncio.create_task(export_course_outline_to_lms_format(product_id, onyx_user_id, user_email, request.token))
+                while not export_task.done():
+                    await asyncio.sleep(8)
+                    elapsed = int(asyncio.get_event_loop().time() - start_ts)
+                    # Heartbeat keep-alive + lightweight progress ping
+                    yield b" "
+                    yield (json.dumps({"type": "progress", "message": f"Working on course {product_id}... ({elapsed}s)", "productId": product_id}) + "\n").encode()
+                course_structure = await export_task
                 results.append(course_structure)
                 completed += 1
                 yield (json.dumps({
@@ -27032,10 +27040,11 @@ async def export_to_lms(
 
     return StreamingResponse(
         streamer(),
-        media_type="application/json",
+        media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
             "X-Accel-Buffering": "no"
         }
     )
