@@ -2817,23 +2817,65 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
     from app.core.database import get_connection
     from fastapi import HTTPException
     import logging
+    import json as _json
 
     _log = logging.getLogger(__name__)
     _log.info(f"[PDF] Presentation generation start | product_id={product_data['id']} user={user_id}")
 
     async with get_connection() as connection:
-        slides_data = await connection.fetchrow(
+        slides_row = await connection.fetchrow(
             "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
             product_data['id'], user_id
         )
 
-    if not slides_data or not slides_data.get('microproduct_content'):
+    if not slides_row or not slides_row.get('microproduct_content'):
         _log.error("[PDF] Presentation content not found")
         raise HTTPException(status_code=404, detail="Presentation content not found")
 
+    raw_content = slides_row['microproduct_content']
+
+    # Normalize to list[dict]
+    slides_list = None
+    try:
+        content_obj = raw_content
+        if isinstance(content_obj, str):
+            try:
+                content_obj = _json.loads(content_obj)
+            except Exception:
+                # Some storages might store an array-string; try to wrap
+                _log.warning("[PDF] Content is string and not JSON-decodable; attempting best-effort handling")
+        if isinstance(content_obj, dict):
+            slides_list = (
+                content_obj.get('slides')
+                or (content_obj.get('details') or {}).get('slides')
+                or (content_obj.get('microProductContent') or {}).get('slides')
+            )
+        elif isinstance(content_obj, list):
+            slides_list = content_obj
+
+        # Coerce string items to dicts if needed
+        if isinstance(slides_list, list):
+            fixed_list = []
+            for item in slides_list:
+                if isinstance(item, str):
+                    try:
+                        item = _json.loads(item)
+                    except Exception:
+                        pass
+                if isinstance(item, dict):
+                    fixed_list.append(item)
+            slides_list = fixed_list
+    except Exception as norm_err:
+        _log.error(f"[PDF] Failed to normalize slides content: {norm_err}")
+        slides_list = None
+
+    if not isinstance(slides_list, list) or not slides_list:
+        _log.error("[PDF] Invalid slides data after normalization")
+        raise HTTPException(status_code=500, detail="Failed to generate slide deck PDF: Invalid slides data")
+
     output_filename = f"presentation_{product_data['id']}.pdf"
     pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
-        slides_data['microproduct_content'],
+        slides_list,
         'default',
         output_filename,
         use_cache=False
@@ -2850,24 +2892,37 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     from app.core.database import get_connection
     from fastapi import HTTPException
     import logging
+    import json as _json
 
     _log = logging.getLogger(__name__)
     _log.info(f"[PDF] One-pager generation start | product_id={product_data['id']} user={user_id}")
 
     async with get_connection() as connection:
-        onepager_data = await connection.fetchrow(
+        onepager_row = await connection.fetchrow(
             "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
             product_data['id'], user_id
         )
 
-    if not onepager_data or not onepager_data.get('microproduct_content'):
+    if not onepager_row or not onepager_row.get('microproduct_content'):
         _log.error("[PDF] One-pager content not found")
         raise HTTPException(status_code=404, detail="One-pager content not found")
+
+    raw_content = onepager_row['microproduct_content']
+
+    context_data = raw_content
+    try:
+        if isinstance(context_data, str):
+            context_data = _json.loads(context_data)
+    except Exception as e:
+        _log.warning(f"[PDF] One-pager content not JSON; passing raw string. err={e}")
+
+    if not isinstance(context_data, dict):
+        context_data = {"details": context_data}
 
     output_filename = f"onepager_{product_data['id']}.pdf"
     pdf_path = await generate_pdf_from_html_template(
         'onepager_template',
-        onepager_data['microproduct_content'],
+        context_data,
         output_filename,
         use_cache=False
     )
