@@ -79,18 +79,14 @@ export default function PasteTextPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
-      }}
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
     >
       {/* back button absolute top-left */}
       <Button
         asChild
         variant="back"
         size="sm"
-        // className="absolute top-6 left-6 rounded-full border-gray-300 bg-white text-black hover:text-black hover:bg-gray-50"
+        className="rounded-full"
       >
         <Link href="/create">
           <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
