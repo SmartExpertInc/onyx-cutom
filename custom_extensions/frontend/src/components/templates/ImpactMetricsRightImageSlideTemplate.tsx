@@ -51,7 +51,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const slide: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor,
+    backgroundColor: '#182F35',
     position: 'relative',
     color: textColor,
     fontFamily: currentTheme.fonts.titleFont,
@@ -79,7 +79,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     width: '34px',
     height: '34px',
     borderRadius: '50%',
-    backgroundColor: bulletBg,
+    backgroundColor: '#839189',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -87,10 +87,10 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   };
 
   const metricText: React.CSSProperties = {
-    fontSize: '64px',
+    fontSize: '40px',
     fontWeight: 700,
     lineHeight: 1.1,
-    color: textColor,
+    color: '#DFE6D8',
     maxWidth: '880px'
   };
 
@@ -102,25 +102,30 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   };
 
   const rightWrap: React.CSSProperties = {
-    position: 'relative',
-    width: '100%',
-    height: '100%',
+    position: 'absolute',
+    width: '470px',
+    height: '86%',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    right: '42px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    overflow: 'hidden'
   };
 
   const panel: React.CSSProperties = {
     position: 'absolute',
     inset: '0 0 0 0',
     borderRadius: '30px',
-    backgroundColor: rightPanelColor
+    backgroundColor: '#EC672C'
   };
 
   const imageStyle: React.CSSProperties = {
-    position: 'relative',
-    width: '85%',
-    height: '85%',
+    position: 'absolute',
+    bottom: '-26px',
+    width: '70',
+    height: '90%',
     objectFit: 'contain'
   };
 
@@ -149,7 +154,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
           <div key={i} style={metricRow}>
             <div style={bullet}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 5v14M12 5l-5 5M12 5l5 5" stroke={bulletColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 5v14M12 5l-5 5M12 5l5 5" stroke={'#182F35'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <div>
