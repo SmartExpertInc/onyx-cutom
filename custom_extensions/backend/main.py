@@ -13734,6 +13734,56 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
     return {"jobId": job_id}
 
 
+@app.post("/api/custom/ai-audit/landing-page/generate")
+async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+    job_id = str(uuid.uuid4())
+    set_progress(job_id, "Starting AI-Audit landing page generation...")
+    background_tasks.add_task(_run_landing_page_generation, payload, request, pool, job_id)
+    return {"jobId": job_id}
+
+
+@app.get("/api/custom/ai-audit/landing-page/{project_id}")
+async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Get the dynamic landing page data for a specific AI audit project.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the project data
+        query = """
+        SELECT microproduct_content, microproduct_name 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
+            
+        if not row:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        content = row["microproduct_content"]
+        project_name = row["microproduct_name"]
+        
+        # Extract the dynamic data
+        company_name = content.get("companyName", "Unknown Company")
+        company_description = content.get("companyDescription", "Company description not available")
+        
+        return {
+            "projectId": project_id,
+            "projectName": project_name,
+            "companyName": company_name,
+            "companyDescription": company_description
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting landing page data: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 async def _run_audit_generation(payload, request, pool, job_id):
     try:
         set_progress(job_id, "Researching company info...")
@@ -13803,7 +13853,159 @@ async def _run_audit_generation(payload, request, pool, job_id):
     
     except Exception as e:
         set_progress(job_id, f"Error: {str(e)}")
+
+
+async def extract_company_name_from_data(duckduckgo_summary: str, payload) -> str:
+    """
+    Extract the company name from scraped data using AI.
+    Returns only the company name as a string.
+    """
+    prompt = f"""
+    Извлеки ТОЛЬКО название компании из предоставленных данных.
     
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ТВОЯ ЗАДАЧА:
+    - Верни ТОЛЬКО название компании
+    - Используй наиболее точное и официальное название
+    - Если есть несколько вариантов, выбери самый короткий и официальный
+    - НЕ добавляй никаких дополнительных слов или объяснений
+    - НЕ используй кавычки или другие символы
+    
+    ОТВЕТ (только название компании):
+    """
+    
+    try:
+        response = await stream_openai_response(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL,
+            temperature=0.1,
+            max_tokens=50
+        )
+        
+        # Extract the response text
+        response_text = ""
+        async for chunk in response:
+            if chunk.get("type") == "content":
+                response_text += chunk.get("text", "")
+        
+        # Clean up the response
+        company_name = response_text.strip()
+        if not company_name:
+            company_name = payload.companyName  # Fallback to original name
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted company name: {company_name}")
+        return company_name
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting company name: {e}")
+        return payload.companyName  # Fallback to original name
+
+
+async def generate_company_description_from_data(duckduckgo_summary: str, payload) -> str:
+    """
+    Generate a company description from scraped data using AI.
+    Returns a concise description similar to the original subtitle format.
+    """
+    prompt = f"""
+    Создай краткое описание компании в стиле: "Компания предоставляющий услуги по [основные услуги]. [дополнительная информация о компании]"
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ТВОЯ ЗАДАЧА:
+    - Создай описание в том же стиле, что и пример: "Компания предоставляющий услуги по установке и обслуживанию систем HVAC, электрики, солнечных панелей, а также бытовой и коммерческой техники. Обеспечивая полный цикл инженерных решений"
+    - Используй информацию из интернета для определения основных услуг компании
+    - Сделай описание кратким (1-2 предложения)
+    - Начни с "Компания предоставляющий услуги по"
+    - НЕ добавляй кавычки или другие символы
+    - Пиши на русском языке
+    
+    ОТВЕТ (только описание компании):
+    """
+    
+    try:
+        response = await stream_openai_response(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL,
+            temperature=0.3,
+            max_tokens=150
+        )
+        
+        # Extract the response text
+        response_text = ""
+        async for chunk in response:
+            if chunk.get("type") == "content":
+                response_text += chunk.get("text", "")
+        
+        # Clean up the response
+        company_description = response_text.strip()
+        if not company_description:
+            company_description = payload.companyDesc  # Fallback to original description
+        
+        logger.info(f"[AI-Audit Landing Page] Generated company description: {company_description}")
+        return company_description
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating company description: {e}")
+        return payload.companyDesc  # Fallback to original description
+
+
+async def _run_landing_page_generation(payload, request, pool, job_id):
+    try:
+        set_progress(job_id, "Researching company info...")
+        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        logger.info(f"[AI-Audit Landing Page] SERPAPI summary: {duckduckgo_summary[:300]}")
+
+        set_progress(job_id, "Generating company name...")
+        company_name = await extract_company_name_from_data(duckduckgo_summary, payload)
+        
+        set_progress(job_id, "Generating company description...")
+        company_description = await generate_company_description_from_data(duckduckgo_summary, payload)
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        # Create the landing page content with dynamic data
+        landing_page_data = {
+            "companyName": company_name,
+            "companyDescription": company_description,
+            "originalPayload": payload.model_dump()
+        }
+
+        # Save as a product
+        project_id = await insert_ai_audit_onepager_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=f"AI-Аудит Landing Page: {company_name}",
+            microproduct_content=landing_page_data,
+            chat_session_id=None
+        )
+
+        logger.info(f"[AI-Audit Landing Page] Successfully created project with ID: {project_id}")
+
+        set_progress(job_id, "Landing page complete!")
+        logger.info(f"[AI-Audit Landing Page] Finished the Landing Page Generation")
+        return {
+            "id": project_id,
+            "name": f"AI-Аудит Landing Page: {company_name}",
+            "companyName": company_name,
+            "companyDescription": company_description
+        }
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error: {e}")
+        set_progress(job_id, f"Error: {str(e)}")
+
 
 def extract_open_positions_from_table(parsed_json):
     """

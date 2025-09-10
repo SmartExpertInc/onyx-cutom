@@ -183,7 +183,7 @@ export default function DataSourceLanding() {
         </div>
 
         {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <OptionCard
             Icon={FileText}
             title={t('interface.pasteInText', 'Paste in text')}
@@ -203,9 +203,26 @@ export default function DataSourceLanding() {
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
           />
+          <OptionCard
+            Icon={Sparkles}
+            title="AI Audit"
+            description="Generate AI-powered onboarding audit and dynamic landing page"
+            href="/create/ai-audit/questionnaire"
+          />
         </div>
 
-        {/* Recent prompts section removed as per request */}
+        {/* Additional links */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500 mb-2">See examples:</p>
+          <div className="flex gap-4 justify-center">
+            <Link 
+              href="/create/audit-2" 
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Static AI Audit Landing Page
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
     </>

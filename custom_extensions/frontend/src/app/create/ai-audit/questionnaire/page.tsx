@@ -93,7 +93,12 @@ export default function AiAuditQuestionnaire() {
         if (data.messages) setProgressMessages(data.messages);
         if (data.result && (data.result.folderId || data.result.id)) {
           setGenerationDone(true);
-          setFinalRedirectUrl(data.result.folderId ? `/projects?folder=${data.result.folderId}` : `/projects/view/${data.result.id}`);
+          // Check if this is a landing page generation result
+          if (data.result.name && data.result.name.includes("Landing Page")) {
+            setFinalRedirectUrl(`/create/audit-2-dynamic/${data.result.id}`);
+          } else {
+            setFinalRedirectUrl(data.result.folderId ? `/projects?folder=${data.result.folderId}` : `/projects/view/${data.result.id}`);
+          }
           setLoading(false);
         }
       }, 2000);
@@ -171,6 +176,71 @@ export default function AiAuditQuestionnaire() {
       }
     } catch (err: any) {
       setError(err.message || "Ошибка генерации AI-аудита");
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateLandingPage = async () => {
+    setTouched({
+      companyName: true,
+      companyDesc: true,
+      companyWebsite: true,
+      employees: true,
+      franchise: true,
+      onboardingProblems: true,
+      documents: true,
+      priorities: true,
+      priorityOther: priorities.includes("Other"),
+      documentsOther: documents.includes("Other"),
+    });
+    if (
+      !companyName.trim() ||
+      !companyDesc.trim() ||
+      !companyWebsite.trim() ||
+      !employees ||
+      !franchise ||
+      !onboardingProblems.trim() ||
+      documents.length === 0 ||
+      (documents.includes("Other") && !documentsOther.trim()) ||
+      priorities.length === 0 ||
+      (priorities.includes("Other") && !priorityOther.trim())
+    ) return;
+    setLoading(true);
+    setError("");
+    setProgressMessages([]);
+    setJobId(null);
+    setGenerationDone(false);
+    setFinalRedirectUrl(null);
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName,
+          companyDesc,
+          companyWebsite,
+          employees,
+          franchise,
+          onboardingProblems,
+          documents,
+          documentsOther,
+          priorities,
+          priorityOther,
+        }),
+      });
+      if (!res.ok) throw new Error("Ошибка генерации landing page");
+      const data = await res.json();
+      if (data.jobId) {
+        setJobId(data.jobId);
+      } else if (data.id) {
+        // fallback: immediate result
+        setGenerationDone(true);
+        setFinalRedirectUrl(`/create/audit-2-dynamic/${data.id}`);
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || "Ошибка генерации landing page");
       setLoading(false);
     }
   };
@@ -595,8 +665,8 @@ export default function AiAuditQuestionnaire() {
                     </div>
                   </div>
                   
-                  {/* Submit Button */}
-                  <div className="pt-6">
+                  {/* Submit Buttons */}
+                  <div className="pt-6 space-y-4">
                     <button
                       type="submit"
                       className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
@@ -613,6 +683,27 @@ export default function AiAuditQuestionnaire() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
                           Generate AI Audit
+                        </div>
+                      )}
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={handleGenerateLandingPage}
+                      className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Generating Landing Page...
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-3">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          Generate Dynamic Landing Page
                         </div>
                       )}
                     </button>
