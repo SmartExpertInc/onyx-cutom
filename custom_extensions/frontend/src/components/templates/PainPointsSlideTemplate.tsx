@@ -115,15 +115,23 @@ export const PainPointsSlideTemplate: React.FC<PainPointsSlideProps & { theme?: 
           {items.map((it, i)=> (
             <div key={i} style={itemRow}>
               <div style={iconBox}>
-                {/* small icons */}
+                {/* required icons: 1) file, 2) chat, 3) arrow up */}
                 {i===0 && (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3h12v18H6z" stroke="#2ad2b5" strokeWidth="2"/></svg>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 3h8l4 4v14H6V3z" stroke="#22D3B6" strokeWidth="2" strokeLinejoin="round" />
+                    <path d="M14 3v4h4" stroke="#22D3B6" strokeWidth="2" strokeLinejoin="round" />
+                  </svg>
                 )}
                 {i===1 && (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#2ad2b5" strokeWidth="2"/><path d="M8 12h8" stroke="#2ad2b5" strokeWidth="2"/></svg>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" stroke="#22D3B6" strokeWidth="2" strokeLinejoin="round" />
+                  </svg>
                 )}
                 {i===2 && (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M12 5l-5 5M12 5l5 5" stroke="#2ad2b5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 19V5" stroke="#22D3B6" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M6 11l6-6 6 6" stroke="#22D3B6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 )}
               </div>
               <div>
