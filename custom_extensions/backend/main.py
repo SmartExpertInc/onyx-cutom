@@ -13725,7 +13725,7 @@ async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
     )
     return parsed_json
 
-    
+
 @app.post("/api/custom/ai-audit/generate")
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
     job_id = str(uuid.uuid4())
@@ -13954,12 +13954,12 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating company name...")
         company_name = await extract_company_name_from_data(duckduckgo_summary, payload)
-        
+
         set_progress(job_id, "Generating company description...")
         company_description = await generate_company_description_from_data(duckduckgo_summary, payload)
 
         onyx_user_id = await get_current_onyx_user_id(request)
-
+        
         # Create the landing page content with dynamic data
         landing_page_data = {
             "companyName": company_name,
