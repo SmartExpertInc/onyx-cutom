@@ -138,13 +138,30 @@ async def export_course_outline_to_lms_format(
                 lesson_title = (lesson.get('title') or '').strip()
                 recs = lesson.get('recommended_content_types') or {}
                 primary = recs.get('primary') or []
+
+                # If no primary, try recommendedProducts/recommended_products fields
+                if not primary:
+                    rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
+                    if isinstance(rp, list) and rp:
+                        logger.info(f"[LMS] Using lesson.recommendedProducts for '{lesson_title}': {rp}")
+                        # Build primary items from provided product names
+                        temp_primary = []
+                        for name in rp:
+                            if not isinstance(name, str):
+                                continue
+                            t = name.strip().lower()
+                            if t in ("presentation", "one-pager", "onepager", "quiz", "video-lesson"):
+                                temp_primary.append({"type": t})
+                        primary = temp_primary
+                        if recs is None:
+                            recs = {}
+
                 new_primary = []
                 for item in primary:
                     if not isinstance(item, dict):
                         continue
                     item_type_raw = (item.get('type') or '').strip()
                     logger.info(f"[LMS] Processing recommended item type='{item_type_raw}' for lesson='{lesson_title}'")
-                    # Only process known types
                     mapped_mtype = map_item_type_to_microproduct(item_type_raw)
                     if not mapped_mtype:
                         logger.info(f"[LMS] Unknown recommended type '{item_type_raw}', keeping as-is")
@@ -178,7 +195,6 @@ async def export_course_outline_to_lms_format(
                     except Exception as e:
                         logger.error(f"[LMS] Failed content generation/upload for product {product_id} ({item_type_raw}): {e}")
                         continue
-                    # Normalize type for output and attach link/uid
                     item['uid'] = item.get('uid') or str(uuid.uuid4())
                     item['type'] = normalize_item_type_output(item_type_raw)
                     item['link'] = link
