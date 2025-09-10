@@ -81,12 +81,11 @@ const OptionCard: React.FC<OptionCardProps> = ({
     >
       {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
+        className={`absolute top-0 right-0 w-34 blur-lg h-24 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
-        {/* Icon section - positioned at top right */}
-        <div className="flex items-start justify-end h-16 relative mb-4">
+        <div className="flex items-start justify-start h-16 relative mb-4">
           <div className="relative">
             <Icon size={40} className={`${iconColor}`} />
             {pillLabel && (
