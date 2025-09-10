@@ -93,7 +93,9 @@ export function EmailPasswordForm({
 
           const loginResponse = await basicLogin(email, values.password);
           if (loginResponse.ok) {
-            identifyUser((await loginResponse.json()).id);
+            const userJson = await loginResponse.json();
+            console.log(userJson);
+            //identifyUser(userID);
             if (isSignup && shouldVerify) {
               await requestEmailVerification(email);
               // Use window.location.href to force a full page reload,
