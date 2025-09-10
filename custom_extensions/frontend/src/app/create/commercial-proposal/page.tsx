@@ -609,7 +609,7 @@ export default function CommercialProposalPage() {
                     </h4>
 
                     {/* Module 1*/}
-                    <div className={`module-item flex flex-col gap-[8px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
+                    <div className={`module-item flex flex-col gap-[8px] xl:gap-[15px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
                       <div className="flex items-center justify-between">
                         <div className="xl:flex xl:items-center xl:gap-[6px]">
                           <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
@@ -646,7 +646,7 @@ export default function CommercialProposalPage() {
                       {/* Module 1 Expandable Content */}
                       <div 
                         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                          expandedModules['module1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
+                          expandedModules['module1'] ? 'max-h-none opacity-100 mt-[15px] xl:mt-0' : 'max-h-0 opacity-0 mt-0'
                         }`}
                       >
                         {/* XL Desktop Table Layout */}
