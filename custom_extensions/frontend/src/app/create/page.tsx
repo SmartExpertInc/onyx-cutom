@@ -17,6 +17,7 @@ interface OptionCardProps {
   description: string;
   href?: string;
   disabled?: boolean;
+  pillLabel?: string;
   gradientFrom: string;
   gradientTo: string;
   iconColor: string;
@@ -29,6 +30,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
   description,
   href,
   disabled,
+  pillLabel,
   gradientFrom,
   gradientTo,
   iconColor,
@@ -77,25 +79,30 @@ const OptionCard: React.FC<OptionCardProps> = ({
           : "hover:shadow-xl hover:scale-105 cursor-pointer"
       }`}
     >
+      {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-32 h-32 bg-gradient-radial ${gradientFrom} ${gradientTo} opacity-30 blur-xl`}
-        style={{
-          background: `radial-gradient(circle at 30% 30%, ${gradientFrom.replace('from-', '')} 0%, ${gradientTo.replace('to-', '')} 50%, transparent 70%)`
-        }}
+        className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
-        {/* Icon section - positioned higher */}
-        <div className="flex items-center justify-center h-24 relative mb-6">
-          <Icon size={48} className={`${iconColor}`} />
+        {/* Icon section - positioned at top right */}
+        <div className="flex items-start justify-end h-16 relative mb-4">
+          <div className="relative">
+            <Icon size={40} className={`${iconColor}`} />
+            {pillLabel && (
+              <span className={`absolute -top-2 -right-2 text-[10px] font-bold bg-white ${labelColor} rounded-full px-2 py-1 shadow-md`}>
+                {pillLabel}
+              </span>
+            )}
+          </div>
         </div>
         
-        {/* Text section with proper spacing */}
-        <div className="flex flex-col items-center gap-3 flex-1 justify-start">
-          <h3 className={`font-bold text-xl text-center leading-tight ${labelColor}`}>
+        {/* Text section - positioned on the left */}
+        <div className="flex flex-col items-start gap-3 flex-1 justify-start">
+          <h3 className={`font-bold text-xl text-left leading-tight ${labelColor}`}>
             {title}
           </h3>
-          <p className="text-sm text-gray-500 text-center leading-relaxed max-w-xs">
+          <p className="text-sm text-gray-500 text-left leading-relaxed max-w-xs">
             {description}
           </p>
         </div>
@@ -206,17 +213,18 @@ export default function DataSourceLanding() {
             gradientFrom="from-blue-300"
             gradientTo="to-purple-200"
             iconColor="text-blue-600"
-            labelColor="text-blue-900"
+            labelColor="text-blue-600"
           />
           <OptionCard
             Icon={Sparkles}
             title={t('interface.generate.title', 'Generate')}
             description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
+            pillLabel={t('interface.popular', 'POPULAR')}
             gradientFrom="from-orange-300"
             gradientTo="to-pink-200"
             iconColor="text-orange-600"
-            labelColor="text-orange-900"
+            labelColor="text-orange-600"
           />
           <OptionCard
             Icon={UploadCloud}
@@ -226,7 +234,7 @@ export default function DataSourceLanding() {
             gradientFrom="from-purple-300"
             gradientTo="to-pink-200"
             iconColor="text-purple-600"
-            labelColor="text-purple-900"
+            labelColor="text-purple-600"
           />
         </div>
 
