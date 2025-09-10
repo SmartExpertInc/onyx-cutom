@@ -208,7 +208,7 @@ def parse_id_list(id_string: str, context_name: str) -> List[int]:
 def should_use_hybrid_approach(payload) -> bool:
     """
     Determine if we should use the hybrid approach (Onyx for context extraction + OpenAI for generation).
-    Returns True when file context is present.
+    Returns True only when actual file context is present, not for text-only scenarios.
     """
     # Check if files are explicitly provided
     has_files = (
@@ -217,16 +217,19 @@ def should_use_hybrid_approach(payload) -> bool:
         (hasattr(payload, 'fileIds') and payload.fileIds)
     )
     
-    # Check if text context is provided (this also uses hybrid approach)
-    has_text_context = (
+    # For text-only scenarios, use direct approach (send text directly in wizard request)
+    has_text_only = (
         hasattr(payload, 'fromText') and payload.fromText and 
-        hasattr(payload, 'userText') and payload.userText
+        hasattr(payload, 'userText') and payload.userText and
+        not has_files  # Only text, no files
     )
     
-    # Use hybrid approach when there's file context or text context
-    use_hybrid = has_files or has_text_context
+    # Use hybrid approach only when there are actual files, not for text-only scenarios
+    use_hybrid = has_files
     
-    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, use_hybrid={use_hybrid}")
+    logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_only={has_text_only}, use_hybrid={use_hybrid}")
+    if has_text_only:
+        logger.info(f"[HYBRID_SELECTION] ✅ Using DIRECT approach for text-only scenario (no file conversion)")
     return use_hybrid
 
 DB_POOL = None
@@ -13161,7 +13164,7 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             wiz_payload["fileIds"] = payload.fileIds
             logger.info(f"[PREVIEW_PAYLOAD] Added fileIds: {payload.fileIds}")
 
-    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    # Add text context if provided - send directly in wizard request (no file conversion)
     if payload.fromText and payload.userText:
         logger.info(f"[PREVIEW_PAYLOAD] Adding text context: fromText=True, textMode={payload.textMode}")
         wiz_payload["fromText"] = True
@@ -13170,49 +13173,48 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         text_length = len(payload.userText)
         logger.info(f"[PREVIEW_PAYLOAD] Processing text input: mode={payload.textMode}, length={text_length} chars")
         
-        if text_length > LARGE_TEXT_THRESHOLD:
-            # Use virtual file system for large texts to prevent AI memory issues
-            logger.info(f"[PREVIEW_PAYLOAD] Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
-            try:
-                logger.info(f"[PREVIEW_PAYLOAD] Attempting to create virtual file for large text")
-                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
-                wiz_payload["virtualFileId"] = virtual_file_id
-                wiz_payload["textCompressed"] = False
-                logger.info(f"[PREVIEW_PAYLOAD] Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
-            except Exception as e:
-                logger.error(f"[PREVIEW_PAYLOAD] Failed to create virtual file for large text: {e}", exc_info=True)
-                # Fallback to chunking if virtual file creation fails
-                logger.info(f"[PREVIEW_PAYLOAD] Falling back to chunking for large text")
-                chunks = chunk_text(payload.userText)
-                if len(chunks) == 1:
-                    # Single chunk, use compression
-                    logger.info(f"[PREVIEW_PAYLOAD] Single chunk fallback: using compression")
+        # Check if we're using hybrid approach (files present) or direct approach (text-only)
+        if should_use_hybrid_approach(payload):
+            # Hybrid approach: create virtual files for text (existing behavior for file-based scenarios)
+            if text_length > LARGE_TEXT_THRESHOLD:
+                logger.info(f"[PREVIEW_PAYLOAD] Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system for hybrid approach")
+                try:
+                    logger.info(f"[PREVIEW_PAYLOAD] Attempting to create virtual file for large text")
+                    virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                    wiz_payload["virtualFileId"] = virtual_file_id
+                    wiz_payload["textCompressed"] = False
+                    logger.info(f"[PREVIEW_PAYLOAD] Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+                except Exception as e:
+                    logger.error(f"[PREVIEW_PAYLOAD] Failed to create virtual file for large text: {e}", exc_info=True)
+                    # Fallback to compression
                     compressed_text = compress_text(payload.userText)
                     wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
-                else:
-                    # Multiple chunks, use first chunk with compression
-                    logger.info(f"[PREVIEW_PAYLOAD] Multiple chunks fallback: using first chunk with compression")
-                    first_chunk = chunks[0]
-                    compressed_chunk = compress_text(first_chunk)
-                    wiz_payload["userText"] = compressed_chunk
+                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Use compression for hybrid approach with medium/small text
+                if text_length > TEXT_SIZE_THRESHOLD:
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    wiz_payload["textChunked"] = True
-                    wiz_payload["totalChunks"] = len(chunks)
-                    logger.info(f"[PREVIEW_PAYLOAD] Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
-        elif text_length > TEXT_SIZE_THRESHOLD:
-            # Compress medium text to reduce payload size
-            logger.info(f"[PREVIEW_PAYLOAD] Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
-            compressed_text = compress_text(payload.userText)
-            wiz_payload["userText"] = compressed_text
-            wiz_payload["textCompressed"] = True
-            logger.info(f"[PREVIEW_PAYLOAD] Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+                    logger.info(f"[PREVIEW_PAYLOAD] Using compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    wiz_payload["userText"] = payload.userText
+                    wiz_payload["textCompressed"] = False
         else:
-            # Use direct text for small content
-            logger.info(f"[PREVIEW_PAYLOAD] Using direct text for small content ({text_length} chars)")
-            wiz_payload["userText"] = payload.userText
-            wiz_payload["textCompressed"] = False
+            # Direct approach: send text directly in wizard request (no file conversion)
+            logger.info(f"[PREVIEW_PAYLOAD] ✅ Using DIRECT approach: sending text directly in wizard request ({text_length} chars)")
+            
+            # For very large texts, use compression to reduce payload size
+            if text_length > TEXT_SIZE_THRESHOLD:
+                compressed_text = compress_text(payload.userText)
+                wiz_payload["userText"] = compressed_text
+                wiz_payload["textCompressed"] = True
+                logger.info(f"[PREVIEW_PAYLOAD] Compressed text for direct wizard request ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Send text directly without compression
+                wiz_payload["userText"] = payload.userText
+                wiz_payload["textCompressed"] = False
     elif payload.fromText and not payload.userText:
         # Log this problematic case to help with debugging
         logger.warning(f"[PREVIEW_PAYLOAD] Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
@@ -14792,21 +14794,39 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
         if payload.fileIds:
             wizard_dict["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use compression for large texts
+    # Add text context if provided - send directly in wizard request (no file conversion)
     if payload.fromText and payload.userText:
         wizard_dict["fromText"] = True
         wizard_dict["textMode"] = payload.textMode
         
-        if len(payload.userText) > TEXT_SIZE_THRESHOLD:
-            # Compress large text to reduce payload size
-            compressed_text = compress_text(payload.userText)
-            wizard_dict["userText"] = compressed_text
-            wizard_dict["textCompressed"] = True
-            logger.info(f"Using compressed text for large lesson content ({len(payload.userText)} -> {len(compressed_text)} chars)")
+        text_length = len(payload.userText)
+        logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
+        
+        # Check if we're using hybrid approach (files present) or direct approach (text-only)
+        if should_use_hybrid_approach(payload):
+            # Hybrid approach: for lesson presentations, we still send text directly but with compression
+            logger.info(f"Using hybrid approach for lesson presentation with text ({text_length} chars)")
+            if text_length > TEXT_SIZE_THRESHOLD:
+                compressed_text = compress_text(payload.userText)
+                wizard_dict["userText"] = compressed_text
+                wizard_dict["textCompressed"] = True
+                logger.info(f"Using compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                wizard_dict["userText"] = payload.userText
+                wizard_dict["textCompressed"] = False
         else:
-            # Use direct text for smaller content
-            wizard_dict["userText"] = payload.userText
-            wizard_dict["textCompressed"] = False
+            # Direct approach: send text directly in wizard request (no file conversion)
+            logger.info(f"✅ Using DIRECT approach: sending text directly in wizard request ({text_length} chars)")
+            
+            if text_length > TEXT_SIZE_THRESHOLD:
+                compressed_text = compress_text(payload.userText)
+                wizard_dict["userText"] = compressed_text
+                wizard_dict["textCompressed"] = True
+                logger.info(f"Compressed text for direct wizard request ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Send text directly without compression
+                wizard_dict["userText"] = payload.userText
+                wizard_dict["textCompressed"] = False
     elif payload.fromText and not payload.userText:
         # Log this problematic case to help with debugging
         logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
@@ -17642,7 +17662,7 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    # Add text context if provided - send directly in wizard request (no file conversion)
     if payload.fromText and payload.userText:
         wiz_payload["fromText"] = True
         wiz_payload["textMode"] = payload.textMode
@@ -17650,45 +17670,47 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
         text_length = len(payload.userText)
         logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
         
-        if text_length > LARGE_TEXT_THRESHOLD:
-            # Use virtual file system for large texts to prevent AI memory issues
-            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
-            try:
-                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
-                wiz_payload["virtualFileId"] = virtual_file_id
-                wiz_payload["textCompressed"] = False
-                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
-            except Exception as e:
-                logger.error(f"Failed to create virtual file for large text: {e}")
-                # Fallback to chunking if virtual file creation fails
-                chunks = chunk_text(payload.userText)
-                if len(chunks) == 1:
-                    # Single chunk, use compression
+        # Check if we're using hybrid approach (files present) or direct approach (text-only)
+        if should_use_hybrid_approach(payload):
+            # Hybrid approach: create virtual files for text (existing behavior for file-based scenarios)
+            if text_length > LARGE_TEXT_THRESHOLD:
+                logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system for hybrid approach")
+                try:
+                    virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                    wiz_payload["virtualFileId"] = virtual_file_id
+                    wiz_payload["textCompressed"] = False
+                    logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+                except Exception as e:
+                    logger.error(f"Failed to create virtual file for large text: {e}")
+                    # Fallback to compression
                     compressed_text = compress_text(payload.userText)
                     wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
-                else:
-                    # Multiple chunks, use first chunk with compression
-                    first_chunk = chunks[0]
-                    compressed_chunk = compress_text(first_chunk)
-                    wiz_payload["userText"] = compressed_chunk
+                    logger.info(f"Fallback to compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Use compression for hybrid approach with medium/small text
+                if text_length > TEXT_SIZE_THRESHOLD:
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    wiz_payload["textChunked"] = True
-                    wiz_payload["totalChunks"] = len(chunks)
-                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
-        elif text_length > TEXT_SIZE_THRESHOLD:
-            # Compress medium text to reduce payload size
-            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
-            compressed_text = compress_text(payload.userText)
-            wiz_payload["userText"] = compressed_text
-            wiz_payload["textCompressed"] = True
-            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+                    logger.info(f"Using compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    wiz_payload["userText"] = payload.userText
+                    wiz_payload["textCompressed"] = False
         else:
-            # Use direct text for small content
-            logger.info(f"Using direct text for small content ({text_length} chars)")
-            wiz_payload["userText"] = payload.userText
-            wiz_payload["textCompressed"] = False
+            # Direct approach: send text directly in wizard request (no file conversion)
+            logger.info(f"✅ Using DIRECT approach: sending text directly in wizard request ({text_length} chars)")
+            
+            # For very large texts, use compression to reduce payload size
+            if text_length > TEXT_SIZE_THRESHOLD:
+                compressed_text = compress_text(payload.userText)
+                wiz_payload["userText"] = compressed_text
+                wiz_payload["textCompressed"] = True
+                logger.info(f"Compressed text for direct wizard request ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Send text directly without compression
+                wiz_payload["userText"] = payload.userText
+                wiz_payload["textCompressed"] = False
     elif payload.fromText and not payload.userText:
         # Log this problematic case to help with debugging
         logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
@@ -18563,7 +18585,7 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         if payload.fileIds:
             wiz_payload["fileIds"] = payload.fileIds
 
-    # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
+    # Add text context if provided - send directly in wizard request (no file conversion)
     if payload.fromText and payload.userText:
         wiz_payload["fromText"] = True
         wiz_payload["textMode"] = payload.textMode
@@ -18571,45 +18593,47 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
         text_length = len(payload.userText)
         logger.info(f"Processing text input: mode={payload.textMode}, length={text_length} chars")
         
-        if text_length > LARGE_TEXT_THRESHOLD:
-            # Use virtual file system for large texts to prevent AI memory issues
-            logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system")
-            try:
-                virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
-                wiz_payload["virtualFileId"] = virtual_file_id
-                wiz_payload["textCompressed"] = False
-                logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
-            except Exception as e:
-                logger.error(f"Failed to create virtual file for large text: {e}")
-                # Fallback to chunking if virtual file creation fails
-                chunks = chunk_text(payload.userText)
-                if len(chunks) == 1:
-                    # Single chunk, use compression
+        # Check if we're using hybrid approach (files present) or direct approach (text-only)
+        if should_use_hybrid_approach(payload):
+            # Hybrid approach: create virtual files for text (existing behavior for file-based scenarios)
+            if text_length > LARGE_TEXT_THRESHOLD:
+                logger.info(f"Text exceeds large threshold ({LARGE_TEXT_THRESHOLD}), using virtual file system for hybrid approach")
+                try:
+                    virtual_file_id = await create_virtual_text_file(payload.userText, cookies)
+                    wiz_payload["virtualFileId"] = virtual_file_id
+                    wiz_payload["textCompressed"] = False
+                    logger.info(f"Successfully created virtual file for large text ({text_length} chars) -> file ID: {virtual_file_id}")
+                except Exception as e:
+                    logger.error(f"Failed to create virtual file for large text: {e}")
+                    # Fallback to compression
                     compressed_text = compress_text(payload.userText)
                     wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    logger.info(f"Fallback to compressed text for large content ({text_length} -> {len(compressed_text)} chars)")
-                else:
-                    # Multiple chunks, use first chunk with compression
-                    first_chunk = chunks[0]
-                    compressed_chunk = compress_text(first_chunk)
-                    wiz_payload["userText"] = compressed_chunk
+                    logger.info(f"Fallback to compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Use compression for hybrid approach with medium/small text
+                if text_length > TEXT_SIZE_THRESHOLD:
+                    compressed_text = compress_text(payload.userText)
+                    wiz_payload["userText"] = compressed_text
                     wiz_payload["textCompressed"] = True
-                    wiz_payload["textChunked"] = True
-                    wiz_payload["totalChunks"] = len(chunks)
-                    logger.info(f"Fallback to first chunk with compression ({text_length} -> {len(compressed_chunk)} chars, {len(chunks)} total chunks)")
-        elif text_length > TEXT_SIZE_THRESHOLD:
-            # Compress medium text to reduce payload size
-            logger.info(f"Text exceeds compression threshold ({TEXT_SIZE_THRESHOLD}), using compression")
-            compressed_text = compress_text(payload.userText)
-            wiz_payload["userText"] = compressed_text
-            wiz_payload["textCompressed"] = True
-            logger.info(f"Using compressed text for medium content ({text_length} -> {len(compressed_text)} chars)")
+                    logger.info(f"Using compressed text for hybrid approach ({text_length} -> {len(compressed_text)} chars)")
+                else:
+                    wiz_payload["userText"] = payload.userText
+                    wiz_payload["textCompressed"] = False
         else:
-            # Use direct text for small content
-            logger.info(f"Using direct text for small content ({text_length} chars)")
-            wiz_payload["userText"] = payload.userText
-            wiz_payload["textCompressed"] = False
+            # Direct approach: send text directly in wizard request (no file conversion)
+            logger.info(f"✅ Using DIRECT approach: sending text directly in wizard request ({text_length} chars)")
+            
+            # For very large texts, use compression to reduce payload size
+            if text_length > TEXT_SIZE_THRESHOLD:
+                compressed_text = compress_text(payload.userText)
+                wiz_payload["userText"] = compressed_text
+                wiz_payload["textCompressed"] = True
+                logger.info(f"Compressed text for direct wizard request ({text_length} -> {len(compressed_text)} chars)")
+            else:
+                # Send text directly without compression
+                wiz_payload["userText"] = payload.userText
+                wiz_payload["textCompressed"] = False
     elif payload.fromText and not payload.userText:
         # Log this problematic case to help with debugging
         logger.warning(f"Received fromText=True but userText is empty or None. This may cause infinite loading. textMode={payload.textMode}")
