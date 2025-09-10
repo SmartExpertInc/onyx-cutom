@@ -604,7 +604,7 @@ export default function CommercialProposalPage() {
                   </div>
                   
                   <div className="flex flex-col xl:bg-[#F3F7FF] xl:rounded-[6px] xl:px-[30px] xl:py-[30px]">
-                    <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B]">
+                    <h4 className="font-medium text-[18px] xl:text-[24px] text-[#09090B] mb-[20px]">
                       План обучения
                     </h4>
 
@@ -1158,76 +1158,77 @@ export default function CommercialProposalPage() {
                   </div>
 
                   <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                  
+                  <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
 
-                {/* Pricing Table */}
-                <div className="w-full">
-                  <div className="w-full rounded-[6px] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
-                    {/* Table Header */}
-                    <div className="bg-[#F5F5F5] px-4 py-3">
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="text-[14px] xl:text-[22px] font-semibold">
-                          Пакет
-                        </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Стоимость
-                        </div>
-                        <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                          Итого
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Table Rows */}
-                    <div className="bg-white">
-                      {/* Row 1 */}
-                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-3 gap-4 items-center">
+                  {/* Pricing Table */}
+                  <div className="w-full">
+                    <div className="w-full rounded-[6px] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
+                      {/* Table Header */}
+                      <div className="bg-[#F5F5F5] px-4 py-3">
+                        <div className="grid grid-cols-3 gap-4">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
-                            1 курс
+                            Пакет
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $900/курс
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            Стоимость
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $900
+                          <div className="text-[14px] xl:text-[22px] font-semibold xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                            Итого
                           </div>
                         </div>
                       </div>
                       
-                      {/* Row 2 */}
-                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold">
-                            3 курса
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $750/курс
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $2250
+                      {/* Table Rows */}
+                      <div className="bg-white">
+                        {/* Row 1 */}
+                        <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
+                          <div className="grid grid-cols-3 gap-4 items-center">
+                            <div className="text-[14px] xl:text-[22px] font-semibold">
+                              1 курс
+                            </div>
+                            <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                              $900/курс
+                            </div>
+                            <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                              $900
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Row 3 */}
-                      <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
-                        <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="text-[14px] xl:text-[22px] font-semibold">
-                            10 курсов
+                        
+                        {/* Row 2 */}
+                        <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
+                          <div className="grid grid-cols-3 gap-4 items-center">
+                            <div className="text-[14px] xl:text-[22px] font-semibold">
+                              3 курса
+                            </div>
+                            <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                              $750/курс
+                            </div>
+                            <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                              $2250
+                            </div>
                           </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $600/курс
-                          </div>
-                          <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
-                            $6000
+                        </div>
+                        
+                        {/* Row 3 */}
+                        <div className="px-4 py-3 xl:py-6 border-t border-[#E0E0E0]">
+                          <div className="grid grid-cols-3 gap-4 items-center">
+                            <div className="text-[14px] xl:text-[22px] font-semibold">
+                              10 курсов
+                            </div>
+                            <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                              $600/курс
+                            </div>
+                            <div className="text-[14px] xl:text-[22px] font-medium xl:border-l xl:border-[#E0E0E0] xl:pl-4">
+                              $6000
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                  </div>
                 </div>
               </div>
             </div>
