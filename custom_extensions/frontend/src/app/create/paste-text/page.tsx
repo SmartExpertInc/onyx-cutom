@@ -113,6 +113,7 @@ export default function PasteTextPage() {
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
             className="w-full h-96 p-6" />
+
           <div className="mt-2 flex justify-between items-center">
             <div className="text-sm text-gray-500">
               {t('interface.pasteText.characters', '{count} characters').replace('{count}', text.length.toString())}
@@ -134,79 +135,55 @@ export default function PasteTextPage() {
             {t('interface.pasteText.howToUseText', 'How would you like to use this text?')}
           </h3>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Use as context option */}
             <Card 
-              className={`cursor-pointer transition-all duration-300 border-0 shadow-lg overflow-hidden ${
+              className={`cursor-pointer transition-all ${
                 mode === "context"
-                  ? "ring-2 ring-blue-500 ring-offset-2"
-                  : "hover:shadow-xl"
+                  ? "border-blue-500 bg-white shadow-lg"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
               onClick={() => setMode("context")}
             >
-              <CardContent className="p-6 relative">
-                {/* Gradient background with subtle pattern */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-50 opacity-80"></div>
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <div className="absolute top-8 right-8 w-1 h-1 bg-blue-400 rounded-full"></div>
-                  <div className="absolute top-12 right-6 w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-                  <div className="absolute top-16 right-4 w-1 h-1 bg-blue-400 rounded-full"></div>
-                  <div className="absolute top-20 right-10 w-2 h-2 bg-blue-400 rounded-full"></div>
-                </div>
-                
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  <div className={`p-4 rounded-2xl mb-4 transition-colors ${
-                    mode === "context" ? "bg-blue-500 text-white" : "bg-blue-100 text-blue-600"
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-lg ${
+                    mode === "context" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
                   }`}>
-                    <FileText size={32} />
+                    <FileText size={24} />
                   </div>
-                  <h4 className={`font-bold text-lg mb-3 transition-colors ${
-                    mode === "context" ? "text-blue-600" : "text-gray-900"
-                  }`}>
-                    {t('interface.pasteText.useAsContext', 'Use as Context')}
-                  </h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
-                  </p>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsContext', 'Use as Context')}</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Use as base option */}
             <Card 
-              className={`cursor-pointer transition-all duration-300 border-0 shadow-lg overflow-hidden ${
+              className={`cursor-pointer transition-all ${
                 mode === "base"
-                  ? "ring-2 ring-purple-500 ring-offset-2"
-                  : "hover:shadow-xl"
+                  ? "border-blue-500 bg-white shadow-lg"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
               }`}
               onClick={() => setMode("base")}
             >
-              <CardContent className="p-6 relative">
-                {/* Gradient background with subtle pattern */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-purple-50 opacity-80"></div>
-                <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 right-4 w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <div className="absolute top-8 right-8 w-1 h-1 bg-purple-400 rounded-full"></div>
-                  <div className="absolute top-12 right-6 w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                  <div className="absolute top-16 right-4 w-1 h-1 bg-purple-400 rounded-full"></div>
-                  <div className="absolute top-20 right-10 w-2 h-2 bg-purple-400 rounded-full"></div>
-                </div>
-                
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  <div className={`p-4 rounded-2xl mb-4 transition-colors ${
-                    mode === "base" ? "bg-purple-500 text-white" : "bg-purple-100 text-purple-600"
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-lg ${
+                    mode === "base" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600"
                   }`}>
-                    <Sparkles size={32} />
+                    <Sparkles size={24} />
                   </div>
-                  <h4 className={`font-bold text-lg mb-3 transition-colors ${
-                    mode === "base" ? "text-purple-600" : "text-gray-900"
-                  }`}>
-                    {t('interface.pasteText.useAsBase', 'Use as Base')}
-                  </h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
-                  </p>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">{t('interface.pasteText.useAsBase', 'Use as Base')}</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

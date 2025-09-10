@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { Card, CardContent } from "@/components/ui/card";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -17,6 +18,9 @@ interface OptionCardProps {
   href?: string;
   disabled?: boolean;
   pillLabel?: string; // e.g. "POPULAR"
+  gradientFrom: string;
+  gradientTo: string;
+  iconColor: string;
 }
 
 const OptionCard: React.FC<OptionCardProps> = ({
@@ -26,6 +30,9 @@ const OptionCard: React.FC<OptionCardProps> = ({
   href,
   disabled,
   pillLabel,
+  gradientFrom,
+  gradientTo,
+  iconColor,
 }: OptionCardProps) => {
   const router = useRouter();
   
@@ -63,30 +70,48 @@ const OptionCard: React.FC<OptionCardProps> = ({
 
   // Card content shared by both link and non-link versions
   const cardContent = (
-    <div
-      className={`flex flex-col items-center justify-start rounded-xl overflow-hidden border transition-colors shadow-sm w-full h-full text-center ${
+    <Card
+      className={`group relative overflow-hidden border-0 shadow-lg transition-all duration-300 w-full h-full ${
         disabled
-          ? "bg-white text-gray-400 cursor-not-allowed border-gray-300 shadow-none"
-          : "bg-white hover:bg-gray-50 text-gray-900 cursor-pointer border-gray-200"
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:shadow-xl hover:scale-105 cursor-pointer"
       }`}
     >
-      {/* "Folder" header */}
-      <div className="w-full h-28 bg-gradient-to-tr from-indigo-300/60 to-pink-200/60 flex items-center justify-center relative">
-        <Icon size={40} className="text-white drop-shadow-md" />
-        {pillLabel && (
-          <span className="absolute bottom-2 right-2 text-[10px] font-bold bg-white text-indigo-600 rounded-md px-1.5 py-0.5 shadow">
-            {pillLabel}
-          </span>
-        )}
-      </div>
-      {/* Text area */}
-      <div className="flex flex-col items-center gap-1 px-4 py-5">
-        <h3 className="font-semibold text-base sm:text-lg leading-tight text-gray-900">{title}</h3>
-        <p className="text-xs sm:text-sm text-gray-600 max-w-xs leading-normal">
-          {description}
-        </p>
-      </div>
-    </div>
+      {/* Gradient background with sparkle pattern */}
+      <div 
+        className={`absolute inset-0 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-90`}
+        style={{
+          backgroundImage: `radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3) 1px, transparent 1px),
+                           radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2) 1px, transparent 1px),
+                           radial-gradient(circle at 40% 60%, rgba(255,255,255,0.25) 1px, transparent 1px)`,
+          backgroundSize: '20px 20px, 30px 30px, 25px 25px'
+        }}
+      />
+      
+      <CardContent className="relative p-0 h-full flex flex-col">
+        {/* Icon section */}
+        <div className="flex items-center justify-center h-32 relative">
+          <div className="relative">
+            <Icon size={48} className={`${iconColor} drop-shadow-lg`} />
+            {pillLabel && (
+              <span className="absolute -top-2 -right-2 text-[10px] font-bold bg-white text-gray-700 rounded-full px-2 py-1 shadow-md">
+                {pillLabel}
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {/* Text section */}
+        <div className="flex flex-col items-center gap-2 px-6 pb-6 flex-1 justify-center">
+          <h3 className="font-bold text-lg text-gray-900 text-center leading-tight">
+            {title}
+          </h3>
+          <p className="text-sm text-gray-600 text-center leading-relaxed max-w-xs">
+            {description}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   if (disabled || !href) return cardContent;
@@ -189,6 +214,9 @@ export default function DataSourceLanding() {
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
             href="/create/paste-text"
+            gradientFrom="from-blue-300"
+            gradientTo="to-blue-100"
+            iconColor="text-blue-600"
           />
           <OptionCard
             Icon={Sparkles}
@@ -196,12 +224,18 @@ export default function DataSourceLanding() {
             description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
             pillLabel={t('interface.popular', 'POPULAR')}
+            gradientFrom="from-orange-300"
+            gradientTo="to-orange-100"
+            iconColor="text-orange-600"
           />
           <OptionCard
             Icon={UploadCloud}
             title={t('interface.importFileOrUrl', 'Import file or URL')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
+            gradientFrom="from-purple-300"
+            gradientTo="to-purple-100"
+            iconColor="text-purple-600"
           />
         </div>
 
