@@ -1163,7 +1163,7 @@ export default function CommercialProposalPage() {
 
                   {/* Pricing Table */}
                   <div className="w-full">
-                    <div className="w-full rounded-[6px] shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
+                    <div className="w-full rounded-[6px] overflow-hidden xl:overflow-visible shadow-[0px_24px_24px_-8px_rgba(42,51,70,0.08)] xl:shadow-[0px_10px_10px_-5px_rgba(42,51,70,0.08)] border border-[#E0E0E0]">
                       {/* Table Header */}
                       <div className="bg-[#F5F5F5] px-4 py-3">
                         <div className="grid grid-cols-3 gap-4">
