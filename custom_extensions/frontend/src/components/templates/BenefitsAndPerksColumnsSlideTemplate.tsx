@@ -48,7 +48,21 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
   const colBase: React.CSSProperties = { padding:'32px 36px', background:'#CBCBCB', display:'grid', rowGap:'14px' };
   const colAccent: React.CSSProperties = { ...colBase, background:'#4231EA', color:'#E2E5FF' };
-  const numberBadge = (n: number): React.CSSProperties => ({ width:'32px', height:'32px', borderRadius:'50%', background: n === 2 || 4 ? '#fff' : '#000', color:'#fff', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'16px' });
+  const numberBadge = (n: number): React.CSSProperties => {
+    const isDark = n === 2 || n === 4;
+    return {
+      width:'32px',
+      height:'32px',
+      borderRadius:'50%',
+      background: isDark ? '#000000' : '#FFFFFF',
+      color: isDark ? '#FFFFFF' : '#000000',
+      display:'inline-flex',
+      alignItems:'center',
+      justifyContent:'center',
+      fontWeight:700,
+      fontSize:'16px'
+    };
+  };
   const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5 };
   const body: React.CSSProperties = { fontSize:'16px', lineHeight:1.6 };
 
