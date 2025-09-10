@@ -1178,8 +1178,45 @@ export default function CommercialProposalPage() {
                       opacity: 1
                     }}
                   />
-                  <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
-                  <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$900<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/курс</span></span>
+                  {/* Desktop circles - XL only */}
+                  <div 
+                    className="absolute hidden xl:block"
+                    style={{
+                      width: '896px',
+                      height: '896px',
+                      top: '-323px',
+                      left: '-19px',
+                      background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                      borderRadius: '50%',
+                      opacity: 1
+                    }}
+                  />
+                  <div 
+                    className="absolute hidden xl:block"
+                    style={{
+                      width: '896px',
+                      height: '896px',
+                      top: '-323px',
+                      left: '-315px',
+                      background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                      borderRadius: '50%',
+                      opacity: 1
+                    }}
+                  />
+                  <div 
+                    className="absolute hidden xl:block"
+                    style={{
+                      width: '896px',
+                      height: '896px',
+                      top: '-323px',
+                      left: '-611px',
+                      background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                      borderRadius: '50%',
+                      opacity: 1
+                    }}
+                  />
+                  <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%] relative z-10">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
+                  <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9] relative z-10">$900<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/курс</span></span>
                 </div>
 
                 <div className="flex flex-col gap-[20px] xl:gap-[40px]">
