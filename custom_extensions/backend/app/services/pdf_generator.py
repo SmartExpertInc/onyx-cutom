@@ -2923,6 +2923,37 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     mtype = str(product_data.get('microproduct_type') or '').strip().lower()
     comp_name = str(product_data.get('component_name') or '').strip().lower()
 
+    # Normalize data_for_template_render similar to main.py flow
+    data_for_template_render = None
+    if isinstance(context_data, dict) and 'details' not in context_data:
+        data_for_template_render = json.loads(json.dumps(context_data)) if isinstance(context_data, dict) else {}
+    elif isinstance(context_data, dict) and 'details' in context_data:
+        # If earlier branch wrapped as {details: ...}, unwrap to details payload
+        data_for_template_render = context_data.get('details') or {}
+    else:
+        data_for_template_render = {}
+
+    if not isinstance(data_for_template_render, dict):
+        data_for_template_render = {}
+
+    # Ensure detectedLanguage present
+    detected_lang_for_pdf = 'en'
+    try:
+        if isinstance(data_for_template_render, dict):
+            if data_for_template_render.get('detectedLanguage'):
+                detected_lang_for_pdf = data_for_template_render.get('detectedLanguage')
+            elif isinstance(product_data.get('project_name'), str):
+                detected_lang_for_pdf = 'en'
+            data_for_template_render.setdefault('detectedLanguage', detected_lang_for_pdf)
+    except Exception:
+        pass
+
+    # Build wrapper context expected by templates (details/locale)
+    wrapper_context = {
+        'details': data_for_template_render,
+        'locale': {}
+    }
+
     candidates = []
     # Prefer template by component/type; fall back to the other
     if comp_name in ("pdf lesson", "pdflesson") or mtype in ("pdf lesson", "pdflesson"):
@@ -2944,7 +2975,7 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
         try:
             pdf_path = await generate_pdf_from_html_template(
                 tpl,
-                context_data,
+                wrapper_context,
                 output_filename,
                 use_cache=False
             )
