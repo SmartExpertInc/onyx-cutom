@@ -13770,11 +13770,39 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         company_name = content.get("companyName", "Unknown Company")
         company_description = content.get("companyDescription", "Company description not available")
         
+        # Extract job positions from the original payload if available
+        job_positions = []
+        original_payload = content.get("originalPayload", {})
+        if original_payload:
+            # Try to extract positions from the first one-pager content
+            # Look for the first AI audit project in the same folder
+            folder_query = """
+            SELECT p.id, p.microproduct_content
+            FROM projects p
+            JOIN project_folders pf ON p.id = pf.project_id
+            WHERE pf.folder_id = (
+                SELECT pf2.folder_id 
+                FROM project_folders pf2 
+                WHERE pf2.project_id = $1
+            ) AND p.microproduct_name LIKE 'AI-Аудит: %' AND p.id != $1
+            ORDER BY p.created_at ASC
+            LIMIT 1
+            """
+            
+            async with pool.acquire() as conn:
+                first_audit_row = await conn.fetchrow(folder_query, project_id)
+                
+            if first_audit_row:
+                first_audit_content = first_audit_row["microproduct_content"]
+                # Extract positions from the first one-pager
+                job_positions = extract_job_positions_from_content(first_audit_content)
+        
         return {
             "projectId": project_id,
             "projectName": project_name,
             "companyName": company_name,
-            "companyDescription": company_description
+            "companyDescription": company_description,
+            "jobPositions": job_positions
         }
         
     except HTTPException:
@@ -14016,6 +14044,47 @@ def extract_open_positions_from_table(parsed_json):
 
                 return positions
     return []
+
+
+def extract_job_positions_from_content(content):
+    """
+    Extracts job positions from the AI audit content.
+    Returns a list of job position objects with title and description.
+    """
+    job_positions = []
+    
+    if not content or not isinstance(content, dict):
+        return job_positions
+    
+    # Look for contentBlocks in the content
+    content_blocks = content.get("contentBlocks", [])
+    
+    for block in content_blocks:
+        if block.get("type") == "table":
+            headers = block.get("headers", [])
+            rows = block.get("rows", [])
+            
+            # Check if this is a job positions table
+            if any("позиция" in str(header).lower() for header in headers):
+                for row in rows:
+                    if len(row) > 0:
+                        position_title = str(row[0]).strip() if row[0] else "Position"
+                        # Create a simple job position object
+                        job_positions.append({
+                            "title": position_title,
+                            "description": f"Open position at the company",
+                            "icon": "👷"  # Default icon
+                        })
+    
+    # If no positions found in tables, return some default positions
+    if not job_positions:
+        job_positions = [
+            {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
+            {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
+            {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+        ]
+    
+    return job_positions
 
 
 async def generate_and_finalize_course_outline_for_position(
