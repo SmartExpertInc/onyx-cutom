@@ -43,7 +43,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
           {Icon && (
             <Icon 
-              size={64} 
+              size={54} 
               style={{
                 color: active ? '#3b82f6' : '#4b5563',
                 fontWeight: 'bold',
