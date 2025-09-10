@@ -226,8 +226,18 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
               )}
               {isEditable && hoverHeaderIdx === idx && (
                 <div style={{ position:'absolute', right:-12, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' }}>
-                  <button onClick={()=> addColumnAfter(idx)} style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer' }}>+</button>
-                  <button onClick={()=> deleteColumnAt(idx)} style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer' }}>×</button>
+                  <button
+                    onClick={()=> addColumnAfter(idx)}
+                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={()=> deleteColumnAt(idx)}
+                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                  >
+                    ×
+                  </button>
                 </div>
               )}
             </div>
@@ -251,8 +261,18 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             ))}
             {isEditable && hoverRowIdx === i && (
               <div style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' }}>
-                <button onClick={()=> addRowAfter(i)} style={{ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer' }}>+</button>
-                <button onClick={()=> deleteRowAt(i)} style={{ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer' }}>×</button>
+                <button
+                  onClick={()=> addRowAfter(i)}
+                  style={{ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                >
+                  +
+                </button>
+                <button
+                  onClick={()=> deleteRowAt(i)}
+                  style={{ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                >
+                  ×
+                </button>
               </div>
             )}
           </div>
