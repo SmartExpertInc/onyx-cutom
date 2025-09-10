@@ -43,7 +43,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontWeight:800, color:'#202020' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', background:'#ffffff', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#000000', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
   const colBase: React.CSSProperties = { padding:'32px 36px', background:'#CBCBCB', display:'grid', rowGap:'14px' };
