@@ -1143,21 +1143,22 @@ export default function CommercialProposalPage() {
                         Финансовый контроль<br className="xl:hidden"/> и развитие бизнеса
                       </h5>
                     </div>
-                  </div>
+                  </div> 
+                </div>
 
-                  <div 
-                    className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
-                    style={{
-                      background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
-                      borderRadius: '6px',
-                      boxShadow: '2px 2px 10px 0px #0000001A'
-                    }}
-                  >
-                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
-                    <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$900<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/курс</span></span>
-                  </div>
+                <div 
+                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
+                    borderRadius: '6px',
+                    boxShadow: '2px 2px 10px 0px #0000001A'
+                  }}
+                >
+                  <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
+                  <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$900<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/курс</span></span>
+                </div>
 
-                  <div className="flex flex-col gap-[20px] xl:gap-[40px]">
+                <div className="flex flex-col gap-[20px] xl:gap-[40px]">
                   
                   <h4 className="text-[20px] xl:text-[32px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
 
@@ -1178,7 +1179,7 @@ export default function CommercialProposalPage() {
                           </div>
                         </div>
                       </div>
-                      
+                        
                       {/* Table Rows */}
                       <div className="bg-white">
                         {/* Row 1 */}
@@ -1195,7 +1196,7 @@ export default function CommercialProposalPage() {
                             </div>
                           </div>
                         </div>
-                        
+                          
                         {/* Row 2 */}
                         <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
@@ -1210,7 +1211,7 @@ export default function CommercialProposalPage() {
                             </div>
                           </div>
                         </div>
-                        
+                          
                         {/* Row 3 */}
                         <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
@@ -1227,7 +1228,6 @@ export default function CommercialProposalPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
                   </div>
                 </div>
               </div>
