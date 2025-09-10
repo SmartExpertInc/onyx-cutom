@@ -13,7 +13,7 @@ interface LandingPageData {
 
 export default function DynamicAuditLandingPage() {
   const params = useParams()
-  const projectId = params.projectId as string
+  const projectId = params?.projectId as string
   const [landingPageData, setLandingPageData] = useState<LandingPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -21,6 +21,12 @@ export default function DynamicAuditLandingPage() {
   useEffect(() => {
     const fetchLandingPageData = async () => {
       try {
+        if (!projectId) {
+          setError('Project ID is required')
+          setLoading(false)
+          return
+        }
+        
         const response = await fetch(`/api/custom/ai-audit/landing-page/${projectId}`)
         if (!response.ok) {
           throw new Error('Failed to fetch landing page data')
@@ -36,6 +42,9 @@ export default function DynamicAuditLandingPage() {
 
     if (projectId) {
       fetchLandingPageData()
+    } else {
+      setError('Project ID not found')
+      setLoading(false)
     }
   }, [projectId])
 
