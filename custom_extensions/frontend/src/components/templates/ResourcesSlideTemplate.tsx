@@ -35,20 +35,20 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
   const [editName, setEditName] = useState(false);
   const [editRole, setEditRole] = useState(false);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E7EAF8', color:'#4B5563', fontFamily: currentTheme.fonts.titleFont, position:'relative', padding:'80px 0' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E3E8FB', color:'#4B5563', fontFamily: currentTheme.fonts.titleFont, position:'relative', padding:'20px 0' };
   const titleStyle: React.CSSProperties = { textAlign:'center', fontSize:'84px', fontWeight:800, color:'#4B4F58' };
 
-  const listWrap: React.CSSProperties = { marginTop:'70px', display:'grid', rowGap:'55px' };
+  const listWrap: React.CSSProperties = { marginTop:'40px', display:'grid', rowGap:'20px' };
   const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'1fr', alignItems:'center' };
-  const rowInner: React.CSSProperties = { margin:'0 auto', width:'900px', display:'grid', gridTemplateColumns:'120px 1fr', alignItems:'center', columnGap:'32px' };
-  const bullet: React.CSSProperties = { width:'120px', height:'120px', borderRadius:'50%', background:'#DABEF1', boxShadow:'0 0 0 8px rgba(0,0,0,0.04) inset' };
-  const text: React.CSSProperties = { fontSize:'36px', color:'#606B75' };
+  const rowInner: React.CSSProperties = { margin:'0 auto', width:'900px', display:'grid', gridTemplateColumns:'120px 1fr', alignItems:'center', columnGap:'0px' };
+  const bullet: React.CSSProperties = { width:'90px', height:'90px', borderRadius:'50%', background:'#E4C8F3' };
+  const text: React.CSSProperties = { fontSize:'28px', color:'#6E7380' };
 
-  const cardWrap: React.CSSProperties = { position:'absolute', left:'50%', transform:'translateX(-50%)', bottom:'68px', display:'grid', gridTemplateColumns:'1fr 96px', alignItems:'center', width:'720px' };
-  const card: React.CSSProperties = { height:'94px', background:'#ECEFF6', borderRadius:'999px', boxShadow:'0 4px 14px rgba(0,0,0,0.08) inset', display:'flex', alignItems:'center', padding:'0 36px', columnGap:'18px' };
-  const nameText: React.CSSProperties = { fontSize:'22px', color:'#6B7280' };
-  const dot: React.CSSProperties = { width:6, height:6, borderRadius:'50%', background:'#9CA3AF' };
-  const roleText: React.CSSProperties = { fontSize:'22px', color:'#6B7280' };
+  const cardWrap: React.CSSProperties = { position:'absolute', left:'50%', transform:'translateX(-50%)', bottom:'20px', display:'grid', gridTemplateColumns:'1fr 96px', alignItems:'center', width:'740px' };
+  const card: React.CSSProperties = { height:'94px', background:'#F0F3FD', border:'1px solid #ffffff', marginRight:'50px', borderRadius:'999px', display:'flex', alignItems:'center', padding:'0 36px', columnGap:'18px' };
+  const nameText: React.CSSProperties = { fontSize:'18px', color:'#75787F' };
+  const dot: React.CSSProperties = { width:6, height:6, fontSize:'11px', color:'#6A6E77' };
+  const roleText: React.CSSProperties = { fontSize:'18px', color:'#75787F' };
   const avatar: React.CSSProperties = { width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', background:'#ffffff', boxShadow:'0 0 0 6px rgba(0,0,0,0.04) inset' };
 
   const inlineTitle = { ...titleStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
@@ -90,7 +90,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
           ) : (
             <div onClick={()=> isEditable && setEditName(true)} style={{ ...nameText, cursor: isEditable ? 'pointer':'default' }}>{speakerName}</div>
           )}
-          <div style={dot} />
+          <div style={dot}>1</div>
           {isEditable && editRole ? (
             <ImprovedInlineEditor initialValue={speakerTitle} onSave={(v)=>{ onUpdate&&onUpdate({ speakerTitle: v }); setEditRole(false); }} onCancel={()=> setEditRole(false)} style={inlineRole} />
           ) : (
