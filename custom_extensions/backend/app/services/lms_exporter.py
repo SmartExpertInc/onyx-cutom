@@ -89,6 +89,7 @@ async def export_course_outline_to_lms_format(
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
         """Replicate connection logic used in duplication to find products for a lesson and desired type."""
         target_mtype = map_item_type_to_microproduct(desired_type)
+        logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtype='{target_mtype}' lesson_title='{lesson_title}' outline='{outline_name}'")
         if not target_mtype:
             return None
         candidates: List[Dict[str, Any]] = []
@@ -101,22 +102,29 @@ async def export_course_outline_to_lms_format(
             is_connected = False
             if proj_name == outline_name and micro_name:
                 is_connected = True
+                logger.debug(f"[LMS-MATCH] legacy match: proj='{proj_name}' micro='{micro_name}'")
             elif ': ' in proj_name:
                 outline_part = proj_name.split(': ')[0].strip()
                 if outline_part == outline_name:
                     is_connected = True
+                    logger.debug(f"[LMS-MATCH] prefix match: proj='{proj_name}' outline_part='{outline_part}'")
             elif proj_name.startswith('Quiz - ') and ': ' in proj_name:
                 quiz_part = proj_name.replace('Quiz - ', '', 1)
                 outline_part = quiz_part.split(': ')[0].strip()
                 if outline_part == outline_name:
                     is_connected = True
+                    logger.debug(f"[LMS-MATCH] legacy quiz match: proj='{proj_name}' outline_part='{outline_part}'")
             elif lesson_title and proj_name == lesson_title:
                 is_connected = True
+                logger.debug(f"[LMS-MATCH] lesson title match: proj='{proj_name}'")
             if not is_connected:
                 continue
             if mtype == target_mtype:
                 candidates.append(proj)
-        return dict(candidates[-1]) if candidates else None
+                logger.debug(f"[LMS-MATCH] type matched '{target_mtype}' for proj_id={proj.get('id')} name='{proj_name}'")
+        chosen = dict(candidates[-1]) if candidates else None
+        logger.info(f"[LMS-MATCH] candidates={len(candidates)} chosen_id={chosen.get('id') if chosen else None}")
+        return chosen
 
     # Iterate sections/lessons and process recommended items
     for section in sections:
@@ -135,9 +143,11 @@ async def export_course_outline_to_lms_format(
                     if not isinstance(item, dict):
                         continue
                     item_type_raw = (item.get('type') or '').strip()
+                    logger.info(f"[LMS] Processing recommended item type='{item_type_raw}' for lesson='{lesson_title}'")
                     # Only process known types
                     mapped_mtype = map_item_type_to_microproduct(item_type_raw)
                     if not mapped_mtype:
+                        logger.info(f"[LMS] Unknown recommended type '{item_type_raw}', keeping as-is")
                         item['uid'] = item.get('uid') or str(uuid.uuid4())
                         new_primary.append(item)
                         continue
@@ -146,6 +156,7 @@ async def export_course_outline_to_lms_format(
                         logger.info(f"[LMS] No product found for lesson='{lesson_title}' type='{item_type_raw}', removing from recommendations")
                         continue
                     product_id = matched['id']
+                    logger.info(f"[LMS] Matched product id={product_id} type='{mapped_mtype}' for lesson='{lesson_title}'")
                     link: Optional[str] = None
                     try:
                         if mapped_mtype == 'Slide Deck':
@@ -163,6 +174,7 @@ async def export_course_outline_to_lms_format(
                             file_name = f"quiz_{product_id}.cbai"
                             file_path = await upload_file_to_smartdrive(user_id, cbai_bytes, file_name, f"{export_folder}quizzes/")
                             link = await create_public_download_link(user_id, file_path)
+                        logger.info(f"[LMS] Uploaded and linked | type='{item_type_raw}' id={product_id} link={link}")
                     except Exception as e:
                         logger.error(f"[LMS] Failed content generation/upload for product {product_id} ({item_type_raw}): {e}")
                         continue
