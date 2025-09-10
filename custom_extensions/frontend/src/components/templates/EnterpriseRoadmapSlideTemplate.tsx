@@ -67,6 +67,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     }
   };
 
+  const DEFAULT_CELL_PLACEHOLDER = 'text text text';
+
   const addColumnAfter = (idx: number) => {
     const nameBase = 'Column';
     let newName = `${nameBase} ${cols.length + 1}`;
@@ -76,7 +78,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       newName = `${nameBase} ${suffix}`;
     }
     const nextCols = [...cols.slice(0, idx + 1), newName, ...cols.slice(idx + 1)];
-    const nextRows = rows.map((r) => ({ ...r, [newName]: '' }));
+    const nextRows = rows.map((r) => ({ ...r, [newName]: DEFAULT_CELL_PLACEHOLDER }));
     setCols(nextCols);
     setRows(nextRows);
     pushUpdate(nextCols, nextRows);
@@ -96,9 +98,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   };
 
   const addRowAfter = (idx: number) => {
-    const empty: Record<string, string> = {};
-    cols.forEach((h) => (empty[h] = ''));
-    const nextRows = [...rows.slice(0, idx + 1), empty, ...rows.slice(idx + 1)];
+    const newRow: Record<string, string> = {};
+    cols.forEach((h) => (newRow[h] = DEFAULT_CELL_PLACEHOLDER));
+    const nextRows = [...rows.slice(0, idx + 1), newRow, ...rows.slice(idx + 1)];
     setRows(nextRows);
     pushUpdate(cols, nextRows);
   };
