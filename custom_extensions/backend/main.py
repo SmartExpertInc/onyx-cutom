@@ -27089,6 +27089,55 @@ async def set_lms_user_settings(http_request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to save LMS user settings")
 
+@app.post("/api/custom/lms/create-workspace-owner")
+async def create_workspace_owner(http_request: Request):
+    """Create SmartExpert Workspace Owner using user's email and provided or default token."""
+    try:
+        user_uuid, user_email = await get_user_identifiers_for_workspace(http_request)
+        if not user_email:
+            raise HTTPException(status_code=400, detail="Unable to resolve user email from session")
+        name_part = user_email.split("@")[0]
+        try:
+            body = await http_request.json()
+        except Exception:
+            body = {}
+        token = (body or {}).get("token")
+        try:
+            from app.services.lms_exporter import DEFAULT_SMARTEXPERT_TOKEN
+        except Exception:
+            DEFAULT_SMARTEXPERT_TOKEN = None
+        if not token:
+            token = DEFAULT_SMARTEXPERT_TOKEN
+        params = {"name": name_part, "email": user_email, "token": token or ""}
+        target_url = "https://dev.smartexpert.net/store-workspace-owner"
+        logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part}")
+        import httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.get(target_url, params=params, headers={"User-Agent": "Custom Extensions Backend"})
+            ok = resp.status_code in (200, 201, 202, 204, 302, 303)
+            redirect_url = resp.headers.get("location") or resp.headers.get("Location")
+            logger.info(f"[API:LMS] Workspace owner create result | status={resp.status_code} redirect={redirect_url}")
+            # Persist choice server-side if successful
+            if ok:
+                try:
+                    async with DB_POOL.acquire() as connection:
+                        await connection.execute(
+                            """
+                            INSERT INTO lms_user_settings (onyx_user_id, lms_account_choice, updated_at)
+                            VALUES ($1, $2, NOW())
+                            ON CONFLICT (onyx_user_id) DO UPDATE SET lms_account_choice = EXCLUDED.lms_account_choice, updated_at = NOW()
+                            """,
+                            user_uuid, 'no-success'
+                        )
+                except Exception as _:
+                    pass
+            return {"success": ok, "status": resp.status_code, "email": user_email, "redirectUrl": redirect_url, "data": resp.text}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[API:LMS] Workspace owner create failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Workspace owner creation failed: {str(e)}")
+
 @app.on_event("startup")
 async def startup_event_lms_exports():
     try:

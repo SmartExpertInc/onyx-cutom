@@ -879,27 +879,45 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     const loadChoice = async () => {
       if (isExportLMS && lmsAccountStatus === 'unknown') {
+        let remembered: string | null = null;
+        
+        // Try to get choice from backend first
         try {
+          console.log('[LMS] Fetching user settings from backend...');
           const resp = await fetch('/api/custom-projects-backend/lms/user-settings', { credentials: 'same-origin' });
           if (resp.ok) {
             const data = await resp.json();
-            const serverChoice: string | null = data?.choice || null;
-            let remembered: string | null = serverChoice;
-            if (!remembered) {
-              try { remembered = localStorage.getItem('lmsAccountChoice'); } catch {}
-            }
-            if (remembered === 'yes') {
-              setLmsAccountStatus('has-account');
-              setShowAccountModal(false);
-              return;
-            }
-            if (remembered === 'no-success') {
-              setLmsAccountStatus('setup-complete');
-              setShowAccountModal(false);
-              return;
-            }
+            remembered = data?.choice || null;
+            console.log('[LMS] Backend choice:', remembered);
+          } else {
+            console.log('[LMS] Backend request failed:', resp.status, resp.statusText);
           }
-        } catch {}
+        } catch (error) {
+          console.log('[LMS] Backend request error:', error);
+        }
+        
+        // Fallback to localStorage if no backend choice
+        if (!remembered) {
+          try { 
+            remembered = localStorage.getItem('lmsAccountChoice');
+            console.log('[LMS] LocalStorage choice:', remembered);
+          } catch {}
+        }
+        
+        if (remembered === 'yes') {
+          console.log('[LMS] Auto-setting has-account');
+          setLmsAccountStatus('has-account');
+          setShowAccountModal(false);
+          return;
+        }
+        if (remembered === 'no-success') {
+          console.log('[LMS] Auto-setting setup-complete');
+          setLmsAccountStatus('setup-complete');
+          setShowAccountModal(false);
+          return;
+        }
+        
+        console.log('[LMS] Showing modal (choice was:', remembered, ')');
         setShowAccountModal(true);
       }
     };
