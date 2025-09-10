@@ -70,6 +70,104 @@ async def export_course_outline_to_lms_format(
     sections = structure.get('sections') or []
     logger.info(f"[LMS] Outline parsed | sections={len(sections)} title='{main_title}'")
 
+    def parse_primary_list(raw_primary) -> List[Dict[str, Any]]:
+        """Normalize primary into list of dicts with 'type'. Supports JSON strings."""
+        if raw_primary is None:
+            return []
+        # If already a list, coerce entries
+        if isinstance(raw_primary, list):
+            out: List[Dict[str, Any]] = []
+            for it in raw_primary:
+                if isinstance(it, dict):
+                    out.append(it)
+                elif isinstance(it, str):
+                    t = it.strip().strip('"').strip("'")
+                    out.append({"type": t})
+            return out
+        # If string, attempt json loads
+        if isinstance(raw_primary, str):
+            s = raw_primary.strip()
+            try:
+                if (s.startswith('[') and s.endswith(']')) or (s.startswith('{') and s.endswith('}')):
+                    parsed = json.loads(s)
+                    return parse_primary_list(parsed)
+            except Exception as e:
+                logger.info(f"[LMS] Failed JSON parse of primary string, fallback split. err={e}")
+            # Fallback: split by comma and strip brackets/quotes
+            s = s.strip('[]')
+            parts = [p.strip().strip('"').strip("'") for p in s.split(',') if p.strip()]
+            return [{"type": p} for p in parts if p]
+        # Unknown type -> empty
+        return []
+
+    def parse_recommended_products_field(value) -> List[str]:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return [str(v).strip().lower() for v in value if isinstance(v, (str,))]
+        if isinstance(value, str):
+            sv = value.strip()
+            try:
+                if sv.startswith('[') and sv.endswith(']'):
+                    arr = json.loads(sv)
+                    return [str(v).strip().lower() for v in arr if isinstance(v, (str,))]
+            except Exception as e:
+                logger.info(f"[LMS] Failed JSON parse of recommendedProducts, fallback split. err={e}")
+            sv = sv.strip('[]')
+            return [p.strip().strip('"').strip("'").lower() for p in sv.split(',') if p.strip()]
+        return []
+
+    def compute_candidate_score(proj: Dict[str, Any], outline_name: str, lesson_title: str, target_mtype: str) -> int:
+        score = 0
+        proj_name = (proj.get('project_name') or '').strip()
+        micro_name = (proj.get('microproduct_name') or '').strip() if proj.get('microproduct_name') else ''
+        mtype = (proj.get('microproduct_type') or '').strip()
+        if mtype != target_mtype:
+            return -1
+        # Strong matches
+        if lesson_title and proj_name == lesson_title:
+            score += 100
+        if lesson_title and proj_name.endswith(f": {lesson_title}"):
+            score += 90
+        if lesson_title and micro_name == lesson_title:
+            score += 80
+        if lesson_title and lesson_title in micro_name:
+            score += 70
+        # Outline-based matches
+        if proj_name == outline_name and micro_name:
+            score += 60
+        if ': ' in proj_name and proj_name.split(': ')[0].strip() == outline_name:
+            score += 55
+        if proj_name.startswith('Quiz - ') and ': ' in proj_name:
+            quiz_part = proj_name.replace('Quiz - ', '', 1)
+            outline_part = quiz_part.split(': ')[0].strip()
+            if outline_part == outline_name:
+                score += 50
+        # Recency bonus
+        try:
+            if proj.get('created_at'):
+                score += 1
+        except Exception:
+            pass
+        logger.debug(f"[LMS-MATCH] score={score} for proj_id={proj.get('id')} name='{proj_name}' mtype='{mtype}' lesson='{lesson_title}'")
+        return score
+
+    def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
+        """Replicate connection logic using scoring to find the best product for a lesson and type."""
+        target_mtype = map_item_type_to_microproduct(desired_type)
+        logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtype='{target_mtype}' lesson_title='{lesson_title}' outline='{outline_name}'")
+        if not target_mtype:
+            return None
+        best = None
+        best_score = -1
+        for proj in projects:
+            sc = compute_candidate_score(proj, outline_name, lesson_title, target_mtype)
+            if sc > best_score:
+                best_score = sc
+                best = proj if sc >= 0 else None
+        logger.info(f"[LMS-MATCH] best_score={best_score} chosen_id={best.get('id') if best else None}")
+        return dict(best) if best else None
+
     def map_item_type_to_microproduct(item_type: str) -> Optional[str]:
         t = (item_type or '').strip().lower()
         if t in ('presentation',):
@@ -87,46 +185,6 @@ async def export_course_outline_to_lms_format(
             return 'onepager'
         return t
 
-    def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
-        """Replicate connection logic used in duplication to find products for a lesson and desired type."""
-        target_mtype = map_item_type_to_microproduct(desired_type)
-        logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtype='{target_mtype}' lesson_title='{lesson_title}' outline='{outline_name}'")
-        if not target_mtype:
-            return None
-        candidates: List[Dict[str, Any]] = []
-        for proj in projects:
-            proj_name = (proj.get('project_name') or '').strip()
-            micro_name = proj.get('microproduct_name')
-            mtype = (proj.get('microproduct_type') or '').strip()
-            if mtype == 'Training Plan':
-                continue
-            is_connected = False
-            if proj_name == outline_name and micro_name:
-                is_connected = True
-                logger.debug(f"[LMS-MATCH] legacy match: proj='{proj_name}' micro='{micro_name}'")
-            elif ': ' in proj_name:
-                outline_part = proj_name.split(': ')[0].strip()
-                if outline_part == outline_name:
-                    is_connected = True
-                    logger.debug(f"[LMS-MATCH] prefix match: proj='{proj_name}' outline_part='{outline_part}'")
-            elif proj_name.startswith('Quiz - ') and ': ' in proj_name:
-                quiz_part = proj_name.replace('Quiz - ', '', 1)
-                outline_part = quiz_part.split(': ')[0].strip()
-                if outline_part == outline_name:
-                    is_connected = True
-                    logger.debug(f"[LMS-MATCH] legacy quiz match: proj='{proj_name}' outline_part='{outline_part}'")
-            elif lesson_title and proj_name == lesson_title:
-                is_connected = True
-                logger.debug(f"[LMS-MATCH] lesson title match: proj='{proj_name}'")
-            if not is_connected:
-                continue
-            if mtype == target_mtype:
-                candidates.append(proj)
-                logger.debug(f"[LMS-MATCH] type matched '{target_mtype}' for proj_id={proj.get('id')} name='{proj_name}'")
-        chosen = dict(candidates[-1]) if candidates else None
-        logger.info(f"[LMS-MATCH] candidates={len(candidates)} chosen_id={chosen.get('id') if chosen else None}")
-        return chosen
-
     # Iterate sections/lessons and process recommended items
     for section in sections:
         if isinstance(section, dict):
@@ -139,31 +197,18 @@ async def export_course_outline_to_lms_format(
                 lesson['uid'] = lesson.get('uid') or str(uuid.uuid4())
                 lesson_title = (lesson.get('title') or '').strip()
                 recs = lesson.get('recommended_content_types') or {}
-                primary = recs.get('primary') or []
-                logger.info(f"[LMS] Lesson '{lesson_title}' has primary(raw)={primary}")
-
-                # Normalize primary to list[dict] with 'type'
-                norm_primary = []
-                for it in primary:
-                    if isinstance(it, dict):
-                        norm_primary.append(it)
-                    elif isinstance(it, str):
-                        norm_primary.append({"type": it})
-                primary = norm_primary
+                raw_primary = recs.get('primary')
+                logger.info(f"[LMS] Lesson '{lesson_title}' has primary(raw)={raw_primary}")
+                primary = parse_primary_list(raw_primary)
+                logger.info(f"[LMS] Lesson '{lesson_title}' primary(normalized)={primary}")
 
                 # If no primary, try recommendedProducts/recommended_products fields
                 if not primary:
                     rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
-                    if isinstance(rp, list) and rp:
-                        logger.info(f"[LMS] Using lesson.recommendedProducts for '{lesson_title}': {rp}")
-                        temp_primary = []
-                        for name in rp:
-                            if not isinstance(name, str):
-                                continue
-                            t = name.strip().lower()
-                            if t in ("presentation", "one-pager", "onepager", "quiz", "video-lesson"):
-                                temp_primary.append({"type": t})
-                        primary = temp_primary
+                    rp_list = parse_recommended_products_field(rp)
+                    if rp_list:
+                        logger.info(f"[LMS] Using lesson.recommendedProducts for '{lesson_title}': {rp_list}")
+                        primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
                         if recs is None:
                             recs = {}
 
