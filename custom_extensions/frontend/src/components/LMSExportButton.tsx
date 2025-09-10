@@ -28,7 +28,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     try {
       console.log('🎓 Starting LMS export for course outlines:', Array.from(selectedProducts));
 
-      const response = await fetch('/api/custom/lms/export', {
+      const response = await fetch('/api/custom-projects-backend/lms/export', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
