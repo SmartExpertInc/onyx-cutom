@@ -1182,7 +1182,7 @@ export default function CommercialProposalPage() {
                       {/* Table Rows */}
                       <div className="bg-white">
                         {/* Row 1 */}
-                        <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                        <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
                             <div className="text-[14px] xl:text-[22px] font-semibold">
                               1 курс
@@ -1197,7 +1197,7 @@ export default function CommercialProposalPage() {
                         </div>
                         
                         {/* Row 2 */}
-                        <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                        <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
                             <div className="text-[14px] xl:text-[22px] font-semibold">
                               3 курса
@@ -1212,7 +1212,7 @@ export default function CommercialProposalPage() {
                         </div>
                         
                         {/* Row 3 */}
-                        <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                        <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                           <div className="grid grid-cols-3 gap-4 items-center">
                             <div className="text-[14px] xl:text-[22px] font-semibold">
                               10 курсов
@@ -1662,7 +1662,7 @@ export default function CommercialProposalPage() {
                     {/* Table Rows */}
                     <div className="bg-white">
                       {/* Row 1 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             до 100
@@ -1677,7 +1677,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 2 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             до 200
@@ -1692,7 +1692,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 3 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             201-500
@@ -1707,7 +1707,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 4 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-3 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-medium">
                             501-1000
@@ -2431,7 +2431,7 @@ export default function CommercialProposalPage() {
                     {/* Table Rows */}
                     <div className="bg-white">
                       {/* Row 1 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 1
@@ -2449,7 +2449,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 2 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 2
@@ -2467,7 +2467,7 @@ export default function CommercialProposalPage() {
                       </div>
                       
                       {/* Row 3 */}
-                      <div className="px-4 py-[13px] xl:py-6 border-t border-[#E0E0E0]">
+                      <div className="px-4 py-[15px] xl:py-6 border-t border-[#E0E0E0]">
                         <div className="grid grid-cols-4 gap-4 items-center">
                           <div className="text-[14px] xl:text-[22px] font-semibold">
                             Pack 3
@@ -3050,7 +3050,7 @@ export default function CommercialProposalPage() {
               </div>
               
               <div 
-                className="flex gap-[5px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
+                className="flex gap-[10px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
                 style={{ background: '#EBF2FF87' }}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1 xl:h-[13px] xl:w-[13px]">
