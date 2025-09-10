@@ -20,7 +20,7 @@ export default function SmartDriveSettingsPage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const resp = await fetch("/api/custom/smartdrive/session", { method: "POST" });
+        const resp = await fetch("/api/custom-projects-backend/smartdrive/session", { method: "POST" });
         if (!resp.ok) throw new Error(`Bootstrap failed: ${resp.status}`);
         const data: BootstrapResponse = await resp.json();
         setHasCredentials(data.has_credentials);
