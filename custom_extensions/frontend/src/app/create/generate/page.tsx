@@ -113,14 +113,14 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
   <button
     type="button"
     onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-2 rounded-md transition-colors cursor-pointer w-40 h-28 text-center ${
+    className={`flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer w-40 h-28 text-center ${
       active
-        ? "bg-white shadow text-brand-primary border border-brand-primary"
-        : "bg-white/70 text-gray-700 hover:bg-white"
+        ? "bg-white/80 backdrop-blur-sm shadow-lg text-blue-900 border border-blue-200/50 scale-105"
+        : "bg-white/60 backdrop-blur-sm text-gray-700 hover:bg-white/80 hover:shadow-md border border-gray-200/50 hover:scale-105"
     }`}
   >
     {Icon && <Icon size={64} />}
-    <span className="text-sm font-medium leading-tight">{label}</span>
+    <span className="text-sm font-semibold leading-tight">{label}</span>
   </button>
 );
 
@@ -1033,31 +1033,32 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center p-6"
-      style={{
-        background:
-          "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
-      }}
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
     >
-      <div className="w-full max-w-3xl flex flex-col gap-4 text-gray-900">
+      <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
-          className="absolute top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
+          <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">{t('interface.generate.title', 'Generate')}</h1>
-        <p className="text-center text-gray-600 text-lg -mt-1">
-          {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
-           isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
-           t('interface.generate.subtitle', 'What would you like to create today?')}
-        </p>
+        {/* Headings */}
+        <div className="flex flex-col gap-4 text-center">
+          <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
+            {t('interface.generate.title', 'Generate')}
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl leading-relaxed">
+            {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
+             isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+             t('interface.generate.subtitle', 'What would you like to create today?')}
+          </p>
+        </div>
 
         {/* File context indicator */}
         {isFromFiles && (
-          <Alert className="bg-blue-50 border border-blue-200">
+          <Alert className="bg-blue-50/80 backdrop-blur-sm border border-blue-200/50 shadow-sm">
             <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromFiles', 'Creating from files')}
@@ -1078,12 +1079,12 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <Alert className="bg-green-50/80 backdrop-blur-sm border border-green-200/50 shadow-sm">
             <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromText', 'Creating from text')}
             </div>
-            <div className="text-green-700">
+            <AlertDescription className="text-green-700">
               <p className="font-medium">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
@@ -1093,16 +1094,16 @@ function GenerateProductPicker() {
                   : t('interface.generate.aiWillBuildUponText', 'The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.')}
               </p>
               {userText && (
-                <p className="mt-2 text-xs text-green-600 bg-green-100 p-2 rounded max-h-20 overflow-y-auto">
+                <p className="mt-2 text-xs text-green-600 bg-green-100/80 p-2 rounded max-h-20 overflow-y-auto">
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
-            </div>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
         {/* Tab selector */}
-        <div className="flex justify-center gap-4 mb-4">
+        <div className="flex justify-center gap-6 mb-8">
           <TabButton
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
