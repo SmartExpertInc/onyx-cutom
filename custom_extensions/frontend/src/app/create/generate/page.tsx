@@ -115,11 +115,11 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
     onClick={onClick}
     className="flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer w-40 h-28 text-center backdrop-blur-sm hover:scale-105"
     style={{
-      backgroundColor: active ? `rgb(var(--generate-tab-active-bg))` : `rgb(var(--generate-tab-bg))`,
-      color: active ? `rgb(var(--generate-tab-active-text))` : `rgb(var(--generate-tab-text))`,
+      backgroundColor: `rgb(var(--generate-tab-bg))`,
+      color: `rgb(var(--generate-tab-text))`,
       borderColor: active ? `rgb(var(--generate-tab-active-border))` : `rgb(var(--generate-tab-border))`,
       borderWidth: '1px',
-      boxShadow: active ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : 'none'
+      boxShadow: active ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
     }}
   >
     {Icon && <Icon size={64} />}
@@ -1055,18 +1055,10 @@ function GenerateProductPicker() {
 
         {/* Headings */}
         <div className="flex flex-col gap-4 text-center">
-          <h1 
-            className="text-4xl sm:text-6xl font-bold bg-clip-text text-transparent leading-tight"
-            style={{
-              background: `linear-gradient(to right, rgb(var(--generate-title-gradient-from)), rgb(var(--generate-title-gradient-via)), rgb(var(--generate-title-gradient-to)))`
-            }}
-          >
+          <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
             {t('interface.generate.title', 'Generate')}
           </h1>
-          <p 
-            className="text-lg sm:text-xl max-w-2xl leading-relaxed"
-            style={{ color: `rgb(var(--generate-subtitle-color))` }}
-          >
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl leading-relaxed">
             {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
              isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
              t('interface.generate.subtitle', 'What would you like to create today?')}
