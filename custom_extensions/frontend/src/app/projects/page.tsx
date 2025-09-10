@@ -878,6 +878,20 @@ const ProjectsPageInner: React.FC = () => {
   // Show account modal when first visiting LMS tab
   useEffect(() => {
     if (isExportLMS && lmsAccountStatus === 'unknown') {
+      // Read remembered choice
+      let remembered: string | null = null;
+      try { remembered = localStorage.getItem('lmsAccountChoice'); } catch {}
+      if (remembered === 'yes') {
+        setLmsAccountStatus('has-account');
+        setShowAccountModal(false);
+        return;
+      }
+      if (remembered === 'no-success') {
+        setLmsAccountStatus('setup-complete');
+        setShowAccountModal(false);
+        return;
+      }
+      // If no-failed or not set, show modal
       setShowAccountModal(true);
     }
   }, [isExportLMS, lmsAccountStatus]);

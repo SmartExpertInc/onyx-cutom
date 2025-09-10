@@ -19,14 +19,54 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
 
   if (!isOpen) return null;
 
+  const persistChoice = (value: 'yes' | 'no-success' | 'no-failed') => {
+    try {
+      localStorage.setItem('lmsAccountChoice', value);
+    } catch {}
+  };
+
   const handleYes = () => {
+    persistChoice('yes');
     onAccountStatus('has-account');
     onClose();
   };
 
-  const handleNo = () => {
-    onAccountStatus('no-account');
-    onClose();
+  const handleNo = async () => {
+    try {
+      const resp = await fetch('/api/custom-projects-backend/lms/create-workspace-owner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({})
+      });
+      const data = await resp.json();
+      if (resp.ok && data?.success) {
+        persistChoice('no-success');
+        // Success toast
+        const toast = document.createElement('div');
+        toast.textContent = t('interface.lmsAccountCreated', 'SmartExpert account for your email is created successfully! Password is sent to the email');
+        toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 6000);
+        onAccountStatus('setup-complete');
+        onClose();
+      } else {
+        persistChoice('no-failed');
+        // Error message and keep user in modal
+        const toast = document.createElement('div');
+        toast.textContent = t('interface.lmsAccountCreateError', 'Something is wrong, please try again in a moment');
+        toast.className = 'fixed bottom-6 right-6 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 6000);
+      }
+    } catch (e) {
+      persistChoice('no-failed');
+      const toast = document.createElement('div');
+      toast.textContent = t('interface.lmsAccountCreateError', 'Something is wrong, please try again in a moment');
+      toast.className = 'fixed bottom-6 right-6 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 6000);
+    }
   };
 
   return (
