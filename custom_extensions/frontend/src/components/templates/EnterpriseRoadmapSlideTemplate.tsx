@@ -142,6 +142,32 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
   const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2B3127', color:'#A0A49B', padding:'12px 20px', borderRadius:'2px', fontWeight:600, letterSpacing:0.2, position:'relative' };
   const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'12px 20px', background: i%2===0 ? '#F9F8F6' : '#E5E4E0', fontSize:'15px', color:'#7F7F7A', borderRadius:'2px', marginTop:'0px', position:'relative' });
+
+  // Inline editor base styles to prevent layout shift
+  const inlineEditorHeaderStyle: React.CSSProperties = {
+    width: '100%',
+    backgroundColor: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0,
+    color:'#A0A49B',
+    fontWeight: 600,
+    lineHeight: 1.2,
+  };
+  const inlineEditorCellStyle: React.CSSProperties = {
+    width: '100%',
+    backgroundColor: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0,
+    fontSize:'15px',
+    color:'#7F7F7A',
+    lineHeight: 1.4,
+  };
+  const inlineEditorTitleStyle: React.CSSProperties = { ...titleStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
+  const inlineEditorDescStyle: React.CSSProperties = { ...descStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
   // No handlers: static slide (no editing UI)
 
   const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
@@ -161,7 +187,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             initialValue={title}
             onSave={(v)=>{ onUpdate&&onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={()=>setEditingTitle(false)}
-            style={{ ...titleStyle, position:'relative' }}
+            style={inlineEditorTitleStyle}
           />
         ) : (
           <div onClick={()=> isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
@@ -175,7 +201,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             multiline={true}
             onSave={(v)=>{ onUpdate&&onUpdate({ description: v }); setEditingDescription(false); }}
             onCancel={()=>setEditingDescription(false)}
-            style={{ ...descStyle, position:'relative' }}
+            style={inlineEditorDescStyle}
           />
         ) : (
           <div onClick={()=> isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
@@ -191,7 +217,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                   initialValue={h}
                   onSave={(v)=> saveHeader(idx, v)}
                   onCancel={()=> setEditingHeaderIdx(null)}
-                  style={{ color:'#A0A49B', fontWeight:600 }}
+                  style={inlineEditorHeaderStyle}
                 />
               ) : (
                 <span onClick={()=> isEditable && setEditingHeaderIdx(idx)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{h}</span>
@@ -214,7 +240,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                     initialValue={r[h] || ''}
                     onSave={(v)=> saveCell(i, cidx, v)}
                     onCancel={()=> setEditingCell(null)}
-                    style={{ fontSize:'15px', color:'#7F7F7A' }}
+                    style={inlineEditorCellStyle}
                   />
                 ) : (
                   <div onClick={()=> isEditable && setEditingCell({ row:i, col:cidx })} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{r[h] || ''}</div>
