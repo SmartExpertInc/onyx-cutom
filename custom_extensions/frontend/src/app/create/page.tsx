@@ -74,40 +74,37 @@ const OptionCard: React.FC<OptionCardProps> = ({
   // Card content shared by both link and non-link versions
   const cardContent = (
     <Card
-      className={`group rounded-3xl relative overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-xl transition-all duration-300 w-full h-full ${
+      className={`group rounded-3xl relative overflow-hidden bg-white border border-gray-200 shadow-lg transition-all duration-300 w-full h-full ${
         disabled
           ? "opacity-50 cursor-not-allowed"
-          : "hover:shadow-2xl hover:scale-[1.02] hover:bg-white cursor-pointer hover:border-gray-300/50"
+          : "hover:shadow-xl hover:scale-105 cursor-pointer"
       }`}
     >
       {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-32 h-32 bg-gradient-radial ${gradientFrom} ${gradientTo} opacity-40 blur-3xl`}
-        style={{
-          background: `radial-gradient(circle at 30% 30%, ${gradientFrom.replace('from-', '')} 0%, ${gradientTo.replace('to-', '')} 50%, transparent 70%)`
-        }}
+        className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
         {/* Badge positioned at top right */}
         {pillLabel && (
           <div className="absolute top-4 right-4 z-10">
-            <Badge variant="secondary" className={`${labelColor} bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-md font-semibold`}>
+            <Badge variant="secondary" className={`${labelColor} bg-white border border-gray-200`}>
               {pillLabel}
             </Badge>
           </div>
         )}
         
-        <div className="flex items-start justify-start h-16 relative mb-4">
-          <Icon size={44} className={`${iconColor} drop-shadow-sm`} />
+        <div className="flex items-start justify-start h-16 relative mb-3">
+          <Icon size={40} className={`${iconColor}`} />
         </div>
         
         {/* Text section - positioned on the left */}
         <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-          <h3 className={`text-xl font-semibold text-left leading-tight ${labelColor}`}>
+          <h3 className={`text-xl text-left leading-tight ${labelColor}`}>
             {title}
           </h3>
-          <p className="text-sm text-gray-600 text-left leading-relaxed max-w-xs">
+          <p className="text-sm text-gray-500 text-left leading-relaxed max-w-xs">
             {description}
           </p>
         </div>
