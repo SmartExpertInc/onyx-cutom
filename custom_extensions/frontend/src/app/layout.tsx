@@ -4,6 +4,7 @@ import React from 'react';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { MontFontLoader } from '../components/MontFontLoader';
 import { AvatarDisplayManager } from '../components/AvatarDisplayManager';
+import MixpanelProvider from './MixpanelProvider';
 
 export const metadata = {
   title: 'Content Builder AI',
@@ -42,7 +43,9 @@ export default function RootLayout({
         <MontFontLoader />
         <LanguageProvider>
           <AvatarDisplayManager>
-            {children}
+            <MixpanelProvider>
+              {children}
+            </MixpanelProvider>
           </AvatarDisplayManager>
         </LanguageProvider>
       </body>
