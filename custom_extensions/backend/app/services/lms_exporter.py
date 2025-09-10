@@ -69,8 +69,28 @@ async def export_course_outline_to_lms_format(
     # Resolve and attach links for recommended products using name matching logic
     sections = structure.get('sections') or []
 
+    def map_item_type_to_microproduct(item_type: str) -> Optional[str]:
+        t = (item_type or '').strip().lower()
+        if t in ('presentation',):
+            return 'Slide Deck'
+        if t in ('one-pager', 'onepager'):
+            return 'One Pager'
+        if t in ('quiz',):
+            return 'Quiz'
+        return None
+
+    def normalize_item_type_output(item_type: str) -> str:
+        # Keep original if it is one of expected variants; map one-pager to onepager to match sample
+        t = (item_type or '').strip()
+        if t == 'one-pager':
+            return 'onepager'
+        return t
+
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
         """Replicate connection logic used in duplication to find products for a lesson and desired type."""
+        target_mtype = map_item_type_to_microproduct(desired_type)
+        if not target_mtype:
+            return None
         candidates: List[Dict[str, Any]] = []
         for proj in projects:
             proj_name = (proj.get('project_name') or '').strip()
@@ -79,105 +99,123 @@ async def export_course_outline_to_lms_format(
             if mtype == 'Training Plan':
                 continue
             is_connected = False
-            # Method 1: legacy matching (exact outline name + microproduct_name exists)
             if proj_name == outline_name and micro_name:
                 is_connected = True
-            # Method 2: new naming "Outline Name: Lesson Title"
             elif ': ' in proj_name:
                 outline_part = proj_name.split(': ')[0].strip()
                 if outline_part == outline_name:
                     is_connected = True
-            # Method 3: legacy quiz naming "Quiz - Outline Name: Lesson Title"
             elif proj_name.startswith('Quiz - ') and ': ' in proj_name:
                 quiz_part = proj_name.replace('Quiz - ', '', 1)
                 outline_part = quiz_part.split(': ')[0].strip()
                 if outline_part == outline_name:
                     is_connected = True
-            # Method 4: lesson title became project name
             elif lesson_title and proj_name == lesson_title:
                 is_connected = True
-
             if not is_connected:
                 continue
-
-            # Filter by desired product type
-            # desired_type values expected: 'presentation'|'one-pager'|'quiz'
-            if desired_type == 'presentation' and mtype == 'Slide Deck':
+            if mtype == target_mtype:
                 candidates.append(proj)
-            elif desired_type == 'one-pager' and mtype == 'One Pager':
-                candidates.append(proj)
-            elif desired_type == 'quiz' and mtype == 'Quiz':
-                candidates.append(proj)
-        # Prefer the most recent candidate
         return dict(candidates[-1]) if candidates else None
 
     # Iterate sections/lessons and process recommended items
     for section in sections:
-        # Add section uid
         if isinstance(section, dict):
             section['uid'] = section.get('uid') or str(uuid.uuid4())
             lessons = section.get('lessons') or []
             for lesson in lessons:
                 if not isinstance(lesson, dict):
                     continue
-                # Add lesson uid
                 lesson['uid'] = lesson.get('uid') or str(uuid.uuid4())
                 lesson_title = (lesson.get('title') or '').strip()
                 recs = lesson.get('recommended_content_types') or {}
                 primary = recs.get('primary') or []
                 new_primary = []
-
                 for item in primary:
                     if not isinstance(item, dict):
                         continue
-                    item_type = (item.get('type') or '').strip()
+                    item_type_raw = (item.get('type') or '').strip()
                     # Only process known types
-                    if item_type not in ('presentation', 'one-pager', 'quiz'):
-                        # Keep unknown types as-is
+                    mapped_mtype = map_item_type_to_microproduct(item_type_raw)
+                    if not mapped_mtype:
                         item['uid'] = item.get('uid') or str(uuid.uuid4())
                         new_primary.append(item)
                         continue
-
-                    # Find existing product matching this lesson and type
-                    matched = match_connected_product([dict(p) for p in all_projects], outline_name, lesson_title, item_type)
+                    matched = match_connected_product([dict(p) for p in all_projects], outline_name, lesson_title, item_type_raw)
                     if not matched:
-                        logger.info(f"[LMS] No product found for lesson='{lesson_title}' type='{item_type}', removing from recommendations")
-                        # Skip (remove) if not found
+                        logger.info(f"[LMS] No product found for lesson='{lesson_title}' type='{item_type_raw}', removing from recommendations")
                         continue
-
-                    # Generate and upload appropriate file
                     product_id = matched['id']
                     link: Optional[str] = None
                     try:
-                        if item_type == 'presentation':
+                        if mapped_mtype == 'Slide Deck':
                             pdf_bytes = await generate_presentation_pdf(matched, user_id)
                             file_name = f"slide-deck_{product_id}.pdf"
                             file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}presentations/")
                             link = await create_public_download_link(user_id, file_path)
-                        elif item_type == 'one-pager':
+                        elif mapped_mtype == 'One Pager':
                             pdf_bytes = await generate_onepager_pdf(matched, user_id)
                             file_name = f"onepager_{product_id}.pdf"
                             file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}onepagers/")
                             link = await create_public_download_link(user_id, file_path)
-                        elif item_type == 'quiz':
+                        elif mapped_mtype == 'Quiz':
                             cbai_bytes = await export_quiz_to_cbai(matched, user_id)
                             file_name = f"quiz_{product_id}.cbai"
                             file_path = await upload_file_to_smartdrive(user_id, cbai_bytes, file_name, f"{export_folder}quizzes/")
                             link = await create_public_download_link(user_id, file_path)
                     except Exception as e:
-                        logger.error(f"[LMS] Failed content generation/upload for product {product_id} ({item_type}): {e}")
-                        # Skip item if generation/upload fails
+                        logger.error(f"[LMS] Failed content generation/upload for product {product_id} ({item_type_raw}): {e}")
                         continue
-
-                    # Attach uid and link to item, keep other fields intact
+                    # Normalize type for output and attach link/uid
                     item['uid'] = item.get('uid') or str(uuid.uuid4())
+                    item['type'] = normalize_item_type_output(item_type_raw)
                     item['link'] = link
                     new_primary.append(item)
-
-                # Replace primary with filtered/linked items
                 if recs is not None:
                     recs['primary'] = new_primary
                     lesson['recommended_content_types'] = recs
+
+    # Prune final structure to match reference schema
+    def prune_structure(data: Dict[str, Any]) -> Dict[str, Any]:
+        pruned: Dict[str, Any] = {
+            'mainTitle': data.get('mainTitle'),
+            'uid': data.get('uid'),
+            'sections': []
+        }
+        for section in data.get('sections') or []:
+            if not isinstance(section, dict):
+                continue
+            pruned_section = {
+                'id': section.get('id'),
+                'uid': section.get('uid') or str(uuid.uuid4()),
+                'title': section.get('title'),
+                'lessons': []
+            }
+            for lesson in section.get('lessons') or []:
+                if not isinstance(lesson, dict):
+                    continue
+                pruned_lesson = {
+                    'uid': lesson.get('uid') or str(uuid.uuid4()),
+                    'title': lesson.get('title')
+                }
+                recs = lesson.get('recommended_content_types') or {}
+                primary = recs.get('primary') or []
+                cleaned_primary = []
+                for item in primary:
+                    if not isinstance(item, dict):
+                        continue
+                    cleaned_primary.append({
+                        'uid': item.get('uid') or str(uuid.uuid4()),
+                        'type': item.get('type'),
+                        'link': item.get('link')
+                    })
+                if cleaned_primary:
+                    pruned_lesson['recommended_content_types'] = { 'primary': cleaned_primary }
+                pruned_section['lessons'].append(pruned_lesson)
+            pruned['sections'].append(pruned_section)
+        return pruned
+
+    structure = prune_structure(structure)
 
     # Upload final structure JSON
     structure_json = json.dumps(structure, indent=2).encode('utf-8')
