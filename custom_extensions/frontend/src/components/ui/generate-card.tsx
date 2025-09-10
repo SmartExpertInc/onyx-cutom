@@ -15,27 +15,26 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group relative overflow-hidden transition-all duration-200 cursor-pointer backdrop-blur-sm",
-          active ? "w-44 h-32" : "w-40 h-28",
+          "group relative overflow-hidden transition-all duration-200 cursor-pointer",
           "hover:scale-105",
           className
         )}
         style={{
-          backgroundColor: `rgb(var(--generate-card-bg))`,
-          borderColor: active ? `rgb(var(--generate-card-border-active))` : `rgb(var(--generate-card-border))`,
+          backgroundColor: 'white',
+          borderColor: active ? '#3b82f6' : '#e2e8f0',
           borderWidth: '1px',
           boxShadow: active 
-            ? `var(--generate-card-shadow-active)` 
-            : `var(--generate-card-shadow)`
+            ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
         }}
         onMouseEnter={(e) => {
           if (!active) {
-            e.currentTarget.style.boxShadow = `var(--generate-card-shadow-hover)`;
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
           }
         }}
         onMouseLeave={(e) => {
           if (!active) {
-            e.currentTarget.style.boxShadow = `var(--generate-card-shadow)`;
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
           }
         }}
         onClick={onClick}
@@ -46,14 +45,14 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             <Icon 
               size={64} 
               style={{
-                color: `rgb(var(--generate-card-icon${active ? '-active' : ''}))`
+                color: active ? '#3b82f6' : '#4b5563'
               }}
             />
           )}
           <span 
             className="text-sm font-semibold leading-tight text-center"
             style={{
-              color: `rgb(var(--generate-card-text${active ? '-active' : ''}))`
+              color: 'black'
             }}
           >
             {label}

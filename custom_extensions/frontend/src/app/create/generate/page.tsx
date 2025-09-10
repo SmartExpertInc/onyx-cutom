@@ -1905,14 +1905,7 @@ function GenerateProductPicker() {
               value={prompt}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-2xl text-lg resize-none overflow-hidden min-h-[90px] max-h-[260px] focus:outline-none transition-colors"
-              style={{ 
-                backgroundColor: `rgb(var(--generate-card-bg))`,
-                color: `rgb(var(--foreground))`,
-                borderColor: `rgb(var(--generate-card-border))`,
-                borderWidth: '1px',
-                boxShadow: `var(--generate-card-shadow)`
-              }}
+              className="w-full px-7 py-5 rounded-2xl text-lg resize-none overflow-hidden min-h-[90px] max-h-[260px]"
               rows={3}
             />
             </div>
