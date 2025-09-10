@@ -74,37 +74,40 @@ const OptionCard: React.FC<OptionCardProps> = ({
   // Card content shared by both link and non-link versions
   const cardContent = (
     <Card
-      className={`group rounded-3xl relative overflow-hidden bg-white border border-gray-200 shadow-lg transition-all duration-300 w-full h-full ${
+      className={`group rounded-3xl relative overflow-hidden bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-xl transition-all duration-300 w-full h-full ${
         disabled
           ? "opacity-50 cursor-not-allowed"
-          : "hover:shadow-xl hover:scale-105 cursor-pointer"
+          : "hover:shadow-2xl hover:scale-[1.02] hover:bg-white cursor-pointer hover:border-gray-300/50"
       }`}
     >
       {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-44 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
+        className={`absolute top-0 right-0 w-32 h-32 bg-gradient-radial ${gradientFrom} ${gradientTo} opacity-40 blur-3xl`}
+        style={{
+          background: `radial-gradient(circle at 30% 30%, ${gradientFrom.replace('from-', '')} 0%, ${gradientTo.replace('to-', '')} 50%, transparent 70%)`
+        }}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
         {/* Badge positioned at top right */}
         {pillLabel && (
           <div className="absolute top-4 right-4 z-10">
-            <Badge variant="secondary" className={`${labelColor} bg-white border border-gray-200`}>
+            <Badge variant="secondary" className={`${labelColor} bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-md font-semibold`}>
               {pillLabel}
             </Badge>
           </div>
         )}
         
-        <div className="flex items-start justify-start h-16 relative mb-3">
-          <Icon size={40} className={`${iconColor}`} />
+        <div className="flex items-start justify-start h-16 relative mb-4">
+          <Icon size={44} className={`${iconColor} drop-shadow-sm`} />
         </div>
         
         {/* Text section - positioned on the left */}
         <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-          <h3 className={`text-xl text-left leading-tight ${labelColor}`}>
+          <h3 className={`text-xl font-semibold text-left leading-tight ${labelColor}`}>
             {title}
           </h3>
-          <p className="text-sm text-gray-500 text-left leading-relaxed max-w-xs">
+          <p className="text-sm text-gray-600 text-left leading-relaxed max-w-xs">
             {description}
           </p>
         </div>
@@ -181,32 +184,31 @@ export default function DataSourceLanding() {
         <CreatePageHandler />
       </Suspense>
       <main
-        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-blue-100 to-purple-100"
-        // style={{
-        //   background:
-        //     "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
-        // }}
+        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
       >
       {/* Top-left home button */}
       <Link
         href="/projects"
-        className="absolute top-6 left-6 flex items-center gap-1 text-sm text-black hover:text-black-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
       >
-        {/* Home icon */}
-        <HomeIcon size={14} className="-ml-0.5" />
+        <HomeIcon size={16} />
         {t('interface.home', 'Home')}
       </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
         {/* Headings */}
-        <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-4xl sm:text-5xl text-gray-900">{t('interface.createWithAI', 'Create with AI')}</h1>
-          <p className="text-base sm:text-lg text-gray-500">{t('interface.howToGetStarted', 'How would you like to get started?')}</p>
+        <div className="flex flex-col gap-4 text-center">
+          <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
+            {t('interface.createWithAI', 'Create with AI')}
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl leading-relaxed">
+            {t('interface.howToGetStarted', 'How would you like to get started?')}
+          </p>
         </div>
 
         {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 w-full max-w-5xl">
           <OptionCard
             Icon={FileText}
             title={t('interface.pasteInText', 'Paste in text')}
