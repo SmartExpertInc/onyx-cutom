@@ -3103,7 +3103,7 @@ export default function CommercialProposalPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-[20px] py-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
+                <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
                   <h4 className="text-[18px] font-semibold">Платформа <span className="text-[18px] text-[#0F58F9] font-semibold">ContentBuilder.ai</span></h4>
 
                   <div>
@@ -3130,7 +3130,7 @@ export default function CommercialProposalPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-[20px] pt-[20px]">
+                <div className="flex flex-col gap-[20px]">
                   <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold"> SmartExpert</span></h4>
 
                   <div>
