@@ -15,12 +15,12 @@ import httpx
 logger = logging.getLogger(__name__)
 
 
-async def post_export_to_smartexpert(structure_json: bytes, user_email: str) -> Optional[Dict[str, Any]]:
+async def post_export_to_smartexpert(structure_json: bytes, user_email: str, token: Optional[str]) -> Optional[Dict[str, Any]]:
     try:
         api_url = os.environ.get('SMARTEXPERT_API_URL', 'https://dev.smartexpert.net/api/v1/generate-product')
-        api_token = os.environ.get('SMARTEXPERT_API_TOKEN')
+        api_token = token
         if not api_token:
-            logger.info("[SmartExpert] SMARTEXPERT_API_TOKEN not set; skipping external POST")
+            logger.info("[SmartExpert] Token not provided; skipping external POST")
             return None
         logger.info(f"[SmartExpert] Posting export for email={user_email} to {api_url}")
         data = {
@@ -30,7 +30,6 @@ async def post_export_to_smartexpert(structure_json: bytes, user_email: str) -> 
         files = {
             'file': ('file.json', structure_json, 'application/json')
         }
-        # Using httpx for async multipart
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(api_url, data=data, files=files)
             status = response.status_code
@@ -50,7 +49,8 @@ async def post_export_to_smartexpert(structure_json: bytes, user_email: str) -> 
 async def export_course_outline_to_lms_format(
     course_outline_id: int,
     user_id: str,
-    user_email: str
+    user_email: str,
+    smartexpert_token: Optional[str] = None
 ) -> dict:
     logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id}")
 
@@ -398,7 +398,7 @@ async def export_course_outline_to_lms_format(
     structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder)
     structure_download_link = await create_public_download_link(user_id, structure_path)
 
-    smartexpert_result = await post_export_to_smartexpert(structure_json, user_email)
+    smartexpert_result = await post_export_to_smartexpert(structure_json, user_email, smartexpert_token)
 
     return {
         "courseTitle": main_title,

@@ -26937,6 +26937,7 @@ async def get_workspace_product_access(workspace_id: int):
 class LMSExportRequest(BaseModel):
     productIds: List[int]
     options: dict = {}
+    token: Optional[str] = None
 
 
 def validate_export_request(request: LMSExportRequest):
@@ -26984,7 +26985,7 @@ async def export_to_lms(
         for product_id in accessible_ids:
             logger.info(f"[API:LMS] Exporting course {product_id} ...")
             try:
-                course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id, user_email)
+                course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id, user_email, request.token)
                 export_results.append(course_structure)
                 logger.info(f"[API:LMS] Course exported | id={product_id} link={course_structure.get('downloadLink')} smartexpert_status={course_structure.get('smartexpert',{}).get('status') if course_structure.get('smartexpert') else None}")
             except Exception as e:
