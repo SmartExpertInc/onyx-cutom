@@ -47,9 +47,9 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
   const cardWrap: React.CSSProperties = { position:'absolute', left:'50%', transform:'translateX(-50%)', bottom:'20px', display:'grid', gridTemplateColumns:'1fr 96px', alignItems:'center', width:'740px' };
   const card: React.CSSProperties = { height:'94px', background:'#F0F3FD', border:'1px solid #ffffff', marginRight:'50px', borderRadius:'999px', display:'flex', alignItems:'center', padding:'0 36px', columnGap:'18px' };
   const nameText: React.CSSProperties = { fontSize:'18px', color:'#75787F' };
-  const dot: React.CSSProperties = { width:6, height:6, fontSize:'11px', color:'#6A6E77' };
+  const dot: React.CSSProperties = { width:6, height:6, marginBottom:'10px', fontSize:'11px', color:'#6A6E77' };
   const roleText: React.CSSProperties = { fontSize:'18px', color:'#75787F' };
-  const avatar: React.CSSProperties = { width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', background:'#ffffff', boxShadow:'0 0 0 6px rgba(0,0,0,0.04) inset' };
+  const avatar: React.CSSProperties = { width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', background:'#ffffff'};
 
   const inlineTitle = { ...titleStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
   const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
@@ -98,7 +98,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
           )}
         </div>
         <div style={avatar}>
-          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath: p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath: p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', marginTop:'3px', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
         </div>
       </div>
     </div>

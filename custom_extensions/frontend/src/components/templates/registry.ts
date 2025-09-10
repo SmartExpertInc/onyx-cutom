@@ -61,6 +61,7 @@ import ChangeManagementTabsSlideTemplate from './ChangeManagementTabsSlideTempla
 import BenefitsAndPerksColumnsSlideTemplate from './BenefitsAndPerksColumnsSlideTemplate';
 import OralHygieneSignsSlideTemplate from './OralHygieneSignsSlideTemplate';
 import ResourcesSlideTemplate from './ResourcesSlideTemplate';
+import LeftBarAvatarImageSlideTemplate from './LeftBarAvatarImageSlideTemplate';
 
 
 
@@ -2221,6 +2222,25 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       speakerName: { type: 'text', label: 'Speaker Name', required: true },
       speakerTitle: { type: 'text', label: 'Speaker Title', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Left bar with avatar and big image
+  'leftbar-avatar-image': {
+    id: 'leftbar-avatar-image',
+    name: 'Left Bar + Avatar + Image',
+    description: 'Black left bar, circular avatar, large framed image. No texts.',
+    category: 'content',
+    icon: '🖼️',
+    component: LeftBarAvatarImageSlideTemplate,
+    defaultProps: {
+      avatarPath: '',
+      mainImagePath: ''
+    },
+    propSchema: {
+      avatarPath: { type: 'image', label: 'Avatar' },
+      mainImagePath: { type: 'image', label: 'Main Image' }
     }
   }
   ,
