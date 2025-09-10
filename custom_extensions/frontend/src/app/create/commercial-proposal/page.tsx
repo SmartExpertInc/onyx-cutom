@@ -1147,13 +1147,37 @@ export default function CommercialProposalPage() {
                 </div>
 
                 <div 
-                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center"
+                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
                   style={{
                     background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                     borderRadius: '6px',
                     boxShadow: '2px 2px 10px 0px #0000001A'
                   }}
                 >
+                  <div 
+                    className="absolute xl:hidden"
+                    style={{
+                      width: '375px',
+                      height: '375px',
+                      top: '-71px',
+                      left: '-163px',
+                      background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                      borderRadius: '50%',
+                      opacity: 1
+                    }}
+                  />
+                  <div 
+                    className="absolute xl:hidden"
+                    style={{
+                      width: '375px',
+                      height: '375px',
+                      top: '-71px',
+                      left: '-287px',
+                      background: 'linear-gradient(180deg, rgba(203, 220, 255, 0.3) 20.37%, rgba(255, 255, 255, 0.2) 100%)',
+                      borderRadius: '50%',
+                      opacity: 1
+                    }}
+                  />
                   <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
                   <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$900<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/курс</span></span>
                 </div>
