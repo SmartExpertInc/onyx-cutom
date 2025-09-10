@@ -115,9 +115,9 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
     onClick={onClick}
     className="flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer w-40 h-28 text-center backdrop-blur-sm hover:scale-105"
     style={{
-      backgroundColor: active ? `hsl(var(--generate-tab-active-bg))` : `hsl(var(--generate-tab-bg))`,
-      color: active ? `hsl(var(--generate-tab-active-text))` : `hsl(var(--generate-tab-text))`,
-      borderColor: active ? `hsl(var(--generate-tab-active-border))` : `hsl(var(--generate-tab-border))`,
+      backgroundColor: active ? `rgb(var(--generate-tab-active-bg))` : `rgb(var(--generate-tab-bg))`,
+      color: active ? `rgb(var(--generate-tab-active-text))` : `rgb(var(--generate-tab-text))`,
+      borderColor: active ? `rgb(var(--generate-tab-active-border))` : `rgb(var(--generate-tab-border))`,
       borderWidth: '1px',
       boxShadow: active ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : 'none'
     }}
@@ -1036,10 +1036,7 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
-      style={{
-        background: `linear-gradient(to bottom right, hsl(var(--generate-bg-gradient-from)), hsl(var(--generate-bg-gradient-via)), hsl(var(--generate-bg-gradient-to)))`
-      }}
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
     >
       <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
         {/* back button absolute top-left */}
@@ -1047,9 +1044,9 @@ function GenerateProductPicker() {
           href="/create"
           className="absolute top-6 left-6 flex items-center gap-2 text-sm rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
           style={{
-            color: `hsl(var(--generate-back-button-text))`,
-            backgroundColor: `hsl(var(--generate-back-button-bg))`,
-            borderColor: `hsl(var(--generate-back-button-border))`,
+            color: `rgb(var(--generate-back-button-text))`,
+            backgroundColor: `rgb(var(--generate-back-button-bg))`,
+            borderColor: `rgb(var(--generate-back-button-border))`,
             borderWidth: '1px'
           }}
         >
@@ -1061,14 +1058,14 @@ function GenerateProductPicker() {
           <h1 
             className="text-4xl sm:text-6xl font-bold bg-clip-text text-transparent leading-tight"
             style={{
-              background: `linear-gradient(to right, hsl(var(--generate-title-gradient-from)), hsl(var(--generate-title-gradient-via)), hsl(var(--generate-title-gradient-to)))`
+              background: `linear-gradient(to right, rgb(var(--generate-title-gradient-from)), rgb(var(--generate-title-gradient-via)), rgb(var(--generate-title-gradient-to)))`
             }}
           >
             {t('interface.generate.title', 'Generate')}
           </h1>
           <p 
             className="text-lg sm:text-xl max-w-2xl leading-relaxed"
-            style={{ color: `hsl(var(--generate-subtitle-color))` }}
+            style={{ color: `rgb(var(--generate-subtitle-color))` }}
           >
             {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
              isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
@@ -1081,19 +1078,19 @@ function GenerateProductPicker() {
           <Alert 
             className="backdrop-blur-sm shadow-sm"
             style={{
-              backgroundColor: `hsl(var(--generate-alert-bg))`,
-              borderColor: `hsl(var(--generate-alert-border))`,
+              backgroundColor: `rgb(var(--generate-alert-bg))`,
+              borderColor: `rgb(var(--generate-alert-border))`,
               borderWidth: '1px'
             }}
           >
             <div 
               className="flex items-center gap-2 font-medium mb-2"
-              style={{ color: `hsl(var(--generate-alert-text))` }}
+              style={{ color: `rgb(var(--generate-alert-text))` }}
             >
               <FileText className="h-5 w-5" />
               {t('interface.generate.creatingFromFiles', 'Creating from files')}
             </div>
-            <AlertDescription style={{ color: `hsl(var(--generate-alert-text))` }}>
+            <AlertDescription style={{ color: `rgb(var(--generate-alert-text))` }}>
               {folderIds.length > 0 && (
                 <p>{folderIds.length} {folderIds.length !== 1 ? t('interface.generate.foldersSelectedPlural', 'folders selected') : t('interface.generate.foldersSelected', 'folder selected')}</p>
               )}
@@ -1499,8 +1496,8 @@ function GenerateProductPicker() {
                             <div 
                               className="absolute top-full left-0 mt-1 w-full rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
                               style={{
-                                backgroundColor: `hsl(var(--generate-card-bg))`,
-                                borderColor: `hsl(var(--generate-card-border))`,
+                                backgroundColor: `rgb(var(--generate-card-bg))`,
+                                borderColor: `rgb(var(--generate-card-border))`,
                                 borderWidth: '1px'
                               }}
                             >
@@ -1582,8 +1579,8 @@ function GenerateProductPicker() {
                         <div 
                           className="absolute top-full left-0 mt-1 w-full rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
                           style={{
-                            backgroundColor: `hsl(var(--generate-card-bg))`,
-                            borderColor: `hsl(var(--generate-card-border))`,
+                            backgroundColor: `rgb(var(--generate-card-bg))`,
+                            borderColor: `rgb(var(--generate-card-border))`,
                             borderWidth: '1px'
                           }}
                         >
@@ -1841,8 +1838,8 @@ function GenerateProductPicker() {
                         <div 
                           className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
                           style={{
-                            backgroundColor: `hsl(var(--generate-card-bg))`,
-                            borderColor: `hsl(var(--generate-card-border))`,
+                            backgroundColor: `rgb(var(--generate-card-bg))`,
+                            borderColor: `rgb(var(--generate-card-border))`,
                             borderWidth: '1px'
                           }}
                         >
@@ -1941,11 +1938,11 @@ function GenerateProductPicker() {
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               className="w-full px-7 py-5 rounded-2xl text-lg resize-none overflow-hidden min-h-[90px] max-h-[260px] focus:outline-none transition-colors"
               style={{ 
-                backgroundColor: `hsl(var(--generate-card-bg))`,
-                color: `hsl(var(--foreground))`,
-                borderColor: `hsl(var(--generate-card-border))`,
+                backgroundColor: `rgb(var(--generate-card-bg))`,
+                color: `rgb(var(--foreground))`,
+                borderColor: `rgb(var(--generate-card-border))`,
                 borderWidth: '1px',
-                boxShadow: `hsl(var(--generate-card-shadow))`
+                boxShadow: `var(--generate-card-shadow)`
               }}
               rows={3}
             />
@@ -1984,17 +1981,17 @@ function GenerateProductPicker() {
                   onClick={shuffleExamples}
                   className="flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-colors cursor-pointer"
                   style={{
-                    backgroundColor: `hsl(var(--generate-card-bg))`,
-                    color: `hsl(var(--generate-tab-active-text))`,
-                    borderColor: `hsl(var(--generate-tab-active-border))`,
+                    backgroundColor: `rgb(var(--generate-card-bg))`,
+                    color: `rgb(var(--generate-tab-active-text))`,
+                    borderColor: `rgb(var(--generate-tab-active-border))`,
                     borderWidth: '1px',
-                    boxShadow: `hsl(var(--generate-card-shadow))`
+                    boxShadow: `var(--generate-card-shadow)`
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = `hsl(var(--generate-tab-bg))`;
+                    e.currentTarget.style.backgroundColor = `rgb(var(--generate-tab-bg))`;
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = `hsl(var(--generate-card-bg))`;
+                    e.currentTarget.style.backgroundColor = `rgb(var(--generate-card-bg))`;
                   }}
                 >
                   <Shuffle size={18} /> {t('interface.generate.shuffleExamples', 'Shuffle')}
