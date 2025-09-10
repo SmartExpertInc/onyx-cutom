@@ -36,25 +36,25 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111827', fontFamily: currentTheme.fonts.titleFont, position:'relative', paddingTop:'132px' };
 
-  const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'132px', display:'grid', gridTemplateRows:'32px 32px 32px 36px' };
+  const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'180px', display:'grid', gridTemplateRows:'45px 45px 45px 45px' };
   const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 24px', fontSize:'14px', letterSpacing:0.5 });
 
-  const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'180px', bottom:'120px' };
-  const avatar: React.CSSProperties = { position:'absolute', left:'56px', top:'8px', width:'64px', height:'64px', borderRadius:'12px', overflow:'hidden', background:'#D7EBFF' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'140px', right:'56px', top:0, fontSize:'42px', fontWeight:800, color:'#1F2937', lineHeight:1.2 };
+  const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'220px', bottom:'120px' };
+  const avatar: React.CSSProperties = { position:'absolute', left:'48px', top:'8px', width:'78px', height:'78px', borderRadius:'0px', overflow:'hidden', background:'#D7EBFF' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'154px', right:'56px', top:0, fontSize:'42px', fontWeight:800, color:'#2D2D2D', lineHeight:1.2 };
 
-  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'120px', height:'82px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', columnGap:'28px' };
-  const capsule: React.CSSProperties = { border:'2px solid #1f2937', borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#111827', fontSize:'16px', height:'100%', background:'#fff' };
-  const capsuleActive: React.CSSProperties = { ...capsule, background:'#111111', color:'#FFFFFF', borderColor:'#111111' };
+  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'150px', height:'82px', display:'grid', gridTemplateColumns:'1fr 164px 1fr', columnGap:'1px' };
+  const capsule: React.CSSProperties = { border:'2px solid #1f2937', borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#434343', fontSize:'12px', height:'100%', background:'#fff' };
+  const capsuleActive: React.CSSProperties = { ...capsule, height:'60%', background:'#111111', color:'#A5A5A5', borderColor:'#111111' };
 
   const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
   const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'14px' } as React.CSSProperties;
-  const inlineCapsule = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'16px', textAlign:'center' } as React.CSSProperties;
+  const inlineCapsule = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'12px', textAlign:'center' } as React.CSSProperties;
 
   return (
     <div className="change-mgmt-tabs inter-theme" style={slide}>
       <div style={topTabsWrap}>
-        {[['#0B0B0B','#EAEAEA'],['#E7D3A9','#111'],['#D8CBEF','#111'],['#F3F4F6','#6B7280']].map((pair, rowIdx)=> (
+        {[['#000000','#A5A5A5'],['#F4D9AA','#5E4B32'],['#CFC7F8','#4F4A6B'],['#FFFFFF','#5A5A5A']].map((pair, rowIdx)=> (
           <div key={rowIdx} style={tabRow(pair[0] as string, pair[1] as string)}>
             {isEditable && editTabIdx === rowIdx ? (
               <ImprovedInlineEditor initialValue={topTabs[rowIdx] ?? ''} onSave={(v)=>{ const next=[...topTabs]; next[rowIdx]=v; onUpdate&&onUpdate({ topTabs: next }); setEditTabIdx(null); }} onCancel={()=>setEditTabIdx(null)} style={inlineTab} />

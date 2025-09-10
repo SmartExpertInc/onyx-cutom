@@ -34,15 +34,15 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const [editItem, setEditItem] = useState<number | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'1fr 520px', gap:'36px', padding:'56px 56px' };
-  const headingStyle: React.CSSProperties = { fontSize:'72px', fontWeight:800, color:'#334D3F', lineHeight:1.05 };
+  const headingStyle: React.CSSProperties = { fontSize:'53px', fontWeight:800, color:'#485A4F', lineHeight:1.05 };
   const list: React.CSSProperties = { marginTop:'28px', display:'grid', rowGap:'22px' };
   const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', alignItems:'center', columnGap:'18px' };
   const num: React.CSSProperties = { fontSize:'44px', color:'#3E5B4B', fontWeight:700 };
   const text: React.CSSProperties = { fontSize:'28px', color:'#4B6256' };
 
   const rightWrap: React.CSSProperties = { position:'relative' };
-  const panel: React.CSSProperties = { position:'absolute', inset:0, borderRadius:'40px', background:rightPanelColor };
-  const image: React.CSSProperties = { position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain' };
+  const panel: React.CSSProperties = { position:'absolute', inset:0, borderRadius:'40px', background:'#1C3927' };
+  const image: React.CSSProperties = { position:'absolute', inset:0, width:'68%', height:'100%', objectFit:'contain' };
 
   const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
   const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
