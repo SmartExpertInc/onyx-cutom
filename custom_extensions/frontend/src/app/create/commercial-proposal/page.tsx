@@ -1271,9 +1271,8 @@ export default function CommercialProposalPage() {
                     </div>
                     
                     <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
-                      Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
-                      <span className="text-[#0F58F9]">материалы</span><br className="hidden xl:block"/> (тексты,<br className="xl:hidden"/>
-                      инструкции, PDF, видео и др.)
+                      <span className="text-[#0F58F9]">Загружаете любые <br className="hidden xl:block"/>материалы</span>
+                      (тексты,<br /> инструкции, PDF, видео и др.)
                     </h5>
                   </div>
 
@@ -1287,7 +1286,7 @@ export default function CommercialProposalPage() {
                     </div>
                     
                     <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
-                      Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты,<br className="xl:hidden"/> видео и презентации</span>
+                      Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты, видео<br className="xl:hidden"/> и презентации</span>
                     </h5>
                   </div>
                 </div>
