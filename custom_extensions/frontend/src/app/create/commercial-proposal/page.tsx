@@ -1147,7 +1147,7 @@ export default function CommercialProposalPage() {
                 </div>
 
                 <div 
-                  className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] my-[20px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
+                  className="flex flex-col gap-[5px] xl:gap-0 py-[30px] xl:py-[40px] my-[20px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
                   style={{
                     background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                     borderRadius: '6px',
@@ -1352,7 +1352,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%] mb-[5px] mt-[15px]">
+              <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%] mb-[5px] mt-[15px] xl:mt-[30px]">
                 Тариф:
               </h4>
 
