@@ -1296,7 +1296,7 @@ export default function CommercialProposalPage() {
                 Тариф:
               </h4>
 
-              <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-0 xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] mb-[15px] xl:mb-[40px]">
+              <div className="flex flex-col xl:flex-row gap-[10px] xl:gap-0 xl:border xl:border-[#E0E0E0] xl:rounded-[6px] xl:shadow-[0px_24px_24px_-8px_#2A334608] mb-[5px] xl:mb-[40px]">
                 <div 
                   className="xl:w-[500px] rounded-[6px] bg-[#F5F8FF] xl:bg-[linear-gradient(240.17deg,#F5F8FF_34.29%,rgba(203,220,255,0.55)_107.22%)] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] flex flex-col gap-[20px] flex-shrink-0"
                 >
@@ -1407,8 +1407,8 @@ export default function CommercialProposalPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-[15px] xl:px-[30px] xl:py-[30px]">
-                  <div className="px-[18px] xl:px-[20px] py-[8px] xl:py-[10px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] mt-[25px] xl:mt-0 w-fit">
+                <div className="flex flex-col gap-[5px] xl:px-[30px] xl:py-[30px]">
+                  <div className="px-[18px] xl:px-[20px] py-[8px] xl:py-[10px] border border-[#E0E0E0] rounded-[2px] flex items-center gap-[10px] mt-[12px] xl:mt-0 w-fit">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M13.809 6.75093C10.2631 5.77179 9.5257 5.03362 8.54645 1.48836C8.51534 1.37561 8.41295 1.29785 8.29631 1.29785C8.17967 1.29785 8.07729 1.37561 8.04618 1.48836C7.06704 5.03429 6.32888 5.77168 2.78361 6.75093C2.67086 6.78204 2.59375 6.88442 2.59375 7.00106C2.59375 7.1177 2.67151 7.22009 2.78361 7.25119C6.32954 8.23033 7.06693 8.9685 8.04618 12.5138C8.07729 12.6265 8.17967 12.7043 8.29631 12.7043C8.41295 12.7043 8.51534 12.6265 8.54645 12.5138C9.52559 8.96784 10.2638 8.23045 13.809 7.25119C13.9218 7.22009 13.9989 7.1177 13.9989 7.00106C13.9989 6.88442 13.9211 6.78204 13.809 6.75093Z" fill="#09090B"/>
                       <path d="M2.60109 5.51323C2.6322 5.62599 2.73458 5.70374 2.85122 5.70374C2.96786 5.70374 3.07025 5.62598 3.10136 5.51323C3.55497 3.87117 3.87054 3.55555 5.51259 3.102C5.62534 3.0709 5.70245 2.96851 5.70245 2.85187C5.70245 2.73523 5.62469 2.63284 5.51259 2.60174C3.87053 2.14813 3.5549 1.8332 3.10136 0.19051C3.07025 0.0777549 2.96786 0 2.85122 0C2.73458 0 2.6322 0.0777615 2.60109 0.19051C2.14748 1.83257 1.8319 2.14819 0.189863 2.60174C0.0771079 2.63284 0 2.73523 0 2.85187C0 2.96851 0.0777615 3.0709 0.189863 3.102C1.83192 3.55561 2.14755 3.87054 2.60109 5.51323Z" fill="#09090B"/>
