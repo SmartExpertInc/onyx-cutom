@@ -1479,7 +1479,7 @@ export default function CommercialProposalPage() {
                 }}
               ></div>
 
-              <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
+              <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px] mb-[15px]">
                 <h4 className="font-semibold text-[20px] xl:text-[32px]">
                   Возможности платформы:
                 </h4>
