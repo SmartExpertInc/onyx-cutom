@@ -21,6 +21,7 @@ interface OptionCardProps {
   gradientFrom: string;
   gradientTo: string;
   iconColor: string;
+  labelColor: string;
 }
 
 const OptionCard: React.FC<OptionCardProps> = ({
@@ -33,6 +34,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
   gradientFrom,
   gradientTo,
   iconColor,
+  labelColor,
 }: OptionCardProps) => {
   const router = useRouter();
   
@@ -71,30 +73,23 @@ const OptionCard: React.FC<OptionCardProps> = ({
   // Card content shared by both link and non-link versions
   const cardContent = (
     <Card
-      className={`group relative overflow-hidden border-0 shadow-lg transition-all duration-300 w-full h-full ${
+      className={`group relative overflow-hidden bg-white border border-gray-200 shadow-lg transition-all duration-300 w-full h-full ${
         disabled
           ? "opacity-50 cursor-not-allowed"
           : "hover:shadow-xl hover:scale-105 cursor-pointer"
       }`}
     >
-      {/* Gradient background with sparkle pattern */}
       <div 
-        className={`absolute inset-0 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-90`}
-        style={{
-          backgroundImage: `radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3) 1px, transparent 1px),
-                           radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2) 1px, transparent 1px),
-                           radial-gradient(circle at 40% 60%, rgba(255,255,255,0.25) 1px, transparent 1px)`,
-          backgroundSize: '20px 20px, 30px 30px, 25px 25px'
-        }}
+        className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-80 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-0 h-full flex flex-col">
         {/* Icon section */}
-        <div className="flex items-center justify-center h-32 relative">
+        <div className="flex items-left justify-center h-32 relative">
           <div className="relative">
-            <Icon size={48} className={`${iconColor} drop-shadow-lg`} />
+            <Icon size={48} className={`${iconColor}`} />
             {pillLabel && (
-              <span className="absolute -top-2 -right-2 text-[10px] font-bold bg-white text-gray-700 rounded-full px-2 py-1 shadow-md">
+              <span className={`absolute -top-2 -right-2 text-[10px] font-bold bg-white ${labelColor} rounded-full px-2 py-1 shadow-md`}>
                 {pillLabel}
               </span>
             )}
@@ -214,9 +209,10 @@ export default function DataSourceLanding() {
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
             href="/create/paste-text"
-            gradientFrom="from-blue-300"
-            gradientTo="to-blue-100"
+            gradientFrom="from-blue-400"
+            gradientTo="to-blue-200"
             iconColor="text-blue-600"
+            labelColor="text-blue-700"
           />
           <OptionCard
             Icon={Sparkles}
@@ -224,18 +220,20 @@ export default function DataSourceLanding() {
             description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
             pillLabel={t('interface.popular', 'POPULAR')}
-            gradientFrom="from-orange-300"
-            gradientTo="to-orange-100"
+            gradientFrom="from-orange-400"
+            gradientTo="to-orange-200"
             iconColor="text-orange-600"
+            labelColor="text-orange-700"
           />
           <OptionCard
             Icon={UploadCloud}
             title={t('interface.importFileOrUrl', 'Import file or URL')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
-            gradientFrom="from-purple-300"
-            gradientTo="to-purple-100"
+            gradientFrom="from-purple-400"
+            gradientTo="to-purple-200"
             iconColor="text-purple-600"
+            labelColor="text-purple-700"
           />
         </div>
 
