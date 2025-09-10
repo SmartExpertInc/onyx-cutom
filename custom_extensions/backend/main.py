@@ -26953,7 +26953,7 @@ async def export_to_lms(
     http_request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Export selected course outlines to LMS format"""
+    """Export selected course outlines to LMS format with streaming keep-alive."""
     from app.services.lms_exporter import export_course_outline_to_lms_format
 
     logger.info(f"[API:LMS] Request start | productIds={request.productIds}")
@@ -26964,50 +26964,81 @@ async def export_to_lms(
     onyx_user_id = user_uuid
     logger.info(f"[API:LMS] User resolved | onyx_user_id={onyx_user_id} email={user_email}")
 
-    try:
-        async with pool.acquire() as connection:
-            accessible_products = await connection.fetch(
-                """
-                SELECT p.id
-                FROM projects p
-                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                WHERE p.id = ANY($1::int[]) AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
-                """,
-                request.productIds, onyx_user_id
-            )
-            accessible_ids = [p['id'] for p in accessible_products]
-            logger.info(f"[API:LMS] Accessible IDs | {accessible_ids}")
-            if not accessible_ids:
-                logger.warning("[API:LMS] No accessible course outlines found")
-                raise HTTPException(status_code=404, detail="No accessible course outlines found")
+    async with pool.acquire() as connection:
+        accessible_products = await connection.fetch(
+            """
+            SELECT p.id
+            FROM projects p
+            LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+            WHERE p.id = ANY($1::int[]) AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
+            """,
+            request.productIds, onyx_user_id
+        )
+        accessible_ids = [p['id'] for p in accessible_products]
+        logger.info(f"[API:LMS] Accessible IDs | {accessible_ids}")
+        if not accessible_ids:
+            logger.warning("[API:LMS] No accessible course outlines found")
+            raise HTTPException(status_code=404, detail="No accessible course outlines found")
 
-        export_results = []
+    async def streamer():
+        last_send = asyncio.get_event_loop().time()
+        results = []
+        total = len(accessible_ids)
+        completed = 0
+        yield (json.dumps({"type": "start", "total": total}) + "\n").encode()
+
         for product_id in accessible_ids:
-            logger.info(f"[API:LMS] Exporting course {product_id} ...")
             try:
+                yield (json.dumps({"type": "progress", "message": f"Exporting course {product_id}...", "productId": product_id}) + "\n").encode()
                 course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id, user_email, request.token)
-                export_results.append(course_structure)
-                logger.info(f"[API:LMS] Course exported | id={product_id} link={course_structure.get('downloadLink')} smartexpert_status={course_structure.get('smartexpert',{}).get('status') if course_structure.get('smartexpert') else None}")
+                results.append(course_structure)
+                completed += 1
+                yield (json.dumps({
+                    "type": "progress",
+                    "message": f"Course {product_id} exported",
+                    "productId": product_id,
+                    "downloadLink": course_structure.get("downloadLink")
+                }) + "\n").encode()
             except Exception as e:
                 logger.error(f"[API:LMS] Course export failed | id={product_id} err={e}")
-                export_results.append({
+                results.append({
                     "courseTitle": f"Course {product_id}",
                     "error": str(e),
                     "downloadLink": None,
                     "structure": None
                 })
+                yield (json.dumps({
+                    "type": "progress",
+                    "message": f"Course {product_id} failed: {str(e)}",
+                    "productId": product_id,
+                    "error": True
+                }) + "\n").encode()
 
-        response_payload = {
+            now = asyncio.get_event_loop().time()
+            if now - last_send > 8:
+                yield b" "
+                last_send = now
+
+        status = "completed" if all(r.get("downloadLink") for r in results) else "partial"
+        final_payload = {
             "success": True,
             "message": "Export completed",
-            "results": export_results,
-            "status": "completed" if all(r.get("downloadLink") for r in export_results) else "partial"
+            "results": results,
+            "status": status
         }
-        logger.info(f"[API:LMS] Response | status={response_payload['status']}")
-        return response_payload
-    except Exception as e:
-        logger.error(f"[API:LMS] Export failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        user_msg = f"Your courses have been exported. You can find them in your SmartExpert account linked to {user_email}."
+        yield (json.dumps({"type": "done", "payload": final_payload, "userMessage": user_msg}) + "\n").encode()
+        return
+
+    return StreamingResponse(
+        streamer(),
+        media_type="application/json",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 
 @app.get("/api/custom/lms/export/{export_id}/status")

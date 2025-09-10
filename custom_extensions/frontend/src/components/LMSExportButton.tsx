@@ -42,16 +42,61 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
         throw new Error(`Export failed: ${response.status}`);
       }
 
-      const exportData = await response.json();
+      // Handle streaming JSON lines
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffered = '';
+      let finalPayload: any = null;
+      let userMessage: string | undefined;
 
-      if (exportData.success) {
+      if (reader) {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          buffered += chunk;
+
+          const lines = buffered.split('\n');
+          buffered = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue; // keep-alive whitespace
+            try {
+              const packet = JSON.parse(trimmed);
+              if (packet.type === 'progress') {
+                console.log('📦 LMS export progress:', packet.message || packet);
+              } else if (packet.type === 'start') {
+                console.log('🚀 LMS export started:', packet);
+              } else if (packet.type === 'done') {
+                finalPayload = packet.payload;
+                userMessage = packet.userMessage;
+              }
+            } catch (e) {
+              console.warn('⚠️ Failed to parse export stream packet:', e, line);
+            }
+          }
+        }
+      }
+
+      const exportData = finalPayload || (await response.json());
+
+      if (exportData?.success) {
         setExportStatus('success');
         console.log('✅ Export completed:', exportData.results);
-        exportData.results.forEach((result: any) => {
+        exportData.results?.forEach((result: any) => {
           if (result.downloadLink) {
             console.log(`📥 Course "${result.courseTitle}" available at: ${result.downloadLink}`);
           }
         });
+        if (userMessage) {
+          // Simple styled toast; replace with your toast system if available
+          const toast = document.createElement('div');
+          toast.textContent = userMessage;
+          toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
+          document.body.appendChild(toast);
+          setTimeout(() => { toast.remove(); }, 7000);
+        }
         onExportComplete?.(exportData);
       } else {
         throw new Error('Export completed with errors');
