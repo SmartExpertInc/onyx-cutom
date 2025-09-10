@@ -1262,7 +1262,7 @@ export default function CommercialProposalPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden px-[15px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]">
+                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden pl-[15px] pr-[13px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]">
                     <div 
                       className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                       style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1271,7 +1271,7 @@ export default function CommercialProposalPage() {
                     </div>
                     
                     <p className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
-                      <span className="text-[#0F58F9]">Загружаете любые <br className="hidden xl:block"/>материалы </span>(тексты,<br /> инструкции, PDF, видео и др.)
+                      <span className="text-[#0F58F9]">Загружаете любые <br className="xl:hidden"/>материалы </span>(тексты,<br /> инструкции, PDF, видео и др.)
                     </p>
                   </div>
 
