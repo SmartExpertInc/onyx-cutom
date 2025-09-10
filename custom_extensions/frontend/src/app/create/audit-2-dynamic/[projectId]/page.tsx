@@ -27,7 +27,8 @@ export default function DynamicAuditLandingPage() {
           return
         }
         
-        const response = await fetch(`/api/custom/ai-audit/landing-page/${projectId}`)
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`)
         if (!response.ok) {
           throw new Error('Failed to fetch landing page data')
         }
