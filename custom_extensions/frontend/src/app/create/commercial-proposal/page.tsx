@@ -3189,18 +3189,18 @@ export default function CommercialProposalPage() {
 
                 <span className="text-white text-[22px] xl:text-[26px] font-semibold relative z-10">Итого:</span>
                 
-                <div className="flex flex-col gap-[30px] relative z-10">
-                  <div className="flex flex-col gap-[5px] xl:gap-[2px]">
+                <div className="flex flex-col gap-[15px] relative z-10">
+                  <div className="flex flex-col xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">$750</span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Пробный пакет методолога (разово)</span>
                   </div>
 
-                  <div className="flex flex-col gap-[5px] xl:gap-[2px]">
+                  <div className="flex flex-col xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">$350</span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Подписка на 2 платформы</span>
                   </div>
 
-                  <div className="flex flex-col gap-[5px] xl:gap-[2px]">
+                  <div className="flex flex-col xl:gap-[2px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">7-14 дней</span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Всё готово к запуску</span>
                   </div>
