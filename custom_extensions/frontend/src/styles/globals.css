@@ -159,12 +159,12 @@ html {
   --generate-alert-bg: 239 246 255 / 0.8; /* blue-50 */
   --generate-alert-border: 191 219 254 / 0.5; /* blue-200 */
   --generate-alert-text: 30 64 175; /* blue-800 */
-  --generate-tab-bg: 255 255 255 / 0.7;
+  --generate-tab-bg: 255 255 255; /* white */
   --generate-tab-border: 226 232 240; /* slate-200 */
-  --generate-tab-active-bg: 255 255 255;
+  --generate-tab-active-bg: 255 255 255; /* white */
   --generate-tab-active-border: 59 130 246; /* blue-500 */
-  --generate-tab-text: 71 85 105; /* slate-600 */
-  --generate-tab-active-text: 30 64 175; /* blue-800 */
+  --generate-tab-text: 31 41 55; /* gray-800 */
+  --generate-tab-active-text: 31 41 55; /* gray-800 */
   --generate-card-bg: 255 255 255;
   --generate-card-border: 226 232 240; /* slate-200 */
   --generate-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -236,12 +236,12 @@ html {
   --generate-alert-bg: 30 58 138 / 0.8; /* blue-900 */
   --generate-alert-border: 59 130 246 / 0.5; /* blue-500 */
   --generate-alert-text: 191 219 254; /* blue-200 */
-  --generate-tab-bg: 30 41 59 / 0.7; /* slate-800 */
+  --generate-tab-bg: 255 255 255; /* white */
   --generate-tab-border: 51 65 85; /* slate-700 */
-  --generate-tab-active-bg: 30 41 59; /* slate-800 */
+  --generate-tab-active-bg: 255 255 255; /* white */
   --generate-tab-active-border: 59 130 246; /* blue-500 */
-  --generate-tab-text: 148 163 184; /* slate-400 */
-  --generate-tab-active-text: 191 219 254; /* blue-200 */
+  --generate-tab-text: 31 41 55; /* gray-800 */
+  --generate-tab-active-text: 31 41 55; /* gray-800 */
   --generate-card-bg: 30 41 59; /* slate-800 */
   --generate-card-border: 51 65 85; /* slate-700 */
   --generate-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);

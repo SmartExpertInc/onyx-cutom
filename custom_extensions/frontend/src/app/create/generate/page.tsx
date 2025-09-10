@@ -113,7 +113,9 @@ const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) =
   <button
     type="button"
     onClick={onClick}
-    className="flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer w-40 h-28 text-center backdrop-blur-sm hover:scale-105"
+    className={`flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer text-center backdrop-blur-sm hover:scale-105 ${
+      active ? 'w-44 h-32' : 'w-40 h-28'
+    }`}
     style={{
       backgroundColor: `rgb(var(--generate-tab-bg))`,
       color: `rgb(var(--generate-tab-text))`,
