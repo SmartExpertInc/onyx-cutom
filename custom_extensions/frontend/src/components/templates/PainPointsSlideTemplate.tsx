@@ -39,30 +39,54 @@ export const PainPointsSlideTemplate: React.FC<PainPointsSlideProps & { theme?: 
   const [editingBadge, setEditingBadge] = useState(false);
   const [editingItem, setEditingItem] = useState<number | null>(null);
 
+  // Base slide (very dark background, like screenshot)
   const slide: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#0f1016',
-    color: '#cdeee7',
+    backgroundColor: '#0C0F13',
+    color: '#D6FFF6',
     fontFamily: currentTheme.fonts.titleFont,
     position: 'relative',
-    padding: '60px 56px',
+    padding: '60px 56px 56px 56px',
     display: 'grid',
-    gridTemplateColumns: '1.1fr 0.9fr',
-    columnGap: '50px'
+    gridTemplateColumns: '1.08fr 0.92fr',
+    columnGap: '48px'
   };
 
-  const badgeWrap: React.CSSProperties = { display:'flex', justifyContent:'center', marginTop:'10px' };
-  const badgeStyle: React.CSSProperties = { border:'2px solid #2ad2b5', color:'#2ad2b5', borderRadius:'999px', padding:'12px 28px', fontSize:'22px' };
-  const headingStyle: React.CSSProperties = { textAlign:'center', fontSize:'56px', fontWeight:800, color:'#2ad2b5', margin:'22px 0 36px' };
+  // Top pill and heading
+  const badgeWrap: React.CSSProperties = { display:'flex', justifyContent:'center' };
+  const badgeStyle: React.CSSProperties = {
+    border:'2px solid #22D3B6',
+    color:'#22D3B6',
+    borderRadius:'999px',
+    padding:'14px 36px',
+    fontSize:'22px',
+    letterSpacing:0.3,
+    boxShadow:'0 0 0 1px rgba(34,211,182,0.15) inset'
+  };
+  const headingStyle: React.CSSProperties = { textAlign:'center', fontSize:'72px', fontWeight:800, color:'#22D3B6', margin:'22px 0 36px', lineHeight:1.05 };
 
-  const leftList: React.CSSProperties = { display:'flex', flexDirection:'column', gap:'36px', paddingLeft:'8px' };
-  const itemRow: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', gap:'18px', alignItems:'start' };
-  const iconBox: React.CSSProperties = { width:'48px', height:'48px', borderRadius:'10px', border:'2px solid #2ad2b5', display:'inline-flex', alignItems:'center', justifyContent:'center', color:'#2ad2b5' };
-  const itemText: React.CSSProperties = { fontSize:'22px', color:'#c9d4d1', lineHeight:1.5, maxWidth:'670px' };
+  // Left list
+  const leftList: React.CSSProperties = { display:'flex', flexDirection:'column', gap:'46px', paddingLeft:'8px', marginTop:'6px' };
+  const itemRow: React.CSSProperties = { display:'grid', gridTemplateColumns:'56px 1fr', gap:'20px', alignItems:'start' };
+  const iconBox: React.CSSProperties = {
+    width:'56px', height:'56px', borderRadius:'12px',
+    border:'2px solid rgba(34,211,182,0.5)',
+    background:'rgba(34,211,182,0.06)',
+    display:'inline-flex', alignItems:'center', justifyContent:'center', color:'#22D3B6',
+    boxShadow:'0 6px 18px rgba(0,0,0,0.35), 0 0 0 1px rgba(34,211,182,0.12) inset'
+  };
+  const itemText: React.CSSProperties = { fontSize:'30px', fontWeight:700, color:'#E3EAE8', lineHeight:1.25, maxWidth:'760px' };
 
+  // Right panel and image
   const rightWrap: React.CSSProperties = { position:'relative', width:'100%', height:'100%', display:'flex', alignItems:'center' };
-  const rightPanel: React.CSSProperties = { position:'absolute', right:'24px', top:'90px', bottom:'90px', left:'24px', backgroundColor:rightPanelColor, borderRadius:'24px' };
+  const rightPanel: React.CSSProperties = {
+    position:'absolute', right:'6px', top:'120px', bottom:'72px', left:'6px',
+    backgroundColor:rightPanelColor,
+    borderRadius:'24px',
+    boxShadow:'0 14px 30px rgba(0,0,0,0.45)'
+  };
+  const rightPanelBorder: React.CSSProperties = { position:'absolute', right:'0', top:'100px', bottom:'56px', left:'0', borderRadius:'28px', boxShadow:'0 0 0 3px rgba(34,211,182,0.55) inset', pointerEvents:'none' };
   const rightImageStyle: React.CSSProperties = { position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain' };
 
   const inlineHeading: React.CSSProperties = { ...headingStyle, position:'relative', background:'transparent', border:'none', padding:0, margin:0 };
@@ -116,6 +140,7 @@ export const PainPointsSlideTemplate: React.FC<PainPointsSlideProps & { theme?: 
 
       <div style={rightWrap}>
         <div style={rightPanel} />
+        <div style={rightPanelBorder} />
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p)=> onUpdate && onUpdate({ rightImagePath: p })}
