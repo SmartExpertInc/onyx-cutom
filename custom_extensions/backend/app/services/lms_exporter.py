@@ -192,29 +192,44 @@ async def export_course_outline_to_lms_format(
     # Remove scoring; implement deterministic matching and prevent duplicates
     used_product_ids: set = set()
 
-    def project_type_matches(proj: Dict[str, Any], target_mtype: str) -> bool:
-        return (proj.get('microproduct_type') or '').strip() == target_mtype
+    def map_item_type_to_microproduct(item_type: str) -> Optional[List[str]]:
+        t = (item_type or '').strip().lower()
+        if t in ('presentation',):
+            return ['Slide Deck']
+        if t in ('one-pager', 'onepager'):
+            return ['One Pager', 'Text Presentation', 'PDF Lesson']
+        if t in ('quiz',):
+            return ['Quiz']
+        return None
+
+    def normalize_item_type_output(item_type: str) -> str:
+        t = (item_type or '').strip()
+        if t == 'one-pager':
+            return 'onepager'
+        return t
+
+    def project_type_matches(proj: Dict[str, Any], target_mtypes: List[str]) -> bool:
+        return (proj.get('microproduct_type') or '').strip() in (target_mtypes or [])
 
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
-        target_mtype = map_item_type_to_microproduct(desired_type)
-        logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtype='{target_mtype}' lesson_title='{lesson_title}' outline='{outline_name}'")
-        if not target_mtype or not lesson_title:
+        target_mtypes = map_item_type_to_microproduct(desired_type)
+        logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtypes='{target_mtypes}' lesson_title='{lesson_title}' outline='{outline_name}'")
+        if not target_mtypes or not lesson_title:
             return None
 
         def is_unused(proj_id: Any) -> bool:
             return proj_id not in used_product_ids
 
-        # Normalize helper
         def pname(proj: Dict[str, Any]) -> str:
             return (proj.get('project_name') or '').strip()
         def mname(proj: Dict[str, Any]) -> str:
             return (proj.get('microproduct_name') or '').strip()
 
         # Pattern A (strongest): "Quiz - {outline}: {lesson}" for quizzes only
-        if target_mtype == 'Quiz':
+        if 'Quiz' in target_mtypes:
             target_name = f"Quiz - {outline_name}: {lesson_title}"
             for proj in projects:
-                if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                     if pname(proj) == target_name:
                         logger.info(f"[LMS-MATCH] A quiz match -> id={proj.get('id')} name='{pname(proj)}'")
                         return dict(proj)
@@ -223,65 +238,50 @@ async def export_course_outline_to_lms_format(
         type_prefix_map = {
             'Slide Deck': 'Presentation',
             'One Pager': 'One Pager',
-            'Text Presentation': 'Text Presentation'
+            'Text Presentation': 'Text Presentation',
+            'PDF Lesson': 'PDF Lesson'
         }
-        prefix = type_prefix_map.get(target_mtype)
-        if prefix:
-            target_name_prefixed = f"{prefix} - {outline_name}: {lesson_title}"
-            for proj in projects:
-                if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
-                    if pname(proj) == target_name_prefixed:
-                        logger.info(f"[LMS-MATCH] A2 prefixed match -> id={proj.get('id')} name='{pname(proj)}'")
-                        return dict(proj)
+        prefixes = [type_prefix_map[t] for t in target_mtypes if t in type_prefix_map]
+        if prefixes:
+            for pref in prefixes:
+                target_name_prefixed = f"{pref} - {outline_name}: {lesson_title}"
+                for proj in projects:
+                    if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
+                        if pname(proj) == target_name_prefixed:
+                            logger.info(f"[LMS-MATCH] A2 prefixed match -> id={proj.get('id')} name='{pname(proj)}'")
+                            return dict(proj)
 
         # Pattern B: "{outline}: {lesson}"
         target_name = f"{outline_name}: {lesson_title}"
         for proj in projects:
-            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+            if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == target_name:
                     logger.info(f"[LMS-MATCH] B exact outline:lesson match -> id={proj.get('id')}")
                     return dict(proj)
 
-        # Pattern C: microproduct_name equals lesson title (legacy connected products)
+        # Pattern C: microproduct_name equals lesson title
         for proj in projects:
-            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+            if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if mname(proj) == lesson_title:
                     logger.info(f"[LMS-MATCH] C microproduct_name match -> id={proj.get('id')}")
                     return dict(proj)
 
-        # Pattern E (legacy): project_name == outline_name AND microproduct_name == lesson_title
+        # Pattern E (legacy): project_name == outline_name AND microproduct_name == lesson title
         for proj in projects:
-            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+            if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == outline_name and mname(proj) == lesson_title:
                     logger.info(f"[LMS-MATCH] E outline+micro_name match -> id={proj.get('id')}")
                     return dict(proj)
 
-        # Pattern D: project_name equals lesson title (rare)
+        # Pattern D: project_name equals lesson title
         for proj in projects:
-            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+            if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
                 if pname(proj) == lesson_title:
                     logger.info(f"[LMS-MATCH] D project_name match -> id={proj.get('id')}")
                     return dict(proj)
 
         logger.info(f"[LMS-MATCH] No deterministic match for lesson='{lesson_title}' type='{desired_type}'")
         return None
-
-    def map_item_type_to_microproduct(item_type: str) -> Optional[str]:
-        t = (item_type or '').strip().lower()
-        if t in ('presentation',):
-            return 'Slide Deck'
-        if t in ('one-pager', 'onepager'):
-            return 'One Pager'
-        if t in ('quiz',):
-            return 'Quiz'
-        return None
-
-    def normalize_item_type_output(item_type: str) -> str:
-        # Keep original if it is one of expected variants; map one-pager to onepager to match sample
-        t = (item_type or '').strip()
-        if t == 'one-pager':
-            return 'onepager'
-        return t
 
     def normalize_public_link(url: Optional[str]) -> Optional[str]:
         if not url:
@@ -351,17 +351,17 @@ async def export_course_outline_to_lms_format(
                     logger.info(f"[LMS] Matched product id={product_id} type='{mapped_mtype}' for lesson='{lesson_title}'")
                     link: Optional[str] = None
                     try:
-                        if mapped_mtype == 'Slide Deck':
+                        if 'Slide Deck' in mapped_mtype:
                             pdf_bytes = await generate_presentation_pdf(matched, user_id)
                             file_name = f"slide-deck_{product_id}.pdf"
                             file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}presentations/")
                             link = await create_public_download_link(user_id, file_path)
-                        elif mapped_mtype == 'One Pager':
+                        elif any(t in mapped_mtype for t in ['One Pager', 'Text Presentation', 'PDF Lesson']):
                             pdf_bytes = await generate_onepager_pdf(matched, user_id)
                             file_name = f"onepager_{product_id}.pdf"
                             file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}onepagers/")
                             link = await create_public_download_link(user_id, file_path)
-                        elif mapped_mtype == 'Quiz':
+                        elif 'Quiz' in mapped_mtype:
                             cbai_bytes = await export_quiz_to_cbai(matched, user_id)
                             file_name = f"quiz_{product_id}.cbai"
                             file_path = await upload_file_to_smartdrive(user_id, cbai_bytes, file_name, f"{export_folder}quizzes/")
@@ -374,7 +374,6 @@ async def export_course_outline_to_lms_format(
                     item['type'] = normalize_item_type_output(item_type_raw)
                     item['link'] = normalize_public_link(link)
                     new_primary.append(item)
-                    # mark product as used
                     used_product_ids.add(product_id)
                 if recs is not None:
                     recs['primary'] = new_primary
