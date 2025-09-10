@@ -1146,7 +1146,7 @@ export default function CommercialProposalPage() {
                   </div>
 
                   <div 
-                    className="flex flex-col gap-[15px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                    className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
                     style={{
                       background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                       borderRadius: '6px',
@@ -1628,7 +1628,7 @@ export default function CommercialProposalPage() {
               </div>
 
               <div 
-                className="flex flex-col gap-[15px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
                 style={{
                   background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                   borderRadius: '6px',
@@ -2392,7 +2392,7 @@ export default function CommercialProposalPage() {
               </div>
 
               <div 
-                className="flex flex-col gap-[15px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
+                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center"
                 style={{
                   background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                   borderRadius: '6px',
