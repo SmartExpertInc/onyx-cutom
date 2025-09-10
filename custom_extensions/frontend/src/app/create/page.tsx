@@ -6,6 +6,7 @@ import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -81,19 +82,21 @@ const OptionCard: React.FC<OptionCardProps> = ({
     >
       {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-34 blur-lg h-24 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
+        className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-44 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
-        <div className="flex items-start justify-start h-16 relative mb-4">
-          <div className="relative">
-            <Icon size={40} className={`${iconColor}`} />
-            {pillLabel && (
-              <span className={`absolute -top-2 -right-2 text-[10px] font-bold bg-white ${labelColor} rounded-full px-2 py-1 shadow-md`}>
-                {pillLabel}
-              </span>
-            )}
+        {/* Badge positioned at top right */}
+        {pillLabel && (
+          <div className="flex justify-end mb-2">
+            <Badge variant="secondary" className={`${labelColor} bg-white border border-gray-200`}>
+              {pillLabel}
+            </Badge>
           </div>
+        )}
+        
+        <div className="flex items-start justify-start h-16 relative mb-4">
+          <Icon size={40} className={`${iconColor}`} />
         </div>
         
         {/* Text section - positioned on the left */}
@@ -199,7 +202,7 @@ export default function DataSourceLanding() {
         {/* Headings */}
         <div className="flex flex-col gap-2 text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">{t('interface.createWithAI', 'Create with AI')}</h1>
-          <p className="text-base sm:text-lg text-gray-600">{t('interface.howToGetStarted', 'How would you like to get started?')}</p>
+          <p className="text-base sm:text-lg text-gray-500">{t('interface.howToGetStarted', 'How would you like to get started?')}</p>
         </div>
 
         {/* Option cards */}
