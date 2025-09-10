@@ -55,12 +55,12 @@ import HighPerformingTeamsSlideTemplate from './HighPerformingTeamsSlideTemplate
 import EnterpriseRoadmapSlideTemplate from './EnterpriseRoadmapSlideTemplate';
 import ConcentricPhishingRiseSlideTemplate from './ConcentricPhishingRiseSlideTemplate';
 import ImpactMetricsRightImageSlideTemplate from './ImpactMetricsRightImageSlideTemplate';
-import PainPointsSlideTemplate from './PainPointsSlideTemplate';
 import CultureValuesThreeColumnsSlideTemplate from './CultureValuesThreeColumnsSlideTemplate';
 import KeySkillsDataAnalysisSlideTemplate from './KeySkillsDataAnalysisSlideTemplate';
 import ChangeManagementTabsSlideTemplate from './ChangeManagementTabsSlideTemplate';
 import BenefitsAndPerksColumnsSlideTemplate from './BenefitsAndPerksColumnsSlideTemplate';
 import OralHygieneSignsSlideTemplate from './OralHygieneSignsSlideTemplate';
+import ResourcesSlideTemplate from './ResourcesSlideTemplate';
 
 
 
@@ -2077,33 +2077,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
 
   
 
-  // New: Pain Points with badge, heading, 3 items and right image panel
-  'pain-points': {
-    id: 'pain-points',
-    name: 'Pain Points',
-    description: 'Badge + Heading + three bullet rows, right rounded image panel',
-    category: 'content',
-    icon: '💬',
-    component: PainPointsSlideTemplate,
-    defaultProps: {
-      badge: 'Pain Points',
-      heading: 'Common Pain Points',
-      items: [
-        { text: 'Hindered career progression and access to valuable resources.' },
-        { text: 'Strained communication and reduced effectiveness.' },
-        { text: 'Missed opportunities for collaboration and growth.' }
-      ],
-      rightPanelColor: '#138a79'
-    },
-    propSchema: {
-      badge: { type: 'text', label: 'Badge' },
-      heading: { type: 'text', label: 'Heading' },
-      items: { type: 'array', label: 'Items', required: true },
-      rightPanelColor: { type: 'color', label: 'Right Panel' },
-      rightImagePath: { type: 'image', label: 'Right Image' }
-    }
-  }
-  ,
+  
 
   // New: Culture & Values with three columns and avatar
   'culture-values-three-columns': {
@@ -2218,6 +2192,34 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       heading: { type: 'text', label: 'Heading', required: true },
       leftItems: { type: 'array', label: 'Left Items', required: true },
       rightItems: { type: 'array', label: 'Right Items', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Resources slide (pixel-perfect)
+  'resources-slide': {
+    id: 'resources-slide',
+    name: 'Resources',
+    description: 'Centered heading with 3 resources rows and speaker card',
+    category: 'content',
+    icon: '📚',
+    component: ResourcesSlideTemplate,
+    defaultProps: {
+      title: 'Resources',
+      items: [
+        'Resource 1 | Website/Book Title - Link/Author Name',
+        'Resource 2 | Website/Book Title - Link/Author Name',
+        'Resource 3 | Website/Book Title - Link/Author Name'
+      ],
+      speakerName: "Speaker's Name",
+      speakerTitle: "Speaker's Title"
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      speakerName: { type: 'text', label: 'Speaker Name', required: true },
+      speakerTitle: { type: 'text', label: 'Speaker Title', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
     }
   }
