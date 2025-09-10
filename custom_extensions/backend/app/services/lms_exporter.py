@@ -128,21 +128,21 @@ async def export_course_outline_to_lms_format(
         if lesson_title and proj_name == lesson_title:
             score += 100
         if lesson_title and proj_name.endswith(f": {lesson_title}"):
-            score += 90
+            score += 95
         if lesson_title and micro_name == lesson_title:
-            score += 80
+            score += 90
         if lesson_title and lesson_title in micro_name:
-            score += 70
-        # Outline-based matches
+            score += 80
+        # Outline-based matches (weaker)
         if proj_name == outline_name and micro_name:
-            score += 60
+            score += 40
         if ': ' in proj_name and proj_name.split(': ')[0].strip() == outline_name:
-            score += 55
+            score += 35
         if proj_name.startswith('Quiz - ') and ': ' in proj_name:
             quiz_part = proj_name.replace('Quiz - ', '', 1)
             outline_part = quiz_part.split(': ')[0].strip()
             if outline_part == outline_name:
-                score += 50
+                score += 30
         # Recency bonus
         try:
             if proj.get('created_at'):
@@ -152,21 +152,55 @@ async def export_course_outline_to_lms_format(
         logger.debug(f"[LMS-MATCH] score={score} for proj_id={proj.get('id')} name='{proj_name}' mtype='{mtype}' lesson='{lesson_title}'")
         return score
 
+    # Remove scoring; implement deterministic matching and prevent duplicates
+    used_product_ids: set = set()
+
+    def project_type_matches(proj: Dict[str, Any], target_mtype: str) -> bool:
+        return (proj.get('microproduct_type') or '').strip() == target_mtype
+
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
-        """Replicate connection logic using scoring to find the best product for a lesson and type."""
         target_mtype = map_item_type_to_microproduct(desired_type)
         logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtype='{target_mtype}' lesson_title='{lesson_title}' outline='{outline_name}'")
-        if not target_mtype:
+        if not target_mtype or not lesson_title:
             return None
-        best = None
-        best_score = -1
+
+        def is_unused(proj_id: Any) -> bool:
+            return proj_id not in used_product_ids
+
+        # Pattern A (strongest): "Quiz - {outline}: {lesson}" for quizzes only
+        if target_mtype == 'Quiz':
+            target_name = f"Quiz - {outline_name}: {lesson_title}"
+            for proj in projects:
+                if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                    proj_name = (proj.get('project_name') or '').strip()
+                    if proj_name == target_name:
+                        logger.info(f"[LMS-MATCH] A quiz match -> id={proj.get('id')} name='{proj_name}'")
+                        return dict(proj)
+
+        # Pattern B: "{outline}: {lesson}"
+        target_name = f"{outline_name}: {lesson_title}"
         for proj in projects:
-            sc = compute_candidate_score(proj, outline_name, lesson_title, target_mtype)
-            if sc > best_score:
-                best_score = sc
-                best = proj if sc >= 0 else None
-        logger.info(f"[LMS-MATCH] best_score={best_score} chosen_id={best.get('id') if best else None}")
-        return dict(best) if best else None
+            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                if (proj.get('project_name') or '').strip() == target_name:
+                    logger.info(f"[LMS-MATCH] B exact outline:lesson match -> id={proj.get('id')}")
+                    return dict(proj)
+
+        # Pattern C: microproduct_name equals lesson title
+        for proj in projects:
+            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                if (proj.get('microproduct_name') or '').strip() == lesson_title:
+                    logger.info(f"[LMS-MATCH] C microproduct_name match -> id={proj.get('id')}")
+                    return dict(proj)
+
+        # Pattern D: project_name equals lesson title (rare)
+        for proj in projects:
+            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                if (proj.get('project_name') or '').strip() == lesson_title:
+                    logger.info(f"[LMS-MATCH] D project_name match -> id={proj.get('id')}")
+                    return dict(proj)
+
+        logger.info(f"[LMS-MATCH] No deterministic match for lesson='{lesson_title}' type='{desired_type}'")
+        return None
 
     def map_item_type_to_microproduct(item_type: str) -> Optional[str]:
         t = (item_type or '').strip().lower()
@@ -184,6 +218,26 @@ async def export_course_outline_to_lms_format(
         if t == 'one-pager':
             return 'onepager'
         return t
+
+    def normalize_public_link(url: Optional[str]) -> Optional[str]:
+        if not url:
+            return url
+        try:
+            import os, re
+            public_base = os.environ.get('NEXTCLOUD_PUBLIC_SHARE_DOMAIN')
+            if public_base:
+                # Ensure no trailing slash
+                public_base = public_base.rstrip('/')
+                # Replace '/index.php/s/' with '/s/' under the base if needed
+                url = re.sub(r'^https?://[^/]+/index\\.php/s/', f"{public_base}/s/", url)
+                url = re.sub(r'^https?://[^/]+/s/', f"{public_base}/s/", url)
+                return url
+            # Default replacement to requested domain/path
+            url = re.sub(r'^https?://[^/]+/index\\.php/s/', 'http://ml-dev.contentbuilder.ai/smartdrive/s/', url)
+            url = re.sub(r'^https?://[^/]+/s/', 'http://ml-dev.contentbuilder.ai/smartdrive/s/', url)
+            return url
+        except Exception:
+            return url
 
     # Iterate sections/lessons and process recommended items
     for section in sections:
@@ -254,8 +308,10 @@ async def export_course_outline_to_lms_format(
                         continue
                     item['uid'] = item.get('uid') or str(uuid.uuid4())
                     item['type'] = normalize_item_type_output(item_type_raw)
-                    item['link'] = link
+                    item['link'] = normalize_public_link(link)
                     new_primary.append(item)
+                    # mark product as used
+                    used_product_ids.add(product_id)
                 if recs is not None:
                     recs['primary'] = new_primary
                     lesson['recommended_content_types'] = recs
