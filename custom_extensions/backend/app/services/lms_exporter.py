@@ -68,6 +68,7 @@ async def export_course_outline_to_lms_format(
 
     # Resolve and attach links for recommended products using name matching logic
     sections = structure.get('sections') or []
+    logger.info(f"[LMS] Outline parsed | sections={len(sections)} title='{main_title}'")
 
     def map_item_type_to_microproduct(item_type: str) -> Optional[str]:
         t = (item_type or '').strip().lower()
@@ -131,6 +132,7 @@ async def export_course_outline_to_lms_format(
         if isinstance(section, dict):
             section['uid'] = section.get('uid') or str(uuid.uuid4())
             lessons = section.get('lessons') or []
+            logger.info(f"[LMS] Section '{section.get('title')}' | lessons={len(lessons)}")
             for lesson in lessons:
                 if not isinstance(lesson, dict):
                     continue
@@ -138,13 +140,22 @@ async def export_course_outline_to_lms_format(
                 lesson_title = (lesson.get('title') or '').strip()
                 recs = lesson.get('recommended_content_types') or {}
                 primary = recs.get('primary') or []
+                logger.info(f"[LMS] Lesson '{lesson_title}' has primary(raw)={primary}")
+
+                # Normalize primary to list[dict] with 'type'
+                norm_primary = []
+                for it in primary:
+                    if isinstance(it, dict):
+                        norm_primary.append(it)
+                    elif isinstance(it, str):
+                        norm_primary.append({"type": it})
+                primary = norm_primary
 
                 # If no primary, try recommendedProducts/recommended_products fields
                 if not primary:
                     rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
                     if isinstance(rp, list) and rp:
                         logger.info(f"[LMS] Using lesson.recommendedProducts for '{lesson_title}': {rp}")
-                        # Build primary items from provided product names
                         temp_primary = []
                         for name in rp:
                             if not isinstance(name, str):
@@ -159,6 +170,7 @@ async def export_course_outline_to_lms_format(
                 new_primary = []
                 for item in primary:
                     if not isinstance(item, dict):
+                        logger.info(f"[LMS] Skipping non-dict primary item: {item}")
                         continue
                     item_type_raw = (item.get('type') or '').strip()
                     logger.info(f"[LMS] Processing recommended item type='{item_type_raw}' for lesson='{lesson_title}'")
