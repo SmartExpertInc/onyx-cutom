@@ -4,10 +4,15 @@ import uuid
 from typing import Dict, List, Any
 from fastapi import HTTPException
 from app.core.database import get_connection
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 async def export_quiz_to_cbai(product_data, user_id: str) -> bytes:
     """Convert quiz data to .cbai JSON format matching quiz.cbai structure"""
+
+    logger.info(f"[QUIZ] Export start | user={user_id} product_id={product_data['id']}")
 
     async with get_connection() as connection:
         quiz_data = await connection.fetchrow(
@@ -16,6 +21,7 @@ async def export_quiz_to_cbai(product_data, user_id: str) -> bytes:
         )
 
     if not quiz_data or not quiz_data.get('microproduct_content'):
+        logger.error(f"[QUIZ] Content not found | product_id={product_data['id']}")
         raise HTTPException(status_code=404, detail="Quiz content not found")
 
     quiz_content = quiz_data['microproduct_content']
@@ -27,6 +33,7 @@ async def export_quiz_to_cbai(product_data, user_id: str) -> bytes:
     }
 
     questions = parse_quiz_questions(quiz_content)
+    logger.info(f"[QUIZ] Parsed questions | count={len(questions)}")
 
     for question_data in questions:
         question = {
@@ -90,7 +97,9 @@ async def export_quiz_to_cbai(product_data, user_id: str) -> bytes:
 
         cbai_structure["questions"].append(question)
 
-    return json.dumps(cbai_structure, indent=2).encode('utf-8')
+    payload = json.dumps(cbai_structure, indent=2).encode('utf-8')
+    logger.info(f"[QUIZ] Export complete | product_id={product_data['id']} size={len(payload)}B")
+    return payload
 
 
 def parse_quiz_questions(quiz_content) -> List[Dict]:

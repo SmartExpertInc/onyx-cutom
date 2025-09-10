@@ -20,6 +20,8 @@ async def export_course_outline_to_lms_format(
 ) -> dict:
     """Convert course outline to LMS JSON format with file links"""
 
+    logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id}")
+
     async with get_connection() as connection:
         course_data = await connection.fetchrow(
             """
@@ -31,6 +33,7 @@ async def export_course_outline_to_lms_format(
             course_outline_id, user_id
         )
         if not course_data:
+            logger.error(f"[LMS] Course outline not found | course_id={course_outline_id}")
             raise HTTPException(status_code=404, detail="Course outline not found")
 
         related_products = await connection.fetch(
@@ -44,7 +47,10 @@ async def export_course_outline_to_lms_format(
             user_id
         )
 
+    logger.info(f"[LMS] Related products fetched | count={len(related_products)}")
+
     course_structure = await generate_course_structure(course_data, related_products, user_id)
+    logger.info(f"[LMS] Export complete | course_id={course_outline_id}")
     return course_structure
 
 
@@ -58,39 +64,48 @@ async def generate_course_structure(course_data, related_products, user_id: str)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     export_folder = f"/LMS_Exports/{timestamp}_{str(main_title).replace(' ', '_')}/"
 
+    logger.info(f"[LMS] Build structure | title='{main_title}' folder='{export_folder}'")
+
     content_links: Dict[int, Dict[str, str]] = {}
 
     for product in related_products:
+        product_type = (product.get('product_type') or '').strip()
+        logger.info(f"[LMS] Process product | id={product['id']} type='{product_type}' title='{product.get('title')}'")
         try:
-            product_type = (product.get('product_type') or '').strip()
             if product_type == 'Slide Deck':
                 pdf_content = await generate_presentation_pdf(product, user_id)
+                logger.info(f"[LMS] Presentation generated | id={product['id']} size={len(pdf_content)}B")
                 file_name = f"slide-deck_{product['id']}.pdf"
                 file_path = await upload_file_to_smartdrive(
                     user_id, pdf_content, file_name, f"{export_folder}presentations/"
                 )
                 download_link = await create_public_download_link(user_id, file_path)
+                logger.info(f"[LMS] Presentation uploaded & link created | path={file_path} link={download_link}")
                 content_links[product['id']] = {"type": "presentation", "link": download_link}
 
             elif product_type == 'One Pager':
                 pdf_content = await generate_onepager_pdf(product, user_id)
+                logger.info(f"[LMS] One-pager generated | id={product['id']} size={len(pdf_content)}B")
                 file_name = f"onepager_{product['id']}.pdf"
                 file_path = await upload_file_to_smartdrive(
                     user_id, pdf_content, file_name, f"{export_folder}onepagers/"
                 )
                 download_link = await create_public_download_link(user_id, file_path)
+                logger.info(f"[LMS] One-pager uploaded & link created | path={file_path} link={download_link}")
                 content_links[product['id']] = {"type": "onepager", "link": download_link}
 
             elif product_type == 'Quiz':
                 cbai_content = await export_quiz_to_cbai(product, user_id)
+                logger.info(f"[LMS] Quiz exported | id={product['id']} size={len(cbai_content)}B")
                 file_name = f"quiz_{product['id']}.cbai"
                 file_path = await upload_file_to_smartdrive(
                     user_id, cbai_content, file_name, f"{export_folder}quizzes/"
                 )
                 download_link = await create_public_download_link(user_id, file_path)
+                logger.info(f"[LMS] Quiz uploaded & link created | path={file_path} link={download_link}")
                 content_links[product['id']] = {"type": "quiz", "link": download_link}
         except Exception as e:
-            logger.error(f"Failed to process product {product['id']}: {e}")
+            logger.error(f"[LMS] Failed to process product {product['id']}: {e}")
             continue
 
     structure: Dict[str, Any] = {
@@ -135,10 +150,12 @@ async def generate_course_structure(course_data, related_products, user_id: str)
             current_lesson_count = 0
 
     structure_json = json.dumps(structure, indent=2).encode('utf-8')
+    logger.info(f"[LMS] Upload course_structure.json | size={len(structure_json)}B folder={export_folder}")
     structure_path = await upload_file_to_smartdrive(
         user_id, structure_json, "course_structure.json", export_folder
     )
     structure_download_link = await create_public_download_link(user_id, structure_path)
+    logger.info(f"[LMS] Course structure uploaded & link created | path={structure_path} link={structure_download_link}")
 
     return {
         "courseTitle": main_title,

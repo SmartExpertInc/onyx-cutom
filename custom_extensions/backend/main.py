@@ -26955,14 +26955,15 @@ async def export_to_lms(
     """Export selected course outlines to LMS format"""
     from app.services.lms_exporter import export_course_outline_to_lms_format
 
+    logger.info(f"[API:LMS] Request start | productIds={request.productIds}")
+
     validate_export_request(request)
 
     user_uuid, user_email = await get_user_identifiers_for_workspace(http_request)
     onyx_user_id = user_uuid
+    logger.info(f"[API:LMS] User resolved | onyx_user_id={onyx_user_id} email={user_email}")
 
     try:
-        logger.info(f"Starting LMS export for user {onyx_user_id}, products: {request.productIds}")
-
         async with pool.acquire() as connection:
             accessible_products = await connection.fetch(
                 """
@@ -26974,17 +26975,20 @@ async def export_to_lms(
                 request.productIds, onyx_user_id
             )
             accessible_ids = [p['id'] for p in accessible_products]
+            logger.info(f"[API:LMS] Accessible IDs | {accessible_ids}")
             if not accessible_ids:
+                logger.warning("[API:LMS] No accessible course outlines found")
                 raise HTTPException(status_code=404, detail="No accessible course outlines found")
 
         export_results = []
         for product_id in accessible_ids:
+            logger.info(f"[API:LMS] Exporting course {product_id} ...")
             try:
                 course_structure = await export_course_outline_to_lms_format(product_id, onyx_user_id)
                 export_results.append(course_structure)
-                logger.info(f"Successfully exported course outline {product_id}")
+                logger.info(f"[API:LMS] Course exported | id={product_id} link={course_structure.get('downloadLink')}")
             except Exception as e:
-                logger.error(f"Failed to export course outline {product_id}: {e}")
+                logger.error(f"[API:LMS] Course export failed | id={product_id} err={e}")
                 export_results.append({
                     "courseTitle": f"Course {product_id}",
                     "error": str(e),
@@ -26992,14 +26996,16 @@ async def export_to_lms(
                     "structure": None
                 })
 
-        return {
+        response_payload = {
             "success": True,
             "message": "Export completed",
             "results": export_results,
             "status": "completed" if all(r.get("downloadLink") for r in export_results) else "partial"
         }
+        logger.info(f"[API:LMS] Response | status={response_payload['status']}")
+        return response_payload
     except Exception as e:
-        logger.error(f"LMS export failed: {e}")
+        logger.error(f"[API:LMS] Export failed: {e}")
         raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
 
 

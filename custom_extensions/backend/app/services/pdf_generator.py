@@ -2816,6 +2816,10 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
     """Generate PDF for presentations using existing PDF generator"""
     from app.core.database import get_connection
     from fastapi import HTTPException
+    import logging
+
+    _log = logging.getLogger(__name__)
+    _log.info(f"[PDF] Presentation generation start | product_id={product_data['id']} user={user_id}")
 
     async with get_connection() as connection:
         slides_data = await connection.fetchrow(
@@ -2824,6 +2828,7 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         )
 
     if not slides_data or not slides_data.get('microproduct_content'):
+        _log.error("[PDF] Presentation content not found")
         raise HTTPException(status_code=404, detail="Presentation content not found")
 
     output_filename = f"presentation_{product_data['id']}.pdf"
@@ -2835,13 +2840,19 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
     )
 
     with open(pdf_path, 'rb') as pdf_file:
-        return pdf_file.read()
+        data = pdf_file.read()
+        _log.info(f"[PDF] Presentation generated | path={pdf_path} size={len(data)}B")
+        return data
 
 
 async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     """Generate PDF for one-pagers using existing PDF generator"""
     from app.core.database import get_connection
     from fastapi import HTTPException
+    import logging
+
+    _log = logging.getLogger(__name__)
+    _log.info(f"[PDF] One-pager generation start | product_id={product_data['id']} user={user_id}")
 
     async with get_connection() as connection:
         onepager_data = await connection.fetchrow(
@@ -2850,6 +2861,7 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
         )
 
     if not onepager_data or not onepager_data.get('microproduct_content'):
+        _log.error("[PDF] One-pager content not found")
         raise HTTPException(status_code=404, detail="One-pager content not found")
 
     output_filename = f"onepager_{product_data['id']}.pdf"
@@ -2861,4 +2873,6 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     )
 
     with open(pdf_path, 'rb') as pdf_file:
-        return pdf_file.read()
+        data = pdf_file.read()
+        _log.info(f"[PDF] One-pager generated | path={pdf_path} size={len(data)}B")
+        return data
