@@ -1270,10 +1270,9 @@ export default function CommercialProposalPage() {
                       1
                     </div>
                     
-                    <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
-                      <span className="text-[#0F58F9]">Загружаете любые <br className="hidden xl:block"/>материалы</span>
-                      (тексты,<br /> инструкции, PDF, видео и др.)
-                    </h5>
+                    <p className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
+                      <span className="text-[#0F58F9]">Загружаете любые <br className="hidden xl:block"/>материалы </span>(тексты,<br /> инструкции, PDF, видео и др.)
+                    </p>
                   </div>
 
                   {/* Card 2 */}
@@ -1285,9 +1284,9 @@ export default function CommercialProposalPage() {
                       2
                     </div>
                     
-                    <h5 className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
+                    <p className="font-semibold text-[18px] xl:text-[22px] mt-[15px] xl:mt-0">
                       Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты, видео<br className="xl:hidden"/> и презентации</span>
-                    </h5>
+                    </p>
                   </div>
                 </div>
               </div>
