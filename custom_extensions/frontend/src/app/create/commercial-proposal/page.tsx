@@ -1688,7 +1688,7 @@ export default function CommercialProposalPage() {
               </div>
 
               <div 
-                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
+                className="flex flex-col gap-[5px] xl:gap-0 py-[30px] xl:py-[40px] xl:my-[20px] items-center justify-center text-center relative overflow-hidden"
                 style={{
                   background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                   borderRadius: '6px',
@@ -2412,7 +2412,7 @@ export default function CommercialProposalPage() {
             </div>
 
             {/* Service 4 */}
-            <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[60px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
+            <div className="bg-white rounded-[4px] flex flex-col gap-[30px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
               <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                 <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
                   Услуга 4:
@@ -2514,7 +2514,7 @@ export default function CommercialProposalPage() {
               </div>
 
               <div 
-                className="flex flex-col gap-[5px] xl:gap-[20px] py-[30px] xl:py-[40px] items-center justify-center text-center relative overflow-hidden"
+                className="flex flex-col gap-[5px] xl:gap-0 py-[30px] xl:py-[40px] items-center justify-center text-center relative overflow-hidden xl:my-[40px]"
                 style={{
                   background: 'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #EFF4FF 100%)',
                   borderRadius: '6px',
@@ -3260,7 +3260,7 @@ export default function CommercialProposalPage() {
                 boxShadow: '0px 24px 24px -8px #2A334608, 0px 10px 10px -5px #2A334608'
               }}
             >
-              <div className="flex flex-col gap-[20px] px-[15px] xl:px-[30px] py-[20px] xl:py-[30px] border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0 xl:flex-1">
+              <div className="flex flex-col gap-[20px] px-[15px] xl:px-0 py-[20px] xl:py-0 border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0 xl:flex-1">
                 <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
                   <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
 
