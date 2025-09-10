@@ -13882,18 +13882,10 @@ async def extract_company_name_from_data(duckduckgo_summary: str, payload) -> st
     """
     
     try:
-        response = await stream_openai_response(
+        response_text = await stream_openai_response_direct(
             prompt=prompt,
-            model=LLM_DEFAULT_MODEL,
-            temperature=0.1,
-            max_tokens=50
+            model=LLM_DEFAULT_MODEL
         )
-        
-        # Extract the response text
-        response_text = ""
-        async for chunk in response:
-            if chunk.get("type") == "content":
-                response_text += chunk.get("text", "")
         
         # Clean up the response
         company_name = response_text.strip()
@@ -13936,18 +13928,10 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
     """
     
     try:
-        response = await stream_openai_response(
+        response_text = await stream_openai_response_direct(
             prompt=prompt,
-            model=LLM_DEFAULT_MODEL,
-            temperature=0.3,
-            max_tokens=150
+            model=LLM_DEFAULT_MODEL
         )
-        
-        # Extract the response text
-        response_text = ""
-        async for chunk in response:
-            if chunk.get("type") == "content":
-                response_text += chunk.get("text", "")
         
         # Clean up the response
         company_description = response_text.strip()

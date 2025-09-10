@@ -281,6 +281,13 @@ export default function ProjectInstanceViewPage() {
       }
       const instanceData: ProjectInstanceDetail = await instanceRes.json();
       
+      // Check if this is a landing page project and redirect accordingly
+      if (instanceData.name && instanceData.name.includes("AI-Аудит Landing Page")) {
+        console.log('🔄 [LANDING PAGE DETECTED] Redirecting to dynamic landing page:', instanceData.project_id);
+        router.push(`/create/audit-2-dynamic/${instanceData.project_id}`);
+        return;
+      }
+      
       // 🔍 FETCH DATA LOGGING: What we got back from backend
       console.log('📥 [FETCH DATA] Received from backend:', {
         instanceData,
