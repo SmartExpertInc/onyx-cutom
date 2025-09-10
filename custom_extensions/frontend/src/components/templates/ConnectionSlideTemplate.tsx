@@ -221,7 +221,8 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           isEditable={isEditable}
           style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.35)' }}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35))' }} />
+        {/* Keep overlay but let clicks pass to the image below for editing */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35))', pointerEvents: 'none' }} />
         {/* Venn circles */}
         <div style={vennWrapper}>
           <div style={bigCircle} />
