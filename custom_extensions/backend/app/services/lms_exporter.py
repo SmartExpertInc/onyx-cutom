@@ -204,35 +204,62 @@ async def export_course_outline_to_lms_format(
         def is_unused(proj_id: Any) -> bool:
             return proj_id not in used_product_ids
 
+        # Normalize helper
+        def pname(proj: Dict[str, Any]) -> str:
+            return (proj.get('project_name') or '').strip()
+        def mname(proj: Dict[str, Any]) -> str:
+            return (proj.get('microproduct_name') or '').strip()
+
         # Pattern A (strongest): "Quiz - {outline}: {lesson}" for quizzes only
         if target_mtype == 'Quiz':
             target_name = f"Quiz - {outline_name}: {lesson_title}"
             for proj in projects:
                 if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
-                    proj_name = (proj.get('project_name') or '').strip()
-                    if proj_name == target_name:
-                        logger.info(f"[LMS-MATCH] A quiz match -> id={proj.get('id')} name='{proj_name}'")
+                    if pname(proj) == target_name:
+                        logger.info(f"[LMS-MATCH] A quiz match -> id={proj.get('id')} name='{pname(proj)}'")
+                        return dict(proj)
+
+        # Pattern A2: type-prefixed names for other types
+        type_prefix_map = {
+            'Slide Deck': 'Presentation',
+            'One Pager': 'One Pager',
+            'Text Presentation': 'Text Presentation'
+        }
+        prefix = type_prefix_map.get(target_mtype)
+        if prefix:
+            target_name_prefixed = f"{prefix} - {outline_name}: {lesson_title}"
+            for proj in projects:
+                if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                    if pname(proj) == target_name_prefixed:
+                        logger.info(f"[LMS-MATCH] A2 prefixed match -> id={proj.get('id')} name='{pname(proj)}'")
                         return dict(proj)
 
         # Pattern B: "{outline}: {lesson}"
         target_name = f"{outline_name}: {lesson_title}"
         for proj in projects:
             if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
-                if (proj.get('project_name') or '').strip() == target_name:
+                if pname(proj) == target_name:
                     logger.info(f"[LMS-MATCH] B exact outline:lesson match -> id={proj.get('id')}")
                     return dict(proj)
 
-        # Pattern C: microproduct_name equals lesson title
+        # Pattern C: microproduct_name equals lesson title (legacy connected products)
         for proj in projects:
             if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
-                if (proj.get('microproduct_name') or '').strip() == lesson_title:
+                if mname(proj) == lesson_title:
                     logger.info(f"[LMS-MATCH] C microproduct_name match -> id={proj.get('id')}")
+                    return dict(proj)
+
+        # Pattern E (legacy): project_name == outline_name AND microproduct_name == lesson_title
+        for proj in projects:
+            if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
+                if pname(proj) == outline_name and mname(proj) == lesson_title:
+                    logger.info(f"[LMS-MATCH] E outline+micro_name match -> id={proj.get('id')}")
                     return dict(proj)
 
         # Pattern D: project_name equals lesson title (rare)
         for proj in projects:
             if project_type_matches(proj, target_mtype) and is_unused(proj.get('id')):
-                if (proj.get('project_name') or '').strip() == lesson_title:
+                if pname(proj) == lesson_title:
                     logger.info(f"[LMS-MATCH] D project_name match -> id={proj.get('id')}")
                     return dict(proj)
 
