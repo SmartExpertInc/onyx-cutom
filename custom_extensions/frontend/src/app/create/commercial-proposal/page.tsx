@@ -3235,7 +3235,7 @@ export default function CommercialProposalPage() {
               </div>
               
               <div 
-                className="flex gap-[10px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start xl:h-[164px] mt-[5px]"
+                className="flex gap-[10px] xl:gap-[15px] py-[10px] xl:py-[20px] px-[15px] xl:px-[34px] rounded-[6px] items-start mt-[5px]"
                 style={{ background: '#EBF2FF87' }}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 mt-1 xl:h-[13px] xl:w-[13px]">
@@ -3262,7 +3262,7 @@ export default function CommercialProposalPage() {
             >
               <div className="flex flex-col gap-[20px] px-[15px] xl:px-0 py-[20px] xl:py-0 border border-[#E0E0E0] border-[1px] rounded-[4px] xl:border-0 xl:flex-1">
                 <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
-                  <h4 className="text-[18px] font-semibold">Методолог по модели <span className="text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
+                  <h4 className="text-[18px] xl:text-[24px] font-semibold">Методолог по модели <span className="text-[18px] xl:text-[18px] text-[#0F58F9] font-semibold">Expert-as-a-Service</span></h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -3270,26 +3270,26 @@ export default function CommercialProposalPage() {
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Пробный пакет — <span className="font-semibold">10 часов работы</span></span>
+                        <span className="text-[16px] xl:text-[18px]">Пробный пакет — <span className="font-semibold xl:text-[18px]">10 часов работы</span></span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Помощь в создании курсов, тестов и структуры</span>
+                        <span className="text-[16px] xl:text-[18px]">Помощь в создании курсов, тестов и структуры</span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px] font-semibold">$750 единовременно</span>
+                        <span className="text-[16px] xl:text-[18px] font-semibold">$750 единовременно</span>
                       </li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-[20px] pb-[20px] border-b border-[#D2E3F1] xl:border-b-0" style={{borderBottomWidth: '0.6px'}}>
-                  <h4 className="text-[18px] font-semibold">Платформа <span className="text-[18px] text-[#0F58F9] font-semibold">ContentBuilder.ai</span></h4>
+                  <h4 className="text-[18px] xl:text-[24px] font-semibold">Платформа <span className="text-[18px] xl:text-[18px] text-[#0F58F9] font-semibold">ContentBuilder.ai</span></h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -3297,26 +3297,26 @@ export default function CommercialProposalPage() {
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Генерация курсов, презентаций, видеоуроков</span>
+                        <span className="text-[16px] xl:text-[18px]">Генерация курсов, презентаций, видеоуроков</span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Включено 500 <span className="font-semibold">AI-кредитов</span></span>
+                        <span className="text-[16px] xl:text-[18px]">Включено 500 <span className="font-semibold xl:text-[18px]">AI-кредитов</span></span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px] font-semibold">$100 в месяц</span>
+                        <span className="text-[16px] xl:text-[18px] font-semibold">$100 в месяц</span>
                       </li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-[20px]">
-                  <h4 className="text-[18px] font-semibold">LMS-платформа<span className="text-[18px] text-[#0F58F9] font-semibold"> SmartExpert</span></h4>
+                  <h4 className="text-[18px] xl:text-[24px] font-semibold">LMS-платформа<span className="text-[18px] xl:text-[18px] text-[#0F58F9] font-semibold"> SmartExpert</span></h4>
 
                   <div>
                     <ul className="space-y-[12px]">
@@ -3324,19 +3324,19 @@ export default function CommercialProposalPage() {
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">Обучение, онбординг, база знаний, отчёты</span>
+                        <span className="text-[16px] xl:text-[18px]">Обучение, онбординг, база знаний, отчёты</span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px]">До <span className="font-semibold">200 пользователей</span></span>
+                        <span className="text-[16px] xl:text-[18px]">До <span className="font-semibold xl:text-[18px]">200 пользователей</span></span>
                       </li>
                       <li className="flex gap-[10px]">
                         <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M5.53846 10.6579C6.15385 11.0322 6.15385 11.9678 5.53846 12.3421L1.38462 14.8683C0.769231 15.2425 -3.10607e-08 14.7747 0 14.0262L2.09658e-07 8.97379C2.40719e-07 8.22528 0.769231 7.75747 1.38462 8.13172L5.53846 10.6579Z" fill="#0F58F9"/>
                         </svg>
-                        <span className="text-[16px] font-semibold">$250 в месяц (со скидкой 50% до конца 2025)</span>
+                        <span className="text-[16px] xl:text-[18px] font-semibold">$250 в месяц (со скидкой 50% до конца 2025)</span>
                       </li>
                     </ul>
                   </div>
