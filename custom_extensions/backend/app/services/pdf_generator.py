@@ -2919,15 +2919,54 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     if not isinstance(context_data, dict):
         context_data = {"details": context_data}
 
-    output_filename = f"onepager_{product_data['id']}.pdf"
-    pdf_path = await generate_pdf_from_html_template(
-        'onepager_template',
-        context_data,
-        output_filename,
-        use_cache=False
-    )
+    # Choose an appropriate template with fallback
+    mtype = str(product_data.get('microproduct_type') or '').strip().lower()
+    comp_name = str(product_data.get('component_name') or '').strip().lower()
 
-    with open(pdf_path, 'rb') as pdf_file:
-        data = pdf_file.read()
-        _log.info(f"[PDF] One-pager generated | path={pdf_path} size={len(data)}B")
-        return data
+    candidates = []
+    # Prefer template by component/type; fall back to the other
+    if comp_name in ("pdf lesson", "pdflesson") or mtype in ("pdf lesson", "pdflesson"):
+        candidates = [
+            'pdf_lesson_pdf_template.html',
+            'text_presentation_pdf_template.html'
+        ]
+    else:
+        candidates = [
+            'text_presentation_pdf_template.html',
+            'pdf_lesson_pdf_template.html'
+        ]
+
+    output_filename = f"onepager_{product_data['id']}.pdf"
+
+    last_error: Exception = None
+    for tpl in candidates:
+        _log.info(f"[PDF] One-pager: trying template '{tpl}' (mtype='{mtype}', component='{comp_name}')")
+        try:
+            pdf_path = await generate_pdf_from_html_template(
+                tpl,
+                context_data,
+                output_filename,
+                use_cache=False
+            )
+            with open(pdf_path, 'rb') as pdf_file:
+                data = pdf_file.read()
+                _log.info(f"[PDF] One-pager generated | path={pdf_path} size={len(data)}B template={tpl}")
+                return data
+        except HTTPException as e:
+            # If template missing, try next candidate; otherwise re-raise
+            detail = str(getattr(e, 'detail', '')).lower()
+            if 'not found' in detail and 'template' in detail:
+                _log.warning(f"[PDF] Template '{tpl}' not found, trying next candidate if any...")
+                last_error = e
+                continue
+            last_error = e
+            break
+        except Exception as e:
+            _log.error(f"[PDF] One-pager generation failed with template '{tpl}': {e}")
+            last_error = e
+            break
+
+    # If we reach here, all candidates failed
+    if isinstance(last_error, HTTPException):
+        raise last_error
+    raise HTTPException(status_code=500, detail=f"Failed to generate one-pager PDF: {last_error}")
