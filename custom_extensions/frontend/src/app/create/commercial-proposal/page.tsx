@@ -3158,7 +3158,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <div className="relative xl:w-[490px] xl:flex-shrink-0 flex flex-col gap-[15px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px] overflow-hidden">
+              <div className="relative xl:w-[490px] xl:flex-shrink-0 flex flex-col gap-[5px] bg-[#3E3AD9] rounded-lg px-[15px] xl:px-[40px] py-[20px] xl:py-[20px] overflow-hidden">
                 {/* Background images with absolute positioning */}
                 <img 
                   src="/custom-projects-ui/images/commercial-bg-2-mobile.png"
@@ -3220,7 +3220,7 @@ export default function CommercialProposalPage() {
                     <button 
                       className="font-semibold text-[16px] w-full mx-auto block bg-white px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
                     >
-                      <span className="font-semibold text-[16px] xl:text-[18px]">Забронировать</span>
+                      <span className="font-semibold text-[16px] xl:text-[18px]">Оплатить</span>
                     </button>
                   </div>
                 </div>
