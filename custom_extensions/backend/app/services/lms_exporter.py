@@ -2,10 +2,9 @@
 import json
 import uuid
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from fastapi import HTTPException
 from app.core.database import get_connection
-from app.services.pdf_generator import generate_pdf_from_html_template, generate_slide_deck_pdf_with_dynamic_height
 from app.services.pdf_generator import generate_presentation_pdf, generate_onepager_pdf
 from app.services.smartdrive_uploader import upload_file_to_smartdrive
 from app.services.nextcloud_share import create_public_download_link
@@ -18,144 +17,172 @@ async def export_course_outline_to_lms_format(
     course_outline_id: int,
     user_id: str
 ) -> dict:
-    """Convert course outline to LMS JSON format with file links"""
-
     logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id}")
 
     async with get_connection() as connection:
-        course_data = await connection.fetchrow(
+        row = await connection.fetchrow(
             """
-            SELECT p.*, p.project_name as title, p.microproduct_name
+            SELECT p.*, p.project_name AS title, p.microproduct_name, dt.microproduct_type, dt.component_name
             FROM projects p
             LEFT JOIN design_templates dt ON p.design_template_id = dt.id
             WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
             """,
             course_outline_id, user_id
         )
-        if not course_data:
-            logger.error(f"[LMS] Course outline not found | course_id={course_outline_id}")
+        if not row:
             raise HTTPException(status_code=404, detail="Course outline not found")
 
-        related_products = await connection.fetch(
-            """
-            SELECT p.*, p.project_name as title, dt.microproduct_type as product_type
-            FROM projects p
-            LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-            WHERE p.onyx_user_id = $1 AND dt.microproduct_type IN ('Slide Deck', 'Quiz', 'One Pager')
-            ORDER BY p.created_at
-            """,
+        # Fetch all user's projects once for product resolution
+        all_projects = await connection.fetch(
+            "SELECT p.*, dt.microproduct_type, dt.component_name FROM projects p LEFT JOIN design_templates dt ON p.design_template_id = dt.id WHERE p.onyx_user_id = $1 ORDER BY p.created_at",
             user_id
         )
 
-    logger.info(f"[LMS] Related products fetched | count={len(related_products)}")
+    course_data = dict(row)
+    outline_name = course_data.get('project_name')
 
-    course_structure = await generate_course_structure(course_data, related_products, user_id)
-    logger.info(f"[LMS] Export complete | course_id={course_outline_id}")
-    return course_structure
+    # Parse stored outline structure
+    stored = course_data.get('microproduct_content')
+    if isinstance(stored, str):
+        try:
+            stored = json.loads(stored)
+        except Exception as e:
+            logger.error(f"[LMS] Failed to parse stored outline JSON: {e}")
+            stored = None
 
+    if not isinstance(stored, dict):
+        raise HTTPException(status_code=500, detail="Invalid training plan content")
 
-async def generate_course_structure(course_data, related_products, user_id: str) -> dict:
-    """Generate the course structure matching file.json format"""
+    # Deep copy to avoid mutating DB content
+    structure = json.loads(json.dumps(stored))
 
-    main_title = course_data.get('title') or course_data.get('microproduct_name') or 'Course'
-    course_uid = str(uuid.uuid4())
+    # Ensure required root fields and add top-level uid
+    main_title = structure.get('mainTitle') or course_data.get('microproduct_name') or outline_name or 'Course'
+    structure['mainTitle'] = main_title
+    structure['uid'] = str(uuid.uuid4())
 
+    # Timestamp-based export folder
     from datetime import datetime
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     export_folder = f"/LMS_Exports/{timestamp}_{str(main_title).replace(' ', '_')}/"
 
-    logger.info(f"[LMS] Build structure | title='{main_title}' folder='{export_folder}'")
+    # Resolve and attach links for recommended products using name matching logic
+    sections = structure.get('sections') or []
 
-    content_links: Dict[int, Dict[str, str]] = {}
+    def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
+        """Replicate connection logic used in duplication to find products for a lesson and desired type."""
+        candidates: List[Dict[str, Any]] = []
+        for proj in projects:
+            proj_name = (proj.get('project_name') or '').strip()
+            micro_name = proj.get('microproduct_name')
+            mtype = (proj.get('microproduct_type') or '').strip()
+            if mtype == 'Training Plan':
+                continue
+            is_connected = False
+            # Method 1: legacy matching (exact outline name + microproduct_name exists)
+            if proj_name == outline_name and micro_name:
+                is_connected = True
+            # Method 2: new naming "Outline Name: Lesson Title"
+            elif ': ' in proj_name:
+                outline_part = proj_name.split(': ')[0].strip()
+                if outline_part == outline_name:
+                    is_connected = True
+            # Method 3: legacy quiz naming "Quiz - Outline Name: Lesson Title"
+            elif proj_name.startswith('Quiz - ') and ': ' in proj_name:
+                quiz_part = proj_name.replace('Quiz - ', '', 1)
+                outline_part = quiz_part.split(': ')[0].strip()
+                if outline_part == outline_name:
+                    is_connected = True
+            # Method 4: lesson title became project name
+            elif lesson_title and proj_name == lesson_title:
+                is_connected = True
 
-    for product in related_products:
-        product_type = (product.get('product_type') or '').strip()
-        logger.info(f"[LMS] Process product | id={product['id']} type='{product_type}' title='{product.get('title')}'")
-        try:
-            if product_type == 'Slide Deck':
-                pdf_content = await generate_presentation_pdf(product, user_id)
-                logger.info(f"[LMS] Presentation generated | id={product['id']} size={len(pdf_content)}B")
-                file_name = f"slide-deck_{product['id']}.pdf"
-                file_path = await upload_file_to_smartdrive(
-                    user_id, pdf_content, file_name, f"{export_folder}presentations/"
-                )
-                download_link = await create_public_download_link(user_id, file_path)
-                logger.info(f"[LMS] Presentation uploaded & link created | path={file_path} link={download_link}")
-                content_links[product['id']] = {"type": "presentation", "link": download_link}
+            if not is_connected:
+                continue
 
-            elif product_type == 'One Pager':
-                pdf_content = await generate_onepager_pdf(product, user_id)
-                logger.info(f"[LMS] One-pager generated | id={product['id']} size={len(pdf_content)}B")
-                file_name = f"onepager_{product['id']}.pdf"
-                file_path = await upload_file_to_smartdrive(
-                    user_id, pdf_content, file_name, f"{export_folder}onepagers/"
-                )
-                download_link = await create_public_download_link(user_id, file_path)
-                logger.info(f"[LMS] One-pager uploaded & link created | path={file_path} link={download_link}")
-                content_links[product['id']] = {"type": "onepager", "link": download_link}
+            # Filter by desired product type
+            # desired_type values expected: 'presentation'|'one-pager'|'quiz'
+            if desired_type == 'presentation' and mtype == 'Slide Deck':
+                candidates.append(proj)
+            elif desired_type == 'one-pager' and mtype == 'One Pager':
+                candidates.append(proj)
+            elif desired_type == 'quiz' and mtype == 'Quiz':
+                candidates.append(proj)
+        # Prefer the most recent candidate
+        return dict(candidates[-1]) if candidates else None
 
-            elif product_type == 'Quiz':
-                cbai_content = await export_quiz_to_cbai(product, user_id)
-                logger.info(f"[LMS] Quiz exported | id={product['id']} size={len(cbai_content)}B")
-                file_name = f"quiz_{product['id']}.cbai"
-                file_path = await upload_file_to_smartdrive(
-                    user_id, cbai_content, file_name, f"{export_folder}quizzes/"
-                )
-                download_link = await create_public_download_link(user_id, file_path)
-                logger.info(f"[LMS] Quiz uploaded & link created | path={file_path} link={download_link}")
-                content_links[product['id']] = {"type": "quiz", "link": download_link}
-        except Exception as e:
-            logger.error(f"[LMS] Failed to process product {product['id']}: {e}")
-            continue
+    # Iterate sections/lessons and process recommended items
+    for section in sections:
+        # Add section uid
+        if isinstance(section, dict):
+            section['uid'] = section.get('uid') or str(uuid.uuid4())
+            lessons = section.get('lessons') or []
+            for lesson in lessons:
+                if not isinstance(lesson, dict):
+                    continue
+                # Add lesson uid
+                lesson['uid'] = lesson.get('uid') or str(uuid.uuid4())
+                lesson_title = (lesson.get('title') or '').strip()
+                recs = lesson.get('recommended_content_types') or {}
+                primary = recs.get('primary') or []
+                new_primary = []
 
-    structure: Dict[str, Any] = {
-        "mainTitle": main_title,
-        "uid": course_uid,
-        "sections": []
-    }
+                for item in primary:
+                    if not isinstance(item, dict):
+                        continue
+                    item_type = (item.get('type') or '').strip()
+                    # Only process known types
+                    if item_type not in ('presentation', 'one-pager', 'quiz'):
+                        # Keep unknown types as-is
+                        item['uid'] = item.get('uid') or str(uuid.uuid4())
+                        new_primary.append(item)
+                        continue
 
-    section_count = 1
-    lessons_per_section = 3
-    current_lesson_count = 0
-    current_section = None
+                    # Find existing product matching this lesson and type
+                    matched = match_connected_product([dict(p) for p in all_projects], outline_name, lesson_title, item_type)
+                    if not matched:
+                        logger.info(f"[LMS] No product found for lesson='{lesson_title}' type='{item_type}', removing from recommendations")
+                        # Skip (remove) if not found
+                        continue
 
-    for i, product in enumerate(related_products):
-        if current_lesson_count == 0:
-            current_section = {
-                "id": f"№{section_count}",
-                "uid": str(uuid.uuid4()),
-                "title": f"Module {section_count}",
-                "lessons": []
-            }
-            structure["sections"].append(current_section)
-            section_count += 1
+                    # Generate and upload appropriate file
+                    product_id = matched['id']
+                    link: Optional[str] = None
+                    try:
+                        if item_type == 'presentation':
+                            pdf_bytes = await generate_presentation_pdf(matched, user_id)
+                            file_name = f"slide-deck_{product_id}.pdf"
+                            file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}presentations/")
+                            link = await create_public_download_link(user_id, file_path)
+                        elif item_type == 'one-pager':
+                            pdf_bytes = await generate_onepager_pdf(matched, user_id)
+                            file_name = f"onepager_{product_id}.pdf"
+                            file_path = await upload_file_to_smartdrive(user_id, pdf_bytes, file_name, f"{export_folder}onepagers/")
+                            link = await create_public_download_link(user_id, file_path)
+                        elif item_type == 'quiz':
+                            cbai_bytes = await export_quiz_to_cbai(matched, user_id)
+                            file_name = f"quiz_{product_id}.cbai"
+                            file_path = await upload_file_to_smartdrive(user_id, cbai_bytes, file_name, f"{export_folder}quizzes/")
+                            link = await create_public_download_link(user_id, file_path)
+                    except Exception as e:
+                        logger.error(f"[LMS] Failed content generation/upload for product {product_id} ({item_type}): {e}")
+                        # Skip item if generation/upload fails
+                        continue
 
-        lesson = {
-            "uid": str(uuid.uuid4()),
-            "title": product.get('title') or f"Lesson {i+1}",
-            "recommended_content_types": {"primary": []}
-        }
+                    # Attach uid and link to item, keep other fields intact
+                    item['uid'] = item.get('uid') or str(uuid.uuid4())
+                    item['link'] = link
+                    new_primary.append(item)
 
-        if product['id'] in content_links:
-            lesson["recommended_content_types"]["primary"].append({
-                "uid": str(uuid.uuid4()),
-                "type": content_links[product['id']]["type"],
-                "link": content_links[product['id']]["link"]
-            })
+                # Replace primary with filtered/linked items
+                if recs is not None:
+                    recs['primary'] = new_primary
+                    lesson['recommended_content_types'] = recs
 
-        current_section["lessons"].append(lesson)
-        current_lesson_count += 1
-
-        if current_lesson_count >= lessons_per_section:
-            current_lesson_count = 0
-
+    # Upload final structure JSON
     structure_json = json.dumps(structure, indent=2).encode('utf-8')
-    logger.info(f"[LMS] Upload course_structure.json | size={len(structure_json)}B folder={export_folder}")
-    structure_path = await upload_file_to_smartdrive(
-        user_id, structure_json, "course_structure.json", export_folder
-    )
+    structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder)
     structure_download_link = await create_public_download_link(user_id, structure_path)
-    logger.info(f"[LMS] Course structure uploaded & link created | path={structure_path} link={structure_download_link}")
 
     return {
         "courseTitle": main_title,
