@@ -5,8 +5,7 @@ import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { CustomCard } from "@/components/ui/custom-card";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -71,49 +70,21 @@ const OptionCard: React.FC<OptionCardProps> = ({
     // Fallback to normal navigation
   };
 
-  // Card content shared by both link and non-link versions
-  const cardContent = (
-    <Card
-      className={`group rounded-3xl relative overflow-hidden bg-white border border-gray-200 shadow-lg transition-all duration-300 w-full h-full ${
-        disabled
-          ? "opacity-50 cursor-not-allowed"
-          : "hover:shadow-xl hover:scale-105 cursor-pointer"
-      }`}
-    >
-      {/* Gradient at top right corner */}
-      <div 
-        className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
-      />
-      
-      <CardContent className="relative p-6 h-full flex flex-col">
-        {/* Badge positioned at top right */}
-        {pillLabel && (
-          <div className="absolute top-4 right-4 z-10">
-            <Badge variant="secondary" className={`${labelColor} bg-white border border-gray-200`}>
-              {pillLabel}
-            </Badge>
-          </div>
-        )}
-        
-        <div className="flex items-start justify-start h-16 relative mb-3">
-          <Icon size={40} className={`${iconColor}`} />
-        </div>
-        
-        {/* Text section - positioned on the left */}
-        <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-          <h3 className={`text-xl text-left leading-tight ${labelColor}`}>
-            {title}
-          </h3>
-          <p className="text-sm text-gray-500 text-left leading-relaxed max-w-xs">
-            {description}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+  return (
+    <CustomCard
+      Icon={Icon}
+      title={title}
+      description={description}
+      pillLabel={pillLabel}
+      gradientFrom={gradientFrom}
+      gradientTo={gradientTo}
+      iconColor={iconColor}
+      labelColor={labelColor}
+      disabled={disabled}
+      href={href}
+      onClick={handleClick}
+    />
   );
-
-  if (disabled || !href) return cardContent;
-  return <Link href={href} onClick={handleClick}>{cardContent}</Link>;
 };
 
 // Component to handle URL parameters and pass them to all creation paths
