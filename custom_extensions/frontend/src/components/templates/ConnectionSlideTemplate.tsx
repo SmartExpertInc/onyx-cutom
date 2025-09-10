@@ -125,7 +125,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     left: 0,
     right: 0,
     bottom: 0,
-    height: '82px',
+    height: '65px',
     backgroundColor: '#0D0D0D',
     display: 'grid',
     gridTemplateColumns: 'repeat(6, 1fr)',

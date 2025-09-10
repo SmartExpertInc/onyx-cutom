@@ -51,7 +51,7 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
       {/* Editable numbers overlay to match screenshot positioning */}
       <div style={overlay}>
         {/* Big */}
-        <div style={{ position:'absolute', left:'217px', top:'109ox', pointerEvents:'auto' }}>
+        <div style={{ position:'absolute', left:'217px', top:'109px', pointerEvents:'auto' }}>
           {isEditable && editingNumber === 'big' ? (
             <ImprovedInlineEditor
               initialValue={bigLabel}

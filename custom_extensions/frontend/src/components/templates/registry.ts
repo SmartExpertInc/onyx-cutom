@@ -52,10 +52,8 @@ import { KpiUpdateSlideTemplate } from './KpiUpdateSlideTemplate';
 import { InterestGrowthSlideTemplate } from './InterestGrowthSlideTemplate';
 import { ConnectionSlideTemplate } from './ConnectionSlideTemplate';
 import HighPerformingTeamsSlideTemplate from './HighPerformingTeamsSlideTemplate';
-import ImpactValueSlideTemplate from './ImpactValueSlideTemplate';
 import EnterpriseRoadmapSlideTemplate from './EnterpriseRoadmapSlideTemplate';
 import ConcentricPhishingRiseSlideTemplate from './ConcentricPhishingRiseSlideTemplate';
-import FinancialImpactMosaicSlideTemplate from './FinancialImpactMosaicSlideTemplate';
 
 
 
@@ -2035,33 +2033,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   }
   ,
 
-  // New: Impact Value (yellow metrics)
-  'impact-value-slide': {
-    id: 'impact-value-slide',
-    name: 'Impact Value Slide',
-    description: 'Yellow background with three big metrics and images',
-    category: 'content',
-    icon: '💛',
-    component: ImpactValueSlideTemplate,
-    defaultProps: {
-      year: '2024',
-      subtitle: 'Presentation',
-      title: 'Impact\nValue',
-      metrics: [
-        { number: '+30%', caption: 'Trust and loyalty' },
-        { number: '$3.9', caption: 'Saved in costs' },
-        { number: '-15%', caption: 'Legal expenses' }
-      ],
-      backgroundColor: '#EAE055'
-    },
-    propSchema: {
-      year: { type: 'text', label: 'Year' },
-      subtitle: { type: 'text', label: 'Subtitle' },
-      title: { type: 'text', label: 'Title', required: true },
-      metrics: { type: 'array', label: 'Metrics', required: true },
-      backgroundColor: { type: 'color', label: 'Background' }
-    }
-  },
+  
 
   // New: Enterprise Roadmap (table)
   'enterprise-roadmap-slide': {
@@ -2119,40 +2091,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  // New: Financial Impact Mosaic
-  'financial-impact-mosaic-slide': {
-    id: 'financial-impact-mosaic-slide',
-    name: 'Financial Impact Mosaic',
-    description: 'Dark mosaic grid with KPI and two images',
-    category: 'content',
-    icon: '🧩',
-    component: FinancialImpactMosaicSlideTemplate,
-    defaultProps: {
-      leftTitle: 'The financial\nimpact',
-      kpiTitle: '$170 billion',
-      kpiSubtitle: 'Annual cost of US workplace accidents & injuries',
-      midStatLeft: '52%',
-      midStatLeftCaption: 'Reduction in compensation costs',
-      midStatRight: '$4-$6',
-      midStatRightCaption: 'ROI for every $1 invested',
-      footerDate: 'Date Goes Here',
-      footerPage: 'Page Number'
-    },
-    propSchema: {
-      leftTitle: { type: 'text', label: 'Left Title', required: true },
-      kpiTitle: { type: 'text', label: 'KPI Title', required: true },
-      kpiSubtitle: { type: 'text', label: 'KPI Subtitle', required: true },
-      leftAvatarPath: { type: 'image', label: 'Left Avatar' },
-      topRightImagePath: { type: 'image', label: 'Top Image' },
-      bottomRightImagePath: { type: 'image', label: 'Bottom Image' },
-      midStatLeft: { type: 'text', label: 'Mid Stat Left', required: true },
-      midStatLeftCaption: { type: 'text', label: 'Mid Stat Left Caption' },
-      midStatRight: { type: 'text', label: 'Mid Stat Right', required: true },
-      midStatRightCaption: { type: 'text', label: 'Mid Stat Right Caption' },
-      footerDate: { type: 'text', label: 'Footer Date' },
-      footerPage: { type: 'text', label: 'Footer Page' }
-    }
-  }
+  
 
 };
 
