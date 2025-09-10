@@ -3200,7 +3200,7 @@ export default function CommercialProposalPage() {
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Подписка на 2 платформы</span>
                   </div>
 
-                  <div className="flex flex-col xl:gap-[2px]">
+                  <div className="flex flex-col xl:gap-[2px] mb-[15px]">
                     <span className="text-white text-[46px] xl:text-[60px] font-semibold">7-14 дней</span>
                     <span className="text-[#FFFFFFB2] text-[16px] xl:text-[18px] font-medium">Всё готово к запуску</span>
                   </div>
