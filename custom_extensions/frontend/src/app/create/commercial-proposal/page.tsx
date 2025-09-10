@@ -1154,12 +1154,12 @@ export default function CommercialProposalPage() {
                     }}
                   >
                     <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
-                    <span className="text-[60px] font-bold text-[#0F58F9]">$900<span className="text-[26px] font-bold text-[#09090B]">/курс</span></span>
+                    <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$900<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/курс</span></span>
                   </div>
 
                   <div className="flex flex-col gap-[20px] xl:gap-[40px]">
                   
-                  <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                  <h4 className="text-[20px] xl:text-[32px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
 
                   {/* Pricing Table */}
                   <div className="w-full">
@@ -1635,11 +1635,11 @@ export default function CommercialProposalPage() {
                 }}
               >
                 <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
-                <span className="text-[60px] font-bold text-[#0F58F9]">$350<span className="text-[26px] font-bold text-[#09090B]">/месяц</span></span>
+                <span className="text-[60px] xl:text-[80px] font-bold text-[#0F58F9]">$350<span className="text-[26px] xl:text-[40px] font-bold text-[#09090B]">/месяц</span></span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                <h4 className="text-[20px] xl:text-[32px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[690px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
@@ -2401,11 +2401,11 @@ export default function CommercialProposalPage() {
                 <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
                 <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$750<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
 
-                <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">$750 <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
+                <span className="hidden xl:inline-block text-[80px] font-bold text-[#0F58F9]">$750 <span className="hidden xl:inline-block text-[40px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
               </div>
 
               <div className="flex flex-col gap-[20px] xl:gap-[40px]">
-                <h4 className="text-[20px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
+                <h4 className="text-[20px] xl:text-[32px] font-semibold xl:font-medium">Тарифные пакеты:</h4>
 
                 {/* Pricing Table */}
                 <div className="w-full max-w-[472px] xl:max-w-none xl:w-full overflow-x-auto xl:overflow-x-visible">
