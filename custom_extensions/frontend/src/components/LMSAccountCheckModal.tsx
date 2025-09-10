@@ -17,7 +17,11 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
 }) => {
   const { t } = useLanguage();
 
+  console.log('[LMS Modal] Render called with isOpen:', isOpen);
+
   if (!isOpen) return null;
+
+  console.log('[LMS Modal] Modal will render');
 
   const persistChoice = (value: 'yes' | 'no-success' | 'no-failed') => {
     try {

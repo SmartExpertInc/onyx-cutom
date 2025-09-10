@@ -628,6 +628,11 @@ const ProjectsPageInner: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [showAccountModal, setShowAccountModal] = useState(false);
 
+  // Debug logging for state changes
+  useEffect(() => {
+    console.log('[LMS] State change - isExportLMS:', isExportLMS, 'lmsAccountStatus:', lmsAccountStatus, 'showAccountModal:', showAccountModal);
+  }, [isExportLMS, lmsAccountStatus, showAccountModal]);
+
   // Clear lesson context when user visits the projects page
   useEffect(() => {
     try {
@@ -879,6 +884,11 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     const loadChoice = async () => {
       if (isExportLMS && lmsAccountStatus === 'unknown') {
+        console.log('[LMS] Entering LMS tab with unknown status');
+        
+        // Show modal immediately, then check for saved choices
+        setShowAccountModal(true);
+        
         let remembered: string | null = null;
         
         // Try to get choice from backend first
@@ -904,24 +914,35 @@ const ProjectsPageInner: React.FC = () => {
           } catch {}
         }
         
+        // Only auto-hide modal and set status if we have a definitive choice
         if (remembered === 'yes') {
-          console.log('[LMS] Auto-setting has-account');
+          console.log('[LMS] Auto-setting has-account and hiding modal');
           setLmsAccountStatus('has-account');
           setShowAccountModal(false);
           return;
         }
         if (remembered === 'no-success') {
-          console.log('[LMS] Auto-setting setup-complete');
+          console.log('[LMS] Auto-setting setup-complete and hiding modal');
           setLmsAccountStatus('setup-complete');
           setShowAccountModal(false);
           return;
         }
         
-        console.log('[LMS] Showing modal (choice was:', remembered, ')');
-        setShowAccountModal(true);
+        console.log('[LMS] Modal will stay visible (choice was:', remembered, ')');
       }
     };
     loadChoice();
+  }, [isExportLMS, lmsAccountStatus]);
+
+  // Fallback: Force modal to show after 1 second if on LMS tab and no status set
+  useEffect(() => {
+    if (isExportLMS && lmsAccountStatus === 'unknown') {
+      const timeout = setTimeout(() => {
+        console.log('[LMS] Fallback: Forcing modal to show');
+        setShowAccountModal(true);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
   }, [isExportLMS, lmsAccountStatus]);
 
   // Show loading state while checking authentication
