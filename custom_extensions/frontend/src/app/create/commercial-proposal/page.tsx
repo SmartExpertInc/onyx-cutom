@@ -1323,7 +1323,10 @@ export default function CommercialProposalPage() {
                 
                 <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
                   {/* Card 1 */}
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden pl-[15px] pr-[12px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]">
+                  <div 
+                    className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden pl-[15px] pr-[12px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]"
+                    style={{ boxShadow: '0px 24px 24px -8px #2A334608' }}
+                  >
                     <div 
                       className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                       style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1337,7 +1340,10 @@ export default function CommercialProposalPage() {
                   </div>
 
                   {/* Card 2 */}
-                  <div className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden px-[15px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]">
+                  <div 
+                    className="xl:w-[551px] border border-[#E0E0E0] rounded-[4px] flex flex-col overflow-hidden px-[15px] py-[15px] xl:px-[20px] xl:py-[20px] xl:flex xl:flex-col xl:gap-[25px]"
+                    style={{ boxShadow: '0px 10px 10px -5px #2A334608' }}
+                  >
                     <div 
                       className="text-[15px] xl:text-[19px] w-[25px] xl:w-[32px] h-[25px] xl:h-[32px] bg-[#0F58F9] rounded-[2.5px] flex items-center justify-center text-white font-medium"
                       style={{ boxShadow: '0.63px 0.63px 2.53px 0.63px #00000026' }}
@@ -1352,7 +1358,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%] mb-[5px] mt-[15px] xl:mt-[30px]">
+              <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%] mb-[5px] mt-[15px] xl:mb-[15px] xl:mt-[30px]">
                 Тариф:
               </h4>
 
