@@ -14,11 +14,13 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_SMARTEXPERT_TOKEN = "$2y$12$r5QySSqmYsCvg9DczLhx0ewIhoTsYwNDDD4P8XuHNswtNpEdjQOYm"
+
 
 async def post_export_to_smartexpert(structure_json: bytes, user_email: str, token: Optional[str]) -> Optional[Dict[str, Any]]:
     try:
         api_url = os.environ.get('SMARTEXPERT_API_URL', 'https://dev.smartexpert.net/api/v1/generate-product')
-        api_token = token
+        api_token = token or DEFAULT_SMARTEXPERT_TOKEN
         if not api_token:
             logger.info("[SmartExpert] Token not provided; skipping external POST")
             return None
