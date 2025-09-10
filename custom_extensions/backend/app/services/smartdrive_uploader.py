@@ -51,7 +51,13 @@ async def upload_file_to_smartdrive(
             mkcol_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{cumulative}/"
             try:
                 mkcol_resp = await client.request("MKCOL", mkcol_url, auth=(nextcloud_username, nextcloud_password))
-                logger.info(f"[SmartDrive] MKCOL {mkcol_url} -> {mkcol_resp.status_code}")
+                if mkcol_resp.status_code == 201:
+                    logger.info(f"[SmartDrive] MKCOL created {mkcol_url}")
+                elif mkcol_resp.status_code == 405:
+                    # Folder already exists; benign
+                    logger.debug(f"[SmartDrive] MKCOL already exists {mkcol_url}")
+                else:
+                    logger.warning(f"[SmartDrive] MKCOL {mkcol_url} -> {mkcol_resp.status_code}")
             except Exception as e:
                 logger.warning(f"[SmartDrive] MKCOL failed {mkcol_url}: {e}")
 
