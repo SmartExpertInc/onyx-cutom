@@ -1292,7 +1292,7 @@ export default function CommercialProposalPage() {
                 </div>
               </div>
               
-              <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%]">
+              <h4 className="font-semibold xl:font-medium text-[20px] xl:text-[32px] leading-[130%] mb-[5px] mt-[15px]">
                 Тариф:
               </h4>
 
