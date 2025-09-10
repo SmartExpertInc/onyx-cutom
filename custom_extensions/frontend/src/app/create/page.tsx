@@ -82,26 +82,26 @@ const OptionCard: React.FC<OptionCardProps> = ({
     >
       {/* Gradient at top right corner */}
       <div 
-        className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-44 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
+        className={`absolute top-0 right-0 w-54 rotate-45 blur-2xl h-34 bg-gradient-to-br ${gradientFrom} ${gradientTo} opacity-60 rounded-bl-3xl`}
       />
       
       <CardContent className="relative p-6 h-full flex flex-col">
         {/* Badge positioned at top right */}
         {pillLabel && (
-          <div className="flex justify-end mb-2">
+          <div className="absolute top-4 right-4 z-10">
             <Badge variant="secondary" className={`${labelColor} bg-white border border-gray-200`}>
               {pillLabel}
             </Badge>
           </div>
         )}
         
-        <div className="flex items-start justify-start h-16 relative mb-4">
+        <div className="flex items-start justify-start h-16 relative mb-3">
           <Icon size={40} className={`${iconColor}`} />
         </div>
         
         {/* Text section - positioned on the left */}
         <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-          <h3 className={`font-bold text-xl text-left leading-tight ${labelColor}`}>
+          <h3 className={`text-xl text-left leading-tight ${labelColor}`}>
             {title}
           </h3>
           <p className="text-sm text-gray-500 text-left leading-relaxed max-w-xs">
@@ -181,11 +181,11 @@ export default function DataSourceLanding() {
         <CreatePageHandler />
       </Suspense>
       <main
-        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
-        }}
+        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-indigo-100 to-purple-100"
+        // style={{
+        //   background:
+        //     "linear-gradient(180deg, rgba(255,249,245,1) 0%, rgba(236,236,255,1) 30%, rgba(191,215,255,1) 60%, rgba(204,232,255,1) 100%)",
+        // }}
       >
       {/* Top-left home button */}
       <Link
