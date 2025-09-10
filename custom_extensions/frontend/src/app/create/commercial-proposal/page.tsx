@@ -1153,7 +1153,7 @@ export default function CommercialProposalPage() {
                       boxShadow: '2px 2px 10px 0px #0000001A'
                     }}
                   >
-                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
+                    <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">Готовые курсы для<br className="xl:hidden" /> быстрого<br className="hidden xl:block" /> запуска обучения</span>
                     <span className="text-[60px] font-bold text-[#0F58F9]">$900<span className="text-[26px] font-bold text-[#09090B]">/курс</span></span>
                   </div>
 
@@ -1634,7 +1634,7 @@ export default function CommercialProposalPage() {
                   boxShadow: '2px 2px 10px 0px #0000001A'
                 }}
               >
-                <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
+                <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
                 <span className="text-[60px] font-bold text-[#0F58F9]">$350<span className="text-[26px] font-bold text-[#09090B]">/месяц</span></span>
               </div>
 
@@ -2398,7 +2398,7 @@ export default function CommercialProposalPage() {
                   boxShadow: '2px 2px 10px 0px #0000001A'
                 }}
               >
-                <span className="text-[18px] xl:text-[22px] font-semibold leading-[100%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
+                <span className="text-[18px] xl:text-[22px] font-semibold leading-[130%]">SmartExpert: быстрое<br /> обучение сотрудников</span>
                 <span className="text-[60px] font-bold text-[#0F58F9] xl:hidden">$750<span className="text-[26px] font-bold text-[#09090B] xl:hidden">/месяц</span></span>
 
                 <span className="hidden xl:inline-block text-[60px] font-bold text-[#0F58F9]">$750 <span className="hidden xl:inline-block text-[26px] font-bold text-[#09090B]"> 10 ч./месяц</span></span>
