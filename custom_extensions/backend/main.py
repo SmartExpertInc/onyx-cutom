@@ -27054,10 +27054,55 @@ async def export_to_lms(
 async def get_export_status(export_id: str):
     return {"exportId": export_id, "status": "completed", "progress": 100}
 
+@app.get("/api/custom/lms/user-settings")
+async def get_lms_user_settings(http_request: Request):
+    try:
+        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
+        async with DB_POOL.acquire() as connection:
+            row = await connection.fetchrow("SELECT lms_account_choice FROM lms_user_settings WHERE onyx_user_id = $1", user_uuid)
+            return {"choice": row["lms_account_choice"] if row else None}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to load LMS user settings")
+
+@app.post("/api/custom/lms/user-settings")
+async def set_lms_user_settings(http_request: Request):
+    try:
+        body = await http_request.json()
+        choice = (body or {}).get("choice")
+        if choice not in ("yes", "no-success", "no-failed"):
+            raise HTTPException(status_code=400, detail="Invalid choice")
+        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
+        async with DB_POOL.acquire() as connection:
+            await connection.execute(
+                """
+                INSERT INTO lms_user_settings (onyx_user_id, lms_account_choice)
+                VALUES ($1, $2)
+                ON CONFLICT (onyx_user_id) DO UPDATE SET lms_account_choice = EXCLUDED.lms_account_choice, updated_at = NOW()
+                """,
+                user_uuid, choice
+            )
+            return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to save LMS user settings")
+
 @app.on_event("startup")
 async def startup_event_lms_exports():
     try:
         async with DB_POOL.acquire() as connection:
+            # Ensure lms_user_settings table exists (per-account persistence)
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS lms_user_settings (
+                    onyx_user_id VARCHAR(255) PRIMARY KEY,
+                    lms_account_choice VARCHAR(32),
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+                """
+            )
             await connection.execute(
                 """
                 CREATE TABLE IF NOT EXISTS lms_exports (

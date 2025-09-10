@@ -877,23 +877,33 @@ const ProjectsPageInner: React.FC = () => {
 
   // Show account modal when first visiting LMS tab
   useEffect(() => {
-    if (isExportLMS && lmsAccountStatus === 'unknown') {
-      // Read remembered choice
-      let remembered: string | null = null;
-      try { remembered = localStorage.getItem('lmsAccountChoice'); } catch {}
-      if (remembered === 'yes') {
-        setLmsAccountStatus('has-account');
-        setShowAccountModal(false);
-        return;
+    const loadChoice = async () => {
+      if (isExportLMS && lmsAccountStatus === 'unknown') {
+        try {
+          const resp = await fetch('/api/custom-projects-backend/lms/user-settings', { credentials: 'same-origin' });
+          if (resp.ok) {
+            const data = await resp.json();
+            const serverChoice: string | null = data?.choice || null;
+            let remembered: string | null = serverChoice;
+            if (!remembered) {
+              try { remembered = localStorage.getItem('lmsAccountChoice'); } catch {}
+            }
+            if (remembered === 'yes') {
+              setLmsAccountStatus('has-account');
+              setShowAccountModal(false);
+              return;
+            }
+            if (remembered === 'no-success') {
+              setLmsAccountStatus('setup-complete');
+              setShowAccountModal(false);
+              return;
+            }
+          }
+        } catch {}
+        setShowAccountModal(true);
       }
-      if (remembered === 'no-success') {
-        setLmsAccountStatus('setup-complete');
-        setShowAccountModal(false);
-        return;
-      }
-      // If no-failed or not set, show modal
-      setShowAccountModal(true);
-    }
+    };
+    loadChoice();
   }, [isExportLMS, lmsAccountStatus]);
 
   // Show loading state while checking authentication

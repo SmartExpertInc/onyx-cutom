@@ -23,6 +23,15 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
     try {
       localStorage.setItem('lmsAccountChoice', value);
     } catch {}
+    // Also persist to backend for per-account consistency
+    try {
+      fetch('/api/custom-projects-backend/lms/user-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ choice: value })
+      }).catch(() => {});
+    } catch {}
   };
 
   const handleYes = () => {
