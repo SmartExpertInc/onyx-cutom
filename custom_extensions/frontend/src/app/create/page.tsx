@@ -201,7 +201,7 @@ export default function DataSourceLanding() {
       <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
         {/* Headings */}
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">{t('interface.createWithAI', 'Create with AI')}</h1>
+          <h1 className="text-4xl sm:text-5xl text-gray-900">{t('interface.createWithAI', 'Create with AI')}</h1>
           <p className="text-base sm:text-lg text-gray-500">{t('interface.howToGetStarted', 'How would you like to get started?')}</p>
         </div>
 
