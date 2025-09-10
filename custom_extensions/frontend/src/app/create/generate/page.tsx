@@ -1019,10 +1019,8 @@ function GenerateProductPicker() {
         {/* back button absolute top-left */}
         <Link
           href="/create"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+          className="absolute top-6 left-6 flex bg-white items-center gap-2 text-sm text-gary-700 rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
           style={{
-            color: `rgb(var(--generate-back-button-text))`,
-            backgroundColor: `rgb(var(--generate-back-button-bg))`,
             borderColor: `rgb(var(--generate-back-button-border))`,
             borderWidth: '1px'
           }}
