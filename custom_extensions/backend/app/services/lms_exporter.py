@@ -208,8 +208,30 @@ async def export_course_outline_to_lms_format(
             return 'onepager'
         return t
 
+    def _type_aliases_for_group(group_type: str) -> List[str]:
+        g = (group_type or '').strip().lower()
+        if g == 'slide deck':
+            return ['slide deck', 'presentation', 'presentationdisplay', 'slidedeck']
+        if g == 'one pager':
+            return ['one pager', 'one-pager', 'onepager', 'text presentation', 'textpresentation', 'textpresentationdisplay', 'pdf lesson', 'pdflesson']
+        if g == 'text presentation':
+            return ['text presentation', 'textpresentation', 'textpresentationdisplay', 'one pager', 'one-pager', 'onepager']
+        if g == 'pdf lesson':
+            return ['pdf lesson', 'pdflesson', 'one pager', 'one-pager', 'onepager']
+        if g == 'quiz':
+            return ['quiz', 'quizdisplay']
+        return [g]
+
     def project_type_matches(proj: Dict[str, Any], target_mtypes: List[str]) -> bool:
-        return (proj.get('microproduct_type') or '').strip() in (target_mtypes or [])
+        proj_types = [
+            (proj.get('microproduct_type') or '').strip().lower(),
+            (proj.get('component_name') or '').strip().lower(),
+        ]
+        aliases: List[str] = []
+        for t in target_mtypes or []:
+            aliases.extend(_type_aliases_for_group(t))
+        aliases_set = set(aliases)
+        return any(pt in aliases_set for pt in proj_types if pt)
 
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
         target_mtypes = map_item_type_to_microproduct(desired_type)
@@ -226,7 +248,7 @@ async def export_course_outline_to_lms_format(
             return (proj.get('microproduct_name') or '').strip()
 
         # Pattern A (strongest): "Quiz - {outline}: {lesson}" for quizzes only
-        if 'Quiz' in target_mtypes:
+        if 'Quiz' in (target_mtypes or []):
             target_name = f"Quiz - {outline_name}: {lesson_title}"
             for proj in projects:
                 if project_type_matches(proj, target_mtypes) and is_unused(proj.get('id')):
@@ -241,7 +263,7 @@ async def export_course_outline_to_lms_format(
             'Text Presentation': 'Text Presentation',
             'PDF Lesson': 'PDF Lesson'
         }
-        prefixes = [type_prefix_map[t] for t in target_mtypes if t in type_prefix_map]
+        prefixes = [type_prefix_map[t] for t in (target_mtypes or []) if t in type_prefix_map]
         if prefixes:
             for pref in prefixes:
                 target_name_prefixed = f"{pref} - {outline_name}: {lesson_title}"
@@ -421,7 +443,21 @@ async def export_course_outline_to_lms_format(
 
     structure = prune_structure(structure)
 
-    # Upload final structure JSON and post to SmartExpert
+    # Final summary logging for verification (focus on one-pagers)
+    try:
+        total_onepagers = 0
+        for sec in (structure.get('sections') or []):
+            for les in (sec.get('lessons') or []):
+                prim = ((les.get('recommended_content_types') or {}).get('primary') or [])
+                types = [str((it.get('type') or '')).lower() for it in prim if isinstance(it, dict)]
+                has_onepager = any(t == 'onepager' for t in types)
+                if has_onepager:
+                    total_onepagers += 1
+                logger.info(f"[LMS-SUMMARY] Lesson='{les.get('title')}' -> primary_types={types}")
+        logger.info(f"[LMS-SUMMARY] Total lessons with one-pagers: {total_onepagers}")
+    except Exception as _e:
+        logger.warning(f"[LMS-SUMMARY] Failed to produce final summary: {_e}")
+
     structure_json = json.dumps(structure, indent=2).encode('utf-8')
     structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder)
     structure_download_link = await create_public_download_link(user_id, structure_path)
