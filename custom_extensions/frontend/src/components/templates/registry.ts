@@ -54,6 +54,13 @@ import { ConnectionSlideTemplate } from './ConnectionSlideTemplate';
 import HighPerformingTeamsSlideTemplate from './HighPerformingTeamsSlideTemplate';
 import EnterpriseRoadmapSlideTemplate from './EnterpriseRoadmapSlideTemplate';
 import ConcentricPhishingRiseSlideTemplate from './ConcentricPhishingRiseSlideTemplate';
+import ImpactMetricsRightImageSlideTemplate from './ImpactMetricsRightImageSlideTemplate';
+import PainPointsSlideTemplate from './PainPointsSlideTemplate';
+import CultureValuesThreeColumnsSlideTemplate from './CultureValuesThreeColumnsSlideTemplate';
+import KeySkillsDataAnalysisSlideTemplate from './KeySkillsDataAnalysisSlideTemplate';
+import ChangeManagementTabsSlideTemplate from './ChangeManagementTabsSlideTemplate';
+import BenefitsAndPerksColumnsSlideTemplate from './BenefitsAndPerksColumnsSlideTemplate';
+import OralHygieneSignsSlideTemplate from './OralHygieneSignsSlideTemplate';
 
 
 
@@ -2029,6 +2036,187 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
       companyLogoPath: { type: 'image', label: 'Company Logo' }
+    }
+  }
+  ,
+
+  // New: Impact metrics with right image panel (matches screenshots 1 and 3 variants)
+  'impact-metrics-right-image': {
+    id: 'impact-metrics-right-image',
+    name: 'Impact Metrics (Right Image)',
+    description: 'Three big impact metrics on the left and rounded image panel on the right',
+    category: 'content',
+    icon: '📈',
+    component: ImpactMetricsRightImageSlideTemplate,
+    defaultProps: {
+      metrics: [
+        { text: '300% increase in online visibility' },
+        { text: '$5 for every $1 spent average ROI' },
+        { text: '95% increase in customer loyalty' }
+      ],
+      showTitle: false,
+      backgroundColor: '#0f2a2e',
+      textColor: '#E6ECE9',
+      bulletBg: 'rgba(255,255,255,0.2)',
+      bulletColor: '#E6ECE9',
+      rightPanelColor: '#EA6A20'
+    },
+    propSchema: {
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      showTitle: { type: 'boolean', label: 'Show Title' },
+      title: { type: 'text', label: 'Title' },
+      backgroundColor: { type: 'color', label: 'Background' },
+      textColor: { type: 'color', label: 'Text Color' },
+      bulletBg: { type: 'color', label: 'Bullet BG' },
+      bulletColor: { type: 'color', label: 'Bullet Color' },
+      rightPanelColor: { type: 'color', label: 'Right Panel' },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  // New: Pain Points with badge, heading, 3 items and right image panel
+  'pain-points': {
+    id: 'pain-points',
+    name: 'Pain Points',
+    description: 'Badge + Heading + three bullet rows, right rounded image panel',
+    category: 'content',
+    icon: '💬',
+    component: PainPointsSlideTemplate,
+    defaultProps: {
+      badge: 'Pain Points',
+      heading: 'Common Pain Points',
+      items: [
+        { text: 'Hindered career progression and access to valuable resources.' },
+        { text: 'Strained communication and reduced effectiveness.' },
+        { text: 'Missed opportunities for collaboration and growth.' }
+      ],
+      rightPanelColor: '#138a79'
+    },
+    propSchema: {
+      badge: { type: 'text', label: 'Badge' },
+      heading: { type: 'text', label: 'Heading' },
+      items: { type: 'array', label: 'Items', required: true },
+      rightPanelColor: { type: 'color', label: 'Right Panel' },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  // New: Culture & Values with three columns and avatar
+  'culture-values-three-columns': {
+    id: 'culture-values-three-columns',
+    name: 'Culture & Values (3 columns)',
+    description: 'Top bar with logo and title, three equal columns with a colored middle panel and avatar',
+    category: 'content',
+    icon: '🏛️',
+    component: CultureValuesThreeColumnsSlideTemplate,
+    defaultProps: {
+      logoText: 'Logo',
+      title: 'Our culture and values',
+      leftText: 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner...',
+      middleText: 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees...',
+      rightText: 'IT policies, including data security and acceptable use.\n\nSecure password management and protection of company data...',
+      middlePanelColor: '#3B46FF'
+    },
+    propSchema: {
+      logoText: { type: 'text', label: 'Logo' },
+      title: { type: 'text', label: 'Title', required: true },
+      leftText: { type: 'text', label: 'Left Text', required: true },
+      middleText: { type: 'text', label: 'Middle Text', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      middlePanelColor: { type: 'color', label: 'Middle Panel' },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Key skills list with numbered items and right image panel
+  'key-skills-data-analysis': {
+    id: 'key-skills-data-analysis',
+    name: 'Key Skills (Data Analysis)',
+    description: 'Large heading with numbered list on the left and rounded right image panel',
+    category: 'content',
+    icon: '🧠',
+    component: KeySkillsDataAnalysisSlideTemplate,
+    defaultProps: {
+      heading: 'Key skills\nfor data analysis:',
+      items: [ 'Sorting and filtering data.', 'Formulas and functions.', 'Pivot tables.', 'Data validation.', 'Charts and graphs.' ],
+      rightPanelColor: '#20472F'
+    },
+    propSchema: {
+      heading: { type: 'text', label: 'Heading', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      rightPanelColor: { type: 'color', label: 'Right Panel' },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  // New: Change Management Tabs
+  'change-management-tabs': {
+    id: 'change-management-tabs',
+    name: 'Change Management Tabs',
+    description: 'Four top bars (tabs) + main heading + three capsule pills',
+    category: 'content',
+    icon: '🗂️',
+    component: ChangeManagementTabsSlideTemplate,
+    defaultProps: {
+      topTabs: [
+        'CHANGE MANAGEMENT FUNDAMENTALS',
+        'THE NEED FOR CHANGE',
+        'BUILDING A CHANGE-READY CULTURE',
+        'EFFECTIVE COMMUNICATION AND ENGAGEMENT'
+      ],
+      heading: 'Communication is the lifeblood of successful change initiatives.',
+      pills: ['ORGANIZATIONS', 'COMMUNICATION', 'STAKEHOLDERS']
+    },
+    propSchema: {
+      topTabs: { type: 'array', label: 'Top Tabs', required: true },
+      heading: { type: 'text', label: 'Heading', required: true },
+      pills: { type: 'array', label: 'Pills', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Benefits and Perks Columns
+  'benefits-and-perks-columns': {
+    id: 'benefits-and-perks-columns',
+    name: 'Benefits and Perks Columns',
+    description: 'Four equal columns; 2nd and 4th are accent blocks with numbers',
+    category: 'content',
+    icon: '🎁',
+    component: BenefitsAndPerksColumnsSlideTemplate,
+    defaultProps: {
+      logoText: 'Logo',
+      heading: 'Benefits and Perks'
+    },
+    propSchema: {
+      logoText: { type: 'text', label: 'Logo' },
+      heading: { type: 'text', label: 'Heading', required: true },
+      columns: { type: 'array', label: 'Columns', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Oral Hygiene Signs
+  'oral-hygiene-signs': {
+    id: 'oral-hygiene-signs',
+    name: 'Oral Hygiene Signs',
+    description: 'Large heading with two 3-item lists with big numbers',
+    category: 'content',
+    icon: '🦷',
+    component: OralHygieneSignsSlideTemplate,
+    defaultProps: {
+      heading: 'What are the signs of\npoor oral hygiene?'
+    },
+    propSchema: {
+      heading: { type: 'text', label: 'Heading', required: true },
+      leftItems: { type: 'array', label: 'Left Items', required: true },
+      rightItems: { type: 'array', label: 'Right Items', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
     }
   }
   ,
