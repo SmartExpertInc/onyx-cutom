@@ -12,6 +12,7 @@ import { Spinner } from "@/components/Spinner";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useUser } from "@/components/user/UserProvider";
+import { identifyUser } from "@custom_extensions/frontend/src/lib/mixpanelClient";
 import { useRouter } from "next/navigation";
 
 export function EmailPasswordForm({
@@ -92,6 +93,7 @@ export function EmailPasswordForm({
 
           const loginResponse = await basicLogin(email, values.password);
           if (loginResponse.ok) {
+            identifyUser((await loginResponse.json()).id);
             if (isSignup && shouldVerify) {
               await requestEmailVerification(email);
               // Use window.location.href to force a full page reload,
