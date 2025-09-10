@@ -24,18 +24,20 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
   console.log('[LMS Modal] Modal will render');
 
   const persistChoice = (value: 'yes' | 'no-success' | 'no-failed') => {
-    try {
-      localStorage.setItem('lmsAccountChoice', value);
-    } catch {}
-    // Also persist to backend for per-account consistency
+    // Save choice to backend for per-account consistency across devices
+    console.log('[LMS Modal] Persisting choice to backend:', value);
     try {
       fetch('/api/custom-projects-backend/lms/user-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ choice: value })
-      }).catch(() => {});
-    } catch {}
+      }).catch((error) => {
+        console.error('[LMS Modal] Failed to persist choice to backend:', error);
+      });
+    } catch (error) {
+      console.error('[LMS Modal] Error calling backend to persist choice:', error);
+    }
   };
 
   const handleYes = () => {

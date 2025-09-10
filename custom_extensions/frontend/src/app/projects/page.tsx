@@ -906,15 +906,7 @@ const ProjectsPageInner: React.FC = () => {
           console.log('[LMS] Backend request error:', error);
         }
         
-        // Fallback to localStorage if no backend choice
-        if (!remembered) {
-          try { 
-            remembered = localStorage.getItem('lmsAccountChoice');
-            console.log('[LMS] LocalStorage choice:', remembered);
-          } catch {}
-        }
-        
-        // Only auto-hide modal and set status if we have a definitive choice
+        // Only auto-hide modal and set status if we have a definitive choice from backend
         if (remembered === 'yes') {
           console.log('[LMS] Auto-setting has-account and hiding modal');
           setLmsAccountStatus('has-account');
@@ -928,7 +920,7 @@ const ProjectsPageInner: React.FC = () => {
           return;
         }
         
-        console.log('[LMS] Modal will stay visible (choice was:', remembered, ')');
+        console.log('[LMS] Modal will stay visible (backend choice was:', remembered, ')');
       }
     };
     loadChoice();
