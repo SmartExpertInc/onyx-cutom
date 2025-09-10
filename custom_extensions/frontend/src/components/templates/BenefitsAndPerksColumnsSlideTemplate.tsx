@@ -5,11 +5,13 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 export interface BenefitColumn { title: string; body: string; accent?: boolean; }
 
 export interface BenefitsAndPerksColumnsProps extends BaseTemplateProps {
   logoText?: string;
+  logoPath?: string;
   heading: string;
   avatarPath?: string;
   columns: [BenefitColumn, BenefitColumn, BenefitColumn, BenefitColumn];
@@ -18,6 +20,7 @@ export interface BenefitsAndPerksColumnsProps extends BaseTemplateProps {
 export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   logoText = 'Logo',
+  logoPath = '',
   heading = 'Benefits and Perks',
   avatarPath = '',
   columns = [
@@ -61,13 +64,14 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   return (
     <div className="benefits-perks-columns inter-theme" style={slide}>
       <div style={top} />
-      <div style={logoStyle}>
-        {isEditable && editLogo ? (
-          <ImprovedInlineEditor initialValue={logoText} onSave={(v)=>{ onUpdate&&onUpdate({ logoText:v }); setEditLogo(false); }} onCancel={()=>setEditLogo(false)} style={inline(logoStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEditLogo(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{logoText}</div>
-        )}
-      </div>
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p)=> onUpdate&&onUpdate({ logoPath:p })}
+        isEditable={isEditable}
+        color="#6b7280"
+        text={logoText}
+        style={{ position:'absolute', left:'48px', top:'48px' }}
+      />
       <div style={headingStyle}>
         {isEditable && editHeading ? (
           <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inline(headingStyle)} />

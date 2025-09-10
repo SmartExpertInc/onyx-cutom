@@ -5,9 +5,11 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
   logoText?: string;
+  logoPath?: string;
   title: string;
   leftText: string;
   middleText: string;
@@ -19,6 +21,7 @@ export interface CultureValuesThreeColumnsProps extends BaseTemplateProps {
 export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThreeColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   logoText = 'Logo',
+  logoPath = '',
   title = 'Our culture and values',
   leftText = 'Code of conduct and ethics.\n\nWe expect all employees to behave in an ethical and professional manner and to uphold the following principles: ...',
   middleText = 'HR policies, including time off, benefits, and compensation.\n\nOur HR policies are designed to support employees ...',
@@ -51,13 +54,14 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   return (
     <div className="culture-values-three-columns inter-theme" style={slide}>
       <div style={top} />
-      <div style={logoStyle}>
-        {isEditable && editLogo ? (
-          <ImprovedInlineEditor initialValue={logoText} onSave={(v)=>{ onUpdate&&onUpdate({ logoText:v }); setEditLogo(false); }} onCancel={()=>setEditLogo(false)} style={inline(logoStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEditLogo(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{logoText}</div>
-        )}
-      </div>
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p)=> onUpdate && onUpdate({ logoPath: p })}
+        isEditable={isEditable}
+        color="#6b7280"
+        text={logoText}
+        style={{ position:'absolute', left:'48px', top:'48px' }}
+      />
       <div style={titleStyle}>
         {isEditable && editTitle ? (
           <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
