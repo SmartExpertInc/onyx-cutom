@@ -39,15 +39,15 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const [editMiddle, setEditMiddle] = useState(false);
   const [editRight, setEditRight] = useState(false);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#222', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'180px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EDEDED', color:'#222', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'68px', fontWeight:800, color:'#2b2b2b' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', background:'#ffffff', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontWeight:800, color:'#242424' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#000000', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
-  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'180px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
-  const col: React.CSSProperties = { padding:'36px 42px', fontSize:'16px', lineHeight:1.6, color:'#3f3f3f', background:'#D8D8D8' };
-  const mid: React.CSSProperties = { ...col, background: middlePanelColor, color:'#CECEF3' };
+  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
+  const col: React.CSSProperties = { padding:'36px 42px', fontSize:'16px', lineHeight:1.6, color:'#5D5D5D', background:'#CCCCCC' };
+  const mid: React.CSSProperties = { ...col, background: '#4231EA', color:'#ABA6EB' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -70,7 +70,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
         )}
       </div>
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate && onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate && onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ marginTop:'3px', width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
       </div>
 
       <div style={grid}>
