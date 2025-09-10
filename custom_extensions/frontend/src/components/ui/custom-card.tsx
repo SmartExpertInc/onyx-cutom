@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { Card, CardContent } from "./card";
 import { Badge } from "./badge";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   labelColor?: string;
   disabled?: boolean;
   href?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
@@ -29,6 +31,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
     labelColor = "text-blue-600",
     disabled = false,
     href,
+    onClick,
     children,
     ...props 
   }, ref) => {
@@ -94,9 +97,9 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
 
     if (href && !disabled) {
       return (
-        <a href={href} className="block">
+        <Link href={href} onClick={onClick}>
           {cardContent}
-        </a>
+        </Link>
       );
     }
 
