@@ -9,6 +9,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { GenerateCard } from "@/components/ui/generate-card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -102,32 +103,6 @@ const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
   </svg>
 );
 
-interface TabButtonProps {
-  label: string;
-  Icon?: React.ElementType;
-  active?: boolean;
-  onClick?: () => void;
-}
-
-const TabButton: React.FC<TabButtonProps> = ({ label, Icon, active, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer text-center backdrop-blur-sm hover:scale-105 ${
-      active ? 'w-44 h-32' : 'w-40 h-28'
-    }`}
-    style={{
-      backgroundColor: `rgb(var(--generate-tab-bg))`,
-      color: `rgb(var(--generate-tab-text))`,
-      borderColor: active ? `rgb(var(--generate-tab-active-border))` : `rgb(var(--generate-tab-border))`,
-      borderWidth: '1px',
-      boxShadow: active ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-    }}
-  >
-    {Icon && <Icon size={64} />}
-    <span className="text-sm font-semibold leading-tight">{label}</span>
-  </button>
-);
 
 
 function GenerateProductPicker() {
@@ -1125,31 +1100,31 @@ function GenerateProductPicker() {
 
         {/* Tab selector */}
         <div className="flex justify-center gap-6 mb-8">
-          <TabButton
+          <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
-          <TabButton 
+          <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
             Icon={VideoScriptIcon} 
             active={activeProduct === "Video Lesson"}
             onClick={() => setActiveProduct("Video Lesson")}
           />
-          <TabButton 
+          <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon} 
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
           />
-          <TabButton
+          <GenerateCard
             label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
           />
-          <TabButton
+          <GenerateCard
             label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
             active={activeProduct === "One-Pager"}
