@@ -1937,14 +1937,12 @@ function GenerateProductPicker() {
                 )}
               </div>
               <div className="flex justify-center mt-6">
-                <button
+                <Button
                   onClick={shuffleExamples}
-                  className="flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-colors cursor-pointer"
+                  variant="outline"
+                  className="flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium"
                   style={{
-                    backgroundColor: `rgb(var(--generate-card-bg))`,
-                    color: `rgb(var(--generate-tab-active-text))`,
                     borderColor: `rgb(var(--generate-tab-active-border))`,
-                    borderWidth: '1px',
                     boxShadow: `var(--generate-card-shadow)`
                   }}
                   onMouseEnter={(e) => {
@@ -1955,7 +1953,7 @@ function GenerateProductPicker() {
                   }}
                 >
                   <Shuffle size={18} /> {t('interface.generate.shuffleExamples', 'Shuffle')}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

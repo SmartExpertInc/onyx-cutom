@@ -15,13 +15,13 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group relative overflow-hidden transition-all duration-200 cursor-pointer",
+          "group relative overflow-hidden transition-all duration-200 cursor-pointer w-40 h-28",
           "hover:scale-105",
           className
         )}
         style={{
           backgroundColor: 'white',
-          borderColor: active ? '#3b82f6' : '#e2e8f0',
+          borderColor: active ? '#C5CAD1' : '#e2e8f0',
           borderWidth: '1px',
           boxShadow: active 
             ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
@@ -45,7 +45,9 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             <Icon 
               size={64} 
               style={{
-                color: active ? '#3b82f6' : '#4b5563'
+                color: active ? '#3b82f6' : '#4b5563',
+                fontWeight: 'bold',
+                strokeWidth: active ? 2.5 : 2
               }}
             />
           )}
