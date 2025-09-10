@@ -12,7 +12,7 @@ import { Spinner } from "@/components/Spinner";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useUser } from "@/components/user/UserProvider";
-import { identifyUser } from "@custom_extensions/frontend/src/lib/mixpanelClient";
+import { identifyUser } from "@/lib/mixpanelClient";
 import { useRouter } from "next/navigation";
 
 export function EmailPasswordForm({
