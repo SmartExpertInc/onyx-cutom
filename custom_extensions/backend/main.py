@@ -14122,15 +14122,24 @@ async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
         # Log the raw response for debugging
         logger.info(f"[AI-Audit Landing Page] Raw burnout response: '{response_text}'")
         
-        # Try to parse JSON response
+        # Try to parse JSON response - handle markdown-wrapped JSON
         try:
-            burnout_data = json.loads(response_text.strip())
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            burnout_data = json.loads(cleaned_response)
             if "months" not in burnout_data or "industryName" not in burnout_data:
                 raise ValueError("Missing required fields")
         except (json.JSONDecodeError, ValueError) as e:
             # Log the parsing error for debugging
             logger.error(f"[AI-Audit Landing Page] JSON parsing error: {e}")
             logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
             # Fallback to default values
             burnout_data = {"months": "14", "industryName": "HVAC-компаниях"}
         
@@ -14177,12 +14186,24 @@ async def extract_turnover_data(duckduckgo_summary: str, payload) -> dict:
             model=LLM_DEFAULT_MODEL
         )
         
-        # Try to parse JSON response
+        # Try to parse JSON response - handle markdown-wrapped JSON
         try:
-            turnover_data = json.loads(response_text.strip())
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            turnover_data = json.loads(cleaned_response)
             if "percentage" not in turnover_data or "earlyExit" not in turnover_data:
                 raise ValueError("Missing required fields")
-        except (json.JSONDecodeError, ValueError):
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] Turnover JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
             # Fallback to default values
             turnover_data = {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}}
         
@@ -14230,12 +14251,24 @@ async def extract_losses_data(duckduckgo_summary: str, payload) -> dict:
             model=LLM_DEFAULT_MODEL
         )
         
-        # Try to parse JSON response
+        # Try to parse JSON response - handle markdown-wrapped JSON
         try:
-            losses_data = json.loads(response_text.strip())
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            losses_data = json.loads(cleaned_response)
             if "amount" not in losses_data:
                 raise ValueError("Missing required fields")
-        except (json.JSONDecodeError, ValueError):
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] Losses JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
             # Fallback to default values
             losses_data = {"amount": "$10К–$18К"}
         
@@ -14282,12 +14315,24 @@ async def extract_search_time_data(duckduckgo_summary: str, payload) -> dict:
             model=LLM_DEFAULT_MODEL
         )
         
-        # Try to parse JSON response
+        # Try to parse JSON response - handle markdown-wrapped JSON
         try:
-            search_time_data = json.loads(response_text.strip())
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            search_time_data = json.loads(cleaned_response)
             if "days" not in search_time_data:
                 raise ValueError("Missing required fields")
-        except (json.JSONDecodeError, ValueError):
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] Search time JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
             # Fallback to default values
             search_time_data = {"days": "30–60"}
         
