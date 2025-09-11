@@ -765,7 +765,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         <SelectTrigger 
                           className="w-24 shadow-none bg-transparent px-1 border-1 rounded-lg"
                           style={{
-                            // backgroundColor: getRoleColor(member.role_id),
+                            backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),
                             borderColor: getRoleTextColor(member.role_id),
                             height: '15px',
@@ -783,7 +783,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                               <div 
                                 className="flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium"
                                 style={{
-                                  backgroundColor: role.color,
+                                  // backgroundColor: role.color,
                                   color: role.text_color
                                 }}
                               >
