@@ -36,15 +36,18 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const [editKey, setEditKey] = useState<string | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F6F6F2', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', boxShadow:'0 0 0 2px #111111 inset' };
-  const header: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', height:'160px', background:'#4CCD6A', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'24px', borderBottomRightRadius:'24px' };
-  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'78px', fontSize:'56px', fontWeight:800, color:'#0A0F0C' };
+  const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
+  const header: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', height:'160px', background:'#6CDC78', border:'1px solid #102412', borderBottom:'none', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'0', borderBottomRightRadius:'0' };
+  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'90px', fontSize:'42px', fontWeight:800, color:'#102412' };
+  
+  // Content block wrapper with top radius
+  const contentBlock: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'204px', bottom:'44px', background:'#FFFFFF', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'24px', borderBottomRightRadius:'24px', border:'1px solid #102412', borderTop:'none' };
 
-  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'260px', fontSize:'56px', fontWeight:800, color:'#0F172A' };
-  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'350px', fontSize:'22px', color:'#5B6B73', lineHeight:1.6, whiteSpace:'pre-line' };
+  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'245px', fontSize:'40px', fontWeight:800, color:'#1E1E1C' };
+  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'325px', fontSize:'17px', color:'#454441', lineHeight:1.6, whiteSpace:'pre-line' };
 
-  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'520px', fontSize:'56px', fontWeight:800, color:'#0F172A' };
-  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'610px', fontSize:'22px', color:'#5B6B73', lineHeight:1.6, whiteSpace:'pre-line' };
+  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'415px', fontSize:'40px', fontWeight:800, color:'#1E1E1C' };
+  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'490px', fontSize:'17px', color:'#595854', lineHeight:1.6, whiteSpace:'pre-line' };
 
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'72px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#C7D6FF', zIndex:2 };
   const ring1: React.CSSProperties = { position:'absolute', right:'32px', top:'24px', width:'220px', height:'220px', borderRadius:'50%', border:'3px solid #111111', background:'transparent', zIndex:1 };
@@ -70,34 +73,37 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         )}
       </div>
 
-      <div style={section1TitleStyle}>
-        {isEditable && editKey==='s1t' ? (
-          <ImprovedInlineEditor initialValue={section1Title} onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1TitleStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
-        )}
-      </div>
-      <div style={section1LinesStyle}>
-        {isEditable && editKey==='s1l' ? (
-          <ImprovedInlineEditor initialValue={section1Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1LinesStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
-        )}
-      </div>
+      {/* Content block wrapper */}
+      <div style={contentBlock}>
+        <div style={section1TitleStyle}>
+          {isEditable && editKey==='s1t' ? (
+            <ImprovedInlineEditor initialValue={section1Title} onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1TitleStyle)} />
+          ) : (
+            <div onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
+          )}
+        </div>
+        <div style={section1LinesStyle}>
+          {isEditable && editKey==='s1l' ? (
+            <ImprovedInlineEditor initialValue={section1Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1LinesStyle)} />
+          ) : (
+            <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
+          )}
+        </div>
 
-      <div style={section2TitleStyle}>
-        {isEditable && editKey==='s2t' ? (
-          <ImprovedInlineEditor initialValue={section2Title} onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2TitleStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
-        )}
-      </div>
-      <div style={section2LinesStyle}>
-        {isEditable && editKey==='s2l' ? (
-          <ImprovedInlineEditor initialValue={section2Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2LinesStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEditKey('s2l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Lines.join('\n')}</div>
-        )}
+        <div style={section2TitleStyle}>
+          {isEditable && editKey==='s2t' ? (
+            <ImprovedInlineEditor initialValue={section2Title} onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2TitleStyle)} />
+          ) : (
+            <div onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
+          )}
+        </div>
+        <div style={section2LinesStyle}>
+          {isEditable && editKey==='s2l' ? (
+            <ImprovedInlineEditor initialValue={section2Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2LinesStyle)} />
+          ) : (
+            <div onClick={()=> isEditable && setEditKey('s2l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Lines.join('\n')}</div>
+          )}
+        </div>
       </div>
     </div>
   );
