@@ -1,0 +1,144 @@
+// custom_extensions/frontend/src/components/templates/DataDrivenInsightsSlideTemplate.tsx
+
+import React, { useState } from 'react';
+import { BaseTemplateProps } from '@/types/slideTemplates';
+import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+
+export interface DataDrivenInsightsProps extends BaseTemplateProps {
+  tag: string;
+  title: string;
+  description: string;
+  leftChartTitle: string;
+  rightChartTitle: string;
+  leftBars: number[]; // heights 0-100
+  rightBars: number[];
+  barLabels: string[]; // 5 years labels
+  metrics: Array<{ value: string; caption: string }>;
+  avatarPath?: string;
+}
+
+export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
+  tag = 'Statistics',
+  title = 'Data-Driven Insights: Statistics and Trends',
+  description = 'Provide statistics about the market size to show the potential for growth. Share how many customers your company has acquired to date. Share product performance statistics to show how your product compares to competitors, etc.',
+  leftChartTitle = 'The global market for XYZ product is estimated to reach $XX billion by 2025, growing at a CAGR of XX% from 2020 to 2025',
+  rightChartTitle = 'Our product has a 4.8-star rating on the App Store and a 95% customer satisfaction score based on user surveys.',
+  leftBars = [33,39,55,44,67,35],
+  rightBars = [33,39,55,44,67,35],
+  barLabels = ['2017','2018','2019','2020','2021','2022'],
+  metrics = [
+    { value: '+XM', caption: 'customers since our launch in 2016' },
+    { value: '$XXM', caption: 'reaching in total revenue for 2020' },
+    { value: 'XM', caption: 'active users who spend an average of 30 minutes per day using our product.' }
+  ],
+  avatarPath = '',
+  isEditable = false,
+  onUpdate,
+  theme
+}) => {
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const [edit, setEdit] = useState<{ key: string } | null>(null);
+
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#111214', color:'#E5E7EB', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#1F2125', color:'#C4C7CE', border:'1px solid #2B2E33', borderRadius:'8px', padding:'10px 18px', fontSize:'16px' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'112px', fontSize:'64px', fontWeight:800, color:'#E5E7EB' };
+  const descStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', width:'900px', color:'#9AA0A6', fontSize:'18px' };
+
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'320px', width:'860px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
+  const panel: React.CSSProperties = { background:'#1F2125', border:'1px solid #2B2E33', padding:'16px 18px', borderRadius:'2px' };
+  const chartArea: React.CSSProperties = { position:'relative', height:'280px', display:'flex', alignItems:'flex-end', gap:'24px', padding:'24px 18px' };
+  const barBase: React.CSSProperties = { width:'40px', background:'#8E5BFF' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px', color:'#9AA0A6', fontSize:'12px' };
+
+  const rightMetrics: React.CSSProperties = { position:'absolute', right:'64px', top:'360px', width:'420px', display:'grid', rowGap:'46px' };
+  const metricValue: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#ffffff' };
+  const metricCaption: React.CSSProperties = { marginTop:'6px', color:'#9AA0A6', fontSize:'16px' };
+  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
+
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 });
+
+  const renderBars = (bars: number[]) => (
+    <div style={chartArea}>
+      {bars.map((h, i)=> (
+        <div key={i} style={{ ...barBase, height:`${Math.max(0,Math.min(100,h)) * 2}px` }} />
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="data-driven-insights inter-theme" style={slide}>
+      <div style={tagStyle}>
+        {isEditable && edit?.key==='tag' ? (
+          <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(tagStyle)} />
+        ) : (
+          <div onClick={()=> isEditable && setEdit({ key:'tag' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
+        )}
+      </div>
+      <div style={titleStyle}>
+        {isEditable && edit?.key==='title' ? (
+          <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />
+        ) : (
+          <div onClick={()=> isEditable && setEdit({ key:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+        )}
+      </div>
+      <div style={descStyle}>
+        {isEditable && edit?.key==='desc' ? (
+          <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ description:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(descStyle)} />
+        ) : (
+          <div onClick={()=> isEditable && setEdit({ key:'desc' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{description}</div>
+        )}
+      </div>
+
+      <div style={chartsWrap}>
+        <div style={panel}>
+          {isEditable && edit?.key==='lct' ? (
+            <ImprovedInlineEditor initialValue={leftChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ color:'#C7CBD2', fontSize:'14px' })} />
+          ) : (
+            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#C7CBD2', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
+          )}
+          {renderBars(leftBars)}
+          <div style={yearRow}>{barLabels.map((y,i)=>(<span key={i}>{y}</span>))}</div>
+        </div>
+        <div style={panel}>
+          {isEditable && edit?.key==='rct' ? (
+            <ImprovedInlineEditor initialValue={rightChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ color:'#C7CBD2', fontSize:'14px' })} />
+          ) : (
+            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#C7CBD2', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
+          )}
+          {renderBars(rightBars)}
+          <div style={yearRow}>{barLabels.map((y,i)=>(<span key={i}>{y}</span>))}</div>
+        </div>
+      </div>
+
+      <div style={rightMetrics}>
+        {metrics.map((m, i)=> (
+          <div key={i}>
+            <div style={metricValue} onClick={()=> isEditable && setEdit({ key:`mv${i}` })}>
+              {isEditable && edit?.key===`mv${i}` ? (
+                <ImprovedInlineEditor initialValue={m.value} onSave={(v)=>{ const next=[...metrics]; next[i]={ ...next[i], value:v }; onUpdate&&onUpdate({ metrics: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(metricValue)} />
+              ) : (
+                m.value
+              )}
+            </div>
+            <div style={metricCaption} onClick={()=> isEditable && setEdit({ key:`mc${i}` })}>
+              {isEditable && edit?.key===`mc${i}` ? (
+                <ImprovedInlineEditor initialValue={m.caption} multiline={true} onSave={(v)=>{ const next=[...metrics]; next[i]={ ...next[i], caption:v }; onUpdate&&onUpdate({ metrics: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(metricCaption)} />
+              ) : (
+                m.caption
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={avatar}>
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+      </div>
+    </div>
+  );
+};
+
+export default DataDrivenInsightsSlideTemplate;
+

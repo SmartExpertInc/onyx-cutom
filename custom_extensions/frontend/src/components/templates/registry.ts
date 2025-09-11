@@ -62,6 +62,12 @@ import BenefitsAndPerksColumnsSlideTemplate from './BenefitsAndPerksColumnsSlide
 import OralHygieneSignsSlideTemplate from './OralHygieneSignsSlideTemplate';
 import ResourcesSlideTemplate from './ResourcesSlideTemplate';
 import LeftBarAvatarImageSlideTemplate from './LeftBarAvatarImageSlideTemplate';
+import ProblemsGridSlideTemplate from './ProblemsGridSlideTemplate';
+import DataDrivenInsightsSlideTemplate from './DataDrivenInsightsSlideTemplate';
+import CompanyTimelineSlideTemplate from './CompanyTimelineSlideTemplate';
+import DeiMethodsSlideTemplate from './DeiMethodsSlideTemplate';
+import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
+import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
 
 
 
@@ -2241,6 +2247,126 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     propSchema: {
       avatarPath: { type: 'image', label: 'Avatar' },
       mainImagePath: { type: 'image', label: 'Main Image' }
+    }
+  }
+  ,
+
+  // New: Problems Grid (tag, title, 2x2 cards, right paragraph, avatar)
+  'problems-grid': {
+    id: 'problems-grid',
+    name: 'Problems Grid',
+    description: 'Dark layout with tag, large title, 4 cards, right paragraph and avatar',
+    category: 'content',
+    icon: '🧩',
+    component: ProblemsGridSlideTemplate,
+    defaultProps: {
+      tag: 'The problem',
+      title: 'Problem Name'
+    },
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      cards: { type: 'array', label: 'Cards', required: true },
+      rightText: { type: 'text', label: 'Right Text', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Data-Driven Insights
+  'data-driven-insights': {
+    id: 'data-driven-insights',
+    name: 'Data-Driven Insights',
+    description: 'Two bar charts with right metrics, tag and title',
+    category: 'content',
+    icon: '📊',
+    component: DataDrivenInsightsSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      description: { type: 'text', label: 'Description', required: true },
+      leftChartTitle: { type: 'text', label: 'Left Chart Title', required: true },
+      rightChartTitle: { type: 'text', label: 'Right Chart Title', required: true },
+      leftBars: { type: 'array', label: 'Left Bars', required: true },
+      rightBars: { type: 'array', label: 'Right Bars', required: true },
+      barLabels: { type: 'array', label: 'Bar Labels', required: true },
+      metrics: { type: 'array', label: 'Metrics', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Company Timeline
+  'company-timeline-2rows': {
+    id: 'company-timeline-2rows',
+    name: 'Company Timeline (2 rows)',
+    description: 'Two dashed rails with 4+3 milestones and avatar',
+    category: 'content',
+    icon: '🕑',
+    component: CompanyTimelineSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      tag: { type: 'text', label: 'Tag', required: true },
+      title: { type: 'text', label: 'Title', required: true },
+      itemsTop: { type: 'array', label: 'Top Items', required: true },
+      itemsBottom: { type: 'array', label: 'Bottom Items', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: DEI Methods
+  'dei-methods': {
+    id: 'dei-methods',
+    name: 'DEI Methods',
+    description: 'Green header card with two sections and avatar rings',
+    category: 'content',
+    icon: '🟩',
+    component: DeiMethodsSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      headerTitle: { type: 'text', label: 'Header Title', required: true },
+      section1Title: { type: 'text', label: 'Section 1 Title', required: true },
+      section1Lines: { type: 'array', label: 'Section 1 Lines', required: true },
+      section2Title: { type: 'text', label: 'Section 2 Title', required: true },
+      section2Lines: { type: 'array', label: 'Section 2 Lines', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  }
+  ,
+
+  // New: Soft Skills Develop
+  'soft-skills-develop': {
+    id: 'soft-skills-develop',
+    name: 'Soft Skills Develop',
+    description: 'Left content grid with right image and purple bar',
+    category: 'content',
+    icon: '🟣',
+    component: SoftSkillsDevelopSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      items: { type: 'array', label: 'Items', required: true },
+      rightImagePath: { type: 'image', label: 'Right Image' }
+    }
+  }
+  ,
+
+  // New: Percent Circles
+  'percent-circles': {
+    id: 'percent-circles',
+    name: 'Percent Circles',
+    description: 'Title, 11 circles row, two green cards bottom, avatar',
+    category: 'content',
+    icon: '🟢',
+    component: PercentCirclesSlideTemplate,
+    defaultProps: {},
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      percent: { type: 'text', label: 'Percent', required: true },
+      bottomCards: { type: 'array', label: 'Bottom Cards', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
     }
   }
   ,

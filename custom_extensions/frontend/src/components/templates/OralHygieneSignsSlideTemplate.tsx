@@ -36,7 +36,7 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
   const [editItem, setEditItem] = useState<{ side: 'left' | 'right'; idx: number; field: 'title' | 'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'56px', top:'30px', fontSize:'58px', width:'600px', fontWeight:800, color:'#1F2937', lineHeight:1.05 };
+  const headingStyle: React.CSSProperties = { position:'absolute', top:'30px', fontSize:'58px', width:'600px', fontWeight:800, color:'#1F2937', lineHeight:1.05 };
   const avatar: React.CSSProperties = { position:'absolute', right:'56px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#4B71D6' };
   const grid: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'56px', top:'285px', display:'grid', gridTemplateColumns:'1fr 1fr', columnGap:'72px' };
   const list: React.CSSProperties = { display:'grid', rowGap:'22px' };
