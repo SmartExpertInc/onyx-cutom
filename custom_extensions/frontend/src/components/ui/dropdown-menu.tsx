@@ -88,7 +88,7 @@ function DropdownMenuItem({
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-hover-bg))`;
-        e.currentTarget.style.color = `gray`;
+        e.currentTarget.style.color = `rgb(var(--dropdown-item-hover-text))`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-bg))`;

@@ -600,7 +600,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Workspace Header and Selector */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
@@ -763,7 +763,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         onValueChange={(value) => handleRoleChange(member.id, parseInt(value))}
                       >
                         <SelectTrigger 
-                          className="w-auto shadow-none bg-transparent p-0 h-7 border-1 rounded-3xl"
+                          className="w-24 shadow-none bg-transparent px-2 py-1 border-1 rounded-lg"
                           style={{
                             backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),
@@ -837,7 +837,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                           )}
                           <DropdownMenuItem
                             onClick={() => handleDeleteMember(member.id)}
-                            className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50 focus:text-red-600"
+                            variant="destructive"
+                            className="cursor-pointer"
                           >
                             {t('interface.workspaceActions.delete', 'Delete')}
                           </DropdownMenuItem>
