@@ -31,7 +31,7 @@ const buttonVariants = cva(
         import:
           "bg-white text-gray-800 border border-gray-300 shadow-sm hover:bg-gray-50 active:scale-95 transition-all",
         filter:
-          "text-gray-600 hover:bg-gray-100 transition-colors",
+          "text-gray-600 hover:bg-gray-100 transition-colors border border-gray-300",
         "filter-active":
           "bg-white shadow-sm border border-gray-200 text-black",
         sort:
