@@ -48,7 +48,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#9B9B9B', lineHeight:1.4, maxWidth:'740px' };
 
   const rightTextStyle: React.CSSProperties = { position:'absolute', right:'10px', top:'420px', width:'376px', fontSize:'15px', color:'#A6A6A6', lineHeight:1.5, whiteSpace:'pre-line' };
-  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
+  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'130px', height:'130px', borderRadius:'50%', overflow:'hidden', background:'#292929' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
 
