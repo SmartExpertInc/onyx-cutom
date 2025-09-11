@@ -60,12 +60,13 @@ server {
         proxy_pass https://decide.mixpanel.com/decide;
     }
 
-    location /tracking-proxy/ {
+    location ^~ /tracking-proxy/ {
         proxy_set_header Host api-eu.mixpanel.com;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Host $server_name;
         proxy_pass https://api-eu.mixpanel.com/;
+        proxy_redirect off;
     }
 
     # Location for Custom Frontend UI
