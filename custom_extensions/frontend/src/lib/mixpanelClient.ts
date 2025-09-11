@@ -23,6 +23,7 @@ export const initMixpanel = (): void => {
       engage: 'engage',
       groups: 'groups',
     },
+    ip: false,
     debug: true,
     track_pageview: true,
   };
