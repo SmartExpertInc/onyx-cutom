@@ -13992,6 +13992,296 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
         return payload.companyDesc  # Fallback to original description
 
 
+async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Generate workforce crisis data including industry, burnout, turnover, losses, and search time.
+    Returns a dictionary with all the dynamic values for the "Кадровый кризис" section.
+    """
+    try:
+        # Generate all workforce crisis data in parallel for efficiency
+        industry_task = extract_company_industry(duckduckgo_summary, payload)
+        burnout_task = extract_burnout_data(duckduckgo_summary, payload)
+        turnover_task = extract_turnover_data(duckduckgo_summary, payload)
+        losses_task = extract_losses_data(duckduckgo_summary, payload)
+        search_time_task = extract_search_time_data(duckduckgo_summary, payload)
+        
+        # Wait for all tasks to complete
+        industry, burnout, turnover, losses, search_time = await asyncio.gather(
+            industry_task, burnout_task, turnover_task, losses_task, search_time_task
+        )
+        
+        workforce_crisis_data = {
+            "industry": industry,
+            "burnout": burnout,
+            "turnover": turnover,
+            "losses": losses,
+            "searchTime": search_time
+        }
+        
+        logger.info(f"[AI-Audit Landing Page] Generated workforce crisis data: {workforce_crisis_data}")
+        return workforce_crisis_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating workforce crisis data: {e}")
+        # Return default values as fallback
+        return {
+            "industry": "HVAC",
+            "burnout": {"months": "14", "industryName": "HVAC-компаниях"},
+            "turnover": {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}},
+            "losses": {"amount": "$10К–$18К"},
+            "searchTime": {"days": "30–60"}
+        }
+
+
+async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
+    """
+    Extract the company's primary industry from scraped data.
+    """
+    prompt = f"""
+    Определи основную отрасль/индустрию компании на основе предоставленных данных.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    - Определи основную отрасль деятельности компании
+    - Верни только название отрасли (например: HVAC, IT, строительство, медицина, образование)
+    - Если не можешь определить, верни "HVAC"
+    
+    ОТВЕТ (только название отрасли):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        industry = response_text.strip()
+        if not industry:
+            industry = "HVAC"
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted industry: {industry}")
+        return industry
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting industry: {e}")
+        return "HVAC"
+
+
+async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Extract burnout statistics from scraped data.
+    """
+    prompt = f"""
+    Проанализируй данные и определи статистику выгорания сотрудников в отрасли компании.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    - Найди информацию о средней продолжительности работы сотрудников в отрасли
+    - Если данных нет, используй типичные значения для отрасли
+    - Верни данные в формате JSON: {{"months": "число месяцев", "industryName": "название отрасли-компаниях"}}
+    
+    ПРИМЕРЫ:
+    - HVAC: {{"months": "14", "industryName": "HVAC-компаниях"}}
+    - IT: {{"months": "18", "industryName": "IT-компаниях"}}
+    - Строительство: {{"months": "12", "industryName": "строительных компаниях"}}
+    
+    ОТВЕТ (только JSON):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response
+        try:
+            burnout_data = json.loads(response_text.strip())
+            if "months" not in burnout_data or "industryName" not in burnout_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError):
+            # Fallback to default values
+            burnout_data = {"months": "14", "industryName": "HVAC-компаниях"}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted burnout data: {burnout_data}")
+        return burnout_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting burnout data: {e}")
+        return {"months": "14", "industryName": "HVAC-компаниях"}
+
+
+async def extract_turnover_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Extract turnover statistics from scraped data.
+    """
+    prompt = f"""
+    Проанализируй данные и определи статистику текучести кадров в отрасли компании.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    - Найди информацию о текучести кадров в отрасли (% увольнений в год)
+    - Найди информацию о ранних увольнениях (% увольнений в первые месяцы)
+    - Если данных нет, используй типичные значения для отрасли
+    - Верни данные в формате JSON: {{"percentage": "процент в год", "earlyExit": {{"percentage": "процент", "months": "месяцы"}}}}
+    
+    ПРИМЕРЫ:
+    - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+    - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+    - Строительство: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+    
+    ОТВЕТ (только JSON):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response
+        try:
+            turnover_data = json.loads(response_text.strip())
+            if "percentage" not in turnover_data or "earlyExit" not in turnover_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError):
+            # Fallback to default values
+            turnover_data = {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted turnover data: {turnover_data}")
+        return turnover_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting turnover data: {e}")
+        return {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}}
+
+
+async def extract_losses_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Extract financial losses data from scraped data.
+    """
+    prompt = f"""
+    Проанализируй данные и определи финансовые потери компании при незакрытой позиции.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    - Найди информацию о финансовых потерях при незакрытой позиции в год
+    - Учитывай упущенную прибыль, переработки и простои
+    - Если данных нет, используй типичные значения для отрасли
+    - Верни данные в формате JSON: {{"amount": "сумма в долларах"}}
+    
+    ПРИМЕРЫ:
+    - HVAC: {{"amount": "$10К–$18К"}}
+    - IT: {{"amount": "$15К–$25К"}}
+    - Строительство: {{"amount": "$8К–$15К"}}
+    - Медицина: {{"amount": "$20К–$35К"}}
+    
+    ОТВЕТ (только JSON):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response
+        try:
+            losses_data = json.loads(response_text.strip())
+            if "amount" not in losses_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError):
+            # Fallback to default values
+            losses_data = {"amount": "$10К–$18К"}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted losses data: {losses_data}")
+        return losses_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting losses data: {e}")
+        return {"amount": "$10К–$18К"}
+
+
+async def extract_search_time_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Extract candidate search time data from scraped data.
+    """
+    prompt = f"""
+    Проанализируй данные и определи среднее время поиска кандидата в отрасли компании.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    - Найди информацию о среднем времени поиска кандидата в отрасли
+    - Если данных нет, используй типичные значения для отрасли
+    - Верни данные в формате JSON: {{"days": "диапазон дней"}}
+    
+    ПРИМЕРЫ:
+    - HVAC: {{"days": "30–60"}}
+    - IT: {{"days": "45–90"}}
+    - Строительство: {{"days": "20–45"}}
+    - Медицина: {{"days": "60–120"}}
+    
+    ОТВЕТ (только JSON):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response
+        try:
+            search_time_data = json.loads(response_text.strip())
+            if "days" not in search_time_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError):
+            # Fallback to default values
+            search_time_data = {"days": "30–60"}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted search time data: {search_time_data}")
+        return search_time_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting search time data: {e}")
+        return {"days": "30–60"}
+
+
 async def _run_landing_page_generation(payload, request, pool, job_id):
     try:
         # 📊 LOG: Initial payload received
@@ -14027,6 +14317,13 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         for i, position in enumerate(job_positions):
             logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
 
+        set_progress(job_id, "Generating workforce crisis data...")
+        # Generate workforce crisis data for the "Кадровый кризис" section
+        workforce_crisis_data = await generate_workforce_crisis_data(duckduckgo_summary, payload)
+        
+        # 📊 LOG: Workforce crisis data generated
+        logger.info(f"📊 [AUDIT DATA FLOW] Generated workforce crisis data: {workforce_crisis_data}")
+
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Create the landing page content with dynamic data
@@ -14034,6 +14331,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "companyName": company_name,
             "companyDescription": company_description,
             "jobPositions": job_positions,
+            "workforceCrisis": workforce_crisis_data,
             "originalPayload": payload.model_dump()
         }
         
