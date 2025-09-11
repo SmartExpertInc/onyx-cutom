@@ -25,6 +25,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -745,6 +746,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -2364,6 +2366,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -3000,6 +3003,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -3850,6 +3854,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -4486,6 +4491,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -5311,6 +5317,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -5947,6 +5954,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -13812,6 +13820,15 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         logger.info(f"📊 [AUDIT DATA FLOW] Workforce crisis data extraction:")
         logger.info(f"📊 [AUDIT DATA FLOW] - Workforce crisis data: {workforce_crisis}")
         
+        # Extract course templates from the landing page data
+        course_templates = content.get("courseTemplates", [])
+        
+        # 📊 LOG: Course templates extraction
+        logger.info(f"🎓 [AUDIT DATA FLOW] Course templates extraction:")
+        logger.info(f"🎓 [AUDIT DATA FLOW] - Course templates count: {len(course_templates)}")
+        for i, template in enumerate(course_templates):
+            logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template.get('title', 'Unknown')}")
+        
         # 📊 LOG: Final response data structure
         response_data = {
             "projectId": project_id,
@@ -13819,7 +13836,8 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             "companyName": company_name,
             "companyDescription": company_description,
             "jobPositions": job_positions,
-            "workforceCrisis": workforce_crisis
+            "workforceCrisis": workforce_crisis,
+            "courseTemplates": course_templates
         }
         
         logger.info(f"📤 [AUDIT DATA FLOW] Final response data:")
@@ -13999,6 +14017,181 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error generating company description: {e}")
         return payload.companyDesc  # Fallback to original description
+
+
+async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload) -> list:
+    """
+    Generate course templates by combining real job positions with AI-generated positions.
+    Returns exactly 6 course templates with dynamic content.
+    """
+    try:
+        logger.info(f"🎓 [COURSE TEMPLATES] Starting course templates generation")
+        logger.info(f"🎓 [COURSE TEMPLATES] Real job positions: {len(job_positions)}")
+        
+        # Start with real job positions
+        course_templates = []
+        
+        # Add real job positions first
+        for i, position in enumerate(job_positions[:6]):  # Take up to 6 real positions
+            course_template = {
+                "title": position.get("title", f"Position {i+1}"),
+                "description": position.get("description", "Описание курса для данной позиции."),
+                "modules": random.randint(4, 6),
+                "lessons": random.randint(15, 30),
+                "rating": "5.0",
+                "image": f"/custom-projects-ui/images/audit-section-5-job-{(i % 6) + 1}-mobile.png"
+            }
+            course_templates.append(course_template)
+        
+        # If we need more positions to reach 6, generate them with AI
+        if len(course_templates) < 6:
+            needed_positions = 6 - len(course_templates)
+            logger.info(f"🎓 [COURSE TEMPLATES] Generating {needed_positions} additional positions with AI")
+            
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload)
+            
+            for i, position in enumerate(additional_positions):
+                course_template = {
+                    "title": position.get("title", f"Generated Position {i+1}"),
+                    "description": position.get("description", "Описание курса для данной позиции."),
+                    "modules": random.randint(4, 6),
+                    "lessons": random.randint(15, 30),
+                    "rating": "5.0",
+                    "image": f"/custom-projects-ui/images/audit-section-5-job-{(len(course_templates) + i) % 6 + 1}-mobile.png"
+                }
+                course_templates.append(course_template)
+        
+        logger.info(f"🎓 [COURSE TEMPLATES] Generated {len(course_templates)} course templates")
+        for i, template in enumerate(course_templates):
+            logger.info(f"🎓 [COURSE TEMPLATES] - Template {i+1}: {template['title']}")
+        
+        return course_templates
+        
+    except Exception as e:
+        logger.error(f"❌ [COURSE TEMPLATES] Error generating course templates: {e}")
+        # Fallback to default templates
+        return [
+            {
+                "title": "HVAC Installer",
+                "description": "Обучение установке, обслуживанию и ремонту систем HVAC оборудования.",
+                "modules": 5,
+                "lessons": 25,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png"
+            },
+            {
+                "title": "Electrician", 
+                "description": "Обучение монтажу, подключению и обслуживанию электрических систем.",
+                "modules": 5,
+                "lessons": 22,
+                "rating": "4.6",
+                "image": "/custom-projects-ui/images/audit-section-5-job-2-mobile.png"
+            },
+            {
+                "title": "Service Technician",
+                "description": "Обучение диагностике, техническому обслуживанию и проверке оборудования.",
+                "modules": 5,
+                "lessons": 18,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-3-mobile.png"
+            },
+            {
+                "title": "Project Manager",
+                "description": "Обучение планированию, организации и контролю проектов.",
+                "modules": 5,
+                "lessons": 14,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-4-mobile.png"
+            },
+            {
+                "title": "Field Operations Manager",
+                "description": "Обучение управлению процессами и координации полевых команд.",
+                "modules": 5,
+                "lessons": 22,
+                "rating": "4.6",
+                "image": "/custom-projects-ui/images/audit-section-5-job-5-desktop.png"
+            },
+            {
+                "title": "Slide Deck Specialist",
+                "description": "Обучение созданию презентаций и визуальных обучающих материалов.",
+                "modules": 5,
+                "lessons": 18,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-6-desktop.png"
+            }
+        ]
+
+
+async def generate_additional_positions(duckduckgo_summary: str, count: int, payload) -> list:
+    """
+    Generate additional job positions using AI based on company industry and context.
+    """
+    try:
+        prompt = f"""
+        Проанализируй данные компании и сгенерируй {count} дополнительных логических позиций для курсов обучения.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {payload.companyName}
+        - Описание компании: {payload.companyDesc}
+        - Веб-сайт: {payload.companyWebsite}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Сгенерируй {count} логических позиций, которые подходят для данной компании и отрасли
+        - Каждая позиция должна быть реалистичной и подходящей для курса обучения
+        - Позиции должны дополнять уже существующие вакансии
+        - Верни данные в формате JSON: [{{"title": "Название позиции", "description": "Краткое описание курса обучения"}}]
+        
+        ПРИМЕРЫ ПОЗИЦИЙ:
+        - Для IT компании: "Frontend Developer", "DevOps Engineer", "QA Tester"
+        - Для маркетплейса: "Customer Support", "Logistics Coordinator", "Marketing Specialist"
+        - Для HVAC: "HVAC Technician", "Refrigeration Specialist", "Energy Auditor"
+        
+        ОТВЕТ (только JSON):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Log the raw response for debugging
+        logger.info(f"[COURSE TEMPLATES] Raw additional positions response: '{response_text}'")
+        
+        # Try to parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            additional_positions = json.loads(cleaned_response)
+            
+            if not isinstance(additional_positions, list):
+                raise ValueError("Response is not a list")
+            
+            logger.info(f"[COURSE TEMPLATES] Successfully parsed {len(additional_positions)} additional positions")
+            return additional_positions
+            
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"[COURSE TEMPLATES] JSON parsing error: {e}")
+            logger.error(f"[COURSE TEMPLATES] Raw response was: '{response_text}'")
+            # Fallback to default positions
+            return [
+                {"title": "Customer Support", "description": "Обучение работе с клиентами и решению их проблем."},
+                {"title": "Marketing Specialist", "description": "Обучение маркетинговым стратегиям и продвижению."},
+                {"title": "Logistics Coordinator", "description": "Обучение управлению логистическими процессами."},
+                {"title": "Quality Assurance", "description": "Обучение контролю качества и тестированию."}
+            ][:count]
+            
+    except Exception as e:
+        logger.error(f"❌ [COURSE TEMPLATES] Error generating additional positions: {e}")
+        return []
 
 
 async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> dict:
@@ -14386,6 +14579,15 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         # 📊 LOG: Workforce crisis data generated
         logger.info(f"📊 [AUDIT DATA FLOW] Generated workforce crisis data: {workforce_crisis_data}")
 
+        set_progress(job_id, "Generating course templates...")
+        # Generate course templates for the "Готовые шаблоны курсов" section
+        course_templates = await generate_course_templates(duckduckgo_summary, job_positions, payload)
+        
+        # 📊 LOG: Course templates generated
+        logger.info(f"🎓 [AUDIT DATA FLOW] Generated {len(course_templates)} course templates")
+        for i, template in enumerate(course_templates):
+            logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template['title']}")
+
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Create the landing page content with dynamic data
@@ -14394,6 +14596,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "companyDescription": company_description,
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis_data,
+            "courseTemplates": course_templates,
             "originalPayload": payload.model_dump()
         }
         
