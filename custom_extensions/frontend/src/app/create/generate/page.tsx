@@ -1252,24 +1252,27 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 px-4">
+        <div className="flex justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-6 sm:mb-8 px-4">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
+            gradientVia="#FBF4EC"
             gradientTo="#FAD9A3"
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
           <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
-            Icon={VideoScriptIcon} 
-            gradientTo="#ABD6FF"
+            Icon={VideoScriptIcon}
+            gradientVia=""
+            gradientTo="#E8F0FE"
             active={activeProduct === "Video Lesson"}
             onClick={() => setActiveProduct("Video Lesson")}
           />
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
-            Icon={QuizIcon} 
+            Icon={QuizIcon}
+            gradientVia="#FEF5EA"
             gradientTo="#FFF1CE"
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
@@ -1277,6 +1280,7 @@ function GenerateProductPicker() {
           <GenerateCard
             label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
+            gradientVia="#FBE7EF"
             gradientTo="#FAC9E8"
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
@@ -1284,6 +1288,7 @@ function GenerateProductPicker() {
           <GenerateCard
             label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
+            gradientVia="#F0EAF6"
             gradientTo="#CE9FF4"
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
