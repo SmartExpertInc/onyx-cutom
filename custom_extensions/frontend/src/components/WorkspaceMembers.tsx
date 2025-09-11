@@ -704,9 +704,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-white">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 tracking-wider">
                   <div className="flex items-center gap-2">
                     <NamesIcon size={15} />
                     {t('interface.memberName', 'Name')}
@@ -730,8 +730,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                     {t('interface.memberInvitationDate', 'Invitation Date')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  {t('interface.memberActions', 'Actions')}
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider w-20">
+                  {/* {t('interface.memberActions', 'Actions')} */}
                 </th>
               </tr>
             </thead>
@@ -763,7 +763,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         onValueChange={(value) => handleRoleChange(member.id, parseInt(value))}
                       >
                         <SelectTrigger 
-                          className="w-24 shadow-none bg-transparent p-0 border-1 rounded-lg"
+                          className="w-24 shadow-none bg-transparent px-1 border-1 rounded-lg h-6"
                           style={{
                             backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),
@@ -803,7 +803,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {formatDate(member.invited_at)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-20">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="text-gray-400 hover:text-gray-600 p-1">
