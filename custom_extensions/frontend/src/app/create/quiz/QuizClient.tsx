@@ -1343,27 +1343,34 @@ export default function QuizClient() {
 
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
-            <textarea
-              value={currentPrompt || ""}
-              onChange={(e) => {
-                const newPrompt = e.target.value;
-                setCurrentPrompt(newPrompt);
-                
-                // Handle prompt storage for long prompts
-                const sp = new URLSearchParams(searchParams?.toString() || "");
-                if (newPrompt.length > 500) {
-                  const promptId = generatePromptId();
-                  sessionStorage.setItem(promptId, newPrompt);
-                  sp.set("prompt", promptId);
-                } else {
-                  sp.set("prompt", newPrompt);
-                }
-                router.replace(`?${sp.toString()}`, { scroll: false });
-              }}
-              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              rows={1}
-              className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-            />
+            <div className="relative group">
+              <textarea
+                value={currentPrompt || ""}
+                onChange={(e) => {
+                  const newPrompt = e.target.value;
+                  setCurrentPrompt(newPrompt);
+                  
+                  // Handle prompt storage for long prompts
+                  const sp = new URLSearchParams(searchParams?.toString() || "");
+                  if (newPrompt.length > 500) {
+                    const promptId = generatePromptId();
+                    sessionStorage.setItem(promptId, newPrompt);
+                    sp.set("prompt", promptId);
+                  } else {
+                    sp.set("prompt", newPrompt);
+                  }
+                  router.replace(`?${sp.toString()}`, { scroll: false });
+                }}
+                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                rows={3}
+                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+                style={{ background: "rgba(255,255,255,0.95)" }}
+              />
+              <Edit 
+                size={16} 
+                className="absolute top-4 right-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" 
+              />
+            </div>
           )}
 
           <section className="flex flex-col gap-3">
@@ -1420,8 +1427,7 @@ export default function QuizClient() {
                                 type="text"
                                 value={editedTitles[idx] || question.title}
                                 onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 flex items-center"
-                                style={{ background: "rgba(255,255,255,0.95)" }}
+                                className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
                                 autoFocus
                                 onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                 onKeyDown={(e) => {
@@ -1431,15 +1437,10 @@ export default function QuizClient() {
                               />
                             ) : (
                               <h4
-                                className="text-[#20355D] text-base font-semibold cursor-pointer px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black border border-gray-100 transition-colors hover:border-blue-300 flex items-center min-h-[60px] group relative"
-                                style={{ background: "rgba(255,255,255,0.95)" }}
+                                className="text-[#20355D] text-base font-semibold cursor-pointer"
                                 onClick={() => setEditingQuestionId(idx)}
                               >
-                                <span className="flex-1">{getTitleForQuestion(question, idx)}</span>
-                                <Edit 
-                                  size={16} 
-                                  className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2 flex-shrink-0" 
-                                />
+                                {getTitleForQuestion(question, idx)}
                               </h4>
                             )}
                           </div>
