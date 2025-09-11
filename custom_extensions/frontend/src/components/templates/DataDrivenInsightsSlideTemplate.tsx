@@ -15,6 +15,9 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
   leftBars: number[]; // heights 0-100
   rightBars: number[];
   barLabels: string[]; // 5 years labels
+  leftValues?: string[]; // labels above bars
+  rightValues?: string[];
+  yTicks?: number[]; // e.g., [20,40,60,80]
   metrics: Array<{ value: string; caption: string }>;
   avatarPath?: string;
 }
@@ -28,6 +31,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   leftBars = [33,39,55,44,67,35],
   rightBars = [33,39,55,44,67,35],
   barLabels = ['2017','2018','2019','2020','2021','2022'],
+  leftValues = ['33M','39M','55M','44M','67M','35M'],
+  rightValues = ['33M','39M','55M','44M','67M','35M'],
+  yTicks = [20,40,60,80],
   metrics = [
     { value: '+XM', caption: 'customers since our launch in 2016' },
     { value: '$XXM', caption: 'reaching in total revenue for 2020' },
@@ -48,9 +54,12 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'320px', width:'860px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#1F2125', border:'1px solid #2B2E33', padding:'16px 18px', borderRadius:'2px' };
-  const chartArea: React.CSSProperties = { position:'relative', height:'280px', display:'flex', alignItems:'flex-end', gap:'24px', padding:'24px 18px' };
-  const barBase: React.CSSProperties = { width:'40px', background:'#8E5BFF' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px', color:'#9AA0A6', fontSize:'12px' };
+  const chartArea: React.CSSProperties = { position:'relative', height:'280px', padding:'16px 18px 8px 0' };
+  const chartGrid: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', top:'16px', bottom:'8px' };
+  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'28px', height:'calc(100% - 24px)' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9AA0A6', fontSize:'12px' };
+  const barBase: React.CSSProperties = { width:'56px', background:'#8E5BFF', position:'relative' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px 0 54px', color:'#9AA0A6', fontSize:'12px' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'64px', top:'360px', width:'420px', display:'grid', rowGap:'46px' };
   const metricValue: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#ffffff' };
@@ -59,11 +68,29 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 });
 
-  const renderBars = (bars: number[]) => (
+  const renderBars = (bars: number[], values: string[]) => (
     <div style={chartArea}>
-      {bars.map((h, i)=> (
-        <div key={i} style={{ ...barBase, height:`${Math.max(0,Math.min(100,h)) * 2}px` }} />
-      ))}
+      <div style={yAxis}>
+        <div style={{ position:'absolute', left:0, bottom:0 }}>0</div>
+        {yTicks.map((t)=> (
+          <div key={t} style={{ position:'absolute', left:0, bottom:`${t*2}px` }}>{t}</div>
+        ))}
+      </div>
+      <div style={chartGrid}>
+        {yTicks.map((t)=> (
+          <div key={t} style={{ position:'absolute', left:0, right:0, bottom:`${t*2}px`, height:1, background:'#2B2E33' }} />
+        ))}
+      </div>
+      <div style={barsRow}>
+        {bars.map((h, i)=> {
+          const hh = Math.max(0, Math.min(100, h)) * 2;
+          return (
+            <div key={i} style={{ ...barBase, height:`${hh}px` }}>
+              <div style={{ position:'absolute', bottom:`${hh + 6}px`, left:'50%', transform:'translateX(-50%)', color:'#C7CBD2', fontSize:'12px', whiteSpace:'nowrap' }}>{values[i] ?? ''}</div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
@@ -98,7 +125,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           ) : (
             <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#C7CBD2', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
           )}
-          {renderBars(leftBars)}
+          {renderBars(leftBars, leftValues)}
           <div style={yearRow}>{barLabels.map((y,i)=>(<span key={i}>{y}</span>))}</div>
         </div>
         <div style={panel}>
@@ -107,7 +134,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           ) : (
             <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#C7CBD2', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
           )}
-          {renderBars(rightBars)}
+          {renderBars(rightBars, rightValues)}
           <div style={yearRow}>{barLabels.map((y,i)=>(<span key={i}>{y}</span>))}</div>
         </div>
       </div>
