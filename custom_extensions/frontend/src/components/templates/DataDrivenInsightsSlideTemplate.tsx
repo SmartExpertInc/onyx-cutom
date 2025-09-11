@@ -55,7 +55,6 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'320px', width:'860px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#1F2125', border:'1px solid #2B2E33', padding:'16px 18px', borderRadius:'2px' };
   const chartArea: React.CSSProperties = { position:'relative', height:'280px', padding:'16px 18px 8px 0' };
-  const chartGrid: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', top:'16px', bottom:'8px' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'28px', height:'calc(100% - 24px)' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9AA0A6', fontSize:'12px' };
   const barBase: React.CSSProperties = { width:'56px', background:'#8E5BFF', position:'relative' };
@@ -76,11 +75,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           <div key={t} style={{ position:'absolute', left:0, bottom:`${t*2}px` }}>{t}</div>
         ))}
       </div>
-      <div style={chartGrid}>
-        {yTicks.map((t)=> (
-          <div key={t} style={{ position:'absolute', left:0, right:0, bottom:`${t*2}px`, height:1, background:'#2B2E33' }} />
-        ))}
-      </div>
+      {/* grid lines removed as requested */}
       <div style={barsRow}>
         {bars.map((h, i)=> {
           const hh = Math.max(0, Math.min(100, h)) * 2;
