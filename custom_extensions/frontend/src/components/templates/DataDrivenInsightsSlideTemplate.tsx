@@ -83,7 +83,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#D2D2D2' };
   const descStyle: React.CSSProperties = { width:'795px', color:'#909090', fontSize:'14px' };
   // wrappers to prevent layout shift on edit
-  const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', minHeight:'50px' };
+  const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
@@ -92,7 +92,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9C9C9C', fontSize:'12px' };
   const barBase: React.CSSProperties = { width:'40px', background:'#894DF4', position:'relative' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px', gap:'10px' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#DBDBDB' };
