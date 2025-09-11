@@ -9,7 +9,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: "border-gray-400 bg-white text-gray-900 placeholder:text-gray-500",
-        gray: "border-gray-300 bg-gray-200 text-gray-600 placeholder:text-gray-400",
+        gray: "border-gray-300 bg-gray-100 text-gray-600 placeholder:text-gray-400",
       },
     },
     defaultVariants: {
