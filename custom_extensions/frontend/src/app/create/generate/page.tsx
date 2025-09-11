@@ -1256,7 +1256,6 @@ function GenerateProductPicker() {
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
-            gradientVia="#FBF4EC"
             gradientTo="#FAD9A3"
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
@@ -1264,7 +1263,6 @@ function GenerateProductPicker() {
           <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
             Icon={VideoScriptIcon}
-            gradientVia=""
             gradientTo="#E8F0FE"
             active={activeProduct === "Video Lesson"}
             onClick={() => setActiveProduct("Video Lesson")}
@@ -1272,7 +1270,6 @@ function GenerateProductPicker() {
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon}
-            gradientVia="#FEF5EA"
             gradientTo="#FFF1CE"
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}

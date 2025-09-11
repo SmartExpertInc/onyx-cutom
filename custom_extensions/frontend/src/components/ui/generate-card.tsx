@@ -6,13 +6,12 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   Icon?: React.ElementType;
   label: string;
   gradientTo?: string;
-  gradientVia?: string;
   active?: boolean;
   onClick?: () => void;
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientVia, gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, label, active = false, gradientTo, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
@@ -25,7 +24,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         style={{
           backgroundColor: 'white',
           borderColor: active ? '#C5CAD1' : '#e2e8f0',
-          background: `linear-gradient(to top right, white, ${gradientVia}, ${gradientTo})`,
+          background: `linear-gradient(to top right, white, white, ${gradientTo})`,
           borderWidth: '1px',
           boxShadow: active 
             ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
