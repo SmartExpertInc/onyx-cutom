@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, AlertCircle, CheckCircle, FolderOpen, File } from 'lucide-react';
-import SmartDrivePickerModal from './SmartDrivePickerModal';
+import NextcloudFileBrowser from './NextcloudFileBrowser';
 
 interface SmartDriveFrameProps {
   className?: string;
@@ -26,7 +26,6 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
   const [autoSyncCount, setAutoSyncCount] = useState(0);
   const [internalSelectedFiles, setInternalSelectedFiles] = useState<string[]>(selectedFiles);
-  const [showFilePicker, setShowFilePicker] = useState(false);
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -64,10 +63,9 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
     }
   }, [internalSelectedFiles, onFilesSelected]);
 
-  // Handle file selection from SmartDrivePickerModal
+  // Handle file selection from NextcloudFileBrowser
   const handleFilesSelected = (filePaths: string[]) => {
     setInternalSelectedFiles(filePaths);
-    setShowFilePicker(false);
   };
 
   // Auto-sync functionality with page visibility detection
@@ -298,12 +296,12 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
         credentials: 'same-origin',
       });
 
-              if (response.ok) {
-          const result = await response.json();
-          setSyncStatus('success');
-          setLastSyncTime(new Date().toLocaleTimeString());
-          alert(`Successfully synced ${result.imported_count || 0} files!`);
-        } else {
+      if (response.ok) {
+        const result = await response.json();
+        setSyncStatus('success');
+        setLastSyncTime(new Date().toLocaleTimeString());
+        alert(`Successfully synced ${result.imported_count || 0} files!`);
+      } else {
         const errorData = await response.json();
         setSyncStatus('error');
         if (errorData.detail?.includes('credentials')) {
@@ -395,7 +393,6 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
 
   return (
     <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
-
       {/* File Selection Status */}
       {internalSelectedFiles.length > 0 && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -419,40 +416,22 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
         </div>
       )}
 
-      {/* File Browser Interface */}
-      <div className="relative" style={{ height: '600px' }}>
-        {hasCredentials ? (
-          <div className="w-full h-full bg-gray-50 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-4">
-            <div className="text-center">
-              <FolderOpen className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">SmartDrive File Browser</h3>
-              <p className="text-sm text-gray-600 mb-6">Select files from your SmartDrive to combine with connector data</p>
-              
-              <button
-                onClick={() => setShowFilePicker(true)}
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
-              >
-                <FolderOpen className="w-5 h-5" />
-                Browse Files
-              </button>
-
-              {internalSelectedFiles.length > 0 && (
-                <div className="mt-4 text-sm text-gray-600">
-                  <p className="font-medium">Selected Files:</p>
-                  <div className="mt-2 max-h-32 overflow-y-auto text-left">
-                    {internalSelectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center gap-2 py-1">
-                        <File className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs font-mono">{file}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Sync Controls */}
-            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+      {/* Main Content */}
+      {hasCredentials ? (
+        <>
+          {/* Nextcloud-style File Browser */}
+          <NextcloudFileBrowser
+            onFilesSelected={handleFilesSelected}
+            selectedFiles={internalSelectedFiles}
+            className="min-h-[600px]"
+          />
+          
+          {/* Sync Controls Footer */}
+          <div className="border-t border-gray-200 bg-gray-50 p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                SmartDrive Files {lastAutoSyncTime && `• Auto-synced: ${lastAutoSyncTime}`}
+              </div>
               <button
                 onClick={handleSyncToOnyx}
                 disabled={isLoading || !hasCredentials}
@@ -463,36 +442,24 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
               </button>
             </div>
           </div>
-        ) : (
-          <div className="w-full h-full bg-gray-50 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-4">
-            <div className="text-center">
-              <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">SmartDrive Not Connected</h3>
-              <p className="text-sm text-gray-600 mb-6">Connect your Nextcloud account to browse and select files</p>
-              
-              <button
-                onClick={handleNextcloudAuth}
-                disabled={isAuthenticating}
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-              >
-                {isAuthenticating ? 'Connecting...' : 'Connect SmartDrive'}
-              </button>
-            </div>
+        </>
+      ) : (
+        <div className="min-h-[600px] bg-gray-50 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-4">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">SmartDrive Not Connected</h3>
+            <p className="text-sm text-gray-600 mb-6">Connect your Nextcloud account to browse and select files</p>
+            
+            <button
+              onClick={handleNextcloudAuth}
+              disabled={isAuthenticating}
+              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {isAuthenticating ? 'Connecting...' : 'Connect SmartDrive'}
+            </button>
           </div>
-        )}
-        
-        {/* Loading Overlay */}
-        {isLoading && (
-          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-            <div className="flex items-center gap-3">
-              <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-              <span className="text-gray-700 font-medium">Syncing files...</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-
+        </div>
+      )}
 
       {/* Credentials Setup Modal */}
       {showCredentials && (
@@ -533,13 +500,6 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
           </div>
         </div>
       )}
-
-      {/* SmartDrive File Picker Modal */}
-      <SmartDrivePickerModal
-        isOpen={showFilePicker}
-        onClose={() => setShowFilePicker(false)}
-        onFilesSelected={handleFilesSelected}
-      />
     </div>
   );
 };
