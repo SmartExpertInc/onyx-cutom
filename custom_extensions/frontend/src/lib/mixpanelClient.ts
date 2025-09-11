@@ -25,7 +25,7 @@ export const initMixpanel = (): void => {
       groups: 'groups',
     },
     */
-    ip: true,
+    ip: false,
     debug: true,
     track_pageview: true,
   };
@@ -42,6 +42,7 @@ export function identifyUser(userId: string) {
 
 // Call on logout to handle multiple users on a single device
 export function resetUser() {
+  console.log("Mixpanel instance reset"); //TODO: Remove this
   mixpanel.reset();
 }
 
