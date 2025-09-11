@@ -105,14 +105,14 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (
     <div style={chartArea}>
       <div style={yAxis}>
-        <div style={{ position:'absolute', left:0, bottom:0, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: 'y-0' })}>
-          {edit?.key==='y-0' ? (
+        <div style={{ position:'absolute', left:0, bottom:0, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-0` })}>
+          {edit?.key===`${panelKey}-y-0` ? (
             <ImprovedInlineEditor initialValue="0" onSave={(v)=>{ const num = parseInt(v) || 0; setCurrentYTicks([num, ...currentYTicks]); onUpdate && onUpdate({ yTicks: [num, ...currentYTicks] }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />
           ) : '0'}
         </div>
         {currentYTicks.map((t, i)=> (
-          <div key={t} style={{ position:'absolute', left:0, bottom:`${t*2}px`, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `y-${i+1}` })}>
-            {edit?.key===`y-${i+1}` ? (
+          <div key={t} style={{ position:'absolute', left:0, bottom:`${t*2}px`, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-${i+1}` })}>
+            {edit?.key===`${panelKey}-y-${i+1}` ? (
               <ImprovedInlineEditor initialValue={t.toString()} onSave={(v)=>{ const num = parseInt(v) || 0; const next = [...currentYTicks]; next[i] = num; setCurrentYTicks(next); onUpdate && onUpdate({ yTicks: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />
             ) : t}
           </div>
