@@ -41,10 +41,10 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#292929', color:'#9B9B9B', padding:'10px 18px', fontSize:'16px' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'50px', fontWeight:800, color:'#DFDFDF' };
 
-  const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'220px', width:'816px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' };
-  const card: React.CSSProperties = { background:'#292929', borderRadius:'2px', padding:'26px 28px', boxShadow:'0 0 0 1px rgba(0,0,0,0.2) inset' };
-  const numBox: React.CSSProperties = { width:'44px', height:'44px', borderRadius:'0px', background:'#8A52FC', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700 };
-  const cardTitle: React.CSSProperties = { marginTop:'20px', fontSize:'24px', fontWeight:700, color:'#CFCFCF' };
+  const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'220px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' };
+  const card: React.CSSProperties = { background:'#292929', borderRadius:'2px', height:'210px', padding:'17px 28px', boxShadow:'0 0 0 1px rgba(0,0,0,0.2) inset' };
+  const numBox: React.CSSProperties = { width:'40px', height:'35px', borderRadius:'0px', background:'#8A52FC', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700 };
+  const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#CFCFCF' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#9B9B9B', lineHeight:1.4, maxWidth:'740px' };
 
   const rightTextStyle: React.CSSProperties = { position:'absolute', right:'10px', top:'420px', width:'376px', fontSize:'15px', color:'#A6A6A6', lineHeight:1.5, whiteSpace:'pre-line' };
