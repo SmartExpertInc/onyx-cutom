@@ -155,7 +155,7 @@ export default function PasteTextPage() {
               onClick={() => setMode("base")}
               className={`transition-all ${
                 mode === "base"
-                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
+                  ? "border-2 border-purple-500 shadow-lg ring-2 ring-purple-200"
                   : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
               }`}
               gradientFrom="from-purple-300"
