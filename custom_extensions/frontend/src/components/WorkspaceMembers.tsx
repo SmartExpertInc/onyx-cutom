@@ -13,6 +13,8 @@ import workspaceService, {
   WorkspaceRoleCreate, WorkspaceRoleUpdate, Workspace, WorkspaceCreate
 } from '../services/workspaceService';
 import { getCurrentUserId, getCurrentUser, initializeUser } from '../services/userService';
+import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 // Import test utilities for development
 import '../utils/testUserIds';
 
@@ -33,6 +35,19 @@ const ROLE_COLORS = [
 interface WorkspaceMembersProps {
   workspaceId?: number;
 }
+
+const UserIcon: React.FC<{ size?: number }> = ({ size = 30 }) => (
+  <svg fill="#878787" height={size} width={size} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 508 508" xmlSpace="preserve" stroke="#878787"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+    <g id="SVGRepo_iconCarrier"> 
+      <g> 
+        <g> 
+          <path d="M406.95,266.9c-16.7-6-34.1-11.1-51.7-15.2c-6.6-1.5-13.4,1.9-16.1,8.2l-42.5,99l-9.7-38.7l16.5-16.6 c5.5-5.5,5.5-14.4,0-20l-39.4-39.2c-5.5-5.5-14.4-5.5-20,0l-39.5,39.5c-5.5,5.5-5.5,14.4,0,20l16.5,16.5l-9.9,38.1l-42.3-98.4 c-2.7-6.3-9.5-9.7-16.1-8.2c-17.6,4.1-35,9.2-51.6,15.2c-24.4,8.8-40.8,31.9-40.8,57.5v169.3c0,7.8,6.3,14.1,14.1,14.1h179.6h0.1 h179.4c7.8,0,14.1-6.3,14.1-14.1V324.5C447.75,298.9,431.35,275.8,406.95,266.9z M254.05,274.3l19.5,19.5l-8.1,8.1h-22.9l-8.1-8.1 L254.05,274.3z M88.65,479.7v-29.5h28.2c7.8,0,14.1-6.3,14.1-14.1c0-7.8-6.3-14.1-14.1-14.1h-28.2v-28.2h56.4 c7.8,0,14.1-6.3,14.1-14.1c0-7.8-6.3-14.1-14.1-14.1h-56.4v-41.1c0-13.7,8.9-26.2,22.1-31c12-4.3,24.4-8.1,37-11.4l84.9,197.6 H88.65z M254.05,458l-24.6-57.3l18.2-70.6h12.6l17.9,71.7L254.05,458z M419.45,479.7h-144l84.9-197.6c12.6,3.3,25,7.1,37,11.4 c13.2,4.8,22.1,17.2,22.1,31V479.7z"></path> </g> </g> <g> <g> <path d="M254.05,0c-55.2,0-100,44.9-100,100c0,55.1,44.8,100,100,100s100-44.9,100-100C354.05,44.8,309.15,0,254.05,0z M254.05,171.7c-39.6,0-71.8-32.2-71.8-71.8s32.2-71.8,71.8-71.8c39.6,0,71.8,32.2,71.8,71.8S293.65,171.7,254.05,171.7z"></path> 
+        </g> 
+      </g> 
+    </g>
+  </svg>
+);
+  
 
 const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const { t } = useLanguage();
@@ -573,12 +588,19 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
-            </h2>
-            {selectedWorkspace?.description && (
-              <p className="text-gray-600">{selectedWorkspace.description}</p>
-            )}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <UserIcon />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
+                </h2>
+                {selectedWorkspace?.description && (
+                  <p className="text-sm text-gray-600 mt-1">{selectedWorkspace.description}</p>
+                )}
+              </div>
+            </div>
           </div>
           
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
@@ -614,25 +636,27 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           {/* Search and Filter Row */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-              <input
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
+              <Input
                 type="text"
+                variant="gray"
                 placeholder={t('interface.searchPlaceholder', 'Search members...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
+                className="pl-10"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
-            >
-              <option value="" className="text-black">{t('interface.filters.allStatuses', 'All Statuses')}</option>
-              <option value="active" className="text-black">{t('interface.statuses.active', 'Active')}</option>
-              <option value="suspended" className="text-black">{t('interface.statuses.suspended', 'Suspended')}</option>
-              <option value="pending" className="text-black">{t('interface.statuses.pending', 'Pending')}</option>
-            </select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger variant="filter" className="whitespace-nowrap">
+                <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{t('interface.filters.allStatuses', 'All Statuses')}</SelectItem>
+                <SelectItem value="active">{t('interface.statuses.active', 'Active')}</SelectItem>
+                <SelectItem value="suspended">{t('interface.statuses.suspended', 'Suspended')}</SelectItem>
+                <SelectItem value="pending">{t('interface.statuses.pending', 'Pending')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Action Buttons */}
