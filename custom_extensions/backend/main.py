@@ -13784,46 +13784,26 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         logger.info(f"🔍 [AUDIT DATA FLOW] - Company name: '{company_name}'")
         logger.info(f"🔍 [AUDIT DATA FLOW] - Company description: '{company_description}'")
         
-        # Extract job positions from the original payload if available
-        job_positions = []
-        original_payload = content.get("originalPayload", {})
+        # Extract job positions from the landing page data
+        job_positions = content.get("jobPositions", [])
         
         # 📊 LOG: Job positions extraction process
         logger.info(f"💼 [AUDIT DATA FLOW] Starting job positions extraction:")
-        logger.info(f"💼 [AUDIT DATA FLOW] - Original payload available: {bool(original_payload)}")
-        logger.info(f"💼 [AUDIT DATA FLOW] - Original payload keys: {list(original_payload.keys()) if original_payload else 'None'}")
+        logger.info(f"💼 [AUDIT DATA FLOW] - Job positions in content: {len(job_positions)} positions")
         
-        if original_payload:
-            # Try to extract positions from the first one-pager content
-            # Look for the first AI audit project in the same folder
-            folder_query = """
-            SELECT p.id, p.microproduct_content
-            FROM projects p
-            WHERE p.folder_id = (
-                SELECT p2.folder_id 
-                FROM projects p2 
-                WHERE p2.id = $1
-            ) AND p.microproduct_name LIKE 'AI-Аудит: %' AND p.id != $1
-            ORDER BY p.created_at ASC
-            LIMIT 1
-            """
-            
-            async with pool.acquire() as conn:
-                first_audit_row = await conn.fetchrow(folder_query, project_id)
-                
-            if first_audit_row:
-                first_audit_content = first_audit_row["microproduct_content"]
-                # Extract positions from the first one-pager
-                job_positions = extract_job_positions_from_content(first_audit_content)
-                
-                # 📊 LOG: Job positions extracted
-                logger.info(f"💼 [AUDIT DATA FLOW] Job positions extracted: {len(job_positions)} positions")
-                for i, position in enumerate(job_positions):
-                    logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
-            else:
-                logger.info(f"💼 [AUDIT DATA FLOW] No first audit project found in same folder")
+        if job_positions:
+            # 📊 LOG: Job positions found in landing page data
+            logger.info(f"💼 [AUDIT DATA FLOW] Job positions found in landing page data:")
+            for i, position in enumerate(job_positions):
+                logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
         else:
-            logger.info(f"💼 [AUDIT DATA FLOW] No original payload available, using default positions")
+            logger.info(f"💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions")
+            # Fallback to default positions if none found
+            job_positions = [
+                {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
+                {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
+                {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+            ]
         
         # 📊 LOG: Final response data structure
         response_data = {
@@ -14038,12 +14018,22 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         # 📊 LOG: Company description generated
         logger.info(f"📝 [AUDIT DATA FLOW] Generated company description: '{company_description}'")
 
+        set_progress(job_id, "Generating job positions from scraped data...")
+        # Generate job positions using the same logic as the old audit
+        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, payload)
+        
+        # 📊 LOG: Job positions generated
+        logger.info(f"💼 [AUDIT DATA FLOW] Generated {len(job_positions)} job positions")
+        for i, position in enumerate(job_positions):
+            logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
+
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Create the landing page content with dynamic data
         landing_page_data = {
             "companyName": company_name,
             "companyDescription": company_description,
+            "jobPositions": job_positions,
             "originalPayload": payload.model_dump()
         }
         
@@ -14067,6 +14057,31 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         # 📊 LOG: Project saved to database
         logger.info(f"💾 [AUDIT DATA FLOW] Project saved to database with ID: {project_id}")
         logger.info(f"💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: {company_name}'")
+        
+        # 🔧 FIX: Assign landing page to existing audit folder or create new one
+        # First, try to find an existing audit folder for this company
+        async with pool.acquire() as conn:
+            existing_folder_query = """
+            SELECT pf.id 
+            FROM project_folders pf
+            JOIN projects p ON pf.id = p.folder_id
+            WHERE pf.onyx_user_id = $1 
+            AND p.microproduct_name LIKE 'AI-Аудит: %'
+            AND p.microproduct_name LIKE $2
+            LIMIT 1
+            """
+            existing_folder = await conn.fetchrow(existing_folder_query, onyx_user_id, f"%{payload.companyName}%")
+            
+            if existing_folder:
+                # Assign to existing folder
+                folder_id = existing_folder["id"]
+                await conn.execute("UPDATE projects SET folder_id = $1 WHERE id = $2", folder_id, project_id)
+                logger.info(f"🔧 [AUDIT DATA FLOW] Assigned landing page to existing folder: {folder_id}")
+            else:
+                # Create new folder and assign
+                folder_id = await create_audit_folder(pool, onyx_user_id, payload.companyName)
+                await conn.execute("UPDATE projects SET folder_id = $1 WHERE id = $2", folder_id, project_id)
+                logger.info(f"🔧 [AUDIT DATA FLOW] Created new folder and assigned landing page: {folder_id}")
 
         set_progress(job_id, "Landing page complete!")
         logger.info(f"[AI-Audit Landing Page] Finished the Landing Page Generation")
@@ -14111,6 +14126,58 @@ def extract_open_positions_from_table(parsed_json):
 
                 return positions
     return []
+
+
+async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload) -> list:
+    """
+    Generates job positions using the same logic as the old audit system.
+    Creates a one-pager with the АКТИВНЫЙ НАЙМ section and extracts job positions from it.
+    """
+    try:
+        # 📊 LOG: Starting job positions generation
+        logger.info(f"🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called")
+        logger.info(f"🔍 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
+        
+        # Use the same logic as the old audit system
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
+        
+        # Extract job positions using the same function as the old system
+        job_positions = extract_open_positions_from_table(parsed_json)
+        
+        # Convert to the format expected by the frontend
+        formatted_positions = []
+        for position in job_positions:
+            # Get the position title from the "Позиция" field
+            position_title = position.get("Позиция", "Position")
+            formatted_positions.append({
+                "title": position_title,
+                "description": f"Open position at {payload.companyName}",
+                "icon": "👷"  # Default icon
+            })
+        
+        # 📊 LOG: Job positions extracted and formatted
+        logger.info(f"🔍 [AUDIT DATA FLOW] Extracted {len(job_positions)} raw positions")
+        logger.info(f"🔍 [AUDIT DATA FLOW] Formatted {len(formatted_positions)} positions for frontend")
+        
+        # If no positions found, use default fallback
+        if not formatted_positions:
+            logger.info(f"🔍 [AUDIT DATA FLOW] No positions found, using default fallback")
+            formatted_positions = [
+                {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
+                {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
+                {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+            ]
+        
+        return formatted_positions
+        
+    except Exception as e:
+        logger.error(f"❌ [AUDIT DATA FLOW] Error generating job positions: {e}")
+        # Return default positions on error
+        return [
+            {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
+            {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
+            {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+        ]
 
 
 def extract_job_positions_from_content(content):
