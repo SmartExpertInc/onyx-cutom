@@ -1277,7 +1277,6 @@ function GenerateProductPicker() {
           <GenerateCard
             label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
-            gradientVia="#FBE7EF"
             gradientTo="#FAC9E8"
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
@@ -1285,7 +1284,6 @@ function GenerateProductPicker() {
           <GenerateCard
             label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
-            gradientVia="#F0EAF6"
             gradientTo="#CE9FF4"
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
