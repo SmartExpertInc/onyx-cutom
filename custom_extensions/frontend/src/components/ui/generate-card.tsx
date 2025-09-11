@@ -47,7 +47,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             {Icon && (
               <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-13 xl:h-13 flex items-center justify-center">
                 <Icon 
-                  size={32}
+                  size={42}
                   className="xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16"
                   style={{
                     color: active ? '#3b82f6' : '#4b5563',
@@ -58,9 +58,9 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight text-center px-1"
+              className="text-[10px] xs:text-xs sm:text-sm leading-tight text-center px-1"
               style={{
-                color: 'black'
+                color: '#7A7A7A'
               }}
             >
               {label}
