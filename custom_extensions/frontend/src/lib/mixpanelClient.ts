@@ -13,9 +13,11 @@ export const initMixpanel = (): void => {
   // Use the Config type from @types/mixpanel-browser
   const options: Partial<Config> = {
     autocapture: true,
+    track_pageview: true,
   };
 
   mixpanel.init(MIXPANEL_TOKEN, options);
+  console.log("Mixpanel initialized");
 };
 
 export const trackPageView = (url: string): void => {
