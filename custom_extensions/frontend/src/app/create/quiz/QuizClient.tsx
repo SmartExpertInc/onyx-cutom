@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus, Edit } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -1117,83 +1118,84 @@ export default function QuizClient() {
                 {useExistingOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <div className="relative">
-                      <select
-                        value={selectedOutlineId ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedOutlineId(val ? Number(val) : null);
-                          // clear module & lesson selections when outline changes
-                          setSelectedModuleIndex(null);
-                          setLessonsForModule([]);
-                          setSelectedLesson("");
-                        }}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
+                    <Select
+                      value={selectedOutlineId?.toString() ?? ""}
+                      onValueChange={(value: string) => {
+                        const val = value ? Number(value) : null;
+                        setSelectedOutlineId(val);
+                        // clear module & lesson selections when outline changes
+                        setSelectedModuleIndex(null);
+                        setLessonsForModule([]);
+                        setSelectedLesson("");
+                      }}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                      </SelectTrigger>
+                      <SelectContent>
                         {outlines.map((o) => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
+                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                      </SelectContent>
+                    </Select>
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedOutlineId && (
-                      <div className="relative">
-                        <select
-                          value={selectedModuleIndex ?? ""}
-                          onChange={(e) => {
-                            const idx = e.target.value ? Number(e.target.value) : null;
-                            setSelectedModuleIndex(idx);
-                            setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                            setSelectedLesson("");
-                          }}
-                          disabled={modulesForOutline.length === 0}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
+                      <Select
+                        value={selectedModuleIndex?.toString() ?? ""}
+                        onValueChange={(value: string) => {
+                          const idx = value ? Number(value) : null;
+                          setSelectedModuleIndex(idx);
+                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          setSelectedLesson("");
+                        }}
+                        disabled={modulesForOutline.length === 0}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
+                        </SelectTrigger>
+                        <SelectContent>
                           {modulesForOutline.map((m, idx) => (
-                            <option key={idx} value={idx}>{m.name}</option>
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedModuleIndex !== null && (
-                      <div className="relative">
-                        <select
-                          value={selectedLesson}
-                          onChange={(e) => setSelectedLesson(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
+                      <Select
+                        value={selectedLesson}
+                        onValueChange={setSelectedLesson}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
+                        </SelectTrigger>
+                        <SelectContent>
                           {lessonsForModule.map((l) => (
-                            <option key={l} value={l}>{l}</option>
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
                       <>
-                        <div className="relative">
-                          <select
-                            value={selectedLanguage}
-                            onChange={(e) => setSelectedLanguage(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            <option value="en">{t('interface.english', 'English')}</option>
-                            <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                            <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                            <option value="ru">{t('interface.russian', 'Russian')}</option>
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
+                        <Select
+                          value={selectedLanguage}
+                          onValueChange={setSelectedLanguage}
+                        >
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <div className="relative">
                           <button
                             onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
@@ -1236,18 +1238,19 @@ export default function QuizClient() {
                             </div>
                           )}
                         </div>
-                        <div className="relative">
-                          <select
-                            value={selectedQuestionCount}
-                            onChange={(e) => setSelectedQuestionCount(Number(e.target.value))}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
+                        <Select
+                          value={selectedQuestionCount.toString()}
+                          onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
+                        >
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
                             {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                              <option key={n} value={n}>{n} {t('interface.generate.questions', 'questions')}</option>
+                              <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.questions', 'questions')}</SelectItem>
                             ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
+                          </SelectContent>
+                        </Select>
                       </>
                     )}
                   </>
@@ -1256,19 +1259,20 @@ export default function QuizClient() {
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
-                    <div className="relative">
-                      <select
-                        value={selectedLanguage}
-                        onChange={(e) => setSelectedLanguage(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">{t('interface.english', 'English')}</option>
-                        <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                        <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                        <option value="ru">{t('interface.russian', 'Russian')}</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                    <Select
+                      value={selectedLanguage}
+                      onValueChange={setSelectedLanguage}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                        <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                        <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                        <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <div className="relative">
                       <button
                         onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
@@ -1311,18 +1315,19 @@ export default function QuizClient() {
                         </div>
                       )}
                     </div>
-                    <div className="relative">
-                      <select
-                        value={selectedQuestionCount}
-                        onChange={(e) => setSelectedQuestionCount(Number(e.target.value))}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
+                    <Select
+                      value={selectedQuestionCount.toString()}
+                      onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
                         {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                          <option key={n} value={n}>{n} {t('interface.generate.questions', 'questions')}</option>
+                          <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.questions', 'questions')}</SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                      </SelectContent>
+                    </Select>
                   </>
                 )}
 
@@ -1345,35 +1350,33 @@ export default function QuizClient() {
 
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
-            <div className="bg-white rounded-xl p-6 flex flex-col gap-6 relative">
-              <div className="relative group">
-                <textarea
-                  value={currentPrompt || ""}
-                  onChange={(e) => {
-                    const newPrompt = e.target.value;
-                    setCurrentPrompt(newPrompt);
-                    
-                    // Handle prompt storage for long prompts
-                    const sp = new URLSearchParams(searchParams?.toString() || "");
-                    if (newPrompt.length > 500) {
-                      const promptId = generatePromptId();
-                      sessionStorage.setItem(promptId, newPrompt);
-                      sp.set("prompt", promptId);
-                    } else {
-                      sp.set("prompt", newPrompt);
-                    }
-                    router.replace(`?${sp.toString()}`, { scroll: false });
-                  }}
-                  placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-                  rows={1}
-                  className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 pr-12"
-                  style={{ background: "rgba(255,255,255,0.95)" }}
-                />
-                <Edit 
-                  size={16} 
-                  className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" 
-                />
-              </div>
+            <div className="relative group flex items-center">
+              <textarea
+                value={currentPrompt || ""}
+                onChange={(e) => {
+                  const newPrompt = e.target.value;
+                  setCurrentPrompt(newPrompt);
+                  
+                  // Handle prompt storage for long prompts
+                  const sp = new URLSearchParams(searchParams?.toString() || "");
+                  if (newPrompt.length > 500) {
+                    const promptId = generatePromptId();
+                    sessionStorage.setItem(promptId, newPrompt);
+                    sp.set("prompt", promptId);
+                  } else {
+                    sp.set("prompt", newPrompt);
+                  }
+                  router.replace(`?${sp.toString()}`, { scroll: false });
+                }}
+                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                rows={1}
+                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 flex-1"
+                style={{ background: "rgba(255,255,255,0.95)" }}
+              />
+              <Edit 
+                size={16} 
+                className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2.5 flex-shrink-0" 
+              />
             </div>
           )}
 
@@ -1427,29 +1430,35 @@ export default function QuizClient() {
                         <div className="flex-1 p-4">
                           <div className="mb-2">
                             {editingQuestionId === idx ? (
-                              <input
-                                type="text"
-                                value={editedTitles[idx] || question.title}
-                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 pr-8"
-                                autoFocus
-                                onBlur={(e) => handleTitleSave(idx, e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
-                                  if (e.key === 'Escape') handleTitleCancel(idx);
-                                }}
-                              />
+                              <div className="flex items-center group">
+                                <input
+                                  type="text"
+                                  value={editedTitles[idx] || question.title}
+                                  onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 flex-1"
+                                  autoFocus
+                                  onBlur={(e) => handleTitleSave(idx, e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                    if (e.key === 'Escape') handleTitleCancel(idx);
+                                  }}
+                                />
+                                <Edit 
+                                  size={14} 
+                                  className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2.5 flex-shrink-0" 
+                                />
+                              </div>
                             ) : (
-                              <div className="relative group">
+                              <div className="flex items-center group">
                                 <h4
-                                  className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
+                                  className="text-[#20355D] text-base font-semibold cursor-pointer flex-1"
                                   onClick={() => setEditingQuestionId(idx)}
                                 >
                                   {getTitleForQuestion(question, idx)}
                                 </h4>
                                 <Edit 
                                   size={14} 
-                                  className="absolute top-1/2 right-0 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" 
+                                  className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2.5 flex-shrink-0" 
                                 />
                               </div>
                             )}
