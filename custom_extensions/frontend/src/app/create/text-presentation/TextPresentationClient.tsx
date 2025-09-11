@@ -1259,13 +1259,15 @@ export default function TextPresentationClient() {
       <main
         className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
       >
+        {/* Back button */}
+        <Link
+          href="/create/generate"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
+        </Link>
+
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
-          <Link
-            href="/create/generate"
-            className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
-          </Link>
 
           <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
 
