@@ -144,8 +144,8 @@ export default function PasteTextPage() {
               }`}
               gradientFrom="from-blue-300"
               gradientTo="to-blue-200"
-              iconColor={mode === "context" ? "text-white" : "text-blue-600"}
-              labelColor={mode === "context" ? "text-white" : "text-blue-600"}
+              iconColor="text-blue-600"
+              labelColor="text-blue-600"
             />
             
             <CustomCard 
