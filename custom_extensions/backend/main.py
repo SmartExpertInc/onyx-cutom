@@ -14093,6 +14093,47 @@ async def generate_course_description_for_position(job_title: str, company_name:
         logger.error(f"❌ [COURSE DESCRIPTION] Error generating course description for {job_title}: {e}")
         return f"Обучение ключевым навыкам для позиции {job_title}."
 
+async def generate_course_outline_for_landing_page(company_name: str, position: dict, duckduckgo_summary: str) -> list:
+    """
+    Generate a course outline for the landing page without saving to database.
+    """
+    try:
+        # Build the prompt for the LLM
+        wizard_request = {
+            "product": "Course Outline",
+            "prompt": (
+                f"Создай курс аутлайн 'Онбординг для должности {position['title']}' для новых сотрудников этой должности в компании '{company_name}'. \n"
+                f"Структура должна охватывать все аспекты работы сотрудника на этой должности в данной среде. Не включай аспекты работы других должностей, только то, что касается должности '{position['title']}'. \n"
+                f"ДАННЫЕ О КОМПАНИИ:\n{duckduckgo_summary}\n"
+            ),
+            "modules": 4,
+            "lessonsPerModule": "5-7",
+            "language": "ru"
+        }
+        
+        # Convert to JSON string for the LLM
+        prompt = json.dumps(wizard_request, ensure_ascii=False)
+        
+        outline_text = ""
+        async for chunk_data in stream_openai_response_direct(prompt, model="gpt-4o-mini", temperature=0.7):
+            if chunk_data.get("type") == "delta":
+                outline_text += chunk_data["text"]
+            elif chunk_data.get("type") == "error":
+                raise Exception(f"OpenAI error: {chunk_data['text']}")
+        
+        # Parse the outline text to extract modules and lessons
+        parsed_outline = _parse_outline_markdown(outline_text)
+        
+        logger.info(f"📚 [COURSE OUTLINE] Generated course outline with {len(parsed_outline)} modules")
+        for i, module in enumerate(parsed_outline):
+            logger.info(f"📚 [COURSE OUTLINE] - Module {i+1}: {module.get('title', 'Unknown')} with {len(module.get('lessons', []))} lessons")
+        
+        return parsed_outline
+        
+    except Exception as e:
+        logger.error(f"❌ [COURSE OUTLINE] Error generating course outline: {e}")
+        return []
+
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload) -> list:
     """
     Generate course templates by combining real job positions with AI-generated positions.
@@ -14691,6 +14732,24 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         for i, template in enumerate(course_templates):
             logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template['title']}")
 
+        # Generate course outline for the "Онбординг курс для должности" section
+        set_progress(job_id, "Generating course outline...")
+        course_outline = []
+        if job_positions:
+            try:
+                first_position = job_positions[0]  # Use the first job position for the course outline
+                course_outline = await generate_course_outline_for_landing_page(
+                    payload.companyName, 
+                    first_position, 
+                    duckduckgo_summary
+                )
+                logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline)} modules")
+                for i, module in enumerate(course_outline):
+                    logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module.get('title', 'Unknown')} with {len(module.get('lessons', []))} lessons")
+            except Exception as e:
+                logger.warning(f"⚠️ [AUDIT DATA FLOW] Failed to generate course outline: {e}")
+                course_outline = []
+
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Create the landing page content with dynamic data
@@ -14700,6 +14759,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis_data,
             "courseTemplates": course_templates,
+            "courseOutline": course_outline,
             "originalPayload": payload.model_dump()
         }
         

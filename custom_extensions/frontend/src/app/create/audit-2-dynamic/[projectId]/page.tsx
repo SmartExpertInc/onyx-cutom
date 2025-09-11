@@ -40,6 +40,12 @@ interface CourseTemplate {
   image: string
 }
 
+interface CourseOutlineModule {
+  id: string
+  title: string
+  lessons: string[]
+}
+
 interface LandingPageData {
   projectId: number
   projectName: string
@@ -48,6 +54,7 @@ interface LandingPageData {
   jobPositions: JobPosition[]
   workforceCrisis: WorkforceCrisisData
   courseTemplates: CourseTemplate[]
+  courseOutline: CourseOutlineModule[]
 }
 
 export default function DynamicAuditLandingPage() {
@@ -63,6 +70,36 @@ export default function DynamicAuditLandingPage() {
       ...prev,
       [moduleId]: !prev[moduleId]
     }))
+  }
+
+  // Helper function to generate lesson rows for mobile layout
+  const generateMobileLessonRows = (lessons: string[]) => {
+    return lessons.map((lesson, lessonIndex) => (
+      <div key={lessonIndex} className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
+        <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+          {lesson}
+        </span>
+        <div className="flex items-center justify-between mb-[12px]">
+          <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+            </svg>
+            <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+              Проверка знаний: нет
+            </span>
+          </div>
+          
+          <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
+            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
+            </svg>
+            <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+              5 мин
+            </span>
+          </div>
+        </div>
+      </div>
+    ))
   }
 
   useEffect(() => {
@@ -760,47 +797,48 @@ export default function DynamicAuditLandingPage() {
                         План обучения
                       </h4>
   
-                      {/* Module 1*/}
-                      <div className={`module-item flex flex-col gap-[8px] pb-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module1'] ? 'xl:border-b-0' : ''}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="xl:flex xl:items-center xl:gap-[6px]">
-                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 01:
-                            </span>
+                      {/* Dynamic Modules */}
+                      {landingPageData?.courseOutline && landingPageData.courseOutline.length > 0 && landingPageData.courseOutline.map((module, index) => (
+                        <div key={module.id || index} className={`module-item flex flex-col gap-[8px] ${index === 0 ? 'pb-[15px]' : 'py-[15px]'} xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules[`module${index + 1}`] ? 'xl:border-b-0' : ''}`}>
+                          <div className="flex items-center justify-between">
+                            <div className="xl:flex xl:items-center xl:gap-[6px]">
+                              <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                                Модуль {String(index + 1).padStart(2, '0')}:
+                              </span>
   
-                            <h5 className="hidden xl:block font-medium text-[16px]">
-                              Корпоративная культура и стандарты работы в Vogue Lashes & Spa
-                            </h5>
+                              <h5 className="hidden xl:block font-medium text-[16px]">
+                                {module.title}
+                              </h5>
+                            </div>
+                          
+                            <button 
+                              onClick={() => toggleModule(`module${index + 1}`)}
+                              className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                                expandedModules[`module${index + 1}`] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                              }`}
+                            >
+                              {expandedModules[`module${index + 1}`] ? (
+                                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                              ) : (
+                                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                              )}
+                            </button>
                           </div>
                           
-                          <button 
-                            onClick={() => toggleModule('module1')}
-                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                          <h5 className="font-medium text-[16px] xl:hidden">
+                            {module.title}
+                          </h5>
+  
+                          {/* Dynamic Module Expandable Content */}
+                          <div 
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                              expandedModules[`module${index + 1}`] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
                             }`}
                           >
-                            {expandedModules['module1'] ? (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            ) : (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        
-                        <h5 className="font-medium text-[16px] xl:hidden">
-                          Корпоративная культура и<br className="xl:hidden"/> стандарты работы в Vogue<br className="xl:hidden"/> Lashes & Spa
-                        </h5>
-  
-                        {/* Module 1 Expandable Content */}
-                        <div 
-                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            expandedModules['module1'] ? 'max-h-none opacity-100 mt-[15px]' : 'max-h-0 opacity-0 mt-0'
-                          }`}
-                        >
                           {/* XL Desktop Table Layout */}
                           <div className="hidden xl:block">
                             <div className="rounded-[4px] overflow-hidden border border-[#D2E3F1]">
@@ -819,14 +857,14 @@ export default function DynamicAuditLandingPage() {
                                 </div>
                               </div>
                               
-                              {/* Table Rows */}
+                              {/* Dynamic Table Rows */}
                               <div className="bg-white">
-                                {/* Row 1 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                      Основные этапы открытия салона
-                                    </div>
+                                {module.lessons && module.lessons.map((lesson, lessonIndex) => (
+                                  <div key={lessonIndex} className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
+                                    <div className="grid grid-cols-3 gap-[20px] items-center">
+                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                        {lesson}
+                                      </div>
                                     <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                       <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
@@ -847,13 +885,6 @@ export default function DynamicAuditLandingPage() {
                                     </div>
                                   </div>
                                 </div>
-                                
-                                {/* Row 2 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Локация и планировка: требования к помещению
-                                    </div>
                                     <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
                                       <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
