@@ -91,7 +91,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9C9C9C', fontSize:'12px' };
-  const barBase: React.CSSProperties = { width:'75px', background:'#894DF4', position:'relative' };
+  const barBase: React.CSSProperties = { width:'40px', background:'#894DF4', position:'relative' };
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };
