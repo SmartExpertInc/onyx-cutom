@@ -1370,7 +1370,7 @@ export default function QuizClient() {
                 }}
                 placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
                 rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 flex-1"
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 flex-1 hover:shadow-lg"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
@@ -1423,7 +1423,7 @@ export default function QuizClient() {
                 {questionList.length > 0 && (
                   <div className="flex flex-col gap-4">
                     {questionList.map((question, idx: number) => (
-                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
                           {idx + 1}
                         </div>
