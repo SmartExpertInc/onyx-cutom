@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle, CheckCircle, FolderOpen, File } from 'lucide-react';
+import SmartDrivePickerModal from './SmartDrivePickerModal';
 
 interface SmartDriveFrameProps {
   className?: string;
@@ -20,12 +21,12 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
-  const [iframeKey, setIframeKey] = useState(0);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
   const [autoSyncCount, setAutoSyncCount] = useState(0);
   const [internalSelectedFiles, setInternalSelectedFiles] = useState<string[]>(selectedFiles);
+  const [showFilePicker, setShowFilePicker] = useState(false);
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -56,51 +57,18 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
     setInternalSelectedFiles(selectedFiles);
   }, [selectedFiles]);
 
-  // Set up postMessage event listener for iframe communication
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Verify origin for security
-      if (!event.origin.includes(window.location.hostname)) {
-        return;
-      }
-
-      const { type, data } = event.data;
-
-      switch (type) {
-        case 'select':
-          if (data && data.filePath) {
-            setInternalSelectedFiles(prev => {
-              const updated = [...prev, data.filePath];
-              return Array.from(new Set(updated)); // Remove duplicates
-            });
-          }
-          break;
-          
-        case 'deselect':
-          if (data && data.filePath) {
-            setInternalSelectedFiles(prev => prev.filter(path => path !== data.filePath));
-          }
-          break;
-          
-        case 'clear':
-          setInternalSelectedFiles([]);
-          break;
-          
-        default:
-          console.log('Unknown message type from SmartDrive iframe:', type);
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
   // Notify parent component when file selection changes
   useEffect(() => {
     if (onFilesSelected) {
       onFilesSelected(internalSelectedFiles);
     }
   }, [internalSelectedFiles, onFilesSelected]);
+
+  // Handle file selection from SmartDrivePickerModal
+  const handleFilesSelected = (filePaths: string[]) => {
+    setInternalSelectedFiles(filePaths);
+    setShowFilePicker(false);
+  };
 
   // Auto-sync functionality with page visibility detection
   useEffect(() => {
@@ -330,13 +298,12 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
         credentials: 'same-origin',
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setSyncStatus('success');
-        setLastSyncTime(new Date().toLocaleTimeString());
-        setIframeKey(prev => prev + 1); // Refresh iframe
-        alert(`Successfully synced ${result.imported_count || 0} files!`);
-      } else {
+              if (response.ok) {
+          const result = await response.json();
+          setSyncStatus('success');
+          setLastSyncTime(new Date().toLocaleTimeString());
+          alert(`Successfully synced ${result.imported_count || 0} files!`);
+        } else {
         const errorData = await response.json();
         setSyncStatus('error');
         if (errorData.detail?.includes('credentials')) {
@@ -442,25 +409,77 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
                 Files will be combined with connector data for content generation
               </p>
             </div>
+            <button
+              onClick={() => setInternalSelectedFiles([])}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Clear
+            </button>
           </div>
         </div>
       )}
 
-      {/* Iframe Container */}
+      {/* File Browser Interface */}
       <div className="relative" style={{ height: '600px' }}>
-        <iframe
-          key={iframeKey}
-          src={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/smartdrive/` : '/smartdrive/'}
-          className="w-full h-full border-0"
-          title="Smart Drive File Browser"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
-          onLoad={() => {
-            console.log('SmartDrive iframe loaded');
-          }}
-          onError={(e) => {
-            console.error('SmartDrive iframe error:', e);
-          }}
-        />
+        {hasCredentials ? (
+          <div className="w-full h-full bg-gray-50 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-4">
+            <div className="text-center">
+              <FolderOpen className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">SmartDrive File Browser</h3>
+              <p className="text-sm text-gray-600 mb-6">Select files from your SmartDrive to combine with connector data</p>
+              
+              <button
+                onClick={() => setShowFilePicker(true)}
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+              >
+                <FolderOpen className="w-5 h-5" />
+                Browse Files
+              </button>
+
+              {internalSelectedFiles.length > 0 && (
+                <div className="mt-4 text-sm text-gray-600">
+                  <p className="font-medium">Selected Files:</p>
+                  <div className="mt-2 max-h-32 overflow-y-auto text-left">
+                    {internalSelectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center gap-2 py-1">
+                        <File className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs font-mono">{file}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Sync Controls */}
+            <div className="absolute bottom-4 right-4 flex items-center gap-2">
+              <button
+                onClick={handleSyncToOnyx}
+                disabled={isLoading || !hasCredentials}
+                className={getSyncButtonClass()}
+              >
+                {getSyncButtonIcon()}
+                <span className="text-sm">{getSyncButtonText()}</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full h-full bg-gray-50 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-4">
+            <div className="text-center">
+              <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">SmartDrive Not Connected</h3>
+              <p className="text-sm text-gray-600 mb-6">Connect your Nextcloud account to browse and select files</p>
+              
+              <button
+                onClick={handleNextcloudAuth}
+                disabled={isAuthenticating}
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {isAuthenticating ? 'Connecting...' : 'Connect SmartDrive'}
+              </button>
+            </div>
+          </div>
+        )}
         
         {/* Loading Overlay */}
         {isLoading && (
@@ -514,6 +533,13 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
           </div>
         </div>
       )}
+
+      {/* SmartDrive File Picker Modal */}
+      <SmartDrivePickerModal
+        isOpen={showFilePicker}
+        onClose={() => setShowFilePicker(false)}
+        onFilesSelected={handleFilesSelected}
+      />
     </div>
   );
 };
