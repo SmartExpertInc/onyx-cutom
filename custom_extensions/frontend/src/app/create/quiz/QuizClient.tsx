@@ -1345,7 +1345,7 @@ export default function QuizClient() {
 
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
-            <div className="relative group">
+            <div className="relative group flex items-center">
               <textarea
                 value={currentPrompt || ""}
                 onChange={(e) => {
@@ -1364,13 +1364,13 @@ export default function QuizClient() {
                   router.replace(`?${sp.toString()}`, { scroll: false });
                 }}
                 placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-                rows={3}
-                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+                rows={1}
+                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 flex-1 flex items-center"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
                 size={16} 
-                className="absolute top-4 right-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" 
+                className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-3 flex-shrink-0" 
               />
             </div>
           )}
