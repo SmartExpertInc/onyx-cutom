@@ -38,7 +38,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F6F6F2', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
   const header: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', height:'160px', background:'#6CDC78', border:'1px solid #102412', borderBottom:'none', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'0', borderBottomRightRadius:'0' };
-  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'90px', fontSize:'42px', fontWeight:800, color:'#102412' };
+  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'84px', fontSize:'42px', fontWeight:800, color:'#102412' };
   
   // Content block wrapper with top radius
   const contentBlock: React.CSSProperties = { 
@@ -63,8 +63,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', fontSize:'17px', color:'#595854', lineHeight:1.6, whiteSpace:'pre-line' };
 
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'72px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#C7D6FF', zIndex:2 };
-  const ring1: React.CSSProperties = { position:'absolute', right:'32px', top:'24px', width:'220px', height:'220px', borderRadius:'50%', border:'3px solid #111111', background:'transparent', zIndex:1 };
-  const ring2: React.CSSProperties = { position:'absolute', right:'16px', top:'40px', width:'220px', height:'220px', borderRadius:'50%', border:'3px solid #111111', background:'transparent', zIndex:1 };
+  const ring1: React.CSSProperties = { position:'absolute', right:'115px', top:'72px', width:'220px', height:'220px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:3 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -73,7 +72,6 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       <div style={card} />
       <div style={header} />
       <div style={ring1} />
-      <div style={ring2} />
       <div style={avatarWrap}>
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
       </div>
