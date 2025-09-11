@@ -139,8 +139,8 @@ export default function PasteTextPage() {
               onClick={() => setMode("context")}
               className={`transition-all ${
                 mode === "context"
-                  ? "border-2 border-blue-500 bg-white shadow-lg ring-2 ring-blue-200"
-                  : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
+                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
               }`}
               gradientFrom="from-blue-300"
               gradientTo="to-blue-200"
@@ -155,13 +155,13 @@ export default function PasteTextPage() {
               onClick={() => setMode("base")}
               className={`transition-all ${
                 mode === "base"
-                  ? "border-2 border-blue-500 bg-white shadow-lg ring-2 ring-blue-200"
-                  : "border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md"
+                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
+                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
               }`}
               gradientFrom="from-purple-300"
               gradientTo="to-purple-200"
-              iconColor={mode === "base" ? "text-white" : "text-purple-600"}
-              labelColor={mode === "base" ? "text-white" : "text-purple-600"}
+              iconColor="text-purple-600"
+              labelColor="text-purple-600"
             />
           </div>
         </div>
