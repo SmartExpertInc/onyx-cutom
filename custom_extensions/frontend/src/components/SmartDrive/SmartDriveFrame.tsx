@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, AlertCircle, CheckCircle, FolderOpen, File } from 'lucide-react';
-import NextcloudFileBrowser from './NextcloudFileBrowser';
+import { RefreshCw, AlertCircle, CheckCircle, Settings } from 'lucide-react';
+import SmartDriveFileBrowser from './SmartDriveFileBrowser';
 
 interface SmartDriveFrameProps {
   className?: string;
@@ -21,11 +21,13 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [iframeKey, setIframeKey] = useState(0);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
   const [autoSyncCount, setAutoSyncCount] = useState(0);
   const [internalSelectedFiles, setInternalSelectedFiles] = useState<string[]>(selectedFiles);
+  const [useCustomBrowser, setUseCustomBrowser] = useState(true); // Default to custom browser for reliable file selection
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -56,17 +58,51 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
     setInternalSelectedFiles(selectedFiles);
   }, [selectedFiles]);
 
+  // Set up postMessage event listener for iframe communication
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Verify origin for security
+      if (!event.origin.includes(window.location.hostname)) {
+        return;
+      }
+
+      const { type, data } = event.data;
+
+      switch (type) {
+        case 'select':
+          if (data && data.filePath) {
+            setInternalSelectedFiles(prev => {
+              const updated = [...prev, data.filePath];
+              return Array.from(new Set(updated)); // Remove duplicates
+            });
+          }
+          break;
+          
+        case 'deselect':
+          if (data && data.filePath) {
+            setInternalSelectedFiles(prev => prev.filter(path => path !== data.filePath));
+          }
+          break;
+          
+        case 'clear':
+          setInternalSelectedFiles([]);
+          break;
+          
+        default:
+          console.log('Unknown message type from SmartDrive iframe:', type);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   // Notify parent component when file selection changes
   useEffect(() => {
     if (onFilesSelected) {
       onFilesSelected(internalSelectedFiles);
     }
   }, [internalSelectedFiles, onFilesSelected]);
-
-  // Handle file selection from NextcloudFileBrowser
-  const handleFilesSelected = (filePaths: string[]) => {
-    setInternalSelectedFiles(filePaths);
-  };
 
   // Auto-sync functionality with page visibility detection
   useEffect(() => {
@@ -300,6 +336,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
         const result = await response.json();
         setSyncStatus('success');
         setLastSyncTime(new Date().toLocaleTimeString());
+        setIframeKey(prev => prev + 1); // Refresh iframe
         alert(`Successfully synced ${result.imported_count || 0} files!`);
       } else {
         const errorData = await response.json();
@@ -393,6 +430,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
 
   return (
     <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+
       {/* File Selection Status */}
       {internalSelectedFiles.length > 0 && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -406,60 +444,86 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
                 Files will be combined with connector data for content generation
               </p>
             </div>
-            <button
-              onClick={() => setInternalSelectedFiles([])}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Clear
-            </button>
           </div>
         </div>
       )}
 
-      {/* Main Content */}
-      {hasCredentials ? (
-        <>
-          {/* Nextcloud-style File Browser */}
-          <NextcloudFileBrowser
-            onFilesSelected={handleFilesSelected}
-            selectedFiles={internalSelectedFiles}
-            className="min-h-[600px]"
-          />
-          
-          {/* Sync Controls Footer */}
-          <div className="border-t border-gray-200 bg-gray-50 p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                SmartDrive Files {lastAutoSyncTime && `• Auto-synced: ${lastAutoSyncTime}`}
-              </div>
-              <button
-                onClick={handleSyncToOnyx}
-                disabled={isLoading || !hasCredentials}
-                className={getSyncButtonClass()}
-              >
-                {getSyncButtonIcon()}
-                <span className="text-sm">{getSyncButtonText()}</span>
-              </button>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="min-h-[600px] bg-gray-50 border border-gray-200 rounded-lg flex flex-col items-center justify-center gap-4">
-          <div className="text-center">
-            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">SmartDrive Not Connected</h3>
-            <p className="text-sm text-gray-600 mb-6">Connect your Nextcloud account to browse and select files</p>
-            
-            <button
-              onClick={handleNextcloudAuth}
-              disabled={isAuthenticating}
-              className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {isAuthenticating ? 'Connecting...' : 'Connect SmartDrive'}
-            </button>
-          </div>
+      {/* Browser Toggle */}
+      <div className="mb-4 flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+        <div className="flex items-center gap-3">
+          <Settings className="w-4 h-4 text-gray-600" />
+          <span className="text-sm font-medium text-gray-700">File Browser Mode</span>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setUseCustomBrowser(true)}
+            className={`px-3 py-1 text-xs rounded-md transition-colors ${
+              useCustomBrowser 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Custom Browser ✅
+          </button>
+          <button
+            onClick={() => setUseCustomBrowser(false)}
+            className={`px-3 py-1 text-xs rounded-md transition-colors ${
+              !useCustomBrowser 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Nextcloud Iframe
+          </button>
+        </div>
+      </div>
+
+      {/* File Browser Container */}
+      <div className="relative" style={{ minHeight: '500px' }}>
+        {useCustomBrowser ? (
+          /* Custom File Browser - Reliable file selection */
+          <SmartDriveFileBrowser
+            onFilesSelected={(files) => setInternalSelectedFiles(files)}
+            selectedFiles={internalSelectedFiles}
+            className="border-0"
+          />
+        ) : (
+          /* Nextcloud Iframe - Requires custom JS injection */
+          <>
+            <iframe
+              key={iframeKey}
+              src={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/smartdrive/` : '/smartdrive/'}
+              className="w-full h-full border-0"
+              style={{ height: '600px' }}
+              title="Smart Drive File Browser"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
+              onLoad={() => {
+                console.log('SmartDrive iframe loaded - Note: File selection requires custom JS in Nextcloud');
+              }}
+              onError={(e) => {
+                console.error('SmartDrive iframe error:', e);
+              }}
+            />
+            
+            {/* Warning for iframe mode */}
+            <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded-md text-sm">
+              ⚠️ File selection requires Nextcloud JS modification
+            </div>
+            
+            {/* Loading Overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                <div className="flex items-center gap-3">
+                  <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
+                  <span className="text-gray-700 font-medium">Syncing files...</span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+
 
       {/* Credentials Setup Modal */}
       {showCredentials && (
