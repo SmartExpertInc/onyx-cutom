@@ -6,23 +6,21 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   Icon?: React.ElementType;
   label: string;
   active?: boolean;
-  gradientTo?: string;
   onClick?: () => void;
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, label, active = false, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
         className={cn(
-          "group relative overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 lg:w-44 lg:h-32",
+          "group relative overflow-hidden transition-all duration-200 cursor-pointer w-40 h-28",
           "hover:scale-105",
           className
         )}
         style={{
-          background: `linear-gradient(to top right, white, ${gradientTo})`,
+          backgroundColor: 'white',
           borderColor: active ? '#C5CAD1' : '#e2e8f0',
           borderWidth: '1px',
           boxShadow: active 
@@ -42,22 +40,19 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         onClick={onClick}
         {...props}
       >
-        <CardContent className="flex flex-col items-center justify-center gap-1 sm:gap-2 h-full p-2 sm:p-3 md:p-4">
+        <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
           {Icon && (
-            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-13 lg:h-13 flex items-center justify-center">
-              <Icon 
-                size={48} 
-                className="w-full h-full"
-                style={{
-                  color: active ? '#3b82f6' : '#4b5563',
-                  fontWeight: 'bold',
-                  strokeWidth: active ? 2.5 : 2
-                }}
-              />
-            </div>
+            <Icon 
+              size={54} 
+              style={{
+                color: active ? '#3b82f6' : '#4b5563',
+                fontWeight: 'bold',
+                strokeWidth: active ? 2.5 : 2
+              }}
+            />
           )}
           <span 
-            className="text-xs sm:text-sm font-semibold leading-tight text-center px-1"
+            className="text-sm font-semibold leading-tight text-center"
             style={{
               color: 'black'
             }}
