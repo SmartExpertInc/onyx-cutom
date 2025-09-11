@@ -41,7 +41,20 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'90px', fontSize:'42px', fontWeight:800, color:'#102412' };
   
   // Content block wrapper with top radius
-  const contentBlock: React.CSSProperties = { background:'#FFFFFF', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'24px', borderBottomRightRadius:'24px', border:'1px solid #102412', borderTop:'none' };
+  const contentBlock: React.CSSProperties = { 
+    position:'absolute', 
+    left:'44px', 
+    right:'44px', 
+    top:'204px', 
+    bottom:'44px', 
+    background:'#FFFFFF', 
+    borderTopLeftRadius:'24px', 
+    borderTopRightRadius:'24px', 
+    borderBottomLeftRadius:'24px', 
+    borderBottomRightRadius:'24px', 
+    border:'1px solid #102412', 
+    borderTop:'none' 
+  };
 
   const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'245px', fontSize:'40px', fontWeight:800, color:'#1E1E1C' };
   const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'80px', top:'325px', fontSize:'17px', color:'#454441', lineHeight:1.6, whiteSpace:'pre-line' };
