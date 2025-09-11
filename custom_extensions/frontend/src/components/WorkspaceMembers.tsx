@@ -763,7 +763,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         onValueChange={(value) => handleRoleChange(member.id, parseInt(value))}
                       >
                         <SelectTrigger 
-                          className="w-24 shadow-none bg-transparent px-2 py-1 border-1 rounded-lg"
+                          className="w-24 shadow-none bg-transparent p-0 border-1 rounded-lg"
                           style={{
                             backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),

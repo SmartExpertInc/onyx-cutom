@@ -84,15 +84,20 @@ function DropdownMenuItem({
       )}
       style={{
         backgroundColor: `white`,
-        color: `black`
+        color: variant === "destructive" ? `#dc2626` : `#4b5563`
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-hover-bg))`;
-        e.currentTarget.style.color = `rgb(var(--dropdown-item-hover-text))`;
+        if (variant === "destructive") {
+          e.currentTarget.style.backgroundColor = `#fef2f2`;
+          e.currentTarget.style.color = `#dc2626`;
+        } else {
+          e.currentTarget.style.backgroundColor = `#f9fafb`;
+          e.currentTarget.style.color = `#4b5563`;
+        }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-bg))`;
-        e.currentTarget.style.color = `gray`;
+        e.currentTarget.style.backgroundColor = `white`;
+        e.currentTarget.style.color = variant === "destructive" ? `#dc2626` : `#4b5563`;
       }}
       {...props}
     />
