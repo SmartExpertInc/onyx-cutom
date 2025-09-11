@@ -1079,7 +1079,7 @@ export default function QuizClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-300 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
         >
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
@@ -1199,7 +1199,7 @@ export default function QuizClient() {
                         <div className="relative">
                           <button
                             onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="flex items-center justify-between w-full min-w-[200px] px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
+                            className="flex items-center justify-between w-full px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
                           >
                             <span>
                               {selectedQuestionTypes.length === 0
@@ -1276,7 +1276,7 @@ export default function QuizClient() {
                     <div className="relative">
                       <button
                         onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="flex items-center justify-between w-full min-w-[200px] px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
+                        className="flex items-center justify-between w-full px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
                       >
                         <span>
                           {selectedQuestionTypes.length === 0
@@ -1375,7 +1375,7 @@ export default function QuizClient() {
               />
               <Edit 
                 size={16} 
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none" 
+                className="absolute top-1/2 right-7 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none flex items-center justify-center" 
               />
             </div>
           )}
@@ -1446,10 +1446,7 @@ export default function QuizClient() {
                                 {(editedTitles[idx] || question.title) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
-                                    style={{ 
-                                      left: `${((editedTitles[idx] || question.title).length * 8 + 10)}px`,
-                                    }}
+                                    className="absolute top-1/2 right-0 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
@@ -1464,10 +1461,7 @@ export default function QuizClient() {
                                 {getTitleForQuestion(question, idx) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-                                    style={{ 
-                                      left: `${(getTitleForQuestion(question, idx).length * 8 + 10)}px`,
-                                    }}
+                                    className="absolute top-1/2 right-0 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
