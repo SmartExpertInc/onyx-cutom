@@ -142,23 +142,31 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const cardTextStyle: React.CSSProperties = {
     fontSize:'16px',
     color:'#235D26',
-    width:'200px',
     lineHeight:1.3
+  };
+
+  const cardTextStyleFirst: React.CSSProperties = {
+    ...cardTextStyle,
+    width:'200px'
+  };
+
+  const cardTextStyleSecond: React.CSSProperties = {
+    ...cardTextStyle,
+    width:'270px'
   };
 
   // Arrow icon for second card
   const arrowIcon: React.CSSProperties = {
     position:'absolute',
-    bottom:'16px',
-    right:'16px',
-    width:'24px',
-    height:'24px',
+    right:'49px',
+    width:'45px',
+    height:'45px',
     borderRadius:'50%',
-    background:'#000000',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
-    color:'#FFFFFF',
+    color:'#000000',
+    border:'1px solid #000000',
     fontSize:'12px'
   };
 
@@ -258,7 +266,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
             )}
 
             {/* Text */}
-            <div style={cardTextStyle} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
+            <div style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
               {isEditable && edit?.k===`bt${i}` ? (
                 <ImprovedInlineEditor 
                   initialValue={card.text} 
@@ -270,7 +278,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                     setEdit(null); 
                   }} 
                   onCancel={()=> setEdit(null)} 
-                  style={inline(cardTextStyle)} 
+                  style={inline(i === 0 ? cardTextStyleFirst : cardTextStyleSecond)} 
                 />
               ) : (
                 card.text
