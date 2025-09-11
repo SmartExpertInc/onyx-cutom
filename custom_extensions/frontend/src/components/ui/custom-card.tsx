@@ -130,7 +130,11 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       );
     }
 
-    return cardContent;
+    return (
+      <div onClick={disabled ? undefined : onClick}>
+        {cardContent}
+      </div>
+    );
   }
 );
 
