@@ -52,8 +52,13 @@ export function trackPageLeft(props: PageLeftEvent) {
   });
 }
 
-export function trackFeatureUsed(props: FeatureUsedEvent) {
-  mixpanel.track("Feature Used", {
-    ...props
-  });
+export function trackFeatureUsed(
+  props: FeatureUsedEvent,
+  useBeacon: boolean = false
+): void {
+  mixpanel.track(
+    "Feature Used", 
+    { ...props },
+    useBeacon ? { transport: "sendBeacon" } : undefined
+  );
 }

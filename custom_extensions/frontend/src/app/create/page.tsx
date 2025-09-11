@@ -49,7 +49,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
             "Feature Category": "Products",
             "Action": "Clicked"
           };
-          trackFeatureUsed(event);
+          trackFeatureUsed(event, true);
           
           // Build URL with lesson/quiz/text-presentation parameters
           const params = new URLSearchParams();
