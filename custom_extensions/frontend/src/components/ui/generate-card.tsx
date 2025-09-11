@@ -17,7 +17,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         className={cn(
           "group relative overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-24 h-20 xs:w-28 xs:h-22 sm:w-32 sm:h-24 md:w-36 md:h-26 lg:w-40 lg:h-28 xl:w-44 xl:h-32",
+          "w-20 h-16 xs:w-22 xs:h-18 sm:w-28 sm:h-20 md:w-30 md:h-20 lg:w-35 lg:h-22 xl:w-38 xl:h-30",
           "hover:scale-105",
           className
         )}

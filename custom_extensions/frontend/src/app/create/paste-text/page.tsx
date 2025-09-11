@@ -108,7 +108,7 @@ export default function PasteTextPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
-            className="w-full h-76 p-6" />
+            className="w-full h-66 p-6" />
 
           <div className="mt-2 flex justify-between items-center">
             <div className="text-sm text-gray-500">
