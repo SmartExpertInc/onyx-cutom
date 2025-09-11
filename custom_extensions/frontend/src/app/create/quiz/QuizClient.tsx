@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
+import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus, Edit } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -1420,7 +1420,8 @@ export default function QuizClient() {
                                 type="text"
                                 value={editedTitles[idx] || question.title}
                                 onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
+                                className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 flex items-center"
+                                style={{ background: "rgba(255,255,255,0.95)" }}
                                 autoFocus
                                 onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                 onKeyDown={(e) => {
@@ -1430,10 +1431,15 @@ export default function QuizClient() {
                               />
                             ) : (
                               <h4
-                                className="text-[#20355D] text-base font-semibold cursor-pointer"
+                                className="text-[#20355D] text-base font-semibold cursor-pointer px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black border border-gray-100 transition-colors hover:border-blue-300 flex items-center min-h-[60px] group relative"
+                                style={{ background: "rgba(255,255,255,0.95)" }}
                                 onClick={() => setEditingQuestionId(idx)}
                               >
-                                {getTitleForQuestion(question, idx)}
+                                <span className="flex-1">{getTitleForQuestion(question, idx)}</span>
+                                <Edit 
+                                  size={16} 
+                                  className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2 flex-shrink-0" 
+                                />
                               </h4>
                             )}
                           </div>
