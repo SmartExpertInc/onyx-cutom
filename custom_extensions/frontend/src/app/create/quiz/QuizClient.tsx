@@ -1435,7 +1435,7 @@ export default function QuizClient() {
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full"
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                   onKeyDown={(e) => {
@@ -1446,14 +1446,14 @@ export default function QuizClient() {
                                 {(editedTitles[idx] || question.title) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1/2 right-0 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-0 right-0 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
                             ) : (
                               <div className="relative group">
                                 <h4
-                                  className="text-[#20355D] text-base font-semibold cursor-pointer"
+                                  className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
                                   onClick={() => setEditingQuestionId(idx)}
                                 >
                                   {getTitleForQuestion(question, idx)}
@@ -1461,7 +1461,7 @@ export default function QuizClient() {
                                 {getTitleForQuestion(question, idx) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1/2 right-0 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-0 right-0 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
