@@ -1224,9 +1224,9 @@ export default function CourseOutlineClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-          className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
         {/* Page title */}
