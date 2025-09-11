@@ -32,11 +32,10 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#F6F6F2', 
+    background:'#ffff', 
     color:'#0F172A', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
-    border:'1px solid #3C3F46'
   };
 
   // Top section - main content area
@@ -47,17 +46,18 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     top:'44px',
     height:'400px',
     background:'#FFFFFF',
-    border:'1px solid #3C3F46'
+    border:'2px solid #3C3F46',
+    borderRadius:'24px'
   };
 
   // Title styling - dark gray, bold, two lines
   const titleStyle: React.CSSProperties = { 
     position:'absolute', 
     left:'80px', 
-    top:'80px', 
-    fontSize:'32px', 
+    top:'60px', 
+    fontSize:'50px', 
     fontWeight:700, 
-    color:'#1E1E1C',
+    color:'#121110',
     whiteSpace:'pre-line',
     lineHeight:1.2
   };
@@ -66,18 +66,17 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const circlesContainer: React.CSSProperties = {
     position:'absolute',
     left:'80px',
-    top:'180px',
+    top:'245px',
     display:'flex',
-    gap:'16px',
     alignItems:'center'
   };
 
   // Individual circle styles - smaller to fit with avatar
   const circleBase: React.CSSProperties = {
-    width:'80px',
-    height:'80px',
-    borderRadius:'50%',
-    border:'2px solid #3C3F46',
+    width:'100px',
+    height:'100px',
+    borderRadius:'43%',
+    border:'2px solid #696864',
     background:'#FFFFFF',
     display:'flex',
     alignItems:'center',
@@ -87,10 +86,11 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const circleFilled: React.CSSProperties = {
     ...circleBase,
     background:'#4CCD6A', // Bright green
-    border:'2px solid #4CCD6A',
-    color:'#FFFFFF',
     fontSize:'20px',
-    fontWeight:700
+    fontWeight:700,
+    border:'2px solid #6AAF71',
+    color:'#175118',
+    borderRadius:'50%'
   };
 
   // Avatar positioning - upper right, overlapping border
