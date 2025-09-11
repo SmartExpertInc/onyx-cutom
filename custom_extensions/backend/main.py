@@ -13779,11 +13779,10 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             folder_query = """
             SELECT p.id, p.microproduct_content
             FROM projects p
-            JOIN project_folders pf ON p.id = pf.project_id
-            WHERE pf.folder_id = (
-                SELECT pf2.folder_id 
-                FROM project_folders pf2 
-                WHERE pf2.project_id = $1
+            WHERE p.folder_id = (
+                SELECT p2.folder_id 
+                FROM projects p2 
+                WHERE p2.id = $1
             ) AND p.microproduct_name LIKE 'AI-Аудит: %' AND p.id != $1
             ORDER BY p.created_at ASC
             LIMIT 1
