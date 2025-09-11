@@ -646,12 +646,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
               <SelectTrigger variant="filter" className="whitespace-nowrap">
                 <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('interface.filters.allStatuses', 'All Statuses')}</SelectItem>
+                <SelectItem value="all">{t('interface.filters.allStatuses', 'All Statuses')}</SelectItem>
                 <SelectItem value="active">{t('interface.statuses.active', 'Active')}</SelectItem>
                 <SelectItem value="suspended">{t('interface.statuses.suspended', 'Suspended')}</SelectItem>
                 <SelectItem value="pending">{t('interface.statuses.pending', 'Pending')}</SelectItem>
