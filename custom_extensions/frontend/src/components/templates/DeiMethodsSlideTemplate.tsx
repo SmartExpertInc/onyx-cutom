@@ -63,7 +63,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', fontSize:'17px', color:'#595854', lineHeight:1.6, whiteSpace:'pre-line' };
 
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'72px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#C7D6FF', zIndex:2 };
-  const ring1: React.CSSProperties = { position:'absolute', right:'115px', top:'72px', width:'220px', height:'220px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:3 };
+  const ring1: React.CSSProperties = { position:'absolute', right:'115px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:3 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
