@@ -119,9 +119,10 @@ export default function AiAuditQuestionnaire() {
               setFinalRedirectUrl(redirectUrl);
             }
             setLoading(false);
-          } catch (error) {
-            console.error(`❌ [FRONTEND DATA FLOW] Error polling progress:`, error)
           }
+        } catch (error) {
+          console.error(`❌ [FRONTEND DATA FLOW] Error polling progress:`, error)
+        }
         }, 2000);
     }
     return () => { 
