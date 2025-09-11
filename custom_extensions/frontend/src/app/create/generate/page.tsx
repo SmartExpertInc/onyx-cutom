@@ -1252,7 +1252,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="flex justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-6 sm:mb-8 px-4">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-6 sm:mb-8 px-4">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}

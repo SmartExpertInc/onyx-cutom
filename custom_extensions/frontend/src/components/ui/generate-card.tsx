@@ -17,7 +17,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         className={cn(
           "group relative overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-32 h-24 sm:w-36 sm:h-26 md:w-40 md:h-28 lg:w-44 lg:h-32",
+          "w-24 h-20 xs:w-28 xs:h-22 sm:w-32 sm:h-24 md:w-36 md:h-26 lg:w-40 lg:h-28 xl:w-44 xl:h-32",
           "hover:scale-105",
           className
         )}
@@ -45,9 +45,10 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       >
         <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
             {Icon && (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-13 lg:h-13 flex items-center justify-center">
+              <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-13 xl:h-13 flex items-center justify-center">
                 <Icon 
-                  size={48} 
+                  size={32}
+                  className="xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16"
                   style={{
                     color: active ? '#3b82f6' : '#4b5563',
                     fontWeight: 'bold',
@@ -57,7 +58,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-xs sm:text-sm font-semibold leading-tight text-center px-1"
+              className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight text-center px-1"
               style={{
                 color: 'black'
               }}
