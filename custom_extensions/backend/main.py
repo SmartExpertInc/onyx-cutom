@@ -13805,13 +13805,21 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
                 {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
             ]
         
+        # Extract workforce crisis data from the landing page data
+        workforce_crisis = content.get("workforceCrisis", {})
+        
+        # 📊 LOG: Workforce crisis data extraction
+        logger.info(f"📊 [AUDIT DATA FLOW] Workforce crisis data extraction:")
+        logger.info(f"📊 [AUDIT DATA FLOW] - Workforce crisis data: {workforce_crisis}")
+        
         # 📊 LOG: Final response data structure
         response_data = {
             "projectId": project_id,
             "projectName": project_name,
             "companyName": company_name,
             "companyDescription": company_description,
-            "jobPositions": job_positions
+            "jobPositions": job_positions,
+            "workforceCrisis": workforce_crisis
         }
         
         logger.info(f"📤 [AUDIT DATA FLOW] Final response data:")
@@ -13820,6 +13828,7 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         logger.info(f"📤 [AUDIT DATA FLOW] - Company Name: '{response_data['companyName']}'")
         logger.info(f"📤 [AUDIT DATA FLOW] - Company Description: '{response_data['companyDescription']}'")
         logger.info(f"📤 [AUDIT DATA FLOW] - Job Positions Count: {len(response_data['jobPositions'])}")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {response_data['workforceCrisis']}")
         
         return response_data
         
@@ -14090,16 +14099,18 @@ async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
     {duckduckgo_summary}
     
     ИНСТРУКЦИИ:
-    - Найди информацию о средней продолжительности работы сотрудников в отрасли
+    - Определи отрасль компании на основе данных
+    - Найди информацию о средней продолжительности работы сотрудников в этой отрасли
     - Если данных нет, используй типичные значения для отрасли
-    - Верни данные в формате JSON: {{"months": "число месяцев", "industryName": "название отрасли-компаниях"}}
+    - Верни ТОЛЬКО валидный JSON без дополнительного текста
     
     ПРИМЕРЫ:
-    - HVAC: {{"months": "14", "industryName": "HVAC-компаниях"}}
-    - IT: {{"months": "18", "industryName": "IT-компаниях"}}
-    - Строительство: {{"months": "12", "industryName": "строительных компаниях"}}
+    - Для IT-компании: {{"months": "18", "industryName": "IT-компаниях"}}
+    - Для маркетплейса: {{"months": "16", "industryName": "e-commerce-компаниях"}}
+    - Для строительства: {{"months": "12", "industryName": "строительных компаниях"}}
+    - Для HVAC: {{"months": "14", "industryName": "HVAC-компаниях"}}
     
-    ОТВЕТ (только JSON):
+    ВАЖНО: Отвечай ТОЛЬКО валидным JSON объектом, без дополнительного текста или объяснений.
     """
     
     try:
@@ -14108,12 +14119,18 @@ async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
             model=LLM_DEFAULT_MODEL
         )
         
+        # Log the raw response for debugging
+        logger.info(f"[AI-Audit Landing Page] Raw burnout response: '{response_text}'")
+        
         # Try to parse JSON response
         try:
             burnout_data = json.loads(response_text.strip())
             if "months" not in burnout_data or "industryName" not in burnout_data:
                 raise ValueError("Missing required fields")
-        except (json.JSONDecodeError, ValueError):
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
             # Fallback to default values
             burnout_data = {"months": "14", "industryName": "HVAC-компаниях"}
         

@@ -1,0 +1,391 @@
+custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
+custom_backend-1  | INFO:     Started server process [1]
+custom_backend-1  | INFO:     Waiting for application startup.
+custom_backend-1  | INFO:main:Custom Backend starting...
+custom_backend-1  | INFO:main:'projects' table ensured and updated.
+custom_backend-1  | INFO:main:'microproduct_pipelines' table ensured.
+custom_backend-1  | INFO:main:'projects' table ensured and updated with 'source_chat_session_id'.
+custom_backend-1  | INFO:main:'design_templates' table ensured.
+custom_backend-1  | INFO:main:'trashed_projects' table ensured (soft-delete).
+custom_backend-1  | INFO:main:'user_credits' table ensured.
+custom_backend-1  | INFO:main:Updated credit_transactions table to support admin_removal type
+custom_backend-1  | INFO:main:'credit_transactions' table ensured.
+custom_backend-1  | INFO:main:Attempting to connect to Onyx database: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | WARNING:main:Failed to connect to postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db: database "onyx_db" does not exist
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres
+custom_backend-1  | INFO:main:Found 3 Onyx users to migrate
+custom_backend-1  | INFO:main:Populated user_credits table with 3 existing Onyx users (100 credits each).
+custom_backend-1  | INFO:main:Added quality_tier column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default 'medium' tier
+custom_backend-1  | INFO:main:Created index for quality_tier column
+custom_backend-1  | INFO:main:Added custom_rate column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default custom_rate
+custom_backend-1  | INFO:main:Created index for custom_rate column
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to projects table
+custom_backend-1  | INFO:main:Created indexes for project-level custom_rate and quality_tier columns
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to trashed_projects table
+custom_backend-1  | INFO:main:Applying critical fix: Ensuring order and completion_time columns are TEXT type
+custom_backend-1  | INFO:main:Successfully set projects.order and projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set default values for empty order and completion_time fields
+custom_backend-1  | INFO:main:Projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:Trashed_projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:'request_analytics' table ensured.
+custom_backend-1  | INFO:main:AI parser tracking columns added to request_analytics table.
+custom_backend-1  | INFO:main:Added is_standalone column to projects table.
+custom_backend-1  | INFO:main:Added is_standalone column to trashed_projects table.
+custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NULL for existing products.
+custom_backend-1  | INFO:main:Database schema migration completed successfully.
+custom_backend-1  | INFO:     Application startup complete.
+custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35000 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35006 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35014 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35040 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35020 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35026 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35054 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35056 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35070 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47336 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47352 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33934 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Starting landing page generation for job 49b0e445-6ef4-4856-b94d-53cd36b37d36
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Initial payload: {'companyName': 'Allegro', 'companyDesc': 'Marketplace', 'companyWebsite': 'https://allegro.pl/', 'employees': '200', 'franchise': 'No', 'onboardingProblems': 'A lot of time', 'documents': ['Instructions / SOPs'], 'documentsOther': '', 'priorities': ['Onboard new employees faster'], 'priorityOther': ''}
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Allegro+Marketplace&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56438 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fallegro.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56446 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fallegro.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] SERPAPI summary: [SerpAPI General Info]
+custom_backend-1  | Allegro operates in Central Eastern Europe on a marketplace model, which means it's a platform where sellers can offer their products and buyers can browse and ...
+custom_backend-1  | List once, sell everywhere. The Sales Center is a complete set of tools required to start and grow your sales on
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data length: 2063 characters
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data preview: [SerpAPI General Info]
+custom_backend-1  | Allegro operates in Central Eastern Europe on a marketplace model, which means it's a platform where sellers can offer their products and buyers can browse and ...
+custom_backend-1  | List once, sell everywhere. The Sales Center is a complete set of tools required to start and grow your sales on Allegro. Sign in.
+custom_backend-1  | Allegro operates a marketplace model which provides a platform allowing millions of international customers to buy whatever they need from thousands of ...
+custom_backend-1  |
+custom_backend-1  | [Website Info]
+custom_backend-1  | (Нет инфор...
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2634 chars
+custom_backend-1  | INFO:     172.18.0.12:56458 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56468 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 7 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted company name: Allegro
+custom_backend-1  | INFO:main:🏢 [AUDIT DATA FLOW] Generated company name: 'Allegro'
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2931 chars
+custom_backend-1  | INFO:     172.18.0.12:56478 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 260 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated company description: Компания предоставляющая услуги по созданию и управлению онлайн-торговлей на платформе маркетплейса, позволяя продавцам предлагать свои товары миллионам покупателей. Allegro обеспечивает удобный доступ к разнообразным продуктам и инструментам для роста продаж.
+custom_backend-1  | INFO:main:📝 [AUDIT DATA FLOW] Generated company description: 'Компания предоставляющая услуги по созданию и управлению онлайн-торговлей на платформе маркетплейса, позволяя продавцам предлагать свои товары миллионам покупателей. Allegro обеспечивает удобный доступ к разнообразным продуктам и инструментам для роста продаж.'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Scraped data length: 2063 characters
+custom_backend-1  | INFO:main:[AI-Audit] Final prompt (first 500 chars):
+custom_backend-1  |     Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
+custom_backend-1  |
+custom_backend-1  |     ТВОЯ ЗАДАЧА:
+custom_backend-1  |     - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
+custom_backend-1  |     - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
+custom_backend-1  |     - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
+custom_backend-1  |     - Если в примере 5
+custom_backend-1  | INFO:     172.18.0.12:35054 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35056 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35070 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35078 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35084 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57480 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57482 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57494 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57504 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57512 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57094 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57096 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57098 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57114 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57116 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49690 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49700 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49702 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49718 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48614 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI-Audit] OpenAI result (first 500 chars): # **AI-АУДИТ КОМПАНИИ ALLEGRO**
+custom_backend-1  |
+custom_backend-1  | # с.1
+custom_backend-1  |
+custom_backend-1  | ## 🎯 ЦЕЛЬ АУДИТА
+custom_backend-1  |
+custom_backend-1  | Показать, как Allegro может:
+custom_backend-1  |
+custom_backend-1  | - сократить текучесть персонала,
+custom_backend-1  | - ускорить адаптацию новых сотрудников,
+custom_backend-1  | - масштабировать качество по командам,
+custom_backend-1  |
+custom_backend-1  | — за счёт внедрения автоматизированной системы обучения, создаваемой на базе ваших материалов с помощью AI, в нужном вам формате — от PDF до видео с AI-аватарами на 120+ языках.
+custom_backend-1  |
+custom_backend-1  | # 🧭 О КОМПАНИИ
+custom_backend-1  |
+custom_backend-1  | **Allegro** — marketplace, работающий в Центральной и Восточной Европе. Платформа позволяет продавцам пр
+custom_backend-1  | INFO:     172.18.0.12:48626 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48638 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48640 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48646 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48662 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51856 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51866 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51886 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51948 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51964 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38912 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38926 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38932 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38940 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38942 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:32932 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:32942 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:32948 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:=== AI PARSER FUNCTION CALLED ===
+custom_backend-1  | INFO:main:Project: Allegro
+custom_backend-1  | INFO:main:Target model: TextPresentationDetails
+custom_backend-1  | INFO:main:AI response length: 5545
+custom_backend-1  | INFO:main:DB_POOL available: True
+custom_backend-1  | INFO:main:Call stack: 25 frames
+custom_backend-1  | INFO:main:=== END FUNCTION CALL DEBUG ===
+custom_backend-1  | INFO:main:Attempting LLM call for 'Allegro' using API key #1.
+custom_backend-1  | INFO:     172.18.0.12:32958 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42622 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42626 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42630 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42634 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42636 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42640 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44896 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44904 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44906 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44908 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44920 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60464 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60470 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60476 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60484 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60490 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38576 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38582 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38586 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38588 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38596 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35466 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35474 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35490 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35506 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35510 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50556 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:LLM parsing for 'Allegro' succeeded on attempt #1.
+custom_backend-1  | INFO:main:=== AI PARSER LOGGING DEBUG ===
+custom_backend-1  | INFO:main:Project: Allegro
+custom_backend-1  | INFO:main:Prompt tokens: 2441
+custom_backend-1  | INFO:main:Response tokens: 12818
+custom_backend-1  | INFO:main:Total tokens: 15259
+custom_backend-1  | INFO:main:Response time: 56352ms
+custom_backend-1  | INFO:main:=== END AI PARSER LOGGING DEBUG ===
+custom_backend-1  | INFO:main:About to insert AI parser record for Allegro
+custom_backend-1  | INFO:main:Database insert result: INSERT 0 1
+custom_backend-1  | INFO:main:Successfully logged AI parser usage for Allegro
+custom_backend-1  | HEADER MAP: {'позиция': 0, 'локация': 1, 'формат работы': 2, 'тип занятости': 3}
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted 5 raw positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Formatted 5 positions for frontend
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Generated 5 job positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'title': 'e-Xperience Program Participant', 'description': 'Open position at Allegro', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'title': 'Technical Support Specialist', 'description': 'Open position at Allegro', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'title': 'Sales Specialist', 'description': 'Open position at Allegro', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'title': 'Marketing Specialist', 'description': 'Open position at Allegro', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'title': 'Customer Service Representative', 'description': 'Open position at Allegro', 'icon': '👷'}
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2574 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2845 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2980 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2801 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2713 chars
+custom_backend-1  | INFO:     172.18.0.12:50570 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 29 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted search time data: {'days': '30–60'}
+custom_backend-1  | INFO:     172.18.0.12:50582 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 35 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted losses data: {'amount': '$10К–$18К'}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 11 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted industry: Marketplace
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 82 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted turnover data: {'percentage': '85', 'earlyExit': {'percentage': '45', 'months': '3'}}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 61 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted burnout data: {'months': '14', 'industryName': 'HVAC-компаниях'}
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated workforce crisis data: {'industry': 'Marketplace', 'burnout': {'months': '14', 'industryName': 'HVAC-компаниях'}, 'turnover': {'percentage': '85', 'earlyExit': {'percentage': '45', 'months': '3'}}, 'losses': {'amount': '$10К–$18К'}, 'searchTime': {'days': '30–60'}}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Generated workforce crisis data: {'industry': 'Marketplace', 'burnout': {'months': '14', 'industryName': 'HVAC-компаниях'}, 'turnover': {'percentage': '85', 'earlyExit': {'percentage': '45', 'months': '3'}}, 'losses': {'amount': '$10К–$18К'}, 'searchTime': {'days': '30–60'}}
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] Landing page data structure created:
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyName: 'Allegro'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyDescription: 'Компания предоставляющая услуги по созданию и управлению онлайн-торговлей на платформе маркетплейса, позволяя продавцам предлагать свои товары миллионам покупателей. Allegro обеспечивает удобный доступ к разнообразным продуктам и инструментам для роста продаж.'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - originalPayload keys: ['companyName', 'companyDesc', 'companyWebsite', 'employees', 'franchise', 'onboardingProblems', 'documents', 'documentsOther', 'priorities', 'priorityOther']
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Successfully created project with ID: 101
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project saved to database with ID: 101
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: Allegro'
+custom_backend-1  | INFO:main:🔧 [AUDIT DATA FLOW] Assigned landing page to existing folder: 2
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Finished the Landing Page Generation
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data: {'id': 101, 'name': 'AI-Аудит Landing Page: Allegro', 'companyName': 'Allegro', 'companyDescription': 'Компания предоставляющая услуги по созданию и управлению онлайн-торговлей на платформе маркетплейса, позволяя продавцам предлагать свои товары миллионам покупателей. Allegro обеспечивает удобный доступ к разнообразным продуктам и инструментам для роста продаж.'}
+custom_backend-1  | INFO:     172.18.0.12:50588 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50590 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33906 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33922 - "GET /api/custom/ai-audit/progress?jobId=49b0e445-6ef4-4856-b94d-53cd36b37d36 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33932 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33942 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33954 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33976 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33964 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33978 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33980 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33982 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33992 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:34000 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:34008 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 101 - Raw details_data type: <class 'dict'>
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 101 - Already dict, after round_hours: {
+custom_backend-1  |   "companyName": "Allegro",
+custom_backend-1  |   "jobPositions": [
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "e-Xperience Program Participant",
+custom_backend-1  |       "description": "Open position at Allegro"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Technical Support Specialist",
+custom_backend-1  |       "description": "Open position at Allegro"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Sales Specialist",
+custom_backend-1  |       "description": "Open position at Allegro"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Marketing Specialist",
+custom_backend-1  |       "description": "Open position at Allegro"
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Customer Service Representative",
+custom_backend-1  |       "description": "Open position at Allegro"
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "originalPayload": {
+custom_backend-1  |     "documents": [
+custom_backend-1  |       "Instructions / SOPs"
+custom_backend-1  |     ],
+custom_backend-1  |     "employees": "200",
+custom_backend-1  |     "franchise": "No",
+custom_backend-1  |     "priorities": [
+custom_backend-1  |       "Onboard new employees faster"
+custom_backend-1  |     ],
+custom_backend-1  |     "companyDesc": "Marketplace",
+custom_backend-1  |     "companyName": "Allegro",
+custom_backend-1  |     "priorityOther": "",
+custom_backend-1  |     "companyWebsite": "https://allegro.pl/",
+custom_backend-1  |     "documentsOther": "",
+custom_backend-1  |     "onboardingProblems": "A lot of time"
+custom_backend-1  |   },
+custom_backend-1  |   "workforceCrisis": {
+custom_backend-1  |     "losses": {
+custom_backend-1  |       "amount": "$10\u041a\u2013$18\u041a"
+custom_backend-1  |     },
+custom_backend-1  |     "burnout": {
+custom_backend-1  |       "months": "14",
+custom_backend-1  |       "industryName": "HVAC-\u043a\u043e\u043c\u043f\u0430\u043d\u0438\u044f\u0445"
+custom_backend-1  |     },
+custom_backend-1  |     "industry": "Marketplace",
+custom_backend-1  |     "turnover": {
+custom_backend-1  |       "earlyExit": {
+custom_backend-1  |         "months": "3",
+custom_backend-1  |         "percentage": "45"
+custom_backend-1  |       },
+custom_backend-1  |       "percentage": "85"
+custom_backend-1  |     },
+custom_backend-1  |     "searchTime": {
+custom_backend-1  |       "days": "30\u201360"
+custom_backend-1  |     }
+custom_backend-1  |   },
+custom_backend-1  |   "companyDescription": "\u041a\u043e\u043c\u043f\u0430\u043d\u0438\u044f \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u044e\u0449\u0430\u044f \u0443\u0441\u043b\u0443\u0433\u0438 \u043f\u043e \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u044e \u0438 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d-\u0442\u043e\u0440\u0433\u043e\u0432\u043b\u0435\u0439 \u043d\u0430 \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0435 \u043c\u0430\u0440\u043a\u0435\u0442\u043f\u043b\u0435\u0439\u0441\u0430, \u043f\u043e\u0437\u0432\u043e\u043b\u044f\u044f \u043f\u0440\u043e\u0434\u0430\u0432\u0446\u0430\u043c \u043f\u0440\u0435\u0434\u043b\u0430\u0433\u0430\u0442\u044c \u0441\u0432\u043e\u0438 \u0442\u043e\u0432\u0430\u0440\u044b \u043c\u0438\u043b\u043b\u0438\u043e\u043d\u0430\u043c \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u0435\u0439. Allegro \u043e\u0431\u0435\u0441\u043f\u0435\u0447\u0438\u0432\u0430\u0435\u0442 \u0443\u0434\u043e\u0431\u043d\u044b\u0439 \u0434\u043e\u0441\u0442\u0443\u043f \u043a \u0440\u0430\u0437\u043d\u043e\u043e\u0431\u0440\u0430\u0437\u043d\u044b\u043c \u043f\u0440\u043e\u0434\u0443\u043a\u0442\u0430\u043c \u0438 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u0430\u043c \u0434\u043b\u044f \u0440\u043e\u0441\u0442\u0430 \u043f\u0440\u043e\u0434\u0430\u0436."
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 101 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:34016 - "GET /api/custom/projects/view/101 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34026 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 101
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Allegro'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['companyName', 'jobPositions', 'originalPayload', 'workforceCrisis', 'companyDescription']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Allegro'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Компания предоставляющая услуги по созданию и управлению онлайн-торговлей на платформе маркетплейса, позволяя продавцам предлагать свои товары миллионам покупателей. Allegro обеспечивает удобный доступ к разнообразным продуктам и инструментам для роста продаж.'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 5 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Job positions found in landing page data:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'icon': '👷', 'title': 'e-Xperience Program Participant', 'description': 'Open position at Allegro'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'icon': '👷', 'title': 'Technical Support Specialist', 'description': 'Open position at Allegro'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'icon': '👷', 'title': 'Sales Specialist', 'description': 'Open position at Allegro'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'icon': '👷', 'title': 'Marketing Specialist', 'description': 'Open position at Allegro'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'icon': '👷', 'title': 'Customer Service Representative', 'description': 'Open position at Allegro'}
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 101
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Allegro'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Allegro'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Компания предоставляющая услуги по созданию и управлению онлайн-торговлей на платформе маркетплейса, позволяя продавцам предлагать свои товары миллионам покупателей. Allegro обеспечивает удобный доступ к разнообразным продуктам и инструментам для роста продаж.'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 5
+custom_backend-1  | INFO:     172.18.0.12:34032 - "GET /api/custom/ai-audit/landing-page/101 HTTP/1.1" 200 OK
