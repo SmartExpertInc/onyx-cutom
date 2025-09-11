@@ -87,23 +87,49 @@ export default function AiAuditQuestionnaire() {
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (jobId && loading) {
+      console.log(`🔄 [FRONTEND DATA FLOW] Starting progress polling for job ID: ${jobId}`)
       interval = setInterval(async () => {
-        const res = await fetch(`/api/custom-projects-backend/ai-audit/progress?jobId=${jobId}`);
-        const data = await res.json();
-        if (data.messages) setProgressMessages(data.messages);
-        if (data.result && (data.result.folderId || data.result.id)) {
-          setGenerationDone(true);
-          // Check if this is a landing page generation result
-          if (data.result.name && data.result.name.includes("Landing Page")) {
-            setFinalRedirectUrl(`/create/audit-2-dynamic/${data.result.id}`);
-          } else {
-            setFinalRedirectUrl(data.result.folderId ? `/projects?folder=${data.result.folderId}` : `/projects/view/${data.result.id}`);
+        try {
+          const progressUrl = `/api/custom-projects-backend/ai-audit/progress?jobId=${jobId}`
+          console.log(`📡 [FRONTEND DATA FLOW] Polling progress from: ${progressUrl}`)
+          
+          const res = await fetch(progressUrl);
+          const data = await res.json();
+          
+          // 📊 LOG: Progress data received
+          console.log(`📊 [FRONTEND DATA FLOW] Progress data received:`, data)
+          
+          if (data.messages) {
+            console.log(`📊 [FRONTEND DATA FLOW] Progress messages: ${data.messages.length} messages`)
+            setProgressMessages(data.messages);
           }
-          setLoading(false);
-        }
-      }, 2000);
+          
+          if (data.result && (data.result.folderId || data.result.id)) {
+            console.log(`✅ [FRONTEND DATA FLOW] Generation result received:`, data.result)
+            setGenerationDone(true);
+            
+            // Check if this is a landing page generation result
+            if (data.result.name && data.result.name.includes("Landing Page")) {
+              const redirectUrl = `/create/audit-2-dynamic/${data.result.id}`
+              console.log(`🎯 [FRONTEND DATA FLOW] Landing page detected, redirecting to: ${redirectUrl}`)
+              setFinalRedirectUrl(redirectUrl);
+            } else {
+              const redirectUrl = data.result.folderId ? `/projects?folder=${data.result.folderId}` : `/projects/view/${data.result.id}`
+              console.log(`🎯 [FRONTEND DATA FLOW] Regular audit detected, redirecting to: ${redirectUrl}`)
+              setFinalRedirectUrl(redirectUrl);
+            }
+            setLoading(false);
+          } catch (error) {
+            console.error(`❌ [FRONTEND DATA FLOW] Error polling progress:`, error)
+          }
+        }, 2000);
     }
-    return () => { if (interval) clearInterval(interval); };
+    return () => { 
+      if (interval) {
+        console.log(`🛑 [FRONTEND DATA FLOW] Stopping progress polling`)
+        clearInterval(interval)
+      }
+    };
   }, [jobId, loading]);
 
   const handleCheckbox = (arr: string[], setArr: (v: string[]) => void, value: string) => {
@@ -181,6 +207,9 @@ export default function AiAuditQuestionnaire() {
   };
 
   const handleGenerateLandingPage = async () => {
+    // 📊 LOG: Landing page generation started
+    console.log(`🚀 [FRONTEND DATA FLOW] Starting landing page generation`)
+    
     setTouched({
       companyName: true,
       companyDesc: true,
@@ -193,6 +222,22 @@ export default function AiAuditQuestionnaire() {
       priorityOther: priorities.includes("Other"),
       documentsOther: documents.includes("Other"),
     });
+    
+    // 📊 LOG: Form validation
+    const formData = {
+      companyName,
+      companyDesc,
+      companyWebsite,
+      employees,
+      franchise,
+      onboardingProblems,
+      documents,
+      documentsOther,
+      priorities,
+      priorityOther,
+    }
+    console.log(`📝 [FRONTEND DATA FLOW] Form data to be submitted:`, formData)
+    
     if (
       !companyName.trim() ||
       !companyDesc.trim() ||
@@ -204,42 +249,59 @@ export default function AiAuditQuestionnaire() {
       (documents.includes("Other") && !documentsOther.trim()) ||
       priorities.length === 0 ||
       (priorities.includes("Other") && !priorityOther.trim())
-    ) return;
+    ) {
+      console.error(`❌ [FRONTEND DATA FLOW] Form validation failed`)
+      return;
+    }
+    
+    console.log(`✅ [FRONTEND DATA FLOW] Form validation passed`)
     setLoading(true);
     setError("");
     setProgressMessages([]);
     setJobId(null);
     setGenerationDone(false);
     setFinalRedirectUrl(null);
+    
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const res = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/generate`, {
+      const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/generate`
+      
+      // 📊 LOG: API request details
+      console.log(`📡 [FRONTEND DATA FLOW] Making API request to: ${apiUrl}`)
+      console.log(`📡 [FRONTEND DATA FLOW] Request payload:`, formData)
+      
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyName,
-          companyDesc,
-          companyWebsite,
-          employees,
-          franchise,
-          onboardingProblems,
-          documents,
-          documentsOther,
-          priorities,
-          priorityOther,
-        }),
+        body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error("Ошибка генерации landing page");
+      
+      // 📊 LOG: API response
+      console.log(`📡 [FRONTEND DATA FLOW] API response status: ${res.status}`)
+      console.log(`📡 [FRONTEND DATA FLOW] API response ok: ${res.ok}`)
+      
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error(`❌ [FRONTEND DATA FLOW] API request failed: ${res.status} - ${errorText}`)
+        throw new Error("Ошибка генерации landing page");
+      }
       const data = await res.json();
+      
+      // 📊 LOG: API response data
+      console.log(`📥 [FRONTEND DATA FLOW] API response data:`, data)
+      
       if (data.jobId) {
+        console.log(`🔄 [FRONTEND DATA FLOW] Job ID received: ${data.jobId}`)
         setJobId(data.jobId);
       } else if (data.id) {
         // fallback: immediate result
+        console.log(`✅ [FRONTEND DATA FLOW] Immediate result received, project ID: ${data.id}`)
         setGenerationDone(true);
         setFinalRedirectUrl(`/create/audit-2-dynamic/${data.id}`);
         setLoading(false);
       }
     } catch (err: any) {
+      console.error(`❌ [FRONTEND DATA FLOW] Error in landing page generation:`, err)
       setError(err.message || "Ошибка генерации landing page");
       setLoading(false);
     }
@@ -248,7 +310,9 @@ export default function AiAuditQuestionnaire() {
   // In the render, after loading is false and generationDone is true, redirect
   useEffect(() => {
     if (generationDone && finalRedirectUrl) {
+      console.log(`🔄 [FRONTEND DATA FLOW] Generation complete, redirecting to: ${finalRedirectUrl}`)
       setTimeout(() => {
+        console.log(`🚀 [FRONTEND DATA FLOW] Executing redirect to: ${finalRedirectUrl}`)
         router.push(finalRedirectUrl);
       }, 1200);
     }

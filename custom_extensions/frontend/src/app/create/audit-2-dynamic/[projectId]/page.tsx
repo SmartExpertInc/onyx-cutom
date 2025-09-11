@@ -36,29 +36,69 @@ export default function DynamicAuditLandingPage() {
   useEffect(() => {
     const fetchLandingPageData = async () => {
       try {
+        // 📊 LOG: Frontend data fetch started
+        console.log(`🔍 [FRONTEND DATA FLOW] Starting data fetch for project ID: ${projectId}`)
+        
         if (!projectId) {
+          console.error('❌ [FRONTEND DATA FLOW] Project ID is required')
           setError('Project ID is required')
           setLoading(false)
           return
         }
         
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`)
+        const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`
+        
+        // 📊 LOG: API request details
+        console.log(`📡 [FRONTEND DATA FLOW] Making API request to: ${apiUrl}`)
+        console.log(`📡 [FRONTEND DATA FLOW] Backend URL: ${CUSTOM_BACKEND_URL}`)
+        
+        const response = await fetch(apiUrl)
+        
+        // 📊 LOG: API response received
+        console.log(`📡 [FRONTEND DATA FLOW] API response status: ${response.status}`)
+        console.log(`📡 [FRONTEND DATA FLOW] API response ok: ${response.ok}`)
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch landing page data')
+          const errorText = await response.text()
+          console.error(`❌ [FRONTEND DATA FLOW] API request failed: ${response.status} - ${errorText}`)
+          throw new Error(`Failed to fetch landing page data: ${response.status}`)
         }
+        
         const data = await response.json()
+        
+        // 📊 LOG: Data received from API
+        console.log(`📥 [FRONTEND DATA FLOW] Data received from API:`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Project ID: ${data.projectId}`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Project Name: "${data.projectName}"`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Company Name: "${data.companyName}"`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Company Description: "${data.companyDescription}"`)
+        console.log(`📥 [FRONTEND DATA FLOW] - Job Positions Count: ${data.jobPositions?.length || 0}`)
+        
+        if (data.jobPositions && data.jobPositions.length > 0) {
+          console.log(`📥 [FRONTEND DATA FLOW] Job Positions:`)
+          data.jobPositions.forEach((position: any, index: number) => {
+            console.log(`📥 [FRONTEND DATA FLOW] - Position ${index + 1}: ${position.title} (${position.icon})`)
+          })
+        }
+        
         setLandingPageData(data)
+        console.log(`✅ [FRONTEND DATA FLOW] Landing page data set successfully`)
+        
       } catch (err) {
+        console.error(`❌ [FRONTEND DATA FLOW] Error occurred:`, err)
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
         setLoading(false)
+        console.log(`🏁 [FRONTEND DATA FLOW] Data fetch process completed`)
       }
     }
 
     if (projectId) {
+      console.log(`🚀 [FRONTEND DATA FLOW] Project ID available, starting fetch: ${projectId}`)
       fetchLandingPageData()
     } else {
+      console.error('❌ [FRONTEND DATA FLOW] Project ID not found')
       setError('Project ID not found')
       setLoading(false)
     }
@@ -86,6 +126,19 @@ export default function DynamicAuditLandingPage() {
   }
 
   const { companyName, companyDescription, jobPositions } = landingPageData
+  
+  // 📊 LOG: Data rendering
+  console.log(`🎨 [FRONTEND DATA FLOW] Rendering landing page with data:`)
+  console.log(`🎨 [FRONTEND DATA FLOW] - Company Name: "${companyName}"`)
+  console.log(`🎨 [FRONTEND DATA FLOW] - Company Description: "${companyDescription}"`)
+  console.log(`🎨 [FRONTEND DATA FLOW] - Job Positions: ${jobPositions?.length || 0} positions`)
+  
+  if (jobPositions && jobPositions.length > 0) {
+    console.log(`🎨 [FRONTEND DATA FLOW] Rendering job positions:`)
+    jobPositions.forEach((position: any, index: number) => {
+      console.log(`🎨 [FRONTEND DATA FLOW] - Position ${index + 1}: "${position.title}" with icon "${position.icon}"`)
+    })
+  }
 
   return (
       <>

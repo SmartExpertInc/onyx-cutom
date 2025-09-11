@@ -13748,6 +13748,9 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
     Get the dynamic landing page data for a specific AI audit project.
     """
     try:
+        # 📊 LOG: Data retrieval request received
+        logger.info(f"📥 [AUDIT DATA FLOW] Landing page data request for project ID: {project_id}")
+        
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Get the project data
@@ -13761,18 +13764,35 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             row = await conn.fetchrow(query, project_id, onyx_user_id)
             
         if not row:
+            logger.error(f"❌ [AUDIT DATA FLOW] Project {project_id} not found for user {onyx_user_id}")
             raise HTTPException(status_code=404, detail="Project not found")
         
         content = row["microproduct_content"]
         project_name = row["microproduct_name"]
         
+        # 📊 LOG: Raw data retrieved from database
+        logger.info(f"💾 [AUDIT DATA FLOW] Retrieved project data from database:")
+        logger.info(f"💾 [AUDIT DATA FLOW] - Project name: '{project_name}'")
+        logger.info(f"💾 [AUDIT DATA FLOW] - Content keys: {list(content.keys()) if content else 'None'}")
+        
         # Extract the dynamic data
         company_name = content.get("companyName", "Unknown Company")
         company_description = content.get("companyDescription", "Company description not available")
         
+        # 📊 LOG: Extracted dynamic data
+        logger.info(f"🔍 [AUDIT DATA FLOW] Extracted dynamic data:")
+        logger.info(f"🔍 [AUDIT DATA FLOW] - Company name: '{company_name}'")
+        logger.info(f"🔍 [AUDIT DATA FLOW] - Company description: '{company_description}'")
+        
         # Extract job positions from the original payload if available
         job_positions = []
         original_payload = content.get("originalPayload", {})
+        
+        # 📊 LOG: Job positions extraction process
+        logger.info(f"💼 [AUDIT DATA FLOW] Starting job positions extraction:")
+        logger.info(f"💼 [AUDIT DATA FLOW] - Original payload available: {bool(original_payload)}")
+        logger.info(f"💼 [AUDIT DATA FLOW] - Original payload keys: {list(original_payload.keys()) if original_payload else 'None'}")
+        
         if original_payload:
             # Try to extract positions from the first one-pager content
             # Look for the first AI audit project in the same folder
@@ -13795,14 +13815,33 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
                 first_audit_content = first_audit_row["microproduct_content"]
                 # Extract positions from the first one-pager
                 job_positions = extract_job_positions_from_content(first_audit_content)
+                
+                # 📊 LOG: Job positions extracted
+                logger.info(f"💼 [AUDIT DATA FLOW] Job positions extracted: {len(job_positions)} positions")
+                for i, position in enumerate(job_positions):
+                    logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
+            else:
+                logger.info(f"💼 [AUDIT DATA FLOW] No first audit project found in same folder")
+        else:
+            logger.info(f"💼 [AUDIT DATA FLOW] No original payload available, using default positions")
         
-        return {
+        # 📊 LOG: Final response data structure
+        response_data = {
             "projectId": project_id,
             "projectName": project_name,
             "companyName": company_name,
             "companyDescription": company_description,
             "jobPositions": job_positions
         }
+        
+        logger.info(f"📤 [AUDIT DATA FLOW] Final response data:")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Project ID: {response_data['projectId']}")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Project Name: '{response_data['projectName']}'")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Company Name: '{response_data['companyName']}'")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Company Description: '{response_data['companyDescription']}'")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Job Positions Count: {len(response_data['jobPositions'])}")
+        
+        return response_data
         
     except HTTPException:
         raise
@@ -13975,15 +14014,29 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
 
 async def _run_landing_page_generation(payload, request, pool, job_id):
     try:
+        # 📊 LOG: Initial payload received
+        logger.info(f"🔍 [AUDIT DATA FLOW] Starting landing page generation for job {job_id}")
+        logger.info(f"📥 [AUDIT DATA FLOW] Initial payload: {payload.model_dump()}")
+        
         set_progress(job_id, "Researching company info...")
         duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit Landing Page] SERPAPI summary: {duckduckgo_summary[:300]}")
+        
+        # 📊 LOG: Scraped data received
+        logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
+        logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data preview: {duckduckgo_summary[:500]}...")
 
         set_progress(job_id, "Generating company name...")
         company_name = await extract_company_name_from_data(duckduckgo_summary, payload)
+        
+        # 📊 LOG: Company name generated
+        logger.info(f"🏢 [AUDIT DATA FLOW] Generated company name: '{company_name}'")
 
         set_progress(job_id, "Generating company description...")
         company_description = await generate_company_description_from_data(duckduckgo_summary, payload)
+        
+        # 📊 LOG: Company description generated
+        logger.info(f"📝 [AUDIT DATA FLOW] Generated company description: '{company_description}'")
 
         onyx_user_id = await get_current_onyx_user_id(request)
         
@@ -13993,6 +14046,12 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "companyDescription": company_description,
             "originalPayload": payload.model_dump()
         }
+        
+        # 📊 LOG: Landing page data structure created
+        logger.info(f"📦 [AUDIT DATA FLOW] Landing page data structure created:")
+        logger.info(f"📦 [AUDIT DATA FLOW] - companyName: '{landing_page_data['companyName']}'")
+        logger.info(f"📦 [AUDIT DATA FLOW] - companyDescription: '{landing_page_data['companyDescription']}'")
+        logger.info(f"📦 [AUDIT DATA FLOW] - originalPayload keys: {list(landing_page_data['originalPayload'].keys())}")
 
         # Save as a product
         project_id = await insert_ai_audit_onepager_to_db(
@@ -14004,15 +14063,24 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         )
 
         logger.info(f"[AI-Audit Landing Page] Successfully created project with ID: {project_id}")
+        
+        # 📊 LOG: Project saved to database
+        logger.info(f"💾 [AUDIT DATA FLOW] Project saved to database with ID: {project_id}")
+        logger.info(f"💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: {company_name}'")
 
         set_progress(job_id, "Landing page complete!")
         logger.info(f"[AI-Audit Landing Page] Finished the Landing Page Generation")
-        return {
+        
+        # 📊 LOG: Final response data
+        final_response = {
             "id": project_id,
             "name": f"AI-Аудит Landing Page: {company_name}",
             "companyName": company_name,
             "companyDescription": company_description
         }
+        logger.info(f"📤 [AUDIT DATA FLOW] Final response data: {final_response}")
+        
+        return final_response
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error: {e}")
         set_progress(job_id, f"Error: {str(e)}")
@@ -14050,39 +14118,55 @@ def extract_job_positions_from_content(content):
     Extracts job positions from the AI audit content.
     Returns a list of job position objects with title and description.
     """
+    # 📊 LOG: Job positions extraction function called
+    logger.info(f"🔍 [AUDIT DATA FLOW] extract_job_positions_from_content called")
+    logger.info(f"🔍 [AUDIT DATA FLOW] Content type: {type(content)}")
+    logger.info(f"🔍 [AUDIT DATA FLOW] Content keys: {list(content.keys()) if isinstance(content, dict) else 'Not a dict'}")
+    
     job_positions = []
     
     if not content or not isinstance(content, dict):
+        logger.info(f"🔍 [AUDIT DATA FLOW] No valid content provided, returning empty list")
         return job_positions
     
     # Look for contentBlocks in the content
     content_blocks = content.get("contentBlocks", [])
+    logger.info(f"🔍 [AUDIT DATA FLOW] Found {len(content_blocks)} content blocks")
     
-    for block in content_blocks:
+    for i, block in enumerate(content_blocks):
         if block.get("type") == "table":
             headers = block.get("headers", [])
             rows = block.get("rows", [])
             
+            logger.info(f"🔍 [AUDIT DATA FLOW] Table {i+1}: {len(headers)} headers, {len(rows)} rows")
+            logger.info(f"🔍 [AUDIT DATA FLOW] Headers: {headers}")
+            
             # Check if this is a job positions table
             if any("позиция" in str(header).lower() for header in headers):
-                for row in rows:
+                logger.info(f"🔍 [AUDIT DATA FLOW] Found job positions table!")
+                for j, row in enumerate(rows):
                     if len(row) > 0:
                         position_title = str(row[0]).strip() if row[0] else "Position"
                         # Create a simple job position object
-                        job_positions.append({
+                        position = {
                             "title": position_title,
                             "description": f"Open position at the company",
                             "icon": "👷"  # Default icon
-                        })
+                        }
+                        job_positions.append(position)
+                        logger.info(f"🔍 [AUDIT DATA FLOW] Added position {j+1}: {position}")
     
     # If no positions found in tables, return some default positions
     if not job_positions:
+        logger.info(f"🔍 [AUDIT DATA FLOW] No positions found in content, using default positions")
         job_positions = [
             {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
             {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
             {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
         ]
+        logger.info(f"🔍 [AUDIT DATA FLOW] Using {len(job_positions)} default positions")
     
+    logger.info(f"🔍 [AUDIT DATA FLOW] Returning {len(job_positions)} job positions")
     return job_positions
 
 
