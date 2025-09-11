@@ -189,7 +189,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('left', leftSeries)}
           <div style={yearRow}>{leftSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
               {edit?.key===`left-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...leftSeries]; next[i]={ ...next[i], year:v }; setLeftSeries(next); pushState('left'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -205,7 +205,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('right', rightSeries)}
           <div style={yearRow}>{rightSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
               {edit?.key===`right-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...rightSeries]; next[i]={ ...next[i], year:v }; setRightSeries(next); pushState('right'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
