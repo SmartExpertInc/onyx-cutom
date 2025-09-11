@@ -42,7 +42,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'50px', fontWeight:800, color:'#DFDFDF' };
 
   const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'220px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' };
-  const card: React.CSSProperties = { background:'#292929', borderRadius:'2px', height:'210px', padding:'17px 28px', boxShadow:'0 0 0 1px rgba(0,0,0,0.2) inset' };
+  const card: React.CSSProperties = { background:'#292929', borderRadius:'2px', height:'195px', padding:'17px 28px', boxShadow:'0 0 0 1px rgba(0,0,0,0.2) inset' };
   const numBox: React.CSSProperties = { width:'40px', height:'35px', borderRadius:'0px', background:'#8A52FC', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700 };
   const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#CFCFCF' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#9B9B9B', lineHeight:1.4, maxWidth:'740px' };
@@ -77,7 +77,23 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
               {isEditable && editCard && editCard.idx===i && editCard.field==='title' ? (
                 <ImprovedInlineEditor initialValue={c.title} onSave={(v)=>{ const next=[...cards]; next[i]={ ...next[i], title:v }; onUpdate&&onUpdate({ cards: next }); setEditCard(null); }} onCancel={()=>setEditCard(null)} style={inline(cardTitle)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer':'default' }}>{c.title}</div>
+                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer':'default' }}>
+                  {i === 0 ? (
+                    (() => {
+                      const parts = (c.title || '').trim().split(/\s+/);
+                      const first = parts.shift() || '';
+                      const rest = parts.join(' ');
+                      return (
+                        <>
+                          <span style={{ color: '#8A52FC' }}>{first}</span>
+                          {rest ? ' ' + rest : ''}
+                        </>
+                      );
+                    })()
+                  ) : (
+                    c.title
+                  )}
+                </div>
               )}
             </div>
             <div style={cardBody}>
