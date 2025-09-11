@@ -157,11 +157,11 @@ body:has([aria-modal="true"]) {
   user-select: none;
 }
 
-body:has(.fixed.inset-0.z-\[9999\]) [draggable="true"],
-body:has(.fixed.inset-0.z-50) [draggable="true"],
-body:has([data-modal-portal="true"]) [draggable="true"],
-body:has([role="dialog"]) [draggable="true"],
-body:has([aria-modal="true"]) [draggable="true"] {
+body:has(.fixed.inset-0.z-\[9999\]) *,
+body:has(.fixed.inset-0.z-50) *,
+body:has([data-modal-portal="true"]) *,
+body:has([role="dialog"]) *,
+body:has([aria-modal="true"]) * {
   /* Remove draggable attribute and cursor styles when modals are present */
   cursor: default !important;
 }
