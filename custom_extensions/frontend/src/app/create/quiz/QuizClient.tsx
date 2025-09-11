@@ -1211,7 +1211,7 @@ export default function QuizClient() {
                             <ChevronDown size={16} className="transition-transform opacity-50" />
                           </button>
                           {showQuestionTypesDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown">
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown max-h-48 overflow-y-auto">
                               {[
                                 { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
                                 { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
