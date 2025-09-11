@@ -96,16 +96,17 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Avatar positioning - upper right, overlapping border
   const avatarWrap: React.CSSProperties = { 
     position:'absolute', 
-    right:'-20px', 
-    top:'-20px', 
-    width:'120px', 
-    height:'120px', 
+    right:'70px', 
+    top:'90px', 
+    width:'170px', 
+    height:'170px', 
     borderRadius:'50%', 
     overflow:'hidden', 
     background:'#C7D6FF',
     border:'3px solid #FFFFFF',
     zIndex:10
   };
+  const ring1: React.CSSProperties = { position:'absolute', right:'150px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:3 };
 
   // Bottom section - two green cards
   const bottomSection: React.CSSProperties = {
@@ -167,7 +168,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     justifyContent:'center',
     color:'#000000',
     border:'1px solid #000000',
-    fontSize:'12px'
+    fontSize:'28px'
   };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
@@ -236,9 +237,10 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
           position="CENTER" 
           description="Avatar" 
           isEditable={isEditable} 
-          style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+          style={{ width:'100%', height:'100%', objectFit:'cover', marginTop:'4px' }} 
         />
       </div>
+      <div style={ring1} />
 
       {/* Bottom section with green cards */}
       <div style={bottomSection}>
