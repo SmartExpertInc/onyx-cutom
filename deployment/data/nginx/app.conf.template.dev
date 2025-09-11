@@ -60,7 +60,7 @@ server {
         proxy_pass https://decide.mixpanel.com/decide;
     }
 
-    location ^~ /tracking-proxy/ {
+    location /tracking-proxy/ {
         proxy_set_header Host api.mixpanel.com;
         proxy_set_header X-Real-IP $http_x_forwarded_for;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -18,7 +18,7 @@ export const initMixpanel = (): void => {
   // Use the Config type from @types/mixpanel-browser
   const options: Partial<Config> = {
     //api_host: 'https://api.mixpanel.com', // Direct mixpanel call
-    api_host: '/tracking-proxy', // Call via proxy
+    api_host: 'https://dev8.contentbuilder.ai/tracking-proxy', // Call via proxy
     /*
     api_routes: {                                // remove trailing slashes for proxy
       track: 'track',
