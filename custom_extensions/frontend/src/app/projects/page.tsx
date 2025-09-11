@@ -41,6 +41,7 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
+import { identifyUser } from '../../lib/mixpanelClient';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -48,6 +49,11 @@ const checkAuthentication = async (): Promise<boolean> => {
     const response = await fetch('/api/me', {
       credentials: 'same-origin',
     });
+    if (response.ok) {
+      const user = await response.json();
+      console.log(user); //TODO: Remove this
+      identifyUser(user.id);
+    }
     return response.ok;
   } catch (error) {
     console.error('Authentication check failed:', error);

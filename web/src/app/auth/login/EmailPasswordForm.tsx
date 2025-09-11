@@ -93,8 +93,8 @@ export function EmailPasswordForm({
 
           const loginResponse = await basicLogin(email, values.password);
           if (loginResponse.ok) {
-            const userJson = await loginResponse.json();
-            console.log(userJson);
+            //const userJson = await loginResponse.json();
+            //console.log(userJson); //TODO: Remove this
             //identifyUser(userID);
             if (isSignup && shouldVerify) {
               await requestEmailVerification(email);
