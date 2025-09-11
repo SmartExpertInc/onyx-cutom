@@ -1350,33 +1350,40 @@ export default function QuizClient() {
 
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
-            <div className="relative group flex items-center">
-              <textarea
-                value={currentPrompt || ""}
-                onChange={(e) => {
-                  const newPrompt = e.target.value;
-                  setCurrentPrompt(newPrompt);
-                  
-                  // Handle prompt storage for long prompts
-                  const sp = new URLSearchParams(searchParams?.toString() || "");
-                  if (newPrompt.length > 500) {
-                    const promptId = generatePromptId();
-                    sessionStorage.setItem(promptId, newPrompt);
-                    sp.set("prompt", promptId);
-                  } else {
-                    sp.set("prompt", newPrompt);
-                  }
-                  router.replace(`?${sp.toString()}`, { scroll: false });
-                }}
-                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-                rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 flex-1 hover:shadow-lg"
-                style={{ background: "rgba(255,255,255,0.95)" }}
-              />
-              <Edit 
-                size={16} 
-                className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2.5 flex-shrink-0" 
-              />
+            <div className="relative group">
+              <div className="relative inline-block w-full">
+                <textarea
+                  value={currentPrompt || ""}
+                  onChange={(e) => {
+                    const newPrompt = e.target.value;
+                    setCurrentPrompt(newPrompt);
+                    
+                    // Handle prompt storage for long prompts
+                    const sp = new URLSearchParams(searchParams?.toString() || "");
+                    if (newPrompt.length > 500) {
+                      const promptId = generatePromptId();
+                      sessionStorage.setItem(promptId, newPrompt);
+                      sp.set("prompt", promptId);
+                    } else {
+                      sp.set("prompt", newPrompt);
+                    }
+                    router.replace(`?${sp.toString()}`, { scroll: false });
+                  }}
+                  placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                  rows={1}
+                  className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg"
+                  style={{ background: "rgba(255,255,255,0.95)" }}
+                />
+                {currentPrompt && (
+                  <Edit 
+                    size={16} 
+                    className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                    style={{ 
+                      left: `${currentPrompt.length * 10 + 35}px`,
+                    }}
+                  />
+                )}
+              </div>
             </div>
           )}
 
@@ -1430,12 +1437,12 @@ export default function QuizClient() {
                         <div className="flex-1 p-4">
                           <div className="mb-2">
                             {editingQuestionId === idx ? (
-                              <div className="flex items-center group">
+                              <div className="relative group">
                                 <input
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 flex-1"
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                   onKeyDown={(e) => {
@@ -1443,23 +1450,33 @@ export default function QuizClient() {
                                     if (e.key === 'Escape') handleTitleCancel(idx);
                                   }}
                                 />
-                                <Edit 
-                                  size={14} 
-                                  className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2.5 flex-shrink-0" 
-                                />
+                                {(editedTitles[idx] || question.title) && (
+                                  <Edit 
+                                    size={14} 
+                                    className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    style={{ 
+                                      left: `${((editedTitles[idx] || question.title).length * 8 + 10)}px`,
+                                    }}
+                                  />
+                                )}
                               </div>
                             ) : (
-                              <div className="flex items-center group">
+                              <div className="relative group">
                                 <h4
-                                  className="text-[#20355D] text-base font-semibold cursor-pointer flex-1"
+                                  className="text-[#20355D] text-base font-semibold cursor-pointer"
                                   onClick={() => setEditingQuestionId(idx)}
                                 >
                                   {getTitleForQuestion(question, idx)}
                                 </h4>
-                                <Edit 
-                                  size={14} 
-                                  className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2.5 flex-shrink-0" 
-                                />
+                                {getTitleForQuestion(question, idx) && (
+                                  <Edit 
+                                    size={14} 
+                                    className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    style={{ 
+                                      left: `${(getTitleForQuestion(question, idx).length * 8 + 10)}px`,
+                                    }}
+                                  />
+                                )}
                               </div>
                             )}
                           </div>
