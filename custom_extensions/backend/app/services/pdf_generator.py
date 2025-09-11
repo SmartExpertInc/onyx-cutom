@@ -1334,9 +1334,13 @@ async def generate_pdf_from_html_template(
                     // Force a reflow to ensure accurate measurements
                     slidePage.offsetHeight;
                     
-                    // Get the actual computed height including all content
+                    // Get the slide boundaries - FIXED: Only consider elements within slide boundaries
                     const slideRect = slidePage.getBoundingClientRect();
                     const slideComputedStyle = window.getComputedStyle(slidePage);
+                    const slideWidth = 1174; // Fixed slide width
+                    const slideTop = slideRect.top;
+                    const slideLeft = slideRect.left;
+                    const slideRight = slideLeft + slideWidth;
                     
                     // Get all child elements to find the true content bounds
                     const slideContent = slidePage.querySelector('.slide-content');
@@ -1344,13 +1348,24 @@ async def generate_pdf_from_html_template(
                         slideContent.offsetHeight; // Force reflow
                         const contentRect = slideContent.getBoundingClientRect();
                         
-                        // Find the actual bottom-most element
+                        // Find elements that are within slide boundaries only
                         const allElements = slideContent.querySelectorAll('*');
                         let maxBottom = contentRect.bottom;
                         
                         allElements.forEach(el => {
                             const elRect = el.getBoundingClientRect();
-                            if (elRect.bottom > maxBottom) {
+                            
+                            // FIXED: Only consider elements that are within the slide boundaries
+                            // Check if element is within horizontal bounds and not positioned too far out
+                            const elementCenterX = elRect.left + (elRect.width / 2);
+                            const elementCenterY = elRect.top + (elRect.height / 2);
+                            
+                            // Element should be mostly within slide boundaries
+                            const withinHorizontalBounds = elementCenterX >= slideLeft && elementCenterX <= slideRight;
+                            const notTooFarAbove = elRect.top >= (slideTop - 100); // Allow small margin above
+                            const notTooFarBelow = elRect.top <= (slideTop + 1200); // Reasonable maximum height
+                            
+                            if (withinHorizontalBounds && notTooFarAbove && notTooFarBelow && elRect.bottom > maxBottom) {
                                 maxBottom = elRect.bottom;
                             }
                         });
@@ -1358,8 +1373,8 @@ async def generate_pdf_from_html_template(
                         // Calculate total height from top of slide to bottom of content
                         const totalHeight = maxBottom - slideRect.top;
                         
-                        // Ensure minimum height of 600px and reasonable maximum
-                        const finalHeight = Math.max(600, Math.min(Math.ceil(totalHeight), 3000));
+                        // Ensure minimum height of 600px and reasonable maximum (clamp to standard slide height)
+                        const finalHeight = Math.max(600, Math.min(Math.ceil(totalHeight), 900)); // Reduced max height
                         
                         heights.push({
                             index: index,
@@ -1368,7 +1383,7 @@ async def generate_pdf_from_html_template(
                             maxBottom: Math.ceil(maxBottom - slideRect.top)
                         });
                         
-                        console.log(`Slide ${index + 1}: Final height: ${finalHeight}px, Content: ${Math.ceil(contentRect.height)}px, MaxBottom: ${Math.ceil(maxBottom - slideRect.top)}px`);
+                        console.log(`Slide ${index + 1} (FIXED): Final height: ${finalHeight}px, Content: ${Math.ceil(contentRect.height)}px, MaxBottom: ${Math.ceil(maxBottom - slideRect.top)}px`);
                     } else {
                         heights.push({
                             index: index,
@@ -1664,7 +1679,7 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
         # Additional delay for complex rendering
         await asyncio.sleep(1)
         
-        # Calculate the actual height needed
+        # Calculate the actual height needed - FIXED: Only consider elements within slide boundaries
         height_result = await page.evaluate("""
             () => {
                 const slidePage = document.querySelector('.slide-page');
@@ -1673,21 +1688,37 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
                 // Force a reflow to ensure accurate measurements
                 slidePage.offsetHeight;
                 
-                // Get the actual computed height including all content
+                // Get the slide boundaries
                 const slideRect = slidePage.getBoundingClientRect();
+                const slideWidth = 1174; // Fixed slide width
+                const slideTop = slideRect.top;
+                const slideLeft = slideRect.left;
+                const slideRight = slideLeft + slideWidth;
+                
                 const slideContent = slidePage.querySelector('.slide-content');
                 
                 if (slideContent) {
                     slideContent.offsetHeight; // Force reflow
                     const contentRect = slideContent.getBoundingClientRect();
                     
-                    // Find the actual bottom-most element
+                    // Find elements that are within slide boundaries only
                     const allElements = slideContent.querySelectorAll('*');
                     let maxBottom = contentRect.bottom;
                     
                     allElements.forEach(el => {
                         const elRect = el.getBoundingClientRect();
-                        if (elRect.bottom > maxBottom) {
+                        
+                        // FIXED: Only consider elements that are within the slide boundaries
+                        // Check if element is within horizontal bounds and not positioned too far out
+                        const elementCenterX = elRect.left + (elRect.width / 2);
+                        const elementCenterY = elRect.top + (elRect.height / 2);
+                        
+                        // Element should be mostly within slide boundaries
+                        const withinHorizontalBounds = elementCenterX >= slideLeft && elementCenterX <= slideRight;
+                        const notTooFarAbove = elRect.top >= (slideTop - 100); // Allow small margin above
+                        const notTooFarBelow = elRect.top <= (slideTop + 1200); // Reasonable maximum height
+                        
+                        if (withinHorizontalBounds && notTooFarAbove && notTooFarBelow && elRect.bottom > maxBottom) {
                             maxBottom = elRect.bottom;
                         }
                     });
@@ -1695,10 +1726,10 @@ async def calculate_slide_dimensions(slide_data: dict, theme: str, browser=None)
                     // Calculate total height from top of slide to bottom of content
                     const totalHeight = maxBottom - slideRect.top;
                     
-                    // Ensure minimum height and reasonable maximum
-                    const finalHeight = Math.max(600, Math.min(Math.ceil(totalHeight), 3000));
+                    // Ensure minimum height and reasonable maximum (clamp to standard slide height)
+                    const finalHeight = Math.max(600, Math.min(Math.ceil(totalHeight), 900)); // Reduced max height
                     
-                    console.log(`Slide height calculation: Final: ${finalHeight}px, Content: ${Math.ceil(contentRect.height)}px, MaxBottom: ${Math.ceil(maxBottom - slideRect.top)}px`);
+                    console.log(`Slide height calculation (FIXED): Final: ${finalHeight}px, Content: ${Math.ceil(contentRect.height)}px, MaxBottom: ${Math.ceil(maxBottom - slideRect.top)}px`);
                     
                     return finalHeight;
                 }

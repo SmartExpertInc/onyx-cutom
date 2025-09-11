@@ -497,6 +497,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }> = ({
   slideId,
   title,
@@ -513,7 +514,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   heightPx,
   imageScale,
   imageOffset,
-  objectFit
+  objectFit,
+  getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -706,6 +708,9 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             savedImagePosition={imageOffset}
             savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
             templateId="bullet-points"
+            aiGeneratedPrompt={imagePrompt}
+            isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+            onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
           />
         </div>
         

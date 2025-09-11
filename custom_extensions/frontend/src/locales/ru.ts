@@ -815,6 +815,30 @@ export const ru = {
       // Basic actions dropdown
       openAdvancedSettings: "Открыть расширенные настройки"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Сгенерировать ИИ изображение",
+      promptLabel: "Опишите изображение, которое хотите сгенерировать",
+      promptPlaceholder: "например, Современный слайд бизнес-презентации с диаграммами и графиками, профессиональный стиль, чистый дизайн",
+      promptHelp: "Будьте конкретными и описательными для лучших результатов",
+      qualityLabel: "Качество",
+      qualityStandard: "Стандартное",
+      qualityHD: "HD",
+      styleLabel: "Стиль",
+      styleVivid: "Яркий",
+      styleNatural: "Естественный",
+      errorEmptyPrompt: "Пожалуйста, введите описание для генерации изображения",
+      cancel: "Отмена",
+      generate: "Сгенерировать изображение",
+      generating: "Генерация...",
+      addImage: "Добавить изображение",
+      chooseMethod: "Выберите, как вы хотите добавить изображение в этот заполнитель",
+      uploadImage: "Загрузить изображение",
+      uploadDescription: "Выберите файл с вашего устройства",
+      generateWithAI: "Сгенерировать с ИИ",
+      generateDescription: "Создать изображение с помощью DALL-E"
+    },
 
     // Quality tiers
     basic: "Базовый",

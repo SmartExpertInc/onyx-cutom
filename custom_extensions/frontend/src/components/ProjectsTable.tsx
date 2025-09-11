@@ -50,6 +50,39 @@ import {
 import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Progress } from "@/components/ui/progress"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -173,24 +206,28 @@ const FolderExportLoadingModal: React.FC<{
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
-      <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          {t("actions.generatingPdf", "Generating PDF")}
-        </h3>
-        <p className="text-gray-600 text-center mb-4">
-          {t("actions.creatingPdfExport", "Creating PDF export for folder")}{" "}
-          <span className="font-semibold text-blue-600">"{folderName}"</span>
-        </p>
-        <p className="text-sm text-gray-500 text-center">
-          {t(
-            "modals.folderExport.description",
-            "This may take a few moments depending on the number of files..."
-          )}
-        </p>
-      </div>
-    </div>,
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center">
+            {t("actions.generatingPdf", "Generating PDF")}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col items-center p-6">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+          <DialogDescription className="text-center mb-4">
+            {t("actions.creatingPdfExport", "Creating PDF export for folder")}{" "}
+            <span className="font-semibold text-blue-600">"{folderName}"</span>
+          </DialogDescription>
+          <p className="text-sm text-gray-500 text-center">
+            {t(
+              "modals.folderExport.description",
+              "This may take a few moments depending on the number of files..."
+            )}
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>,
     document.body
   );
 };
@@ -331,56 +368,31 @@ const ClientNameModal: React.FC<{
   // Check if any items are selected (folders or projects)
   const hasAnySelection = selectedFolders.size > 0 || selectedProjects.size > 0;
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30"
-      onClick={handleBackdropClick}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
-        <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer"
-          onClick={onClose}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-gray-900">
             {t("interface.customizePDF", "Customize PDF")}
-          </h2>
-          <p className="text-gray-600">
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
             {t(
               "interface.customizePDFDescription",
               "Enter a client name and select which folders/products to include in the PDF."
             )}
-          </p>
-        </div>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
+            <Label
               htmlFor="client-name"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
               {t("interface.clientNameOptional", "Client Name (optional)")}
-            </label>
-            <input
+            </Label>
+            <Input
               id="client-name"
               type="text"
               value={clientName}
@@ -392,35 +404,33 @@ const ClientNameModal: React.FC<{
                 }
               }}
               placeholder={t("interface.enterClientName", "Enter client name")}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300 cursor-text"
+              className="border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-300"
               autoFocus
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-semibold text-gray-700">
+              <Label className="block text-sm font-semibold text-gray-700">
                 {t(
                   "interface.selectFoldersAndProducts",
                   "Select Folders & Products"
                 )}
-              </label>
+              </Label>
               <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <Badge variant="secondary" className="text-blue-600 bg-blue-50">
                   {selectedProjects.size} {t("interface.selected", "selected")}
-                </span>
+                </Badge>
                 {(folders.length > 0 || unassignedProjects.length > 0) && (
-                  <label className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
-                    <input
-                      type="checkbox"
+                  <Label className="flex items-center justify-center gap-2 text-sm text-gray-800 hover:text-gray-900 cursor-pointer transition-colors">
+                    <Checkbox
                       checked={isAllSelected}
-                      onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
+                      onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
                     </span>
-                  </label>
+                  </Label>
                 )}
               </div>
             </div>
@@ -433,14 +443,12 @@ const ClientNameModal: React.FC<{
                   </div>
                   {folders.map((folder) => (
                     <div key={folder.id} className="mb-2">
-                      <label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
-                        <input
-                          type="checkbox"
+                      <Label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
+                        <Checkbox
                           checked={selectedFolders.has(folder.id)}
-                          onChange={(e) =>
-                            handleFolderSelection(folder.id, e.target.checked)
+                          onCheckedChange={(checked) =>
+                            handleFolderSelection(folder.id, checked as boolean)
                           }
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -458,32 +466,31 @@ const ClientNameModal: React.FC<{
                               strokeLinejoin="round"
                             />
                           </svg>
-                          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                          <span className="text-sm font-medium text-gray-900 group-hover:text-black">
                             {folder.name}
                           </span>
-                          <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          <Badge variant="outline" className="ml-2 text-xs text-gray-700 bg-gray-100">
                             {getTotalItemsInFolder(folder, folderProjects)}{" "}
                             {getTotalItemsInFolder(folder, folderProjects) === 1
                               ? t("interface.item", "item")
                               : t("interface.items", "items")}
-                          </span>
+                          </Badge>
                         </div>
-                      </label>
+                      </Label>
 
                       {/* Projects in this folder */}
                       {folderProjects[folder.id] &&
                         folderProjects[folder.id].length > 0 && (
                           <div className="ml-8 mt-2 space-y-1">
                             {folderProjects[folder.id].map((project) => (
-                              <label
+                              <Label
                                 key={project.id}
                                 className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group"
                               >
-                                <input
-                                  type="checkbox"
+                                <Checkbox
                                   checked={selectedProjects.has(project.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
                                       setSelectedProjects(
                                         (prev) => new Set([...prev, project.id])
                                       );
@@ -495,12 +502,11 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                                 />
-                                <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
+                                <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                                   {project.title}
                                 </span>
-                              </label>
+                              </Label>
                             ))}
                           </div>
                         )}
@@ -520,15 +526,14 @@ const ClientNameModal: React.FC<{
                   </div>
                   <div className="space-y-1">
                     {unassignedProjects.map((project) => (
-                      <label
+                      <Label
                         key={project.id}
                         className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selectedProjects.has(project.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
+                          onCheckedChange={(checked) => {
+                            if (checked) {
                               setSelectedProjects(
                                 (prev) => new Set([...prev, project.id])
                               );
@@ -540,19 +545,18 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
-                        <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
+                        <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                           {project.title}
                         </span>
-                      </label>
+                      </Label>
                     ))}
                   </div>
                 </div>
               )}
 
               {folders.length === 0 && unassignedProjects.length === 0 && (
-                <div className="text-sm text-gray-500 text-center py-8">
+                <div className="text-sm text-gray-700 text-center py-8">
                   <svg
                     width="48"
                     height="48"
@@ -578,28 +582,25 @@ const ClientNameModal: React.FC<{
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={handleCancel}
-              className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300 cursor-pointer"
+              className="text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
             >
               {t("common.cancel", "Cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={!hasAnySelection}
-              className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-semibold shadow-sm ${
-                hasAnySelection
-                  ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className={hasAnySelection ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer" : "bg-gray-300 text-gray-500 cursor-not-allowed"}
             >
               {t("common.downloadPdf", "Download PDF")}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -939,7 +940,7 @@ const FolderRow: React.FC<{
   return (
     <>
       {/* Folder row */}
-      <tr
+      <TableRow
         key={`folder-${folder.id}`}
         data-folder-id={folder.id}
         className={`hover:bg-gray-50 transition group ${
@@ -989,7 +990,7 @@ const FolderRow: React.FC<{
         onClick={() => toggleFolder(folder.id)}
       >
         {columnVisibility.title && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             <span
               className="inline-flex items-center"
               style={{ paddingLeft: `${level * 20}px` }}
@@ -1010,14 +1011,18 @@ const FolderRow: React.FC<{
                   <circle cx="15" cy="19" r="2" />
                 </svg>
               </div>
-              <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200 cursor-pointer">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="mr-2 text-blue-600 hover:text-blue-800"
+              >
                 <ChevronRight
                   size={16}
                   className={`transition-transform duration-200 ${
                     isExpanded ? "rotate-90" : ""
                   }`}
                 />
-              </button>
+              </Button>
               <Folder
                 size={16}
                 style={{ color: getFolderTierColor(folder, allFolders) }}
@@ -1029,53 +1034,53 @@ const FolderRow: React.FC<{
                 className="font-semibold text-blue-700"
                 title={folder.name}
               />
-              <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              <Badge variant="outline" className="ml-2 text-xs text-gray-500 bg-gray-100">
                 {getTotalItemsInFolder(folder, folderProjects)}{" "}
                 {getTotalItemsInFolder(folder, folderProjects) === 1
                   ? t("interface.item", "item")
                   : t("interface.items", "items")}
-              </span>
+              </Badge>
             </span>
-          </td>
+          </TableCell>
         )}
         {columnVisibility.type && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             -
-          </td>
+          </TableCell>
         )}
         {columnVisibility.created && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {formatDate(folder.created_at)}
-          </td>
+          </TableCell>
         )}
         {columnVisibility.creator && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <span className="inline-flex items-center">
               <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                 <span className="text-xs font-bold text-gray-700">Y</span>
               </span>
               You
             </span>
-          </td>
+          </TableCell>
         )}
         {columnVisibility.numberOfLessons && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalLessons = getTotalLessonsInFolder(folder);
               return totalLessons > 0 ? totalLessons : "-";
             })()}
-          </td>
+          </TableCell>
         )}
         {columnVisibility.estCreationTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalHours = getTotalHoursInFolder(folder);
               return totalHours > 0 ? `${totalHours}h` : "-";
             })()}
-          </td>
+          </TableCell>
         )}
         {columnVisibility.estCompletionTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalCompletionTime =
                 getTotalCompletionTimeInFolder(folder);
@@ -1083,9 +1088,9 @@ const FolderRow: React.FC<{
                 ? formatCompletionTimeLocalized(totalCompletionTime)
                 : "-";
             })()}
-          </td>
+          </TableCell>
         )}
-        <td
+        <TableCell
           className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
           onClick={(e) => e.stopPropagation()}
         >
@@ -1095,14 +1100,14 @@ const FolderRow: React.FC<{
             trashMode={trashMode}
             onDeleteFolder={handleDeleteFolder}
           />
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
 
       {/* Expanded folder content - projects */}
       {isExpanded &&
         folderProjectsList.length > 0 &&
         folderProjectsList.map((p: Project, projectIndex: number) => (
-          <tr
+          <TableRow
             key={`folder-project-${p.id}`}
             className={`hover:bg-gray-50 transition group bg-gray-50 ${
               !getModalState()
@@ -1152,7 +1157,7 @@ const FolderRow: React.FC<{
             }}
           >
             {columnVisibility.title && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <span
                   className="inline-flex items-center"
                   style={{ paddingLeft: `${(level + 1) * 20}px` }}
@@ -1192,10 +1197,10 @@ const FolderRow: React.FC<{
                     title={p.title}
                   />
                 </span>
-              </td>
+              </TableCell>
             )}
             {columnVisibility.type && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
                   <span className="text-gray-500 font-medium">
                     {getProductTypeDisplayName(p.designMicroproductType)}
@@ -1203,52 +1208,52 @@ const FolderRow: React.FC<{
                 ) : (
                   "-"
                 )}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.created && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatDate(p.createdAt)}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.creator && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 <span className="inline-flex items-center">
                   <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                     <span className="text-xs font-bold text-gray-700">Y</span>
                   </span>
                   You
                 </span>
-              </td>
+              </TableCell>
             )}
             {columnVisibility.numberOfLessons && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {(() => {
                   const lessonData = lessonDataCache[p.id];
                   return lessonData ? lessonData.lessonCount : "-";
                 })()}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.estCreationTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {(() => {
                   const lessonData = lessonDataCache[p.id];
                   return lessonData && lessonData.totalHours
                     ? `${lessonData.totalHours}h`
                     : "-";
                 })()}
-              </td>
+              </TableCell>
             )}
             {columnVisibility.estCompletionTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {(() => {
                   const lessonData = lessonDataCache[p.id];
                   return lessonData
                     ? formatCompletionTimeLocalized(lessonData.completionTime)
                     : "-";
                 })()}
-              </td>
+              </TableCell>
             )}
-            <td
+            <TableCell
               className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
               onClick={(e) => e.stopPropagation()}
             >
@@ -1261,21 +1266,21 @@ const FolderRow: React.FC<{
                 onDeletePermanently={handleDeletePermanently}
                 folderId={folder.id}
               />
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         ))}
 
       {/* Loading state for folder projects */}
       {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
-        <tr>
-          <td
+        <TableRow>
+          <TableCell
             colSpan={Object.values(columnVisibility).filter(Boolean).length + 1}
             className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
             style={{ paddingLeft: `${(level + 1) * 20}px` }}
           >
             Loading projects...
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
 
       {/* Recursively render child folders */}
@@ -1682,32 +1687,22 @@ const ProjectCard: React.FC<{
         </div>
       </Link>
       <div className="absolute bottom-4 right-3" ref={menuRef}>
-        <button
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
           ref={buttonRef}
-          onClick={handleMenuToggle}
-          className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
+              variant="menu"
         >
           <MoreHorizontal size={16} />
-        </button>
-        {menuOpen && (
-          <div
-            data-modal-portal="true"
-            className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-              menuPosition === "above" ? "bottom-auto mb-2" : "top-auto mt-2"
-            }`}
-            style={{
-              left: buttonRef.current
-                ? buttonRef.current.getBoundingClientRect().right - 240
-                : 0,
-              top: buttonRef.current
-                ? menuPosition === "above"
-                  ? buttonRef.current.getBoundingClientRect().top - 320
-                  : buttonRef.current.getBoundingClientRect().bottom + 8
-                : 0,
-            }}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="w-60 bg-white border border-gray-100 shadow-2xl text-gray-900" 
+            align="end"
+            side={menuPosition === "above" ? "top" : "bottom"}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-3 py-2 border-b border-gray-100">
+            <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
               <p className="font-semibold text-sm text-gray-900 truncate">
                 {project.title}
               </p>
@@ -1717,116 +1712,106 @@ const ProjectCard: React.FC<{
                   formatDate(project.createdAt)
                 )}
               </p>
-            </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
             {isTrashMode ? (
-              <div className="py-1">
-                <button
-                  onClick={handleRestoreProject}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                >
+              <>
+                <DropdownMenuItem onClick={handleRestoreProject}>
                   <RefreshCw size={14} />
                   <span>{t("actions.restore", "Restore")}</span>
-                </button>
-                <button
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     setMenuOpen(false);
                     setPermanentDeleteConfirmOpen(true);
                   }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  variant="destructive"
                 >
                   <Trash2 size={14} />
                   <span>
                     {t("actions.deletePermanently", "Delete permanently")}
                   </span>
-                </button>
-              </div>
+                </DropdownMenuItem>
+              </>
             ) : (
               <>
-                <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <DropdownMenuItem>
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
-                  </button>
-                  <button
+                </DropdownMenuItem>
+                <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                </DropdownMenuItem>
+                <DropdownMenuItem>
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </button>
-                  <button
-                    onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                  >
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDuplicateProject}>
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                </DropdownMenuItem>
+                <DropdownMenuItem>
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </button>
+                </DropdownMenuItem>
                   {isOutline && (
-                    <button
+                  <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
-                    </button>
+                  </DropdownMenuItem>
                   )}
                   {folderId && (
-                    <button
+                  <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
+                    className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
                     >
                       <FolderMinus size={16} className="text-orange-500" />
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
-                    </button>
+                  </DropdownMenuItem>
                   )}
-                </div>
-                <div className="py-1 border-t border-gray-100">
-                  <button
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  variant="destructive"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </button>
-                </div>
+                </DropdownMenuItem>
               </>
             )}
-          </div>
-        )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {permanentDeleteConfirmOpen && (
@@ -1834,39 +1819,43 @@ const ProjectCard: React.FC<{
           className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
           onClick={() => setPermanentDeleteConfirmOpen(false)}
         >
-          <div
-            className="bg-white rounded-lg shadow-xl p-6 text-center"
+          <Card
+            className="text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-2 text-gray-900">
-              {t("actions.areYouSure", "Are you sure?")}
-            </h4>
-            <p className="text-sm text-gray-600 mb-4">
-              {t(
-                "actions.actionPermanent",
-                "This action is permanent and cannot be undone. The project will be deleted forever."
-              )}
-            </p>
+            <CardHeader>
+              <CardTitle className="text-lg">
+                {t("actions.areYouSure", "Are you sure?")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="mb-4">
+                {t(
+                  "actions.actionPermanent",
+                  "This action is permanent and cannot be undone. The project will be deleted forever."
+                )}
+              </CardDescription>
             <div className="flex justify-center gap-4">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setPermanentDeleteConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
                   onDeletePermanently(project.id);
                   setPermanentDeleteConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
               >
                 {t("actions.deletePermanentlyButton", "Delete Permanently")}
-              </button>
+              </Button>
             </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -1889,30 +1878,30 @@ const ProjectCard: React.FC<{
               )}
             </p>
             <div className="flex justify-center gap-3">
-              <button
+              <Button
                 onClick={() => setTrashConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
+                variant="secondary"
               >
                 {t("actions.outlineOnly", "Outline Only")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
+                variant="destructive"
               >
                 {t("actions.moveAll", "Move All")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -1937,7 +1926,7 @@ const ProjectCard: React.FC<{
                 "Want to edit this? It's in the trash."
               )}
               &nbsp;
-              <button
+              <Button
                 onClick={() => {
                   onRestore(project.id);
                   setShowRestorePrompt(false);
@@ -1945,7 +1934,7 @@ const ProjectCard: React.FC<{
                 className="font-semibold underline hover:text-orange-700 cursor-pointer"
               >
                 {t("actions.restoreIt", "Restore it")}
-              </button>
+              </Button>
             </p>
           </div>
         </div>
@@ -1968,13 +1957,13 @@ const ProjectCard: React.FC<{
             </h4>
 
             <div className="mb-6">
-              <label
+              <Label
                 htmlFor="newName"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 {t("actions.newName", "New Name:")}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="newName"
                 type="text"
                 value={newName}
@@ -1984,16 +1973,16 @@ const ProjectCard: React.FC<{
             </div>
 
             <div className="flex justify-start gap-3">
-              <button
+              <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
                 disabled={isRenaming}
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={async () => {
                   setIsRenaming(true);
                   try {
@@ -2085,13 +2074,13 @@ const ProjectCard: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                variant="default"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
                   ? t("actions.saving", "Saving...")
                   : t("actions.rename", "Rename")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2257,13 +2246,13 @@ const ProjectRowMenu: React.FC<{
 
   return (
     <div ref={menuRef} className="inline-block">
-      <button
+      <Button
         ref={buttonRef}
         className="text-gray-400 hover:text-gray-600 cursor-pointer"
         onClick={handleMenuToggle}
       >
         <MoreHorizontal size={20} />
-      </button>
+      </Button>
       {menuOpen &&
         createPortal(
           <div
@@ -2293,7 +2282,7 @@ const ProjectRowMenu: React.FC<{
             </div>
             {trashMode ? (
               <div className="py-1">
-                <button
+                <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -2304,8 +2293,8 @@ const ProjectRowMenu: React.FC<{
                 >
                   <RefreshCw size={14} />
                   <span>Restore</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -2316,16 +2305,16 @@ const ProjectRowMenu: React.FC<{
                 >
                   <Trash2 size={14} />
                   <span>Delete permanently</span>
-                </button>
+                </Button>
               </div>
             ) : (
               <>
                 <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -2336,26 +2325,26 @@ const ProjectRowMenu: React.FC<{
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </Button>
+                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleDuplicateProject}
                     className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </Button>
+                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </button>
+                  </Button>
                   {isOutline && (
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -2366,10 +2355,10 @@ const ProjectRowMenu: React.FC<{
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
-                    </button>
+                    </Button>
                   )}
                   {folderId && (
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -2382,11 +2371,11 @@ const ProjectRowMenu: React.FC<{
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <div className="py-1 border-t border-gray-100">
-                  <button
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -2397,7 +2386,7 @@ const ProjectRowMenu: React.FC<{
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
@@ -2422,23 +2411,23 @@ const ProjectRowMenu: React.FC<{
               deleted forever.
             </p>
             <div className="flex justify-center gap-4">
-              <button
+              <Button
                 onClick={() => setPermanentDeleteConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
                   onDeletePermanently(project.id);
                   setPermanentDeleteConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
+                variant="destructive"
               >
                 {t("actions.deletePermanentlyButton", "Delete Permanently")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2463,30 +2452,30 @@ const ProjectRowMenu: React.FC<{
               )}
             </p>
             <div className="flex justify-center gap-3">
-              <button
+              <Button
                 onClick={() => setTrashConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
+                variant="secondary"
               >
                 {t("actions.outlineOnly", "Outline Only")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
+                variant="destructive"
               >
                 {t("actions.moveAll", "Move All")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2505,13 +2494,13 @@ const ProjectRowMenu: React.FC<{
           >
             <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
             <div className="mb-6">
-              <label
+              <Label
                 htmlFor="newName"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 New Name:
-              </label>
-              <input
+              </Label>
+              <Input
                 id="newName"
                 type="text"
                 value={newName}
@@ -2520,16 +2509,16 @@ const ProjectRowMenu: React.FC<{
               />
             </div>
             <div className="flex justify-end gap-3">
-              <button
+              <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
                 disabled={isRenaming}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={async () => {
                   setIsRenaming(true);
                   try {
@@ -2616,13 +2605,13 @@ const ProjectRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                variant="default"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
                   ? t("actions.saving", "Saving...")
                   : t("actions.rename", "Rename")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2789,13 +2778,13 @@ const FolderRowMenu: React.FC<{
   return (
     <>
       <div ref={menuRef} className="inline-block">
-        <button
+        <Button
           ref={buttonRef}
           className="text-gray-400 hover:text-gray-600 cursor-pointer"
           onClick={handleMenuToggle}
         >
           <MoreHorizontal size={20} />
-        </button>
+        </Button>
         {menuOpen &&
           createPortal(
             <div
@@ -2825,40 +2814,40 @@ const FolderRowMenu: React.FC<{
                 </p>
               </div>
               <div className="py-1">
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
                   <Share2 size={16} className="text-gray-500" />
                   <span>{t("actions.share", "Share")}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleRenameClick}
                   className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSettingsClick}
                   className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <Settings size={16} className="text-gray-500" />
                   <span>{t("actions.settings", "Settings")}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleExportFolder}
                   className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
-                </button>
+                </Button>
               </div>
               <div className="py-1 border-t border-gray-100">
-                <button
+                <Button
                   onClick={handleDeleteFolder}
                   className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.delete", "Delete")}</span>
-                </button>
+                </Button>
               </div>
             </div>,
             document.body
@@ -2882,13 +2871,13 @@ const FolderRowMenu: React.FC<{
             </h4>
 
             <div className="mb-6">
-              <label
+              <Label
                 htmlFor="newFolderName"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 {t("actions.newName", "New Name:")}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="newFolderName"
                 type="text"
                 value={newName}
@@ -2898,16 +2887,16 @@ const FolderRowMenu: React.FC<{
             </div>
 
             <div className="flex justify-start gap-3">
-              <button
+              <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
                 disabled={isRenaming}
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={async () => {
                   setIsRenaming(true);
                   try {
@@ -2960,13 +2949,13 @@ const FolderRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                variant="default"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
                   ? t("actions.saving", "Saving...")
                   : t("actions.rename", "Rename")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -4335,19 +4324,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-              <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
-                <Plus size={16} className="text-white" />
-                {t("interface.createNew", "Create new")}
-                <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                  AI
-                </span>
-              </button>
-            </Link>
-            <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm cursor-pointer">
+              <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
+                <Button 
+                  variant="gradient" 
+                  className="rounded-full font-semibold"
+                  asChild
+                >
+                  <div>
+                  <Plus size={16} className="text-white" />
+                  {t("interface.createNew", "Create new")}
+                  <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                    AI
+                  </span>
+                  </div>
+                </Button>
+              </Link>
+            <Button 
+              variant="import" 
+              className="rounded-full font-semibold"
+            >
               {t("interface.import", "Import")}
               <ChevronsUpDown size={16} className="text-gray-500" />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -4358,38 +4356,39 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             {filters.map((filter) => {
               const Icon = filterIcons[filter];
               return (
-                <button
+                <Button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeFilter === filter
-                      ? "bg-white shadow-sm border border-gray-200 text-black"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                  variant={activeFilter === filter ? "filter-active" : "filter"}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold"
                 >
                   <Icon size={16} />
                   {filter}
-                </button>
+                </Button>
               );
             })}
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer">
+            <Button 
+              variant="sort" 
+              className="flex items-center gap-2 text-sm font-semibold"
+            >
               <ArrowUpDown size={16} className="text-gray-800" />
               {t("interface.sort", "Sort")}
-            </button>
+            </Button>
 
             {/* Columns Dropdown - only show in list view */}
             {viewMode === "list" && (
               <div className="relative" data-columns-dropdown>
-                <button
+                <Button
                   onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
-                  className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer"
+                  variant="columns"
+                  className="flex items-center gap-2 text-sm font-semibold"
                 >
                   <List size={16} className="text-gray-800" />
                   {t("interface.columns", "Columns")}
                   <ChevronDown size={14} className="text-gray-600" />
-                </button>
+                </Button>
 
                 {showColumnsDropdown && (
                   <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -4433,7 +4432,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           ),
                         },
                       ].map((column) => (
-                        <label
+                        <Label
                           key={column.key}
                           className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
                         >
@@ -4447,7 +4446,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           <span className="text-sm text-gray-700">
                             {column.label}
                           </span>
-                          <input
+                          <Input
                             type="checkbox"
                             checked={
                               columnVisibility[
@@ -4462,7 +4461,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             }}
                             className="sr-only"
                           />
-                        </label>
+                        </Label>
                       ))}
                     </div>
                   </div>
@@ -4472,9 +4471,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
             {/* PDF Download Button - only show in list view */}
             {viewMode === "list" && (
-              <button
+              <Button
                 onClick={handlePdfDownload}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
+                variant="download"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold"
                 title={t(
                   "interface.downloadPDF",
                   "Download projects list as PDF"
@@ -4482,26 +4482,22 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               >
                 <ArrowDownToLine size={16} />
                 {t("common.downloadPdf", "Download PDF")}
-              </button>
+              </Button>
             )}
 
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
-              <button
+              <Button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md cursor-pointer ${
-                  viewMode === "grid" ? "bg-white shadow-sm" : ""
-                }`}
+                variant={viewMode === "grid" ? "view-active" : "view"}
               >
                 <LayoutGrid size={16} className="text-gray-800" />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-md cursor-pointer ${
-                  viewMode === "list" ? "bg-white shadow-sm" : ""
-                }`}
+                variant={viewMode === "list" ? "view-active" : "view"}
               >
                 <List size={16} className="text-gray-800" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -4540,15 +4536,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 user-select: none;
               }
             `}</style>
-            <table
+            <Table
               className={`min-w-full divide-y divide-gray-200 ${
                 resizingColumn ? "resizing" : ""
               }`}
             >
-              <thead className="bg-gray-50">
-                <tr>
+              <TableHeader className="bg-gray-50">
+                <TableRow>
                   {columnVisibility.title && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.title}%` }}
                     >
@@ -4557,10 +4553,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "title")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.created && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.created}%` }}
                     >
@@ -4569,10 +4565,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "created")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.type && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
@@ -4581,10 +4577,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "type")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.creator && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.creator}%` }}
                     >
@@ -4593,10 +4589,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "creator")}
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.numberOfLessons && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
                     >
@@ -4607,10 +4603,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           handleResizeStart(e, "numberOfLessons")
                         }
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.estCreationTime && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.estCreationTime}%` }}
                     >
@@ -4621,10 +4617,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           handleResizeStart(e, "estCreationTime")
                         }
                       />
-                    </th>
+                    </TableHead>
                   )}
                   {columnVisibility.estCompletionTime && (
-                    <th
+                    <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
                     >
@@ -4635,17 +4631,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           handleResizeStart(e, "estCompletionTime")
                         }
                       />
-                    </th>
+                    </TableHead>
                   )}
-                  <th
+                  <TableHead
                     className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     style={{ width: "80px" }}
                   >
                     {t("interface.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="bg-white divide-y divide-gray-100">
                 {/* Show nested folders as expandable rows when not viewing a specific folder */}
                 {!trashMode &&
                   folderId === null &&
@@ -4686,7 +4682,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 {!trashMode &&
                   folderId === null &&
                   visibleUnassignedProjects.map((p: Project, index: number) => (
-                    <tr
+                    <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
                         !getModalState()
@@ -4736,7 +4732,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             <div
                               className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
@@ -4772,10 +4768,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               title={p.title}
                             />
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -4783,15 +4779,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           ) : (
                             "-"
                           )}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
@@ -4800,28 +4796,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData && lessonData.totalHours
                               ? `${lessonData.totalHours}h`
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData
@@ -4830,9 +4826,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
-                      <td
+                      <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -4845,14 +4841,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           onDeletePermanently={handleDeletePermanently}
                           folderId={folderId}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
 
                 {/* Show projects for specific folder or all projects in trash mode */}
                 {(trashMode || folderId !== null) &&
                   visibleProjects.map((p: Project, index: number) => (
-                    <tr
+                    <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
                         !getModalState()
@@ -4902,7 +4898,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             <div
                               className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
@@ -4938,10 +4934,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               title={p.title}
                             />
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -4949,15 +4945,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           ) : (
                             "-"
                           )}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
@@ -4966,28 +4962,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData && lessonData.totalHours
                               ? `${lessonData.totalHours}h`
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
                       {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData
@@ -4996,9 +4992,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 )
                               : "-";
                           })()}
-                        </td>
+                        </TableCell>
                       )}
-                      <td
+                      <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -5011,11 +5007,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           onDeletePermanently={handleDeletePermanently}
                           folderId={folderId}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )
       ) : (

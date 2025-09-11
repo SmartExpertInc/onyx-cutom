@@ -143,6 +143,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
+  getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
 }> = ({
   title,
   subtitle,
@@ -159,7 +160,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   heightPx,
   imageScale,
   imageOffset,
-  objectFit
+  objectFit,
+  getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
@@ -231,8 +233,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   };
 
   const placeholderStyles: React.CSSProperties = {
-    // Only apply default dimensions if no saved size exists
-    ...(widthPx && heightPx ? {} : { width: '100%', height: '240px' }),
+    // FIXED: Always maintain full width consistency between display and saved dimensions
+    width: '100%',
+    // Only apply default height if no saved height exists, but keep full width
+    ...(heightPx ? { height: `${heightPx}px` } : { height: '240px' }),
     margin: '0 auto'
   };
 
@@ -375,6 +379,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
           slideContainerRef={slideContainerRef}
           savedImagePosition={imageOffset}
           savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+          templateId="big-image-top"
+          aiGeneratedPrompt={imagePrompt}
+          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
         />
       </div>
 

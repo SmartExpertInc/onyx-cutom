@@ -90,3 +90,215 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 } 
+
+@import "tailwindcss";
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.85 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* Custom Card Variables */
+  --custom-card-bg: oklch(1 0 0);
+  --custom-card-border: oklch(0.922 0 0);
+  --custom-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --custom-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --custom-card-title: oklch(0.145 0 0);
+  --custom-card-description: oklch(0.556 0 0);
+  --custom-card-icon: oklch(0.6 0.118 184.704);
+  --custom-card-badge-bg: oklch(1 0 0);
+  --custom-card-badge-border: oklch(0.922 0 0);
+  --custom-card-badge-text: oklch(0.6 0.118 184.704);
+  --custom-card-gradient-from: oklch(0.8 0.15 240);
+  --custom-card-gradient-to: oklch(0.9 0.1 280);
+  --custom-card-gradient-opacity: 0.6;
+  
+  /* Generate Page Variables */
+  --generate-bg-gradient-from: 248 250 252; /* slate-50 */
+  --generate-bg-gradient-via: 239 246 255; /* blue-50 */
+  --generate-bg-gradient-to: 238 242 255; /* indigo-50 */
+  --generate-title-gradient-from: 15 23 42; /* slate-900 */
+  --generate-title-gradient-via: 30 64 175; /* blue-800 */
+  --generate-title-gradient-to: 55 48 163; /* indigo-800 */
+  --generate-subtitle-color: 71 85 105; /* slate-600 */
+  --generate-back-button-bg: 255 255 255 / 0.6;
+  --generate-back-button-border: 226 232 240; /* slate-200 */
+  --generate-back-button-text: 71 85 105; /* slate-600 */
+  --generate-back-button-hover-bg: 255 255 255 / 0.8;
+  --generate-back-button-hover-text: 15 23 42; /* slate-900 */
+  --generate-alert-bg: 239 246 255 / 0.8; /* blue-50 */
+  --generate-alert-border: 191 219 254 / 0.5; /* blue-200 */
+  --generate-alert-text: 30 64 175; /* blue-800 */
+  --generate-tab-bg: 255 255 255; /* white */
+  --generate-tab-border: 226 232 240; /* slate-200 */
+  --generate-tab-active-bg: 255 255 255; /* white */
+  --generate-tab-active-border: 59 130 246; /* blue-500 */
+  --generate-tab-text: 31 41 55; /* gray-800 */
+  --generate-tab-active-text: 31 41 55; /* gray-800 */
+  --generate-card-bg: 255 255 255;
+  --generate-card-border: 226 232 240; /* slate-200 */
+  --generate-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --generate-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Dropdown Variables */
+  --dropdown-bg: 255 255 255; /* white */
+  --dropdown-border: 226 232 240; /* slate-200 */
+  --dropdown-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --dropdown-item-bg: 255 255 255; /* white */
+  --dropdown-item-hover-bg: 248 250 252; /* slate-50 */
+  --dropdown-item-text: 31 41 55; /* gray-800 */
+  --dropdown-item-hover-text: 15 23 42; /* slate-900 */
+  --dropdown-separator: 226 232 240; /* slate-200 */
+  
+  /* Generate Card Variables */
+  --generate-card-bg: 255 255 255; /* white */
+  --generate-card-border: 226 232 240; /* slate-200 */
+  --generate-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --generate-card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --generate-card-shadow-active: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --generate-card-text: 0 0 0; /* black */
+  --generate-card-text-active: 0 0 0; /* black */
+  --generate-card-border-active: 59 130 246; /* blue-500 */
+  --generate-card-icon: 75 85 99; /* gray-600 */
+  --generate-card-icon-active: 59 130 246; /* blue-500 */
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+  
+  /* Custom Card Variables - Dark Mode */
+  --custom-card-bg: oklch(0.205 0 0);
+  --custom-card-border: oklch(0.269 0 0);
+  --custom-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --custom-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --custom-card-title: oklch(0.985 0 0);
+  --custom-card-description: oklch(0.708 0 0);
+  --custom-card-icon: oklch(0.696 0.17 162.48);
+  --custom-card-badge-bg: oklch(0.205 0 0);
+  --custom-card-badge-border: oklch(0.269 0 0);
+  --custom-card-badge-text: oklch(0.696 0.17 162.48);
+  --custom-card-gradient-from: oklch(0.4 0.2 240);
+  --custom-card-gradient-to: oklch(0.5 0.15 280);
+  --custom-card-gradient-opacity: 0.8;
+  
+  /* Generate Page Variables - Dark Mode */
+  --generate-bg-gradient-from: 15 23 42; /* slate-900 */
+  --generate-bg-gradient-via: 30 41 59; /* slate-800 */
+  --generate-bg-gradient-to: 51 65 85; /* slate-700 */
+  --generate-title-gradient-from: 248 250 252; /* slate-50 */
+  --generate-title-gradient-via: 191 219 254; /* blue-200 */
+  --generate-title-gradient-to: 165 180 252; /* indigo-300 */
+  --generate-subtitle-color: 148 163 184; /* slate-400 */
+  --generate-back-button-bg: 30 41 59 / 0.6; /* slate-800 */
+  --generate-back-button-border: 51 65 85; /* slate-700 */
+  --generate-back-button-text: 148 163 184; /* slate-400 */
+  --generate-back-button-hover-bg: 30 41 59 / 0.8; /* slate-800 */
+  --generate-back-button-hover-text: 248 250 252; /* slate-50 */
+  --generate-alert-bg: 30 58 138 / 0.8; /* blue-900 */
+  --generate-alert-border: 59 130 246 / 0.5; /* blue-500 */
+  --generate-alert-text: 191 219 254; /* blue-200 */
+  --generate-tab-bg: 255 255 255; /* white */
+  --generate-tab-border: 51 65 85; /* slate-700 */
+  --generate-tab-active-bg: 255 255 255; /* white */
+  --generate-tab-active-border: 59 130 246; /* blue-500 */
+  --generate-tab-text: 31 41 55; /* gray-800 */
+  --generate-tab-active-text: 31 41 55; /* gray-800 */
+  --generate-card-bg: 30 41 59; /* slate-800 */
+  --generate-card-border: 51 65 85; /* slate-700 */
+  --generate-card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --generate-card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  
+  /* Dropdown Variables - Dark Mode */
+  --dropdown-bg: 30 41 59; /* slate-800 */
+  --dropdown-border: 51 65 85; /* slate-700 */
+  --dropdown-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --dropdown-item-bg: 30 41 59; /* slate-800 */
+  --dropdown-item-hover-bg: 51 65 85; /* slate-700 */
+  --dropdown-item-text: 248 250 252; /* slate-50 */
+  --dropdown-item-hover-text: 255 255 255; /* white */
+  --dropdown-separator: 51 65 85; /* slate-700 */
+  
+  /* Generate Card Variables - Dark Mode */
+  --generate-card-bg: 30 41 59; /* slate-800 */
+  --generate-card-border: 51 65 85; /* slate-700 */
+  --generate-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --generate-card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --generate-card-shadow-active: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  --generate-card-text: 255 255 255; /* white */
+  --generate-card-text-active: 255 255 255; /* white */
+  --generate-card-border-active: 59 130 246; /* blue-500 */
+  --generate-card-icon: 148 163 184; /* slate-400 */
+  --generate-card-icon-active: 59 130 246; /* blue-500 */
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+    outline-color: hsl(var(--ring) / 0.5);
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}

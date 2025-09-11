@@ -850,6 +850,30 @@ export const en = {
       // Basic actions dropdown
       openAdvancedSettings: "Open Advanced Settings"
       },
+      
+      // AI Image Generation Modal
+      aiImageGeneration: {
+        title: "Generate AI Image",
+        promptLabel: "Describe the image you want to generate",
+        promptPlaceholder: "e.g., A modern business presentation slide with charts and graphs, professional style, clean design",
+        promptHelp: "Be specific and descriptive for better results",
+        qualityLabel: "Quality",
+        qualityStandard: "Standard",
+        qualityHD: "HD",
+        styleLabel: "Style",
+        styleVivid: "Vivid",
+        styleNatural: "Natural",
+        errorEmptyPrompt: "Please enter a prompt for image generation",
+        cancel: "Cancel",
+        generate: "Generate Image",
+        generating: "Generating...",
+        addImage: "Add Image",
+        chooseMethod: "Choose how you'd like to add an image to this placeholder",
+        uploadImage: "Upload Image",
+        uploadDescription: "Choose a file from your device",
+        generateWithAI: "Generate with AI",
+        generateDescription: "Create an image using DALL-E"
+      },
     
     // Quality tiers
     basic: "Basic",

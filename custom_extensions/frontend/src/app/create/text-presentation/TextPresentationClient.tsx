@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -42,10 +43,12 @@ export default function TextPresentationClient() {
   const [length, setLength] = useState<string>(params?.get("length") || "medium");
   const [selectedStyles, setSelectedStyles] = useState<string[]>(params?.get("styles")?.split(",").filter(Boolean) || []);
   const [showStylesDropdown, setShowStylesDropdown] = useState(false);
+  // Process prompt from URL or sessionStorage and create local state
+  const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
+  
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
+    params?.get("outlineId") ? true : (currentPrompt ? false : null)
   );
-  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
 
   // Original logic state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -153,6 +156,72 @@ export default function TextPresentationClient() {
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
+  // FIXED: Alternative parsing method for when header-based parsing fails
+  const parseContentAlternatively = (content: string) => {
+    const lessons = [];
+    
+    // Method 1: Try splitting by double line breaks (paragraph-based sections)
+    const paragraphSections = content.split(/\n\s*\n/).filter(section => section.trim().length > 0);
+    
+    if (paragraphSections.length > 1) {
+      for (let i = 0; i < paragraphSections.length && i < 10; i++) { // Limit to 10 sections
+        const section = paragraphSections[i].trim();
+        if (section.length < 20) continue; // Skip very short sections
+        
+        // Extract title from first line or first sentence
+        const lines = section.split('\n');
+        const firstLine = lines[0].trim();
+        const title = firstLine.length < 100 ? firstLine : firstLine.substring(0, 50) + '...';
+        const content = lines.length > 1 ? lines.slice(1).join('\n').trim() : section;
+        
+        lessons.push({
+          title: title,
+          content: content || section
+        });
+      }
+    }
+    
+    // Method 2: Try splitting by numbered items (1., 2., 3., etc.)
+    if (lessons.length === 0) {
+      const numberedSections = content.split(/(?:\n|^)\s*\d+\.\s+/);
+      if (numberedSections.length > 2) { // First split is usually empty or intro
+        for (let i = 1; i < numberedSections.length && i < 11; i++) {
+          const section = numberedSections[i].trim();
+          if (section.length < 20) continue;
+          
+          const firstSentence = section.split('.')[0] + '.';
+          const title = firstSentence.length < 100 ? firstSentence : `Section ${i}`;
+          
+          lessons.push({
+            title: title,
+            content: section
+          });
+        }
+      }
+    }
+    
+    // Method 3: Try splitting by bullet points (-, *, •)
+    if (lessons.length === 0) {
+      const bulletSections = content.split(/(?:\n|^)\s*[-*•]\s+/);
+      if (bulletSections.length > 2) {
+        for (let i = 1; i < bulletSections.length && i < 11; i++) {
+          const section = bulletSections[i].trim();
+          if (section.length < 20) continue;
+          
+          const firstSentence = section.split('.')[0] + '.';
+          const title = firstSentence.length < 100 ? firstSentence : `Point ${i}`;
+          
+          lessons.push({
+            title: title,
+            content: section
+          });
+        }
+      }
+    }
+    
+    return lessons;
+  };
+
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
     if (!content.trim()) return [];
@@ -177,15 +246,15 @@ export default function TextPresentationClient() {
       const currentHeader = headerMatches[i];
       let title = currentHeader.title;
 
-      // Clean title - remove {isImportant} and other unwanted patterns
+      // FIXED: More gentle title cleaning - preserve meaningful content
       title = title
         .replace(/\{[^}]*\}/g, '') // Remove {isImportant} and similar patterns
         .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove **bold** formatting
-        .replace(/[^\w\s]|[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis and other non-word chars
+        .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Remove emojis but keep other punctuation
         .trim();
 
-      // Skip emoji/icon headers
-      if (!title || title.match(/^[📚🛠️💡🚀📞]/) || title === 'Introduction to AI Tools for High School Teachers') {
+      // FIXED: Less restrictive filtering - only skip completely empty titles
+      if (!title || title.length < 2) {
         continue;
       }
 
@@ -194,7 +263,7 @@ export default function TextPresentationClient() {
       const sectionStart = currentHeader.index + currentHeader.fullMatch.length;
       const sectionContent = content.substring(sectionStart, nextHeaderIndex).trim();
 
-      // Clean up the content - remove markdown formatting but keep structure
+      // FIXED: More comprehensive content cleaning while preserving structure
       const cleanedContent = sectionContent
         .replace(/^\s*---\s*$/gm, '') // Remove section breaks
         .replace(/^\s*\n+/g, '') // Remove leading newlines
@@ -203,40 +272,39 @@ export default function TextPresentationClient() {
         .replace(/\*(.*?)\*/g, '$1') // Remove * italic formatting
         .trim();
 
-      if (title && cleanedContent) {
+      // FIXED: Accept content even if it's shorter, and accept titles without requiring content
+      if (title && (cleanedContent || sectionContent.trim())) {
         lessons.push({
           title: title,
-          content: cleanedContent
+          content: cleanedContent || sectionContent.trim() || title // Use title as content if no content found
         });
       }
     }
 
-    // If no structured content found, create manual sections based on your specific content
+    // FIXED: If no structured content found, try alternative parsing methods instead of hardcoded fallback
     if (lessons.length === 0) {
-      const manualSections = [
-        {
-          title: "Benefits of AI Tools in Education",
-          content: "AI tools offer numerous advantages for high school teachers, including personalized learning, enhanced engagement, time efficiency, and data-driven insights."
-        },
-        {
-          title: "Popular AI Tools for High School Teachers",
-          content: "Kahoot!, Grammarly, Socrative, Google Classroom, and Edmodo are widely used AI tools that benefit high school education."
-        },
-        {
-          title: "Recommendations for Implementing AI Tools",
-          content: "Start small, provide training, monitor progress, and encourage feedback to effectively integrate AI tools into teaching practice."
-        },
-        {
-          title: "Training and Development",
-          content: "Professional development and ongoing training help teachers maximize the benefits of AI tools in their classrooms."
-        },
-        {
-          title: "Resources and Support",
-          content: "Access to resources, technical support, and community networks ensures successful AI tool implementation."
-        }
-      ];
-
-      return manualSections;
+      // Try parsing by paragraph breaks or bullet points
+      const alternativeParsing = parseContentAlternatively(content);
+      if (alternativeParsing.length > 0) {
+        return alternativeParsing;
+      }
+      
+      // Last resort: return single section with all content
+      const cleanedContent = content
+        .replace(/^\s*---\s*$/gm, '') // Remove section breaks
+        .replace(/#{1,6}\s*/gm, '') // Remove markdown headers that failed to parse
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove ** bold formatting
+        .trim();
+      
+      if (cleanedContent) {
+        return [{
+          title: "Document Content",
+          content: cleanedContent
+        }];
+      }
+      
+      // If absolutely no content, return empty array
+      return [];
     }
 
     return lessons;
@@ -636,7 +704,7 @@ export default function TextPresentationClient() {
     // Only trigger if we have a lesson or a prompt
     if (useExistingOutline === null) return;
     if (useExistingOutline === true && !selectedLesson) return;
-    if (useExistingOutline === false && !prompt.trim()) return;
+    if (useExistingOutline === false && !currentPrompt.trim()) return;
 
     const startPreview = (attempt: number = 0) => {
       // Reset visibility states for a fresh preview run
@@ -660,12 +728,12 @@ export default function TextPresentationClient() {
             // Only send outlineId when the user actually selected one
             outlineId: selectedOutlineId || undefined,
             // If no lesson was picked, derive a temporary title from the prompt or fallback
-            lesson: selectedLesson || (prompt ? prompt.slice(0, 80) : "Untitled One-Pager"),
+            lesson: selectedLesson || (currentPrompt ? currentPrompt.slice(0, 80) : "Untitled One-Pager"),
             language,
             length,
             styles: selectedStyles.join(','),
             // Always forward the prompt (if any) so backend can generate content
-            prompt: prompt || undefined,
+            prompt: currentPrompt || undefined,
           };
 
           // Add file context if creating from files
@@ -838,7 +906,7 @@ export default function TextPresentationClient() {
 
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing presentation request for "${prompt.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Analyzing presentation request for "${currentPrompt?.slice(0, 40) || "Untitled"}"...`);
     list.push(`Detected language: ${language.toUpperCase()}`);
     list.push(`Planning ${length} presentation with ${selectedStyles.length} style${selectedStyles.length > 1 ? "s" : ""}...`);
     // shuffle little filler line
@@ -1440,8 +1508,22 @@ export default function TextPresentationClient() {
           {/* Prompt input for standalone presentation */}
           {useExistingOutline === false && (
             <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              value={currentPrompt}
+              onChange={(e) => {
+                const newPrompt = e.target.value;
+                setCurrentPrompt(newPrompt);
+                
+                // Handle prompt storage for long prompts by updating URL
+                const sp = new URLSearchParams(params?.toString() || "");
+                if (newPrompt.length > 500) {
+                  const promptId = generatePromptId();
+                  sessionStorage.setItem(promptId, newPrompt);
+                  sp.set("prompt", promptId);
+                } else {
+                  sp.set("prompt", newPrompt);
+                }
+                router.replace(`?${sp.toString()}`, { scroll: false });
+              }}
               placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
               rows={1}
               className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"

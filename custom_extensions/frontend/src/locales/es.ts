@@ -817,6 +817,30 @@ export const es = {
       // Basic actions dropdown
       openAdvancedSettings: "Abrir configuración avanzada"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Generar imagen con IA",
+      promptLabel: "Describe la imagen que quieres generar",
+      promptPlaceholder: "ej., Una diapositiva de presentación empresarial moderna con gráficos y diagramas, estilo profesional, diseño limpio",
+      promptHelp: "Sé específico y descriptivo para mejores resultados",
+      qualityLabel: "Calidad",
+      qualityStandard: "Estándar",
+      qualityHD: "HD",
+      styleLabel: "Estilo",
+      styleVivid: "Vívido",
+      styleNatural: "Natural",
+      errorEmptyPrompt: "Por favor, ingresa una descripción para generar la imagen",
+      cancel: "Cancelar",
+      generate: "Generar imagen",
+      generating: "Generando...",
+      addImage: "Agregar imagen",
+      chooseMethod: "Elige cómo quieres agregar una imagen a este marcador de posición",
+      uploadImage: "Subir imagen",
+      uploadDescription: "Elige un archivo de tu dispositivo",
+      generateWithAI: "Generar con IA",
+      generateDescription: "Crear una imagen usando DALL-E"
+    },
 
     // Quality tiers
     basic: "Básico",

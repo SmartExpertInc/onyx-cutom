@@ -14,6 +14,7 @@ import PresentationPreview from "../../../components/PresentationPreview";
 import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
+import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -161,6 +162,9 @@ export default function LessonPresentationClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
+  
+  // Process prompt from URL or sessionStorage and create local state
+  const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
@@ -250,7 +254,7 @@ export default function LessonPresentationClient() {
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
+    params?.get("outlineId") ? true : (currentPrompt ? false : null)
   );
 
   // Theme management with creation-specific persistence
@@ -357,7 +361,7 @@ export default function LessonPresentationClient() {
 
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing lesson request for "${params?.get("prompt")?.slice(0, 40) || "Untitled"}"...`);
+            list.push(`Analyzing lesson request for "${currentPrompt?.slice(0, 40) || "Untitled"}"...`);
     list.push(`Detected language: ${language.toUpperCase()}`);
     list.push(`Planning ${slidesCount} slides with ${lengthOption} content...`);
     // shuffle little filler line
@@ -491,7 +495,7 @@ export default function LessonPresentationClient() {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
-    const promptQuery = params?.get("prompt")?.trim() || "";
+    const promptQuery = currentPrompt?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
       setLoading(false);
@@ -792,7 +796,7 @@ export default function LessonPresentationClient() {
 
     try {
       // Re-use the same fallback title logic we applied in preview
-      const promptQuery = params?.get("prompt")?.trim() || "";
+      const promptQuery = currentPrompt?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
@@ -925,7 +929,7 @@ export default function LessonPresentationClient() {
     if (!trimmed || loadingEdit) return;
 
     // Combine existing prompt (if any) with new instruction
-    const basePrompt = params?.get("prompt") || "";
+    const basePrompt = currentPrompt || "";
     let combined = basePrompt.trim();
     if (combined && !/[.!?]$/.test(combined)) combined += ".";
     combined = combined ? `${combined} ${trimmed}` : trimmed;
@@ -1355,10 +1359,20 @@ export default function LessonPresentationClient() {
           {/* Prompt input for standalone lessons */}
           {useExistingOutline === false && (
             <textarea
-              value={params?.get("prompt") || ""}
+              value={currentPrompt || ""}
               onChange={(e) => {
+                const newPrompt = e.target.value;
+                setCurrentPrompt(newPrompt);
+                
+                // Handle prompt storage for long prompts
                 const sp = new URLSearchParams(params?.toString() || "");
-                sp.set("prompt", e.target.value);
+                if (newPrompt.length > 500) {
+                  const promptId = generatePromptId();
+                  sessionStorage.setItem(promptId, newPrompt);
+                  sp.set("prompt", promptId);
+                } else {
+                  sp.set("prompt", newPrompt);
+                }
                 router.replace(`?${sp.toString()}`, { scroll: false });
               }}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}

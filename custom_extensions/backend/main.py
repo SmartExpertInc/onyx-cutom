@@ -1494,6 +1494,32 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
         normalized_props = props.copy()
         
         try:
+            # ENHANCED LOGGING: Log raw AI-parsed content for big-numbers and event-list templates
+            if template_id in ['big-numbers', 'event-dates', 'event-list']:
+                logger.info(f"=== RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+                logger.info(f"Template ID: {template_id}")
+                logger.info(f"Slide Title: {normalized_props.get('title', 'NO TITLE')}")
+                logger.info(f"Raw Props Keys: {list(normalized_props.keys())}")
+                logger.info(f"Raw Props Content: {normalized_props}")
+                
+                # Log specific content for big-numbers
+                if template_id == 'big-numbers':
+                    items = normalized_props.get('items', [])
+                    numbers = normalized_props.get('numbers', [])
+                    steps = normalized_props.get('steps', [])
+                    logger.info(f"Big-Numbers Raw Items: {items}")
+                    logger.info(f"Big-Numbers Raw Numbers: {numbers}")
+                    logger.info(f"Big-Numbers Raw Steps: {steps}")
+                
+                # Log specific content for event-list/event-dates
+                if template_id in ['event-dates', 'event-list']:
+                    events = normalized_props.get('events', [])
+                    items = normalized_props.get('items', [])
+                    logger.info(f"Event-List Raw Events: {events}")
+                    logger.info(f"Event-List Raw Items: {items}")
+                
+                logger.info(f"=== END RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+            
             # Fix template ID mappings first
             if template_id == 'event-dates':
                 # Map event-dates (AI instruction) to event-list (frontend registry)
@@ -1573,17 +1599,53 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     
             # This big-numbers conversion logic is moved to after big-numbers normalization below
                 
+            # ENHANCED LOGGING: Log raw AI-parsed content for big-numbers and event-list templates
+            if template_id in ['big-numbers', 'event-dates', 'event-list']:
+                logger.info(f"=== RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+                logger.info(f"Template ID: {template_id}")
+                logger.info(f"Slide Title: {normalized_props.get('title', 'NO TITLE')}")
+                logger.info(f"Raw Props Keys: {list(normalized_props.keys())}")
+                logger.info(f"Raw Props Content: {normalized_props}")
+                
+                # Log specific content for big-numbers
+                if template_id == 'big-numbers':
+                    items = normalized_props.get('items', [])
+                    numbers = normalized_props.get('numbers', [])
+                    steps = normalized_props.get('steps', [])
+                    logger.info(f"Big-Numbers Raw Items: {items}")
+                    logger.info(f"Big-Numbers Raw Numbers: {numbers}")
+                    logger.info(f"Big-Numbers Raw Steps: {steps}")
+                
+                # Log specific content for event-list/event-dates
+                if template_id in ['event-dates', 'event-list']:
+                    events = normalized_props.get('events', [])
+                    items = normalized_props.get('items', [])
+                    logger.info(f"Event-List Raw Events: {events}")
+                    logger.info(f"Event-List Raw Items: {items}")
+                
+                logger.info(f"=== END RAW AI-PARSED CONTENT for slide {slide_index + 1} ===")
+                
             # Fix big-numbers template props
             if template_id == 'big-numbers':
-                # Accept both 'items' (preferred) and 'numbers' (alternative) as the source array
+                # FIXED: Accept 'items', 'numbers', or 'steps' as the source array
                 source_list = normalized_props.get('items')
+                source_type = 'items'
+                
                 if not (isinstance(source_list, list) and source_list):
                     alt_list = normalized_props.get('numbers')
                     if isinstance(alt_list, list) and alt_list:
                         logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'numbers' → 'items'")
                         source_list = alt_list
+                        source_type = 'numbers'
                     else:
-                        source_list = []
+                        # FIXED: Also check for 'steps' which AI commonly generates
+                        steps_list = normalized_props.get('steps')
+                        if isinstance(steps_list, list) and steps_list:
+                            logger.info(f"Normalizing 'big-numbers' slide {slide_index + 1} from 'steps' → 'items'")
+                            source_list = steps_list
+                            source_type = 'steps'
+                        else:
+                            source_list = []
 
                 # Validate and coerce each item
                 fixed_items = []
@@ -1614,7 +1676,8 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 if 'items' in normalized_props:
                     normalized_props.pop('items', None)
                 
-                # Check if we generated placeholder content and convert to bullet-points if so
+                # FIXED: Don't convert big-numbers to bullet-points to prevent mixed language content
+                # Check if we generated placeholder content but preserve big-numbers template
                 has_placeholder_content = all(
                     step.get('value', '').strip() in ['0', ''] and 
                     step.get('label', '').startswith('Item ') and
@@ -1622,69 +1685,24 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     for step in fixed_items
                 )
                 
+                # FIXED: Completely disable problematic conversion to bullet-points
+                # This prevents mixed language content by preserving AI-generated big-numbers slides
                 if has_placeholder_content:
-                    # Convert to bullet-points template since the content is conceptual, not numerical
-                    logger.info(f"Converting slide {slide_index + 1} from big-numbers to bullet-points (no numerical data)")
-                    normalized_slide['templateId'] = 'bullet-points'
-                    template_id = 'bullet-points'
-                    
-                    # Generate appropriate bullet points based on the title
-                    title = normalized_props.get('title', '').lower()
-                    if 'assessment' in title:
-                        normalized_props['bullets'] = [
-                            "Automated Grading: AI can evaluate multiple-choice and short-answer questions instantly, providing immediate feedback to students.",
-                            "Essay Analysis: Advanced AI tools can assess essay structure, grammar, and content quality, offering detailed feedback.",
-                            "Adaptive Testing: AI-powered assessments adjust question difficulty based on student performance, providing personalized evaluation.",
-                            "Plagiarism Detection: AI tools can identify potential plagiarism by comparing student work against vast databases of academic content.",
-                            "Performance Analytics: AI systems provide detailed analytics on student performance patterns and learning gaps."
-                        ]
-                    elif 'future' in title or 'trends' in title:
-                        normalized_props['bullets'] = [
-                            "Personalized Learning Experiences: AI will create more sophisticated personalized learning paths tailored to individual student needs.",
-                            "Virtual Reality Integration: AI combined with VR will create immersive educational experiences for complex subjects.",
-                            "Natural Language Processing: Advanced chatbots will provide more human-like interactions for student support and tutoring.",
-                            "Predictive Analytics: AI will better predict student success and identify at-risk students earlier in their academic journey.",
-                            "Automated Content Creation: AI will generate educational materials and assessments customized to curriculum standards."
-                        ]
-                    elif 'technology' in title or 'tech' in title:
-                        normalized_props['bullets'] = [
-                            "Digital Learning Platforms: Technology provides interactive and engaging learning environments for students.",
-                            "Personalized Learning Paths: Advanced algorithms adapt content delivery to individual learning styles and pace.",
-                            "Real-time Feedback Systems: Immediate assessment and feedback help students track their progress effectively.",
-                            "Collaborative Tools: Technology enables seamless collaboration between students and teachers across different locations.",
-                            "Resource Accessibility: Digital platforms make learning materials available anytime, anywhere for enhanced flexibility."
-                        ]
-                    else:
-                        # Generic bullets based on title
-                        slide_title = normalized_props.get('title', 'this topic')
-                        normalized_props['bullets'] = [
-                            f"Key aspect of {slide_title} that enhances educational outcomes and student engagement.",
-                            f"Important consideration for implementing {slide_title} effectively in educational settings.",
-                            f"Significant benefit of using {slide_title} for improving student learning and performance.",
-                            f"Challenge that educators should be aware of when adopting {slide_title} in their curriculum.",
-                            f"Future implication of {slide_title} for educational institutions and learning methodologies."
-                        ]
-                    
-                    # Remove big-numbers props and add bullet-points props
-                    normalized_props.pop('steps', None)
-                    
-                    # Add image prompt for bullet-points
+                    logger.info(f"FIXED: Detected placeholder content in big-numbers slide {slide_index + 1}")
+                    logger.info(f"Preserving big-numbers template instead of converting to bullet-points to prevent mixed language issues")
+                
+                # Always preserve big-numbers template and add image prompt if needed
                     if not normalized_props.get('imagePrompt'):
                         slide_title = normalized_props.get('title', 'concepts')
-                        title_lower = slide_title.lower()
-                        
-                        # Generate contextual, detailed image prompts based on content
-                        if 'assessment' in title_lower or 'evaluation' in title_lower:
-                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern educational assessment environment. The scene features a young female teacher sitting at a clean desk in a bright classroom, reviewing student assessments on a tablet displaying simple geometric grade analytics (no readable text). Behind her, students work quietly at individual desks taking a digital assessment on laptops. The classroom has large windows with natural light and a whiteboard showing basic geometric patterns. The tablet interface and assessment analytics are [COLOR1], the teacher's clothing and desk items are [COLOR2], and the classroom environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                        elif 'future' in title_lower or 'trends' in title_lower:
-                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a futuristic educational technology center. The scene features a Hispanic male educator standing next to a large interactive holographic display showing flowing geometric patterns representing future learning concepts. A modern curved desk with a sleek laptop and digital stylus sits in the foreground. Through floor-to-ceiling windows, a futuristic cityscape is visible. The holographic display and future tech patterns are [COLOR1], the educator's attire and laptop are [COLOR2], and the modern facility and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                        elif 'technology' in title_lower or 'tech' in title_lower:
-                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern educational technology lab. The scene features a young Asian female student sitting at a sleek workstation using a tablet for interactive learning, with a single large monitor displaying simple educational interface elements and geometric learning modules (no readable text). Modern educational equipment and a coffee cup are positioned on the clean desk. Natural light streams through large windows. The tablet interface and learning modules are [COLOR1], the monitor and educational technology are [COLOR2], and the lab environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                        else:
-                            # General educational fallback
-                            normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern educational environment related to {slide_title.lower()}. The scene features a diverse educator in professional attire working at a contemporary desk with a laptop displaying simple interface elements related to the topic (no readable text). Educational materials like notebooks and a tablet are positioned around the workspace. Large windows provide natural light to the clean, professional space. The laptop interface and educational displays are [COLOR1], the educator's attire and desk accessories are [COLOR2], and the educational environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                        
-                        normalized_props['imageAlt'] = f"Professional educational illustration for {slide_title}"
+                    # Generate language-neutral image prompt for big-numbers
+                    normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern data analytics environment. The scene features a professional analyst working at a clean desk with multiple monitors displaying charts, graphs, and numerical data visualizations (no readable text or numbers). The workspace includes a laptop, tablet, and organized documents. Large windows provide natural light to the modern office space. The data visualizations and analytics displays are [COLOR1], the analyst's attire and equipment are [COLOR2], and the office environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
+                    normalized_props['imageAlt'] = f"Professional data visualization illustration for {slide_title}"
+                
+                # Log final processed big-numbers content
+                logger.info(f"=== FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
+                logger.info(f"Final Steps: {normalized_props.get('steps', [])}")
+                logger.info(f"Final Props: {normalized_props}")
+                logger.info(f"=== END FINAL PROCESSED BIG-NUMBERS for slide {slide_index + 1} ===")
                     
             # Fix four-box-grid template props
             elif template_id == 'four-box-grid':
@@ -1973,13 +1991,25 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     fixed_events = []
                     for event in events:
                         if isinstance(event, dict):
+                            # FIXED: Use 'title' as description if 'description' is empty
+                            description = event.get('description') or event.get('desc') or ''
+                            if not description.strip():
+                                # If description is empty, use title as description
+                                description = event.get('title') or 'Event description'
+                            
                             fixed_event = {
-                                'date': str(event.get('date') or event.get('title') or 'Event Date'),
-                                'description': str(event.get('description') or event.get('desc') or 'Event description')
+                                'date': str(event.get('date') or 'Event Date'),
+                                'description': str(description)
                             }
                             fixed_events.append(fixed_event)
                     if fixed_events:
                         normalized_props['events'] = fixed_events
+                
+                # Log final processed event-list content
+                logger.info(f"=== FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
+                logger.info(f"Final Events: {normalized_props.get('events', [])}")
+                logger.info(f"Final Props: {normalized_props}")
+                logger.info(f"=== END FINAL PROCESSED EVENT-LIST for slide {slide_index + 1} ===")
         
             # Fix bullet-points template props
             elif template_id in ['bullet-points', 'bullet-points-right']:

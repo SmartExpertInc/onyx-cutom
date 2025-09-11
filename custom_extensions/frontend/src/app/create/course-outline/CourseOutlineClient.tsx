@@ -9,6 +9,13 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -197,7 +204,7 @@ import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 export default function CourseOutlineClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
-  const [prompt, setPrompt] = useState(params?.get("prompt") || "");
+  const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
@@ -1270,65 +1277,65 @@ export default function CourseOutlineClient() {
           </div>
 
           {/* Additional Info dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setShowFilters((prev) => !prev)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
-            >
-              {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
-            </button>
-
-            {showFilters && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
-                {[
-                  { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
-                  { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
-                  { key: "informationSource", label: t('interface.courseOutline.source', 'Source') },
-                  { key: "time", label: t('interface.courseOutline.productionHours', 'Production Hours') },
-                ].map(({ key, label }) => (
-                  // @ts-ignore dynamic key
-                  <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-4 w-4 text-brand-primary"
+          <DropdownMenu open={showFilters} onOpenChange={setShowFilters}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+              >
+                {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 p-3 bg-white" align="end">
+              {[
+                { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
+                { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
+                { key: "informationSource", label: t('interface.courseOutline.source', 'Source') },
+                { key: "time", label: t('interface.courseOutline.productionHours', 'Production Hours') },
+              ].map(({ key, label }) => (
+                // @ts-ignore dynamic key
+                <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox h-4 w-4 text-brand-primary"
+                    // @ts-ignore dynamic key
+                    checked={filters[key]}
+                    onChange={() =>
                       // @ts-ignore dynamic key
-                      checked={filters[key]}
-                      onChange={() =>
-                        // @ts-ignore dynamic key
-                        setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
-                      }
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+                      setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
+                    }
+                  />
+                  {label}
+                </label>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Prompt textarea with regenerate button */}
         <div className="flex gap-2 items-start">
-          <textarea
+          <Textarea
             ref={promptRef}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
             rows={1}
-            className="flex-1 border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
+            className="flex-1 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
           />
           {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
-            <button
+            <Button
               type="button"
               onClick={() => {
                 // Force regeneration by clearing lastPreviewParamsRef
                 lastPreviewParamsRef.current = null;
               }}
+              variant="secondary"
               className="px-4 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap min-h-[56px]"
             >
               <Sparkles size={16} />
               <span>{t('interface.courseOutline.regenerate', 'Regenerate')}</span>
-            </button>
+            </Button>
           )}
         </div>
 
@@ -1362,9 +1369,10 @@ export default function CourseOutlineClient() {
                   </div>
 
                   {/* Main card */}
-                  <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                  <Card className="flex-1 rounded-r-xl border-gray-300">
+                    <CardContent className="p-5">
                     {/* Module title */}
-                    <input
+                    <Input
                       type="text"
                       value={mod.title}
                       onChange={(e) => handleModuleChange(modIdx, e.target.value)}
@@ -1403,18 +1411,19 @@ export default function CourseOutlineClient() {
                          );
                        })}
                     </ul>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               ))}
               {/* Add-module button – pill style, full-width */}
-              <button
+              <Button
                 type="button"
                 onClick={handleAddModule}
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
+                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium bg-[#F0F0FF] hover:bg-[#F0F4FF] active:scale-95 transition"
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
-              </button>
+              </Button>
               {/* Status row – identical style mock */}
               <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
@@ -1442,13 +1451,14 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <textarea
-                  value={editPrompt}
-                  onChange={(e) => setEditPrompt(e.target.value)}
-                  placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
-                />
+              <Card className="w-full mb-4 bg-white border-none" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <CardContent className="p-4 flex flex-col gap-3">
+                  <Textarea
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+                    className="w-full resize-none min-h-[80px] text-black"
+                  />
 
                 {/* Example prompts */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
@@ -1469,26 +1479,28 @@ export default function CourseOutlineClient() {
                   ))}
                 </div>
                 <div className="flex justify-end">
-                  <button
+                  <Button
                     type="button"
                     disabled={loadingPreview || !editPrompt.trim()}
                     onClick={handleApplyEdit}
                     className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
                   >
                     {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
-                  </button>
+                  </Button>
                 </div>
-              </div>
+                </CardContent>
+              </Card>
             )}
             <div className="w-full flex justify-center mt-2 mb-6">
-                              <button
+                              <Button
                   type="button"
                   onClick={() => setShowAdvanced((prev) => !prev)}
+                  variant="ghost"
                   className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
                 >
                   {t('interface.generate.advancedMode', 'Advanced Mode')}
                   <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
-                </button>
+                </Button>
             </div>
           </>
         )}
@@ -1496,7 +1508,8 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-            <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+            <Card className="px-6 pt-5 pb-6 bg-white flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <CardContent className="p-0">
             <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
@@ -1567,17 +1580,18 @@ export default function CourseOutlineClient() {
                       { id: "medium", label: t('interface.courseOutline.medium', 'Medium'), icon: <AlignCenter size={14} /> },
                       { id: "detailed", label: t('interface.courseOutline.detailed', 'Detailed'), icon: <AlignRight size={14} /> },
                     ].map((opt) => (
-                      <button
+                      <Button
                         key={opt.id}
                         type="button"
                         onClick={() => setTextDensity(opt.id as any)}
-                        className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${
-                          textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'
+                        variant={textDensity === opt.id ? "default" : "ghost"}
+                        className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors rounded-none ${
+                          textDensity === opt.id ? 'bg-[#d6e6fd] hover:bg-[#d6e6fd]' : 'bg-white hover:bg-gray-50'
                         }`}
                       >
                         {opt.icon}
                         {opt.label}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -1585,38 +1599,35 @@ export default function CourseOutlineClient() {
                 {/* Image source */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.imageSource', 'Image source')}</label>
-                  <div className="relative w-full">
-                    <select
-                      value={imageSource}
-                      onChange={(e) => setImageSource(e.target.value)}
-                      className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                    >
-                      <option value="ai">{t('interface.courseOutline.aiImages', 'AI images')}</option>
-                      <option value="stock">{t('interface.courseOutline.stockImages', 'Stock images')}</option>
-                      <option value="none">{t('interface.courseOutline.noImages', 'No images')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
+                  <Select value={imageSource} onValueChange={setImageSource}>
+                    <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ai">{t('interface.courseOutline.aiImages', 'AI images')}</SelectItem>
+                      <SelectItem value="stock">{t('interface.courseOutline.stockImages', 'Stock images')}</SelectItem>
+                      <SelectItem value="none">{t('interface.courseOutline.noImages', 'No images')}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* AI image model */}
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.aiImageModel', 'AI image model')}</label>
-                  <div className="relative w-full">
-                    <select
-                      value={aiModel}
-                      onChange={(e) => setAiModel(e.target.value)}
-                      className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                    >
-                      <option value="flux-fast">{t('interface.courseOutline.fluxKontextFast', 'Flux Kontext Fast')}</option>
-                      <option value="flux-quality">{t('interface.courseOutline.fluxKontextHQ', 'Flux Kontext HQ')}</option>
-                      <option value="stable">{t('interface.courseOutline.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
+                  <Select value={aiModel} onValueChange={setAiModel}>
+                    <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="flux-fast">{t('interface.courseOutline.fluxKontextFast', 'Flux Kontext Fast')}</SelectItem>
+                      <SelectItem value="flux-quality">{t('interface.courseOutline.fluxKontextHQ', 'Flux Kontext HQ')}</SelectItem>
+                      <SelectItem value="stable">{t('interface.courseOutline.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-            </div>
+              </CardContent>
+            </Card>
           </section>
         )}
       </div> {/* end inner wrapper */}
@@ -1649,17 +1660,19 @@ export default function CourseOutlineClient() {
                 <span className="select-none font-semibold">{t('interface.courseOutline.generate', 'Generate')}</span>
               </button>
             </div>
-      </div>
+          </div>
 
           {/* Help button (disabled) */}
-          <button
+          <Button
             type="button"
             disabled
-            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
+            variant="outline"
+            size="sm"
+            className="w-9 h-9 bg-white rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
             aria-label={t('interface.courseOutline.helpComingSoon', 'Help (coming soon)')}
           >
             ?
-          </button>
+          </Button>
         </div>
       )}
     </main>

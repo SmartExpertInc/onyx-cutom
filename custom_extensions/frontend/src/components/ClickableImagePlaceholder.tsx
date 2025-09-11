@@ -8,6 +8,7 @@ import AIImageGenerationModal from './AIImageGenerationModal';
 import ImageChoiceModal from './ImageChoiceModal';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // ✅ REMOVED: Global context menu management - replaced with inline buttons!
 
@@ -76,6 +77,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   isGenerating, // New prop
   onGenerationStarted // New prop
 }) => {
+  const { t } = useLanguage();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [displayedImage, setDisplayedImage] = useState<string | undefined>(imagePath);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -89,6 +91,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
   // ✅ NEW: Image choice modal state
   const [showImageChoiceModal, setShowImageChoiceModal] = useState(false);
+
+  // ✅ NEW: Track manual deletion to prevent auto-regeneration
+  const [wasManuallyDeleted, setWasManuallyDeleted] = useState(false);
 
   // ✅ NEW: Click-to-activate interaction model
   const [isSelected, setIsSelected] = useState(false);
@@ -394,12 +399,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // Also clear any saved image dimensions
     setImageDimensions(null);
     
+    // Set the flag to true when manually deleted
+    setWasManuallyDeleted(true);
+    
     console.log('🔍 [InlineAction] Image removal completed', {
       elementId,
       instanceId,
       displayedImageCleared: true,
       backendNotified: true,
       selectionCleared: true,
+      manuallyDeleted: true,
       timestamp: Date.now()
     });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
@@ -421,6 +430,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     
     // Clear selection state
     setIsSelected(false);
+    
+    // Reset manual deletion flag
+    setWasManuallyDeleted(false);
     
     console.log('🔍 [AIGeneration] AI image integration completed', {
       elementId,
@@ -464,17 +476,31 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     log('ClickableImagePlaceholder', 'chooseUpload', { elementId, instanceId });
   }, [elementId, instanceId]);
 
+  // ✅ NEW: AI Generation handlers
   const handleChooseAI = useCallback(() => {
-    console.log('🔍 [AIGeneration] Choose AI clicked', { 
-      elementId, 
+    console.log('🔍 [InlineAction] AI Generation chosen', { 
+      elementId,
       instanceId,
-      hasAiGeneratedPrompt: !!aiGeneratedPrompt,
-      aiGeneratedPromptPreview: aiGeneratedPrompt?.substring(0, 50) + '...',
+      hasExistingImage: !!displayedImage,
       timestamp: Date.now()
     });
+    
+    setShowImageChoiceModal(false);
     setShowAIGenerationModal(true);
-    log('ClickableImagePlaceholder', 'chooseAI', { elementId, instanceId });
-  }, [elementId, instanceId, aiGeneratedPrompt]);
+  }, [elementId, instanceId, displayedImage]);
+
+  const handleGenerateAI = useCallback(() => {
+    console.log('🔍 [InlineAction] Generate AI Image clicked', { 
+      elementId,
+      instanceId,
+      hasExistingImage: !!displayedImage,
+      timestamp: Date.now()
+    });
+    
+    // Reset manual deletion flag if generating new image
+    setWasManuallyDeleted(false);
+    setShowAIGenerationModal(true);
+  }, [elementId, instanceId, displayedImage]);
 
   // ✅ NEW: Click handler for empty placeholder
   const handlePlaceholderClick = useCallback(() => {
@@ -512,19 +538,84 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Get placeholder dimensions for the modal
   const getPlaceholderDimensions = useCallback(() => {
     if (!containerRef.current) {
-      // Fallback dimensions based on size prop
+      // Template-specific fallback dimensions
+      if (templateId === 'big-image-left') {
+        // For big-image-left, use portrait dimensions that match the template's intended aspect ratio
+        const fallbackDimensions = {
+          'XLARGE': { width: 500, height: 700 }, // Portrait aspect ratio
+          'LARGE': { width: 400, height: 560 },  // Portrait aspect ratio
+          'MEDIUM': { width: 300, height: 420 }, // Portrait aspect ratio
+          'SMALL': { width: 200, height: 280 }   // Portrait aspect ratio
+        };
+        
+        log('ClickableImagePlaceholder', 'getPlaceholderDimensions_bigImageLeft_fallback', {
+          elementId,
+          instanceId,
+          size,
+          templateId,
+          fallbackDimensions: fallbackDimensions[size]
+        });
+        
+        return fallbackDimensions[size];
+      }
+      
+      // Default fallback dimensions for other templates
       const fallbackDimensions = {
         'XLARGE': { width: 500, height: 400 },
         'LARGE': { width: 400, height: 300 },
         'MEDIUM': { width: 300, height: 200 },
         'SMALL': { width: 200, height: 150 }
       };
+      
+      log('ClickableImagePlaceholder', 'getPlaceholderDimensions_fallback', {
+        elementId,
+        instanceId,
+        size,
+        templateId,
+        fallbackDimensions: fallbackDimensions[size]
+      });
+      
       return fallbackDimensions[size];
     }
 
     const rect = containerRef.current.getBoundingClientRect();
-    return { width: rect.width, height: rect.height };
-  }, [containerRef, size]);
+    let dimensions = { width: rect.width, height: rect.height };
+    
+    // For big-image-left template, ensure we maintain portrait aspect ratio
+    if (templateId === 'big-image-left' && rect.width > 0 && rect.height > 0) {
+      const currentAspect = rect.width / rect.height;
+      const targetAspect = 5/7; // Target portrait aspect ratio (500x700)
+      
+      if (currentAspect > targetAspect) {
+        // If current is too wide, adjust height to maintain portrait ratio
+        dimensions.height = rect.width / targetAspect;
+      } else if (currentAspect < targetAspect) {
+        // If current is too tall, adjust width to maintain portrait ratio
+        dimensions.width = rect.height * targetAspect;
+      }
+      
+      log('ClickableImagePlaceholder', 'getPlaceholderDimensions_bigImageLeft_adjusted', {
+        elementId,
+        instanceId,
+        templateId,
+        originalRect: rect,
+        adjustedDimensions: dimensions,
+        originalAspect: currentAspect,
+        targetAspect
+      });
+    }
+    
+    log('ClickableImagePlaceholder', 'getPlaceholderDimensions_actual', {
+      elementId,
+      instanceId,
+      containerRef: !!containerRef.current,
+      rect,
+      dimensions,
+      templateId
+    });
+    
+    return dimensions;
+  }, [containerRef, size, elementId, instanceId, templateId]);
 
   // Handle modal confirm crop
   const handleConfirmCrop = useCallback((croppedImagePath: string) => {
@@ -692,7 +783,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
                  onClick={(e) => {
                    e.stopPropagation();
                    console.log('🔍 [InlineAction] Generate with AI clicked', { elementId, instanceId });
-                   setShowAIGenerationModal(true);
+                   handleGenerateAI();
                  }}
                  className="bg-purple-500 hover:bg-purple-600 text-white rounded-full p-1.5 transition-colors duration-200 shadow-lg"
                  title="Generate with AI"
@@ -735,7 +826,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           onImageUploaded={handleImageUploaded}
-          title="Replace Image"
+          title={t('interface.modals.aiImageGeneration.uploadImage', 'Upload Image')}
         />
 
         <ImageEditModal
@@ -756,7 +847,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onGenerationStarted={handleAIGenerationStarted}
           placeholderDimensions={getPlaceholderDimensions()}
           placeholderId={elementId}
-          title="Generate AI Image"
+          title={t('interface.modals.aiImageGeneration.title', 'Generate AI Image')}
           preFilledPrompt={aiGeneratedPrompt}
           templateId={templateId}
         />
@@ -827,7 +918,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onImageUploaded={handleImageUploaded}
-        title="Upload Image"
+                  title={t('interface.modals.aiImageGeneration.uploadImage', 'Upload Image')}
       />
 
       <ImageEditModal
@@ -848,7 +939,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onGenerationStarted={handleAIGenerationStarted}
         placeholderDimensions={getPlaceholderDimensions()}
         placeholderId={elementId}
-        title="Generate AI Image"
+        title={t('generateAIImage')}
         preFilledPrompt={aiGeneratedPrompt}
       />
 
@@ -858,7 +949,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onClose={() => setShowImageChoiceModal(false)}
         onChooseUpload={handleChooseUpload}
         onChooseAI={handleChooseAI}
-        title="Add Image"
+                  title={t('interface.modals.aiImageGeneration.addImage', 'Add Image')}
       />
     </>
   );

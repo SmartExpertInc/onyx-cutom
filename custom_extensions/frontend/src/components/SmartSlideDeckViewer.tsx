@@ -214,15 +214,10 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       successfulResults: results.filter(r => r.success).length,
       failedResults: results.filter(r => !r.success).length
     });
-
-    // ✅ NEW: Mark auto-generation as completed permanently
+    
     setAutoGenerationCompleted(true);
-
-    // Notify parent
     onAutomaticGenerationCompleted?.(results);
   }, [onAutomaticGenerationCompleted]);
-
-  {/* Removed progress tracking and timeout cleanup - generation now runs silently */}
 
   // ✅ NEW: Get generation state for a specific placeholder
   const getPlaceholderGenerationState = useCallback((elementId: string) => {

@@ -801,6 +801,30 @@ export const uk = {
       // Basic actions dropdown
       openAdvancedSettings: "Відкрити розширені налаштування"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Згенерувати ШІ зображення",
+      promptLabel: "Опишіть зображення, яке хочете згенерувати",
+      promptPlaceholder: "наприклад, Сучасний слайд бізнес-презентації з діаграмами та графіками, професійний стиль, чистий дизайн",
+      promptHelp: "Будьте конкретними та описовими для кращих результатів",
+      qualityLabel: "Якість",
+      qualityStandard: "Стандартна",
+      qualityHD: "HD",
+      styleLabel: "Стиль",
+      styleVivid: "Яскравий",
+      styleNatural: "Природний",
+      errorEmptyPrompt: "Будь ласка, введіть опис для генерації зображення",
+      cancel: "Скасувати",
+      generate: "Згенерувати зображення",
+      generating: "Генерація...",
+      addImage: "Додати зображення",
+      chooseMethod: "Виберіть, як ви хочете додати зображення в цей заповнювач",
+      uploadImage: "Завантажити зображення",
+      uploadDescription: "Виберіть файл з вашого пристрою",
+      generateWithAI: "Згенерувати з ШІ",
+      generateDescription: "Створити зображення за допомогою DALL-E"
+    },
 
     // Quality tiers
     basic: "Базовий",
