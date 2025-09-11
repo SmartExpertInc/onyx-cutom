@@ -768,8 +768,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                             backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),
                             borderColor: getRoleTextColor(member.role_id),
-                            height: '10px',
-                            minHeight: '12px'
+                            height: '15px',
+                            minHeight: '15px'
                           }}
                         >
                           <SelectValue 
