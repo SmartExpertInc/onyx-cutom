@@ -765,11 +765,11 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         <SelectTrigger 
                           className="w-24 shadow-none bg-transparent px-1 border-1 rounded-lg"
                           style={{
-                            backgroundColor: getRoleColor(member.role_id),
+                            // backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),
                             borderColor: getRoleTextColor(member.role_id),
                             height: '15px',
-                            minHeight: '15px'
+                            minHeight: '16px'
                           }}
                         >
                           <SelectValue 
