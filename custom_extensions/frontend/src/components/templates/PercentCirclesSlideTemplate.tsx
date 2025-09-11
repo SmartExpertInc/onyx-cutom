@@ -73,8 +73,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
   // Individual circle styles - smaller to fit with avatar
   const circleBase: React.CSSProperties = {
-    width:'100px',
-    height:'100px',
+    width:'90px',
+    height:'90px',
     borderRadius:'43%',
     border:'2px solid #696864',
     background:'#FFFFFF',
@@ -88,7 +88,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     background:'#4CCD6A', // Bright green
     fontSize:'20px',
     fontWeight:700,
-    border:'2px solid #6AAF71',
+    border:'5px solid #6AAF71',
     color:'#175118',
     borderRadius:'50%'
   };
@@ -121,26 +121,28 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
   // Green card styling
   const greenCard: React.CSSProperties = {
-    background:'#4CCD6A',
+    background:'#6CDB78',
     borderRadius:'12px',
-    padding:'24px',
+    padding:'20px 50px',
+    paddingRight: '175px',
     display:'flex',
-    flexDirection:'column',
-    justifyContent:'center',
+    justifyContent:'space-between',
+    alignItems:'center',
     position:'relative'
   };
 
   // Text styles for green cards
   const cardValueStyle: React.CSSProperties = {
-    fontSize:'36px',
+    fontSize:'46px',
     fontWeight:700,
-    color:'#FFFFFF',
+    color:'#000000',
     marginBottom:'8px'
   };
 
   const cardTextStyle: React.CSSProperties = {
     fontSize:'16px',
-    color:'#FFFFFF',
+    color:'#235D26',
+    width:'200px',
     lineHeight:1.3
   };
 
@@ -234,24 +236,26 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       <div style={bottomSection}>
         {bottomCards.map((card, i) => (
           <div key={i} style={greenCard}>
-            {/* Value */}
-            <div style={cardValueStyle} onClick={()=> isEditable && setEdit({ k:`bv${i}` })}>
-              {isEditable && edit?.k===`bv${i}` ? (
-                <ImprovedInlineEditor 
-                  initialValue={card.value} 
-                  onSave={(v)=>{ 
-                    const next = [...bottomCards]; 
-                    next[i] = { ...next[i], value:v }; 
-                    onUpdate && onUpdate({ bottomCards: next }); 
-                    setEdit(null); 
-                  }} 
-                  onCancel={()=> setEdit(null)} 
-                  style={inline(cardValueStyle)} 
-                />
-              ) : (
-                card.value
-              )}
-            </div>
+            {/* Value - only for first card */}
+            {i === 0 && (
+              <div style={cardValueStyle} onClick={()=> isEditable && setEdit({ k:`bv${i}` })}>
+                {isEditable && edit?.k===`bv${i}` ? (
+                  <ImprovedInlineEditor 
+                    initialValue={card.value} 
+                    onSave={(v)=>{ 
+                      const next = [...bottomCards]; 
+                      next[i] = { ...next[i], value:v }; 
+                      onUpdate && onUpdate({ bottomCards: next }); 
+                      setEdit(null); 
+                    }} 
+                    onCancel={()=> setEdit(null)} 
+                    style={inline(cardValueStyle)} 
+                  />
+                ) : (
+                  card.value
+                )}
+              </div>
+            )}
 
             {/* Text */}
             <div style={cardTextStyle} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
