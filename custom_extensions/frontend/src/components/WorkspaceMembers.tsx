@@ -868,7 +868,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             </DialogDescription>
           </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t('interface.addMemberModal.emailLabel', 'Email')}
