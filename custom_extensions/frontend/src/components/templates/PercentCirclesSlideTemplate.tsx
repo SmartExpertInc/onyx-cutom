@@ -106,7 +106,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     border:'3px solid #FFFFFF',
     zIndex:10
   };
-  const ring1: React.CSSProperties = { position:'absolute', right:'150px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:3 };
+  const ring1: React.CSSProperties = { position:'absolute', right:'113px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:25 };
 
   // Bottom section - two green cards
   const bottomSection: React.CSSProperties = {
