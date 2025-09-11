@@ -64,7 +64,6 @@ import ResourcesSlideTemplate from './ResourcesSlideTemplate';
 import LeftBarAvatarImageSlideTemplate from './LeftBarAvatarImageSlideTemplate';
 import ProblemsGridSlideTemplate from './ProblemsGridSlideTemplate';
 import DataDrivenInsightsSlideTemplate from './DataDrivenInsightsSlideTemplate';
-import CompanyTimelineSlideTemplate from './CompanyTimelineSlideTemplate';
 import DeiMethodsSlideTemplate from './DeiMethodsSlideTemplate';
 import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
 import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
@@ -2298,23 +2297,6 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   ,
 
   // New: Company Timeline
-  'company-timeline-2rows': {
-    id: 'company-timeline-2rows',
-    name: 'Company Timeline (2 rows)',
-    description: 'Two dashed rails with 4+3 milestones and avatar',
-    category: 'content',
-    icon: '🕑',
-    component: CompanyTimelineSlideTemplate,
-    defaultProps: {},
-    propSchema: {
-      tag: { type: 'text', label: 'Tag', required: true },
-      title: { type: 'text', label: 'Title', required: true },
-      itemsTop: { type: 'array', label: 'Top Items', required: true },
-      itemsBottom: { type: 'array', label: 'Bottom Items', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
-    }
-  }
-  ,
 
   // New: DEI Methods
   'dei-methods': {
