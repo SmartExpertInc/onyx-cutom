@@ -14310,6 +14310,8 @@ class OutlineWizardPreview(BaseModel):
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None  # comma-separated connector IDs
     connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: SmartDrive file paths for combined connector + file context
+    selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
     theme: Optional[str] = None  # Selected theme from frontend
 
 class OutlineWizardFinalize(BaseModel):
@@ -14333,11 +14335,59 @@ class OutlineWizardFinalize(BaseModel):
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None  # comma-separated connector IDs
     connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: SmartDrive file paths for combined connector + file context
+    selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
     theme: Optional[str] = None  # Selected theme from frontend
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
+
+async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_id: str) -> List[int]:
+    """
+    Map SmartDrive file paths to corresponding Onyx file IDs.
+    
+    Args:
+        smartdrive_paths: List of SmartDrive file paths to map
+        user_id: Onyx user ID for context filtering
+    
+    Returns:
+        List of Onyx file IDs that correspond to the SmartDrive paths
+    """
+    if not smartdrive_paths:
+        return []
+    
+    try:
+        pool = await get_db_pool()
+        async with pool.acquire() as connection:
+            # Query the smartdrive_imports table to find matching Onyx file IDs
+            placeholders = ','.join(f'${i+2}' for i in range(len(smartdrive_paths)))
+            query = f"""
+                SELECT onyx_file_id, smartdrive_path 
+                FROM smartdrive_imports 
+                WHERE onyx_user_id = $1 
+                AND smartdrive_path IN ({placeholders})
+                AND onyx_file_id IS NOT NULL
+            """
+            
+            params = [user_id] + smartdrive_paths
+            rows = await connection.fetch(query, *params)
+            
+            onyx_file_ids = [row['onyx_file_id'] for row in rows]
+            mapped_paths = [row['smartdrive_path'] for row in rows]
+            
+            logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(onyx_file_ids)} file IDs from {len(smartdrive_paths)} paths for user {user_id}")
+            
+            # Log any unmapped paths for debugging
+            unmapped_paths = [path for path in smartdrive_paths if path not in mapped_paths]
+            if unmapped_paths:
+                logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+            
+            return onyx_file_ids
+            
+    except Exception as e:
+        logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
+        return []
 
 async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
     """Return persona id of the default ContentBuilder assistant (cached).
@@ -14738,6 +14788,9 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
         if payload.connectorSources:
             wiz_payload["connectorSources"] = payload.connectorSources
             logger.info(f"[PREVIEW_PAYLOAD] Added connectorSources: {payload.connectorSources}")
+        if payload.selectedFiles:
+            wiz_payload["selectedFiles"] = payload.selectedFiles
+            logger.info(f"[PREVIEW_PAYLOAD] Added selectedFiles: {payload.selectedFiles}")
 
     # Add text context if provided - use virtual file system for large texts to prevent AI memory issues
     if payload.fromText and payload.userText:
@@ -14850,9 +14903,32 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             try:
                 # Step 1: Extract context from Onyx
                 if payload.fromConnectors and payload.connectorSources:
-                    # For connector-based filtering, extract context from specific connectors
-                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    if payload.selectedFiles:
+                        # Combined context: connectors + SmartDrive files
+                        logger.info(f"[HYBRID_CONTEXT] Extracting COMBINED context from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
+                        
+                        # Extract connector context
+                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        
+                        # Map SmartDrive paths to Onyx file IDs
+                        smartdrive_file_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                        onyx_user_id = await get_current_onyx_user_id(request)
+                        file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
+                        
+                        if file_ids:
+                            logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                            # Extract file context and combine with connector context
+                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            
+                            # Combine both contexts
+                            file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
+                        else:
+                            logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths, using only connector context")
+                            file_context = connector_context
+                    else:
+                        # For connector-based filtering only, extract context from specific connectors
+                        logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                 elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")

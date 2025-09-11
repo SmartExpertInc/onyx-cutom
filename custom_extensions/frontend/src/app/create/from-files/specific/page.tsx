@@ -43,42 +43,6 @@ const connectorIcons: Record<string, string> = {
   default: '/file.svg'
 };
 
-// Mock connector data for demonstration
-const mockConnectors: Connector[] = [
-  {
-    id: 1,
-    name: 'Google Drive - Personal',
-    source: 'google_drive',
-    status: 'active',
-    total_docs_indexed: 1247,
-    access_type: 'private'
-  },
-  {
-    id: 2,
-    name: 'Dropbox - Work Files',
-    source: 'dropbox',
-    status: 'active',
-    total_docs_indexed: 892,
-    access_type: 'private'
-  },
-  {
-    id: 3,
-    name: 'Notion - Documentation',
-    source: 'notion',
-    status: 'syncing',
-    total_docs_indexed: 156,
-    access_type: 'private'
-  },
-  {
-    id: 4,
-    name: 'Salesforce - CRM Data',
-    source: 'salesforce',
-    status: 'active',
-    total_docs_indexed: 823,
-    access_type: 'private'
-  }
-];
-
 export default function CreateFromSpecificFilesPage() {
   const { t } = useLanguage();
   const router = useRouter();
@@ -87,19 +51,48 @@ export default function CreateFromSpecificFilesPage() {
   const [connectorSelectionValid, setConnectorSelectionValid] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showFileBrowser, setShowFileBrowser] = useState(true); // Changed to true to open by default
+  const [showFileBrowser, setShowFileBrowser] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
   // Load connectors from the backend API
   const loadConnectors = async () => {
     try {
       setLoading(true);
-      // For now, always use mock data
-      setConnectors(mockConnectors);
+      
+      // Fetch real connector data from the API
+      const response = await fetch('/api/manage/admin/connector/status', {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch connectors: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // Filter only private connectors (created via Smart Drive)
+      const privateConnectors = data
+        .filter((connector: any) => connector.access_type === 'private')
+        .map((connector: any) => ({
+          id: connector.id,
+          name: connector.name,
+          source: connector.source,
+          status: connector.last_successful_index_time ? 'active' : 'unknown',
+          last_sync_at: connector.last_successful_index_time,
+          total_docs_indexed: connector.total_docs_indexed || 0,
+          last_error: connector.last_error_message,
+          access_type: connector.access_type
+        }));
+      
+      setConnectors(privateConnectors);
     } catch (error) {
       console.error('Failed to load connectors:', error);
-      // Fallback to mock data
-      setConnectors(mockConnectors);
+      // Set empty array on error instead of falling back to mock data
+      setConnectors([]);
     } finally {
       setLoading(false);
     }
@@ -110,10 +103,15 @@ export default function CreateFromSpecificFilesPage() {
     loadConnectors();
   }, []);
 
-  // Validate connector selection
+  // Validate connector and file selection
   useEffect(() => {
-    setConnectorSelectionValid(selectedConnectors.length > 0);
-  }, [selectedConnectors]);
+    setConnectorSelectionValid(selectedConnectors.length > 0 && selectedFiles.length > 0);
+  }, [selectedConnectors, selectedFiles]);
+
+  // Handle file selection from SmartDrive iframe
+  const handleFilesSelected = (files: string[]) => {
+    setSelectedFiles(files);
+  };
 
   const handleConnectorToggle = (connectorId: number) => {
     setSelectedConnectors(prev => 
@@ -137,29 +135,31 @@ export default function CreateFromSpecificFilesPage() {
   );
 
   const handleCreateContent = () => {
-    if (selectedConnectors.length === 0) {
+    if (selectedConnectors.length === 0 || selectedFiles.length === 0) {
       return;
     }
 
-    // Construct connector context
-    const connectorContext = {
+    // Construct combined context with both connectors and files
+    const combinedContext = {
       fromConnectors: true,
       connectorIds: selectedConnectors,
       connectorSources: selectedConnectors.map(id => {
         const connector = connectors.find(c => c.id === id);
         return connector?.source || 'unknown';
       }),
-      timestamp: Date.now() // Add timestamp for data freshness validation
+      selectedFiles: selectedFiles, // Add selected file paths
+      timestamp: Date.now()
     };
 
     // Store in sessionStorage for the generate page
-    sessionStorage.setItem('connectorContext', JSON.stringify(connectorContext));
+    sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
 
-    // Redirect to generate page with connector information
+    // Redirect to generate page with combined information
     const searchParams = new URLSearchParams();
     searchParams.set('fromConnectors', 'true');
     searchParams.set('connectorIds', selectedConnectors.join(','));
-    searchParams.set('connectorSources', connectorContext.connectorSources.join(','));
+    searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
+    searchParams.set('selectedFiles', selectedFiles.join(','));
     
     router.push(`/create/generate?${searchParams.toString()}`);
   };
@@ -246,7 +246,10 @@ export default function CreateFromSpecificFilesPage() {
               
               {showFileBrowser && (
                 <div className="mt-6 pt-6 border-t border-gray-100">
-                  <SmartDriveFrame />
+                  <SmartDriveFrame 
+                    onFilesSelected={handleFilesSelected}
+                    selectedFiles={selectedFiles}
+                  />
                 </div>
               )}
             </div>
@@ -416,10 +419,14 @@ export default function CreateFromSpecificFilesPage() {
                   <div className="flex items-center justify-center gap-3">
                     <Sparkles className="w-5 h-5" />
                     {connectorSelectionValid 
-                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Selected Connector{s}')
+                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
                           .replace('{count}', selectedConnectors.length.toString())
                           .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                      : t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
+                          .replace('{fileCount}', selectedFiles.length.toString())
+                          .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
+                      : selectedConnectors.length === 0 
+                        ? t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
+                        : t('interface.selectFilesToContinue', 'Select Files to Continue')
                     }
                   </div>
                 </button>

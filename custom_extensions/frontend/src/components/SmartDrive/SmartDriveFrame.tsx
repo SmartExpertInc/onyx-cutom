@@ -5,12 +5,18 @@ import { RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface SmartDriveFrameProps {
   className?: string;
+  onFilesSelected?: (files: string[]) => void;
+  selectedFiles?: string[];
 }
 
-const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => {
+const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ 
+  className = '', 
+  onFilesSelected,
+  selectedFiles = []
+}) => {
   const [syncing, setSyncing] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
-  const [hasCredentials, setHasCredentials] = useState(false); // Fixed: start with false
+  const [hasCredentials, setHasCredentials] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
@@ -19,6 +25,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
   const [autoSyncCount, setAutoSyncCount] = useState(0);
+  const [internalSelectedFiles, setInternalSelectedFiles] = useState<string[]>(selectedFiles);
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -32,18 +39,68 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
           const data = await response.json();
           setHasCredentials(data.has_credentials || false);
           if (!data.has_credentials) {
-            // Show auth button immediately if no credentials
             console.log('No credentials detected, showing auth options');
           }
         }
       } catch (error) {
         console.error('Failed to initialize SmartDrive session:', error);
-        setHasCredentials(false); // Assume no credentials on error
+        setHasCredentials(false);
       }
     };
 
     initializeSession();
   }, []);
+
+  // Update internal state when selectedFiles prop changes
+  useEffect(() => {
+    setInternalSelectedFiles(selectedFiles);
+  }, [selectedFiles]);
+
+  // Set up postMessage event listener for iframe communication
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Verify origin for security
+      if (!event.origin.includes(window.location.hostname)) {
+        return;
+      }
+
+      const { type, data } = event.data;
+
+      switch (type) {
+        case 'select':
+          if (data && data.filePath) {
+            setInternalSelectedFiles(prev => {
+              const updated = [...prev, data.filePath];
+              return Array.from(new Set(updated)); // Remove duplicates
+            });
+          }
+          break;
+          
+        case 'deselect':
+          if (data && data.filePath) {
+            setInternalSelectedFiles(prev => prev.filter(path => path !== data.filePath));
+          }
+          break;
+          
+        case 'clear':
+          setInternalSelectedFiles([]);
+          break;
+          
+        default:
+          console.log('Unknown message type from SmartDrive iframe:', type);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  // Notify parent component when file selection changes
+  useEffect(() => {
+    if (onFilesSelected) {
+      onFilesSelected(internalSelectedFiles);
+    }
+  }, [internalSelectedFiles, onFilesSelected]);
 
   // Auto-sync functionality with page visibility detection
   useEffect(() => {
@@ -371,6 +428,23 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({ className = '' }) => 
 
   return (
     <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+
+      {/* File Selection Status */}
+      {internalSelectedFiles.length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900">
+                {internalSelectedFiles.length} file{internalSelectedFiles.length !== 1 ? 's' : ''} selected
+              </p>
+              <p className="text-xs text-blue-700 mt-1">
+                Files will be combined with connector data for content generation
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Iframe Container */}
       <div className="relative" style={{ height: '600px' }}>
