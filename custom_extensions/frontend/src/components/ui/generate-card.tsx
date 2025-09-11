@@ -7,68 +7,58 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   active?: boolean;
   onClick?: () => void;
-  gradientFrom?: string;
-  gradientTo?: string;
-  iconColor?: string;
-  labelColor?: string;
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ 
-    className, 
-    Icon, 
-    label, 
-    active = false, 
-    onClick,
-    gradientFrom = "from-blue-300",
-    gradientTo = "to-purple-200",
-    iconColor = "text-blue-600",
-    labelColor = "text-blue-600",
-    ...props 
-  }, ref) => {
+  ({ className, Icon, label, active = false, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
         className={cn(
-          "group rounded-3xl relative overflow-hidden transition-all duration-300 cursor-pointer w-40 h-28",
-          "bg-white border border-gray-200 shadow-lg hover:shadow-xl hover:scale-105",
-          active 
-            ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200" 
-            : "border border-gray-200 hover:border-gray-300 hover:shadow-md",
+          "group relative overflow-hidden transition-all duration-200 cursor-pointer w-40 h-28",
+          "hover:scale-105",
           className
         )}
+        style={{
+          backgroundColor: 'white',
+          borderColor: active ? '#C5CAD1' : '#e2e8f0',
+          borderWidth: '1px',
+          boxShadow: active 
+            ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        }}
+        onMouseEnter={(e) => {
+          if (!active) {
+            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!active) {
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+          }
+        }}
         onClick={onClick}
         {...props}
       >
-        {/* Gradient at top right corner */}
-        <div 
-          className={cn(
-            "absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br rounded-bl-3xl opacity-60",
-            gradientFrom,
-            gradientTo
-          )}
-        />
-        
-        <CardContent className="relative p-4 h-full flex flex-col items-center justify-center">
-          {/* Icon section */}
+        <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
           {Icon && (
-            <div className="flex items-start justify-start h-12 relative mb-2">
-              <Icon 
-                size={40} 
-                className={iconColor}
-              />
-            </div>
+            <Icon 
+              size={54} 
+              style={{
+                color: active ? '#3b82f6' : '#4b5563',
+                fontWeight: 'bold',
+                strokeWidth: active ? 2.5 : 2
+              }}
+            />
           )}
-          
-          {/* Text section */}
-          <div className="flex flex-col items-center gap-1 flex-1 justify-center">
-            <h3 className={cn(
-              "text-sm font-semibold text-center leading-tight",
-              labelColor
-            )}>
-              {label}
-            </h3>
-          </div>
+          <span 
+            className="text-sm font-semibold leading-tight text-center"
+            style={{
+              color: 'black'
+            }}
+          >
+            {label}
+          </span>
         </CardContent>
       </Card>
     );

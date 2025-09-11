@@ -1328,50 +1328,30 @@ function GenerateProductPicker() {
             Icon={CourseOutlineIcon}
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
-            gradientFrom="from-orange-300"
-            gradientTo="to-yellow-200"
-            iconColor="text-orange-600"
-            labelColor="text-orange-600"
           />
           <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
             Icon={VideoScriptIcon} 
             active={activeProduct === "Video Lesson"}
             onClick={() => setActiveProduct("Video Lesson")}
-            gradientFrom="from-red-300"
-            gradientTo="to-pink-200"
-            iconColor="text-red-600"
-            labelColor="text-red-600"
           />
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon} 
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
-            gradientFrom="from-green-300"
-            gradientTo="to-emerald-200"
-            iconColor="text-green-600"
-            labelColor="text-green-600"
           />
           <GenerateCard
             label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
-            gradientFrom="from-purple-300"
-            gradientTo="to-pink-200"
-            iconColor="text-purple-600"
-            labelColor="text-purple-600"
           />
           <GenerateCard
             label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
-            gradientFrom="from-blue-300"
-            gradientTo="to-purple-200"
-            iconColor="text-blue-600"
-            labelColor="text-blue-600"
           />
         </div>
 
