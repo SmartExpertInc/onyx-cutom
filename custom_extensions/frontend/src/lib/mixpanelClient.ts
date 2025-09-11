@@ -17,7 +17,7 @@ export const initMixpanel = (): void => {
 
   // Use the Config type from @types/mixpanel-browser
   const options: Partial<Config> = {
-    api_host: 'https://api-eu.mixpanel.com',
+    api_host: 'http://localhost:80/tracking-proxy',
     debug: true,
     track_pageview: true,
   };
