@@ -1368,7 +1368,7 @@ function GenerateProductPicker() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
+             <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
               <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
                 <SelectValue />
               </SelectTrigger>

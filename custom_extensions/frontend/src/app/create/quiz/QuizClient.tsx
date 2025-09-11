@@ -1073,10 +1073,7 @@ export default function QuizClient() {
   return (
     <>
       <main
-        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
-        style={{
-          background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
-        }}
+        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
       >
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
           <Link
