@@ -18,6 +18,11 @@ export const initMixpanel = (): void => {
   // Use the Config type from @types/mixpanel-browser
   const options: Partial<Config> = {
     api_host: '/tracking-proxy',
+    api_routes: {                                // remove trailing slashes
+      track: 'track',
+      engage: 'engage',
+      groups: 'groups',
+    },
     debug: true,
     track_pageview: true,
   };
