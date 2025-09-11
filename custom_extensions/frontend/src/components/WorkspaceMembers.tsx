@@ -49,8 +49,20 @@ const UserIcon: React.FC<{ size?: number }> = ({ size = 30 }) => (
   </svg>
 );
 
-const StatusIcon: React.FC<{ size?: number }> = ({ size = 30 }) => (
-  <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill="#6A7282" fill-rule="evenodd" d="M14.1026,4.43011 C14.6139,4.22135 15.1977,4.46661 15.4064,4.97792 C17.0765,9.06841 15.1143,13.7383 11.0239,15.4083 C8.66289,16.3723 6.10818,16.1252 4.05194,14.9602 C3.57143,14.6879 3.40261,14.0776 3.67487,13.5971 C3.94713,13.1166 4.55737,12.9478 5.03789,13.2201 C6.58414,14.0962 8.49796,14.2793 10.2679,13.5567 C13.3357,12.3042 14.8073,8.80177 13.5548,5.73391 C13.346,5.2226 13.5913,4.63886 14.1026,4.43011 Z M2.19544,9.52389 C2.26141,9.77396 2.3444,10.023 2.44513,10.2698 C2.54587,10.5165 2.66092,10.7525 2.78882,10.9773 C3.06197,11.4573 2.89426,12.0678 2.41425,12.341 C1.93424,12.6141 1.32368,12.4464 1.05054,11.9664 C0.879967,11.6666 0.727034,11.3528 0.593515,11.0257 C0.459996,10.6987 0.349566,10.3675 0.261594,10.034 C0.120724,9.50001 0.439434,8.9529 0.973451,8.81203 C1.50747,8.67116 2.05457,8.98987 2.19544,9.52389 Z M2.45915,3.60703 C2.93624,3.88526 3.09744,4.49756 2.81922,4.97464 C2.55491,5.42786 2.35056,5.91419 2.21184,6.42018 C2.06582,6.95281 1.51566,7.26622 0.983026,7.12019 C0.450396,6.97416 0.136992,6.424 0.283019,5.89137 C0.467702,5.21774 0.739666,4.57047 1.09154,3.96709 C1.36977,3.49001 1.98207,3.3288 2.45915,3.60703 Z M10.1104,0.28485 C10.7841,0.469533 11.4313,0.741497 12.0347,1.09338 C12.5118,1.3716 12.673,1.9839 12.3948,2.46098 C12.1166,2.93807 11.5043,3.09927 11.0272,2.82105 C10.574,2.55674 10.0876,2.3524 9.58163,2.21367 C9.049,2.06765 8.7356,1.51749 8.88162,0.984857 C9.02765,0.452227 9.57781,0.138823 10.1104,0.28485 Z M7.18978,0.975282 C7.33065,1.5093 7.01194,2.0564 6.47792,2.19727 C6.22785,2.26324 5.97878,2.34623 5.73205,2.44696 C5.48531,2.5477 5.24933,2.66275 5.02455,2.79066 C4.54454,3.0638 3.93398,2.89609 3.66084,2.41608 C3.3877,1.93607 3.55541,1.32551 4.03542,1.05237 C4.33519,0.881798 4.64904,0.728865 4.97607,0.595346 C5.30309,0.461827 5.6343,0.351397 5.96779,0.263425 C6.50181,0.122556 7.04891,0.441265 7.18978,0.975282 Z"></path> </g></svg>
+const StatusIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg height={size} width={size} viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill="#6A7282" fill-rule="evenodd" d="M14.1026,4.43011 C14.6139,4.22135 15.1977,4.46661 15.4064,4.97792 C17.0765,9.06841 15.1143,13.7383 11.0239,15.4083 C8.66289,16.3723 6.10818,16.1252 4.05194,14.9602 C3.57143,14.6879 3.40261,14.0776 3.67487,13.5971 C3.94713,13.1166 4.55737,12.9478 5.03789,13.2201 C6.58414,14.0962 8.49796,14.2793 10.2679,13.5567 C13.3357,12.3042 14.8073,8.80177 13.5548,5.73391 C13.346,5.2226 13.5913,4.63886 14.1026,4.43011 Z M2.19544,9.52389 C2.26141,9.77396 2.3444,10.023 2.44513,10.2698 C2.54587,10.5165 2.66092,10.7525 2.78882,10.9773 C3.06197,11.4573 2.89426,12.0678 2.41425,12.341 C1.93424,12.6141 1.32368,12.4464 1.05054,11.9664 C0.879967,11.6666 0.727034,11.3528 0.593515,11.0257 C0.459996,10.6987 0.349566,10.3675 0.261594,10.034 C0.120724,9.50001 0.439434,8.9529 0.973451,8.81203 C1.50747,8.67116 2.05457,8.98987 2.19544,9.52389 Z M2.45915,3.60703 C2.93624,3.88526 3.09744,4.49756 2.81922,4.97464 C2.55491,5.42786 2.35056,5.91419 2.21184,6.42018 C2.06582,6.95281 1.51566,7.26622 0.983026,7.12019 C0.450396,6.97416 0.136992,6.424 0.283019,5.89137 C0.467702,5.21774 0.739666,4.57047 1.09154,3.96709 C1.36977,3.49001 1.98207,3.3288 2.45915,3.60703 Z M10.1104,0.28485 C10.7841,0.469533 11.4313,0.741497 12.0347,1.09338 C12.5118,1.3716 12.673,1.9839 12.3948,2.46098 C12.1166,2.93807 11.5043,3.09927 11.0272,2.82105 C10.574,2.55674 10.0876,2.3524 9.58163,2.21367 C9.049,2.06765 8.7356,1.51749 8.88162,0.984857 C9.02765,0.452227 9.57781,0.138823 10.1104,0.28485 Z M7.18978,0.975282 C7.33065,1.5093 7.01194,2.0564 6.47792,2.19727 C6.22785,2.26324 5.97878,2.34623 5.73205,2.44696 C5.48531,2.5477 5.24933,2.66275 5.02455,2.79066 C4.54454,3.0638 3.93398,2.89609 3.66084,2.41608 C3.3877,1.93607 3.55541,1.32551 4.03542,1.05237 C4.33519,0.881798 4.64904,0.728865 4.97607,0.595346 C5.30309,0.461827 5.6343,0.351397 5.96779,0.263425 C6.50181,0.122556 7.04891,0.441265 7.18978,0.975282 Z"></path> </g></svg>
+);
+
+const NamesIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="User / Users"> <path id="Vector" d="M21 19.9999C21 18.2583 19.3304 16.7767 17 16.2275M15 20C15 17.7909 12.3137 16 9 16C5.68629 16 3 17.7909 3 20M15 13C17.2091 13 19 11.2091 19 9C19 6.79086 17.2091 5 15 5M9 13C6.79086 13 5 11.2091 5 9C5 6.79086 6.79086 5 9 5C11.2091 5 13 6.79086 13 9C13 11.2091 11.2091 13 9 13Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g> </g></svg>
+);
+
+const RoleIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 15C10.1183 15 9.28093 14.8098 8.52682 14.4682C8.00429 14.2315 7.74302 14.1131 7.59797 14.0722C7.4472 14.0297 7.35983 14.0143 7.20361 14.0026C7.05331 13.9914 6.94079 14 6.71575 14.0172C6.6237 14.0242 6.5425 14.0341 6.46558 14.048C5.23442 14.2709 4.27087 15.2344 4.04798 16.4656C4 16.7306 4 17.0485 4 17.6841V19.4C4 19.9601 4 20.2401 4.10899 20.454C4.20487 20.6422 4.35785 20.7951 4.54601 20.891C4.75992 21 5.03995 21 5.6 21H8.4M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM12.5898 21L14.6148 20.595C14.7914 20.5597 14.8797 20.542 14.962 20.5097C15.0351 20.4811 15.1045 20.4439 15.1689 20.399C15.2414 20.3484 15.3051 20.2848 15.4324 20.1574L19.5898 16C20.1421 15.4477 20.1421 14.5523 19.5898 14C19.0376 13.4477 18.1421 13.4477 17.5898 14L13.4324 18.1574C13.3051 18.2848 13.2414 18.3484 13.1908 18.421C13.1459 18.4853 13.1088 18.5548 13.0801 18.6279C13.0478 18.7102 13.0302 18.7985 12.9948 18.975L12.5898 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+);
+
+const DateIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
@@ -587,7 +599,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Workspace Header and Selector */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
@@ -666,7 +678,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           {/* Action Buttons */}
           <div className="flex gap-2">
             <Button
-              variant="secondary"
+              variant="manage"
               size="sm"
               onClick={() => setShowRoleManager(true)}
               className="flex items-center gap-2 px-4 py-2"
@@ -694,16 +706,28 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  {t('interface.memberName', 'Name')}
+                  <div className="flex items-center gap-2">
+                    <NamesIcon size={15} />
+                    {t('interface.memberName', 'Name')}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  {t('interface.memberRole', 'Role')}
+                  <div className="flex items-center gap-2">
+                    <RoleIcon size={15} />
+                    {t('interface.memberRole', 'Role')}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  {t('interface.memberStatus', 'Status')}
+                  <div className="flex items-center gap-2">
+                    <StatusIcon size={15} />
+                    {t('interface.memberStatus', 'Status')}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
-                  {t('interface.memberInvitationDate', 'Invitation Date')}
+                  <div className="flex items-center gap-2">
+                    <DateIcon size={15} />
+                    {t('interface.memberInvitationDate', 'Invitation Date')}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
                   {t('interface.memberActions', 'Actions')}
@@ -743,7 +767,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         <select
                           value={member.role_id}
                           onChange={(e) => handleRoleChange(member.id, parseInt(e.target.value))}
-                          className="px-1 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-black whitespace-nowrap"
+                          className="px-1 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-gray-800 whitespace-nowrap"
                           required
                         >
                           {roles.map((role) => (
@@ -757,12 +781,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className={`h-2 w-2 rounded-full ${getStatusColor(member.status)} mr-2`}></div>
-                        <span className="text-sm text-gray-900">
+                        <span className="text-sm text-gray-800">
                           {t(`interface.statuses.${member.status}`, member.status)}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       {formatDate(member.invited_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
