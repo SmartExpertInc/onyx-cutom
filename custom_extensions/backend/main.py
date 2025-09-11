@@ -14019,6 +14019,48 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
         return payload.companyDesc  # Fallback to original description
 
 
+async def generate_course_description_for_position(job_title: str, company_name: str, duckduckgo_summary: str) -> str:
+    """
+    Generate a concise course description for a specific job position.
+    """
+    try:
+        prompt = f"""
+        Создай краткое описание курса обучения для позиции "{job_title}" в компании {company_name}.
+        
+        ДАННЫЕ О КОМПАНИИ:
+        {duckduckgo_summary}
+        
+        ТРЕБОВАНИЯ:
+        - Описание должно быть кратким (1-2 предложения)
+        - Должно описывать, чему будет обучать курс для данной позиции
+        - Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
+        - Максимум 100 символов
+        
+        ПРИМЕРЫ:
+        - "Обучение установке, обслуживанию и ремонту систем HVAC оборудования."
+        - "Обучение основам маркетинга и продвижения товаров на маркетплейсе."
+        - "Обучение технической поддержке клиентов и решению проблем."
+        
+        ОТВЕТ (только описание курса):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model="gpt-4o-mini",
+            temperature=0.7
+        )
+        
+        # Clean up the response
+        description = response_text.strip()
+        if len(description) > 100:
+            description = description[:97] + "..."
+            
+        return description
+        
+    except Exception as e:
+        logger.error(f"❌ [COURSE DESCRIPTION] Error generating course description for {job_title}: {e}")
+        return f"Обучение ключевым навыкам для позиции {job_title}."
+
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload) -> list:
     """
     Generate course templates by combining real job positions with AI-generated positions.
@@ -14033,9 +14075,16 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
         
         # Add real job positions first
         for i, position in enumerate(job_positions[:6]):  # Take up to 6 real positions
+            # Generate proper course description for scraped positions
+            course_description = await generate_course_description_for_position(
+                position.get("title", f"Position {i+1}"), 
+                payload.companyName, 
+                duckduckgo_summary
+            )
+            
             course_template = {
                 "title": position.get("title", f"Position {i+1}"),
-                "description": position.get("description", "Описание курса для данной позиции."),
+                "description": course_description,
                 "modules": random.randint(4, 6),
                 "lessons": random.randint(15, 30),
                 "rating": "5.0",
@@ -14142,12 +14191,14 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
         - Сгенерируй {count} логических позиций, которые подходят для данной компании и отрасли
         - Каждая позиция должна быть реалистичной и подходящей для курса обучения
         - Позиции должны дополнять уже существующие вакансии
+        - Описание курса должно быть КРАТКИМ (максимум 100 символов)
+        - Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
         - Верни данные в формате JSON: [{{"title": "Название позиции", "description": "Краткое описание курса обучения"}}]
         
-        ПРИМЕРЫ ПОЗИЦИЙ:
-        - Для IT компании: "Frontend Developer", "DevOps Engineer", "QA Tester"
-        - Для маркетплейса: "Customer Support", "Logistics Coordinator", "Marketing Specialist"
-        - Для HVAC: "HVAC Technician", "Refrigeration Specialist", "Energy Auditor"
+        ПРИМЕРЫ ПОЗИЦИЙ И ОПИСАНИЙ:
+        - {{"title": "Customer Support", "description": "Обучение работе с клиентами и решению проблем."}}
+        - {{"title": "Marketing Specialist", "description": "Обучение основам маркетинга и продвижения товаров."}}
+        - {{"title": "Logistics Coordinator", "description": "Обучение управлению поставками и логистикой."}}
         
         ОТВЕТ (только JSON):
         """
