@@ -50,7 +50,7 @@ import {
 import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
-import { FeatureUsedEvent } from "../lib//analyticsTypes";
+import { FeatureUsedEvent } from "../lib/analyticsTypes";
 import { trackFeatureUsed } from "../lib/mixpanelClient"
 
 // Helper function to render Lucide React icons based on designMicroproductType

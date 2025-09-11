@@ -5,6 +5,8 @@ import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { FeatureUsedEvent } from "../../lib/analyticsTypes";
+import { trackFeatureUsed } from "../../lib/mixpanelClient"
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -40,6 +42,14 @@ const OptionCard: React.FC<OptionCardProps> = ({
         // Check if data is recent (within 1 hour)
         if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
           e.preventDefault();
+
+          // Push event to mixpanel
+          const event: FeatureUsedEvent = {
+            "Feature Name": title,
+            "Feature Category": "Products",
+            "Action": "Clicked"
+          };
+          trackFeatureUsed(event);
           
           // Build URL with lesson/quiz/text-presentation parameters
           const params = new URLSearchParams();

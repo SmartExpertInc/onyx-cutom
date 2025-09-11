@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { FeatureUsedEvent } from "../../../lib/analyticsTypes";
+import { trackFeatureUsed } from "../../../lib/mixpanelClient"
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -1015,6 +1017,16 @@ function GenerateProductPicker() {
     router.push(`/create/lesson-presentation?${params.toString()}`);
   };
 
+  // Push event to mixpanel
+  const handleGenerateEvent = (productName: string) => {
+    const event: FeatureUsedEvent = {
+      "Feature Name": `Generate ${productName}`,
+      "Feature Category": "Products",
+      "Action": "Clicked"
+    };
+    trackFeatureUsed(event);
+  };
+
   return (
     <main
       className="min-h-screen flex flex-col items-center p-6"
@@ -1933,6 +1945,7 @@ function GenerateProductPicker() {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {
+                handleGenerateEvent(activeProduct);
                 switch (activeProduct) {
                   case "Course Outline":
                     handleCourseOutlineStart();
