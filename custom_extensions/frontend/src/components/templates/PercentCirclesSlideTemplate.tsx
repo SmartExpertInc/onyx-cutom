@@ -62,20 +62,20 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     lineHeight:1.2
   };
 
-  // Circles row - 10 circles total
+  // Circles row - 10 circles total, positioned near avatar
   const circlesContainer: React.CSSProperties = {
     position:'absolute',
     left:'80px',
-    top:'200px',
+    top:'180px',
     display:'flex',
-    gap:'20px',
+    gap:'16px',
     alignItems:'center'
   };
 
-  // Individual circle styles - same size as avatar
+  // Individual circle styles - smaller to fit with avatar
   const circleBase: React.CSSProperties = {
-    width:'120px',
-    height:'120px',
+    width:'80px',
+    height:'80px',
     borderRadius:'50%',
     border:'2px solid #3C3F46',
     background:'#FFFFFF',
@@ -89,7 +89,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     background:'#4CCD6A', // Bright green
     border:'2px solid #4CCD6A',
     color:'#FFFFFF',
-    fontSize:'28px',
+    fontSize:'20px',
     fontWeight:700
   };
 
@@ -201,7 +201,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                 initialValue={percent} 
                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
                 onCancel={()=> setEdit(null)} 
-                style={{ ...inline({}), color:'#FFFFFF', fontSize:'28px', fontWeight:700 }} 
+                style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
               />
             ) : (
               <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
