@@ -15,6 +15,7 @@ import workspaceService, {
 import { getCurrentUserId, getCurrentUser, initializeUser } from '../services/userService';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 // Import test utilities for development
 import '../utils/testUserIds';
 import { Button } from './ui/button';
@@ -58,11 +59,11 @@ const NamesIcon: React.FC<{ size?: number }> = ({ size }) => (
 );
 
 const RoleIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 15C10.1183 15 9.28093 14.8098 8.52682 14.4682C8.00429 14.2315 7.74302 14.1131 7.59797 14.0722C7.4472 14.0297 7.35983 14.0143 7.20361 14.0026C7.05331 13.9914 6.94079 14 6.71575 14.0172C6.6237 14.0242 6.5425 14.0341 6.46558 14.048C5.23442 14.2709 4.27087 15.2344 4.04798 16.4656C4 16.7306 4 17.0485 4 17.6841V19.4C4 19.9601 4 20.2401 4.10899 20.454C4.20487 20.6422 4.35785 20.7951 4.54601 20.891C4.75992 21 5.03995 21 5.6 21H8.4M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM12.5898 21L14.6148 20.595C14.7914 20.5597 14.8797 20.542 14.962 20.5097C15.0351 20.4811 15.1045 20.4439 15.1689 20.399C15.2414 20.3484 15.3051 20.2848 15.4324 20.1574L19.5898 16C20.1421 15.4477 20.1421 14.5523 19.5898 14C19.0376 13.4477 18.1421 13.4477 17.5898 14L13.4324 18.1574C13.3051 18.2848 13.2414 18.3484 13.1908 18.421C13.1459 18.4853 13.1088 18.5548 13.0801 18.6279C13.0478 18.7102 13.0302 18.7985 12.9948 18.975L12.5898 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 15C10.1183 15 9.28093 14.8098 8.52682 14.4682C8.00429 14.2315 7.74302 14.1131 7.59797 14.0722C7.4472 14.0297 7.35983 14.0143 7.20361 14.0026C7.05331 13.9914 6.94079 14 6.71575 14.0172C6.6237 14.0242 6.5425 14.0341 6.46558 14.048C5.23442 14.2709 4.27087 15.2344 4.04798 16.4656C4 16.7306 4 17.0485 4 17.6841V19.4C4 19.9601 4 20.2401 4.10899 20.454C4.20487 20.6422 4.35785 20.7951 4.54601 20.891C4.75992 21 5.03995 21 5.6 21H8.4M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM12.5898 21L14.6148 20.595C14.7914 20.5597 14.8797 20.542 14.962 20.5097C15.0351 20.4811 15.1045 20.4439 15.1689 20.399C15.2414 20.3484 15.3051 20.2848 15.4324 20.1574L19.5898 16C20.1421 15.4477 20.1421 14.5523 19.5898 14C19.0376 13.4477 18.1421 13.4477 17.5898 14L13.4324 18.1574C13.3051 18.2848 13.2414 18.3484 13.1908 18.421C13.1459 18.4853 13.1088 18.5548 13.0801 18.6279C13.0478 18.7102 13.0302 18.7985 12.9948 18.975L12.5898 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const DateIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
@@ -757,78 +758,91 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                        style={{
-                          backgroundColor: getRoleColor(member.role_id),
-                          color: getRoleTextColor(member.role_id)
-                        }}
+                      <Select 
+                        value={member.role_id.toString()} 
+                        onValueChange={(value) => handleRoleChange(member.id, parseInt(value))}
                       >
-                        <select
-                          value={member.role_id}
-                          onChange={(e) => handleRoleChange(member.id, parseInt(e.target.value))}
-                          className="px-1 border border-none rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-200 text-gray-800 whitespace-nowrap"
-                          required
+                        <SelectTrigger 
+                          className="w-auto shadow-none bg-transparent p-0 h-auto border-1"
+                          style={{
+                            backgroundColor: getRoleColor(member.role_id),
+                            color: getRoleTextColor(member.role_id),
+                            borderColor: getRoleTextColor(member.role_id)
+                          }}
                         >
+                          <SelectValue 
+                            className="text-xs font-medium"
+                            style={{ color: getRoleTextColor(member.role_id) }}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
                           {roles.map((role) => (
-                            <option key={role.id} value={role.id} style={{ color: role.text_color }}>
-                              {getRoleDisplayName(role.name)}
-                            </option>
+                            <SelectItem key={role.id} value={role.id.toString()}>
+                              <div 
+                                className="flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium"
+                                style={{
+                                  backgroundColor: role.color,
+                                  color: role.text_color
+                                }}
+                              >
+                                {getRoleDisplayName(role.name)}
+                              </div>
+                            </SelectItem>
                           ))}
-                        </select>
-                      </span>
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className={`h-2 w-2 rounded-full ${getStatusColor(member.status)} mr-2`}></div>
-                        <span className="text-sm text-gray-800">
+                        <span className="text-sm text-gray-700">
                           {t(`interface.statuses.${member.status}`, member.status)}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {formatDate(member.invited_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="relative group">
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <MoreHorizontal size={16} />
-                        </button>
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                          <div className="py-1">
-                            {member.status === 'active' && (
-                              <button
-                                onClick={() => handleSuspendMember(member.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                {t('interface.workspaceActions.suspend', 'Suspend')}
-                              </button>
-                            )}
-                            {member.status === 'suspended' && (
-                              <button
-                                onClick={() => handleActivateMember(member.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                {t('interface.workspaceActions.activate', 'Activate')}
-                              </button>
-                            )}
-                            {member.status === 'pending' && (
-                              <button
-                                onClick={() => handleActivateMember(member.id)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                {t('interface.workspaceActions.resendInvitation', 'Resend Invitation')}
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleDeleteMember(member.id)}
-                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="text-gray-400 hover:text-gray-600 p-1">
+                            <MoreHorizontal size={16} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          {member.status === 'active' && (
+                            <DropdownMenuItem
+                              onClick={() => handleSuspendMember(member.id)}
+                              className="cursor-pointer"
                             >
-                              {t('interface.workspaceActions.delete', 'Delete')}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                              {t('interface.workspaceActions.suspend', 'Suspend')}
+                            </DropdownMenuItem>
+                          )}
+                          {member.status === 'suspended' && (
+                            <DropdownMenuItem
+                              onClick={() => handleActivateMember(member.id)}
+                              className="cursor-pointer"
+                            >
+                              {t('interface.workspaceActions.activate', 'Activate')}
+                            </DropdownMenuItem>
+                          )}
+                          {member.status === 'pending' && (
+                            <DropdownMenuItem
+                              onClick={() => handleActivateMember(member.id)}
+                              className="cursor-pointer"
+                            >
+                              {t('interface.workspaceActions.resendInvitation', 'Resend Invitation')}
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteMember(member.id)}
+                            className="cursor-pointer text-red-600 focus:text-red-600"
+                          >
+                            {t('interface.workspaceActions.delete', 'Delete')}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </td>
                   </tr>
                 ))
