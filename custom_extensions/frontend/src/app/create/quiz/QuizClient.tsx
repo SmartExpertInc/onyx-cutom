@@ -1199,7 +1199,7 @@ export default function QuizClient() {
                         <div className="relative">
                           <button
                             onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
+                            className="flex items-center justify-between w-full min-w-[200px] px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
                           >
                             <span>
                               {selectedQuestionTypes.length === 0
@@ -1208,7 +1208,7 @@ export default function QuizClient() {
                                   ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                                   : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                             </span>
-                            <ChevronDown size={14} className="transition-transform text-gray-300" />
+                            <ChevronDown size={16} className="transition-transform opacity-50" />
                           </button>
                           {showQuestionTypesDropdown && (
                             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
@@ -1276,7 +1276,7 @@ export default function QuizClient() {
                     <div className="relative">
                       <button
                         onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
+                        className="flex items-center justify-between w-full min-w-[200px] px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button"
                       >
                         <span>
                           {selectedQuestionTypes.length === 0
@@ -1285,7 +1285,7 @@ export default function QuizClient() {
                               ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                               : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                         </span>
-                        <ChevronDown size={14} className="transition-transform text-gray-300" />
+                        <ChevronDown size={16} className="transition-transform opacity-50" />
                       </button>
                       {showQuestionTypesDropdown && (
                         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
@@ -1351,41 +1351,32 @@ export default function QuizClient() {
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
             <div className="relative group">
-              <div className="relative">
-                <textarea
-                  value={currentPrompt || ""}
-                  onChange={(e) => {
-                    const newPrompt = e.target.value;
-                    setCurrentPrompt(newPrompt);
-                    
-                    // Handle prompt storage for long prompts
-                    const sp = new URLSearchParams(searchParams?.toString() || "");
-                    if (newPrompt.length > 500) {
-                      const promptId = generatePromptId();
-                      sessionStorage.setItem(promptId, newPrompt);
-                      sp.set("prompt", promptId);
-                    } else {
-                      sp.set("prompt", newPrompt);
-                    }
-                    router.replace(`?${sp.toString()}`, { scroll: false });
-                  }}
-                  placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-                  rows={1}
-                  className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg"
-                  style={{ background: "rgba(255,255,255,0.95)" }}
-                />
-                {currentPrompt && (
-                  <div 
-                    className="absolute top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none flex items-center"
-                    style={{ 
-                      left: `${28 + (currentPrompt.length * 9.6)}px`,
-                    }}
-                  >
-                    <span className="text-gray-400 text-lg">{currentPrompt}</span>
-                    <Edit size={16} className="text-gray-400 ml-1" />
-                  </div>
-                )}
-              </div>
+              <textarea
+                value={currentPrompt || ""}
+                onChange={(e) => {
+                  const newPrompt = e.target.value;
+                  setCurrentPrompt(newPrompt);
+                  
+                  // Handle prompt storage for long prompts
+                  const sp = new URLSearchParams(searchParams?.toString() || "");
+                  if (newPrompt.length > 500) {
+                    const promptId = generatePromptId();
+                    sessionStorage.setItem(promptId, newPrompt);
+                    sp.set("prompt", promptId);
+                  } else {
+                    sp.set("prompt", newPrompt);
+                  }
+                  router.replace(`?${sp.toString()}`, { scroll: false });
+                }}
+                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                rows={1}
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg"
+                style={{ background: "rgba(255,255,255,0.95)" }}
+              />
+              <Edit 
+                size={16} 
+                className="absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none" 
+              />
             </div>
           )}
 
