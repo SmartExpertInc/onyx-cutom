@@ -30,10 +30,10 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };
   const left: React.CSSProperties = { padding:'72px 72px' };
-  const titleStyle: React.CSSProperties = { fontSize:'92px', fontWeight:800, color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };
-  const grid: React.CSSProperties = { marginTop:'40px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
-  const itemTitle: React.CSSProperties = { fontSize:'26px', fontWeight:700, color:'#3B3F44' };
-  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'18px', color:'#8A8F96', lineHeight:1.5 };
+  const titleStyle: React.CSSProperties = { fontSize:'60px', fontWeight:800, color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };
+  const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
+  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'#3B3F44' };
+  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#8A8F96', lineHeight:1.5 };
 
   const right: React.CSSProperties = { position:'relative', background:'#111214' };
   const purpleBar: React.CSSProperties = { position:'absolute', left:0, top:'72px', bottom:'72px', width:'54px', background:'#8E5BFF' };
