@@ -14014,7 +14014,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating company description...")
         company_description = await generate_company_description_from_data(duckduckgo_summary, payload)
-        
+
         # 📊 LOG: Company description generated
         logger.info(f"📝 [AUDIT DATA FLOW] Generated company description: '{company_description}'")
 
@@ -14094,7 +14094,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "companyDescription": company_description
         }
         logger.info(f"📤 [AUDIT DATA FLOW] Final response data: {final_response}")
-        
+    
         return final_response
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error: {e}")
