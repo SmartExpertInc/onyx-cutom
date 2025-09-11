@@ -46,7 +46,7 @@ function DropdownMenuContent({
           className
         )}
         style={{
-          backgroundColor: `rgb(var(--dropdown-bg))`,
+          backgroundColor: `white`,
           borderColor: `rgb(var(--dropdown-border))`,
           boxShadow: `var(--dropdown-shadow)`
         }}
@@ -83,16 +83,16 @@ function DropdownMenuItem({
         className
       )}
       style={{
-        backgroundColor: `rgb(var(--dropdown-item-bg))`,
-        color: `rgb(var(--dropdown-item-text))`
+        backgroundColor: `white`,
+        color: `black`
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-hover-bg))`;
-        e.currentTarget.style.color = `rgb(var(--dropdown-item-hover-text))`;
+        e.currentTarget.style.color = `gray`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-bg))`;
-        e.currentTarget.style.color = `rgb(var(--dropdown-item-text))`;
+        e.currentTarget.style.color = `gray`;
       }}
       {...props}
     />

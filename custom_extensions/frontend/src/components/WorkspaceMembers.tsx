@@ -763,7 +763,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         onValueChange={(value) => handleRoleChange(member.id, parseInt(value))}
                       >
                         <SelectTrigger 
-                          className="w-auto shadow-none bg-transparent p-0 h-auto border-1"
+                          className="w-auto shadow-none bg-transparent p-0 h-7 border-1 rounded-3xl"
                           style={{
                             backgroundColor: getRoleColor(member.role_id),
                             color: getRoleTextColor(member.role_id),
@@ -795,12 +795,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className={`h-2 w-2 rounded-full ${getStatusColor(member.status)} mr-2`}></div>
-                        <span className="text-sm text-gray-700">
+                        <span className="text-sm text-gray-600">
                           {t(`interface.statuses.${member.status}`, member.status)}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {formatDate(member.invited_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -810,11 +810,11 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                             <MoreHorizontal size={16} />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 shadow-lg">
                           {member.status === 'active' && (
                             <DropdownMenuItem
                               onClick={() => handleSuspendMember(member.id)}
-                              className="cursor-pointer"
+                              className="cursor-pointer text-gray-600 hover:bg-gray-50 focus:bg-gray-50"
                             >
                               {t('interface.workspaceActions.suspend', 'Suspend')}
                             </DropdownMenuItem>
@@ -822,7 +822,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                           {member.status === 'suspended' && (
                             <DropdownMenuItem
                               onClick={() => handleActivateMember(member.id)}
-                              className="cursor-pointer"
+                              className="cursor-pointer text-gray-600 hover:bg-gray-50 focus:bg-gray-50"
                             >
                               {t('interface.workspaceActions.activate', 'Activate')}
                             </DropdownMenuItem>
@@ -830,14 +830,14 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                           {member.status === 'pending' && (
                             <DropdownMenuItem
                               onClick={() => handleActivateMember(member.id)}
-                              className="cursor-pointer"
+                              className="cursor-pointer text-gray-600 hover:bg-gray-50 focus:bg-gray-50"
                             >
                               {t('interface.workspaceActions.resendInvitation', 'Resend Invitation')}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
                             onClick={() => handleDeleteMember(member.id)}
-                            className="cursor-pointer text-red-600 focus:text-red-600"
+                            className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50 focus:text-red-600"
                           >
                             {t('interface.workspaceActions.delete', 'Delete')}
                           </DropdownMenuItem>
