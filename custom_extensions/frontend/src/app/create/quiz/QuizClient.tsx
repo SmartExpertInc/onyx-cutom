@@ -1079,7 +1079,7 @@ export default function QuizClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-300 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
         >
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
@@ -1245,7 +1245,7 @@ export default function QuizClient() {
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="border-gray-300">
+                          <SelectContent className="border-gray-300 max-h-48 overflow-y-auto">
                             {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
                               <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.questions', 'questions')}</SelectItem>
                             ))}
@@ -1322,7 +1322,7 @@ export default function QuizClient() {
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-gray-300">
+                      <SelectContent className="border-gray-300 max-h-48 overflow-y-auto">
                         {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
                           <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.questions', 'questions')}</SelectItem>
                         ))}
