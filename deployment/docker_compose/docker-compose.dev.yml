@@ -300,8 +300,8 @@ services:
         - NEXT_PUBLIC_THEME=${NEXT_PUBLIC_THEME:-}
         # DO NOT TURN ON unless you have EXPLICIT PERMISSION from Onyx.
         - NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED=${NEXT_PUBLIC_DO_NOT_USE_TOGGLE_OFF_DANSWER_POWERED:-false}
-        # - NEXT_PUBLIC_MIXPANEL_TOKEN=e453fcc90175f12baa470ddc2b7d20c5 #EU
-        - NEXT_PUBLIC_MIXPANEL_TOKEN=8c2cf3f2c953066fec42ea51130f8a02 #USA
+        - NEXT_PUBLIC_MIXPANEL_TOKEN=e453fcc90175f12baa470ddc2b7d20c5 #EU
+        #- NEXT_PUBLIC_MIXPANEL_TOKEN=8c2cf3f2c953066fec42ea51130f8a02 #USA
     depends_on:
       - api_server
     restart: always
@@ -482,8 +482,8 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_BASE_URL_ARG=/api/custom-projects-backend
-        #- NEXT_PUBLIC_MIXPANEL_TOKEN=e453fcc90175f12baa470ddc2b7d20c5 #EU
-        - NEXT_PUBLIC_MIXPANEL_TOKEN=8c2cf3f2c953066fec42ea51130f8a02 #USA
+        - NEXT_PUBLIC_MIXPANEL_TOKEN=e453fcc90175f12baa470ddc2b7d20c5 #EU
+        #- NEXT_PUBLIC_MIXPANEL_TOKEN=8c2cf3f2c953066fec42ea51130f8a02 #USA
     restart: always
     env_file:
       - .env
