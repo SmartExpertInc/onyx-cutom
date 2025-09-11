@@ -32,8 +32,8 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const left: React.CSSProperties = { padding:'72px 72px' };
   const titleStyle: React.CSSProperties = { fontSize:'60px', fontWeight:800, color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
-  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'#3B3F44' };
-  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#8A8F96', lineHeight:1.5 };
+  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'#444444' };
+  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#626262', lineHeight:1.5 };
 
   const right: React.CSSProperties = { position:'relative'};
   const purpleBar: React.CSSProperties = { position:'absolute', left:'3px', top:'72px', bottom:'0', width:'86%', background:'#906AF8' };

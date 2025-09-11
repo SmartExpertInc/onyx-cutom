@@ -28,62 +28,257 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F6F6F2', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'244px', background:'#FFFFFF', borderRadius:'24px', boxShadow:'0 0 0 2px #111111 inset' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'88px', top:'104px', fontSize:'64px', fontWeight:800, whiteSpace:'pre-line' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'88px', top:'76px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#C7D6FF' };
+  // Main slide with light beige background
+  const slide: React.CSSProperties = { 
+    width:'100%', 
+    aspectRatio:'16/9', 
+    background:'#F6F6F2', 
+    color:'#0F172A', 
+    fontFamily: currentTheme.fonts.titleFont, 
+    position:'relative',
+    border:'1px solid #3C3F46'
+  };
 
-  const circlesWrap: React.CSSProperties = { position:'absolute', left:'88px', right:'88px', top:'280px', height:'180px', display:'grid', gridTemplateColumns:'repeat(11, 1fr)', columnGap:'20px' };
-  const circleBase: React.CSSProperties = { border:'3px solid #3C3F46', borderRadius:'30px', width:'140px', height:'140px', background:'#FFFFFF' };
-  const circleActive: React.CSSProperties = { ...circleBase, background:'#4CCD6A', color:'#0A0F0C', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'28px', fontWeight:700 };
+  // Top section - main content area
+  const topSection: React.CSSProperties = {
+    position:'absolute',
+    left:'44px',
+    right:'44px',
+    top:'44px',
+    height:'400px',
+    background:'#FFFFFF',
+    border:'1px solid #3C3F46'
+  };
 
-  const bottomRow: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', bottom:'44px', display:'grid', gridTemplateColumns:'1fr 1fr', columnGap:'36px' };
-  const greenCard: React.CSSProperties = { background:'#4CCD6A', borderRadius:'16px', boxShadow:'0 0 0 2px #111 inset', height:'140px', display:'grid', gridTemplateColumns:'140px 1fr 60px', alignItems:'center', padding:'0 24px' };
-  const valueStyle: React.CSSProperties = { fontSize:'56px', fontWeight:800 };
-  const textStyle: React.CSSProperties = { fontSize:'20px', color:'#0F172A' };
+  // Title styling - dark gray, bold, two lines
+  const titleStyle: React.CSSProperties = { 
+    position:'absolute', 
+    left:'80px', 
+    top:'80px', 
+    fontSize:'32px', 
+    fontWeight:700, 
+    color:'#1E1E1C',
+    whiteSpace:'pre-line',
+    lineHeight:1.2
+  };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  // Circles row - 10 circles total
+  const circlesContainer: React.CSSProperties = {
+    position:'absolute',
+    left:'80px',
+    top:'200px',
+    display:'flex',
+    gap:'20px',
+    alignItems:'center'
+  };
+
+  // Individual circle styles - same size as avatar
+  const circleBase: React.CSSProperties = {
+    width:'120px',
+    height:'120px',
+    borderRadius:'50%',
+    border:'2px solid #3C3F46',
+    background:'#FFFFFF',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center'
+  };
+
+  const circleFilled: React.CSSProperties = {
+    ...circleBase,
+    background:'#4CCD6A', // Bright green
+    border:'2px solid #4CCD6A',
+    color:'#FFFFFF',
+    fontSize:'28px',
+    fontWeight:700
+  };
+
+  // Avatar positioning - upper right, overlapping border
+  const avatarWrap: React.CSSProperties = { 
+    position:'absolute', 
+    right:'-20px', 
+    top:'-20px', 
+    width:'120px', 
+    height:'120px', 
+    borderRadius:'50%', 
+    overflow:'hidden', 
+    background:'#C7D6FF',
+    border:'3px solid #FFFFFF',
+    zIndex:10
+  };
+
+  // Bottom section - two green cards
+  const bottomSection: React.CSSProperties = {
+    position:'absolute',
+    left:'44px',
+    right:'44px',
+    bottom:'44px',
+    height:'120px',
+    display:'grid',
+    gridTemplateColumns:'1fr 1fr',
+    gap:'20px'
+  };
+
+  // Green card styling
+  const greenCard: React.CSSProperties = {
+    background:'#4CCD6A',
+    borderRadius:'12px',
+    padding:'24px',
+    display:'flex',
+    flexDirection:'column',
+    justifyContent:'center',
+    position:'relative'
+  };
+
+  // Text styles for green cards
+  const cardValueStyle: React.CSSProperties = {
+    fontSize:'36px',
+    fontWeight:700,
+    color:'#FFFFFF',
+    marginBottom:'8px'
+  };
+
+  const cardTextStyle: React.CSSProperties = {
+    fontSize:'16px',
+    color:'#FFFFFF',
+    lineHeight:1.3
+  };
+
+  // Arrow icon for second card
+  const arrowIcon: React.CSSProperties = {
+    position:'absolute',
+    bottom:'16px',
+    right:'16px',
+    width:'24px',
+    height:'24px',
+    borderRadius:'50%',
+    background:'#000000',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    color:'#FFFFFF',
+    fontSize:'12px'
+  };
+
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
+    ...base, 
+    position:'relative', 
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0, 
+    whiteSpace:'pre-wrap' 
+  });
 
   return (
     <div className="percent-circles inter-theme" style={slide}>
-      <div style={card} />
-      <div style={titleStyle}>
-        {isEditable && edit?.k==='title' ? (
-          <ImprovedInlineEditor initialValue={title} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
-        )}
-      </div>
-      <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-      </div>
+      {/* Top section */}
+      <div style={topSection}>
+        {/* Title */}
+        <div style={titleStyle}>
+          {isEditable && edit?.k==='title' ? (
+            <ImprovedInlineEditor 
+              initialValue={title} 
+              multiline={true} 
+              onSave={(v)=>{ onUpdate && onUpdate({ title:v }); setEdit(null); }} 
+              onCancel={()=> setEdit(null)} 
+              style={inline(titleStyle)} 
+            />
+          ) : (
+            <div onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+              {title}
+            </div>
+          )}
+        </div>
 
-      <div style={circlesWrap}>
-        {[...Array(11)].map((_,i)=> (
-          <div key={i} style={i===0 ? circleActive : circleBase}>
-            {i===0 ? percent : null}
+        {/* Circles row */}
+        <div style={circlesContainer}>
+          {/* First circle - filled with percentage */}
+          <div style={circleFilled}>
+            {isEditable && edit?.k==='percent' ? (
+              <ImprovedInlineEditor 
+                initialValue={percent} 
+                onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
+                onCancel={()=> setEdit(null)} 
+                style={{ ...inline({}), color:'#FFFFFF', fontSize:'28px', fontWeight:700 }} 
+              />
+            ) : (
+              <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+                {percent}
+              </div>
+            )}
           </div>
-        ))}
+          
+          {/* Remaining 9 empty circles */}
+          {[...Array(9)].map((_, i) => (
+            <div key={i} style={circleBase} />
+          ))}
+        </div>
       </div>
 
-      <div style={bottomRow}>
-        {bottomCards.map((c,i)=> (
+      {/* Avatar */}
+      <div style={avatarWrap}>
+        <ClickableImagePlaceholder 
+          imagePath={avatarPath} 
+          onImageUploaded={(p)=> onUpdate && onUpdate({ avatarPath:p })} 
+          size="LARGE" 
+          position="CENTER" 
+          description="Avatar" 
+          isEditable={isEditable} 
+          style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+        />
+      </div>
+
+      {/* Bottom section with green cards */}
+      <div style={bottomSection}>
+        {bottomCards.map((card, i) => (
           <div key={i} style={greenCard}>
-            <div onClick={()=> isEditable && setEdit({ k:`bv${i}` })} style={valueStyle}>
+            {/* Value */}
+            <div style={cardValueStyle} onClick={()=> isEditable && setEdit({ k:`bv${i}` })}>
               {isEditable && edit?.k===`bv${i}` ? (
-                <ImprovedInlineEditor initialValue={c.value} onSave={(v)=>{ const next=[...bottomCards]; next[i]={ ...next[i], value:v }; onUpdate&&onUpdate({ bottomCards: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(valueStyle)} />
+                <ImprovedInlineEditor 
+                  initialValue={card.value} 
+                  onSave={(v)=>{ 
+                    const next = [...bottomCards]; 
+                    next[i] = { ...next[i], value:v }; 
+                    onUpdate && onUpdate({ bottomCards: next }); 
+                    setEdit(null); 
+                  }} 
+                  onCancel={()=> setEdit(null)} 
+                  style={inline(cardValueStyle)} 
+                />
               ) : (
-                c.value
+                card.value
               )}
             </div>
-            <div onClick={()=> isEditable && setEdit({ k:`bt${i}` })} style={textStyle}>
+
+            {/* Text */}
+            <div style={cardTextStyle} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
               {isEditable && edit?.k===`bt${i}` ? (
-                <ImprovedInlineEditor initialValue={c.text} multiline={true} onSave={(v)=>{ const next=[...bottomCards]; next[i]={ ...next[i], text:v }; onUpdate&&onUpdate({ bottomCards: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(textStyle)} />
+                <ImprovedInlineEditor 
+                  initialValue={card.text} 
+                  multiline={true}
+                  onSave={(v)=>{ 
+                    const next = [...bottomCards]; 
+                    next[i] = { ...next[i], text:v }; 
+                    onUpdate && onUpdate({ bottomCards: next }); 
+                    setEdit(null); 
+                  }} 
+                  onCancel={()=> setEdit(null)} 
+                  style={inline(cardTextStyle)} 
+                />
               ) : (
-                c.text
+                card.text
               )}
             </div>
-            <div>{c.hasArrow ? '➜' : ''}</div>
+
+            {/* Arrow icon for second card */}
+            {card.hasArrow && (
+              <div style={arrowIcon}>
+                →
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -92,4 +287,3 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 };
 
 export default PercentCirclesSlideTemplate;
-
