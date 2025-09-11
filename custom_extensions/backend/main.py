@@ -14024,11 +14024,11 @@ async def generate_ai_image_for_job_position(job_title: str, company_name: str) 
     Generate an AI image for a specific job position using DALL-E 3.
     """
     try:
-        # Create a professional prompt for the job position
-        prompt = f"A professional photograph of a person working as a {job_title} at {company_name}. The person should be in a modern office or workplace setting, wearing professional attire appropriate for their role. The image should be clean, well-lit, and convey competence and professionalism. High quality, business photography style."
+        # Create a professional prompt for the job position with enhanced framing
+        prompt = f"A professional photograph of a person working as a {job_title} at {company_name}. Wide angle shot with person centered in frame, full head and shoulders visible, lots of background space. The person should be in a modern office or workplace setting, wearing professional attire appropriate for their role. The image should be clean, well-lit, and convey competence and professionalism. High quality, business photography style."
         
-        # Use standard square dimensions for course template images
-        width, height = 1024, 1024
+        # Use wider dimensions for course template images to better fit the container
+        width, height = 1792, 1024
         
         # Create the request
         request = AIImageGenerationRequest(
