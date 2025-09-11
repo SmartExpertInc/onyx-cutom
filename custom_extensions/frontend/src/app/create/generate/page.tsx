@@ -1086,14 +1086,14 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">{t('interface.generate.title', 'Generate')}</h1>
-        <p className="text-center text-gray-600 text-lg -mt-1">
-          {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
-           isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
-           isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
-           isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
-           t('interface.generate.subtitle', 'What would you like to create today?')}
-        </p>
+        <HeadTextCustom 
+          text={t('interface.generate.title', 'Generate')} 
+          description={isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
+            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
+            isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
+            isFromConnectors ? t('interface.generate.subtitleFromConnectors', 'Create content from your selected connectors') :
+            t('interface.generate.subtitle', 'What would you like to create today?')}
+        />
 
         {/* File context indicator */}
         {isFromFiles && (
