@@ -1340,7 +1340,7 @@ export default function QuizClient() {
                     setLessonsForModule([]);
                     setSelectedLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-100 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   {t('interface.generate.backButton', '← Back')}
                 </button>
@@ -1446,7 +1446,7 @@ export default function QuizClient() {
                                 {(editedTitles[idx] || question.title) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-0 right-0 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
@@ -1461,7 +1461,7 @@ export default function QuizClient() {
                                 {getTitleForQuestion(question, idx) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-0 right-0 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
