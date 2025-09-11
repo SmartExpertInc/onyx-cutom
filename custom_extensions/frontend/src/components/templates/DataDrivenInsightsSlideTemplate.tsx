@@ -47,18 +47,18 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ key: string } | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#111214', color:'#E5E7EB', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#1F2125', color:'#C4C7CE', border:'1px solid #2B2E33', borderRadius:'8px', padding:'10px 18px', fontSize:'16px' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'112px', fontSize:'64px', fontWeight:800, color:'#E5E7EB' };
-  const descStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', width:'900px', color:'#9AA0A6', fontSize:'18px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#1A1A1A', color:'#E5E7EB', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#282828', color:'#9B9B9B', padding:'8px 18px', fontSize:'16px' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', fontSize:'38px', fontWeight:800, color:'#D2D2D2' };
+  const descStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', width:'795px', color:'#909090', fontSize:'14px' };
 
-  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'320px', width:'860px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#1F2125', border:'1px solid #2B2E33', padding:'16px 18px', borderRadius:'2px' };
-  const chartArea: React.CSSProperties = { position:'relative', height:'280px', padding:'16px 18px 8px 0' };
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'860px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
+  const panel: React.CSSProperties = { background:'#29282A', height:'338px', padding:'16px 18px', borderRadius:'2px' };
+  const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'28px', height:'calc(100% - 24px)' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9AA0A6', fontSize:'12px' };
-  const barBase: React.CSSProperties = { width:'56px', background:'#8E5BFF', position:'relative' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px 0 54px', color:'#9AA0A6', fontSize:'12px' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9C9C9C', fontSize:'12px' };
+  const barBase: React.CSSProperties = { width:'75px', background:'#894DF4', position:'relative' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'space-between', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'64px', top:'360px', width:'420px', display:'grid', rowGap:'46px' };
   const metricValue: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#ffffff' };
@@ -81,7 +81,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           const hh = Math.max(0, Math.min(100, h)) * 2;
           return (
             <div key={i} style={{ ...barBase, height:`${hh}px` }}>
-              <div style={{ position:'absolute', bottom:`${hh + 6}px`, left:'50%', transform:'translateX(-50%)', color:'#C7CBD2', fontSize:'12px', whiteSpace:'nowrap' }}>{values[i] ?? ''}</div>
+              <div style={{ position:'absolute', bottom:`${hh + 6}px`, left:'50%', transform:'translateX(-50%)', color:'#9D9D9D', fontSize:'12px', whiteSpace:'nowrap' }}>{values[i] ?? ''}</div>
             </div>
           );
         })}
@@ -116,18 +116,18 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={chartsWrap}>
         <div style={panel}>
           {isEditable && edit?.key==='lct' ? (
-            <ImprovedInlineEditor initialValue={leftChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ color:'#C7CBD2', fontSize:'14px' })} />
+            <ImprovedInlineEditor initialValue={leftChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ color:'#999999', fontSize:'14px' })} />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#C7CBD2', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
+            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
           )}
           {renderBars(leftBars, leftValues)}
           <div style={yearRow}>{barLabels.map((y,i)=>(<span key={i}>{y}</span>))}</div>
         </div>
         <div style={panel}>
           {isEditable && edit?.key==='rct' ? (
-            <ImprovedInlineEditor initialValue={rightChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ color:'#C7CBD2', fontSize:'14px' })} />
+            <ImprovedInlineEditor initialValue={rightChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ color:'#999999', fontSize:'14px' })} />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#C7CBD2', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
+            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
           )}
           {renderBars(rightBars, rightValues)}
           <div style={yearRow}>{barLabels.map((y,i)=>(<span key={i}>{y}</span>))}</div>
