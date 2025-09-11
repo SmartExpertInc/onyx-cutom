@@ -672,8 +672,13 @@ export default function QuizClient() {
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
     const promptQuery = currentPrompt?.trim() || "";
-    if (!selectedLesson && !promptQuery) {
+    if (!selectedLesson && !promptQuery && !fromText) {
       // Nothing to preview yet – wait for user input
+      return;
+    }
+
+    // If generating from text, ensure pasted text is loaded before starting
+    if (fromText && !(userText && userText.trim())) {
       return;
     }
 
@@ -839,7 +844,7 @@ export default function QuizClient() {
         previewAbortRef.current.abort();
       }
     };
-  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
+  }, [currentPrompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger, userText]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {

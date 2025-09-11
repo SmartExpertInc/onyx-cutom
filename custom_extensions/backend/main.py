@@ -17729,7 +17729,14 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}"  
+    base_wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}"  
+
+    # Strengthen relevance for text-based quizzes
+    if payload.fromText and wiz_payload.get("userText"):
+        relevance_instruction = ("\nCRITICAL RELEVANCE INSTRUCTION: The quiz MUST be derived EXCLUSIVELY from the provided userText (treat it as the primary source). Do NOT introduce topics that are not present in the userText. If the prompt is generic, infer topics strictly from userText.")
+        wizard_message = base_wizard_message + relevance_instruction
+    else:
+        wizard_message = base_wizard_message  
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
