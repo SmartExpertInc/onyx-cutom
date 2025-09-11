@@ -55,7 +55,8 @@ export default function QuizClient() {
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
-
+  const [userText, setUserText] = useState('');
+   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
   useEffect(() => {
@@ -75,6 +76,24 @@ export default function QuizClient() {
       console.error('Error retrieving folder context:', error);
     }
   }, []);
+
+  // Retrieve user text from sessionStorage
+  useEffect(() => {
+    if (fromText) {
+      try {
+        const storedData = sessionStorage.getItem('pastedTextData');
+        if (storedData) {
+          const textData = JSON.parse(storedData);
+          // Check freshness and mode match (within 1 hour)
+          if (textData.timestamp && (Date.now() - textData.timestamp < 3600000) && (!textMode || textData.mode === textMode)) {
+            setUserText(textData.text || '');
+          }
+        }
+      } catch (error) {
+        console.error('Error retrieving pasted text data:', error);
+      }
+    }
+  }, [fromText, textMode]);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestInProgressRef = useRef(false);
@@ -695,7 +714,7 @@ export default function QuizClient() {
             fileIds: memoizedFileIds.join(','),
             fromText: fromText,
             textMode: textMode,
-            userText: fromText ? sessionStorage.getItem('userText') : undefined,
+            userText: fromText ? userText : undefined,
             questionCount: selectedQuestionCount,
           };
 
