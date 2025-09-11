@@ -40,6 +40,11 @@ export function identifyUser(userId: string) {
   mixpanel.identify(userId);
 }
 
+// Call on logout to handle multiple users on a single device
+export function resetUser() {
+  mixpanel.reset();
+}
+
 export function trackSignUp(props: SignUpEvent) {
   mixpanel.track("Sign Up", {
     ...props
