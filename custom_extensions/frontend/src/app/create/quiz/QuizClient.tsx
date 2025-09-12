@@ -1191,7 +1191,7 @@ export default function QuizClient() {
                             <Button
                               type="button"
                               variant="outline"
-                              className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
+                              className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
                             >
                               <span className="text-black">
                                 {selectedQuestionTypes.length === 0
@@ -1275,7 +1275,7 @@ export default function QuizClient() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
+                          className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
                         >
                           <span className="text-black">
                             {selectedQuestionTypes.length === 0
