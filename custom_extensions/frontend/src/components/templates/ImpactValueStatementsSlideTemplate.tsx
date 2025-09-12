@@ -77,9 +77,9 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
   };
 
   const descriptionStyle: React.CSSProperties = {
-    fontSize:'20px',
+    fontSize:'16px',
     fontWeight:400,
-    color:'#333333',
+    color:'rgb(88 88 88)',
     lineHeight:1.4
   };
 
@@ -100,10 +100,10 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
 
   const imageContainer: React.CSSProperties = {
     width:'320px',
-    height:'420px',
+    position:'absolute',
+    bottom:'-30px',
     borderRadius:'16px',
     overflow:'hidden',
-    background:'#FFFFFF'
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
