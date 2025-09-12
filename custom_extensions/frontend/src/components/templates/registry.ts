@@ -68,6 +68,7 @@ import DeiMethodsSlideTemplate from './DeiMethodsSlideTemplate';
 import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
 import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
 import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
+import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
 
 
 
@@ -2369,6 +2370,29 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: { type: 'text', label: 'Title', required: true },
       avatarPath: { type: 'image', label: 'Avatar' },
       iconPath: { type: 'image', label: 'Icon' }
+    }
+  },
+
+  'impact-value-statements': {
+    id: 'impact-value-statements',
+    name: 'Impact Value Statements',
+    description: 'Light grey slide with percentage statements and blue avatar frame',
+    category: 'content',
+    icon: '📈',
+    component: ImpactValueStatementsSlideTemplate,
+    defaultProps: {
+      title: 'Impact Value Statements',
+      statements: [
+        { percentage: '27%', description: 'increase in profit margins of companies' },
+        { percentage: '10%', description: 'increase in revenue growth led by data-driven decisions' },
+        { percentage: '50%', description: 'less failure when engaging stakeholders in decisions' }
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      statements: { type: 'array', label: 'Statements', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
     }
   }
   ,
