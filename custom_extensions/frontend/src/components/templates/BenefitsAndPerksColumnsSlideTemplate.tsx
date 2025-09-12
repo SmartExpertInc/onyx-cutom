@@ -84,37 +84,37 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
         isEditable={isEditable}
         color="#6b7280"
         text={logoText}
-        style={{ position:'absolute', left:'48px', top:'48px' }}
+        style={inline({ position:'absolute', left:'48px', top:'48px' })}
       />
       <div style={headingStyle}>
         {isEditable && editHeading ? (
           <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inline(headingStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{heading}</div>
+          <div onClick={()=> isEditable && setEditHeading(true)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{heading}</div>
         )}
       </div>
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' })} />
       </div>
 
       <div style={grid}>
         {columns.map((c, i)=> (
           <div key={i} style={c.accent ? colAccent : colBase}>
-            <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+            <div style={inline({ display:'flex', alignItems:'center', gap:'10px' })}>
               <div style={numberBadge(i+1)}>{i+1}</div>
             </div>
             <div>
               {isEditable && editCol && editCol.idx===i && editCol.field==='title' ? (
                 <ImprovedInlineEditor initialValue={c.title} onSave={(v)=> saveCol(i,'title',v)} onCancel={()=> setEditCol(null)} style={inline(title)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCol({ idx:i, field:'title' })} style={{ ...title, cursor: isEditable ? 'pointer':'default' }}>{c.title}</div>
+                <div onClick={()=> isEditable && setEditCol({ idx:i, field:'title' })} style={inline({ ...title, cursor: isEditable ? 'pointer':'default' })}>{c.title}</div>
               )}
             </div>
             <div>
               {isEditable && editCol && editCol.idx===i && editCol.field==='body' ? (
                 <ImprovedInlineEditor initialValue={c.body} multiline={true} onSave={(v)=> saveCol(i,'body',v)} onCancel={()=> setEditCol(null)} style={inline(body)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCol({ idx:i, field:'body' })} style={{ ...body, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{c.body}</div>
+                <div onClick={()=> isEditable && setEditCol({ idx:i, field:'body' })} style={inline({ ...body, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' })}>{c.body}</div>
               )}
             </div>
           </div>

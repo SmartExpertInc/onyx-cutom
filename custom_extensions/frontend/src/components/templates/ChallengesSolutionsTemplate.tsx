@@ -1,132 +1,18 @@
 // custom_extensions/frontend/src/components/templates/ChallengesSolutionsTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
   theme?: SlideTheme;
@@ -321,7 +207,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
       height="24" 
       viewBox="0 0 512 512" 
       fill={currentTheme.colors.accentColor}
-      style={{ flexShrink: 0 }}
+      style={inline({ flexShrink: 0 })}
     >
       <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
     </svg>
@@ -333,7 +219,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
       height="24" 
       viewBox="0 0 512 512" 
       fill={currentTheme.colors.accentColor}
-      style={{ flexShrink: 0 }}
+      style={inline({ flexShrink: 0 })}
     >
       <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
     </svg>
@@ -343,14 +229,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
     <div className="challenges-solutions-template" style={slideStyles}>
       {/* Main Title */}
       {isEditable && editingTitle ? (
-        <InlineEditor
+        <ImprovedInlineEditor
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
+          style={inline({
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
             margin: '0 auto 50px auto',
@@ -363,7 +249,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
             display: 'block'
-          }}
+          })}
         />
       ) : (
         <h1 
@@ -386,14 +272,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
           <div style={headerStyles}>
             <XMarkIcon />
             {isEditable && editingChallengesTitle ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={challengesTitle || ''}
                 onSave={handleChallengesTitleSave}
                 onCancel={handleChallengesTitleCancel}
                 multiline={true}
                 placeholder="Enter challenges title..."
                 className="inline-editor-challenges-title"
-                style={{
+                style={inline({
                   ...sectionTitleStyles,
                   // Ensure title behaves exactly like h2 element
                   margin: '0',
@@ -406,7 +292,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block'
-                }}
+                })}
               />
             ) : (
               <h2 
@@ -427,14 +313,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
               <li key={index} style={listItemStyles}>
                 <div style={bulletStyles}></div>
                 {isEditable && editingChallenges.includes(index) ? (
-                  <InlineEditor
+                  <ImprovedInlineEditor
                     initialValue={challenge || ''}
                     onSave={(newChallenge) => handleChallengeSave(index, newChallenge)}
                     onCancel={() => handleChallengeCancel(index)}
                     multiline={true}
                     placeholder="Enter challenge..."
                     className="inline-editor-challenge"
-                    style={{
+                    style={inline({
                       fontSize: currentTheme.fonts.contentSize,
                       lineHeight: 1.5,
                       color: currentTheme.colors.contentColor,
@@ -452,7 +338,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                       display: 'block',
                       margin: '0',
                       padding: '0'
-                    }}
+                    })}
                   />
                 ) : (
                   <span 
@@ -476,14 +362,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
           <div style={headerStyles}>
             <CheckIcon />
             {isEditable && editingSolutionsTitle ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={solutionsTitle || ''}
                 onSave={handleSolutionsTitleSave}
                 onCancel={handleSolutionsTitleCancel}
                 multiline={true}
                 placeholder="Enter solutions title..."
                 className="inline-editor-solutions-title"
-                style={{
+                style={inline({
                   ...sectionTitleStyles,
                   // Ensure title behaves exactly like h2 element
                   margin: '0',
@@ -496,7 +382,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block'
-                }}
+                })}
               />
             ) : (
               <h2 
@@ -517,14 +403,14 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
               <li key={index} style={listItemStyles}>
                 <div style={bulletStyles}></div>
                 {isEditable && editingSolutions.includes(index) ? (
-                  <InlineEditor
+                  <ImprovedInlineEditor
                     initialValue={solution || ''}
                     onSave={(newSolution) => handleSolutionSave(index, newSolution)}
                     onCancel={() => handleSolutionCancel(index)}
                     multiline={true}
                     placeholder="Enter solution..."
                     className="inline-editor-solution"
-                    style={{
+                    style={inline({
                       fontSize: currentTheme.fonts.contentSize,
                       lineHeight: 1.5,
                       color: currentTheme.colors.contentColor,
@@ -542,7 +428,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                       display: 'block',
                       margin: '0',
                       padding: '0'
-                    }}
+                    })}
                   />
                 ) : (
                   <span 

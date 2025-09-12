@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -92,7 +101,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   return (
     <div className="phishing-definition-slide-template inter-theme" style={slideStyles}>
       {/* Left section with text */}
-      <div style={{
+      <div style={inline({
         width: '50%',
         height: '100%',
         backgroundColor: '#ffffff',
@@ -101,14 +110,14 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         display: 'flex',
         flexDirection: 'column',
         position: 'relative'
-      }}>
+      })}>
         {/* Title */}
-        <div style={{
+        <div style={inline({
           fontSize: '56px',
           color: '#212222',
           marginBottom: '15px',
           lineHeight: '1.2'
-        }}>
+        })}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
               initialValue={currentTitle}
@@ -116,19 +125,19 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               onCancel={handleTitleCancel}
               multiline={true}
               className="phishing-title-editor"
-              style={{
+              style={inline({
                 fontSize: '56px',
                 color: '#212222',
                 lineHeight: '1.2'
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentTitle}
             </div>
@@ -136,21 +145,21 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         </div>
 
         {/* Definitions */}
-        <div style={{
+        <div style={inline({
           flex: '1',
           display: 'flex',
           flexDirection: 'column',
           gap: '20px',
           marginBottom: '40px'
-        }}>
+        })}>
           {currentDefinitions.map((definition, index) => (
             <div
               key={index}
-              style={{
+              style={inline({
                 fontSize: '11px',
                 color: '#545555',
                 lineHeight: '1.5'
-              }}
+              })}
             >
               {isEditable && editingDefinitions === index ? (
                 <ImprovedInlineEditor
@@ -159,19 +168,19 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
                   onCancel={handleDefinitionCancel}
                   multiline={true}
                   className="definition-editor"
-                  style={{
+                  style={inline({
                     fontSize: '11px',
                     color: '#545555',
                     lineHeight: '1.5'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingDefinitions(index)}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {definition}
                 </div>
@@ -181,7 +190,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         </div>
 
         {/* Profile image at bottom left */}
-        <div style={{
+        <div style={inline({
           position: 'absolute',
           bottom: '40px',
           left: '60px',
@@ -189,7 +198,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           height: '130px',
           borderRadius: '50%',
           overflow: 'hidden'
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -197,22 +206,22 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '100%',
               height: '100%',
               borderRadius: '50%',
               objectFit: 'cover'
-            }}
+            })}
           />
         </div>
       </div>
 
       {/* Right section with image */}
-      <div style={{
+      <div style={inline({
         width: '50%',
         height: '100%',
         position: 'relative'
-      }}>
+      })}>
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={handleRightImageUploaded}
@@ -220,12 +229,12 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
           position="CENTER"
           description="Right side image"
           isEditable={isEditable}
-          style={{
+          style={inline({
             width: '100%',
             height: '100%',
             borderRadius: '0px',
             objectFit: 'cover'
-          }}
+          })}
         />
       </div>
     </div>

@@ -1,134 +1,19 @@
 // custom_extensions/frontend/src/components/templates/TwoColumnTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6',
-          overflowWrap: 'anywhere'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const TwoColumnTemplate: React.FC<TwoColumnProps & { 
   theme?: SlideTheme;
@@ -288,23 +173,23 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
 
   return (
     <div
-      style={{
+      style={inline({
         padding: '40px',
         minHeight: '600px',
         backgroundColor: currentTheme.colors.backgroundColor,
         fontFamily: currentTheme.fonts.contentFont,
-      }}
+      })}
     >
       {/* Main Title */}
       {isEditable && editingTitle ? (
-        <InlineEditor
+        <ImprovedInlineEditor
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
+          style={inline({
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
             margin: '0',
@@ -317,7 +202,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
             display: 'block'
-          }}
+          })}
         />
       ) : (
         <h1 
@@ -334,12 +219,12 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       )}
 
       <div
-        style={{
+        style={inline({
           display: 'flex',
           gap: '40px',
-        }}
+        })}
       >
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={inline({ flex: 1, display: 'flex', flexDirection: 'column' })}>
           {/* Left Clickable Image Placeholder */}
           <ClickableImagePlaceholder
             imagePath={leftImagePath}
@@ -353,14 +238,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           />
           {/* Left Mini title */}
           {isEditable && editingLeftTitle ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={leftTitle || ''}
               onSave={handleLeftTitleSave}
               onCancel={handleLeftTitleCancel}
               multiline={true}
               placeholder="Enter left column title..."
               className="inline-editor-left-title"
-              style={{
+              style={inline({
                 ...columnTitleStyles,
                 // Ensure title behaves exactly like h2 element
                 margin: '0',
@@ -373,7 +258,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
-              }}
+              })}
             />
           ) : (
             <h2 
@@ -390,14 +275,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           )}
           {/* Left Main text */}
           {isEditable && editingLeftContent ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={leftContent || ''}
               onSave={handleLeftContentSave}
               onCancel={handleLeftContentCancel}
               multiline={true}
               placeholder="Enter left column content..."
               className="inline-editor-left-content"
-              style={{
+              style={inline({
                 ...columnContentStyles,
                 // Ensure content behaves exactly like p element
                 margin: '0',
@@ -410,7 +295,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
-              }}
+              })}
             />
           ) : (
             <p 
@@ -426,7 +311,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
             </p>
           )}
         </div>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column'}}>
+        <div style={inline({ flex: 1, display: 'flex', flexDirection: 'column'})}>
           {/* Right Clickable Image Placeholder */}
           <ClickableImagePlaceholder
             imagePath={rightImagePath}
@@ -440,14 +325,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           />
           {/* Right Mini title */}
           {isEditable && editingRightTitle ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={rightTitle || ''}
               onSave={handleRightTitleSave}
               onCancel={handleRightTitleCancel}
               multiline={true}
               placeholder="Enter right column title..."
               className="inline-editor-right-title"
-              style={{
+              style={inline({
                 ...columnTitleStyles,
                 // Ensure title behaves exactly like h2 element
                 margin: '0',
@@ -460,7 +345,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
-              }}
+              })}
             />
           ) : (
             <h2 
@@ -477,14 +362,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           )}
           {/* Right Main text */}
           {isEditable && editingRightContent ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={rightContent || ''}
               onSave={handleRightContentSave}
               onCancel={handleRightContentCancel}
               multiline={true}
               placeholder="Enter right column content..."
               className="inline-editor-right-content"
-              style={{
+              style={inline({
                 ...columnContentStyles,
                 // Ensure content behaves exactly like p element
                 margin: '0',
@@ -497,7 +382,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
-              }}
+              })}
             />
           ) : (
             <p 

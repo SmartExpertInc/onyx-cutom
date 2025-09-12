@@ -7,6 +7,15 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThankYouSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -102,7 +111,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   return (
     <div className="marketing-agency-thank-you-slide-template inter-theme" style={slideStyles}>
       {/* Header Section */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '40px',
         left: '60px',
@@ -110,15 +119,15 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-      }}>
+      })}>
         {/* Header Title */}
-        <div style={{
+        <div style={inline({
           fontSize: '24px',
           fontWeight: '500',
           color: '#4C5953', // Dark gray color as per screenshot
           lineHeight: '1.2',
           maxWidth: '400px',
-        }}>
+        })}>
           {isEditable && editingHeaderTitle ? (
             <ImprovedInlineEditor
               initialValue={currentHeaderTitle}
@@ -126,23 +135,23 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
               onCancel={() => setEditingHeaderTitle(false)}
               className="header-title-editor"
               multiline={true}
-              style={{
+              style={inline({
                 fontSize: '24px',
                 fontWeight: '500',
                 color: '#4A4A4A',
                 lineHeight: '1.2',
                 width: '100%',
                 height: 'auto',
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingHeaderTitle(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 whiteSpace: 'pre-line'
-              }}
+              })}
             >
               {currentHeaderTitle}
             </div>
@@ -150,11 +159,11 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         </div>
 
         {/* Logo Placeholder */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-        }}>
+        })}>
           {currentCompanyLogoPath ? (
             // Show uploaded logo image
             <ClickableImagePlaceholder
@@ -164,23 +173,23 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
               position="CENTER"
               description="Company logo"
               isEditable={isEditable}
-              style={{
+              style={inline({
                 height: '30px',
                 maxWidth: '120px',
                 objectFit: 'contain'
-              }}
+              })}
             />
           ) : (
             // Show default logo design with clickable area
-            <div style={{
+            <div style={inline({
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
               cursor: isEditable ? 'pointer' : 'default'
-            }}
+            })}
             onClick={() => isEditable && setShowLogoUploadModal(true)}
             >
-              <div style={{
+              <div style={inline({
                 width: '30px',
                 height: '30px',
                 border: '2px solid #888888',
@@ -189,14 +198,14 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
-              }}>
-                <div style={{
+              })}>
+                <div style={inline({
                   width: '12px',
                   height: '2px',
                   backgroundColor: '#888888',
                   position: 'absolute'
-                }} />
-                <div style={{
+                })} />
+                <div style={inline({
                   width: '2px',
                   height: '12px',
                   backgroundColor: '#888888',
@@ -204,16 +213,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)'
-                }} />
+                })} />
               </div>
-              <div style={{ fontSize: '14px', fontWeight: '300', color: '#888888' }}>Your Logo</div>
+              <div style={inline({ fontSize: '14px', fontWeight: '300', color: '#888888' })}>Your Logo</div>
             </div>
           )}
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '120px',
         left: '60px',
@@ -221,9 +230,9 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         bottom: '40px',
         display: 'flex',
         gap: '40px',
-      }}>
+      })}>
         {/* Left Section - Orange Background with Profile Image */}
-        <div style={{
+        <div style={inline({
           width: '480px',
           backgroundColor: '#EC672C', // Vibrant orange background as per screenshot
           borderRadius: '20px',
@@ -232,7 +241,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -240,55 +249,55 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               position: 'relative',
               bottom: '-38px',
               width: '464px',
               height: '453px',
               objectFit: 'cover'
-            }}
+            })}
           />
         </div>
 
         {/* Right Section - Text Content */}
-        <div style={{
+        <div style={inline({
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           paddingTop: '155px',
           paddingLeft: '20px',
-        }}>
+        })}>
           {/* Main Title */}
-          <div style={{
+          <div style={inline({
             fontSize: '48px',
             fontWeight: 'bold',
             color: '#3A4B49', // Dark gray color as per screenshot
             marginBottom: '30px',
             lineHeight: '1.1',
-          }}>
+          })}>
             {isEditable && editingMainTitle ? (
               <ImprovedInlineEditor
                 initialValue={currentMainTitle}
                 onSave={handleMainTitleSave}
                 onCancel={() => setEditingMainTitle(false)}
                 className="main-title-editor"
-                style={{
+                style={inline({
                   fontSize: '48px',
                   fontWeight: 'bold',
                   color: '#3A4B49',
                   lineHeight: '1.1',
                   width: '100%',
                   height: 'auto',
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingMainTitle(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
-                }}
+                })}
               >
                 {currentMainTitle}
               </div>
@@ -296,12 +305,12 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           </div>
 
           {/* Body Text */}
-          <div style={{
+          <div style={inline({
             fontSize: '30px',
             color: '#455450', // Dark gray color as per screenshot
             lineHeight: '1.4',
             maxWidth: '500px',
-          }}>
+          })}>
             {isEditable && editingBodyText ? (
               <ImprovedInlineEditor
                 initialValue={currentBodyText}
@@ -309,22 +318,22 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 onCancel={() => setEditingBodyText(false)}
                 className="body-text-editor"
                 multiline={true}
-                style={{
+                style={inline({
                   fontSize: '30px',
                   color: '#455450',
                   lineHeight: '1.4',
                   width: '100%',
                   height: 'auto',
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingBodyText(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   whiteSpace: 'pre-line'
-                }}
+                })}
               >
                 {currentBodyText}
               </div>

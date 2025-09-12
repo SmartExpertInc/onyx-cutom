@@ -23,6 +23,15 @@ export interface ImpactMetricsRightImageProps extends BaseTemplateProps {
   rightImageAlt?: string;
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightImageProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = '',
@@ -136,7 +145,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     <div className="impact-metrics-right-image inter-theme" style={slide}>
       <div style={metricsCol}>
         {showTitle && (
-          <div style={{ marginBottom: '10px' }}>
+          <div style={inline({ marginBottom: '10px' })}>
             {isEditable && editingTitle ? (
               <ImprovedInlineEditor
                 initialValue={title}
@@ -145,7 +154,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
                 style={inlineTitleStyle}
               />
             ) : (
-              <div onClick={() => isEditable && setEditingTitle(true)} style={{ ...titleStyle, cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+              <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ ...titleStyle, cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
             )}
           </div>
         )}
@@ -171,7 +180,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
                   style={inlineMetricStyle}
                 />
               ) : (
-                <div onClick={() => isEditable && setEditingMetricIndex(i)} style={{ ...metricText, cursor: isEditable ? 'pointer' : 'default' }}>{m.text}</div>
+                <div onClick={() => isEditable && setEditingMetricIndex(i)} style={inline({ ...metricText, cursor: isEditable ? 'pointer' : 'default' })}>{m.text}</div>
               )}
             </div>
           </div>

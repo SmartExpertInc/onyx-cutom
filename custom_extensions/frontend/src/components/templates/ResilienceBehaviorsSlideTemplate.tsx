@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -107,10 +116,10 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
             className="resilience-title-editor"
-            style={{ ...titleStyles, position: 'relative', top: 0, left: 0, right: 0 }}
+            style={inline({ ...titleStyles, position: 'relative', top: 0, left: 0, right: 0 })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
@@ -123,10 +132,10 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
             onCancel={() => setEditingSubtitle(false)}
             className="resilience-subtitle-editor"
             multiline={true}
-            style={{ ...subtitleStyles, position: 'relative', top: 0, left: 0, right: 0 }}
+            style={inline({ ...subtitleStyles, position: 'relative', top: 0, left: 0, right: 0 })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingSubtitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{subtitle}</div>
+          <div onClick={() => isEditable && setEditingSubtitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{subtitle}</div>
         )}
       </div>
 
@@ -139,7 +148,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          style={inline({ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' })}
         />
       </div>
 

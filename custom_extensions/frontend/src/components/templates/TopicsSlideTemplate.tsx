@@ -28,6 +28,15 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
@@ -141,7 +150,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
             onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
             description="Avatar" 
             isEditable={isEditable} 
-            style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+            style={inline({ width:'100%', height:'100%', objectFit:'cover' })} 
           />
         </div>
       </div>

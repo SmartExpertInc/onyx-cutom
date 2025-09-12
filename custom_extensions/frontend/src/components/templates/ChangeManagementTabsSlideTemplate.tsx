@@ -13,6 +13,15 @@ export interface ChangeManagementTabsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   topTabs = [
@@ -59,7 +68,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
             {isEditable && editTabIdx === rowIdx ? (
               <ImprovedInlineEditor initialValue={topTabs[rowIdx] ?? ''} onSave={(v)=>{ const next=[...topTabs]; next[rowIdx]=v; onUpdate&&onUpdate({ topTabs: next }); setEditTabIdx(null); }} onCancel={()=>setEditTabIdx(null)} style={inlineTab} />
             ) : (
-              <div onClick={()=> isEditable && setEditTabIdx(rowIdx)} style={{ cursor: isEditable ? 'pointer':'default' }}>{topTabs[rowIdx]}</div>
+              <div onClick={()=> isEditable && setEditTabIdx(rowIdx)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{topTabs[rowIdx]}</div>
             )}
           </div>
         ))}
@@ -67,13 +76,13 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
       <div style={content}>
         <div style={avatar}>
-          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', height:'100%', objectFit:'cover' })} />
         </div>
         <div style={headingStyle}>
           {isEditable && editHeading ? (
             <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inlineHeading} />
           ) : (
-            <div onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{heading}</div>
+            <div onClick={()=> isEditable && setEditHeading(true)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{heading}</div>
           )}
         </div>
 
@@ -83,7 +92,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
               {isEditable && editPillIdx === i ? (
                 <ImprovedInlineEditor initialValue={pills[i]} onSave={(v)=>{ const next:[string,string,string]=[...pills] as any; next[i]=v; onUpdate&&onUpdate({ pills: next }); setEditPillIdx(null); }} onCancel={()=>setEditPillIdx(null)} style={inlineCapsule} />
               ) : (
-                <div onClick={()=> isEditable && setEditPillIdx(i)} style={{ cursor: isEditable ? 'pointer':'default' }}>{pills[i]}</div>
+                <div onClick={()=> isEditable && setEditPillIdx(i)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{pills[i]}</div>
               )}
             </div>
           ))}

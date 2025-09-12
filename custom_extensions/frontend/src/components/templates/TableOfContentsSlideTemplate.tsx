@@ -7,6 +7,15 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -88,7 +97,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   return (
     <div className="table-of-contents-slide-template inter-theme" style={slideStyles}>
       {/* Title */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '60px',
         left: '60px',
@@ -96,29 +105,29 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         fontWeight: 'bold',
         color: '#1C1B1A', // Black text as per screenshot
         lineHeight: '1.1',
-      }}>
+      })}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
             className="toc-title-editor"
-            style={{
+            style={inline({
               fontSize: '48px',
               fontWeight: 'bold',
               color: '#1C1B1A',
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
-            style={{
+            style={inline({
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentTitle}
           </div>
@@ -126,7 +135,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
       </div>
 
       {/* Buttons Grid */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '270px',
         left: '60px',
@@ -135,9 +144,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         gridTemplateColumns: '215px 215px',
         gridTemplateRows: 'repeat(3, 70px)',
         gap: '40px',
-      }}>
+      })}>
         {currentButtons.map((button, index) => (
-          <div key={index} style={{
+          <div key={index} style={inline({
             backgroundColor: '#6CDC77', // Vibrant green color as per screenshot
             borderRadius: '15px',
             border: '1px solid gray',
@@ -147,32 +156,32 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             justifyContent: 'center',
             cursor: isEditable ? 'pointer' : 'default',
             minHeight: '60px',
-          }}>
+          })}>
             {isEditable && editingButtons?.index === index ? (
               <ImprovedInlineEditor
                 initialValue={button.text}
                 onSave={(value) => handleButtonSave(index, value)}
                 onCancel={() => setEditingButtons(null)}
                 className="toc-button-editor"
-                style={{
+                style={inline({
                   fontSize: '17px',
                   fontWeight: '500',
                   color: '#245D27',
                   width: '100%',
                   height: 'auto',
                   textAlign: 'center',
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingButtons({ index })}
-                style={{
+                style={inline({
                   fontSize: '17px',
                   fontWeight: '500',
                   color: '#245D27', // White text as per screenshot
                   textAlign: 'center',
                   userSelect: 'none'
-                }}
+                })}
               >
                 {button.text}
               </div>
@@ -182,7 +191,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
       </div>
 
       {/* Profile Image */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '120px',
         right: '60px',
@@ -191,9 +200,9 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-      }}>
+      })}>
         {/* Blue Background Rectangle */}
-        <div style={{
+        <div style={inline({
           position: 'absolute',
           bottom: '0',
           left: '0',
@@ -203,14 +212,14 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           borderRadius: '12px',
           border: '1px solid #000000',
           zIndex: 1,
-        }} />
+        })} />
         
         {/* Profile Image! */}
-        <div style={{
+        <div style={inline({
           position: 'absolute',
           bottom: '-24px',
           zIndex: 2,
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -218,11 +227,11 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '536px',
               height: '551px',
               objectFit: 'cover',
-            }}
+            })}
           />
         </div>
       </div>

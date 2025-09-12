@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'The Power of High-\nPerforming Teams',
@@ -129,10 +138,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             multiline={true}
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
-            style={{ ...titleStyle, position: 'relative', left: 0, top: 0 }}
+            style={inline({ ...titleStyle, position: 'relative', left: 0, top: 0 })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
@@ -144,16 +153,16 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             multiline={true}
             onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
             onCancel={() => setEditingDesc(false)}
-            style={{ ...paragraph, position: 'relative', right: 0, top: 0, width: '100%' }}
+            style={inline({ ...paragraph, position: 'relative', right: 0, top: 0, width: '100%' })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingDesc(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
+          <div onClick={() => isEditable && setEditingDesc(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{description}</div>
         )}
       </div>
 
       {/* Rounded panel with editable line chart */}
       <div style={panel}>
-        <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 }}>
+        <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" style={inline({ position: 'absolute', inset: 0 })}>
           <path d={pathD} fill="none" stroke={lineColor} strokeWidth={3} />
         </svg>
       </div>
@@ -167,7 +176,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
           position="CENTER"
           description="Actor"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          style={inline({ width: '100%', height: '100%', objectFit: 'contain' })}
         />
       </div>
     </div>

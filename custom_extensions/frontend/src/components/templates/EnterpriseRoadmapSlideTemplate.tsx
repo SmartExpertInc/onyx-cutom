@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Enterprise Offerings: Roadmap',
@@ -180,7 +189,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       <div style={topLine} />
 
       <div style={avatarArea}>
-        <ClickableImagePlaceholder imagePath={profileImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ profileImagePath:p })} size="LARGE" position="CENTER" description="Profile" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', marginTop:'3px' }} />
+        <ClickableImagePlaceholder imagePath={profileImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ profileImagePath:p })} size="LARGE" position="CENTER" description="Profile" isEditable={isEditable} style={inline({ width:'100%', height:'100%', objectFit:'cover', marginTop:'3px' })} />
       </div>
 
       <div style={titleStyle}>
@@ -192,7 +201,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             style={inlineEditorTitleStyle}
           />
         ) : (
-          <div onClick={()=> isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
@@ -206,14 +215,14 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             style={inlineEditorDescStyle}
           />
         ) : (
-          <div onClick={()=> isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
+          <div onClick={()=> isEditable && setEditingDescription(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{description}</div>
         )}
       </div>
 
       <div style={tableWrap}>
         <div style={theadStyle}>
           {cols.map((h, idx)=> (
-            <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={{ position:'relative' }}>
+            <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={inline({ position:'relative' })}>
               {isEditable && editingHeaderIdx === idx ? (
                 <ImprovedInlineEditor
                   initialValue={h}
@@ -222,19 +231,19 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                   style={inlineEditorHeaderStyle}
                 />
               ) : (
-                <span onClick={()=> isEditable && setEditingHeaderIdx(idx)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{h}</span>
+                <span onClick={()=> isEditable && setEditingHeaderIdx(idx)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{h}</span>
               )}
               {isEditable && hoverHeaderIdx === idx && (
-                <div style={{ position:'absolute', right:-12, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' }}>
+                <div style={inline({ position:'absolute', right:-12, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' })}>
                   <button
                     onClick={()=> addColumnAfter(idx)}
-                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                    style={inline({ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 })}
                   >
                     +
                   </button>
                   <button
                     onClick={()=> deleteColumnAt(idx)}
-                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                    style={inline({ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 })}
                   >
                     ×
                   </button>
@@ -246,7 +255,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         {rows.map((r, i)=> (
           <div key={i} style={rowStyle(i)} onMouseEnter={()=> setHoverRowIdx(i)} onMouseLeave={()=> setHoverRowIdx(null)}>
             {cols.map((h, cidx)=> (
-              <div key={cidx} style={{ position:'relative' }}>
+              <div key={cidx} style={inline({ position:'relative' })}>
                 {isEditable && editingCell && editingCell.row===i && editingCell.col===cidx ? (
                   <ImprovedInlineEditor
                     initialValue={r[h] || ''}
@@ -255,21 +264,21 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                     style={inlineEditorCellStyle}
                   />
                 ) : (
-                  <div onClick={()=> isEditable && setEditingCell({ row:i, col:cidx })} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{r[h] || ''}</div>
+                  <div onClick={()=> isEditable && setEditingCell({ row:i, col:cidx })} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{r[h] || ''}</div>
                 )}
               </div>
             ))}
             {isEditable && hoverRowIdx === i && (
-              <div style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' }}>
+              <div style={inline({ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' })}>
                 <button
                   onClick={()=> addRowAfter(i)}
-                  style={{ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                  style={inline({ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 })}
                 >
                   +
                 </button>
                 <button
                   onClick={()=> deleteRowAt(i)}
-                  style={{ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                  style={inline({ width:20, height:20, borderRadius:3, border:'1px solid #b0b0b0', background:'#FFFFFF', color:'#555', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 })}
                 >
                   ×
                 </button>

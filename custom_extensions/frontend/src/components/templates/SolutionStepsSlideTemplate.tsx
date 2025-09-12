@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -122,7 +131,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   return (
     <div className="solution-steps-slide-template inter-theme" style={slideStyles}>
       {/* Title */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '40px',
         left: '60px',
@@ -130,29 +139,29 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         fontWeight: 'bold',
         color: '#DEE2E2',
         lineHeight: '1.1',
-      }}>
+      })}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
             className="solution-title-editor"
-            style={{
+            style={inline({
               fontSize: '48px',
               fontWeight: 'bold',
               color: '#FFFFFF',
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
-            style={{
+            style={inline({
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentTitle}
           </div>
@@ -160,37 +169,37 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       </div>
 
       {/* Orange Button */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '140px',
         left: '60px',
         backgroundColor: '#EC6140',
         padding: '10px 24px',
         cursor: isEditable ? 'pointer' : 'default',
-      }}>
+      })}>
         {isEditable && editingButtonText ? (
           <ImprovedInlineEditor
             initialValue={currentButtonText}
             onSave={handleButtonTextSave}
             onCancel={() => setEditingButtonText(false)}
             className="button-text-editor"
-            style={{
+            style={inline({
               fontSize: '23px',
               fontWeight: '500',
               color: '#F4D4C8',
               width: '100%',
               height: 'auto',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingButtonText(true)}
-            style={{
+            style={inline({
               fontSize: '23px',
               fontWeight: '500',
               color: '#F4D4C8',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentButtonText}
           </div>
@@ -198,7 +207,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       </div>
 
       {/* Profile Image */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '30px',
         right: '30px',
@@ -207,7 +216,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         borderRadius: '50%',
         overflow: 'hidden',
         backgroundColor: '#F06C3E', // Orange background
-      }}>
+      })}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}
@@ -215,19 +224,19 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           position="CENTER"
           description="Profile photo"
           isEditable={isEditable}
-          style={{
+          style={inline({
             width: '100%',
             height: '100%',
             position: 'relative',
             bottom: '-16px',
             borderRadius: '50%',
             objectFit: 'cover'
-          }}
+          })}
         />
       </div>
 
       {/* Timeline and Steps */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '50%',
         left: '50%',
@@ -236,18 +245,18 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-      }}>
+      })}>
         {/* Timeline Line */}
-        <div style={{
+        <div style={inline({
           width: '100%',
           height: '1px',
           backgroundColor: '#F1FEFF',
           position: 'relative',
           marginBottom: '40px',
-        }}>
+        })}>
           {/* Step Circles */}
           {currentSteps.map((step, index) => (
-            <div key={index} style={{
+            <div key={index} style={inline({
               position: 'absolute',
               top: '50%',
               left: positions[index],
@@ -257,52 +266,52 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               borderRadius: '50%',
               backgroundColor: '#FAF36F', // Yellow circles
               zIndex: 1,
-            }} />
+            })} />
           ))}
         </div>
 
         {/* Step Titles and Descriptions */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           justifyContent: 'space-between',
           width: '100%',
-        }}>
+        })}>
           {currentSteps.map((step, index) => (
-            <div key={index} style={{
+            <div key={index} style={inline({
               display: 'flex',
               flexDirection: 'column',
               paddingLeft: index === 0 ? '16%' : '0',
               marginTop: '-30px',
               width: index === 0 ? '33.33%' : index === 1 ? '16.33%' : index === 2 ? '28%' : '0',
-            }}>
+            })}>
               {/* Step Title */}
-              <div style={{
+              <div style={inline({
                 fontSize: '24px',
                 fontWeight: 'bold',
                 color: '#D5DBDD',
                 marginBottom: '15px',
-              }}>
+              })}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'title' ? (
                   <ImprovedInlineEditor
                     initialValue={step.title}
                     onSave={(value) => handleStepSave(index, 'title', value)}
                     onCancel={() => setEditingSteps(null)}
                     className="step-title-editor"
-                    style={{
+                    style={inline({
                       fontSize: '24px',
                       fontWeight: 'bold',
                       color: '#D5DBDD',
                       width: '100%',
                       height: 'auto',
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingSteps({ index, field: 'title' })}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
-                    }}
+                    })}
                   >
                     {step.title}
                   </div>
@@ -310,33 +319,33 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               </div>
 
               {/* Step Description */}
-              <div style={{
+              <div style={inline({
                 fontSize: '16px',
                 color: '#A0A9AF',
                 lineHeight: '1.3',
                 maxWidth: '160px',
-              }}>
+              })}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'description' ? (
                   <ImprovedInlineEditor
                     initialValue={step.description}
                     onSave={(value) => handleStepSave(index, 'description', value)}
                     onCancel={() => setEditingSteps(null)}
                     className="step-description-editor"
-                    style={{
+                    style={inline({
                       fontSize: '16px',
                       color: '#A0A9AF',
                       width: '100%',
                       height: 'auto',
                       lineHeight: '1.3',
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingSteps({ index, field: 'description' })}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
-                    }}
+                    })}
                   >
                     {step.description}
                   </div>
@@ -348,7 +357,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       </div>
 
       {/* Footer */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         bottom: '40px',
         left: '60px',
@@ -356,32 +365,32 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-      }}>
+      })}>
         {/* Website */}
-        <div style={{
+        <div style={inline({
           fontSize: '14px',
           color: '#A2ACB1',
-        }}>
+        })}>
           {isEditable && editingWebsite ? (
             <ImprovedInlineEditor
               initialValue={currentWebsite}
               onSave={handleWebsiteSave}
               onCancel={() => setEditingWebsite(false)}
               className="website-editor"
-              style={{
+              style={inline({
                 fontSize: '14px',
                 color: '#A2ACB1',
                 width: '100%',
                 height: 'auto',
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingWebsite(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentWebsite}
             </div>
@@ -389,32 +398,32 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         </div>
 
         {/* Date and Page Number */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           gap: '45px',
           fontSize: '14px',
           color: '#A2ACB1',
-        }}>
+        })}>
           {isEditable && editingDate ? (
             <ImprovedInlineEditor
               initialValue={currentDate}
               onSave={handleDateSave}
               onCancel={() => setEditingDate(false)}
               className="date-editor"
-              style={{
+              style={inline({
                 fontSize: '14px',
                 color: '#A2ACB1',
                 width: '100%',
                 height: 'auto',
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingDate(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentDate}
             </div>
@@ -426,20 +435,20 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               onSave={handlePageNumberSave}
               onCancel={() => setEditingPageNumber(false)}
               className="page-number-editor"
-              style={{
+              style={inline({
                 fontSize: '14px',
                 color: '#A2ACB1',
                 width: '100%',
                 height: 'auto',
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingPageNumber(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentPageNumber}
             </div>

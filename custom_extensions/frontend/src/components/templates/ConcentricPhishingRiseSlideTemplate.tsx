@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRiseSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Phishing rise',
@@ -51,44 +60,44 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
       {/* Editable numbers overlay to match screenshot positioning */}
       <div style={overlay}>
         {/* Big */}
-        <div style={{ position:'absolute', left:'217px', top:'109px', pointerEvents:'auto' }}>
+        <div style={inline({ position:'absolute', left:'217px', top:'109px', pointerEvents:'auto' })}>
           {isEditable && editingNumber === 'big' ? (
             <ImprovedInlineEditor
               initialValue={bigLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ bigLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'75px', fontWeight:800, color:'#151515', lineHeight:1 }}
+              style={inline({ fontSize:'75px', fontWeight:800, color:'#151515', lineHeight:1 })}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('big')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'75px', fontWeight:800, color:'#151515', lineHeight:1 }}>{bigLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('big')} style={inline({ cursor: isEditable ? 'pointer' : 'default', fontSize:'75px', fontWeight:800, color:'#151515', lineHeight:1 })}>{bigLabel}</div>
           )}
         </div>
 
         {/* Medium */}
-        <div style={{ position:'absolute', left:'245px', top:'288px', pointerEvents:'auto' }}>
+        <div style={inline({ position:'absolute', left:'245px', top:'288px', pointerEvents:'auto' })}>
           {isEditable && editingNumber === 'medium' ? (
             <ImprovedInlineEditor
               initialValue={mediumLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ mediumLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'60px', fontWeight:800, color:'#ffffff', lineHeight:1 }}
+              style={inline({ fontSize:'60px', fontWeight:800, color:'#ffffff', lineHeight:1 })}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('medium')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'60px', fontWeight:800, color:'#ffffff', lineHeight:1 }}>{mediumLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('medium')} style={inline({ cursor: isEditable ? 'pointer' : 'default', fontSize:'60px', fontWeight:800, color:'#ffffff', lineHeight:1 })}>{mediumLabel}</div>
           )}
         </div>
 
         {/* Small */}
-        <div style={{ position:'absolute', left:'265px', top:'488px', pointerEvents:'auto' }}>
+        <div style={inline({ position:'absolute', left:'265px', top:'488px', pointerEvents:'auto' })}>
           {isEditable && editingNumber === 'small' ? (
             <ImprovedInlineEditor
               initialValue={smallLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ smallLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'40px', fontWeight:800, color:'#151515', lineHeight:1 }}
+              style={inline({ fontSize:'40px', fontWeight:800, color:'#151515', lineHeight:1 })}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('small')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'40px', fontWeight:800, color:'#151515', lineHeight:1 }}>{smallLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('small')} style={inline({ cursor: isEditable ? 'pointer' : 'default', fontSize:'40px', fontWeight:800, color:'#151515', lineHeight:1 })}>{smallLabel}</div>
           )}
         </div>
       </div>
@@ -96,21 +105,21 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
       {/* Right section */}
       <div style={rightText}>
         {isEditable && editingTitle ? (
-          <ImprovedInlineEditor initialValue={title} onSave={(v)=>{onUpdate&&onUpdate({title:v});setEditingTitle(false);}} onCancel={()=>setEditingTitle(false)} style={{...titleStyle}} />
+          <ImprovedInlineEditor initialValue={title} onSave={(v)=>{onUpdate&&onUpdate({title:v});setEditingTitle(false);}} onCancel={()=>setEditingTitle(false)} style={inline({...titleStyle})} />
         ) : (
-          <div onClick={()=>isEditable&&setEditingTitle(true)} style={{cursor:isEditable?'pointer':'default', ...titleStyle}}>{title}</div>
+          <div onClick={()=>isEditable&&setEditingTitle(true)} style={inline({cursor:isEditable?'pointer':'default', ...titleStyle})}>{title}</div>
         )}
 
         {isEditable && editingDesc ? (
-          <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{onUpdate&&onUpdate({description:v});setEditingDesc(false);}} onCancel={()=>setEditingDesc(false)} style={{...descStyle}} />
+          <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{onUpdate&&onUpdate({description:v});setEditingDesc(false);}} onCancel={()=>setEditingDesc(false)} style={inline({...descStyle})} />
         ) : (
-          <div onClick={()=>isEditable&&setEditingDesc(true)} style={{cursor:isEditable?'pointer':'default', ...descStyle}}>{description}</div>
+          <div onClick={()=>isEditable&&setEditingDesc(true)} style={inline({cursor:isEditable?'pointer':'default', ...descStyle})}>{description}</div>
         )}
       </div>
 
       {/* Actor avatar */}
       <div style={actorHolder}>
-        <ClickableImagePlaceholder imagePath={actorImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ actorImagePath:p })} size="LARGE" position="CENTER" description="Actor" isEditable={isEditable} style={{ width:'100%', height:'100%', marginTop: '4px', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={actorImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ actorImagePath:p })} size="LARGE" position="CENTER" description="Actor" isEditable={isEditable} style={inline({ width:'100%', height:'100%', marginTop: '4px', objectFit:'cover' })} />
       </div>
     </div>
   );

@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -107,19 +116,19 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   return (
     <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
       {/* Top section with title and profile image */}
-      <div style={{
+      <div style={inline({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         marginBottom: '60px'
-      }}>
+      })}>
         {/* Title */}
-        <div style={{
+        <div style={inline({
           fontSize: '61px',
           color: '#3D3D3D',
           lineHeight: '1.2',
           maxWidth: '76%'
-        }}>
+        })}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
               initialValue={currentTitle}
@@ -127,19 +136,19 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               onCancel={handleTitleCancel}
               multiline={true}
               className="soft-skills-title-editor"
-              style={{
+              style={inline({
                 fontSize: '61px',
                 color: '#3D3D3D',
                 lineHeight: '1.2'
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentTitle}
             </div>
@@ -147,12 +156,12 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         </div>
 
         {/* Profile image */}
-        <div style={{
+        <div style={inline({
           width: '145px',
           height: '145px',
           borderRadius: '50%',
           overflow: 'hidden',
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -160,34 +169,34 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '100%',
               height: '100%',
               borderRadius: '50%',
               objectFit: 'cover'
-            }}
+            })}
           />
         </div>
       </div>
 
       {/* Tips section */}
-      <div style={{
+      <div style={inline({
         display: 'flex',
         gap: '30px',
         marginTop: '-17px'
-      }}>
+      })}>
         {currentTips.map((tip, index) => (
           <div
             key={index}
-            style={{
+            style={inline({
               flex: '1',
               display: 'flex',
               flexDirection: 'column',
               gap: '20px'
-            }}
+            })}
           >
             {/* Main tip block */}
-            <div style={{
+            <div style={inline({
               padding: '30px',
               backgroundColor: index === 0 ? '#916AF6' : index === 1 ? '#212121' : 'transparent',
               minHeight: '310px',
@@ -195,13 +204,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               paddingLeft: '32px',
               paddingTop: '40px',
               zIndex: '2',
-            }}>
-              <div style={{
+            })}>
+              <div style={inline({
                 fontSize: '32px',
                 fontWeight: '500',
                 color: '#EBDEF8',
                 lineHeight: '1.4',
-              }}>
+              })}>
                 {isEditable && editingTips === index ? (
                   <ImprovedInlineEditor
                     initialValue={tip.text}
@@ -209,7 +218,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     onCancel={handleTipCancel}
                     multiline={true}
                     className="tip-editor"
-                    style={{
+                    style={inline({
                       fontSize: '32px',
                       maxWidth: '386px',
                       fontWeight: '500',
@@ -218,15 +227,15 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                       background: 'transparent',
                       border: 'none',
                       outline: 'none'
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingTips(index)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
-                    }}
+                    })}
                   >
                     {tip.text}
                   </div>
@@ -235,7 +244,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             </div>
 
             {/* Additional block that extends out */}
-            <div style={{
+            <div style={inline({
               padding: '20px',
               backgroundColor: index === 0 ? '#212121' : index === 1 ? '#916AF6' : 'transparent',
               minHeight: '80px',
@@ -249,14 +258,14 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               marginTop: '-10px', // Makes it overlap slightly
               marginLeft: '16px', // Makes it extend out to the right
               marginRight: '-11px' // Makes it extend out to the right
-            }}>
-              <div style={{
+            })}>
+              <div style={inline({
                 fontSize: '18px',
                 fontWeight: '400',
                 color: themeBg,
                 lineHeight: '1.3',
                 textAlign: 'center'
-              }}>
+              })}>
                 {isEditable && editingAdditionalTips === index ? (
                   <ImprovedInlineEditor
                     initialValue={currentAdditionalTips[index]}
@@ -264,7 +273,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     onCancel={handleAdditionalTipCancel}
                     multiline={true}
                     className="additional-tip-editor"
-                    style={{
+                    style={inline({
                       fontSize: '18px',
                       fontWeight: '400',
                       color: themeBg,
@@ -273,15 +282,15 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                       background: 'transparent',
                       border: 'none',
                       outline: 'none'
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingAdditionalTips(index)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
-                    }}
+                    })}
                   >
                     {currentAdditionalTips[index]}
                   </div>

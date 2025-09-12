@@ -47,7 +47,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
         {isEditable && edit?.k==='title' ? (
           <ImprovedInlineEditor initialValue={title} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEdit({ k:'title' })} style={{ ...titleStyle, cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEdit({ k:'title' })} style={inline({ ...titleStyle, cursor: isEditable ? 'pointer':'default' })}>{title}</div>
         )}
         <div style={grid}>
           {items.map((it, i)=> (
@@ -73,7 +73,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
       <div style={right}>
         <div style={purpleBar} />
         <div style={imageArea}>
-          <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath:p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={{ width:'84%', height:'100%', objectFit:'cover' }} />
+          <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath:p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={inline({ width:'84%', height:'100%', objectFit:'cover' })} />
         </div>
       </div>
     </div>

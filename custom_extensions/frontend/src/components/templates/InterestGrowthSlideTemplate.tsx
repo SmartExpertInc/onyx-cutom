@@ -7,6 +7,15 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { theme?: SlideTheme | string }>= ({
   slideId,
   title = 'Interest',
@@ -95,10 +104,10 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
             className="interest-title-editor"
-            style={{ ...titleStyle, gridColumn: 'auto' }}
+            style={inline({ ...titleStyle, gridColumn: 'auto' })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
@@ -125,16 +134,16 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
             }}
           >
             {/* Label (fixed height to avoid shift) */}
-            <div style={{ minHeight: '22px' }}>
+            <div style={inline({ minHeight: '22px' })}>
               {isEditable && editingCard?.index === i && editingCard?.field === 'label' ? (
                 <ImprovedInlineEditor
                   initialValue={c.label}
                   onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], label: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
                   onCancel={() => setEditingCard(null)}
-                  style={{ color: '#606060', fontSize: '16px' }}
+                  style={inline({ color: '#606060', fontSize: '16px' })}
                 />
               ) : (
-                <div style={{ color: '#606060', fontSize: '16px' }} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
+                <div style={inline({ color: '#606060', fontSize: '16px' })} onClick={() => isEditable && setEditingCard({ index: i, field: 'label' })}>{c.label}</div>
               )}
             </div>
 
@@ -145,10 +154,10 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
                   initialValue={c.percentage}
                   onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
                   onCancel={() => setEditingCard(null)}
-                  style={{ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 }}
+                  style={inline({ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 })}
                 />
               ) : (
-                <div style={{ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
+                <div style={inline({ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 })} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
               )}
             </div>
 
@@ -157,7 +166,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
               <button
                 className="card-delete-btn"
                 onClick={() => { if (cardList.length>1){ const next=cardList.filter((_,idx)=>idx!==i); setCardList(next); onUpdate && onUpdate({ cards: next }); } }}
-                style={{ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', border: '1px solid #ddd', color: '#333', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', opacity: 0, transition: 'opacity 120ms ease' }}
+                style={inline({ position: 'absolute', top: '10px', right: '10px', background: '#ffffff', border: '1px solid #ddd', color: '#333', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', opacity: 0, transition: 'opacity 120ms ease' })}
               >
                 Delete
               </button>
@@ -169,9 +178,9 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
       <div style={rightPanel}>
         {/* Optional unified logo in the top-left of the right panel if needed in future */}
-        <div style={{ ...cornerLine, width: '120px', borderTop: 'none', borderLeft: 'none' }} />
-        <div style={{ ...cornerLine, height: '120px', right: '0', top: '50%', transform: 'translateY(-50%)', borderRight: 'none' }} />
-        <div style={{ ...cornerLine, width: '100px', zIndex: 10, height: '60px', left: '50px', bottom: '0px', borderBottom: 'none' }} />
+        <div style={inline({ ...cornerLine, width: '120px', borderTop: 'none', borderLeft: 'none' })} />
+        <div style={inline({ ...cornerLine, height: '120px', right: '0', top: '50%', transform: 'translateY(-50%)', borderRight: 'none' })} />
+        <div style={inline({ ...cornerLine, width: '100px', zIndex: 10, height: '60px', left: '50px', bottom: '0px', borderBottom: 'none' })} />
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ rightImagePath: p })}
@@ -179,7 +188,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           position="CENTER"
           description="Right image"
           isEditable={isEditable}
-          style={{ position: 'relative', top: '24px', width: '405px', height: '595px', objectFit: 'cover' }}
+          style={inline({ position: 'relative', top: '24px', width: '405px', height: '595px', objectFit: 'cover' })}
         />
       </div>
     </div>

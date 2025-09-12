@@ -7,6 +7,15 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -75,7 +84,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   return (
     <div className="resources-list-slide inter-theme" style={slideStyles}>
       {/* Logo */}
-      <div style={{ position: 'absolute', top: '40px', left: '48px' }}>
+      <div style={inline({ position: 'absolute', top: '40px', left: '48px' })}>
         {logoPath ? (
           <ClickableImagePlaceholder
             imagePath={logoPath}
@@ -84,14 +93,14 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
             position="CENTER"
             description="Your Logo"
             isEditable={isEditable}
-            style={{ height: '32px', width: '120px', objectFit: 'contain' }}
+            style={inline({ height: '32px', width: '120px', objectFit: 'contain' })}
           />
         ) : (
           <div
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default' }}
+            style={inline({ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default' })}
             onClick={() => isEditable && setShowLogoUpload(true)}
           >
-            <div style={{
+            <div style={inline({
               width: '30px',
               height: '30px',
               border: '2px solid #B9B48D',
@@ -100,17 +109,17 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
-            }}>
-              <div style={{ width: '12px', height: '2px', backgroundColor: '#B9B48D', position: 'absolute' }} />
-              <div style={{ width: '2px', height: '12px', backgroundColor: '#B9B48D', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            })}>
+              <div style={inline({ width: '12px', height: '2px', backgroundColor: '#B9B48D', position: 'absolute' })} />
+              <div style={inline({ width: '2px', height: '12px', backgroundColor: '#B9B48D', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' })} />
             </div>
-            <div style={{ color: '#B9B48D', fontSize: '18px' }}>Your Logo</div>
+            <div style={inline({ color: '#B9B48D', fontSize: '18px' })}>Your Logo</div>
           </div>
         )}
       </div>
 
       {/* Profile circle bottom-right */}
-      <div style={{ position: 'absolute', right: '48px', bottom: '11px', width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#9E9E58' }}>
+      <div style={inline({ position: 'absolute', right: '48px', bottom: '11px', width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#9E9E58' })}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
@@ -118,7 +127,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          style={inline({ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' })}
         />
       </div>
 
@@ -138,10 +147,10 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
                 onCancel={() => setEditingResourceIndex(null)}
                 className="resources-item-editor"
                 multiline={true}
-                style={{ fontSize: '28px', fontWeight: 600, color: '#D7D1B0' }}
+                style={inline({ fontSize: '28px', fontWeight: 600, color: '#D7D1B0' })}
               />
             ) : (
-              <div onClick={() => isEditable && setEditingResourceIndex(i)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+              <div onClick={() => isEditable && setEditingResourceIndex(i)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>
                 {r.text}
               </div>
             )}
@@ -160,10 +169,10 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
             }}
             onCancel={() => setEditingTitle(false)}
             className="resources-title-editor"
-            style={{ ...titleStyles, position: 'relative', left: 0, bottom: 0 }}
+            style={inline({ ...titleStyles, position: 'relative', left: 0, bottom: 0 })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 

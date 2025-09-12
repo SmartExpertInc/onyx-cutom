@@ -1,11 +1,20 @@
 // custom_extensions/frontend/src/components/templates/LearningTopicsSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { LearningTopicsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   theme?: SlideTheme | string;
@@ -131,7 +140,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   return (
     <div className="learning-topics-slide-template inter-theme" style={slideStyles}>
       {/* Left section */}
-      <div style={{
+      <div style={inline({
         width: '50%',
         height: '100%',
         backgroundColor: '#FFFFFF',
@@ -140,37 +149,37 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
-      }}>
+      })}>
         {/* Header and title section */}
         <div>
           {/* Subtitle */}
-          <div style={{
+          <div style={inline({
             fontSize: '14px',
             color: '#818181',
             marginBottom: '20px',
             fontWeight: '300'
-          }}>
+          })}>
             {isEditable && editingSubtitle ? (
               <ImprovedInlineEditor
                 initialValue={currentSubtitle}
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
                 className="learning-subtitle-editor"
-                style={{
+                style={inline({
                   fontSize: '14px',
                   color: '#818181',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingSubtitle(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
-                }}
+                })}
               >
                 {currentSubtitle}
               </div>
@@ -178,13 +187,13 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           </div>
 
           {/* Main title */}
-          <div style={{
+          <div style={inline({
             maxWidth: '350px',
             fontSize: '58px',
             color: '#414141',
             lineHeight: '1.1',
             marginBottom: '60px'
-          }}>
+          })}>
             {isEditable && editingTitle ? (
               <ImprovedInlineEditor
                 initialValue={currentTitle}
@@ -192,7 +201,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 onCancel={handleTitleCancel}
                 multiline={true}
                 className="learning-title-editor"
-                style={{
+                style={inline({
                   maxWidth: '350px',
                   fontSize: '58px',
                   color: '#414141',
@@ -200,15 +209,15 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                   width: '100%',
                   height: 'auto',
                   minHeight: '60px'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingTitle(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
-                }}
+                })}
               >
                 {currentTitle}
               </div>
@@ -216,52 +225,52 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           </div>
 
           {/* Topics list */}
-          <div style={{
+          <div style={inline({
             display: 'flex',
             flexDirection: 'column',
             gap: '13px'
-          }}>
+          })}>
             {currentTopics.map((topic, index) => (
               <div
                 key={index}
-                style={{
+                style={inline({
                   display: 'flex',
                   flexDirection: 'column-reverse',
                   gap: '13px'
-                }}
+                })}
               >
-                <div style={{
+                <div style={inline({
                   width: '100%',
                   height: '2px',
                   backgroundColor: themeContent,
                   opacity: 0.3
-                }} />
-                <div style={{
+                })} />
+                <div style={inline({
                   fontSize: '30px',
                   color: '#515151',
                   minWidth: '120px'
-                }}>
+                })}>
                   {isEditable && editingTopics === index ? (
                     <ImprovedInlineEditor
                       initialValue={topic}
                       onSave={(value) => handleTopicSave(index, value)}
                       onCancel={handleTopicCancel}
                       className="topic-editor"
-                      style={{
+                      style={inline({
                         fontSize: '30px',
                         color: '#515151',
                         width: '100%',
                         height: 'auto',
                         minWidth: '120px'
-                      }}
+                      })}
                     />
                   ) : (
                     <div
                       onClick={() => isEditable && setEditingTopics(index)}
-                      style={{
+                      style={inline({
                         cursor: isEditable ? 'pointer' : 'default',
                         userSelect: 'none'
-                      }}
+                      })}
                     >
                       {topic}
                     </div>
@@ -273,12 +282,12 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         </div>
 
         {/* Footer */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           marginTop: '36px'
-        }}>
+        })}>
           {logoNew ? (
             <ClickableImagePlaceholder
               imagePath={logoNew}
@@ -287,59 +296,59 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
               position="CENTER"
               description="Company logo"
               isEditable={isEditable}
-              style={{
+              style={inline({
                 height: '24px',
                 width: '24px',
                 objectFit: 'contain'
-              }}
+              })}
             />
           ) : (
             <div 
               onClick={() => isEditable && setShowUploadModal(true)}
-              style={{
+              style={inline({
                 width: '24px',
                 height: '24px',
                 cursor: isEditable ? 'pointer' : 'default',
                 position: 'relative'
-              }}
+              })}
             >
               <img
                 src="/custom-projects-ui/benefitsListIcon.png"
                 alt="Company Logo"
-                style={{
+                style={inline({
                   width: '24px',
                   height: '24px',
                   objectFit: 'contain'
-                }}
+                })}
               />
             </div>
           )}
-          <div style={{
+          <div style={inline({
             fontSize: '14px',
             color: '#858585',
             fontWeight: '300'
-          }}>
+          })}>
             {isEditable && editingCompanyName ? (
               <ImprovedInlineEditor
                 initialValue={currentCompanyName}
                 onSave={handleCompanyNameSave}
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
-                style={{
+                style={inline({
                   fontSize: '14px',
                   color: '#858585',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingCompanyName(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
-                }}
+                })}
               >
                 {currentCompanyName}
               </div>
@@ -349,7 +358,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
       </div>
 
       {/* Right section with profile image */}
-      <div style={{
+      <div style={inline({
         width: '50%',
         height: '100%',
         backgroundColor: '#B593EA',
@@ -357,13 +366,13 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative'
-      }}>
-        <div style={{
-          width: '550px',
-          height: '570px',
+      })}>
+        <div style={inline({
+          width: '87%',
+          height: '100%',
           position: 'absolute',
-          bottom: '-3px',
-        }}>
+          bottom: '-42px',
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -371,10 +380,10 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '100%',
               height: '100%',
-            }}
+            })}
           />
         </div>
       </div>

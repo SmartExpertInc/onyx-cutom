@@ -22,6 +22,15 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
   tag = 'Statistics',
   title = 'Data-Driven Insights: Statistics and Trends',
@@ -105,15 +114,15 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (
     <div style={chartArea}>
       <div style={yAxis}>
-        <div style={{ position:'absolute', left:0, bottom:0, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-0` })}>
+        <div style={inline({ position:'absolute', left:0, bottom:0, cursor: isEditable ? 'pointer':'default' })} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-0` })}>
           {edit?.key===`${panelKey}-y-0` ? (
-            <ImprovedInlineEditor initialValue="0" onSave={(v)=>{ const num = parseInt(v) || 0; setCurrentYTicks([num, ...currentYTicks]); onUpdate && onUpdate({ yTicks: [num, ...currentYTicks] }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />
+            <ImprovedInlineEditor initialValue="0" onSave={(v)=>{ const num = parseInt(v) || 0; setCurrentYTicks([num, ...currentYTicks]); onUpdate && onUpdate({ yTicks: [num, ...currentYTicks] }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' })} />
           ) : '0'}
         </div>
         {currentYTicks.map((t, i)=> (
           <div key={t} style={{ position:'absolute', left:0, bottom:`${t*2}px`, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-${i+1}` })}>
             {edit?.key===`${panelKey}-y-${i+1}` ? (
-              <ImprovedInlineEditor initialValue={t.toString()} onSave={(v)=>{ const num = parseInt(v) || 0; const next = [...currentYTicks]; next[i] = num; setCurrentYTicks(next); onUpdate && onUpdate({ yTicks: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />
+              <ImprovedInlineEditor initialValue={t.toString()} onSave={(v)=>{ const num = parseInt(v) || 0; const next = [...currentYTicks]; next[i] = num; setCurrentYTicks(next); onUpdate && onUpdate({ yTicks: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' })} />
             ) : t}
           </div>
         ))}
@@ -147,17 +156,17 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
                 onClick={()=> isEditable && setEdit({ key: `${panelKey}-val-${i}` })}
               >
                 {edit?.key===`${panelKey}-val-${i}` ? (
-                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontSize:'12px' }} />
+                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontSize:'12px' })} />
                 ) : b.value }
               </div>
               {isEditable && hoverBar && hoverBar.panel===panelKey && hoverBar.idx===i && (
-                <button onClick={()=> { const next=series.filter((_,idx)=> idx!==i); if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); }} style={{ position:'absolute', top:'-10px', right:'-10px', width:'22px', height:'22px', borderRadius:'50%', border:'1px solid #5a5a5a', background:'#29282A', color:'#E5E7EB', cursor:'pointer' }}>×</button>
+                <button onClick={()=> { const next=series.filter((_,idx)=> idx!==i); if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); }} style={inline({ position:'absolute', top:'-10px', right:'-10px', width:'22px', height:'22px', borderRadius:'50%', border:'1px solid #5a5a5a', background:'#29282A', color:'#E5E7EB', cursor:'pointer' })}>×</button>
               )}
             </div>
           );
         })}
         {isEditable && hoverPanel===panelKey && (
-          <button onClick={()=> { const next=[...series, { year: String(2000+series.length+1), value:'New', height:50 }]; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); }} style={{ position:'absolute', right:'6px', top:'6px', background:'#0d0d0d', color:'#fff', border:'none', borderRadius:'6px', padding:'6px 10px', cursor:'pointer' }}>Add</button>
+          <button onClick={()=> { const next=[...series, { year: String(2000+series.length+1), value:'New', height:50 }]; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); }} style={inline({ position:'absolute', right:'6px', top:'6px', background:'#0d0d0d', color:'#fff', border:'none', borderRadius:'6px', padding:'6px 10px', cursor:'pointer' })}>Add</button>
         )}
       </div>
     </div>
@@ -169,23 +178,23 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         {isEditable && edit?.key==='tag' ? (
           <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable(tagStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEdit({ key:'tag' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
+          <div onClick={()=> isEditable && setEdit({ key:'tag' })} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{tag}</div>
         )}
       </div>
 
       <div style={titleWrap}>
         {isEditable && edit?.key==='title' ? (
-          <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ ...titleStyle }} />
+          <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ ...titleStyle })} />
         ) : (
-          <div onClick={()=> isEditable && setEdit({ key:'title' })} style={{ ...titleStyle, cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEdit({ key:'title' })} style={inline({ ...titleStyle, cursor: isEditable ? 'pointer':'default' })}>{title}</div>
         )}
       </div>
 
       <div style={descWrap}>
         {isEditable && edit?.key==='desc' ? (
-          <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ description:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ ...descStyle }} />
+          <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ description:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline({ ...descStyle })} />
         ) : (
-          <div onClick={()=> isEditable && setEdit({ key:'desc' })} style={{ ...descStyle, cursor: isEditable ? 'pointer':'default' }}>{description}</div>
+          <div onClick={()=> isEditable && setEdit({ key:'desc' })} style={inline({ ...descStyle, cursor: isEditable ? 'pointer':'default' })}>{description}</div>
         )}
       </div>
 
@@ -194,11 +203,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           {isEditable && edit?.key==='lct' ? (
             <ImprovedInlineEditor initialValue={leftChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#999999', fontSize:'14px' })} />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
+            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={inline({ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' })}>{leftChartTitle}</div>
           )}
           {renderBars('left', leftSeries)}
           <div style={yearRow}>{leftSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={inline({ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' })}>
               {edit?.key===`left-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...leftSeries]; next[i]={ ...next[i], year:v }; setLeftSeries(next); pushState('left'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -210,11 +219,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           {isEditable && edit?.key==='rct' ? (
             <ImprovedInlineEditor initialValue={rightChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#999999', fontSize:'14px' })} />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
+            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={inline({ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' })}>{rightChartTitle}</div>
           )}
           {renderBars('right', rightSeries)}
           <div style={yearRow}>{rightSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={inline({ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' })}>
               {edit?.key===`right-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...rightSeries]; next[i]={ ...next[i], year:v }; setRightSeries(next); pushState('right'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -245,7 +254,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       </div>
 
       <div style={avatar}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' })} />
       </div>
     </div>
   );

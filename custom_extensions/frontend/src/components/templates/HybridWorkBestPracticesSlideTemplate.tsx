@@ -1,10 +1,19 @@
 // custom_extensions/frontend/src/components/templates/HybridWorkBestPracticesSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
@@ -129,7 +138,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   return (
     <div className="hybrid-work-best-practices-slide-template inter-theme" style={slideStyles}>
       {/* Main content with two columns */}
-      <div style={{
+      <div style={inline({
         width: '100%',
         height: '100%',
         backgroundColor: '#F9F8F4',
@@ -137,45 +146,45 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         padding: '40px 60px',
         paddingRight: '0px',
         paddingBottom: '0px'
-      }}>
+      })}>
         {/* Left column */}
-        <div style={{
+        <div style={inline({
           width: '50%',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           paddingRight: '40px'
-        }}>
+        })}>
           {/* Top content */}
           <div>
             {/* Header */}
-            <div style={{
+            <div style={inline({
               fontSize: '14px',
               color: '#A2A19D',
               marginBottom: '20px',
               fontWeight: '300'
-            }}>
+            })}>
               {isEditable && editingTitle ? (
                 <ImprovedInlineEditor
                   initialValue={currentTitle}
                   onSave={handleTitleSave}
                   onCancel={handleTitleCancel}
                   className="hybrid-title-editor"
-                  style={{
+                  style={inline({
                     fontSize: '14px',
                     color: themeContent,
                     fontWeight: '300',
                     width: '100%',
                     height: 'auto'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingTitle(true)}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {currentTitle}
                 </div>
@@ -183,13 +192,13 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             </div>
 
             {/* Main statement */}
-            <div style={{
+            <div style={inline({
               fontSize: '24px',
               maxWidth: '335px',
               color: '#5B5A57',
               lineHeight: '1.3',
               marginBottom: '40px'
-            }}>
+            })}>
               {isEditable && editingMainStatement ? (
                 <ImprovedInlineEditor
                   initialValue={currentMainStatement}
@@ -197,22 +206,22 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   onCancel={handleMainStatementCancel}
                   multiline={true}
                   className="hybrid-main-statement-editor"
-                  style={{
+                  style={inline({
                     fontSize: '24px',
                     maxWidth: '335px',
                     color: themeTitle,
                     lineHeight: '1.3',
                     width: '100%',
                     height: 'auto'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingMainStatement(true)}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {currentMainStatement}
                 </div>
@@ -221,7 +230,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           </div>
 
           {/* Profile image at bottom */}
-          <div style={{
+          <div style={inline({
             width: '165px',
             height: '165px',
             borderRadius: '50%',
@@ -229,7 +238,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             alignSelf: 'flex-start',
             position: 'absolute',
             bottom: '25px',
-          }}>
+          })}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
               onImageUploaded={handleProfileImageUploaded}
@@ -237,43 +246,43 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               position="CENTER"
               description="Profile photo"
               isEditable={isEditable}
-              style={{
+              style={inline({
                 width: '100%',
                 height: '100%',
                 borderRadius: '50%',
                 objectFit: 'cover'
-              }}
+              })}
             />
           </div>
         </div>
 
         {/* Right column */}
-        <div style={{
+        <div style={inline({
           width: '71%',
           height: '370px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between'
-        }}>
+        })}>
           {/* Practices section */}
-          <div style={{
+          <div style={inline({
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             marginBottom: '10px'
-          }}>
+          })}>
             {currentPractices.map((practice: { number: number; title: string; description: string }, index: number) => (
               <div
                 key={index}
-                style={{
+                style={inline({
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '15px',
                   alignItems: 'flex-start',
                   marginBottom: '30px'
-                }}
+                })}
               >
                 {/* Number */}
-                <div style={{
+                <div style={inline({
                   width: '20px',
                   height: '20px',
                   backgroundColor: '#2A2828',
@@ -284,42 +293,42 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   fontSize: '12px',
                   fontWeight: 'bold',
                   flexShrink: 0
-                }}>
+                })}>
                   {practice.number}
                 </div>
 
                 {/* Content */}
-                <div style={{
+                <div style={inline({
                   flex: '1'
-                }}>
+                })}>
                   {/* Title */}
-                  <div style={{
+                  <div style={inline({
                     fontSize: '13px',
                     color: '#6F6E6A',
                     marginBottom: '8px',
                     lineHeight: '1.2'
-                  }}>
+                  })}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
                       <ImprovedInlineEditor
                         initialValue={practice.title}
                         onSave={(value) => handlePracticeSave(index, 'title', value)}
                         onCancel={handlePracticeCancel}
                         className="practice-title-editor"
-                        style={{
+                        style={inline({
                           fontSize: '13px',
                           color: '#6F6E6A',
                           lineHeight: '1.2',
                           width: '100%',
                           height: 'auto'
-                        }}
+                        })}
                       />
                     ) : (
                       <div
                         onClick={() => isEditable && setEditingPractices({ index, field: 'title' })}
-                        style={{
+                        style={inline({
                           cursor: isEditable ? 'pointer' : 'default',
                           userSelect: 'none'
-                        }}
+                        })}
                       >
                         {practice.title}
                       </div>
@@ -327,12 +336,12 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   </div>
 
                   {/* Description */}
-                  <div style={{
+                  <div style={inline({
                     fontSize: '11px',
                     color: '#AEADA9',
                     maxWidth: '230px',
                     lineHeight: '1.4'
-                  }}>
+                  })}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
                       <ImprovedInlineEditor
                         initialValue={practice.description}
@@ -340,22 +349,22 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         onCancel={handlePracticeCancel}
                         multiline={true}
                         className="practice-description-editor"
-                        style={{
+                        style={inline({
                           fontSize: '11px',
                           color: '#AEADA9',
                           lineHeight: '1.4',
                           width: '100%',
                           height: 'auto',
                           minHeight: '40px'
-                        }}
+                        })}
                       />
                     ) : (
                       <div
                         onClick={() => isEditable && setEditingPractices({ index, field: 'description' })}
-                        style={{
+                        style={inline({
                           cursor: isEditable ? 'pointer' : 'default',
                           userSelect: 'none'
-                        }}
+                        })}
                       >
                         {practice.description}
                       </div>
@@ -367,10 +376,10 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           </div>
 
           {/* Team image at bottom */}
-          <div style={{
+          <div style={inline({
             width: '100%',
             height: '90%',
-          }}>
+          })}>
             <ClickableImagePlaceholder
               imagePath={teamImagePath}
               onImageUploaded={handleTeamImageUploaded}
@@ -378,11 +387,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               position="CENTER"
               description="Team meeting"
               isEditable={isEditable}
-              style={{
+              style={inline({
                 width: '100%',
                 height: '100%',
                 borderRadius: '0px',
-              }}
+              })}
             />
           </div>
         </div>

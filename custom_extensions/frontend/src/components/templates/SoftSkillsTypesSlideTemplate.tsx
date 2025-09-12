@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
   slideId,
   title = 'Types of\nSoft Skills',
@@ -96,10 +105,10 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
             onCancel={() => setEditingTitle(false)}
             className="sst-title-editor"
             multiline={true}
-            style={{ ...titleStyles, position: 'relative', top: 0, left: 0 }}
+            style={inline({ ...titleStyles, position: 'relative', top: 0, left: 0 })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
@@ -112,7 +121,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          style={inline({ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' })}
         />
       </div>
 
@@ -131,11 +140,11 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               position="CENTER"
               description="Card image"
               isEditable={isEditable}
-              style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
+              style={inline({ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' })}
             />
             <div style={cardLabelStyles}>
-              <span style={{ fontSize: '41px', color: '#FFFFFF', lineHeight: 1, display: 'inline-block', marginRight: '8px' }}>•</span>
-              <span style={{ fontSize: '18px', marginTop: '7px' }}>{c.label}</span>
+              <span style={inline({ fontSize: '41px', color: '#FFFFFF', lineHeight: 1, display: 'inline-block', marginRight: '8px' })}>•</span>
+              <span style={inline({ fontSize: '18px', marginTop: '7px' })}>{c.label}</span>
             </div>
           </div>
         ))}

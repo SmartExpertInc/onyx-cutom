@@ -197,7 +197,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
               style={inline(titleStyle)} 
             />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+            <div onClick={()=> isEditable && setEdit({ k:'title' })} style={inline({ cursor: isEditable ? 'pointer':'default' })}>
               {title}
             </div>
           )}
@@ -215,7 +215,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
               />
             ) : (
-              <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+              <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={inline({ cursor: isEditable ? 'pointer':'default' })}>
                 {percent}
               </div>
             )}
@@ -237,7 +237,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
           position="CENTER" 
           description="Avatar" 
           isEditable={isEditable} 
-          style={{ width:'100%', height:'100%', objectFit:'cover', marginTop:'4px' }} 
+          style={inline({ width:'100%', height:'100%', objectFit:'cover', marginTop:'4px' })} 
         />
       </div>
       <div style={ring1} />

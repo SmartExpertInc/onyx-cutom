@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -86,7 +95,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   return (
     <div className="two-column-slide-template inter-theme" style={slideStyles}>
       {/* Left section with avatar and text */}
-      <div style={{
+      <div style={inline({
         width: '50%',
         height: '100%',
         backgroundColor: '#EDEDED',
@@ -96,9 +105,9 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         flexDirection: 'column',
         alignItems: 'end',
         justifyContent: 'space-between'
-      }}>
+      })}>
         {/* Profile image */}
-        <div style={{
+        <div style={inline({
           width: '120px',
           height: '120px',
           borderRadius: '50%',
@@ -107,7 +116,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           top: '40px',
           right: '8px',
           overflow: 'hidden'
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -115,7 +124,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '94%',
               height: '100%',
               borderRadius: '50%',
@@ -123,22 +132,22 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
               overflow: 'hidden',
               position: 'relative',
               bottom: '-15px',
-            }}
+            })}
           />
         </div>
 
         {/* Title */}
 
         {/* Content */}
-        <div style={{
+        <div style={inline({
           flex: '1',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
-        }}>
+        })}>
 
           {/* Content text */}
-          <div style={{
+          <div style={inline({
             fontSize: '13px',
             color: '#7A7A7A',
             lineHeight: '1.6',
@@ -146,7 +155,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             bottom: '-205px',
             textAlign: 'right',
             width: '100%'
-          }}>
+          })}>
             {isEditable && editingContent ? (
               <ImprovedInlineEditor
                 initialValue={currentContent}
@@ -154,19 +163,19 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 onCancel={handleContentCancel}
                 multiline={true}
                 className="two-column-content-editor"
-                style={{
+                style={inline({
                   fontSize: '13px',
                   color: '#7A7A7A',
                   lineHeight: '1.6',
                   width: '100%',
                   textAlign: 'right',
                   minHeight: 'auto'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingContent(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   fontSize: '13px',
@@ -174,7 +183,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                   lineHeight: '1.6',
                   textAlign: 'right',
                   width: '100%'
-                }}
+                })}
               >
                 {currentContent}
               </div>
@@ -184,11 +193,11 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
       </div>
 
       {/* Right section with image */}
-      <div style={{
+      <div style={inline({
         width: '85%',
         height: '100%',
         position: 'relative'
-      }}>
+      })}>
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={handleRightImageUploaded}
@@ -196,12 +205,12 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           position="CENTER"
           description="Right side image"
           isEditable={isEditable}
-          style={{
+          style={inline({
             width: '100%',
             height: '100%',
             borderRadius: '0px',
             objectFit: 'contain'
-          }}
+          })}
         />
       </div>
     </div>

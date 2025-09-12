@@ -14,6 +14,15 @@ export interface ResourcesSlideProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Resources',
@@ -62,7 +71,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
         {isEditable && editTitle ? (
           <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=> setEditTitle(false)} style={inlineTitle} />
         ) : (
-          <div onClick={()=> isEditable && setEditTitle(true)} style={{ ...titleStyle, cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEditTitle(true)} style={inline({ ...titleStyle, cursor: isEditable ? 'pointer':'default' })}>{title}</div>
         )}
       </div>
 
@@ -75,7 +84,7 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
                 {isEditable && editItem===i ? (
                   <ImprovedInlineEditor initialValue={it} onSave={(v)=>{ const next=[...items]; next[i]=v; onUpdate&&onUpdate({ items: next }); setEditItem(null); }} onCancel={()=> setEditItem(null)} style={inlineText} />
                 ) : (
-                  <div onClick={()=> isEditable && setEditItem(i)} style={{ ...text, cursor: isEditable ? 'pointer':'default' }}>{it}</div>
+                  <div onClick={()=> isEditable && setEditItem(i)} style={inline({ ...text, cursor: isEditable ? 'pointer':'default' })}>{it}</div>
                 )}
               </div>
             </div>
@@ -88,17 +97,17 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
           {isEditable && editName ? (
             <ImprovedInlineEditor initialValue={speakerName} onSave={(v)=>{ onUpdate&&onUpdate({ speakerName: v }); setEditName(false); }} onCancel={()=> setEditName(false)} style={inlineName} />
           ) : (
-            <div onClick={()=> isEditable && setEditName(true)} style={{ ...nameText, cursor: isEditable ? 'pointer':'default' }}>{speakerName}</div>
+            <div onClick={()=> isEditable && setEditName(true)} style={inline({ ...nameText, cursor: isEditable ? 'pointer':'default' })}>{speakerName}</div>
           )}
           <div style={dot}>1</div>
           {isEditable && editRole ? (
             <ImprovedInlineEditor initialValue={speakerTitle} onSave={(v)=>{ onUpdate&&onUpdate({ speakerTitle: v }); setEditRole(false); }} onCancel={()=> setEditRole(false)} style={inlineRole} />
           ) : (
-            <div onClick={()=> isEditable && setEditRole(true)} style={{ ...roleText, cursor: isEditable ? 'pointer':'default' }}>{speakerTitle}</div>
+            <div onClick={()=> isEditable && setEditRole(true)} style={inline({ ...roleText, cursor: isEditable ? 'pointer':'default' })}>{speakerTitle}</div>
           )}
         </div>
         <div style={avatar}>
-          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath: p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', marginTop:'3px', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+          <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath: p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', marginTop:'3px', height:'100%', objectFit:'cover', borderRadius:'50%' })} />
         </div>
       </div>
     </div>

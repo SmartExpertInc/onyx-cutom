@@ -1,11 +1,20 @@
 // custom_extensions/frontend/src/components/templates/ThankYouSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   theme?: SlideTheme | string;
@@ -153,18 +162,18 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   return (
     <div className="thank-you-slide-template inter-theme" style={slideStyles}>
       {/* Main Title - Top left */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '315px',
         left: '80px'
-      }}>
+      })}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
-            style={{
+            style={inline({
               fontSize: '80px',
               color: themeTitle,
               lineHeight: '1.1',
@@ -173,12 +182,12 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               height: 'auto',
               minHeight: '60px',
               position: 'relative'
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
-            style={{
+            style={inline({
               fontSize: '80px',
               color: themeTitle,
               lineHeight: '1.1',
@@ -186,7 +195,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               fontFamily: currentTheme.fonts.titleFont,
               userSelect: 'none',
               position: 'relative'
-            }}
+            })}
           >
             {currentTitle}
           </div>
@@ -194,96 +203,96 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       </div>
 
       {/* Horizontal separator line */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '425px',
         left: '80px',
         right: '80px',
         height: '2px',
         backgroundColor: `#5B5B5B`
-      }} />
+      })} />
 
       {/* Content area */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '450px',
         left: '85px',
         right: '80px'
-      }}>
+      })}>
         {/* Left side - Contact and Address */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           gap: '80px'
-        }}>
+        })}>
           {/* Contacts */}
           <div>
-            <div style={{
+            <div style={inline({
               fontSize: '12px',
               color: '#848484',
               marginBottom: '10px',
               fontWeight: '300'
-            }}>
+            })}>
               Contacts
             </div>
             
-            <div style={{ marginBottom: '15px', position: 'relative' }}>
+            <div style={inline({ marginBottom: '15px', position: 'relative' })}>
               {isEditable && editingEmail ? (
                 <ImprovedInlineEditor
                   initialValue={currentEmail}
                   onSave={handleEmailSave}
                   onCancel={handleEmailCancel}
                   className="thank-you-email-editor"
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingEmail(true)}
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
                     position: 'relative'
-                  }}
+                  })}
                 >
                   {currentEmail}
                 </div>
               )}
             </div>
 
-            <div style={{ position: 'relative' }}>
+            <div style={inline({ position: 'relative' })}>
               {isEditable && editingPhone ? (
                 <ImprovedInlineEditor
                   initialValue={currentPhone}
                   onSave={handlePhoneSave}
                   onCancel={handlePhoneCancel}
                   className="thank-you-phone-editor"
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingPhone(true)}
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
                     position: 'relative'
-                  }}
+                  })}
                 >
                   {currentPhone}
                 </div>
@@ -293,73 +302,73 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
           {/* Address */}
           <div>
-            <div style={{
+            <div style={inline({
               fontSize: '12px',
               color: '#848484',
               marginBottom: '10px',
               fontWeight: '300'
-            }}>
+            })}>
               Our address
             </div>
             
-            <div style={{ marginBottom: '15px', position: 'relative' }}>
+            <div style={inline({ marginBottom: '15px', position: 'relative' })}>
               {isEditable && editingAddress ? (
                 <ImprovedInlineEditor
                   initialValue={currentAddress}
                   onSave={handleAddressSave}
                   onCancel={handleAddressCancel}
                   className="thank-you-address-editor"
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingAddress(true)}
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
                     position: 'relative'
-                  }}
+                  })}
                 >
                   {currentAddress}
                 </div>
               )}
             </div>
 
-            <div style={{ position: 'relative' }}>
+            <div style={inline({ position: 'relative' })}>
               {isEditable && editingPostalCode ? (
                 <ImprovedInlineEditor
                   initialValue={currentPostalCode}
                   onSave={handlePostalCodeSave}
                   onCancel={handlePostalCodeCancel}
                   className="thank-you-postal-code-editor"
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingPostalCode(true)}
-                  style={{
+                  style={inline({
                     fontSize: '22px',
                     color: '#C0C0C0',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
                     position: 'relative'
-                  }}
+                  })}
                 >
                   {currentPostalCode}
                 </div>
@@ -370,7 +379,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       </div>
 
       {/* Profile Image - Top right */}
-      <div style={{
+      <div style={inline({
         width: '210px',
         marginTop: '0',
         height: '210px',
@@ -382,7 +391,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         top: '80px',
         right: '60px',
         zIndex: 10
-      }}>
+      })}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}
@@ -390,34 +399,34 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           position="CENTER"
           description="Profile photo"
           isEditable={isEditable}
-          style={{
+          style={inline({
             width: '100%',
             height: '100%',
             borderRadius: '50%',
             overflow: 'hidden'
-          }}
+          })}
         />
       </div>
 
       {/* Bottom horizontal separator line */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         bottom: '76px',
         left: '80px',
         right: '80px',
         height: '3px',
         backgroundColor: '#5B5B5B'
-      }} />
+      })} />
 
       {/* Company name */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         bottom: '40px',
         left: '7%',
         display: 'flex',
         alignItems: 'center',
         gap: '10px'
-      }}>
+      })}>
 {logoNew ? (
           // Show uploaded logo image
           <ClickableImagePlaceholder
@@ -427,60 +436,60 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             position="CENTER"
             description="Company logo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               height: '24px',
               width: '24px',
               objectFit: 'contain'
-            }}
+            })}
           />
         ) : (
           // Show default logo image
           <div 
             onClick={() => isEditable && setShowUploadModal(true)}
-            style={{
+            style={inline({
               width: '24px',
               height: '24px',
               cursor: isEditable ? 'pointer' : 'default',
               position: 'relative'
-            }}
+            })}
           >
             <img
               src="/custom-projects-ui/logoNew.png"
               alt="Company Logo"
-              style={{
+              style={inline({
                 width: '24px',
                 height: '24px',
                 objectFit: 'contain'
-              }}
+              })}
             />
           </div>
         )}
-        <div style={{ position: 'relative' }}>
+        <div style={inline({ position: 'relative' })}>
           {isEditable && editingCompanyName ? (
             <ImprovedInlineEditor
               initialValue={currentCompanyName}
               onSave={handleCompanyNameSave}
               onCancel={handleCompanyNameCancel}
               className="thank-you-company-name-editor"
-              style={{
+              style={inline({
                 fontSize: '11px',
                 color: '#848484',
                 fontFamily: currentTheme.fonts.contentFont,
                 width: '100%',
                 height: 'auto'
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingCompanyName(true)}
-              style={{
+              style={inline({
                 fontSize: '11px',
                 color: '#848484',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
                 userSelect: 'none',
                 position: 'relative'
-              }}
+              })}
             >
               {currentCompanyName}
             </div>

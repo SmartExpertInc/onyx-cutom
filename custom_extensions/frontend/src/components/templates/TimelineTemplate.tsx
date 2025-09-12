@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export interface TimelineStep {
   heading: string;
@@ -15,129 +16,14 @@ export interface TimelineTemplateProps {
   isEditable?: boolean;
 }
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   slideId,
@@ -315,14 +201,14 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     <div className="timeline-template" style={slideStyles}>
       {/* Title */}
       {isEditable && editingTitle ? (
-        <InlineEditor
+        <ImprovedInlineEditor
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
+          style={inline({
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
             margin: '0',
@@ -335,7 +221,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
             display: 'block'
-          }}
+          })}
         />
       ) : (
         <h1 
@@ -359,17 +245,17 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
           return (
             <div key={index} style={stepWrapperStyles}>
               <div style={milestoneContentStyles(isTop)}>
-                <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
+                <div style={inline({...textBlockStyles, order: isTop ? 1 : 3})}>
                   {/* Step Heading */}
                   {isEditable && editingStepHeadings.includes(index) ? (
-                    <InlineEditor
+                    <ImprovedInlineEditor
                       initialValue={step.heading || ''}
                       onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
                       onCancel={() => handleStepHeadingCancel(index)}
                       multiline={true}
                       placeholder="Enter step heading..."
                       className="inline-editor-step-heading"
-                      style={{
+                      style={inline({
                         ...headingStyles,
                         // Ensure heading behaves exactly like div element
                         margin: '0',
@@ -382,7 +268,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                         whiteSpace: 'pre-wrap',
                         boxSizing: 'border-box',
                         display: 'block'
-                      }}
+                      })}
                     />
                   ) : (
                     <div 
@@ -400,14 +286,14 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
                   {/* Step Description */}
                   {isEditable && editingStepDescriptions.includes(index) ? (
-                    <InlineEditor
+                    <ImprovedInlineEditor
                       initialValue={step.description || ''}
                       onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
                       onCancel={() => handleStepDescriptionCancel(index)}
                       multiline={true}
                       placeholder="Enter step description..."
                       className="inline-editor-step-description"
-                      style={{
+                      style={inline({
                         ...descriptionStyles,
                         // Ensure description behaves exactly like div element
                         margin: '0',
@@ -420,7 +306,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                         whiteSpace: 'pre-wrap',
                         boxSizing: 'border-box',
                         display: 'block'
-                      }}
+                      })}
                     />
                   ) : (
                     <div 
@@ -436,8 +322,8 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                     </div>
                   )}
                 </div>
-                <div style={{...verticalLineStyles, order: 2}} />
-                <div style={{...numberSquareStyles, order: isTop ? 3 : 1}}>
+                <div style={inline({...verticalLineStyles, order: 2})} />
+                <div style={inline({...numberSquareStyles, order: isTop ? 3 : 1})}>
                   {index + 1}
                 </div>
               </div>

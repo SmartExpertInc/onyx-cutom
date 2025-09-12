@@ -4,11 +4,21 @@ import React from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export interface LeftBarAvatarImageProps extends BaseTemplateProps {
   avatarPath?: string;
   mainImagePath?: string;
 }
+
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const LeftBarAvatarImageSlideTemplate: React.FC<LeftBarAvatarImageProps & { theme?: SlideTheme | string }> = ({
   slideId,
@@ -29,10 +39,10 @@ export const LeftBarAvatarImageSlideTemplate: React.FC<LeftBarAvatarImageProps &
     <div className="leftbar-avatar-image inter-theme" style={slide}>
       <div style={leftBar} />
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', marginTop:'6px', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', height:'100%', marginTop:'6px', objectFit:'cover' })} />
       </div>
       <div style={frame}>
-        <ClickableImagePlaceholder imagePath={mainImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ mainImagePath:p })} size="LARGE" position="CENTER" description="Main image" isEditable={isEditable} style={{ width:'100%', borderRadius:'0px', height:'100%', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={mainImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ mainImagePath:p })} size="LARGE" position="CENTER" description="Main image" isEditable={isEditable} style={inline({ width:'100%', borderRadius:'0px', height:'100%', objectFit:'cover' })} />
       </div>
     </div>
   );

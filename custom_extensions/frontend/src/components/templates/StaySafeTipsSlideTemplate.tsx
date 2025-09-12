@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
   slideId,
   title = '4 tips to staysafe online',
@@ -124,12 +133,12 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
             className="stay-safe-title-editor"
-            style={{ ...titleStyles, position: 'relative', top: 0, left: 0 }}
+            style={inline({ ...titleStyles, position: 'relative', top: 0, left: 0 })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
-            style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+            style={inline({ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' })}
           >
             {title}
           </div>
@@ -153,7 +162,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
                 }}
                 onCancel={() => setEditingTip(null)}
                 className="stay-safe-tip-number-editor"
-                style={{ ...numberStyles }}
+                style={inline({ ...numberStyles })}
               />
             ) : (
               <div
@@ -177,7 +186,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
                 }}
                 onCancel={() => setEditingTip(null)}
                 className="stay-safe-tip-heading-editor"
-                style={{ ...tipHeadingStyles }}
+                style={inline({ ...tipHeadingStyles })}
               />
             ) : (
               <div
@@ -201,7 +210,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
                 }}
                 onCancel={() => setEditingTip(null)}
                 className="stay-safe-tip-desc-editor"
-                style={{ ...tipDescStyles }}
+                style={inline({ ...tipDescStyles })}
                 multiline
               />
             ) : (
@@ -225,7 +234,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
           position="CENTER"
           description="Actor image"
           isEditable={isEditable}
-          style={{ width: '100%', height: '92%', objectFit: 'contain', position: 'absolute', bottom: '-25px' }}
+          style={inline({ width: '100%', height: '92%', objectFit: 'contain', position: 'absolute', bottom: '-25px' })}
         />
       </div>
 

@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -79,7 +88,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   return (
     <div className="psychological-safety-slide-template inter-theme" style={slideStyles}>
       {/* Main Card */}
-      <div style={{
+      <div style={inline({
         width: '600px',
         height: '336px',
         backgroundColor: '#6955F3',
@@ -89,9 +98,9 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         flexDirection: 'column',
         justifyContent: 'space-between',
         position: 'relative'
-      }}>
+      })}>
                  {/* Profile Image - Top Left */}
-         <div style={{
+         <div style={inline({
            position: 'absolute',
            top: '40px',
            left: '40px',
@@ -101,7 +110,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
            display: 'flex',
            alignItems: 'center',
            justifyContent: 'center'
-         }}>
+         })}>
            <ClickableImagePlaceholder
              imagePath={profileImagePath}
              onImageUploaded={handleProfileImageUploaded}
@@ -109,24 +118,24 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
              position="CENTER"
              description="Profile"
              isEditable={isEditable}
-             style={{
+             style={inline({
                width: '100%',
                height: '100%',
                borderRadius: '50%',
                objectFit: 'cover',
                overflow: 'hidden'
-             }}
+             })}
            />
          </div>
 
         {/* Title */}
-        <div style={{
+        <div style={inline({
           fontSize: '30px',
           color: '#FFFFFF',
           fontWeight: 'bold',
           lineHeight: '1.2',
           marginTop: '106px',
-        }}>
+        })}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
               initialValue={currentTitle}
@@ -134,20 +143,20 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               onCancel={handleTitleCancel}
               multiline={true}
               className="psychological-safety-title-editor"
-              style={{
+              style={inline({
                 fontSize: '30px',
                 color: '#FFFFFF',
                 fontWeight: 'bold',
                 lineHeight: '1.2'
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentTitle}
             </div>
@@ -155,12 +164,12 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         </div>
 
         {/* Content */}
-        <div style={{
+        <div style={inline({
           fontSize: '18px',
           color: '#A496F3',
           lineHeight: '1.5',
           marginBottom: '5px'
-        }}>
+        })}>
           {isEditable && editingContent ? (
             <ImprovedInlineEditor
               initialValue={currentContent}
@@ -168,19 +177,19 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               onCancel={handleContentCancel}
               multiline={true}
               className="psychological-safety-content-editor"
-              style={{
+              style={inline({
                 fontSize: '18px',
                 color: '#A496F3',
                 lineHeight: '1.5'
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingContent(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentContent}
             </div>

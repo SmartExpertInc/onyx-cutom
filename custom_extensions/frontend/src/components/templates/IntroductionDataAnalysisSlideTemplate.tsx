@@ -110,7 +110,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
             onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
             description="Avatar" 
             isEditable={isEditable} 
-            style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+            style={inline({ width:'100%', height:'100%', objectFit:'cover' })} 
           />
         </div>
       </div>
@@ -143,7 +143,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
             onImageUploaded={(path) => onUpdate && onUpdate({ iconPath: path })}
             description="Icon" 
             isEditable={isEditable} 
-            style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+            style={inline({ width:'100%', height:'100%', objectFit:'cover' })} 
           />
         </div>
       </div>

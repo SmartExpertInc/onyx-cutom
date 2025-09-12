@@ -7,6 +7,15 @@ import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -145,7 +154,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   return (
     <div className="benefits-list-slide-template inter-theme" style={slideStyles}>
       {/* Top section with green background */}
-      <div style={{
+      <div style={inline({
         flex: '0 0 427px', // Фиксированная высота для верхней секции
         backgroundColor: '#68AB7F',
         position: 'relative',
@@ -154,11 +163,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
-      }}>
+      })}>
         {/* Header and title section */}
         <div>
           {/* Subtitle */}
-          <div style={{
+          <div style={inline({
             fontSize: '12px',
             color: '#3a6549',
             marginBottom: '25px',
@@ -168,14 +177,14 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             display: 'flex',
             alignItems: 'center',
             overflow: 'hidden'
-          }}>
+          })}>
             {isEditable && editingSubtitle ? (
               <ImprovedInlineEditor
                 initialValue={currentSubtitle}
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
                 className="benefits-subtitle-editor"
-                style={{
+                style={inline({
                   fontSize: '12px',
                   color: '#3a6549',
                   fontWeight: '300',
@@ -183,12 +192,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   height: '100%',
                   minHeight: '20px',
                   maxHeight: '20px'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingSubtitle(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   width: '100%',
@@ -201,7 +210,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   minHeight: '20px',
                   maxHeight: '20px',
                   overflow: 'hidden'
-                }}
+                })}
               >
                 {currentSubtitle}
               </div>
@@ -209,7 +218,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           </div>
 
           {/* Main title */}
-          <div style={{
+          <div style={inline({
             fontSize: '65px',
             color: '#2A3E30',
             marginBottom: '20px',
@@ -219,14 +228,14 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             display: 'flex',
             alignItems: 'center',
             overflow: 'hidden'
-          }}>
+          })}>
             {isEditable && editingTitle ? (
               <ImprovedInlineEditor
                 initialValue={currentTitle}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
                 className="benefits-title-editor"
-                style={{
+                style={inline({
                   fontSize: '65px',
                   color: '#2A3E30',
                   lineHeight: '1.1',
@@ -234,12 +243,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   height: '100%',
                   minHeight: '65px',
                   maxHeight: '65px'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingTitle(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   width: '100%',
@@ -252,7 +261,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   minHeight: '65px',
                   maxHeight: '65px',
                   overflow: 'hidden'
-                }}
+                })}
               >
                 {currentTitle}
               </div>
@@ -260,7 +269,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           </div>
 
           {/* Description */}
-          <div style={{
+          <div style={inline({
             fontSize: '26px',
             color: '#2F553A',
             lineHeight: '1.4',
@@ -268,7 +277,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             minHeight: '30px',
             display: 'flex',
             alignItems: 'flex-start'
-          }}>
+          })}>
             {isEditable && editingDescription ? (
               <ImprovedInlineEditor
                 initialValue={currentDescription}
@@ -276,17 +285,17 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleDescriptionCancel}
                 multiline={true}
                 className="benefits-description-editor"
-                style={{
+                style={inline({
                   fontSize: '26px',
                   color: '#2F553A',
                   lineHeight: '1.4',
                   width: '100%'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingDescription(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   fontSize: '28px',
@@ -295,7 +304,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   maxWidth: '643px',
                   minHeight: '30px',
                   width: '100%'
-                }}
+                })}
               >
                 {currentDescription}
               </div>
@@ -304,11 +313,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         </div>
 
         {/* Navigation circles */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           gap: '15px',
           marginTop: '20px'
-        }}>
+        })}>
           {Array.from({ length: totalSteps }, (_, i) => (
             <div
               key={i}
@@ -332,7 +341,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         </div>
 
         {/* Profile image */}
-        <div style={{
+        <div style={inline({
           position: 'absolute',
           top: '60px',
           right: '60px',
@@ -340,7 +349,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           height: '190px',
           borderRadius: '50%',
           overflow: 'hidden',
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -348,67 +357,67 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '100%',
               height: '100%',
               borderRadius: '50%',
               objectFit: 'cover'
-            }}
+            })}
           />
         </div>
       </div>
 
       {/* Bottom section with white background */}
-      <div style={{
+      <div style={inline({
         flex: '1',
         backgroundColor: '#ffffff',
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
-      }}>
+      })}>
         {/* Benefits list */}
-        <div style={{
+        <div style={inline({
           display: 'grid',
           gridTemplateColumns: '1fr 1fr 1fr',
           gap: '20px',
           maxWidth: '1000px',
           marginTop: '20px'
-        }}>
+        })}>
           {currentBenefits.map((benefit: string, index: number) => (
             <div
               key={index}
-              style={{
+              style={inline({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
                 fontSize: '20px',
                 color: '#5E5E5E'
-              }}
+              })}
             >
-              <span style={{ fontSize: '18px' }}>→</span>
+              <span style={inline({ fontSize: '18px' })}>→</span>
               {isEditable && editingBenefits === index ? (
                 <ImprovedInlineEditor
                   initialValue={benefit}
                   onSave={(value) => handleBenefitSave(index, value)}
                   onCancel={handleBenefitCancel}
                   className="benefit-editor"
-                  style={{
+                  style={inline({
                     fontSize: '20px',
                     color: '#5E5E5E',
                     flex: '1'
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingBenefits(index)}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none',
                     flex: '1',
                     fontSize: '20px',
                     color: '#5E5E5E'
-                  }}
+                  })}
                 >
                   {benefit}
                 </div>
@@ -418,23 +427,23 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         </div>
 
         {/* Horizontal line separator */}
-        <hr style={{
+        <hr style={inline({
           border: 'none',
           height: '1px',
           backgroundColor: '#252525',
           opacity: 0.3,
           margin: '20px 0',
           marginTop: '55px'
-        }} />
+        })} />
 
         {/* Footer */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           marginTop: '-5px',
           marginBottom: '20px'
-        }}>
+        })}>
 {benefitsListIcon ? (
             // Show uploaded logo image
             <ClickableImagePlaceholder
@@ -444,61 +453,61 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               position="CENTER"
               description="Benefits List Icon"
               isEditable={isEditable}
-              style={{
+              style={inline({
                 height: '24px',
                 width: '24px',
                 objectFit: 'contain'
-              }}
+              })}
             />
           ) : (
             // Show default logo image
             <div 
               onClick={() => isEditable && setShowUploadModal(true)}
-              style={{
+              style={inline({
                 width: '24px',
                 height: '24px',
                 cursor: isEditable ? 'pointer' : 'default',
                 position: 'relative'
-              }}
+              })}
             >
               <img
                 src="/custom-projects-ui/benefitsListIcon.png"
                 alt="Benefits List Icon"
-                style={{
+                style={inline({
                   width: '24px',
                   height: '24px',
                   objectFit: 'contain'
-                }}
+                })}
               />
             </div>
           )}
-          <div style={{
+          <div style={inline({
             fontSize: '12px',
             color: themeContent,
             fontWeight: '300'
-          }}>
+          })}>
             {isEditable && editingCompanyName ? (
               <ImprovedInlineEditor
                 initialValue={currentCompanyName}
                 onSave={handleCompanyNameSave}
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
-                style={{
+                style={inline({
                   fontSize: '12px',
                   color: '#8c8c8c',
                   fontWeight: '300'
-                }}
+                })}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingCompanyName(true)}
-                style={{
+                style={inline({
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   fontSize: '12px',
                   color: '#8c8c8c',
                   fontWeight: '300'
-                }}
+                })}
               >
                 {currentCompanyName}
               </div>

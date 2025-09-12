@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: SlideTheme | string }>= ({
   slideId,
   title = 'KPI Update',
@@ -125,10 +134,10 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
             className="kpi-title-editor"
-            style={{ ...titleStyle, position: 'relative' }}
+            style={inline({ ...titleStyle, position: 'relative' })}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
@@ -137,14 +146,14 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         {currentItems.map((it, i) => (
           <React.Fragment key={i}>
             {/* Value cell */}
-            <div style={{ minHeight: '116px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <div style={inline({ minHeight: '116px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' })}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'value' ? (
                 <ImprovedInlineEditor
                   initialValue={it.value}
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], value:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-value-editor"
-                  style={{ ...valueStyle }}
+                  style={inline({ ...valueStyle })}
                 />
               ) : (
                 <div style={valueStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'value' })}>{it.value}</div>
@@ -152,7 +161,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             </div>
 
             {/* Description cell */}
-            <div style={{ minHeight: '64px' }}>
+            <div style={inline({ minHeight: '64px' })}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
                 <ImprovedInlineEditor
                   initialValue={it.description}
@@ -160,7 +169,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                   onSave={(v) => { const ni=[...currentItems]; ni[i]={...ni[i], description:v}; setCurrentItems(ni); onUpdate && onUpdate({ items: ni }); setEditingItem(null); }}
                   onCancel={() => setEditingItem(null)}
                   className="kpi-desc-editor"
-                  style={{ ...descStyle, minHeight: 'auto' }}
+                  style={inline({ ...descStyle, minHeight: 'auto' })}
                 />
               ) : (
                 <div style={descStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
@@ -174,7 +183,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
       <div style={footerLineCap} />
 
       {/* Profile image absolute bottom-left */}
-      <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#2B3127', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+      <div style={inline({ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#2B3127', height: '140px', borderRadius: '50%', overflow: 'hidden' })}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
@@ -182,45 +191,45 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          style={inline({ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' })}
         />
       </div>
 
       {/* Footer texts (editable) */}
-      <div style={{ position: 'absolute', left: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
+      <div style={inline({ position: 'absolute', left: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' })}>
         {isEditable && editingFooterLeft ? (
           <ImprovedInlineEditor
             initialValue={footerLeft}
             onSave={(v) => { onUpdate && onUpdate({ footerLeft: v }); setEditingFooterLeft(false); }}
             onCancel={() => setEditingFooterLeft(false)}
-            style={{ color: '#babbb2', fontSize: '14px' }}
+            style={inline({ color: '#babbb2', fontSize: '14px' })}
           />
         ) : (
-          <span onClick={() => isEditable && setEditingFooterLeft(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerLeft}</span>
+          <span onClick={() => isEditable && setEditingFooterLeft(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{footerLeft}</span>
         )}
       </div>
-      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
+      <div style={inline({ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '24px', color: '#babbb2', fontSize: '14px' })}>
         {isEditable && editingFooterCenter ? (
           <ImprovedInlineEditor
             initialValue={footerCenter}
             onSave={(v) => { onUpdate && onUpdate({ footerCenter: v }); setEditingFooterCenter(false); }}
             onCancel={() => setEditingFooterCenter(false)}
-            style={{ color: '#babbb2', fontSize: '14px' }}
+            style={inline({ color: '#babbb2', fontSize: '14px' })}
           />
         ) : (
-          <span onClick={() => isEditable && setEditingFooterCenter(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerCenter}</span>
+          <span onClick={() => isEditable && setEditingFooterCenter(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{footerCenter}</span>
         )}
       </div>
-      <div style={{ position: 'absolute', right: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
+      <div style={inline({ position: 'absolute', right: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' })}>
         {isEditable && editingFooterRight ? (
           <ImprovedInlineEditor
             initialValue={footerRight}
             onSave={(v) => { onUpdate && onUpdate({ footerRight: v }); setEditingFooterRight(false); }}
             onCancel={() => setEditingFooterRight(false)}
-            style={{ color: '#babbb2', fontSize: '14px' }}
+            style={inline({ color: '#babbb2', fontSize: '14px' })}
           />
         ) : (
-          <span onClick={() => isEditable && setEditingFooterRight(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerRight}</span>
+          <span onClick={() => isEditable && setEditingFooterRight(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{footerRight}</span>
         )}
       </div>
     </div>

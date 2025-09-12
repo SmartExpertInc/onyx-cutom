@@ -1,131 +1,10 @@
 // custom_extensions/frontend/src/components/templates/BulletPointsTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          boxSizing: 'border-box',
-          display: 'block'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 // New component for unified bullet points editing
 interface UnifiedBulletEditorProps {
@@ -281,20 +160,20 @@ function UnifiedBulletEditor({
     
     return (
       <div 
-        style={{ 
+        style={inline({ 
           padding: '4px', 
           borderRadius: '4px',
           border: '1px solid #3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.05)',
           position: 'relative'
-        }}
+        })}
       >
-        <ul style={{
+        <ul style={inline({
           listStyle: 'none',
           padding: 0,
           margin: 0,
           width: '100%'
-        }}>
+        })}>
           {editLines.map((line: string, index: number) => {
             const trimmedLine = line.trim();
             const isEmpty = trimmedLine.length === 0;
@@ -304,24 +183,24 @@ function UnifiedBulletEditor({
             const shouldShowBullet = !isEmpty && !isPlaceholder;
             
             return (
-              <li key={index} style={{ 
+              <li key={index} style={inline({ 
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
                 marginBottom: '16px',
                 minHeight: '1.6em'
-              }}>
+              })}>
                 {shouldShowBullet && (
                   <span style={bulletIconStyles}>
                     {getBulletIcon(bulletStyle, currentBullets.indexOf(trimmedLine))}
                   </span>
                 )}
                 {!shouldShowBullet && (
-                  <span style={{ ...bulletIconStyles, opacity: 0.3 }}>
+                  <span style={inline({ ...bulletIconStyles, opacity: 0.3 })}>
                     {getBulletIcon(bulletStyle, index)}
                   </span>
                 )}
-                <div style={{ flex: 1, position: 'relative' }}>
+                <div style={inline({ flex: 1, position: 'relative' })}>
                   <textarea
                     ref={(el) => {
                       textareaRefs.current[index] = el;
@@ -412,7 +291,7 @@ function UnifiedBulletEditor({
                     }}
                     placeholder={index === 0 ? "Enter bullet points... Press Enter for new line" : ""}
                     className="bullet-edit-textarea"
-                    style={{
+                    style={inline({
                       ...bulletTextStyles,
                       background: 'transparent',
                       border: 'none',
@@ -429,7 +308,7 @@ function UnifiedBulletEditor({
                       padding: '0',
                       margin: '0',
                       height: 'auto'
-                    }}
+                    })}
                     rows={1}
                     onInput={(e: React.FormEvent<HTMLTextAreaElement>) => {
                       // Auto-resize this specific textarea with better wrapping support
@@ -452,21 +331,21 @@ function UnifiedBulletEditor({
     <div 
       onClick={startEditing}
       className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px' }}
+      style={inline({ padding: '4px', borderRadius: '4px' })}
     >
-      <ul style={{
+      <ul style={inline({
         listStyle: 'none',
         padding: 0,
         margin: 0,
         width: '100%'
-      }}>
+      })}>
         {bullets.map((bullet: string, index: number) => (
-          <li key={index} style={{ 
+          <li key={index} style={inline({ 
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '16px' 
-          }}>
+          })}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
             </span>
@@ -476,14 +355,14 @@ function UnifiedBulletEditor({
           </li>
         ))}
         {bullets.length === 0 && isEditable && (
-          <li style={{ 
+          <li style={inline({ 
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '16px' 
-          }}>
+          })}>
             <span style={bulletIconStyles}>•</span>
-            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic' }}>
+            <span style={inline({ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic' })}>
               Click to add bullet points...
             </span>
           </li>
@@ -492,6 +371,15 @@ function UnifiedBulletEditor({
     </div>
   );
 }
+
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const BulletPointsTemplate: React.FC<BulletPointsProps & { 
   theme?: SlideTheme;
@@ -599,14 +487,14 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     <div className="bullet-points-template" style={slideStyles}>
       {/* Title */}
       {isEditable && editingTitle ? (
-        <InlineEditor
+        <ImprovedInlineEditor
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
+          style={inline({
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
             padding: '0',
@@ -619,7 +507,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
             boxSizing: 'border-box',
             display: 'block',
             lineHeight: '1.2'
-          }}
+          })}
         />
       ) : (
         <h1 
@@ -635,7 +523,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
         </h1>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' }}>
+      <div style={inline({ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-evenly' })}>
         {/* Left: Clickable Image Placeholder */}
         <div style={placeholderContainerStyles}>
           <ClickableImagePlaceholder

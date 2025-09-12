@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -144,7 +153,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
   return (
     <div className="bar-chart-slide-template inter-theme" style={slideStyles}>
              {/* Profile Image - Top Left */}
-       <div style={{
+       <div style={inline({
          position: 'absolute',
          top: '40px',
          left: '60px',
@@ -154,7 +163,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          display: 'flex',
          alignItems: 'center',
          justifyContent: 'center',
-       }}>
+       })}>
          <ClickableImagePlaceholder
            imagePath={profileImagePath}
            onImageUploaded={handleProfileImageUploaded}
@@ -162,17 +171,17 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
            position="CENTER"
            description="Profile photo"
            isEditable={isEditable}
-           style={{
+           style={inline({
              width: '100%',
              height: '100%',
              borderRadius: '50%',
              overflow: 'hidden'
-           }}
+           })}
          />
        </div>
 
       {/* Bar Chart Section */}
-      <div style={{
+      <div style={inline({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-end',
@@ -180,9 +189,9 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
         height: '79.8%',
         marginTop: '80px',
         position: 'relative'
-      }}>
+      })}>
         {/* Horizontal baseline */}
-        <div style={{
+        <div style={inline({
           position: 'absolute',
           bottom: '0',
           left: '0',
@@ -190,19 +199,19 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
           height: '2px',
           backgroundColor: '#C6D3DC',
           opacity: 0.3
-        }} />
+        })} />
 
         {/* Bars */}
         {currentBars.map((bar, index) => (
           <div
             key={index}
-            style={{
+            style={inline({
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'flex-start',
               gap: '15px',
               position: 'relative'
-            }}
+            })}
                                                    onMouseEnter={(e) => {
                 if (isEditable) {
                   const controls = e.currentTarget.querySelectorAll('.bar-controls') as NodeListOf<HTMLElement>;
@@ -236,7 +245,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
               }}
           >
                          {/* Percentage */}
-             <div style={{
+             <div style={inline({
                fontSize: '40px',
                color: '#EEF0F1',
                fontWeight: 'bold',
@@ -247,14 +256,14 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                alignItems: 'center',
                justifyContent: 'center',
                overflow: 'hidden'
-             }}>
+             })}>
                {isEditable && editingBars?.index === index && editingBars?.field === 'percentage' ? (
                  <ImprovedInlineEditor
                    initialValue={bar.percentage}
                    onSave={(value) => handleBarSave(index, 'percentage', value)}
                    onCancel={handleBarCancel}
                    className="bar-percentage-editor"
-                   style={{
+                   style={inline({
                     width: '100%',
                     height: '100%',
                     display: 'flex',
@@ -266,12 +275,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                     minHeight: '40px',
                     maxHeight: '40px',
                     overflow: 'hidden'
-                   }}
+                   })}
                  />
                ) : (
                  <div
                    onClick={() => isEditable && setEditingBars({ index, field: 'percentage' })}
-                   style={{
+                   style={inline({
                      cursor: isEditable ? 'pointer' : 'default',
                      userSelect: 'none',
                      width: '100%',
@@ -285,7 +294,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      minHeight: '40px',
                      maxHeight: '40px',
                      overflow: 'hidden'
-                   }}
+                   })}
                  >
                    {bar.percentage}
                  </div>
@@ -293,7 +302,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              </div>
 
              {/* Description - moved above the bar */}
-             <div style={{
+             <div style={inline({
                fontSize: '14px',
                color: '#9EA8AF',
                maxWidth: '120px',
@@ -303,7 +312,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                display: 'flex',
                justifyContent: 'center',
                overflow: 'hidden'
-             }}>
+             })}>
                {isEditable && editingBars?.index === index && editingBars?.field === 'description' ? (
                  <ImprovedInlineEditor
                    initialValue={bar.description}
@@ -311,7 +320,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                    onCancel={handleBarCancel}
                    multiline={true}
                    className="bar-description-editor"
-                   style={{
+                   style={inline({
                      fontSize: '14px',
                      color: '#9EA8AF',
                      maxWidth: '120px',
@@ -320,12 +329,12 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      height: '100%',
                      minHeight: '40px',
                      maxHeight: '60px'
-                   }}
+                   })}
                  />
                ) : (
                  <div
                    onClick={() => isEditable && setEditingBars({ index, field: 'description' })}
-                   style={{
+                   style={inline({
                      cursor: isEditable ? 'pointer' : 'default',
                      userSelect: 'none',
                      width: '100%',
@@ -340,7 +349,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      minHeight: '40px',
                      maxHeight: '60px',
                      overflow: 'hidden'
-                   }}
+                   })}
                  >
                    {bar.description}
                  </div>
@@ -358,7 +367,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                 {isEditable && (
                   <div 
                     className="bar-controls"
-                    style={{
+                    style={inline({
                       position: 'absolute',
                       right: '-35px',
                       top: '50%',
@@ -368,11 +377,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                       gap: '8px',
                       opacity: 0,
                       transition: 'opacity 0.3s ease-in-out'
-                    }}
+                    })}
                   >
                                         <div
                        onClick={() => adjustBarHeight(index, bar.height + 10)}
-                       style={{
+                       style={inline({
                          width: '26px',
                          height: '26px',
                          backgroundColor: themeAccent,
@@ -387,7 +396,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                          justifyContent: 'center',
                          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
                          transition: 'all 0.2s ease-in-out'
-                       }}
+                       })}
                        onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                          e.currentTarget.style.transform = 'scale(1.1)';
                          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
@@ -401,7 +410,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                      </div>
                      <div
                        onClick={() => adjustBarHeight(index, bar.height - 10)}
-                       style={{
+                       style={inline({
                          width: '26px',
                          height: '26px',
                          backgroundColor: themeAccent,
@@ -416,7 +425,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                          justifyContent: 'center',
                          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
                          transition: 'all 0.2s ease-in-out'
-                       }}
+                       })}
                        onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                          e.currentTarget.style.transform = 'scale(1.1)';
                          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
@@ -436,7 +445,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
             {isEditable && currentBars.length > 1 && (
               <div
                 onClick={() => removeBar(index)}
-                style={{
+                style={inline({
                   position: 'absolute',
                   top: '-20px',
                   right: '-20px',
@@ -456,7 +465,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                   transition: 'all 0.3s ease-in-out',
                   zIndex: 15,
                   boxShadow: '0 3px 10px rgba(0,0,0,0.4)'
-                }}
+                })}
                 className="delete-button"
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.backgroundColor = '#ff0000';
@@ -484,7 +493,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
        {isEditable && (
          <div
            onClick={addBar}
-           style={{
+           style={inline({
              position: 'absolute',
              right: '30px',
              top: '50%',
@@ -504,7 +513,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
              zIndex: 10,
              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
              transition: 'all 0.3s ease-in-out'
-           }}
+           })}
            onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
              e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)';
@@ -519,7 +528,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
        )}
 
              {/* Footer */}
-       <div style={{
+       <div style={inline({
          position: 'absolute',
          bottom: '30px',
          left: '60px',
@@ -529,7 +538,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          alignItems: 'center',
          fontSize: '13px',
          color: '#A2ABB1'
-       }}>
+       })}>
          {/* Website - left aligned */}
          <div>
            {isEditable && editingWebsite ? (
@@ -538,18 +547,18 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                onSave={handleWebsiteSave}
                onCancel={handleWebsiteCancel}
                className="footer-website-editor"
-               style={{
+               style={inline({
                  fontSize: '13px',
                  color: '#A2ABB1'
-               }}
+               })}
              />
            ) : (
              <div
                onClick={() => isEditable && setEditingWebsite(true)}
-               style={{
+               style={inline({
                  cursor: isEditable ? 'pointer' : 'default',
                  userSelect: 'none'
-               }}
+               })}
              >
                {currentWebsite}
              </div>
@@ -557,11 +566,11 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          </div>
 
          {/* Date and Page Number - right aligned together */}
-         <div style={{
+         <div style={inline({
            display: 'flex',
            gap: '40px',
            alignItems: 'center'
-         }}>
+         })}>
            {/* Date */}
            <div>
              {isEditable && editingDate ? (
@@ -570,20 +579,20 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onSave={handleDateSave}
                  onCancel={handleDateCancel}
                  className="footer-date-editor"
-                 style={{
+                 style={inline({
                    fontSize: '13px',
                    color: '#A2ABB1'
-                 }}
+                 })}
                />
              ) : (
                <div
                  onClick={() => isEditable && setEditingDate(true)}
-                 style={{
+                 style={inline({
                    cursor: isEditable ? 'pointer' : 'default',
                    userSelect: 'none',
                    fontSize: '13px',
                    color: '#A2ABB1'
-                 }}
+                 })}
                >
                  {currentDate}
                </div>
@@ -598,20 +607,20 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
                  onSave={handlePageNumberSave}
                  onCancel={handlePageNumberCancel}
                  className="footer-page-number-editor"
-                 style={{
+                 style={inline({
                    fontSize: '13px',
                    color: themeContent
-                 }}
+                 })}
                />
              ) : (
                <div
                  onClick={() => isEditable && setEditingPageNumber(true)}
-                 style={{
+                 style={inline({
                    cursor: isEditable ? 'pointer' : 'default',
                    userSelect: 'none',
                    fontSize: '13px',
                    color: '#A2ABB1'
-                 }}
+                 })}
                >
                  {currentPageNumber}
                </div>

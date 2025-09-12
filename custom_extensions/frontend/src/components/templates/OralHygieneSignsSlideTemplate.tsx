@@ -13,6 +13,15 @@ export interface OralHygieneSignsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   heading = 'What are the signs of\npoor oral hygiene?',
@@ -68,11 +77,11 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
         {isEditable && editHeading ? (
           <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inlineHeading} />
         ) : (
-          <div onClick={()=> isEditable && setEditHeading(true)} style={{ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>
+          <div onClick={()=> isEditable && setEditHeading(true)} style={inline({ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' })}>{heading}</div>
         )}
       </div>
       <div style={avatar}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ marginTop:'3px', width:'100%', height:'100%', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ marginTop:'3px', width:'100%', height:'100%', objectFit:'cover' })} />
       </div>
 
       <div style={grid}>
@@ -85,12 +94,12 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
                   {isEditable && editItem && editItem.side===group.side && editItem.idx===i && editItem.field==='title' ? (
                     <ImprovedInlineEditor initialValue={it.title} onSave={(v)=> save(group.side, i, 'title', v)} onCancel={()=> setEditItem(null)} style={inlineTitle} />
                   ) : (
-                    <div onClick={()=> isEditable && setEditItem({ side:group.side, idx:i, field:'title' })} style={{ ...title, cursor: isEditable ? 'pointer':'default' }}>{it.title}</div>
+                    <div onClick={()=> isEditable && setEditItem({ side:group.side, idx:i, field:'title' })} style={inline({ ...title, cursor: isEditable ? 'pointer':'default' })}>{it.title}</div>
                   )}
                   {isEditable && editItem && editItem.side===group.side && editItem.idx===i && editItem.field==='body' ? (
                     <ImprovedInlineEditor initialValue={it.body} multiline={true} onSave={(v)=> save(group.side, i, 'body', v)} onCancel={()=> setEditItem(null)} style={inlineBody} />
                   ) : (
-                    <div onClick={()=> isEditable && setEditItem({ side:group.side, idx:i, field:'body' })} style={{ ...body, cursor: isEditable ? 'pointer':'default' }}>{it.body}</div>
+                    <div onClick={()=> isEditable && setEditItem({ side:group.side, idx:i, field:'body' })} style={inline({ ...body, cursor: isEditable ? 'pointer':'default' })}>{it.body}</div>
                   )}
                 </div>
               </div>

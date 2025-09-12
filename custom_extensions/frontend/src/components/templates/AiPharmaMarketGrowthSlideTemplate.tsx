@@ -7,6 +7,15 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -92,32 +101,32 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
             className="ai-pharma-title-editor"
-            style={{ ...titleStyle}}
+            style={inline({ ...titleStyle})}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
         )}
       </div>
 
       {/* Bars */}
       <div style={barsArea}>
         {currentBars.map((b, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '18px', position: 'relative' }}>
+          <div key={i} style={inline({ display: 'flex', alignItems: 'center', gap: '18px', position: 'relative' })}>
             {/* Year editable */}
-            <div style={{ width: '50px', minHeight: '22px' }}>
+            <div style={inline({ width: '50px', minHeight: '22px' })}>
               {isEditable && editingBar?.index === i && editingBar?.field === 'year' ? (
                 <ImprovedInlineEditor
                   initialValue={b.year}
                   onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                   onCancel={() => setEditingBar(null)}
-                  style={{ width: '50px', color: '#677686' }}
+                  style={inline({ width: '50px', color: '#677686' })}
                 />
               ) : (
-                <div style={{ color: '#677686' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
+                <div style={inline({ color: '#677686' })} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
               )}
             </div>
 
-            <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
+            <div style={inline({ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' })}>
               {/* Width resizable via drag */}
               <div
                 style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px' }}
@@ -146,11 +155,11 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                     initialValue={b.label}
                     onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', background: 'transparent', border: 'none', outline: 'none' }}
+                    style={inline({ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', background: 'transparent', border: 'none', outline: 'none' })}
                   />
                 ) : (
                   <div 
-                    style={{ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
+                    style={inline({ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' })}
                     onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}
                   >
                     {b.label}
@@ -160,7 +169,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                 {/* Drag handle */}
                 {isEditable && (
                   <div
-                    style={{ position: 'absolute', right: 0, top: 0, width: '10px', height: '100%', cursor: 'ew-resize', borderTopRightRadius: '6px', borderBottomRightRadius: '6px' }}
+                    style={inline({ position: 'absolute', right: 0, top: 0, width: '10px', height: '100%', cursor: 'ew-resize', borderTopRightRadius: '6px', borderBottomRightRadius: '6px' })}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       if (!isEditable) return;
@@ -188,7 +197,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             {isEditable && (
               <button
                 onClick={() => { const nb=currentBars.filter((_,idx)=>idx!==i); setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
-                style={{ position: 'absolute', right: '110px', top: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                style={inline({ position: 'absolute', right: '110px', top: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' })}
                 aria-label="Delete bar"
               >
                 ×
@@ -200,7 +209,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
         {isEditable && (
           <button
             onClick={() => { const nb=[...currentBars, { year: '2035', label: 'New item', widthPercent: 50 }]; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
-            style={{ alignSelf: 'flex-start', marginLeft: '50px', background: '#2c3e55', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}
+            style={inline({ alignSelf: 'flex-start', marginLeft: '50px', background: '#2c3e55', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' })}
           >
             Add bar
           </button>
@@ -216,7 +225,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
           position="CENTER"
           description="Doctor"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%' }}
+          style={inline({ width: '100%', height: '100%' })}
         />
       </div>
     </div>

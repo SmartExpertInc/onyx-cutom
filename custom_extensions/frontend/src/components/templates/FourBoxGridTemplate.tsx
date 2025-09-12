@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export interface FourBoxGridProps {
   slideId: string;
@@ -13,129 +14,14 @@ export interface FourBoxGridProps {
   isEditable?: boolean;
 }
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   slideId,
@@ -271,14 +157,14 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     <div className="four-box-grid-template" style={slideStyles}>
       {/* Title */}
       {isEditable && editingTitle ? (
-        <InlineEditor
+        <ImprovedInlineEditor
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
+          style={inline({
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
             margin: '0',
@@ -291,7 +177,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
             display: 'block'
-          }}
+          })}
         />
       ) : (
         <h1 
@@ -313,14 +199,14 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
             <div key={idx} style={boxStyles}>
               {/* Box Heading */}
               {isEditable && editingBoxHeadings.includes(idx) ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={box.heading || ''}
                   onSave={(newHeading) => handleBoxHeadingSave(idx, newHeading)}
                   onCancel={() => handleBoxHeadingCancel(idx)}
                   multiline={true}
                   placeholder="Enter heading..."
                   className="inline-editor-box-heading"
-                  style={{
+                  style={inline({
                     ...headingStyles,
                     // Ensure heading behaves exactly like div element
                     margin: '0',
@@ -333,7 +219,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
                     whiteSpace: 'pre-wrap',
                     boxSizing: 'border-box',
                     display: 'block'
-                  }}
+                  })}
                 />
               ) : (
                 <div 
@@ -351,14 +237,14 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
 
               {/* Box Text */}
               {isEditable && editingBoxTexts.includes(idx) ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={box.text || ''}
                   onSave={(newText) => handleBoxTextSave(idx, newText)}
                   onCancel={() => handleBoxTextCancel(idx)}
                   multiline={true}
                   placeholder="Enter text..."
                   className="inline-editor-box-text"
-                  style={{
+                  style={inline({
                     ...textStyles,
                     // Ensure text behaves exactly like div element
                     margin: '0',
@@ -371,7 +257,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
                     whiteSpace: 'pre-wrap',
                     boxSizing: 'border-box',
                     display: 'block'
-                  }}
+                  })}
                 />
               ) : (
                 <div 
@@ -389,13 +275,13 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
             </div>
           ))
         ) : (
-          <div style={{ 
+          <div style={inline({ 
             color: '#ff6b6b', 
             fontWeight: 600, 
             padding: '20px', 
             textAlign: 'center',
             gridColumn: '1 / -1'
-          }}>
+          })}>
             Error: This slide requires exactly 4 boxes with "heading" and "text" fields.
             {!Array.isArray(boxes) && <div>Found: {typeof boxes}</div>}
             {Array.isArray(boxes) && <div>Found {boxes.length} boxes (need 4)</div>}

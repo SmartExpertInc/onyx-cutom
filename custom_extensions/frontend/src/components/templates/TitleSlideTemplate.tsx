@@ -1,131 +1,18 @@
 // custom_extensions/frontend/src/components/templates/TitleSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
   theme?: SlideTheme;
@@ -146,10 +33,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   const { backgroundColor, titleColor, subtitleColor } = currentTheme.colors;
 
-
-
-
-  
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -272,14 +155,14 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     <div className="title-slide-template" style={slideStyles}>
       {/* Main Title */}
       {isEditable && editingTitle ? (
-        <InlineEditor
+        <ImprovedInlineEditor
           initialValue={title || ''}
           onSave={handleTitleSave}
           onCancel={handleTitleCancel}
           multiline={true}
           placeholder="Enter slide title..."
           className="inline-editor-title"
-          style={{
+          style={inline({
             ...titleStyles,
             // Ensure title behaves exactly like h1 element
             padding: '0',
@@ -291,7 +174,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
             whiteSpace: 'pre-wrap',
             boxSizing: 'border-box',
             display: 'block'
-          }}
+          })}
         />
       ) : (
         <h1 
@@ -310,14 +193,14 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
       {/* Subtitle */}
       {subtitle && (
         isEditable && editingSubtitle ? (
-          <InlineEditor
+          <ImprovedInlineEditor
             initialValue={subtitle || ''}
             onSave={handleSubtitleSave}
             onCancel={handleSubtitleCancel}
             multiline={true}
             placeholder="Enter subtitle..."
             className="inline-editor-subtitle"
-            style={{
+            style={inline({
               ...subtitleStyles,
               // Ensure subtitle behaves exactly like h2 element
               margin: '0',
@@ -330,7 +213,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
               whiteSpace: 'pre-wrap',
               boxSizing: 'border-box',
               display: 'block'
-            }}
+            })}
           />
         ) : (
           <h2 
@@ -352,14 +235,14 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
         <div style={metadataStyles}>
           {author && (
             isEditable && editingAuthor ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={author || ''}
                 onSave={handleAuthorSave}
                 onCancel={handleAuthorCancel}
                 multiline={false}
                 placeholder="Enter author name..."
                 className="inline-editor-author"
-                style={{
+                style={inline({
                   ...metadataItemStyles,
                   background: 'transparent',
                   border: 'none',
@@ -370,7 +253,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block'
-                }}
+                })}
               />
             ) : (
               <div 
@@ -388,14 +271,14 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
           )}
           {date && (
             isEditable && editingDate ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={date || ''}
                 onSave={handleDateSave}
                 onCancel={handleDateCancel}
                 multiline={false}
                 placeholder="Enter date..."
                 className="inline-editor-date"
-                style={{
+                style={inline({
                   ...metadataItemStyles,
                   background: 'transparent',
                   border: 'none',
@@ -406,7 +289,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
                   display: 'block'
-                }}
+                })}
               />
             ) : (
               <div 

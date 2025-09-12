@@ -60,17 +60,17 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
         isEditable={isEditable}
         color="#6b7280"
         text={logoText}
-        style={{ position:'absolute', left:'48px', top:'48px' }}
+        style={inline({ position:'absolute', left:'48px', top:'48px' })}
       />
       <div style={titleStyle}>
         {isEditable && editTitle ? (
           <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEditTitle(true)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{title}</div>
         )}
       </div>
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate && onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ marginTop:'3px', width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate && onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ marginTop:'3px', width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' })} />
       </div>
 
       <div style={grid}>
@@ -78,21 +78,21 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           {isEditable && editLeft ? (
             <ImprovedInlineEditor initialValue={leftText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftText:v }); setEditLeft(false); }} onCancel={()=>setEditLeft(false)} style={inline(col)} />
           ) : (
-            <div onClick={()=> isEditable && setEditLeft(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{leftText}</div>
+            <div onClick={()=> isEditable && setEditLeft(true)} style={inline({ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' })}>{leftText}</div>
           )}
         </div>
         <div style={mid}>
           {isEditable && editMiddle ? (
             <ImprovedInlineEditor initialValue={middleText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ middleText:v }); setEditMiddle(false); }} onCancel={()=>setEditMiddle(false)} style={inline(mid)} />
           ) : (
-            <div onClick={()=> isEditable && setEditMiddle(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{middleText}</div>
+            <div onClick={()=> isEditable && setEditMiddle(true)} style={inline({ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' })}>{middleText}</div>
           )}
         </div>
         <div style={col}>
           {isEditable && editRight ? (
             <ImprovedInlineEditor initialValue={rightText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} onCancel={()=>setEditRight(false)} style={inline(col)} />
           ) : (
-            <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{rightText}</div>
+            <div onClick={()=> isEditable && setEditRight(true)} style={inline({ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' })}>{rightText}</div>
           )}
         </div>
       </div>

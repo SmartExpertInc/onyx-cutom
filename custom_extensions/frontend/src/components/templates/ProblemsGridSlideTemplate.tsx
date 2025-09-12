@@ -58,14 +58,14 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
         {isEditable && editTag ? (
           <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEditTag(false); }} onCancel={()=>setEditTag(false)} style={inline(tagStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditTag(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
+          <div onClick={()=> isEditable && setEditTag(true)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{tag}</div>
         )}
       </div>
       <div style={titleStyle}>
         {isEditable && editTitle ? (
           <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEditTitle(true)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{title}</div>
         )}
       </div>
 
@@ -77,7 +77,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
               {isEditable && editCard && editCard.idx===i && editCard.field==='title' ? (
                 <ImprovedInlineEditor initialValue={c.title} onSave={(v)=>{ const next=[...cards]; next[i]={ ...next[i], title:v }; onUpdate&&onUpdate({ cards: next }); setEditCard(null); }} onCancel={()=>setEditCard(null)} style={inline(cardTitle)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'title' })} style={{ ...cardTitle, cursor: isEditable ? 'pointer':'default' }}>
+                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'title' })} style={inline({ ...cardTitle, cursor: isEditable ? 'pointer':'default' })}>
                   {i === 0 ? (
                     (() => {
                       const parts = (c.title || '').trim().split(/\s+/);
@@ -85,7 +85,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
                       const rest = parts.join(' ');
                       return (
                         <>
-                          <span style={{ color: '#8A52FC' }}>{first}</span>
+                          <span style={inline({ color: '#8A52FC' })}>{first}</span>
                           {rest ? ' ' + rest : ''}
                         </>
                       );
@@ -100,7 +100,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
               {isEditable && editCard && editCard.idx===i && editCard.field==='body' ? (
                 <ImprovedInlineEditor initialValue={c.body} multiline={true} onSave={(v)=>{ const next=[...cards]; next[i]={ ...next[i], body:v }; onUpdate&&onUpdate({ cards: next }); setEditCard(null); }} onCancel={()=>setEditCard(null)} style={inline(cardBody)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'body' })} style={{ ...cardBody, cursor: isEditable ? 'pointer':'default' }}>{c.body}</div>
+                <div onClick={()=> isEditable && setEditCard({ idx:i, field:'body' })} style={inline({ ...cardBody, cursor: isEditable ? 'pointer':'default' })}>{c.body}</div>
               )}
             </div>
           </div>
@@ -111,12 +111,12 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
         {isEditable && editRight ? (
           <ImprovedInlineEditor initialValue={rightText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} onCancel={()=> setEditRight(false)} style={inline(rightTextStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightText}</div>
+          <div onClick={()=> isEditable && setEditRight(true)} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{rightText}</div>
         )}
       </div>
 
       <div style={avatar}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' })} />
       </div>
     </div>
   );

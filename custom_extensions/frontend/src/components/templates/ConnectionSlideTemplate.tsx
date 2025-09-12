@@ -19,6 +19,15 @@ export interface ConnectionSlideProps extends BaseTemplateProps {
   vennLabels?: { culture: string; managers: string; teams: string };
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Connection',
@@ -176,10 +185,10 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
               initialValue={title}
               onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
               onCancel={() => setEditingTitle(false)}
-              style={{ ...titleStyle, position: 'relative' }}
+              style={inline({ ...titleStyle, position: 'relative' })}
             />
           ) : (
-            <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+            <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
           )}
         </div>
         <div style={desc}>
@@ -189,15 +198,15 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
               multiline={true}
               onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDescription(false); }}
               onCancel={() => setEditingDescription(false)}
-              style={{ ...desc, position: 'relative' }}
+              style={inline({ ...desc, position: 'relative' })}
             />
           ) : (
-            <div onClick={() => isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
+            <div onClick={() => isEditable && setEditingDescription(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{description}</div>
           )}
         </div>
 
         {/* Avatar */}
-        <div style={{ marginTop: '85px', backgroundColor: '#3466FA', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+        <div style={inline({ marginTop: '85px', backgroundColor: '#3466FA', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' })}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
@@ -205,7 +214,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
             position="CENTER"
             description="Avatar"
             isEditable={isEditable}
-            style={{ width: '100%', marginTop: '3px', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            style={inline({ width: '100%', marginTop: '3px', height: '100%', objectFit: 'cover', borderRadius: '50%' })}
           />
         </div>
       </div>
@@ -219,10 +228,10 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           position="CENTER"
           description="Background"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.35)' }}
+          style={inline({ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.35)' })}
         />
         {/* Keep overlay but let clicks pass to the image below for editing */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35))', pointerEvents: 'none' }} />
+        <div style={inline({ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35))', pointerEvents: 'none' })} />
         {/* Venn circles */}
         <div style={vennWrapper}>
           <div style={bigCircle} />
@@ -231,60 +240,60 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         </div>
 
         {/* Venn labels */}
-        <div style={{ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none' }}>
+        <div style={inline({ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none' })}>
           {/* Culture (top center of big circle) */}
-          <div style={{ position: 'absolute', left: '59%', top: '56px', color: '#B1B0B1', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto' }}>
+          <div style={inline({ position: 'absolute', left: '59%', top: '56px', color: '#B1B0B1', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto' })}>
             {isEditable && editingVenn === 'culture' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.culture}
                 onSave={(v) => { onUpdate && onUpdate({ vennLabels: { ...vennLabels, culture: v } }); setEditingVenn(null); }}
                 onCancel={() => setEditingVenn(null)}
-                style={{ color: '#d1d5db', fontSize: '22px' }}
+                style={inline({ color: '#d1d5db', fontSize: '22px' })}
               />
             ) : (
-              <span style={{ cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingVenn('culture')}>{vennLabels.culture}</span>
+              <span style={inline({ cursor: isEditable ? 'pointer' : 'default' })} onClick={() => isEditable && setEditingVenn('culture')}>{vennLabels.culture}</span>
             )}
           </div>
 
           {/* Managers (center of left small circle) */}
-          <div style={{ position: 'absolute', left: '332px', top: '240px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
+          <div style={inline({ position: 'absolute', left: '332px', top: '240px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' })}>
             {isEditable && editingVenn === 'managers' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.managers}
                 onSave={(v) => { onUpdate && onUpdate({ vennLabels: { ...vennLabels, managers: v } }); setEditingVenn(null); }}
                 onCancel={() => setEditingVenn(null)}
-                style={{ color: '#e5e7eb', fontSize: '26px' }}
+                style={inline({ color: '#e5e7eb', fontSize: '26px' })}
               />
             ) : (
-              <span style={{ cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingVenn('managers')}>{vennLabels.managers}</span>
+              <span style={inline({ cursor: isEditable ? 'pointer' : 'default' })} onClick={() => isEditable && setEditingVenn('managers')}>{vennLabels.managers}</span>
             )}
           </div>
 
           {/* Teams (center of right small circle) */}
-          <div style={{ position: 'absolute', right: '133px', top: '240px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' }}>
+          <div style={inline({ position: 'absolute', right: '133px', top: '240px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto' })}>
             {isEditable && editingVenn === 'teams' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.teams}
                 onSave={(v) => { onUpdate && onUpdate({ vennLabels: { ...vennLabels, teams: v } }); setEditingVenn(null); }}
                 onCancel={() => setEditingVenn(null)}
-                style={{ color: '#e5e7eb', fontSize: '26px' }}
+                style={inline({ color: '#e5e7eb', fontSize: '26px' })}
               />
             ) : (
-              <span style={{ cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingVenn('teams')}>{vennLabels.teams}</span>
+              <span style={inline({ cursor: isEditable ? 'pointer' : 'default' })} onClick={() => isEditable && setEditingVenn('teams')}>{vennLabels.teams}</span>
             )}
           </div>
 
           {/* Center plus button */}
-          <div style={{ position: 'absolute', left: '396px', top: '217px', width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ width: '20px', height: '3px', backgroundColor: '#fff', position: 'absolute' }} />
-            <div style={{ width: '3px', height: '20px', backgroundColor: '#fff', position: 'absolute' }} />
+          <div style={inline({ position: 'absolute', left: '396px', top: '217px', width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
+            <div style={inline({ width: '20px', height: '3px', backgroundColor: '#fff', position: 'absolute' })} />
+            <div style={inline({ width: '3px', height: '20px', backgroundColor: '#fff', position: 'absolute' })} />
           </div>
         </div>
       </div>
 
       <div style={footer}>
         {tabs.map((t, i) => (
-          <div key={i} style={{ ...tab, borderTop: i===activeTabIndex ? '3px solid #3968D3' : 'none', color: i===activeTabIndex ? '#BCBCBC' : '#6F6F6F', position: 'relative', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingTabIndex(i)}>
+          <div key={i} style={inline({ ...tab, borderTop: i===activeTabIndex ? '3px solid #3968D3' : 'none', color: i===activeTabIndex ? '#BCBCBC' : '#6F6F6F', position: 'relative', cursor: isEditable ? 'pointer' : 'default' })} onClick={() => isEditable && setEditingTabIndex(i)}>
             {isEditable && editingTabIndex === i ? (
               <ImprovedInlineEditor
                 initialValue={t}
@@ -295,12 +304,12 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
                   setEditingTabIndex(null);
                 }}
                 onCancel={() => setEditingTabIndex(null)}
-                style={{ color: '#c8c8c8', fontSize: '16px' }}
+                style={inline({ color: '#c8c8c8', fontSize: '16px' })}
               />
             ) : (
               <span>{t}</span>
             )}
-            {i===activeTabIndex && <div style={{ position: 'absolute', left: 0, right: 0, bottom: '-6px', height: '3px', backgroundColor: '#2563eb', borderRadius: '2px' }} />}
+            {i===activeTabIndex && <div style={inline({ position: 'absolute', left: 0, right: 0, bottom: '-6px', height: '3px', backgroundColor: '#2563eb', borderRadius: '2px' })} />}
           </div>
         ))}
       </div>

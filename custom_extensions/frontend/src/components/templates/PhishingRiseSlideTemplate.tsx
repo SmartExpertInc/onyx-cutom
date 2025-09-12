@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -154,14 +163,14 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
               onCancel={() => setEditingTitle(false)}
               className="phishing-title-editor"
-              style={{ ...largeFaintTitle }}
+              style={inline({ ...largeFaintTitle })}
             />
           ) : (
-            <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+            <div onClick={() => isEditable && setEditingTitle(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{title}</div>
           )}
         </div>
         {/* Stable description block to avoid shifting when editing */}
-        <div style={{ ...paragraph, minHeight: '104px' }}>
+        <div style={inline({ ...paragraph, minHeight: '104px' })}>
           {isEditable && editingDescription ? (
             <ImprovedInlineEditor
               initialValue={description}
@@ -169,10 +178,10 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDescription(false); }}
               onCancel={() => setEditingDescription(false)}
               className="phishing-description-editor"
-              style={{ ...paragraph, minHeight: 'auto' }}
+              style={inline({ ...paragraph, minHeight: 'auto' })}
             />
           ) : (
-            <div onClick={() => isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
+            <div onClick={() => isEditable && setEditingDescription(true)} style={inline({ cursor: isEditable ? 'pointer' : 'default' })}>{description}</div>
           )}
         </div>
 
@@ -185,7 +194,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             position="CENTER"
             description="Actor"
             isEditable={isEditable}
-            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+            style={inline({ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' })}
           />
         </div>
       </div>
@@ -194,27 +203,27 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       <div style={rightArea}>
         {/* Y labels */}
         <div style={yLabels}>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>70</span></div>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>60</span></div>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>40</span></div>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>20</span></div>
+          <div style={inline({ marginBottom: '103px' })}><span style={yPillStyle}>70</span></div>
+          <div style={inline({ marginBottom: '103px' })}><span style={yPillStyle}>60</span></div>
+          <div style={inline({ marginBottom: '103px' })}><span style={yPillStyle}>40</span></div>
+          <div style={inline({ marginBottom: '103px' })}><span style={yPillStyle}>20</span></div>
           <div><span style={yPillStyle}>0</span></div>
         </div>
 
         {/* Bars */}
         <div style={chart}>
           {currentBars.map((b, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-              <div style={{ minHeight: '22px' }}>
+            <div key={idx} style={inline({ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' })}>
+              <div style={inline({ minHeight: '22px' })}>
                 {isEditable && editingBar?.index === idx && editingBar?.field === 'valueLabel' ? (
                   <ImprovedInlineEditor
                     initialValue={b.valueLabel}
                     onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], valueLabel: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ color: '#4F4F4F', fontSize: '14px' }}
+                    style={inline({ color: '#4F4F4F', fontSize: '14px' })}
                   />
                 ) : (
-                  <div style={{ color: '#4F4F4F', fontSize: '14px' }} onClick={() => isEditable && setEditingBar({ index: idx, field: 'valueLabel' })}>{b.valueLabel}</div>
+                  <div style={inline({ color: '#4F4F4F', fontSize: '14px' })} onClick={() => isEditable && setEditingBar({ index: idx, field: 'valueLabel' })}>{b.valueLabel}</div>
                 )}
               </div>
 
@@ -245,13 +254,13 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 }}
               />
 
-              <div style={{ ...yearStyle, minHeight: '20px' }}>
+              <div style={inline({ ...yearStyle, minHeight: '20px' })}>
                 {isEditable && editingBar?.index === idx && editingBar?.field === 'year' ? (
                   <ImprovedInlineEditor
                     initialValue={b.year}
                     onSave={(v) => { const nb=[...currentBars]; nb[idx] = { ...nb[idx], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ ...yearStyle }}
+                    style={inline({ ...yearStyle })}
                   />
                 ) : (
                   <div onClick={() => isEditable && setEditingBar({ index: idx, field: 'year' })}>{b.year}</div>
@@ -261,7 +270,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
               {isEditable && (
                 <button
                   onClick={() => removeBar(idx)}
-                  style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                  style={inline({ position: 'absolute', top: '-8px', right: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' })}
                   aria-label="Delete bar"
                 >
                   ×
@@ -271,7 +280,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
           ))}
 
           {isEditable && (
-            <button onClick={addBar} style={{ position: 'absolute', right: '12px', top: '12px', background: '#0d0d0d', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}>Add bar</button>
+            <button onClick={addBar} style={inline({ position: 'absolute', right: '12px', top: '12px', background: '#0d0d0d', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' })}>Add bar</button>
           )}
         </div>
       </div>

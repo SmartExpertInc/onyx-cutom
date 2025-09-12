@@ -13,6 +13,15 @@ export interface KeySkillsDataAnalysisProps extends BaseTemplateProps {
   rightImagePath?: string;
 }
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisProps & { theme?: SlideTheme | string }> = ({
   slideId,
   heading = 'Key skills\nfor data analysis:',
@@ -53,7 +62,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
         {isEditable && editHeading ? (
           <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inlineHeading} />
         ) : (
-          <div onClick={()=> isEditable && setEditHeading(true)} style={{ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>
+          <div onClick={()=> isEditable && setEditHeading(true)} style={inline({ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' })}>{heading}</div>
         )}
         <div style={list}>
           {items.map((it, i)=> (
@@ -63,7 +72,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
                 {isEditable && editItem === i ? (
                   <ImprovedInlineEditor initialValue={it} onSave={(v)=>{ const next=[...items]; next[i]=v; onUpdate&&onUpdate({ items: next }); setEditItem(null); }} onCancel={()=>setEditItem(null)} style={inlineText} />
                 ) : (
-                  <div onClick={()=> isEditable && setEditItem(i)} style={{ ...text, cursor: isEditable ? 'pointer':'default' }}>{it}</div>
+                  <div onClick={()=> isEditable && setEditItem(i)} style={inline({ ...text, cursor: isEditable ? 'pointer':'default' })}>{it}</div>
                 )}
               </div>
             </div>

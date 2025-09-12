@@ -198,7 +198,7 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
             onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
             description="Avatar" 
             isEditable={isEditable} 
-            style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+            style={inline({ width:'100%', height:'100%', objectFit:'cover' })} 
           />
         </div>
       </div>

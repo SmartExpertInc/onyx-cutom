@@ -7,6 +7,15 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -106,14 +115,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   return (
     <div className="company-tools-resources-slide-template inter-theme" style={slideStyles}>
       {/* Logo Placeholder */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '40px',
         left: '40px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-      }}>
+      })}>
         {currentCompanyLogoPath ? (
           // Show uploaded logo image
           <ClickableImagePlaceholder
@@ -123,23 +132,23 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             position="CENTER"
             description="Company logo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               height: '30px',
               maxWidth: '120px',
               objectFit: 'contain'
-            }}
+            })}
           />
         ) : (
           // Show default logo design with clickable area
-          <div style={{
+          <div style={inline({
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             cursor: isEditable ? 'pointer' : 'default'
-          }}
+          })}
           onClick={() => isEditable && setShowLogoUploadModal(true)}
           >
-            <div style={{
+            <div style={inline({
               width: '20px',
               height: '20px',
               border: '2px solid #374151',
@@ -148,14 +157,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
-            }}>
-              <div style={{
+            })}>
+              <div style={inline({
                 width: '8px',
                 height: '2px',
                 backgroundColor: '#374151',
                 position: 'absolute'
-              }} />
-              <div style={{
+              })} />
+              <div style={inline({
                 width: '2px',
                 height: '8px',
                 backgroundColor: '#374151',
@@ -163,15 +172,15 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                 left: '50%',
                 top: '50%',
                 transform: 'translate(-50%, -50%)'
-              }} />
+              })} />
             </div>
-            <div style={{ fontSize: '14px', fontWeight: '300', color: '#374151' }}>Your Logo</div>
+            <div style={inline({ fontSize: '14px', fontWeight: '300', color: '#374151' })}>Your Logo</div>
           </div>
         )}
       </div>
 
       {/* Title */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '100px',
         left: '5%',
@@ -180,14 +189,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         color: '#2A2A2A', // Dark gray text as per screenshot
         lineHeight: '1.1',
         textAlign: 'center',
-      }}>
+      })}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
             className="company-title-editor"
-            style={{
+            style={inline({
               fontSize: '56px',
               fontWeight: 'bold',
               color: '#2A2A2A',
@@ -195,15 +204,15 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               width: '100%',
               height: 'auto',
               textAlign: 'center',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
-            style={{
+            style={inline({
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentTitle}
           </div>
@@ -211,7 +220,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       </div>
 
       {/* Profile Image */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '40px',
         right: '40px',
@@ -220,7 +229,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         borderRadius: '50%',
         overflow: 'hidden',
         backgroundColor: '#000000', // Black background as per screenshot
-      }}>
+      })}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}
@@ -228,17 +237,17 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           position="CENTER"
           description="Profile photo"
           isEditable={isEditable}
-          style={{
+          style={inline({
             width: '100%',
             height: '100%',
             borderRadius: '50%',
             objectFit: 'cover'
-          }}
+          })}
         />
       </div>
 
       {/* Content Sections Grid */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '203px',
         left: '40px',
@@ -247,44 +256,44 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gridTemplateRows: '1fr 1fr',
-      }}>
+      })}>
         {currentSections.map((section, index) => (
-          <div key={index} style={{
+          <div key={index} style={inline({
             backgroundColor: index === 0 || index === 3 ? '#CCCCCC' : '#4231EA',
             padding: '33px',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-          }}>
+          })}>
             {/* Section Title */}
-            <div style={{
+            <div style={inline({
               fontSize: '16px',
               fontWeight: 'bold',
               color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
               lineHeight: '1.2',
-            }}>
+            })}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'title' ? (
                 <ImprovedInlineEditor
                   initialValue={section.title}
                   onSave={(value) => handleSectionSave(index, 'title', value)}
                   onCancel={() => setEditingSections(null)}
                   className="section-title-editor"
-                  style={{
+                  style={inline({
                     fontSize: '16px',
                     fontWeight: 'bold',
                     color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
                     lineHeight: '1.2',
                     width: '100%',
                     height: 'auto',
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingSections({ index, field: 'title' })}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {section.title}
                 </div>
@@ -292,12 +301,12 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             </div>
 
             {/* Section Content */}
-            <div style={{
+            <div style={inline({
               fontSize: '14px',
               color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
               lineHeight: '1.4',
               flex: 1,
-            }}>
+            })}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'content' ? (
                 <ImprovedInlineEditor
                   initialValue={section.content}
@@ -305,21 +314,21 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   onCancel={() => setEditingSections(null)}
                   className="section-content-editor"
                   multiline={true}
-                  style={{
+                  style={inline({
                     fontSize: '14px',
                     color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
                     lineHeight: '1.4',
                     width: '100%',
                     height: 'auto',
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingSections({ index, field: 'content' })}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {section.content}
                 </div>

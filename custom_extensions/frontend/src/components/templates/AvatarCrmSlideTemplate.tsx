@@ -1,130 +1,20 @@
 // custom_extensions/frontend/src/components/templates/AvatarCrmSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AvatarSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6',
-          overflowWrap: 'anywhere',
-          color: 'inherit'
-        }}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      type="text"
-      className={`inline-editor-input ${className}`}
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        boxSizing: 'border-box',
-        display: 'block',
-        color: 'inherit'
-      }}
-    />
-  );
-}
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
 
 export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   theme?: SlideTheme;
@@ -390,14 +280,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
         {/* Pink Banner */}
         <div style={bannerStyles}>
           {isEditable && editingBanner ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={title || 'Личное отношение - залог следующих ВИЗИТОВ'}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               multiline={true}
               placeholder="Enter banner text..."
               className="inline-editor-banner"
-              style={{
+              style={inline({
                 ...bannerStyles,
                 background: 'transparent',
                 border: 'none',
@@ -413,7 +303,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                 padding: '8px 12px',
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 borderRadius: '4px'
-              }}
+              })}
             />
           ) : (
             <div 
@@ -434,14 +324,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
           <div style={checklistItemStyles}>
             <span style={checkmarkStyles}>✓</span>
             {isEditable && editingSubtitle ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={subtitle || 'Помните детали'}
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
                 multiline={false}
                 placeholder="Enter checklist item..."
                 className="inline-editor-checklist"
-                style={{
+                style={inline({
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
@@ -456,7 +346,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   fontSize: '1rem',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '4px'
-                }}
+                })}
               />
             ) : (
               <span 
@@ -475,14 +365,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
           <div style={checklistItemStyles}>
             <span style={checkmarkStyles}>✓</span>
             {isEditable && editingContent ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={content || 'Интересуйтесь'}
                 onSave={handleContentSave}
                 onCancel={handleContentCancel}
                 multiline={false}
                 placeholder="Enter checklist item..."
                 className="inline-editor-checklist"
-                style={{
+                style={inline({
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
@@ -497,7 +387,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
                   fontSize: '1rem',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '4px'
-                }}
+                })}
               />
             ) : (
               <span 
@@ -532,14 +422,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
           size="LARGE"
           position="CENTER"
           className="!h-screen !max-h-none !min-h-screen !w-full"
-          style={{
+          style={inline({
             width: '100%',
             height: '100vh',
             minHeight: '100vh',
             maxHeight: '100vh',
             objectFit: 'cover',
             borderRadius: '0'
-          }}
+          })}
         />
       </div>
     </div>

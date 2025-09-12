@@ -73,14 +73,14 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       <div style={header} />
       <div style={ring1} />
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', marginTop:'4px', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={inline({ width:'100%', height:'100%', marginTop:'4px', objectFit:'cover' })} />
       </div>
 
       <div style={headerText}>
         {isEditable && editKey==='headerTitle' ? (
           <ImprovedInlineEditor initialValue={headerTitle} onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(headerText)} />
         ) : (
-          <div onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
+          <div onClick={()=> isEditable && setEditKey('headerTitle')} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{headerTitle}</div>
         )}
       </div>
 
@@ -90,14 +90,14 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
           {isEditable && editKey==='s1t' ? (
             <ImprovedInlineEditor initialValue={section1Title} onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1TitleStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
+            <div onClick={()=> isEditable && setEditKey('s1t')} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{section1Title}</div>
           )}
         </div>
         <div style={section1LinesStyle}>
           {isEditable && editKey==='s1l' ? (
             <ImprovedInlineEditor initialValue={section1Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1LinesStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
+            <div onClick={()=> isEditable && setEditKey('s1l')} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{section1Lines.join('\n')}</div>
           )}
         </div>
 
@@ -105,14 +105,14 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
           {isEditable && editKey==='s2t' ? (
             <ImprovedInlineEditor initialValue={section2Title} onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2TitleStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
+            <div onClick={()=> isEditable && setEditKey('s2t')} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{section2Title}</div>
           )}
         </div>
         <div style={section2LinesStyle}>
           {isEditable && editKey==='s2l' ? (
             <ImprovedInlineEditor initialValue={section2Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2LinesStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditKey('s2l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Lines.join('\n')}</div>
+            <div onClick={()=> isEditable && setEditKey('s2l')} style={inline({ cursor: isEditable ? 'pointer':'default' })}>{section2Lines.join('\n')}</div>
           )}
         </div>
       </div>

@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -101,15 +110,15 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   return (
     <div className="impact-statements-slide-template inter-theme" style={slideStyles}>
       {/* Left section with title and profile image */}
-      <div style={{
+      <div style={inline({
         width: '75%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
-      }}>
+      })}>
         {/* Title */}
-        <div style={{
+        <div style={inline({
           maxWidth: '537px',
           fontSize: '45px',
           color: themeTitle,
@@ -118,7 +127,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           minHeight: '50px',
           display: 'flex',
           alignItems: 'flex-start'
-        }}>
+        })}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
               initialValue={currentTitle}
@@ -126,7 +135,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               onCancel={handleTitleCancel}
               multiline={true}
               className="impact-title-editor"
-              style={{
+              style={inline({
                 maxWidth: '480px',
                 fontSize: '48px',
                 color: themeTitle,
@@ -134,12 +143,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 width: '100%',
                 height: 'auto',
                 minHeight: '50px'
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingTitle(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
                 width: '100%',
@@ -150,7 +159,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 color: themeTitle,
                 lineHeight: '1.2',
                 minHeight: '50px'
-              }}
+              })}
             >
               {currentTitle}
             </div>
@@ -158,7 +167,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         </div>
 
         {/* Profile image in orange container */}
-        <div style={{
+        <div style={inline({
           width: '440px',
           height: '255px',
           backgroundColor: '#E09254',
@@ -167,7 +176,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
-        }}>
+        })}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -175,35 +184,35 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
-            style={{
+            style={inline({
               width: '43%',
               height: '92%',
               objectFit: 'cover',
               position: 'relative',
               bottom: '-22px',
-            }}
+            })}
           />
         </div>
       </div>
 
       {/* Right section with impact statements */}
-      <div style={{
+      <div style={inline({
         display: 'flex',
         gap: '31px',
         width: '65%',
         height: '100%'
-      }}>
+      })}>
         {/* Левая колонка (два блока) */}
-        <div style={{
+        <div style={inline({
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           gap: '30px'
-        }}>
+        })}>
           {currentStatements.slice(0, 2).map((statement, index) => (
             <div
               key={index}
-              style={{
+              style={inline({
                 backgroundColor: '#71B7F1',
                 borderRadius: '20px',
                 padding: '30px',
@@ -211,10 +220,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 flexDirection: 'column',
                 gap: '10px',
                 minHeight: index === 1 ? '210.5px' : '325px'
-              }}
+              })}
             >
               {/* Number */}
-              <div style={{
+              <div style={inline({
                 fontSize: '48px',
                 color: '#263644',
                 minHeight: '60px',
@@ -222,26 +231,26 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 alignItems: 'center',
                 overflow: 'hidden'
-              }}>
+              })}>
                 {isEditable && editingNumbers === index ? (
                   <ImprovedInlineEditor
                     initialValue={statement.number}
                     onSave={(value) => handleNumberSave(index, value)}
                     onCancel={handleNumberCancel}
                     className="statement-number-editor"
-                    style={{
+                    style={inline({
                       fontSize: '48px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto',
                       minHeight: '60px',
                       maxHeight: '60px'
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingNumbers(index)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       width: '100%',
@@ -253,7 +262,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       minHeight: '60px',
                       maxHeight: '60px',
                       overflow: 'hidden'
-                    }}
+                    })}
                   >
                     {statement.number}
                   </div>
@@ -261,14 +270,14 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               </div>
 
               {/* Description */}
-              <div style={{
+              <div style={inline({
                 fontSize: '14px',
                 color: '#336188',
                 lineHeight: '1.4',
                 minHeight: '25px',
                 display: 'flex',
                 alignItems: 'flex-start'
-              }}>
+              })}>
                 {isEditable && editingStatements === index ? (
                   <ImprovedInlineEditor
                     initialValue={statement.description}
@@ -276,25 +285,25 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleStatementCancel}
                     multiline={true}
                     className="statement-description-editor"
-                    style={{
+                    style={inline({
                       fontSize: '14px',
                       color: '#336188',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingStatements(index)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '14px',
                       color: '#336188',
                       lineHeight: '1.4',
                       width: '100%'
-                    }}
+                    })}
                   >
                     {statement.description}
                   </div>
@@ -305,14 +314,14 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         </div>
 
         {/* Правая колонка (один блок) */}
-        <div style={{
+        <div style={inline({
           flex: 1,
           display: 'flex',
           alignItems: 'stretch'
-        }}>
+        })}>
           {currentStatements[2] && (
             <div
-              style={{
+              style={inline({
                 backgroundColor: '#71B7F1',
                 borderRadius: '20px',
                 padding: '30px',
@@ -321,46 +330,46 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 flexDirection: 'column',
                 gap: '10px',
                 height: '566px'
-              }}
+              })}
             >
-              <div style={{
+              <div style={inline({
                 fontSize: '48px',
                 color: '#263644',
-              }}>
+              })}>
                 {isEditable && editingNumbers === 2 ? (
                   <ImprovedInlineEditor
                     initialValue={currentStatements[2].number}
                     onSave={(value) => handleNumberSave(2, value)}
                     onCancel={handleNumberCancel}
                     className="statement-number-editor"
-                    style={{
+                    style={inline({
                       fontSize: '48px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto'
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingNumbers(2)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '48px',
                       color: themeBg,
                       fontWeight: 'bold',
                       width: '100%'
-                    }}
+                    })}
                   >
                     {currentStatements[2].number}
                   </div>
                 )}
               </div>
-              <div style={{
+              <div style={inline({
                 fontSize: '14px',
                 color: themeBg,
                 lineHeight: '1.4'
-              }}>
+              })}>
                 {isEditable && editingStatements === 2 ? (
                   <ImprovedInlineEditor
                     initialValue={currentStatements[2].description}
@@ -368,25 +377,25 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleStatementCancel}
                     multiline={true}
                     className="statement-description-editor"
-                    style={{
+                    style={inline({
                       fontSize: '14px',
                       color: '#336188',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingStatements(2)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '14px',
                       color: '#336188',
                       lineHeight: '1.4',
                       width: '100%'
-                    }}
+                    })}
                   >
                     {currentStatements[2].description}
                   </div>

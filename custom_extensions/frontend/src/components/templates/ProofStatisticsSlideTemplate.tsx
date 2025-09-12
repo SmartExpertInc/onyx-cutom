@@ -6,6 +6,15 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background:'transparent',
+    border:'none',
+    outline:'none',
+    padding:0,
+    margin:0
+  });
+
 export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
@@ -129,7 +138,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   return (
     <div className="proof-statistics-slide-template inter-theme" style={slideStyles}>
       {/* Tag */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '40px',
         left: '60px',
@@ -137,27 +146,27 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         padding: '8px 16px',
         fontSize: '14px',
         color: '#A1A1A1',
-      }}>
+      })}>
         {isEditable && editingTagText ? (
           <ImprovedInlineEditor
             initialValue={currentTagText}
             onSave={handleTagTextSave}
             onCancel={() => setEditingTagText(false)}
             className="tag-text-editor"
-            style={{
+            style={inline({
               fontSize: '14px',
               color: '#FFFFFF',
               width: '100%',
               height: 'auto',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTagText(true)}
-            style={{
+            style={inline({
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentTagText}
           </div>
@@ -165,7 +174,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       </div>
 
       {/* Title */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '95px',
         left: '60px',
@@ -174,29 +183,29 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         color: '#DFDFDF',
         lineHeight: '1.1',
         maxWidth: '600px',
-      }}>
+      })}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
             className="proof-title-editor"
-            style={{
+            style={inline({
               fontSize: '38px',
               fontWeight: 'bold',
               color: '#DFDFDF',
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingTitle(true)}
-            style={{
+            style={inline({
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentTitle}
           </div>
@@ -204,7 +213,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       </div>
 
       {/* Description */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '155px',
         left: '60px',
@@ -212,7 +221,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         color: '#929292',
         lineHeight: '1.4',
         maxWidth: '454px',
-      }}>
+      })}>
         {isEditable && editingDescription ? (
           <ImprovedInlineEditor
             initialValue={currentDescription}
@@ -220,21 +229,21 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             onCancel={() => setEditingDescription(false)}
             className="proof-description-editor"
             multiline={true}
-            style={{
+            style={inline({
               fontSize: '16px',
               color: '#FFFFFF',
               lineHeight: '1.4',
               width: '100%',
               height: 'auto',
-            }}
+            })}
           />
         ) : (
           <div
             onClick={() => isEditable && setEditingDescription(true)}
-            style={{
+            style={inline({
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
-            }}
+            })}
           >
             {currentDescription}
           </div>
@@ -242,7 +251,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       </div>
 
       {/* Statistics Grid */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '240px',
         left: '60px',
@@ -256,40 +265,40 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         borderRadius: '2px',
         paddingTop: '25px',
         paddingBottom: '35px',
-      }}>
+      })}>
         {currentStatistics.map((stat, index) => (
-          <div key={index} style={{
+          <div key={index} style={inline({
             display: 'flex',
             flexDirection: 'column',
-          }}>
+          })}>
             {/* Statistic Value */}
-            <div style={{
+            <div style={inline({
               fontSize: '32px',
               fontWeight: 'bold',
               color: '#E1E1E1',
               marginBottom: '12px',
-            }}>
+            })}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'value' ? (
                 <ImprovedInlineEditor
                   initialValue={stat.value}
                   onSave={(value) => handleStatisticSave(index, 'value', value)}
                   onCancel={() => setEditingStatistics(null)}
                   className="statistic-value-editor"
-                  style={{
+                  style={inline({
                     fontSize: '32px',
                     fontWeight: 'bold',
                     color: '#E1E1E1',
                     width: '100%',
                     height: 'auto',
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingStatistics({ index, field: 'value' })}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {stat.value}
                 </div>
@@ -297,32 +306,32 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             </div>
 
             {/* Statistic Description */}
-            <div style={{
+            <div style={inline({
               fontSize: '14px',
               color: '#989898',
               lineHeight: '1.3',
-            }}>
+            })}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'description' ? (
                 <ImprovedInlineEditor
                   initialValue={stat.description}
                   onSave={(value) => handleStatisticSave(index, 'description', value)}
                   onCancel={() => setEditingStatistics(null)}
                   className="statistic-description-editor"
-                  style={{
+                  style={inline({
                     fontSize: '14px',
                     color: '#989898',
                     lineHeight: '1.3',
                     width: '100%',
                     height: 'auto',
-                  }}
+                  })}
                 />
               ) : (
                 <div
                   onClick={() => isEditable && setEditingStatistics({ index, field: 'description' })}
-                  style={{
+                  style={inline({
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none'
-                  }}
+                  })}
                 >
                   {stat.description}
                 </div>
@@ -333,19 +342,19 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       </div>
 
       {/* Right Section - Conclusion and Bullet Points */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '240px',
         right: '60px',
         width: '400px',
-      }}>
+      })}>
         {/* Conclusion Text */}
-        <div style={{
+        <div style={inline({
           fontSize: '14px',
           color: '#939393',
           lineHeight: '1.4',
           marginBottom: '20px',
-        }}>
+        })}>
           {isEditable && editingConclusionText ? (
             <ImprovedInlineEditor
               initialValue={currentConclusionText}
@@ -353,21 +362,21 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               onCancel={() => setEditingConclusionText(false)}
               className="conclusion-text-editor"
               multiline={true}
-              style={{
+              style={inline({
                 fontSize: '14px',
                 color: '#939393',
                 lineHeight: '1.4',
                 width: '100%',
                 height: 'auto',
-              }}
+              })}
             />
           ) : (
             <div
               onClick={() => isEditable && setEditingConclusionText(true)}
-              style={{
+              style={inline({
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
-              }}
+              })}
             >
               {currentConclusionText}
             </div>
@@ -375,52 +384,52 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         </div>
 
         {/* Bullet Points */}
-        <div style={{
+        <div style={inline({
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
-        }}>
+        })}>
           {currentBulletPoints.map((bulletPoint, index) => (
-            <div key={index} style={{
+            <div key={index} style={inline({
               display: 'flex',
               alignItems: 'flex-start',
               gap: '8px',
-            }}>
-              <div style={{
+            })}>
+              <div style={inline({
                 width: '19px',
                 height: '18px',
                 borderRadius: '50%',
                 backgroundColor: '#8C51F6', // Purple circle
                 marginTop: '6px',
                 flexShrink: 0,
-              }} />
-              <div style={{
+              })} />
+              <div style={inline({
                 fontSize: '16px',
                 color: '#8E8E8E',
                 lineHeight: '1.4',
                 flex: 1,
-              }}>
+              })}>
                 {isEditable && editingBulletPoints === index ? (
                   <ImprovedInlineEditor
                     initialValue={bulletPoint}
                     onSave={(value) => handleBulletPointSave(index, value)}
                     onCancel={() => setEditingBulletPoints(null)}
                     className="bullet-point-editor"
-                    style={{
+                    style={inline({
                       fontSize: '16px',
                       color: '#8E8E8E',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto',
-                    }}
+                    })}
                   />
                 ) : (
                   <div
                     onClick={() => isEditable && setEditingBulletPoints(index)}
-                    style={{
+                    style={inline({
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none'
-                    }}
+                    })}
                   >
                     {bulletPoint}
                   </div>
@@ -432,7 +441,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       </div>
 
       {/* Profile Image */}
-      <div style={{
+      <div style={inline({
         position: 'absolute',
         top: '40px',
         right: '60px',
@@ -441,7 +450,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         borderRadius: '50%',
         backgroundColor: '#292929',
         overflow: 'hidden',
-      }}>
+      })}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}
@@ -449,14 +458,14 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
           position="CENTER"
           description="Profile photo"
           isEditable={isEditable}
-          style={{
+          style={inline({
             width: '100%',
             height: '100%',
             borderRadius: '50%',
             position: 'relative',
             bottom: '-15px',
             objectFit: 'cover'
-          }}
+          })}
         />
       </div>
     </div>
