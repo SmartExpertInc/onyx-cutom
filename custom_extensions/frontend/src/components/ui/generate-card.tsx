@@ -60,7 +60,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             <span 
               className="text-[10px] xs:text-xs sm:text-sm leading-tight text-center px-1"
               style={{
-                color: '#7A7A7A'
+                color: '#4A5565'
               }}
             >
               {label}

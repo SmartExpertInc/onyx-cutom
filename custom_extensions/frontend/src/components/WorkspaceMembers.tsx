@@ -17,6 +17,7 @@ import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
+import { HeadTextCustom } from './ui/head-text-custom';
 // Import test utilities for development
 import '../utils/testUserIds';
 import { Button } from './ui/button';
@@ -601,24 +602,15 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Workspace Header and Selector */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 shadow-md bg-white rounded-lg flex items-center justify-center">
-                <UserIcon />
-              </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
-                </h2>
-                {selectedWorkspace?.description && (
-                  <p className="text-sm text-gray-600 mt-1">{selectedWorkspace.description}</p>
-                )}
-              </div>
-            </div>
+            <HeadTextCustom 
+              text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
+              description={selectedWorkspace?.description}
+            />
           </div>
           
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
@@ -657,7 +649,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
               <Input
                 type="text"
-                variant="gray"
+                variant="shadow"
                 placeholder={t('interface.searchPlaceholder', 'Search members...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

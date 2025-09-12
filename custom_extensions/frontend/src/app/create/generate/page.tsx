@@ -1256,7 +1256,7 @@ function GenerateProductPicker() {
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
-            gradientTo="#FAD9A3"
+            gradientTo="#E8F0FE"
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
@@ -1270,21 +1270,21 @@ function GenerateProductPicker() {
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon}
-            gradientTo="#FFF1CE"
+            gradientTo="#E8F0FE"
             active={activeProduct === "Quiz"}
             onClick={() => setActiveProduct("Quiz")}
           />
           <GenerateCard
             label={t('interface.generate.presentation', 'Presentation')}
             Icon={LessonPresentationIcon}
-            gradientTo="#FAC9E8"
+            gradientTo="#E8F0FE"
             active={activeProduct === "Presentation"}
             onClick={() => setActiveProduct("Presentation")}
           />
           <GenerateCard
             label={t('interface.generate.onePager', 'One-Pager')}
             Icon={TextPresentationIcon}
-            gradientTo="#CE9FF4"
+            gradientTo="#E8F0FE"
             active={activeProduct === "One-Pager"}
             onClick={() => setActiveProduct("One-Pager")}
           />
