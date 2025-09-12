@@ -43,8 +43,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     padding: 0,
     margin: 0
   });
-
-  const slideStyles: React.CSSProperties = {
+const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
     backgroundColor: themeBg,

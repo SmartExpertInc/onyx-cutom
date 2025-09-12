@@ -46,8 +46,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     padding: 0,
     margin: 0
   });
-
-  const slideStyles: React.CSSProperties = {
+const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#252525',
