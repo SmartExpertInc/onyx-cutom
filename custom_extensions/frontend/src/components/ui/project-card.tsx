@@ -243,8 +243,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
            {/* Truncated title in center */}
            <div className="flex items-center justify-center flex-1 px-2">
              <h3 
-               className="font-semibold text-md text-center leading-tight line-clamp-2"
-               style={{ color: saturatedColor }}
+               className="font-semibold text-white text-md text-center leading-tight line-clamp-2"
              >
                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
              </h3>

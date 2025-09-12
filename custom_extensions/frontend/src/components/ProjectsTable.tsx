@@ -83,7 +83,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
-import { ProjectCard as NewProjectCard } from "@/components/ui/project-card"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -1394,6 +1393,11 @@ const ProjectCard: React.FC<{
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
+  
+  // Create gradient colors (lighter version of bgColor)
+  const gradientFrom = bgColor + "50"; // 25% opacity
+  const gradientTo = bgColor + "80";
+  const saturatedColor = bgColor;
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -1584,30 +1588,11 @@ const ProjectCard: React.FC<{
   };
 
   return (
-    <div
-      ref={cardRef}
-      className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative ${
-        !getModalState()
-          ? "cursor-grab active:cursor-grabbing"
-          : "cursor-default"
-      }`}
-      draggable={!isTrashMode && !getModalState()}
-      onDragStart={(e) => {
-        if (getModalState()) {
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        }
-        handleDragStart(e);
-      }}
-      onDragEnd={(e) => {
-        if (getModalState()) {
-          e.preventDefault();
-          return;
-        }
-        handleDragEnd(e);
-      }}
-    >
+    <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
+      !getModalState()
+        ? "cursor-grab active:cursor-grabbing"
+        : "cursor-default"
+    }`}>
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
@@ -1615,74 +1600,56 @@ const ProjectCard: React.FC<{
             : `/projects/view/${project.id}`
         )}
         onClick={handleCardClick}
-        className="block"
+        className="block h-full"
       >
-        <div
-          className="relative h-40 rounded-t-lg"
+        <div 
+          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
           style={{
-            backgroundColor: bgColor,
-            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-              project.title.split("").reverse().join("")
-            )}99)`,
+            background: `linear-gradient(to bottom right, ${gradientFrom}, ${gradientTo})`
           }}
         >
-          {project.designMicroproductType && (
-            <div
-              style={{
-                position: "absolute",
-                top: 8,
-                left: 8,
-                background: "#fff",
-                borderRadius: "6px",
-                padding: "4px",
-                zIndex: 2,
-                backdropFilter: "blur(2px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {getDesignMicroproductIcon(project.designMicroproductType)}
+          {/* Top row with icon and badge */}
+          <div className="flex justify-between items-start">
+            {/* List icon in top-left */}
+            <div className="w-6 h-6 flex items-center justify-center">
+              <List size={16} className="text-gray-500/60" />
             </div>
-          )}
-          {project.isGamma ? (
-            <div className="p-4 text-white flex flex-col justify-between h-full">
-              <div>
-                <div className="text-xs font-semibold">GAMMA</div>
-                <h3 className="font-bold text-2xl mt-2">Tips and tricks ⚡️</h3>
-              </div>
-              <p className="text-xs">
-                Ready to learn how to take your gammas to the next level?
-              </p>
-            </div>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
-              <h3
-                className="font-bold text-lg text-center truncate max-w-full"
-                title={displayTitle}
-              >
-                {displayTitle}
-              </h3>
-            </div>
-          )}
-        </div>
-        <div className="p-4">
-          <h3
-            className="font-semibold text-gray-800 mb-2 truncate text-sm max-w-full"
-            title={displayTitle}
-          >
-            {displayTitle}
-          </h3>
-          <div className="flex items-center text-xs text-gray-500 mb-3">
+            
+            {/* Private badge in top-right */}
             {project.isPrivate && (
-              <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
-                <Lock size={12} />
-                <span className="text-gray-700">
+              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
+                <Lock size={10} className="text-gray-600" />
+                <span className="text-xs font-medium text-gray-700">
                   {t("interface.private", "Private")}
                 </span>
               </div>
             )}
           </div>
+          
+          {/* Project type icon overlay */}
+          {project.designMicroproductType && (
+            <div className="absolute top-3 left-3 w-6 h-6 bg-white/20 backdrop-blur-sm rounded-md flex items-center justify-center">
+              {getDesignMicroproductIcon(project.designMicroproductType)}
+            </div>
+          )}
+          
+           {/* Truncated title in center */}
+           <div className="flex items-center justify-center flex-1 px-2">
+             <h3 
+               className="font-semibold text-white text-md text-center leading-tight line-clamp-2"
+             >
+               {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
+             </h3>
+           </div>
+        </div>
+        {/* Lower section with white background (25-30% of height) */}
+        <div className="bg-white p-4 h-25 flex flex-col justify-between">
+          {/* Full title */}
+          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
+            {displayTitle}
+          </h3>
+          
+          {/* Creator info and options */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div
@@ -1692,10 +1659,10 @@ const ProjectCard: React.FC<{
                 {project.createdBy.slice(0, 1).toUpperCase()}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-xs font-medium text-gray-900 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>
@@ -1704,133 +1671,15 @@ const ProjectCard: React.FC<{
           </div>
         </div>
       </Link>
-      <div className="absolute bottom-4 right-3" ref={menuRef}>
-        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button
-          ref={buttonRef}
-              variant="menu"
-        >
-          <MoreHorizontal size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            className="w-60 bg-white border border-gray-100 shadow-2xl text-gray-900" 
-            align="end"
-            side={menuPosition === "above" ? "top" : "bottom"}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
-              <p className="font-semibold text-sm text-gray-900 truncate">
-                {project.title}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {t("actions.created", "Created {date}").replace(
-                  "{date}",
-                  formatDate(project.createdAt)
-                )}
-              </p>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {isTrashMode ? (
-              <>
-                <DropdownMenuItem onClick={handleRestoreProject}>
-                  <RefreshCw size={14} />
-                  <span>{t("actions.restore", "Restore")}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setMenuOpen(false);
-                    setPermanentDeleteConfirmOpen(true);
-                  }}
-                  variant="destructive"
-                >
-                  <Trash2 size={14} />
-                  <span>
-                    {t("actions.deletePermanently", "Delete permanently")}
-                  </span>
-                </DropdownMenuItem>
-              </>
-            ) : (
-              <>
-                <DropdownMenuItem>
-                    <Share2 size={16} className="text-gray-500" />
-                    <span>{t("actions.share", "Share...")}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      setRenameModalOpen(true);
-                    }}
-                  >
-                    <PenLine size={16} className="text-gray-500" />
-                    <span>{t("actions.rename", "Rename...")}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Star size={16} className="text-gray-500" />
-                    <span>
-                      {t("actions.addToFavorites", "Add to favorites")}
-                    </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDuplicateProject}>
-                    <Copy size={16} className="text-gray-500" />
-                    <span>{t("actions.duplicate", "Duplicate")}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <LinkIcon size={16} className="text-gray-500" />
-                    <span>{t("actions.copyLink", "Copy link")}</span>
-                </DropdownMenuItem>
-                  {isOutline && (
-                  <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        setShowSettingsModal(true);
-                      }}
-                    >
-                      <Settings size={16} className="text-gray-500" />
-                      <span>{t("actions.settings", "Settings")}</span>
-                  </DropdownMenuItem>
-                  )}
-                  {folderId && (
-                  <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        handleRemoveFromFolder();
-                      }}
-                    className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
-                    >
-                      <FolderMinus size={16} className="text-orange-500" />
-                      <span>
-                        {t("actions.removeFromFolder", "Remove from Folder")}
-                      </span>
-                  </DropdownMenuItem>
-                  )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      handleTrashRequest(e);
-                    }}
-                  variant="destructive"
-                  >
-                    <Trash2 size={14} />
-                    <span className="text-red-500 hover:bg-red-200">{t("actions.sendToTrash", "Send to trash")}</span>
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+       <ProjectRowMenu
+         project={project}
+         formatDate={formatDate}
+         trashMode={isTrashMode}
+         onDelete={onDelete}
+         onRestore={onRestore}
+         onDeletePermanently={onDeletePermanently}
+         folderId={folderId}
+       />
 
       {permanentDeleteConfirmOpen && (
         <div
@@ -2116,7 +1965,7 @@ const ProjectCard: React.FC<{
           }}
         />
       )}
-    </div>
+    </Card>
   );
 };
 
@@ -4525,7 +4374,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {getProjectsForFolder(folderId).map((p: Project) => (
-              <NewProjectCard
+              <ProjectCard
                 key={p.id}
                 project={p}
                 onDelete={handleDeleteProject}
@@ -4533,8 +4382,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onDeletePermanently={handleDeletePermanently}
                 isTrashMode={trashMode}
                 folderId={folderId}
-                t={t}
-                language={language}
               />
             ))}
           </div>
@@ -4675,7 +4522,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     className="px-6 py-3 text-right text-xs font-semibold text-gray-700 tracking-wider"
                     style={{ width: "80px" }}
                   >
-                    {t("interface.actions", "Actions")}
+                    {/* {t("interface.actions", "Actions")} */}
                   </TableHead>
                 </TableRow>
               </TableHeader>
