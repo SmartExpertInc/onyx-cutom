@@ -1180,17 +1180,17 @@ export default function QuizClient() {
                           </SelectContent>
                         </Select>
                         <Select
-                          value={selectedQuestionTypes.length > 0 ? selectedQuestionTypes[0] : ""}
-                          onValueChange={(value: string) => {
-                            if (selectedQuestionTypes.includes(value)) {
-                              setSelectedQuestionTypes(prev => prev.filter(t => t !== value));
-                            } else {
-                              setSelectedQuestionTypes(prev => [...prev, value]);
-                            }
-                          }}
+                          value=""
+                          onValueChange={() => {}} // Prevent default behavior
                         >
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                            <SelectValue placeholder={selectedQuestionTypes.length === 0 ? t('interface.generate.selectQuestionTypes', 'Select Question Types') : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`} />
+                            <SelectValue>
+                              {selectedQuestionTypes.length === 0
+                                ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
+                                : selectedQuestionTypes.length === 1
+                                  ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                  : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent className="border-gray-300">
                             {[
@@ -1257,17 +1257,17 @@ export default function QuizClient() {
                       </SelectContent>
                     </Select>
                     <Select
-                      value={selectedQuestionTypes.length > 0 ? selectedQuestionTypes[0] : ""}
-                      onValueChange={(value: string) => {
-                        if (selectedQuestionTypes.includes(value)) {
-                          setSelectedQuestionTypes(prev => prev.filter(t => t !== value));
-                        } else {
-                          setSelectedQuestionTypes(prev => [...prev, value]);
-                        }
-                      }}
+                      value=""
+                      onValueChange={() => {}} // Prevent default behavior
                     >
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                        <SelectValue placeholder={selectedQuestionTypes.length === 0 ? t('interface.generate.selectQuestionTypes', 'Select Question Types') : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`} />
+                        <SelectValue>
+                          {selectedQuestionTypes.length === 0
+                            ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
+                            : selectedQuestionTypes.length === 1
+                              ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                              : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="border-gray-300">
                         {[
