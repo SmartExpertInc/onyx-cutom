@@ -27,7 +27,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
   const [autoSyncCount, setAutoSyncCount] = useState(0);
   const [internalSelectedFiles, setInternalSelectedFiles] = useState<string[]>(selectedFiles);
-  const [useCustomBrowser, setUseCustomBrowser] = useState(true); // Default to custom browser for reliable file selection
+  const [useCustomBrowser, setUseCustomBrowser] = useState(false); // Default to custom browser for reliable file selection
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
