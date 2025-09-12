@@ -17,6 +17,17 @@ export interface BenefitsAndPerksColumnsProps extends BaseTemplateProps {
   columns: [BenefitColumn, BenefitColumn, BenefitColumn, BenefitColumn];
 }
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
   logoText = 'Logo',

@@ -19,6 +19,17 @@ export interface ConnectionSlideProps extends BaseTemplateProps {
   vennLabels?: { culture: string; managers: string; teams: string };
 }
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'Connection',

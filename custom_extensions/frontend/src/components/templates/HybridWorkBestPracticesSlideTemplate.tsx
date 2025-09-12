@@ -59,6 +59,16 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -161,13 +171,15 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   onSave={handleTitleSave}
                   onCancel={handleTitleCancel}
                   className="hybrid-title-editor"
-                  style={{
+                  style={{inline({
+
                     fontSize: '14px',
                     color: themeContent,
                     fontWeight: '300',
                     width: '100%',
                     height: 'auto'
-                  }}
+                  
+})}}
                 />
               ) : (
                 <div
@@ -197,14 +209,16 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   onCancel={handleMainStatementCancel}
                   multiline={true}
                   className="hybrid-main-statement-editor"
-                  style={{
+                  style={{inline({
+
                     fontSize: '24px',
                     maxWidth: '335px',
                     color: themeTitle,
                     lineHeight: '1.3',
                     width: '100%',
                     height: 'auto'
-                  }}
+                  
+})}}
                 />
               ) : (
                 <div

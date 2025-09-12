@@ -6,6 +6,17 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = 'The Power of High-\nPerforming Teams',

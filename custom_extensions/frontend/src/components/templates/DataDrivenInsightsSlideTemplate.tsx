@@ -22,6 +22,17 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
   tag = 'Statistics',
   title = 'Data-Driven Insights: Statistics and Trends',

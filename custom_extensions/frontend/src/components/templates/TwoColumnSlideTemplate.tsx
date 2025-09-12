@@ -34,6 +34,16 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
@@ -155,14 +165,16 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 onCancel={handleContentCancel}
                 multiline={true}
                 className="two-column-content-editor"
-                style={{
+                style={{inline({
+
                   fontSize: '13px',
                   color: '#7A7A7A',
                   lineHeight: '1.6',
                   width: '100%',
                   textAlign: 'right',
                   minHeight: 'auto'
-                }}
+                
+})}}
               />
             ) : (
               <div

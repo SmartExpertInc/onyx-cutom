@@ -40,6 +40,16 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -158,12 +168,12 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 onSave={(value) => handleHighlightedPhraseSave(index, value)}
                 onCancel={handleHighlightedPhraseCancel}
                 className="highlighted-phrase-editor"
-                style={{
+                style={inline({
                   backgroundColor: 'transparent',
                   color: '#DA8372',
                   width: '100%',
                   height: 'auto'
-                }}
+                })}
               />
             ) : (
               <span
@@ -253,7 +263,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               onCancel={handleTitleCancel}
               multiline={true}
               className="critical-thinking-title-editor"
-              style={{
+              style={inline({
                 fontSize: '38px',
                 color: '#646464',
                 lineHeight: '1.2',
@@ -262,7 +272,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 height: 'auto',
                 minHeight: '60px',
                 maxHeight: '120px'
-              }}
+              })}
             />
           ) : (
             <div
@@ -308,7 +318,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               onCancel={handleContentCancel}
               multiline={true}
               className="critical-thinking-content-editor"
-              style={{
+              style={inline({
                 fontSize: '38px',
                 color: '#646464',
                 lineHeight: '1.6',
@@ -316,7 +326,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 width: '100%',
                 height: 'auto',
                 minHeight: '40px'
-              }}
+              })}
             />
           ) : (
             <div

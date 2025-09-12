@@ -13,6 +13,17 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme?: SlideTheme | string }> = ({
   title = '% of Fortune 500 CEOs\nwho are women',
   percent = '10%',

@@ -46,6 +46,16 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -156,13 +166,15 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
                 className="learning-subtitle-editor"
-                style={{
+                style={{inline({
+
                   fontSize: '14px',
                   color: '#818181',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
-                }}
+                
+})}}
               />
             ) : (
               <div
@@ -192,7 +204,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 onCancel={handleTitleCancel}
                 multiline={true}
                 className="learning-title-editor"
-                style={{
+                style={{inline({
+
                   maxWidth: '350px',
                   fontSize: '58px',
                   color: '#414141',
@@ -200,7 +213,8 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                   width: '100%',
                   height: 'auto',
                   minHeight: '60px'
-                }}
+                
+})}}
               />
             ) : (
               <div
@@ -325,13 +339,15 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 onSave={handleCompanyNameSave}
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
-                style={{
+                style={{inline({
+
                   fontSize: '14px',
                   color: '#858585',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
-                }}
+                
+})}}
               />
             ) : (
               <div

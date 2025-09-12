@@ -43,6 +43,16 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',

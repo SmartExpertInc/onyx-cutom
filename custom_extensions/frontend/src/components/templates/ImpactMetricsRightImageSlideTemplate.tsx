@@ -23,6 +23,17 @@ export interface ImpactMetricsRightImageProps extends BaseTemplateProps {
   rightImageAlt?: string;
 }
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightImageProps & { theme?: SlideTheme | string }> = ({
   slideId,
   title = '',

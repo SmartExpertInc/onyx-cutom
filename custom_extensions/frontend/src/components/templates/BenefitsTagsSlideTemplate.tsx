@@ -46,6 +46,16 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -163,13 +173,13 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
-              style={{
+              style={inline({
                 fontSize: '44px',
                 color: '#626262',
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
-              }}
+              })}
             />
           ) : (
             <div
@@ -223,14 +233,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     onSave={(value) => handleTagSave(index, value)}
                     onCancel={handleTagCancel}
                     className="tag-editor"
-                    style={{
+                    style={inline({
                       fontSize: '34px',
                       color: tag.isHighlighted ? '#FFFFFF' : '#727272',
                       fontWeight: '500',
                       width: '100%',
                       height: 'auto',
                       textAlign: 'center'
-                    }}
+                    })}
                   />
                 ) : (
                   tag.text
@@ -268,14 +278,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     onSave={(value) => handleTagSave(index + 2, value)}
                     onCancel={handleTagCancel}
                     className="tag-editor"
-                    style={{
+                    style={inline({
                       fontSize: '34px',
                       color: tag.isHighlighted ? '#FFFFFF' : '#727272',
                       fontWeight: '500',
                       width: '100%',
                       height: 'auto',
                       textAlign: 'center'
-                    }}
+                    })}
                   />
                 ) : (
                   tag.text
@@ -314,14 +324,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     onSave={(value) => handleTagSave(index + 5, value)}
                     onCancel={handleTagCancel}
                     className="tag-editor"
-                    style={{
+                    style={inline({
                       fontSize: '30px',
                       color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
                       fontWeight: '500',
                       width: '100%',
                       height: 'auto',
                       textAlign: 'center'
-                    }}
+                    })}
                   />
                 ) : (
                   tag.text

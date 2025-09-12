@@ -14,6 +14,17 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   avatarPath?: string;
 }
 
+
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0
+  });
+
 export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
   tag = 'The problem',

@@ -48,6 +48,16 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -164,7 +174,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
-            style={{
+            style={{inline({
+
               fontSize: '80px',
               color: themeTitle,
               lineHeight: '1.1',
@@ -173,7 +184,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               height: 'auto',
               minHeight: '60px',
               position: 'relative'
-            }}
+            
+})}}
           />
         ) : (
           <div
@@ -233,13 +245,15 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handleEmailSave}
                   onCancel={handleEmailCancel}
                   className="thank-you-email-editor"
-                  style={{
+                  style={{inline({
+
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  
+})}}
                 />
               ) : (
                 <div
@@ -265,13 +279,15 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handlePhoneSave}
                   onCancel={handlePhoneCancel}
                   className="thank-you-phone-editor"
-                  style={{
+                  style={{inline({
+
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  
+})}}
                 />
               ) : (
                 <div
@@ -309,13 +325,15 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handleAddressSave}
                   onCancel={handleAddressCancel}
                   className="thank-you-address-editor"
-                  style={{
+                  style={{inline({
+
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  
+})}}
                 />
               ) : (
                 <div
@@ -341,13 +359,15 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handlePostalCodeSave}
                   onCancel={handlePostalCodeCancel}
                   className="thank-you-postal-code-editor"
-                  style={{
+                  style={{inline({
+
                     fontSize: '22px',
                     color: '#C0C0C0',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
-                  }}
+                  
+})}}
                 />
               ) : (
                 <div
@@ -462,13 +482,15 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               onSave={handleCompanyNameSave}
               onCancel={handleCompanyNameCancel}
               className="thank-you-company-name-editor"
-              style={{
+              style={{inline({
+
                 fontSize: '11px',
                 color: '#848484',
                 fontFamily: currentTheme.fonts.contentFont,
                 width: '100%',
                 height: 'auto'
-              }}
+              
+})}}
             />
           ) : (
             <div

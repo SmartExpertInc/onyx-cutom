@@ -28,6 +28,16 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTip, setEditingTip] = useState<{ index: number; field: 'number' | 'heading' | 'description' } | null>(null);
   const [currentTips, setCurrentTips] = useState<Array<{ number: string; heading: string; description: string }>>(tips);

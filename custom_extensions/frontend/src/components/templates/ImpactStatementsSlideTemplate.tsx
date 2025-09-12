@@ -37,6 +37,16 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
+  // Helper function for inline editor styling
+  const inline = (style: React.CSSProperties): React.CSSProperties => ({
+    ...style,
+    background: \'transparent\',
+    border: \'none\',
+    outline: \'none\',
+    padding: 0,
+    margin: 0
+  });
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -126,7 +136,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               onCancel={handleTitleCancel}
               multiline={true}
               className="impact-title-editor"
-              style={{
+              style={{inline({
+
                 maxWidth: '480px',
                 fontSize: '48px',
                 color: themeTitle,
@@ -134,7 +145,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 width: '100%',
                 height: 'auto',
                 minHeight: '50px'
-              }}
+              
+})}}
             />
           ) : (
             <div
