@@ -9,8 +9,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { FeatureUsedEvent } from "../../../lib/analyticsTypes"
-import { track } from "../../../lib/mixpanelClient"
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -862,22 +861,14 @@ export default function CourseOutlineClient() {
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
 
-      const featureEvent: FeatureUsedEvent = {
-        "Feature Category": "Products",
-        "Action": "Completed"
-      };
-      await track("Create Product", featureEvent);
+      await trackCreateProduct("Completed");
 
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
       // leave the custom frontend and hit the main app's /projects route.
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
-      const featureEvent: FeatureUsedEvent = {
-        "Feature Category": "Products",
-        "Action": "Failed"
-      };
-      await track("Create Product", featureEvent);
+      await trackCreateProduct("Failed");
       setError(e.message);
       // allow UI interaction again
       setIsGenerating(false);

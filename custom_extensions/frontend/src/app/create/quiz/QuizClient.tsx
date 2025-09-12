@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -931,9 +932,12 @@ export default function QuizClient() {
       const result = await response.json();
       setFinalProductId(result.id);
 
+      await trackCreateProduct("Completed");
+
       // Redirect to the created quiz
       router.push(`/projects/view/${result.id}`);
     } catch (error: any) {
+      await trackCreateProduct("Failed");
       console.error('Finalization error:', error);
       setError(error.message || 'An error occurred during finalization');
     } finally {

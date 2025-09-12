@@ -14,6 +14,7 @@ import PresentationPreview from "../../../components/PresentationPreview";
 import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -834,6 +835,8 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
+      await trackCreateProduct("Completed");
+      
       // Navigate immediately without delay to prevent cancellation
       // Use new interface for Video Lessons, old interface for regular presentations
       const isVideoLesson = productType === "video_lesson_presentation";
@@ -841,6 +844,7 @@ export default function LessonPresentationClient() {
       router.push(redirectPath);
 
     } catch (error: any) {
+      await trackCreateProduct("Failed");
       caughtError = error;
       // Clear timeout on error
       clearTimeout(timeoutId);

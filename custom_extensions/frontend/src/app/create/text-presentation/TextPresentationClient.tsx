@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -1030,12 +1031,16 @@ export default function TextPresentationClient() {
 
       setFinalProjectId(data.id);
 
+      await trackCreateProduct("Completed");
+
       // Navigate immediately without delay to prevent cancellation
       router.push(`/projects/view/${data.id}`);
 
     } catch (error: any) {
       // Clear timeout on error
       clearTimeout(timeoutId);
+
+      await trackCreateProduct("Failed");
 
       // Handle specific error types
       if (error.name === 'AbortError') {

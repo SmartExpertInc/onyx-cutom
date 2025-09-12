@@ -94,36 +94,11 @@ export function timeEvent(event: string): void {
   mixpanel.time_event(event);
 }
 
-/*
-export function trackPageLeft(props: PageLeftEvent) {
-  if (!isInitialized) {
-    return;
-  }
-  const queued: unknown = (mixpanel as any).track("Page Left", { ...props });
-  if (queued === false) {
-    console.warn("[analytics] Mixpanel track failed to queue: Page Left", props);
-  }
-}
+export const trackCreateProduct = async (action: string) => {
+  const featureEvent: FeatureUsedEvent = {
+    "Feature Category": "Products",
+    Action: action,
+  };
 
-export function trackCreateProduct(
-  props?: CreateProductEvent,
-  startTimer: boolean = false,
-  useBeacon: boolean = false
-): void {
-  if (!isInitialized) {
-    return;
-  }
-  if (startTimer) {
-    mixpanel.time_event('Create Product');
-    return;
-  }
-  const queued: unknown = (mixpanel as any).track(
-    "Feature Used",
-    { ...props },
-    useBeacon ? { transport: "sendBeacon" } : undefined
-  );
-  if (queued === false) {
-    console.warn("[analytics] Mixpanel track failed to queue: Feature Used", props);
-  }
-}
-*/
+  await track("Create Product", featureEvent);
+};
