@@ -29,7 +29,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [currentBars, setCurrentBars] = useState(bars);
-  const [editingBar, setEditingBar] = useState<{ index: number; field: 'label' | 'year' | 'widthPercent' } | null>(null);
+  const [editingBar, setEditingBar] = useState<{ index: number; field: 'year' | 'widthPercent' } | null>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -118,23 +118,9 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             </div>
 
             <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
-              {/* Label editable */}
-              <div style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', minHeight: '24px' }}>
-                {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
-                  <ImprovedInlineEditor
-                    initialValue={b.label}
-                    onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
-                    onCancel={() => setEditingBar(null)}
-                    style={{ color: '#cde1ff', fontSize: '22px' }}
-                  />
-                ) : (
-                  <div style={{ color: '#cde1ff', fontSize: '22px' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}>{b.label}</div>
-                )}
-              </div>
-
               {/* Width resizable via drag */}
               <div
-                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative' }}
+                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '18px' }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const container = (e.currentTarget.parentElement as HTMLElement);
@@ -154,6 +140,11 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   window.addEventListener('mouseup', onUp);
                 }}
               >
+                {/* Static label text on the bar */}
+                <div style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                  {b.label}
+                </div>
+
                 {/* Drag handle */}
                 {isEditable && (
                   <div

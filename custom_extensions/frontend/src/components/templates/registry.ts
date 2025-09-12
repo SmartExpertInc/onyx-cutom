@@ -67,6 +67,7 @@ import DataDrivenInsightsSlideTemplate from './DataDrivenInsightsSlideTemplate';
 import DeiMethodsSlideTemplate from './DeiMethodsSlideTemplate';
 import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
 import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
+import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
 
 
 
@@ -2349,6 +2350,25 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       percent: { type: 'text', label: 'Percent', required: true },
       bottomCards: { type: 'array', label: 'Bottom Cards', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  },
+
+  'introduction-data-analysis': {
+    id: 'introduction-data-analysis',
+    name: 'Introduction to Data Analysis',
+    description: 'Dark green slide with avatar frame, title, and icon placeholder',
+    category: 'content',
+    icon: '📊',
+    component: IntroductionDataAnalysisSlideTemplate,
+    defaultProps: {
+      title: 'Introduction to Data Analysis',
+      avatarPath: '',
+      iconPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' },
+      iconPath: { type: 'image', label: 'Icon' }
     }
   }
   ,
