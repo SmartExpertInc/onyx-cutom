@@ -63,6 +63,7 @@ export default function DynamicAuditLandingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({})
+  const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => ({
@@ -81,6 +82,41 @@ export default function DynamicAuditLandingPage() {
       duration: durations[Math.floor(Math.random() * durations.length)]
     }
   }
+
+  // Generate stable assessment data for all modules
+  const generateAssessmentData = () => {
+    if (!landingPageData?.courseOutlineModules) return {}
+    
+    const data: { [key: string]: { type: string; duration: string }[] } = {}
+    
+    landingPageData.courseOutlineModules.forEach((module, moduleIndex) => {
+      if (module.lessons) {
+        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+      }
+    })
+    
+    return data
+  }
+
+  // Calculate total modules and lessons count from course outline
+  const getTotalModulesAndLessons = () => {
+    if (!landingPageData?.courseOutlineModules) return { modules: 0, lessons: 0 }
+    
+    const modules = landingPageData.courseOutlineModules.length
+    const lessons = landingPageData.courseOutlineModules.reduce((total, module) => {
+      return total + (module.lessons?.length || 0)
+    }, 0)
+    
+    return { modules, lessons }
+  }
+
+  // Generate assessment data when landing page data is loaded
+  useEffect(() => {
+    if (landingPageData?.courseOutlineModules) {
+      const data = generateAssessmentData()
+      setAssessmentData(data)
+    }
+  }, [landingPageData?.courseOutlineModules])
 
   useEffect(() => {
     const fetchLandingPageData = async () => {
@@ -739,11 +775,11 @@ export default function DynamicAuditLandingPage() {
                         </svg>
                         
                         <span className="font-medium text-[12px] text-white">
-                          Модулей (5)
+                          Модулей ({getTotalModulesAndLessons().modules})
                         </span>
                         
                         <span className="font-medium text-[12px] text-white">
-                          Уроков (14)
+                          Уроков ({getTotalModulesAndLessons().lessons})
                         </span>
                       </div>
                       
@@ -839,7 +875,7 @@ export default function DynamicAuditLandingPage() {
                               {/* Table Rows - Dynamic */}
                               <div className="bg-white">
                                 {landingPageData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
-                                  const assessment = getRandomAssessment()
+                                  const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
                                   const isLast = index === (landingPageData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
                                   
                                   return (
@@ -906,7 +942,7 @@ export default function DynamicAuditLandingPage() {
                           {/* Mobile Layout - Hidden on XL */}
                           <div className="xl:hidden">
                             {landingPageData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
-                              const assessment = getRandomAssessment()
+                              const assessment = assessmentData['module-0']?.[index] || { type: 'нет', duration: '5 мин' }
                               const isLast = index === (landingPageData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
                               
                               return (
@@ -1035,7 +1071,7 @@ export default function DynamicAuditLandingPage() {
                               {/* Table Body */}
                               <div className="bg-white">
                                 {landingPageData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
-                                  const assessment = getRandomAssessment()
+                                  const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
                                   const isLast = index === (landingPageData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
                                   
                                   return (
@@ -1102,7 +1138,7 @@ export default function DynamicAuditLandingPage() {
                           {/* Mobile Layout - Hidden on XL */}
                           <div className="xl:hidden">
                             {landingPageData?.courseOutlineModules?.[1]?.lessons?.map((lesson, index) => {
-                              const assessment = getRandomAssessment()
+                              const assessment = assessmentData['module-1']?.[index] || { type: 'нет', duration: '5 мин' }
                               const isLast = index === (landingPageData?.courseOutlineModules?.[1]?.lessons?.length || 1) - 1
                               
                               return (
@@ -1229,7 +1265,7 @@ export default function DynamicAuditLandingPage() {
                               {/* Table Body */}
                               <div className="bg-white">
                                 {landingPageData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
-                                  const assessment = getRandomAssessment()
+                                  const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
                                   const isLast = index === (landingPageData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
                                   
                                   return (
@@ -1296,7 +1332,7 @@ export default function DynamicAuditLandingPage() {
                           {/* Mobile Layout - Hidden on XL */}
                           <div className="xl:hidden">
                             {landingPageData?.courseOutlineModules?.[2]?.lessons?.map((lesson, index) => {
-                              const assessment = getRandomAssessment()
+                              const assessment = assessmentData['module-2']?.[index] || { type: 'нет', duration: '5 мин' }
                               const isLast = index === (landingPageData?.courseOutlineModules?.[2]?.lessons?.length || 1) - 1
                               
                               return (
@@ -1423,7 +1459,7 @@ export default function DynamicAuditLandingPage() {
                               {/* Table Body */}
                               <div className="bg-white">
                                 {landingPageData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
-                                  const assessment = getRandomAssessment()
+                                  const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
                                   const isLast = index === (landingPageData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
                                   
                                   return (
@@ -1490,7 +1526,7 @@ export default function DynamicAuditLandingPage() {
                           {/* Mobile Layout - Hidden on XL */}
                           <div className="xl:hidden">
                             {landingPageData?.courseOutlineModules?.[3]?.lessons?.map((lesson, index) => {
-                              const assessment = getRandomAssessment()
+                              const assessment = assessmentData['module-3']?.[index] || { type: 'нет', duration: '5 мин' }
                               const isLast = index === (landingPageData?.courseOutlineModules?.[3]?.lessons?.length || 1) - 1
                               
                               return (

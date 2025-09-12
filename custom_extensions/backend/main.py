@@ -14205,7 +14205,7 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
         ]
 
 
-async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload) -> list:
+async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload, course_outline_modules: list = None) -> list:
     """
     Generate course templates by combining real job positions with AI-generated positions.
     Returns exactly 6 course templates with dynamic content.
@@ -14213,6 +14213,14 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
     try:
         logger.info(f"🎓 [COURSE TEMPLATES] Starting course templates generation")
         logger.info(f"🎓 [COURSE TEMPLATES] Real job positions: {len(job_positions)}")
+        
+        # Calculate total modules and lessons from course outline
+        total_modules = 0
+        total_lessons = 0
+        if course_outline_modules:
+            total_modules = len(course_outline_modules)
+            total_lessons = sum(len(module.get('lessons', [])) for module in course_outline_modules)
+            logger.info(f"🎓 [COURSE TEMPLATES] Course outline data: {total_modules} modules, {total_lessons} lessons")
         
         # Start with real job positions
         course_templates = []
@@ -14239,8 +14247,8 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
             course_template = {
                 "title": job_title,
                 "description": course_description,
-                "modules": random.randint(4, 6),
-                "lessons": random.randint(15, 30),
+                "modules": total_modules if total_modules > 0 else random.randint(4, 6),
+                "lessons": total_lessons if total_lessons > 0 else random.randint(15, 30),
                 "rating": "5.0",
                 "image": ai_image_path
             }
@@ -14267,8 +14275,8 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
                 course_template = {
                     "title": job_title,
                     "description": position.get("description", "Описание курса для данной позиции."),
-                    "modules": random.randint(4, 6),
-                    "lessons": random.randint(15, 30),
+                    "modules": total_modules if total_modules > 0 else random.randint(4, 6),
+                    "lessons": total_lessons if total_lessons > 0 else random.randint(15, 30),
                     "rating": "5.0",
                     "image": ai_image_path
                 }
@@ -14805,7 +14813,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating course templates...")
         # Generate course templates for the "Готовые шаблоны курсов" section
-        course_templates = await generate_course_templates(duckduckgo_summary, job_positions, payload)
+        course_templates = await generate_course_templates(duckduckgo_summary, job_positions, payload, course_outline_modules)
         
         # 📊 LOG: Course templates generated
         logger.info(f"🎓 [AUDIT DATA FLOW] Generated {len(course_templates)} course templates")
