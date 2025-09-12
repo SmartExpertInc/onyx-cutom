@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, AlertCircle, CheckCircle, Settings } from 'lucide-react';
-import SmartDriveFileBrowser from './SmartDriveFileBrowser';
+import { RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
+import WebDAVFileBrowser from './WebDAVFileBrowser';
 
 interface SmartDriveFrameProps {
   className?: string;
@@ -27,7 +27,6 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
   const [lastAutoSyncTime, setLastAutoSyncTime] = useState<string | null>(null);
   const [autoSyncCount, setAutoSyncCount] = useState(0);
   const [internalSelectedFiles, setInternalSelectedFiles] = useState<string[]>(selectedFiles);
-  const [useCustomBrowser, setUseCustomBrowser] = useState(false); // Default to custom browser for reliable file selection
 
   // Initialize SmartDrive session on component mount
   useEffect(() => {
@@ -448,79 +447,13 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
         </div>
       )}
 
-      {/* Browser Toggle */}
-      <div className="mb-4 flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-        <div className="flex items-center gap-3">
-          <Settings className="w-4 h-4 text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">File Browser Mode</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setUseCustomBrowser(true)}
-            className={`px-3 py-1 text-xs rounded-md transition-colors ${
-              useCustomBrowser 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Custom Browser ✅
-          </button>
-          <button
-            onClick={() => setUseCustomBrowser(false)}
-            className={`px-3 py-1 text-xs rounded-md transition-colors ${
-              !useCustomBrowser 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Nextcloud Iframe
-          </button>
-        </div>
-      </div>
-
-      {/* File Browser Container */}
-      <div className="relative" style={{ minHeight: '500px' }}>
-        {useCustomBrowser ? (
-          /* Custom File Browser - Reliable file selection */
-          <SmartDriveFileBrowser
-            onFilesSelected={(files) => setInternalSelectedFiles(files)}
-            selectedFiles={internalSelectedFiles}
-            className="border-0"
-          />
-        ) : (
-          /* Nextcloud Iframe - Requires custom JS injection */
-          <>
-            <iframe
-              key={iframeKey}
-              src={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/smartdrive/` : '/smartdrive/'}
-              className="w-full h-full border-0"
-              style={{ height: '600px' }}
-              title="Smart Drive File Browser"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
-              onLoad={() => {
-                console.log('SmartDrive iframe loaded - Note: File selection requires custom JS in Nextcloud');
-              }}
-              onError={(e) => {
-                console.error('SmartDrive iframe error:', e);
-              }}
-            />
-            
-            {/* Warning for iframe mode */}
-            <div className="absolute top-4 left-4 bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded-md text-sm">
-              ⚠️ File selection requires Nextcloud JS modification
-            </div>
-            
-            {/* Loading Overlay */}
-            {isLoading && (
-              <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                <div className="flex items-center gap-3">
-                  <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-                  <span className="text-gray-700 font-medium">Syncing files...</span>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+      {/* WebDAV File Browser */}
+      <div className="relative" style={{ height: '600px' }}>
+        <WebDAVFileBrowser
+          onFilesSelected={onFilesSelected}
+          selectedFiles={selectedFiles}
+          className="h-full"
+        />
       </div>
 
 
