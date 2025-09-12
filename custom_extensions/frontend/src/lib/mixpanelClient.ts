@@ -20,6 +20,7 @@ export const initMixpanel = (): void => {
     //api_host: 'https://api.mixpanel.com', // Direct mixpanel call
     api_host: '/tracking-proxy', // Call via proxy
     ip: false,
+    ignore_dnt: true,
     debug: true,
     track_pageview: true,
   };
