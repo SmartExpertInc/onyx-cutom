@@ -45,9 +45,9 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   // Helper function for inline editor styling
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
     ...style,
-    background: \'transparent\',
-    border: \'none\',
-    outline: \'none\',
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
     padding: 0,
     margin: 0
   });
