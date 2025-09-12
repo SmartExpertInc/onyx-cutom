@@ -724,11 +724,11 @@ export default function DynamicAuditLandingPage() {
                   </div>
                   
                   <h4 className="font-medium text-[20px] xl:text-[32px] text-[#09090B] mb-[6px] xl:mb-[15px]">
-                    Онбординг курс для <br className="xl:hidden"/> должности HVAC Installer
+                    Онбординг курс для <br className="xl:hidden"/> должности {landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
                   </h4>
                   
                   <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
-                    <div className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: 'url(/custom-projects-ui/images/audit-section-5-job-4-desktop.png)' }}>
+                    <div className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: `url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})` }}>
                       <div className="absolute bottom-[5px] xl:bottom-[10px] left-[6px] xl:left-[20px] flex gap-[6px] items-center">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
