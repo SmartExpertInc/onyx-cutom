@@ -577,6 +577,8 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <HeadTextCustom 
               text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
               description={selectedWorkspace?.description}
+              textSize = "text-3xl sm:text-5xl"
+              descriptionSize = "text-md sm:text-lg"
             />
           </div>
           

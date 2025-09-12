@@ -121,6 +121,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const gradientFrom = bgColor + "40"; // 25% opacity
   const gradientTo = bgColor + "80"; // 50% opacity
   
+  const saturatedColor = bgColor;
+  
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
   };
@@ -165,11 +167,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         onClick={handleCardClick}
         className="block h-full"
       >
-        {/* Upper section with gradient background (70-75% of height) */}
         <div 
-          className="relative h-32 bg-gradient-to-br from-blue-300 to-blue-500 flex flex-col justify-between p-4"
+          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 flex flex-col justify-between p-4"
           style={{
-            background: `linear-gradient(to bottom, ${gradientFrom}, white, white)`
+            background: `linear-gradient(to bottom, ${gradientFrom}, white)`
           }}
         >
           {/* Top row with icon and badge */}
@@ -197,16 +198,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
           )}
           
-          {/* Truncated title in center */}
-          <div className="flex items-center justify-center flex-1 px-2">
-            <h3 className="text-white font-semibold text-sm text-center leading-tight line-clamp-2">
-              {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
-            </h3>
-          </div>
+           {/* Truncated title in center */}
+           <div className="flex items-center justify-center flex-1 px-2">
+             <h3 
+               className="font-semibold text-sm text-center leading-tight line-clamp-2"
+               style={{ color: saturatedColor }}
+             >
+               {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
+             </h3>
+           </div>
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 h-20 flex flex-col justify-between">
+        <div className="bg-white p-4 h-25 flex flex-col justify-between">
           {/* Full title */}
           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
