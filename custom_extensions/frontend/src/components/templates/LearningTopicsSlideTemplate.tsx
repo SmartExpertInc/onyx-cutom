@@ -165,15 +165,14 @@ const slideStyles: React.CSSProperties = {
                 onSave={handleSubtitleSave}
                 onCancel={handleSubtitleCancel}
                 className="learning-subtitle-editor"
-                style={{inline({
-
+                style={{
                   fontSize: '14px',
                   color: '#818181',
                   fontWeight: '300',
                   width: '100%',
                   height: 'auto'
                 
-})}}
+}}
               />
             ) : (
               <div
@@ -203,7 +202,7 @@ const slideStyles: React.CSSProperties = {
                 onCancel={handleTitleCancel}
                 multiline={true}
                 className="learning-title-editor"
-                style={{inline({
+                style={{
 
                   maxWidth: '350px',
                   fontSize: '58px',
@@ -213,7 +212,7 @@ const slideStyles: React.CSSProperties = {
                   height: 'auto',
                   minHeight: '60px'
                 
-})}}
+}}
               />
             ) : (
               <div
@@ -338,7 +337,7 @@ const slideStyles: React.CSSProperties = {
                 onSave={handleCompanyNameSave}
                 onCancel={handleCompanyNameCancel}
                 className="company-name-editor"
-                style={{inline({
+                style={{
 
                   fontSize: '14px',
                   color: '#858585',
@@ -346,7 +345,7 @@ const slideStyles: React.CSSProperties = {
                   width: '100%',
                   height: 'auto'
                 
-})}}
+}}
               />
             ) : (
               <div

@@ -164,16 +164,14 @@ const slideStyles: React.CSSProperties = {
                 onCancel={handleContentCancel}
                 multiline={true}
                 className="two-column-content-editor"
-                style={{inline({
-
+                style={{
                   fontSize: '13px',
                   color: '#7A7A7A',
                   lineHeight: '1.6',
                   width: '100%',
                   textAlign: 'right',
                   minHeight: 'auto'
-                
-})}}
+                }}
               />
             ) : (
               <div

@@ -135,8 +135,7 @@ const slideStyles: React.CSSProperties = {
               onCancel={handleTitleCancel}
               multiline={true}
               className="impact-title-editor"
-              style={{inline({
-
+              style={{
                 maxWidth: '480px',
                 fontSize: '48px',
                 color: themeTitle,
@@ -144,8 +143,7 @@ const slideStyles: React.CSSProperties = {
                 width: '100%',
                 height: 'auto',
                 minHeight: '50px'
-              
-})}}
+              }}
             />
           ) : (
             <div

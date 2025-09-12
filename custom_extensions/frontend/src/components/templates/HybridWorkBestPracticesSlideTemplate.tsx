@@ -171,15 +171,14 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   onSave={handleTitleSave}
                   onCancel={handleTitleCancel}
                   className="hybrid-title-editor"
-                  style={{inline({
-
+                  style={{
                     fontSize: '14px',
                     color: themeContent,
                     fontWeight: '300',
                     width: '100%',
                     height: 'auto'
                   
-})}}
+}}
                 />
               ) : (
                 <div
@@ -209,8 +208,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   onCancel={handleMainStatementCancel}
                   multiline={true}
                   className="hybrid-main-statement-editor"
-                  style={{inline({
-
+                  style={{
                     fontSize: '24px',
                     maxWidth: '335px',
                     color: themeTitle,
@@ -218,7 +216,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     width: '100%',
                     height: 'auto'
                   
-})}}
+}}
                 />
               ) : (
                 <div

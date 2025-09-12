@@ -168,7 +168,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 onSave={(value) => handleHighlightedPhraseSave(index, value)}
                 onCancel={handleHighlightedPhraseCancel}
                 className="highlighted-phrase-editor"
-                style={inline({
+                style={{
                   backgroundColor: 'transparent',
                   color: '#DA8372',
                   width: '100%',
@@ -263,7 +263,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               onCancel={handleTitleCancel}
               multiline={true}
               className="critical-thinking-title-editor"
-              style={inline({
+              style={{
                 fontSize: '38px',
                 color: '#646464',
                 lineHeight: '1.2',
@@ -318,7 +318,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               onCancel={handleContentCancel}
               multiline={true}
               className="critical-thinking-content-editor"
-              style={inline({
+              style={{
                 fontSize: '38px',
                 color: '#646464',
                 lineHeight: '1.6',

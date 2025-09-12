@@ -223,7 +223,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                 initialValue={percent} 
                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
                 onCancel={()=> setEdit(null)} 
-                style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
+                style={{ color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
               />
             ) : (
               <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>

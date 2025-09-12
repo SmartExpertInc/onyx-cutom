@@ -174,8 +174,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             onSave={handleTitleSave}
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
-            style={{inline({
-
+            style={{
               fontSize: '80px',
               color: themeTitle,
               lineHeight: '1.1',
@@ -184,8 +183,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               height: 'auto',
               minHeight: '60px',
               position: 'relative'
-            
-})}}
+            }}
           />
         ) : (
           <div
@@ -245,7 +243,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handleEmailSave}
                   onCancel={handleEmailCancel}
                   className="thank-you-email-editor"
-                  style={{inline({
+                  style={{
 
                     fontSize: '22px',
                     color: '#C0C0C0',
@@ -253,7 +251,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     width: '100%',
                     height: 'auto'
                   
-})}}
+}}
                 />
               ) : (
                 <div
@@ -279,7 +277,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handlePhoneSave}
                   onCancel={handlePhoneCancel}
                   className="thank-you-phone-editor"
-                  style={{inline({
+                  style={{
 
                     fontSize: '22px',
                     color: '#C0C0C0',
@@ -287,7 +285,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     width: '100%',
                     height: 'auto'
                   
-})}}
+}}
                 />
               ) : (
                 <div
@@ -325,7 +323,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handleAddressSave}
                   onCancel={handleAddressCancel}
                   className="thank-you-address-editor"
-                  style={{inline({
+                  style={{
 
                     fontSize: '22px',
                     color: '#C0C0C0',
@@ -333,7 +331,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     width: '100%',
                     height: 'auto'
                   
-})}}
+}}
                 />
               ) : (
                 <div
@@ -359,7 +357,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onSave={handlePostalCodeSave}
                   onCancel={handlePostalCodeCancel}
                   className="thank-you-postal-code-editor"
-                  style={{inline({
+                  style={{
 
                     fontSize: '22px',
                     color: '#C0C0C0',
@@ -367,7 +365,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                     width: '100%',
                     height: 'auto'
                   
-})}}
+}}
                 />
               ) : (
                 <div
@@ -482,7 +480,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               onSave={handleCompanyNameSave}
               onCancel={handleCompanyNameCancel}
               className="thank-you-company-name-editor"
-              style={{inline({
+              style={{
 
                 fontSize: '11px',
                 color: '#848484',
@@ -490,7 +488,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                 width: '100%',
                 height: 'auto'
               
-})}}
+}}
             />
           ) : (
             <div
