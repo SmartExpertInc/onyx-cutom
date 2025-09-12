@@ -68,6 +68,7 @@ export function resetUser() {
   }
   console.log("Mixpanel instance reset"); //TODO: Remove this
   try {
+    mixpanel.stop_session_recording();
     mixpanel.reset();
   } catch (error) {
     console.error("[analytics] Mixpanel reset failed", error);
