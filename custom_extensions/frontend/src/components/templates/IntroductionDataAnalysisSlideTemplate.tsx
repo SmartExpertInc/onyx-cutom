@@ -116,7 +116,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
         <div style={avatarContainer}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
-            onImageChange={(path) => onUpdate && onUpdate({ avatarPath: path })}
+            onImageUploaded={(path) => onUpdate && onUpdate({ avatarPath: path })}
             description="Avatar" 
             isEditable={isEditable} 
             style={{ width:'100%', height:'100%', objectFit:'cover' }} 
@@ -149,7 +149,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
         <div style={iconContainer}>
           <ClickableImagePlaceholder
             imagePath={iconPath}
-            onImageChange={(path) => onUpdate && onUpdate({ iconPath: path })}
+            onImageUploaded={(path) => onUpdate && onUpdate({ iconPath: path })}
             description="Icon" 
             isEditable={isEditable} 
             style={{ width:'100%', height:'100%', objectFit:'cover' }} 
