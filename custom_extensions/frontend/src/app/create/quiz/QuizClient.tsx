@@ -1184,7 +1184,7 @@ export default function QuizClient() {
                           onValueChange={() => {}} // Prevent default behavior
                         >
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                            <span>
+                            <span className="text-black">
                               {selectedQuestionTypes.length === 0
                                 ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                                 : selectedQuestionTypes.length === 1
@@ -1200,8 +1200,8 @@ export default function QuizClient() {
                               { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                               { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                             ].map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                <div className="flex items-center gap-2">
+                              <SelectItem key={type.value} value={type.value} onSelect={(e) => e.preventDefault()}>
+                                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                   <input
                                     type="checkbox"
                                     checked={selectedQuestionTypes.includes(type.value)}
@@ -1261,7 +1261,7 @@ export default function QuizClient() {
                       onValueChange={() => {}} // Prevent default behavior
                     >
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                        <span>
+                        <span className="text-black">
                           {selectedQuestionTypes.length === 0
                             ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                             : selectedQuestionTypes.length === 1
@@ -1277,8 +1277,8 @@ export default function QuizClient() {
                           { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                           { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                         ].map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            <div className="flex items-center gap-2">
+                          <SelectItem key={type.value} value={type.value} onSelect={(e) => e.preventDefault()}>
+                            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                               <input
                                 type="checkbox"
                                 checked={selectedQuestionTypes.includes(type.value)}
