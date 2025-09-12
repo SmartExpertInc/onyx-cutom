@@ -1289,7 +1289,11 @@ export default function CourseOutlineClient() {
                 {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} className="text-gray-500 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 p-2 bg-white border border-gray-300 rounded-lg shadow-lg" align="start">
+            <DropdownMenuContent 
+              className="w-56 p-2 border border-gray-300 rounded-lg shadow-lg" 
+              align="start"
+              style={{ backgroundColor: 'white' }}
+            >
               {[
                 { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
                 { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
