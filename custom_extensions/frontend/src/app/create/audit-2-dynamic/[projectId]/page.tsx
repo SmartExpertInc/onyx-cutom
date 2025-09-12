@@ -987,12 +987,12 @@ export default function DynamicAuditLandingPage() {
                           </div>
                           
                           <button 
-                            onClick={() => toggleModule('module-2')}
+                            onClick={() => toggleModule('module-1')}
                             className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module-2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                              expandedModules['module-1'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
                             }`}
                           >
-                            {expandedModules['module-2'] ? (
+                            {expandedModules['module-1'] ? (
                               <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
@@ -1181,12 +1181,12 @@ export default function DynamicAuditLandingPage() {
                           </div>
                           
                           <button 
-                            onClick={() => toggleModule('module-3')}
+                            onClick={() => toggleModule('module-2')}
                             className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module-3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                              expandedModules['module-2'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
                             }`}
                           >
-                            {expandedModules['module-3'] ? (
+                            {expandedModules['module-2'] ? (
                               <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
