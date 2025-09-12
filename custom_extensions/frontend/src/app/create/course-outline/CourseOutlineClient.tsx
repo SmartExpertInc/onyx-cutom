@@ -9,7 +9,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { trackCreateProduct, trackAdvancedMode } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -1487,7 +1487,10 @@ export default function CourseOutlineClient() {
             <div className="w-full flex justify-center mt-2 mb-6">
                               <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    trackAdvancedMode("Clicked");
+                  }}
                   className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
                 >
                   {t('interface.generate.advancedMode', 'Advanced Mode')}

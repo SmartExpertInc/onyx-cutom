@@ -102,3 +102,16 @@ export const trackCreateProduct = async (action: string) => {
 
   await track("Create Product", featureEvent);
 };
+
+export const trackAdvancedMode = async (action: string) => {
+  const featureEvent: FeatureUsedEvent = {
+    "Feature Category": "Products",
+    Action: action,
+  };
+
+  await track(
+    "Advanced Mode Used", 
+    featureEvent, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};

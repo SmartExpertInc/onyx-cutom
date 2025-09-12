@@ -14,7 +14,7 @@ import PresentationPreview from "../../../components/PresentationPreview";
 import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
-import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { trackCreateProduct, trackAdvancedMode } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -836,7 +836,7 @@ export default function LessonPresentationClient() {
       }
 
       await trackCreateProduct("Completed");
-      
+
       // Navigate immediately without delay to prevent cancellation
       // Use new interface for Video Lessons, old interface for regular presentations
       const isVideoLesson = productType === "video_lesson_presentation";
@@ -1514,7 +1514,10 @@ export default function LessonPresentationClient() {
               <div className="w-full flex justify-center mt-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    trackAdvancedMode("Clicked");
+                  }}
                   className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
                 >
                   {t('interface.generate.advancedMode', 'Advanced Mode')}
