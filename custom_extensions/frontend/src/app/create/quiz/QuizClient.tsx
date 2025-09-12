@@ -1212,10 +1212,10 @@ export default function QuizClient() {
                                   ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                                   : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                             </span>
-                            <ChevronDown size={16} className="opacity-50" />
+                            <ChevronDown size={16} className="text-gray-500 opacity-50" />
                           </button>
                           {showQuestionTypesDropdown && (
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown max-h-48 overflow-y-auto w-48">
+                            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown max-h-48 overflow-y-auto w-48">
                               {[
                                 { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
                                 { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
@@ -1291,10 +1291,10 @@ export default function QuizClient() {
                               ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                               : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                         </span>
-                        <ChevronDown size={16} className="opacity-50" />
+                        <ChevronDown size={16} className="text-gray-500 opacity-50" />
                       </button>
                       {showQuestionTypesDropdown && (
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown w-48">
+                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown w-48">
                           {[
                             { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
                             { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
