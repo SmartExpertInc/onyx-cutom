@@ -459,7 +459,7 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
       <div className="relative" style={{ height: '600px' }}>
         <iframe
           key={iframeKey}
-          src={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/smartdrive/apps/files/files${onFilesSelected ? '?fileSelection=true' : ''}` : '/smartdrive/apps/files/files'}
+          src={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/smartdrive/apps/files/files${onFilesSelected ? '?fileSelection=true&freshApp=true' : ''}` : '/smartdrive/apps/files/files'}
           className="w-full h-full border-0"
           title="Smart Drive File Browser"
           sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
