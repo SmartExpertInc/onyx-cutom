@@ -1506,7 +1506,7 @@ export default function TextPresentationClient() {
                     setLessonsForModule([]);
                     setSelectedLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black h-9 shadow-sm hover:shadow-md transition-all duration-200"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black h-9 hover:shadow-md transition-all duration-200"
                 >
                   {t('interface.generate.backButton', 'To previous step')}
                 </button>
