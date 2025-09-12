@@ -13822,12 +13822,14 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         
         # Extract course outline modules from the landing page data
         course_outline_modules = content.get("courseOutlineModules", [])
+        course_outline_lessons = content.get("courseOutlineLessons", {})
         
         # 📊 LOG: Course outline modules extraction
         logger.info(f"📚 [AUDIT DATA FLOW] Course outline modules extraction:")
         logger.info(f"📚 [AUDIT DATA FLOW] - Course outline modules count: {len(course_outline_modules)}")
         for i, module_title in enumerate(course_outline_modules):
-            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title}")
+            lesson_count = len(course_outline_lessons.get(i, []))
+            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title} ({lesson_count} lessons)")
         
         # Extract course templates from the landing page data
         course_templates = content.get("courseTemplates", [])
@@ -13847,6 +13849,7 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis,
             "courseOutlineModules": course_outline_modules,
+            "courseOutlineLessons": course_outline_lessons,
             "courseTemplates": course_templates
         }
         
@@ -14103,15 +14106,15 @@ async def generate_course_description_for_position(job_title: str, company_name:
         logger.error(f"❌ [COURSE DESCRIPTION] Error generating course description for {job_title}: {e}")
         return f"Обучение ключевым навыкам для позиции {job_title}."
 
-async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_positions: list, payload) -> list:
+async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_positions: list, payload) -> dict:
     """
     Generate course outline data for the landing page modules section.
-    Returns a list of module titles extracted from the first job position's course outline.
+    Returns a dictionary with module titles and lesson details extracted from the first job position's course outline.
     """
     try:
         if not job_positions:
             logger.warning("[COURSE OUTLINE] No job positions available for course outline generation")
-            return []
+            return {"modules": [], "lessons": {}}
         
         # Use the first job position for course outline generation
         first_position = job_positions[0]
@@ -14143,33 +14146,91 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
             elif chunk_data.get("type") == "error":
                 raise Exception(f"OpenAI error: {chunk_data['text']}")
         
-        # Parse the outline text to extract module titles
+        # Parse the outline text to extract module titles and lessons
         parsed_outline = _parse_outline_markdown(outline_text)
         
-        # Extract module titles
+        # Extract module titles and lessons
         module_titles = []
+        lessons_data = {}
+        
         for i, module in enumerate(parsed_outline):
             if i < 4:  # Limit to 4 modules as per UI design
                 title = module.get('title', f'Модуль {i+1}')
                 module_titles.append(title)
-                logger.info(f"[COURSE OUTLINE] Module {i+1}: {title}")
+                
+                # Extract lessons for this module
+                lessons = module.get('lessons', [])
+                lessons_data[i] = lessons
+                
+                logger.info(f"[COURSE OUTLINE] Module {i+1}: {title} with {len(lessons)} lessons")
+                for j, lesson in enumerate(lessons):
+                    logger.info(f"[COURSE OUTLINE] - Lesson {j+1}: {lesson.get('title', 'Unknown lesson')}")
         
         # Ensure we have exactly 4 modules (pad with default titles if needed)
         while len(module_titles) < 4:
             module_titles.append(f'Модуль {len(module_titles) + 1}')
+            lessons_data[len(module_titles) - 1] = []
         
-        logger.info(f"[COURSE OUTLINE] Generated {len(module_titles)} module titles for landing page")
-        return module_titles
+        # Generate default lessons for modules without lessons
+        for i in range(4):
+            if i not in lessons_data or not lessons_data[i]:
+                lessons_data[i] = _generate_default_lessons_for_module(i, position_title)
+        
+        result = {
+            "modules": module_titles,
+            "lessons": lessons_data
+        }
+        
+        logger.info(f"[COURSE OUTLINE] Generated {len(module_titles)} module titles and lessons for landing page")
+        return result
         
     except Exception as e:
         logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
-        # Return default module titles as fallback
-        return [
-            "Корпоративная культура и стандарты работы",
-            "Подбор и управление персоналом", 
-            "Маркетинг и привлечение клиентов",
-            "Финансовый контроль и развитие бизнеса"
+        # Return default module titles and lessons as fallback
+        return {
+            "modules": [
+                "Корпоративная культура и стандарты работы",
+                "Подбор и управление персоналом", 
+                "Маркетинг и привлечение клиентов",
+                "Финансовый контроль и развитие бизнеса"
+            ],
+            "lessons": {
+                0: _generate_default_lessons_for_module(0, "Сотрудник"),
+                1: _generate_default_lessons_for_module(1, "Сотрудник"),
+                2: _generate_default_lessons_for_module(2, "Сотрудник"),
+                3: _generate_default_lessons_for_module(3, "Сотрудник")
+            }
+        }
+
+
+def _generate_default_lessons_for_module(module_index: int, position_title: str) -> list:
+    """
+    Generate default lessons for a module when no lessons are available.
+    """
+    default_lessons = [
+        [
+            {"title": "Основные этапы работы", "duration": "5 мин", "assessment": "нет"},
+            {"title": "Локация и планировка", "duration": "4 мин", "assessment": "практика"},
+            {"title": "Финансовая модель", "duration": "6 мин", "assessment": "практика"}
+        ],
+        [
+            {"title": "Подбор персонала", "duration": "7 мин", "assessment": "тест"},
+            {"title": "Управление командой", "duration": "5 мин", "assessment": "практика"},
+            {"title": "Мотивация сотрудников", "duration": "4 мин", "assessment": "нет"}
+        ],
+        [
+            {"title": "Маркетинговая стратегия", "duration": "6 мин", "assessment": "тест"},
+            {"title": "Привлечение клиентов", "duration": "5 мин", "assessment": "практика"},
+            {"title": "Работа с клиентами", "duration": "4 мин", "assessment": "практика"}
+        ],
+        [
+            {"title": "Финансовый контроль", "duration": "7 мин", "assessment": "тест"},
+            {"title": "Развитие бизнеса", "duration": "6 мин", "assessment": "практика"},
+            {"title": "Анализ результатов", "duration": "5 мин", "assessment": "нет"}
         ]
+    ]
+    
+    return default_lessons[module_index] if module_index < len(default_lessons) else []
 
 
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload) -> list:
@@ -14763,12 +14824,13 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating course outline...")
         # Generate course outline for the "План обучения" section
-        course_outline_modules = await generate_course_outline_for_landing_page(duckduckgo_summary, job_positions, payload)
+        course_outline_data = await generate_course_outline_for_landing_page(duckduckgo_summary, job_positions, payload)
         
         # 📊 LOG: Course outline generated
-        logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline_modules)} modules")
-        for i, module_title in enumerate(course_outline_modules):
-            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title}")
+        logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline_data['modules'])} modules")
+        for i, module_title in enumerate(course_outline_data['modules']):
+            lesson_count = len(course_outline_data['lessons'].get(i, []))
+            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title} ({lesson_count} lessons)")
 
         set_progress(job_id, "Generating course templates...")
         # Generate course templates for the "Готовые шаблоны курсов" section
@@ -14787,7 +14849,8 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "companyDescription": company_description,
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis_data,
-            "courseOutlineModules": course_outline_modules,
+            "courseOutlineModules": course_outline_data['modules'],
+            "courseOutlineLessons": course_outline_data['lessons'],
             "courseTemplates": course_templates,
             "originalPayload": payload.model_dump()
         }
