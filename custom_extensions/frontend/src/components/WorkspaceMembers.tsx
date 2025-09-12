@@ -1017,7 +1017,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               </Card>
 
               {/* Existing Roles */}
-              <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-sm">
+              <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
+              style={{
+                backgroundColor: 'white',
+                background: `linear-gradient(to top right, white, white, #E8F0FE)`,
+                borderWidth: '1px',
+              }}>
                 <CardHeader>
                   <CardTitle className="text-lg font-medium text-gray-900">
                     {t('interface.roleManager.existingRoles', 'Existing Roles')}
