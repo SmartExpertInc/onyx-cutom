@@ -1235,43 +1235,48 @@ export default function CourseOutlineClient() {
 
         {/* Controls */}
         <div className="flex flex-wrap justify-center gap-2">
-          <div className="relative">
-          <select
-            value={modules}
-            onChange={(e) => setModules(Number(e.target.value))}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+          <Select
+            value={modules.toString()}
+            onValueChange={(value: string) => setModules(Number(value))}
           >
-            {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} {t('interface.generate.modules', 'Modules')}</option>
-            ))}
-          </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-          </div>
-          <div className="relative">
-          <select
+            <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-gray-300">
+              {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
+                <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select
             value={lessonsPerModule}
-            onChange={(e) => setLessonsPerModule(e.target.value)}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            onValueChange={setLessonsPerModule}
           >
-            {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-              <option key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</option>
-            ))}
-          </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-          </div>
-          <div className="relative">
-          <select
+            <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-gray-300">
+              {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
+                <SelectItem key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+            onValueChange={setLanguage}
           >
-            <option value="en">{t('interface.generate.english', 'English')}</option>
-            <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-            <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-            <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-          </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-          </div>
+            <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="border-gray-300">
+              <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
+              <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+              <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+              <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Additional Info dropdown */}
           <DropdownMenu open={showFilters} onOpenChange={setShowFilters}>
@@ -1279,9 +1284,9 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 variant="outline"
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
+                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 flex items-center gap-1"
               >
-                {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
+                {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} className="text-gray-500 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 p-3 bg-white" align="end">
@@ -1597,10 +1602,10 @@ export default function CourseOutlineClient() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.imageSource', 'Image source')}</label>
                   <Select value={imageSource} onValueChange={setImageSource}>
-                    <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                    <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-gray-300">
                       <SelectItem value="ai">{t('interface.courseOutline.aiImages', 'AI images')}</SelectItem>
                       <SelectItem value="stock">{t('interface.courseOutline.stockImages', 'Stock images')}</SelectItem>
                       <SelectItem value="none">{t('interface.courseOutline.noImages', 'No images')}</SelectItem>
@@ -1612,10 +1617,10 @@ export default function CourseOutlineClient() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.aiImageModel', 'AI image model')}</label>
                   <Select value={aiModel} onValueChange={setAiModel}>
-                    <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
+                    <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-gray-300">
                       <SelectItem value="flux-fast">{t('interface.courseOutline.fluxKontextFast', 'Flux Kontext Fast')}</SelectItem>
                       <SelectItem value="flux-quality">{t('interface.courseOutline.fluxKontextHQ', 'Flux Kontext HQ')}</SelectItem>
                       <SelectItem value="stable">{t('interface.courseOutline.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
