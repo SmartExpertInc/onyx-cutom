@@ -85,9 +85,9 @@ export function EmailPasswordForm({
               return;
             } else {
               const userJson = await response.json();
-              //identifyUser(userJson.id);
+              identifyUser(userJson.id);
               trackSignUp({ "Referral Source": referralSource }, true);
-              //resetUser();
+              resetUser();
               setPopup({
                 type: "success",
                 message: "Account created successfully. Please log in.",
