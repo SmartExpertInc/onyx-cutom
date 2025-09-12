@@ -602,7 +602,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-4">
       {/* Workspace Header and Selector */}
       <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
@@ -663,7 +663,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               />
             </div>
             <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-              <SelectTrigger variant="filter" className="whitespace-nowrap rounded-full">
+              <SelectTrigger variant="filter" className="whitespace-nowrap rounded-full border border-gray-300 bg-white/90 text-sm">
                 <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
               </SelectTrigger>
               <SelectContent>
@@ -678,7 +678,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           {/* Action Buttons */}
           <div className="flex gap-2">
             <Button
-              variant="manage"
+              variant="blueGradient"
               size="sm"
               onClick={() => setShowRoleManager(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-full"
@@ -700,7 +700,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-white">

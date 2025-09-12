@@ -47,7 +47,7 @@ function DropdownMenuContent({
         )}
         style={{
           backgroundColor: `white`,
-          borderColor: `rgb(var(--dropdown-border))`,
+          borderColor: `#E6E6E6`,
           boxShadow: `var(--dropdown-shadow)`
         }}
         {...props}
@@ -282,7 +282,7 @@ function DropdownMenuSubContent({
         )}
         style={{
           backgroundColor: `rgb(var(--dropdown-bg))`,
-          borderColor: `rgb(var(--dropdown-border))`,
+          borderColor: `#E6E6E6`,
           boxShadow: `var(--dropdown-shadow)`
         }}
       {...props}
