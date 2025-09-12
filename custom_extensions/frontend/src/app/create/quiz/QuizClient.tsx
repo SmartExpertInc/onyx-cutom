@@ -1199,7 +1199,7 @@ export default function QuizClient() {
                         <div className="relative">
                           <button
                             onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="flex items-center justify-between w-full px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button cursor-pointer h-9"
+                            className="flex items-center justify-between w-full px-6 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button cursor-pointer h-9"
                           >
                             <span>
                               {selectedQuestionTypes.length === 0
@@ -1276,7 +1276,7 @@ export default function QuizClient() {
                     <div className="relative">
                       <button
                         onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="flex items-center justify-between w-full px-6 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button cursor-pointer"
+                        className="flex items-center justify-between w-full px-6 rounded-full border border-gray-300 bg-white/90 text-sm text-black question-types-button cursor-pointer h-9"
                       >
                         <span>
                           {selectedQuestionTypes.length === 0
