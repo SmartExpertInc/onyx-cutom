@@ -64,24 +64,23 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
 
   const statementStyle: React.CSSProperties = {
     display:'flex',
-    alignItems:'baseline',
-    gap:'12px'
+    flexDirection:'column',
+    alignItems:'flex-start',
+    gap:'8px'
   };
 
   const percentageStyle: React.CSSProperties = {
     fontSize:'42px',
     fontWeight:700,
     color:'#2563EB',
-    lineHeight:1,
-    minWidth:'70px'
+    lineHeight:1
   };
 
   const descriptionStyle: React.CSSProperties = {
     fontSize:'20px',
     fontWeight:400,
     color:'#333333',
-    lineHeight:1.4,
-    flex:1
+    lineHeight:1.4
   };
 
   // Right image area
