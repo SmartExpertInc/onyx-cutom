@@ -49,38 +49,38 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'48px',
+    fontSize:'42px',
     fontWeight:700,
     color:'#333333',
-    marginBottom:'60px',
+    marginBottom:'50px',
     lineHeight:1.2
   };
 
   const statementsContainer: React.CSSProperties = {
     display:'flex',
     flexDirection:'column',
-    gap:'40px'
+    gap:'32px'
   };
 
   const statementStyle: React.CSSProperties = {
     display:'flex',
-    alignItems:'flex-start',
-    gap:'16px'
+    alignItems:'baseline',
+    gap:'12px'
   };
 
   const percentageStyle: React.CSSProperties = {
-    fontSize:'48px',
+    fontSize:'42px',
     fontWeight:700,
     color:'#2563EB',
     lineHeight:1,
-    minWidth:'80px'
+    minWidth:'70px'
   };
 
   const descriptionStyle: React.CSSProperties = {
-    fontSize:'24px',
+    fontSize:'20px',
     fontWeight:400,
     color:'#333333',
-    lineHeight:1.3,
+    lineHeight:1.4,
     flex:1
   };
 
