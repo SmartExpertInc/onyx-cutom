@@ -40,10 +40,9 @@ interface CourseTemplate {
   image: string
 }
 
-interface Lesson {
+interface CourseModule {
   title: string
-  duration: string
-  assessment: string
+  lessons: string[]
 }
 
 interface LandingPageData {
@@ -53,8 +52,7 @@ interface LandingPageData {
   companyDescription: string
   jobPositions: JobPosition[]
   workforceCrisis: WorkforceCrisisData
-  courseOutlineModules: string[]
-  courseOutlineLessons: { [key: number]: Lesson[] }
+  courseOutlineModules: CourseModule[]
   courseTemplates: CourseTemplate[]
 }
 
@@ -71,6 +69,17 @@ export default function DynamicAuditLandingPage() {
       ...prev,
       [moduleId]: !prev[moduleId]
     }))
+  }
+
+  // Helper function to generate random assessment type and duration
+  const getRandomAssessment = () => {
+    const assessments = ['нет', 'тест', 'практика']
+    const durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+    
+    return {
+      type: assessments[Math.floor(Math.random() * assessments.length)],
+      duration: durations[Math.floor(Math.random() * durations.length)]
+    }
   }
 
   useEffect(() => {
@@ -181,8 +190,8 @@ export default function DynamicAuditLandingPage() {
   }
 
   return (
-    <>
-      <style jsx global>{`
+      <>
+        <style jsx global>{`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
             
           .module-item:last-child {
@@ -777,7 +786,7 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
-                              {landingPageData?.courseOutlineModules?.[0] || "Корпоративная культура и стандарты работы"}
+                              {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
                             </h5>
                           </div>
                           
@@ -800,7 +809,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[0] || "Корпоративная культура и стандарты работы"}
+                          {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
                         </h5>
   
                         {/* Module 1 Expandable Content */}
@@ -827,44 +836,49 @@ export default function DynamicAuditLandingPage() {
                                 </div>
                               </div>
                               
-                              {/* Dynamic Table Rows */}
+                              {/* Table Rows - Dynamic */}
                               <div className="bg-white">
-                                {landingPageData?.courseOutlineLessons?.[0]?.map((lesson, index) => (
-                                  <div key={index} className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                    <div className="grid grid-cols-3 gap-[20px] items-center">
-                                      <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        {lesson.title}
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        {lesson.assessment === 'нет' ? (
+                                {landingPageData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
+                                  const assessment = getRandomAssessment()
+                                  const isLast = index === (landingPageData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
+                                  
+                                  return (
+                                    <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
+                                      <div className="grid grid-cols-3 gap-[20px] items-center">
+                                        <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                          {lesson}
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
+                                          {assessment.type === 'нет' ? (
+                                            <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            </svg>
+                                          ) : (
+                                            <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                            </svg>
+                                          )}
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.type}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                           <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
+                                            <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
                                           </svg>
-                                        ) : (
-                                          <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                          </svg>
-                                        )}
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {lesson.assessment}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                        <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path fillRule="evenodd" clipRule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                        </svg>
-                                        <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {lesson.duration}
-                                        </span>
+                                          <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                                            {assessment.duration}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                )) || (
-                                  // Fallback if no lessons data
+                                  )
+                                }) || (
+                                  // Fallback if no lessons available
                                   <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
                                     <div className="grid grid-cols-3 gap-[20px] items-center">
                                       <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        Основные этапы работы
+                                        Основные этапы открытия салона
                                       </div>
                                       <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                         <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -891,41 +905,47 @@ export default function DynamicAuditLandingPage() {
                           
                           {/* Mobile Layout - Hidden on XL */}
                           <div className="xl:hidden">
-                            {landingPageData?.courseOutlineLessons?.[0]?.map((lesson, index) => (
-                              <div key={index} className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                                <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                  {lesson.title}
-                                </span>
-                                <div className="flex items-center justify-between mb-[12px]">
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                    {lesson.assessment === 'нет' ? (
+                            {landingPageData?.courseOutlineModules?.[0]?.lessons?.map((lesson, index) => {
+                              const assessment = getRandomAssessment()
+                              const isLast = index === (landingPageData?.courseOutlineModules?.[0]?.lessons?.length || 1) - 1
+                              
+                              return (
+                                <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
+                                  <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
+                                    {lesson}
+                                  </span>
+                                  <div className="flex items-center justify-between mb-[12px]">
+                                    <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
+                                      {assessment.type === 'нет' ? (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        </svg>
+                                      ) : (
+                                        <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
+                                        </svg>
+                                      )}
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        Проверка знаний: {assessment.type}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
                                       <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
                                       </svg>
-                                    ) : (
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                    )}
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      {lesson.assessment}
-                                    </span>
-                                  </div>
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[5px]">
-                                    <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                    </svg>
-                                    <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      {lesson.duration}
-                                    </span>
+                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
+                                        {assessment.duration}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )) || (
-                              // Fallback if no lessons data
+                              )
+                            }) || (
+                              // Fallback if no lessons available
                               <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
                                 <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                  Основные этапы работы
+                                  Основные этапы открытия салона
                                 </span>
                                 <div className="flex items-center justify-between mb-[12px]">
                                   <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
@@ -933,10 +953,10 @@ export default function DynamicAuditLandingPage() {
                                       <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
                                     </svg>
                                     <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                      нет
+                                      Проверка знаний: нет
                                     </span>
                                   </div>
-                                  <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[5px]">
+                                  <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
                                     <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                                       <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
                                     </svg>
@@ -947,6 +967,8 @@ export default function DynamicAuditLandingPage() {
                                 </div>
                               </div>
                             )}
+  
+  
                           </div>
                         </div>
                       </div>
@@ -960,7 +982,7 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
-                              {landingPageData?.courseOutlineModules?.[1] || "Подбор и управление персоналом"}
+                              {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
                             </h5>
                           </div>
                           
@@ -983,7 +1005,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[1] || "Подбор и управление персоналом"}
+                          {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
                         </h5>
                       </div>
   
@@ -996,7 +1018,7 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="font-medium text-[16px] hidden xl:block">
-                              {landingPageData?.courseOutlineModules?.[2] || "Маркетинг и привлечение клиентов"}
+                              {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
                             </h5>
                           </div>
                           
@@ -1019,7 +1041,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[2] || "Маркетинг и привлечение клиентов"}
+                          {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
                         </h5>
                       </div>
   
@@ -1032,7 +1054,7 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
-                              {landingPageData?.courseOutlineModules?.[3] || "Финансовый контроль и развитие бизнеса"}
+                              {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
                             </h5>
                           </div>
                           
@@ -1055,541 +1077,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[3] || "Финансовый контроль и развитие бизнеса"}
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                  
-                </div>
-              </div>
-  
-              {/* Section 6: Ready-made Course Templates */}
-              <div className="w-[360px] mx-auto px-[20px] xl:w-[1440px] xl:px-[120px] mb-[50px] xl:mb-[100px]">
-                <div className="flex flex-col gap-[20px] xl:gap-[30px]">
-                  <h3 className="font-semibold text-[20px] xl:text-[32px] leading-[100%] text-[#09090B] text-center">
-                    Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-[20px] xl:gap-[30px]">
-                    {landingPageData?.courseTemplates && landingPageData.courseTemplates.length > 0 && landingPageData.courseTemplates.map((template, index) => (
-                      <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
-                        {/* Card Top */}
-                        <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: `url(${template.image})` }}>
-                          <span className="font-semibold text-[16px] text-white">
-                            {template.title}
-                          </span>
-                        </div>
-                        {/* Card Bottom */}
-                        <div className="p-[15px] flex flex-col gap-[6px]">
-                          <h4 className="font-semibold text-[16px]">
-                            {template.title}
-                          </h4>
-                          <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                            {template.description}
-                          </p>
-                          <div className="flex gap-[10px] items-center">
-                            {/* SVG for modules */}
-                            <span className="font-medium text-[12px]">
-                              Модулей ({template.modules})
-                            </span>
-                            <span className="font-medium text-[12px]">
-                              Уроков ({template.lessons})
-                            </span>
-                          </div>
-                          <div className="flex gap-[6px] items-center">
-                            <span className="font-medium text-[12px] text-[#09090B]">
-                              {template.rating}
-                            </span>
-                            <div className="flex gap-[3.33px]">
-                              {Array.from({ length: 5 }, (_, i) => (
-                                <svg key={i} width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
-                                </svg>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </main>
-  
-            <footer className="bg-[#0F58F9] text-white py-[20px] xl:py-[40px]">
-              <div className="w-[360px] mx-auto px-[20px] xl:w-[1440px] xl:px-[120px]">
-                <div className="text-center">
-                  <p className="text-[14px] xl:text-[16px]">
-                    © 2024 Onyx. Все права защищены.
-                  </p>
-                </div>
-              </div>
-            </footer>
-          </div>
-        </>
-      )
-    }
-                                        нет
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5.89844 0C3.1369 0 0.898438 2.23846 0.898438 5C0.898438 7.76154 3.1369 10 5.89844 10C8.65998 10 10.8984 7.76154 10.8984 5C10.8984 2.23846 8.65998 0 5.89844 0ZM6.28305 1.92308C6.28305 1.82107 6.24253 1.72324 6.1704 1.65111C6.09827 1.57898 6.00044 1.53846 5.89844 1.53846C5.79643 1.53846 5.6986 1.57898 5.62647 1.65111C5.55434 1.72324 5.51382 1.82107 5.51382 1.92308V5C5.51382 5.21231 5.68613 5.38462 5.89844 5.38462H8.20613C8.30814 5.38462 8.40597 5.34409 8.47809 5.27196C8.55022 5.19983 8.59075 5.10201 8.59075 5C8.59075 4.89799 8.55022 4.80017 8.47809 4.72804C8.40597 4.65591 8.30814 4.61539 8.20613 4.61539H6.28305V1.92308Z" fill="#FF1414"/>
-                                      </svg>
-  
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                        5 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Row 2 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Локация и планировка: требования к помещению
-                                    </div>
-                                    <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        практика
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        4 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-  
-                                {/* Row 3 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Финансовая модель и управление бюджетом
-                                    </div>
-                                    <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        практика
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        6 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Row 4 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Финансовая модель и управление бюджетом
-                                    </div>
-                                    <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        практика
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        6 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Row 5 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Работа с поставщиками и закупка материалов
-                                    </div>
-                                    <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        практика
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        4 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Row 6 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Требования к оборудованию и его размещение
-                                    </div>
-                                    <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        нет
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        5 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* Row 7 */}
-                                <div className="px-[20px] py-[12px] border-b border-[#D2E3F1] last:border-b-0">
-                                  <div className="grid grid-cols-3 gap-[20px] items-center">
-                                    <div className="font-medium text-[12px] text-[#09090B] leading-[130%]">
-                                      Тест по запуску и организации салона
-                                    </div>
-                                    <div className="flex items-center gap-[7px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <g clipPath="url(#clip0_379_20901)">
-                                        <path d="M6 6.99902C6.14167 6.99902 6.26458 6.94694 6.36875 6.84277C6.47292 6.73861 6.525 6.61569 6.525 6.47402C6.525 6.33236 6.47292 6.20944 6.36875 6.10527C6.26458 6.00111 6.14167 5.94902 6 5.94902C5.85833 5.94902 5.73542 6.00111 5.63125 6.10527C5.52708 6.20944 5.475 6.33236 5.475 6.47402C5.475 6.61569 5.52708 6.73861 5.63125 6.84277C5.73542 6.94694 5.85833 6.99902 6 6.99902ZM5.625 5.39902H6.375C6.375 5.15736 6.4 4.98027 6.45 4.86777C6.5 4.75527 6.61667 4.60736 6.8 4.42402C7.05 4.17402 7.21667 3.97194 7.3 3.81777C7.38333 3.66361 7.425 3.48236 7.425 3.27402C7.425 2.89902 7.29375 2.59277 7.03125 2.35527C6.76875 2.11777 6.425 1.99902 6 1.99902C5.65833 1.99902 5.36042 2.09486 5.10625 2.28652C4.85208 2.47819 4.675 2.73236 4.575 3.04902L5.25 3.32402C5.325 3.11569 5.42708 2.95944 5.55625 2.85527C5.68542 2.75111 5.83333 2.69902 6 2.69902C6.2 2.69902 6.3625 2.75527 6.4875 2.86777C6.6125 2.98027 6.675 3.13236 6.675 3.32402C6.675 3.44069 6.64167 3.55111 6.575 3.65527C6.50833 3.75944 6.39167 3.89069 6.225 4.04902C5.95 4.29069 5.78125 4.48027 5.71875 4.61777C5.65625 4.75527 5.625 5.01569 5.625 5.39902ZM3 8.49902C2.725 8.49902 2.48958 8.40111 2.29375 8.20527C2.09792 8.00944 2 7.77402 2 7.49902V1.49902C2 1.22402 2.09792 0.988607 2.29375 0.792773C2.48958 0.59694 2.725 0.499023 3 0.499023H9C9.275 0.499023 9.51042 0.59694 9.70625 0.792773C9.90208 0.988607 10 1.22402 10 1.49902V7.49902C10 7.77402 9.90208 8.00944 9.70625 8.20527C9.51042 8.40111 9.275 8.49902 9 8.49902H3ZM1 10.499C0.725 10.499 0.489583 10.4011 0.29375 10.2053C0.0979167 10.0094 0 9.77402 0 9.49902V2.49902H1V9.49902H8V10.499H1Z" fill="#FF1414"/>
-                                        </g>
-                                        <defs>
-                                        <clipPath id="clip0_379_20901">
-                                        <rect width="10" height="10" fill="white" transform="translate(0 0.5)"/>
-                                        </clipPath>
-                                        </defs>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        тест
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-[5px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                      </svg>
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                        2 мин
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Mobile Layout - Hidden on XL */}
-                          <div className="xl:hidden">
-                            {/* Lesson 1 */}
-                            <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                            <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Основные этапы открытия салона
-                            </span>
-                            <div className="flex items-center justify-between mb-[12px]">
-                              <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  Проверка знаний: нет
-                                </span>
-                              </div>
-                              
-                              <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  5 мин
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-  
-                          {/* Lesson 2 */}
-                          <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                            <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Локация и планировка:<br className="xl:hidden"/> требования к помещению
-                            </span>
-                            <div className="flex items-center justify-between mb-[12px]">
-                              <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  Проверка знаний: практика
-                                </span>
-                              </div>
-                              
-                              <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  4 мин
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-  
-                          {/* Lesson 3 */}
-                          <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                            <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Финансовая модель и<br className="xl:hidden"/> управление бюджетом
-                            </span>
-                            <div className="flex items-center justify-between mb-[12px]">
-                              <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  Проверка знаний: практика
-                                </span>
-                              </div>
-                              
-                              <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  6 мин
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-  
-                          {/* Lesson 4 */}
-                          <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                            <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Работа с поставщиками<br className="xl:hidden"/> и закупка материалов
-                            </span>
-                            <div className="flex items-center justify-between mb-[12px]">
-                              <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M9.54545 6.86364H8.63636V5.5C8.63636 5.37945 8.58846 5.26382 8.50323 5.17859C8.418 5.09336 8.30236 5.04545 8.18182 5.04545H5.45455V4.13636H6.36364C6.48418 4.13636 6.59982 4.08847 6.68505 4.00323C6.77027 3.91799 6.81818 3.80237 6.81818 3.68182V0.954545C6.81818 0.833991 6.77027 0.718377 6.68505 0.633132C6.59982 0.547891 6.48418 0.5 6.36364 0.5H3.63636C3.51581 0.5 3.4002 0.547891 3.31495 0.633132C3.22971 0.718377 3.18182 0.833991 3.18182 0.954545V3.68182C3.18182 3.80237 3.22971 3.91799 3.31495 4.00323C3.4002 4.08847 3.51581 4.13636 3.63636 4.13636H4.54545V5.04545H1.81818C1.69763 5.04545 1.58201 5.09336 1.49677 5.17859C1.41153 5.26382 1.36364 5.37945 1.36364 5.5V6.86364H0.454545C0.333991 6.86364 0.218377 6.91155 0.133132 6.99677C0.0478909 7.082 0 7.19764 0 7.31818V10.0455C0 10.166 0.0478909 10.2816 0.133132 10.3669C0.218377 10.4521 0.333991 10.5 0.454545 10.5H3.18182C3.30237 10.5 3.41799 10.4521 3.50323 10.3669C3.58847 10.2816 3.63636 10.166 3.63636 10.0455V7.31818C3.63636 7.19764 3.58847 7.082 3.50323 6.99677C3.41799 6.91155 3.30237 6.86364 3.18182 6.86364H2.27273V5.95455H7.72727V6.86364H6.81818C6.69764 6.86364 6.582 6.91155 6.49677 6.99677C6.41155 7.082 6.36364 7.19764 6.36364 7.31818V10.0455C6.36364 10.166 6.41155 10.2816 6.49677 10.3669C6.582 10.4521 6.69764 10.5 6.81818 10.5H9.54545C9.666 10.5 9.78164 10.4521 9.86686 10.3669C9.95209 10.2816 10 10.166 10 10.0455V7.31818C10 7.19764 9.95209 7.082 9.86686 6.99677C9.78164 6.91155 9.666 6.86364 9.54545 6.86364Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  Проверка знаний: практика
-                                </span>
-                              </div>
-                              
-                              <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  4 мин
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-  
-                          {/* Lesson 5 */}
-                          <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                            <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Требования к оборудованию<br className="xl:hidden"/> и его размещение
-                            </span>
-                            <div className="flex items-center justify-between mb-[12px]">
-                              <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M5 0.5C2.24286 0.5 0 2.74286 0 5.5C0 8.25714 2.24286 10.5 5 10.5C7.75714 10.5 10 8.25714 10 5.5C10 2.24286 7.75714 0.5 5 0.5ZM7.07533 6.93766C7.25339 7.11573 7.25187 7.40387 7.0738 7.58042C6.98553 7.66869 6.86987 7.71282 6.75318 7.71282C6.63649 7.71282 6.52083 7.66868 6.43104 7.58042L4.99844 6.14275L3.56221 7.57535C3.47241 7.66362 3.35726 7.70775 3.24158 7.70775C3.12592 7.70775 3.00771 7.66362 2.91944 7.57383C2.74137 7.39577 2.74289 7.10914 2.91944 6.93108L4.3571 5.49848L2.9245 4.06225C2.74644 3.88418 2.74796 3.59604 2.92603 3.41949C3.10257 3.24143 3.39071 3.24143 3.56878 3.41949L5.00138 4.85716L6.43761 3.42456C6.61568 3.24801 6.90382 3.24801 7.08036 3.42608C7.25843 3.60415 7.25691 3.89077 7.08036 4.06883L5.6427 5.50143L7.07533 6.93766Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  Проверка знаний: нет
-                                </span>
-                              </div>
-                              
-                              <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  5 мин
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-  
-                          {/* Lesson 6 */}
-                          <div className="border-b border-[#D2E3F1] flex flex-col gap-[10px] last:border-b-0 mt-[12px] first:mt-0">
-                            <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                              Тест по запуску и<br className="xl:hidden"/> организации салона
-                            </span>
-                            <div className="flex items-center justify-between mb-[12px]">
-                              <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <g clip-path="url(#clip0_379_20901)">
-                                  <path d="M6 6.99902C6.14167 6.99902 6.26458 6.94694 6.36875 6.84277C6.47292 6.73861 6.525 6.61569 6.525 6.47402C6.525 6.33236 6.47292 6.20944 6.36875 6.10527C6.26458 6.00111 6.14167 5.94902 6 5.94902C5.85833 5.94902 5.73542 6.00111 5.63125 6.10527C5.52708 6.20944 5.475 6.33236 5.475 6.47402C5.475 6.61569 5.52708 6.73861 5.63125 6.84277C5.73542 6.94694 5.85833 6.99902 6 6.99902ZM5.625 5.39902H6.375C6.375 5.15736 6.4 4.98027 6.45 4.86777C6.5 4.75527 6.61667 4.60736 6.8 4.42402C7.05 4.17402 7.21667 3.97194 7.3 3.81777C7.38333 3.66361 7.425 3.48236 7.425 3.27402C7.425 2.89902 7.29375 2.59277 7.03125 2.35527C6.76875 2.11777 6.425 1.99902 6 1.99902C5.65833 1.99902 5.36042 2.09486 5.10625 2.28652C4.85208 2.47819 4.675 2.73236 4.575 3.04902L5.25 3.32402C5.325 3.11569 5.42708 2.95944 5.55625 2.85527C5.68542 2.75111 5.83333 2.69902 6 2.69902C6.2 2.69902 6.3625 2.75527 6.4875 2.86777C6.6125 2.98027 6.675 3.13236 6.675 3.32402C6.675 3.44069 6.64167 3.55111 6.575 3.65527C6.50833 3.75944 6.39167 3.89069 6.225 4.04902C5.95 4.29069 5.78125 4.48027 5.71875 4.61777C5.65625 4.75527 5.625 5.01569 5.625 5.39902ZM3 8.49902C2.725 8.49902 2.48958 8.40111 2.29375 8.20527C2.09792 8.00944 2 7.77402 2 7.49902V1.49902C2 1.22402 2.09792 0.988607 2.29375 0.792773C2.48958 0.59694 2.725 0.499023 3 0.499023H9C9.275 0.499023 9.51042 0.59694 9.70625 0.792773C9.90208 0.988607 10 1.22402 10 1.49902V7.49902C10 7.77402 9.90208 8.00944 9.70625 8.20527C9.51042 8.40111 9.275 8.49902 9 8.49902H3ZM1 10.499C0.725 10.499 0.489583 10.4011 0.29375 10.2053C0.0979167 10.0094 0 9.77402 0 9.49902V2.49902H1V9.49902H8V10.499H1Z" fill="#FF1414"/>
-                                  </g>
-                                  <defs>
-                                  <clipPath id="clip0_379_20901">
-                                  <rect width="10" height="10" fill="white" transform="translate(0 0.5)"/>
-                                  </clipPath>
-                                  </defs>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  Проверка знаний: тест
-                                </span>
-                              </div>
-                              
-                              <div className="px-[10px] py-[6.5px] flex items-center gap-[5px]">
-                                <svg width="10" height="11" viewBox="0 0 10 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5 0.5C2.23846 0.5 0 2.73846 0 5.5C0 8.26154 2.23846 10.5 5 10.5C7.76154 10.5 10 8.26154 10 5.5C10 2.73846 7.76154 0.5 5 0.5ZM5.38462 2.42308C5.38462 2.32107 5.34409 2.22324 5.27196 2.15111C5.19983 2.07898 5.10201 2.03846 5 2.03846C4.89799 2.03846 4.80017 2.07898 4.72804 2.15111C4.65591 2.22324 4.61539 2.32107 4.61539 2.42308V5.5C4.61539 5.71231 4.78769 5.88462 5 5.88462H7.30769C7.4097 5.88462 7.50753 5.84409 7.57966 5.77196C7.65179 5.69983 7.69231 5.60201 7.69231 5.5C7.69231 5.39799 7.65179 5.30017 7.57966 5.22804C7.50753 5.15591 7.4097 5.11539 7.30769 5.11539H5.38462V2.42308Z" fill="#FF1414"/>
-                                </svg>
-  
-                                <span className="font-medium text-[12px] text-[#09090B] leading-[110%]">
-                                  2 мин
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          </div>
-                        </div>
-                      </div>
-  
-                      {/* Module 2*/}
-                      <div className="module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1]">
-                        <div className="flex items-center justify-between">
-                          <div className="xl:flex xl:items-center xl:gap-[6px]">
-                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 02:
-                            </span>
-  
-                            <h5 className="hidden xl:block font-medium text-[16px]">
-                              {landingPageData?.courseOutlineModules?.[1] || "Подбор и управление персоналом"}
-                            </h5>
-                          </div>
-                          
-                          <button 
-                            onClick={() => toggleModule('module3')}
-                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module3'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                            }`}
-                          >
-                            {expandedModules['module3'] ? (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            ) : (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        
-                        <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[1] || "Подбор и управление персоналом"}
-                        </h5>
-                      </div>
-  
-                      {/* Module 3*/}
-                      <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module3'] ? 'xl:border-b-0' : ''}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="xl:flex xl:items-center xl:gap-[6px]">
-                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 03:
-                            </span>
-  
-                            <h5 className="font-medium text-[16px] hidden xl:block">
-                              {landingPageData?.courseOutlineModules?.[2] || "Маркетинг и привлечение клиентов"}
-                            </h5>
-                          </div>
-                          
-                          <button 
-                            onClick={() => toggleModule('module4')}
-                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module4'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                            }`}
-                          >
-                            {expandedModules['module4'] ? (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            ) : (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        
-                        <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[2] || "Маркетинг и привлечение клиентов"}
-                        </h5>
-                      </div>
-  
-                      {/* Module 4*/}
-                      <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module4'] ? 'xl:border-b-0' : ''}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="xl:flex xl:items-center xl:gap-[6px]">
-                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 04:
-                            </span>
-  
-                            <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
-                              {landingPageData?.courseOutlineModules?.[3] || "Финансовый контроль и развитие бизнеса"}
-                            </h5>
-                          </div>
-                          
-                          <button 
-                            onClick={() => toggleModule('module5')}
-                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
-                              expandedModules['module5'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
-                            }`}
-                          >
-                            {expandedModules['module5'] ? (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            ) : (
-                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        
-                        <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[3] || "Финансовый контроль и развитие бизнеса"}
+                          {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
                         </h5>
                       </div>
                     </div>
