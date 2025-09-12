@@ -19,26 +19,66 @@ interface Connector {
   access_type: string;
 }
 
-// Connector icon mapping based on source
+// Comprehensive connector icon mapping (same as SmartDrive tab)
 const connectorIcons: Record<string, string> = {
+  // Cloud Storage
   google_drive: '/GoogleDrive.png',
   dropbox: '/Dropbox.png',
-  notion: '/Notion.png',
-  slack: '/Slack.png',
-  github: '/Github.png',
-  confluence: '/Confluence.svg',
-  sharepoint: '/Sharepoint.png',
-  onedrive: '/OneDrive.png',
   s3: '/S3.png',
-  gmail: '/Gmail.png',
+  r2: '/r2.png',
+  google_cloud_storage: '/GoogleCloudStorage.png',
+  oci_storage: '/OCI.svg',
+  sharepoint: '/Sharepoint.png',
+  egnyte: '/Egnyte.png',
+  // Communication & Messaging
+  slack: '/Slack.png',
+  discord: '/discord.png',
   teams: '/Teams.png',
+  gmail: '/Gmail.png',
+  zulip: '/Zulip.png',
+  // Productivity & Collaboration
+  notion: '/Notion.png',
+  confluence: '/Confluence.svg',
+  onedrive: '/OneDrive.png',
+  google_site: '/GoogleSites.svg',
+  slab: '/Slab.svg',
+  // Development & Code
+  github: '/Github.png',
+  gitlab: '/Gitlab.png',
+  // Project Management
+  jira: '/Jira.svg',
+  linear: '/Linear.svg',
+  clickup: '/Clickup.png',
+  asana: '/Asana.svg',
+  // Customer Support
   zendesk: '/Zendesk.svg',
+  freshdesk: '/Freshdesk.png',
+  intercom: '/Intercom.svg',
+  // Sales & CRM
   salesforce: '/Salesforce.png',
   hubspot: '/HubSpot.png',
-  jira: '/Jira.svg',
-  gitlab: '/Gitlab.png',
-  discord: '/discord.png',
+  // Knowledge Management
+  guru: '/Guru.svg',
+  document360: '/Document360.svg',
+  gitbook: '/Gitbook.svg',
+  bookstack: '/BookStack.svg',
+  // Data & Analytics
   airtable: '/Airtable.svg',
+  // Media & Communication
+  gong: '/Gong.png',
+  fireflies: '/Fireflies.ai.svg',
+  // Other
+  web: '/Web.svg',
+  file: '/File.svg',
+  axero: '/Axero.svg',
+  discourse: '/Discourse.svg',
+  mediawiki: '/MediaWiki.svg',
+  requesttracker: '/RequestTracker.svg',
+  xenforo: '/XenForo.svg',
+  wikipedia: '/Wikipedia.svg',
+  productboard: '/Productboard.svg',
+  highspot: '/Highspot.svg',
+  loopio: '/Loopio.png',
   // Fallback for unknown connectors
   default: '/file.svg'
 };
@@ -76,18 +116,18 @@ export default function CreateFromSpecificFilesPage() {
       
       console.log('[CreateFromSpecificFiles DEBUG] Raw connector data from API:', data);
       
-      // Filter only private connectors (created via Smart Drive)
+      // Filter only private connectors (created via Smart Drive) - using SmartDrive tab structure
       const privateConnectors = data
-        .filter((connector: any) => connector.access_type === 'private')
-        .map((connector: any) => ({
-          id: connector.id,
-          name: connector.name,
-          source: connector.source,
-          status: connector.last_successful_index_time ? 'active' : 'unknown',
-          last_sync_at: connector.last_successful_index_time,
-          total_docs_indexed: connector.total_docs_indexed || 0,
-          last_error: connector.last_error_message,
-          access_type: connector.access_type
+        .filter((connectorStatus: any) => connectorStatus.access_type === 'private')
+        .map((connectorStatus: any) => ({
+          id: connectorStatus.cc_pair_id, // IMPORTANT: Use cc_pair_id like SmartDrive tab
+          name: connectorStatus.name || `Connector ${connectorStatus.cc_pair_id}`,
+          source: connectorStatus.connector.source, // IMPORTANT: Nested source like SmartDrive tab
+          status: connectorStatus.connector.status || 'unknown',
+          last_sync_at: connectorStatus.last_sync_at,
+          total_docs_indexed: connectorStatus.total_docs_indexed || 0,
+          last_error: connectorStatus.last_error,
+          access_type: connectorStatus.access_type
         }));
       
       console.log('[CreateFromSpecificFiles DEBUG] Filtered private connectors:', privateConnectors);
