@@ -12,7 +12,7 @@ import { Spinner } from "@/components/Spinner";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useUser } from "@/components/user/UserProvider";
-import { identifyUser } from "@/lib/mixpanelClient";
+import { identifyUser, trackSignUp, resetUser } from "@/lib/mixpanelClient";
 import { useRouter } from "next/navigation";
 
 export function EmailPasswordForm({
@@ -84,6 +84,10 @@ export function EmailPasswordForm({
               setIsWorking(false);
               return;
             } else {
+              const userJson = await response.json();
+              identifyUser(userJson.id);
+              trackSignUp({ "Referral Source": referralSource });
+              resetUser();
               setPopup({
                 type: "success",
                 message: "Account created successfully. Please log in.",
@@ -93,9 +97,6 @@ export function EmailPasswordForm({
 
           const loginResponse = await basicLogin(email, values.password);
           if (loginResponse.ok) {
-            //const userJson = await loginResponse.json();
-            //console.log(userJson); //TODO: Remove this
-            //identifyUser(userID);
             if (isSignup && shouldVerify) {
               await requestEmailVerification(email);
               // Use window.location.href to force a full page reload,
