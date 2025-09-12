@@ -181,7 +181,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             
             {/* Private badge in top-right */}
             {project.isPrivate && (
-              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-md px-2 py-1 border border-gray-200">
+              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
                 <Lock size={10} className="text-gray-600" />
                 <span className="text-xs font-medium text-gray-700">
                   {t("interface.private", "Private")}
