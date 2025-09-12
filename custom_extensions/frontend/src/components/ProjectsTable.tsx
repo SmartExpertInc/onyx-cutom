@@ -1636,7 +1636,8 @@ const ProjectCard: React.FC<{
            {/* Truncated title in center */}
            <div className="flex items-center justify-center flex-1 px-2">
              <h3 
-               className="font-semibold text-white text-md text-center leading-tight line-clamp-2"
+               className="font-semibold text-md text-center leading-tight line-clamp-2"
+                style={{ color: saturatedColor }}
              >
                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
              </h3>
@@ -1667,19 +1668,140 @@ const ProjectCard: React.FC<{
                 </span>
               </div>
             </div>
-            <div className="w-7 h-7" />
+            {/* Options menu */}
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-gray-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    handleMenuToggle();
+                  }}
+                >
+                  <MoreHorizontal size={14} className="text-gray-500" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="w-56 bg-white border border-gray-100 shadow-lg text-gray-900" 
+                align="end"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+                  <p className="font-semibold text-sm text-gray-900 truncate">
+                    {project.title}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {t("actions.created", "Created {date}").replace(
+                      "{date}",
+                      formatDate(project.createdAt)
+                    )}
+                  </p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {isTrashMode ? (
+                  <>
+                    <DropdownMenuItem onClick={handleRestoreProject}>
+                      <RefreshCw size={14} />
+                      <span>{t("actions.restore", "Restore")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        setPermanentDeleteConfirmOpen(true);
+                      }}
+                      variant="destructive"
+                    >
+                      <Trash2 size={14} />
+                      <span>
+                        {t("actions.deletePermanently", "Delete permanently")}
+                      </span>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem>
+                      <Share2 size={16} className="text-gray-500" />
+                      <span>{t("actions.share", "Share...")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        setRenameModalOpen(true);
+                      }}
+                    >
+                      <PenLine size={16} className="text-gray-500" />
+                      <span>{t("actions.rename", "Rename...")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Star size={16} className="text-gray-500" />
+                      <span>
+                        {t("actions.addToFavorites", "Add to favorites")}
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDuplicateProject}>
+                      <Copy size={16} className="text-gray-500" />
+                      <span>{t("actions.duplicate", "Duplicate")}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <LinkIcon size={16} className="text-gray-500" />
+                      <span>{t("actions.copyLink", "Copy link")}</span>
+                    </DropdownMenuItem>
+                    {isOutline && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          setMenuOpen(false);
+                          setShowSettingsModal(true);
+                        }}
+                      >
+                        <Settings size={16} className="text-gray-500" />
+                        <span>{t("actions.settings", "Settings")}</span>
+                      </DropdownMenuItem>
+                    )}
+                    {folderId && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          setMenuOpen(false);
+                          handleRemoveFromFolder();
+                        }}
+                        className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
+                      >
+                        <FolderMinus size={16} className="text-orange-500" />
+                        <span>
+                          {t("actions.removeFromFolder", "Remove from Folder")}
+                        </span>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        handleTrashRequest(e);
+                      }}
+                      variant="destructive"
+                    >
+                      <Trash2 size={14} />
+                      <span className="text-red-500 hover:bg-red-200">{t("actions.sendToTrash", "Send to trash")}</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </Link>
-       <ProjectRowMenu
-         project={project}
-         formatDate={formatDate}
-         trashMode={isTrashMode}
-         onDelete={onDelete}
-         onRestore={onRestore}
-         onDeletePermanently={onDeletePermanently}
-         folderId={folderId}
-       />
 
       {permanentDeleteConfirmOpen && (
         <div
