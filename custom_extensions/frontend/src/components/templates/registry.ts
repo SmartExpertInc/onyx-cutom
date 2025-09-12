@@ -69,6 +69,7 @@ import SoftSkillsDevelopSlideTemplate from './SoftSkillsDevelopSlideTemplate';
 import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
 import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
 import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
+import TopicsSlideTemplate from './TopicsSlideTemplate';
 
 
 
@@ -2392,6 +2393,30 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
       statements: { type: 'array', label: 'Statements', required: true },
+      avatarPath: { type: 'image', label: 'Avatar' }
+    }
+  },
+
+  'topics': {
+    id: 'topics',
+    name: 'Topics',
+    description: 'Split slide with dark green avatar section and black topics list with yellow banner',
+    category: 'content',
+    icon: '📋',
+    component: TopicsSlideTemplate,
+    defaultProps: {
+      title: 'Topics',
+      topics: [
+        'Fixed mindset VS Growth mindset',
+        'Growth mindset - Success & Fulfilment',
+        'How to develop a growth mindset',
+        'Learning from errors'
+      ],
+      avatarPath: ''
+    },
+    propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      topics: { type: 'array', label: 'Topics', required: true },
       avatarPath: { type: 'image', label: 'Avatar' }
     }
   }
