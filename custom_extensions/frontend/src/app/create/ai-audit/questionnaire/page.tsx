@@ -94,7 +94,7 @@ export default function AiAuditQuestionnaire() {
           console.log(`📡 [FRONTEND DATA FLOW] Polling progress from: ${progressUrl}`)
           
           const res = await fetch(progressUrl);
-          const data = await res.json();
+        const data = await res.json();
           
           // 📊 LOG: Progress data received
           console.log(`📊 [FRONTEND DATA FLOW] Progress data received:`, data)
@@ -104,9 +104,9 @@ export default function AiAuditQuestionnaire() {
             setProgressMessages(data.messages);
           }
           
-          if (data.result && (data.result.folderId || data.result.id)) {
+        if (data.result && (data.result.folderId || data.result.id)) {
             console.log(`✅ [FRONTEND DATA FLOW] Generation result received:`, data.result)
-            setGenerationDone(true);
+          setGenerationDone(true);
             
             // Check if this is a landing page generation result
             if (data.result.name && data.result.name.includes("Landing Page")) {
@@ -118,12 +118,12 @@ export default function AiAuditQuestionnaire() {
               console.log(`🎯 [FRONTEND DATA FLOW] Regular audit detected, redirecting to: ${redirectUrl}`)
               setFinalRedirectUrl(redirectUrl);
             }
-            setLoading(false);
+          setLoading(false);
           }
         } catch (error) {
           console.error(`❌ [FRONTEND DATA FLOW] Error polling progress:`, error)
         }
-        }, 2000);
+      }, 2000);
     }
     return () => { 
       if (interval) {

@@ -13820,6 +13820,15 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         logger.info(f"📊 [AUDIT DATA FLOW] Workforce crisis data extraction:")
         logger.info(f"📊 [AUDIT DATA FLOW] - Workforce crisis data: {workforce_crisis}")
         
+        # Extract course outline modules from the landing page data
+        course_outline_modules = content.get("courseOutlineModules", [])
+        
+        # 📊 LOG: Course outline modules extraction
+        logger.info(f"📚 [AUDIT DATA FLOW] Course outline modules extraction:")
+        logger.info(f"📚 [AUDIT DATA FLOW] - Course outline modules count: {len(course_outline_modules)}")
+        for i, module_title in enumerate(course_outline_modules):
+            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title}")
+        
         # Extract course templates from the landing page data
         course_templates = content.get("courseTemplates", [])
         
@@ -13837,6 +13846,7 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             "companyDescription": company_description,
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis,
+            "courseOutlineModules": course_outline_modules,
             "courseTemplates": course_templates
         }
         
@@ -14093,17 +14103,28 @@ async def generate_course_description_for_position(job_title: str, company_name:
         logger.error(f"❌ [COURSE DESCRIPTION] Error generating course description for {job_title}: {e}")
         return f"Обучение ключевым навыкам для позиции {job_title}."
 
-async def generate_course_outline_for_landing_page(company_name: str, position: dict, duckduckgo_summary: str) -> list:
+async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_positions: list, payload) -> list:
     """
-    Generate a course outline for the landing page without saving to database.
+    Generate course outline data for the landing page modules section.
+    Returns a list of module titles extracted from the first job position's course outline.
     """
     try:
-        # Build the prompt for the LLM
+        if not job_positions:
+            logger.warning("[COURSE OUTLINE] No job positions available for course outline generation")
+            return []
+        
+        # Use the first job position for course outline generation
+        first_position = job_positions[0]
+        position_title = first_position.get('title', 'Сотрудник')
+        
+        logger.info(f"[COURSE OUTLINE] Generating course outline for position: {position_title}")
+        
+        # Build the prompt for course outline generation
         wizard_request = {
             "product": "Course Outline",
             "prompt": (
-                f"Создай курс аутлайн 'Онбординг для должности {position['title']}' для новых сотрудников этой должности в компании '{company_name}'. \n"
-                f"Структура должна охватывать все аспекты работы сотрудника на этой должности в данной среде. Не включай аспекты работы других должностей, только то, что касается должности '{position['title']}'. \n"
+                f"Создай курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{payload.companyName}'. \n"
+                f"Структура должна охватывать все аспекты работы сотрудника на этой должности в данной среде. \n"
                 f"ДАННЫЕ О КОМПАНИИ:\n{duckduckgo_summary}\n"
             ),
             "modules": 4,
@@ -14114,25 +14135,42 @@ async def generate_course_outline_for_landing_page(company_name: str, position: 
         # Convert to JSON string for the LLM
         prompt = json.dumps(wizard_request, ensure_ascii=False)
         
+        # Generate the course outline
         outline_text = ""
-        async for chunk_data in stream_openai_response_direct(prompt, model="gpt-4o-mini", temperature=0.7):
+        async for chunk_data in stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL):
             if chunk_data.get("type") == "delta":
                 outline_text += chunk_data["text"]
             elif chunk_data.get("type") == "error":
                 raise Exception(f"OpenAI error: {chunk_data['text']}")
         
-        # Parse the outline text to extract modules and lessons
+        # Parse the outline text to extract module titles
         parsed_outline = _parse_outline_markdown(outline_text)
         
-        logger.info(f"📚 [COURSE OUTLINE] Generated course outline with {len(parsed_outline)} modules")
+        # Extract module titles
+        module_titles = []
         for i, module in enumerate(parsed_outline):
-            logger.info(f"📚 [COURSE OUTLINE] - Module {i+1}: {module.get('title', 'Unknown')} with {len(module.get('lessons', []))} lessons")
+            if i < 4:  # Limit to 4 modules as per UI design
+                title = module.get('title', f'Модуль {i+1}')
+                module_titles.append(title)
+                logger.info(f"[COURSE OUTLINE] Module {i+1}: {title}")
         
-        return parsed_outline
+        # Ensure we have exactly 4 modules (pad with default titles if needed)
+        while len(module_titles) < 4:
+            module_titles.append(f'Модуль {len(module_titles) + 1}')
+        
+        logger.info(f"[COURSE OUTLINE] Generated {len(module_titles)} module titles for landing page")
+        return module_titles
         
     except Exception as e:
-        logger.error(f"❌ [COURSE OUTLINE] Error generating course outline: {e}")
-        return []
+        logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
+        # Return default module titles as fallback
+        return [
+            "Корпоративная культура и стандарты работы",
+            "Подбор и управление персоналом", 
+            "Маркетинг и привлечение клиентов",
+            "Финансовый контроль и развитие бизнеса"
+        ]
+
 
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload) -> list:
     """
@@ -14723,6 +14761,15 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         # 📊 LOG: Workforce crisis data generated
         logger.info(f"📊 [AUDIT DATA FLOW] Generated workforce crisis data: {workforce_crisis_data}")
 
+        set_progress(job_id, "Generating course outline...")
+        # Generate course outline for the "План обучения" section
+        course_outline_modules = await generate_course_outline_for_landing_page(duckduckgo_summary, job_positions, payload)
+        
+        # 📊 LOG: Course outline generated
+        logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline_modules)} modules")
+        for i, module_title in enumerate(course_outline_modules):
+            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title}")
+
         set_progress(job_id, "Generating course templates...")
         # Generate course templates for the "Готовые шаблоны курсов" section
         course_templates = await generate_course_templates(duckduckgo_summary, job_positions, payload)
@@ -14732,24 +14779,6 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         for i, template in enumerate(course_templates):
             logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template['title']}")
 
-        # Generate course outline for the "Онбординг курс для должности" section
-        set_progress(job_id, "Generating course outline...")
-        course_outline = []
-        if job_positions:
-            try:
-                first_position = job_positions[0]  # Use the first job position for the course outline
-                course_outline = await generate_course_outline_for_landing_page(
-                    payload.companyName, 
-                    first_position, 
-                    duckduckgo_summary
-                )
-                logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline)} modules")
-                for i, module in enumerate(course_outline):
-                    logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module.get('title', 'Unknown')} with {len(module.get('lessons', []))} lessons")
-            except Exception as e:
-                logger.warning(f"⚠️ [AUDIT DATA FLOW] Failed to generate course outline: {e}")
-                course_outline = []
-
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Create the landing page content with dynamic data
@@ -14758,8 +14787,8 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "companyDescription": company_description,
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis_data,
+            "courseOutlineModules": course_outline_modules,
             "courseTemplates": course_templates,
-            "courseOutline": course_outline,
             "originalPayload": payload.model_dump()
         }
         
