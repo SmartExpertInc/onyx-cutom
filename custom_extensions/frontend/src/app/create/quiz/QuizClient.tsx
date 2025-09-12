@@ -1184,13 +1184,13 @@ export default function QuizClient() {
                           onValueChange={() => {}} // Prevent default behavior
                         >
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                            <SelectValue>
+                            <span>
                               {selectedQuestionTypes.length === 0
                                 ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                                 : selectedQuestionTypes.length === 1
                                   ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                                   : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                            </SelectValue>
+                            </span>
                           </SelectTrigger>
                           <SelectContent className="border-gray-300">
                             {[
@@ -1261,13 +1261,13 @@ export default function QuizClient() {
                       onValueChange={() => {}} // Prevent default behavior
                     >
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                        <SelectValue>
+                        <span>
                           {selectedQuestionTypes.length === 0
                             ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
                             : selectedQuestionTypes.length === 1
                               ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                               : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                        </SelectValue>
+                        </span>
                       </SelectTrigger>
                       <SelectContent className="border-gray-300">
                         {[
@@ -1325,7 +1325,7 @@ export default function QuizClient() {
                   }}
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 h-9"
                 >
-                  {t('interface.generate.backButton', '← Back')}
+                  {t('interface.generate.backButton', 'Back to previous step')}
                 </button>
               </div>
             )}
