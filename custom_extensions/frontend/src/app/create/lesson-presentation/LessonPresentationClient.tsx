@@ -1182,7 +1182,7 @@ export default function LessonPresentationClient() {
 
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
 
-          <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
+          <h1 className="text-2xl font-semibold text-center bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mt-2">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
           <div className="flex flex-col items-center gap-4 mb-4">
@@ -1299,7 +1299,7 @@ export default function LessonPresentationClient() {
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="border-gray-300">
+                          <SelectContent className="border-gray-300 max-h-48">
                             {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                               <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
                             ))}
@@ -1334,7 +1334,7 @@ export default function LessonPresentationClient() {
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-gray-300">
+                      <SelectContent className="border-gray-300 max-h-48">
                         {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                           <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
                         ))}
