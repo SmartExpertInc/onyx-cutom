@@ -602,17 +602,17 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-1">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-2">
       {/* Workspace Header and Selector */}
       <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
             <div className="flex flex-col gap-2 text-center items-center">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
+              <h1 className="text-3xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
                 {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
               </h1>
               {selectedWorkspace?.description && (
-                <p className="text-sm text-gray-600 leading-relaxed text-center">
+                <p className="text-md text-gray-600 leading-relaxed text-center">
                   {selectedWorkspace.description}
                 </p>
               )}
@@ -663,7 +663,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               />
             </div>
             <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-              <SelectTrigger variant="filter" className="whitespace-nowrap">
+              <SelectTrigger variant="filter" className="whitespace-nowrap rounded-full">
                 <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
               </SelectTrigger>
               <SelectContent>
@@ -681,7 +681,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               variant="manage"
               size="sm"
               onClick={() => setShowRoleManager(true)}
-              className="flex items-center gap-2 px-4 py-2"
+              className="flex items-center gap-2 px-4 py-2 rounded-full"
             >
               <Settings size={15} />
               {t('interface.manageRoles', 'Manage Roles')}
@@ -689,7 +689,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <Button
               variant="download"
               onClick={() => setShowAddMember(true)}
-              className="flex items-center gap-2 px-4 py-2"
+              className="flex items-center gap-2 px-4 py-2 rounded-full"
               size="sm"
             >
               <UserPlus size={15} />
