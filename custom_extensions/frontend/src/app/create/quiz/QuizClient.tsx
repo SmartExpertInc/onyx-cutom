@@ -1130,7 +1130,7 @@ export default function QuizClient() {
                       }}
                       onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                         <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
                       </SelectTrigger>
                       <SelectContent className="border-gray-300">
@@ -1153,7 +1153,7 @@ export default function QuizClient() {
                         onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         disabled={modulesForOutline.length === 0}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                           <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
                         </SelectTrigger>
                         <SelectContent className="border-gray-300">
@@ -1171,7 +1171,7 @@ export default function QuizClient() {
                         onValueChange={setSelectedLesson}
                         onOpenChange={() => setShowQuestionTypesDropdown(false)}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                           <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
                         </SelectTrigger>
                         <SelectContent className="border-gray-300">
@@ -1190,7 +1190,7 @@ export default function QuizClient() {
                           onValueChange={setSelectedLanguage}
                           onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300">
@@ -1247,7 +1247,7 @@ export default function QuizClient() {
                           onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
                           onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 max-h-48 overflow-y-auto">
@@ -1269,7 +1269,7 @@ export default function QuizClient() {
                       onValueChange={setSelectedLanguage}
                       onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-gray-300">
@@ -1326,7 +1326,7 @@ export default function QuizClient() {
                       onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
                       onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-gray-300 max-h-48 overflow-y-auto">
