@@ -59,25 +59,47 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
   // Set up postMessage event listener for iframe communication
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      // Enhanced debug logging
+      console.log('[SmartDriveFrame DEBUG] Message received:', {
+        origin: event.origin,
+        hostname: window.location.hostname,
+        originMatch: event.origin.includes(window.location.hostname),
+        type: event.data?.type,
+        dataKeys: event.data?.data ? Object.keys(event.data.data) : 'no data',
+        timestamp: new Date().toISOString()
+      });
+
       // Verify origin for security
       if (!event.origin.includes(window.location.hostname)) {
+        console.log('[SmartDriveFrame DEBUG] Message rejected - origin mismatch');
         return;
       }
 
       const { type, data } = event.data;
+      console.log('[SmartDriveFrame DEBUG] Processing message type:', type, 'with data:', data);
 
       switch (type) {
         case 'fileSelectionUpdate':
           // New format: receives complete list of selected files
           if (data && Array.isArray(data.selectedFiles)) {
-            console.log('[SmartDriveFrame] Received file selection update:', data.selectedFiles.length, 'files');
+            console.log('[SmartDriveFrame DEBUG] File selection update:', {
+              previousCount: internalSelectedFiles.length,
+              newCount: data.selectedFiles.length,
+              files: data.selectedFiles,
+              lastAction: data.lastAction,
+              lastFile: data.lastFile,
+              clickCount: data.clickCount
+            });
             setInternalSelectedFiles(data.selectedFiles);
+          } else {
+            console.log('[SmartDriveFrame DEBUG] Invalid file selection data:', data);
           }
           break;
           
         // Legacy support for individual select/deselect actions
         case 'select':
           if (data && data.filePath) {
+            console.log('[SmartDriveFrame DEBUG] Legacy select:', data.filePath);
             setInternalSelectedFiles(prev => {
               const updated = [...prev, data.filePath];
               return Array.from(new Set(updated)); // Remove duplicates
@@ -87,27 +109,40 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
           
         case 'deselect':
           if (data && data.filePath) {
+            console.log('[SmartDriveFrame DEBUG] Legacy deselect:', data.filePath);
             setInternalSelectedFiles(prev => prev.filter(path => path !== data.filePath));
           }
           break;
           
         case 'clear':
+          console.log('[SmartDriveFrame DEBUG] Clear selection');
           setInternalSelectedFiles([]);
           break;
           
         default:
-          console.log('Unknown message type from SmartDrive iframe:', type);
+          console.log('[SmartDriveFrame DEBUG] Unknown message type:', type, 'Full event:', event.data);
       }
     };
 
+    console.log('[SmartDriveFrame DEBUG] Message listener setup complete');
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [internalSelectedFiles]);
 
   // Notify parent component when file selection changes
   useEffect(() => {
+    console.log('[SmartDriveFrame DEBUG] Internal files changed:', {
+      fileCount: internalSelectedFiles.length,
+      files: internalSelectedFiles,
+      hasCallback: !!onFilesSelected
+    });
+    
     if (onFilesSelected) {
+      console.log('[SmartDriveFrame DEBUG] Calling parent callback with:', internalSelectedFiles);
       onFilesSelected(internalSelectedFiles);
+      console.log('[SmartDriveFrame DEBUG] Parent callback completed');
+    } else {
+      console.log('[SmartDriveFrame DEBUG] No parent callback provided');
     }
   }, [internalSelectedFiles, onFilesSelected]);
 

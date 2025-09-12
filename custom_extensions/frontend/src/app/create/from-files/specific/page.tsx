@@ -110,7 +110,16 @@ export default function CreateFromSpecificFilesPage() {
 
   // Handle file selection from SmartDrive iframe
   const handleFilesSelected = (files: string[]) => {
+    console.log('[CreateFromSpecificFiles DEBUG] handleFilesSelected called with:', {
+      fileCount: files.length,
+      files: files,
+      previousSelectedFiles: selectedFiles.length,
+      timestamp: new Date().toISOString()
+    });
+    
     setSelectedFiles(files);
+    
+    console.log('[CreateFromSpecificFiles DEBUG] selectedFiles state updated');
   };
 
   const handleConnectorToggle = (connectorId: number) => {
