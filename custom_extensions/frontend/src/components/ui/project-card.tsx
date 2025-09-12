@@ -12,7 +12,15 @@ import {
   Video,
   HelpCircle,
   TableOfContents,
-  FileText
+  FileText,
+  Share2,
+  PenLine,
+  Star,
+  Copy,
+  Link as LinkIcon,
+  Settings,
+  FolderMinus,
+  Trash2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,6 +45,10 @@ interface ProjectCardProps {
   onDelete?: (id: number, scope: "self" | "all") => void;
   onRestore?: (id: number) => void;
   onDeletePermanently?: (id: number) => void;
+  onDuplicate?: (id: number) => void;
+  onRemoveFromFolder?: (id: number) => void;
+  onRename?: (id: number) => void;
+  onSettings?: (id: number) => void;
   isTrashMode?: boolean;
   folderId?: number | null;
   className?: string;
@@ -102,6 +114,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onDelete,
   onRestore,
   onDeletePermanently,
+  onDuplicate,
+  onRemoveFromFolder,
+  onRename,
+  onSettings,
   isTrashMode = false,
   folderId,
   className,
@@ -119,7 +135,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   
   // Create gradient colors (lighter version of bgColor)
   const gradientFrom = bgColor + "50"; // 25% opacity
-  
+  const gradientTo = bgColor + "80";
+
   const saturatedColor = bgColor;
   
   const handleMenuToggle = () => {
@@ -152,6 +169,32 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
+  const handleDuplicateProject = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setMenuOpen(false);
+    onDuplicate?.(project.id);
+  };
+
+  const handleRemoveFromFolder = async () => {
+    setMenuOpen(false);
+    onRemoveFromFolder?.(project.id);
+  };
+
+  const handleRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setMenuOpen(false);
+    onRename?.(project.id);
+  };
+
+  const handleSettings = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setMenuOpen(false);
+    onSettings?.(project.id);
+  };
+
   return (
     <Card className={cn(
       "group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden",
@@ -167,9 +210,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 flex flex-col justify-between p-4"
+          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
           style={{
-            background: `linear-gradient(to bottom, ${gradientFrom}, white)`
+            background: `linear-gradient(to bottom right, ${gradientFrom}, ${gradientTo})`
           }}
         >
           {/* Top row with icon and badge */}
@@ -284,33 +327,44 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       }}
                       className="text-red-600 focus:text-red-600 focus:bg-red-50"
                     >
+                      <Trash2 size={14} />
                       <span>{t("actions.deletePermanently", "Delete permanently")}</span>
                     </DropdownMenuItem>
                   </>
                 ) : (
                   <>
                     <DropdownMenuItem>
+                      <Share2 size={16} className="text-gray-500" />
                       <span>{t("actions.share", "Share...")}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleRename}>
+                      <PenLine size={16} className="text-gray-500" />
                       <span>{t("actions.rename", "Rename...")}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
+                      <Star size={16} className="text-gray-500" />
                       <span>{t("actions.addToFavorites", "Add to favorites")}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDuplicateProject}>
+                      <Copy size={16} className="text-gray-500" />
                       <span>{t("actions.duplicate", "Duplicate")}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
+                      <LinkIcon size={16} className="text-gray-500" />
                       <span>{t("actions.copyLink", "Copy link")}</span>
                     </DropdownMenuItem>
                     {isOutline && (
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleSettings}>
+                        <Settings size={16} className="text-gray-500" />
                         <span>{t("actions.settings", "Settings")}</span>
                       </DropdownMenuItem>
                     )}
                     {folderId && (
-                      <DropdownMenuItem className="text-orange-600 focus:text-orange-600 focus:bg-orange-50">
+                      <DropdownMenuItem 
+                        onClick={handleRemoveFromFolder}
+                        className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
+                      >
+                        <FolderMinus size={16} className="text-orange-500" />
                         <span>{t("actions.removeFromFolder", "Remove from Folder")}</span>
                       </DropdownMenuItem>
                     )}
@@ -319,6 +373,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       onClick={handleTrashRequest}
                       className="text-red-600 focus:text-red-600 focus:bg-red-50"
                     >
+                      <Trash2 size={14} />
                       <span>{t("actions.sendToTrash", "Send to trash")}</span>
                     </DropdownMenuItem>
                   </>

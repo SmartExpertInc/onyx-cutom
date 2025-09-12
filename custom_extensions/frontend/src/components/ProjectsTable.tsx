@@ -125,10 +125,6 @@ const TitleIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 12H20M4 8H20M4 16H12" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
-const LessonsIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg height={size} width={size} viewBox="0 0 24 24"  data-name="025_SCIENCE" id="_025_SCIENCE" xmlns="http://www.w3.org/2000/svg" fill="#364153"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><defs><style>{`.cls-1{fill:#364153;}`}</style></defs><path className="cls-1" d="M20,22H5a1,1,0,0,1-1-1V3A1,1,0,0,1,5,2H20a1,1,0,0,1,1,1V18a1,1,0,0,1-2,0V4H6V20H20a1,1,0,0,1,0,2Z"></path><path className="cls-1" d="M7,7H3A1,1,0,0,1,3,5H7A1,1,0,0,1,7,7Z"></path><path className="cls-1" d="M7,11H3A1,1,0,0,1,3,9H7a1,1,0,0,1,0,2Z"></path><path className="cls-1" d="M7,15H3a1,1,0,0,1,0-2H7a1,1,0,0,1,0,2Z"></path><path className="cls-1" d="M7,19H3a1,1,0,0,1,0-2H7a1,1,0,0,1,0,2Z"></path><path className="cls-1" d="M15,11H11a1,1,0,0,1,0-2h4a1,1,0,0,1,0,2Z"></path><path className="cls-1" d="M15,15H11a1,1,0,0,1,0-2h4a1,1,0,0,1,0,2Z"></path></g></svg>
-);
-
 const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note" className="icon glyph" fill="#364153"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20.71,3.29a2.91,2.91,0,0,0-2.2-.84,3.25,3.25,0,0,0-2.17,1L9.46,10.29s0,0,0,0a.62.62,0,0,0-.11.17,1,1,0,0,0-.1.18l0,0L8,14.72A1,1,0,0,0,9,16a.9.9,0,0,0,.28,0l4-1.17,0,0,.18-.1a.62.62,0,0,0,.17-.11l0,0,6.87-6.88a3.25,3.25,0,0,0,1-2.17A2.91,2.91,0,0,0,20.71,3.29Z"></path><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style={{fill:"#364153"}}></path></g></svg>
 );
@@ -141,9 +137,6 @@ const CreatorIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12 5C10.3431 5 9 6.34315 9 8C9 9.65685 10.3431 11 12 11C13.6569 11 15 9.65685 15 8C15 6.34315 13.6569 5 12 5ZM7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8ZM7.45609 16.7264C6.40184 17.1946 6 17.7858 6 18.5C6 18.7236 6.03976 18.8502 6.09728 18.942C6.15483 19.0338 6.29214 19.1893 6.66219 19.3567C7.45312 19.7145 9.01609 20 12 20C14.9839 20 16.5469 19.7145 17.3378 19.3567C17.7079 19.1893 17.8452 19.0338 17.9027 18.942C17.9602 18.8502 18 18.7236 18 18.5C18 17.7858 17.5982 17.1946 16.5439 16.7264C15.4614 16.2458 13.8722 16 12 16C10.1278 16 8.53857 16.2458 7.45609 16.7264ZM6.64442 14.8986C8.09544 14.2542 10.0062 14 12 14C13.9938 14 15.9046 14.2542 17.3556 14.8986C18.8348 15.5554 20 16.7142 20 18.5C20 18.9667 19.9148 19.4978 19.5973 20.0043C19.2798 20.5106 18.7921 20.8939 18.1622 21.1789C16.9531 21.7259 15.0161 22 12 22C8.98391 22 7.04688 21.7259 5.83781 21.1789C5.20786 20.8939 4.72017 20.5106 4.40272 20.0043C4.08524 19.4978 4 18.9667 4 18.5C4 16.7142 5.16516 15.5554 6.64442 14.8986Z" fill="#364153"></path> </g></svg>
 );
 
-const TimeIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 8V12L15 15" stroke="#364153" stroke-width="2" stroke-linecap="round"></path> <circle cx="12" cy="12" r="9" stroke="#364153" stroke-width="2"></circle> </g></svg>
-);
 
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (
@@ -618,7 +611,7 @@ const ClientNameModal: React.FC<{
             <Button
               type="submit"
               disabled={!hasAnySelection}
-              className={hasAnySelection ? "rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer" : "bg-gray-300 text-gray-500 cursor-not-allowed"}
+              className={hasAnySelection ? "rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer" : "bg-gray-300 rounded-full text-gray-500 cursor-not-allowed"}
             >
               {t("common.downloadPdf", "Download PDF")}
             </Button>
@@ -4636,7 +4629,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
                     >
                       <div className="flex items-center gap-2">
-                        <LessonsIcon size={15} />
                         {t("interface.numberOfLessons", "Number of Lessons")}
                       </div>
                       <div
@@ -4653,7 +4645,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       style={{ width: `${columnWidths.estCreationTime}%` }}
                     >
                       <div className="flex items-center gap-2">
-                        <TimeIcon size={15} />
                         {t("interface.estCreationTime", "Est. Creation Time")}
                       </div>
                       <div
@@ -4670,7 +4661,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
                     >
                       <div className="flex items-center gap-2">
-                        <TimeIcon size={15} />
                         {t("interface.estCompletionTime", "Est. Completion Time")}
                       </div>
                       <div
