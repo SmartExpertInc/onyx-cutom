@@ -1300,7 +1300,7 @@ export const uk = {
         "Чи хочете ви створити односторінку з існуючого плану курсу?",
       yesContentForOnePager: "Так, контент для односторінки з плану",
       noStandaloneOnePager: "Ні, я хочу окрему односторінку",
-      backButton: "← Назад",
+      backButton: "Назад до попереднього кроку",
       // Additional keys for preview pages
       loading: "Генерування...",
       lessonQuestion: "Чи хочете ви створити урок з існуючого плану курсу?",

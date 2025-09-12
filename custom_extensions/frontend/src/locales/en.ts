@@ -977,7 +977,7 @@ export const en = {
       // Additional keys for preview pages
       loading: "Generating...",
       back: "Back",
-      backButton: "Back",
+      backButton: "Back to previous step",
       lessonQuestion:
         "Do you want to create a lesson from an existing Course Outline?",
       yesContentForLesson: "Yes, content for the lesson from the outline",

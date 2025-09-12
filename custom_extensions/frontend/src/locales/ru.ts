@@ -1309,7 +1309,7 @@ export const ru = {
         "Хотите ли вы создать одностраничник из существующего плана курса?",
       yesContentForOnePager: "Да, контент для одностраничника из плана",
       noStandaloneOnePager: "Нет, я хочу отдельный одностраничник",
-      backButton: "← Назад",
+      backButton: "Назад к предыдущему шагу",
       // Additional keys for preview pages
       loading: "Генерация...",
       lessonQuestion: "Хотите ли вы создать урок из существующего плана курса?",

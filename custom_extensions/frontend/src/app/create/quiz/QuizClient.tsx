@@ -104,6 +104,7 @@ export default function QuizClient() {
     questionTypes ? questionTypes.split(',').filter(Boolean) : ["multiple-choice", "multi-select", "matching", "sorting", "open-answer"]
   );
   const [selectedQuestionCount, setSelectedQuestionCount] = useState<number>(questionCount);
+  const [showQuestionTypesDropdown, setShowQuestionTypesDropdown] = useState(false);
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
@@ -858,6 +859,22 @@ export default function QuizClient() {
     }
   }, [streamDone, firstLineRemoved, quizData]);
 
+  // Click outside handler for question types dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showQuestionTypesDropdown) {
+        const target = event.target as Element;
+        if (!target.closest('.question-types-dropdown') && !target.closest('.question-types-button')) {
+          setShowQuestionTypesDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showQuestionTypesDropdown]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -1179,11 +1196,11 @@ export default function QuizClient() {
                             <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Select
-                          value=""
-                          onValueChange={() => {}} // Prevent default behavior
-                        >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <div className="relative">
+                          <button
+                            onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button"
+                          >
                             <span className="text-black">
                               {selectedQuestionTypes.length === 0
                                 ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
@@ -1191,22 +1208,22 @@ export default function QuizClient() {
                                   ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                                   : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                             </span>
-                          </SelectTrigger>
-                          <SelectContent className="border-gray-300">
-                            {[
-                              { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                              { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                              { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                              { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                              { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                            ].map((type) => (
-                              <SelectItem key={type.value} value={type.value} onSelect={(e) => e.preventDefault()}>
-                                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            <ChevronDown size={16} className="text-gray-300" />
+                          </button>
+                          {showQuestionTypesDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown max-h-48 overflow-y-auto">
+                              {[
+                                { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                                { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                                { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                                { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                                { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                              ].map((type) => (
+                                <label key={type.value} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                                   <input
                                     type="checkbox"
                                     checked={selectedQuestionTypes.includes(type.value)}
                                     onChange={(e) => {
-                                      e.stopPropagation();
                                       if (e.target.checked) {
                                         setSelectedQuestionTypes(prev => [...prev, type.value]);
                                       } else {
@@ -1215,12 +1232,12 @@ export default function QuizClient() {
                                     }}
                                     className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                                   />
-                                  <span>{type.label}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                                  <span className="text-sm">{type.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <Select
                           value={selectedQuestionCount.toString()}
                           onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
@@ -1256,11 +1273,11 @@ export default function QuizClient() {
                         <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Select
-                      value=""
-                      onValueChange={() => {}} // Prevent default behavior
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
+                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button"
+                      >
                         <span className="text-black">
                           {selectedQuestionTypes.length === 0
                             ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
@@ -1268,22 +1285,22 @@ export default function QuizClient() {
                               ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                               : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                         </span>
-                      </SelectTrigger>
-                      <SelectContent className="border-gray-300">
-                        {[
-                          { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                          { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                          { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                          { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                          { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                        ].map((type) => (
-                          <SelectItem key={type.value} value={type.value} onSelect={(e) => e.preventDefault()}>
-                            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                        <ChevronDown size={16} className="text-gray-300" />
+                      </button>
+                      {showQuestionTypesDropdown && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
+                          {[
+                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                          ].map((type) => (
+                            <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={selectedQuestionTypes.includes(type.value)}
                                 onChange={(e) => {
-                                  e.stopPropagation();
                                   if (e.target.checked) {
                                     setSelectedQuestionTypes(prev => [...prev, type.value]);
                                   } else {
@@ -1292,12 +1309,12 @@ export default function QuizClient() {
                                 }}
                                 className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
-                              <span>{type.label}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                              <span className="text-sm">{type.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <Select
                       value={selectedQuestionCount.toString()}
                       onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
