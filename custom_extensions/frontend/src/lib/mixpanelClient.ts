@@ -35,6 +35,7 @@ export const initMixpanel = (): void => {
     record_sessions_percent: 100, // Recording 100% of all sessions
     record_idle_timeout_ms: 600000, // End a replay capture after 10mins of inactivity
     record_max_ms: 600000, // Maximum length of a single replay
+    record_mask_text_selector: '', // Unmask all text elements
     record_heatmap_data: true,   // Enable Heatmap data collection
   };
 
