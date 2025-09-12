@@ -5,8 +5,8 @@ import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
-//import { CreateProductEvent } from "../../lib/analyticsTypes";
-//import { trackFeatureUsed } from "../../lib/mixpanelClient"
+import { FeatureUsedEvent } from "../../lib/analyticsTypes";
+import { track } from "../../lib/mixpanelClient"
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -164,6 +164,14 @@ function CreatePageHandler() {
 export default function DataSourceLanding() {
   const { t } = useLanguage();
 
+  const handleCreateProductEnd = () => {
+    const featureEvent: FeatureUsedEvent = {
+      "Feature Category": "Products",
+      Action: "Clicked",
+    };
+    track("Create Product", featureEvent);
+  };
+
   return (
     <>
       <Suspense fallback={null}>
@@ -179,6 +187,7 @@ export default function DataSourceLanding() {
       {/* Top-left home button */}
       <Link
         href="/projects"
+        onClick={() => handleCreateProductEnd()}
         className="absolute top-6 left-6 flex items-center gap-1 text-sm text-black hover:text-black-hover rounded-full px-3 py-1 border border-gray-300 bg-white"
       >
         {/* Home icon */}
