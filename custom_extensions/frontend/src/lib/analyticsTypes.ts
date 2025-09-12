@@ -3,8 +3,7 @@ export interface PageLeftEvent {
 }
   
 export interface FeatureUsedEvent {
-  "Feature Name": string;
   "Feature Category": string;
-  Action: string;
+  "Action": string;
 }
   

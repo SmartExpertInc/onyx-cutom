@@ -69,6 +69,32 @@ export function resetUser() {
   }
 }
 
+// Wrap mixpanel.track in a Promise for async/await usage
+export async function track(
+  event: string,
+  properties?: FeatureUsedEvent,
+  options?: Record<string, unknown>
+): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      (mixpanel as any).track(event, properties ?? {}, options, (response: number) => {
+        if (response === 0) {
+          console.warn(`[analytics] Mixpanel track did not queue event: ${event}`, properties);
+        }
+        resolve(); // resolve always, so caller doesn’t crash
+      });
+    } catch (err) {
+      console.error(`[analytics] Failed to track event: ${event}`, err, properties);
+      resolve();
+    }
+  });
+}
+
+export function timeEvent(event: string): void {
+  mixpanel.time_event(event);
+}
+
+/*
 export function trackPageLeft(props: PageLeftEvent) {
   if (!isInitialized) {
     return;
@@ -79,11 +105,16 @@ export function trackPageLeft(props: PageLeftEvent) {
   }
 }
 
-export function trackFeatureUsed(
-  props: FeatureUsedEvent,
+export function trackCreateProduct(
+  props?: CreateProductEvent,
+  startTimer: boolean = false,
   useBeacon: boolean = false
 ): void {
   if (!isInitialized) {
+    return;
+  }
+  if (startTimer) {
+    mixpanel.time_event('Create Product');
     return;
   }
   const queued: unknown = (mixpanel as any).track(
@@ -95,3 +126,4 @@ export function trackFeatureUsed(
     console.warn("[analytics] Mixpanel track failed to queue: Feature Used", props);
   }
 }
+*/

@@ -50,8 +50,7 @@ import {
 import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
-import { FeatureUsedEvent } from "../lib/analyticsTypes";
-import { trackFeatureUsed } from "../lib/mixpanelClient"
+import { timeEvent } from "../lib/mixpanelClient"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -4297,13 +4296,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     window.open(pdfUrl, "_blank");
   };
 
-  const handleProductCreate = () => {
-    const event: FeatureUsedEvent = {
-      "Feature Name": "Create Product",
-      "Feature Category": "Products",
-      "Action": "Clicked"
-    };
-    trackFeatureUsed(event);
+  const handleCreateProduct = () => {
+    // Start timer
+    timeEvent('Create Product');
   };
 
   // Add these just before the render block
@@ -4347,7 +4342,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-              <button onClick={handleProductCreate} className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
+              <button onClick={handleCreateProduct} className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
                 <Plus size={16} className="text-white" />
                 {t("interface.createNew", "Create new")}
                 <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
