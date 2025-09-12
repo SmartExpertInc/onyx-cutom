@@ -1382,9 +1382,15 @@ export default function TextPresentationClient() {
                             <Button
                               type="button"
                               variant="outline"
-                              className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2 min-w-[200px]"
+                              className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
                             >
-                              <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                              <span className="text-black">
+                                {selectedStyles.length === 0
+                                  ? t('interface.generate.selectStyles', 'Select styles')
+                                  : selectedStyles.length === 1
+                                    ? selectedStyles[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                    : `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}`}
+                              </span>
                               <ChevronDown size={14} className="text-gray-500 opacity-50" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -1452,9 +1458,15 @@ export default function TextPresentationClient() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2 min-w-[200px]"
+                          className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
                         >
-                          <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                          <span className="text-black">
+                            {selectedStyles.length === 0
+                              ? 'Select styles'
+                              : selectedStyles.length === 1
+                                ? selectedStyles[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                : `${selectedStyles.length} styles selected`}
+                          </span>
                           <ChevronDown size={14} className="text-gray-500 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
