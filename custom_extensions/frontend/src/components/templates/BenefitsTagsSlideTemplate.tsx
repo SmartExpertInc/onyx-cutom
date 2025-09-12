@@ -127,8 +127,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
   return (
     <div className="benefits-tags-slide-template inter-theme" style={slideStyles}>
-
-
       {/* Tags Block - contains everything except logo */}
       <div style={tagsBlockStyles}>
         {/* Profile image with orange background */}

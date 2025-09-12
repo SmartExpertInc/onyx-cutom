@@ -173,7 +173,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                   color: '#DA8372',
                   width: '100%',
                   height: 'auto'
-                })}
+                }}
               />
             ) : (
               <span
