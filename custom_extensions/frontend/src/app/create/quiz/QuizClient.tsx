@@ -1128,6 +1128,7 @@ export default function QuizClient() {
                         setLessonsForModule([]);
                         setSelectedLesson("");
                       }}
+                      onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
@@ -1149,6 +1150,7 @@ export default function QuizClient() {
                           setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
                           setSelectedLesson("");
                         }}
+                        onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         disabled={modulesForOutline.length === 0}
                       >
                         <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
@@ -1167,6 +1169,7 @@ export default function QuizClient() {
                       <Select
                         value={selectedLesson}
                         onValueChange={setSelectedLesson}
+                        onOpenChange={() => setShowQuestionTypesDropdown(false)}
                       >
                         <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                           <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
@@ -1185,6 +1188,7 @@ export default function QuizClient() {
                         <Select
                           value={selectedLanguage}
                           onValueChange={setSelectedLanguage}
+                          onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         >
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                             <SelectValue />
@@ -1199,7 +1203,7 @@ export default function QuizClient() {
                         <div className="relative">
                           <button
                             onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button"
+                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button gap-2"
                           >
                             <span className="text-black">
                               {selectedQuestionTypes.length === 0
@@ -1241,6 +1245,7 @@ export default function QuizClient() {
                         <Select
                           value={selectedQuestionCount.toString()}
                           onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
+                          onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         >
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                             <SelectValue />
@@ -1262,6 +1267,7 @@ export default function QuizClient() {
                     <Select
                       value={selectedLanguage}
                       onValueChange={setSelectedLanguage}
+                      onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue />
@@ -1276,7 +1282,7 @@ export default function QuizClient() {
                     <div className="relative">
                       <button
                         onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button"
+                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button gap-2"
                       >
                         <span className="text-black">
                           {selectedQuestionTypes.length === 0
@@ -1318,6 +1324,7 @@ export default function QuizClient() {
                     <Select
                       value={selectedQuestionCount.toString()}
                       onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
+                      onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue />
