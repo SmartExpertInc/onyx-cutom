@@ -10,7 +10,7 @@ const isPostHogEnabled = !!(
 
 export function PHProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    //initMixpanel();
+    initMixpanel();
     if (isPostHogEnabled) {
       posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST!,
