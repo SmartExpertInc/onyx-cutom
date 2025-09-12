@@ -46,18 +46,20 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     top:0,
     width:'45%',
     height:'100%',
-    background:'#2D5A3D',
+    background:'#2C6657',
     display:'flex',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    borderTopRightRadius:'50px',
+    borderBottomRightRadius:'50px',
   };
 
   const avatarContainer: React.CSSProperties = {
-    width:'280px',
-    height:'350px',
+    width:'410px',
+    position:'absolute',
+    bottom:'-30px',
     borderRadius:'16px',
     overflow:'hidden',
-    background:'#FFFFFF'
   };
 
   // Right section - topics with black background
@@ -76,9 +78,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 
   // Topics header banner
   const topicsBanner: React.CSSProperties = {
-    background:'#F5E6A3',
-    borderRadius:'12px',
-    padding:'20px 30px',
+    background:'#F2E5B4',
+    width:'200px',
+    borderRadius:'27px',
     marginBottom:'40px',
     display:'flex',
     alignItems:'center',
@@ -86,9 +88,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   };
 
   const topicsTitleStyle: React.CSSProperties = {
-    fontSize:'32px',
+    fontSize:'42px',
     fontWeight:700,
-    color:'#000000',
+    color:'#443F33',
     textAlign:'center'
   };
 
@@ -106,17 +108,17 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   };
 
   const bulletPoint: React.CSSProperties = {
-    width:'8px',
-    height:'8px',
+    width:'12px',
+    height:'12px',
     borderRadius:'50%',
     background:'#F5E6A3',
     flexShrink:0
   };
 
   const topicText: React.CSSProperties = {
-    fontSize:'20px',
+    fontSize:'16px',
     fontWeight:400,
-    color:'#FFFFFF',
+    color:'#C1C1C1',
     lineHeight:1.4
   };
 
