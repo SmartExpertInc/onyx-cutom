@@ -1321,7 +1321,7 @@ export const es = {
         "¿Quieres crear una página desde un plan de curso existente?",
       yesContentForOnePager: "Sí, contenido para la página desde el plan",
       noStandaloneOnePager: "No, quiero una página independiente",
-      backButton: "Volver al paso anterior",
+      backButton: "Al paso anterior",
       // Additional keys for preview pages
       loading: "Generando...",
       lessonQuestion:

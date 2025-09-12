@@ -1130,7 +1130,7 @@ export default function QuizClient() {
                       }}
                       onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
                       </SelectTrigger>
                       <SelectContent className="border-gray-300">
@@ -1153,7 +1153,7 @@ export default function QuizClient() {
                         onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         disabled={modulesForOutline.length === 0}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                           <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
                         </SelectTrigger>
                         <SelectContent className="border-gray-300">
@@ -1171,7 +1171,7 @@ export default function QuizClient() {
                         onValueChange={setSelectedLesson}
                         onOpenChange={() => setShowQuestionTypesDropdown(false)}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                           <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
                         </SelectTrigger>
                         <SelectContent className="border-gray-300">
@@ -1190,7 +1190,7 @@ export default function QuizClient() {
                           onValueChange={setSelectedLanguage}
                           onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300">
@@ -1212,10 +1212,10 @@ export default function QuizClient() {
                                   ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                                   : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                             </span>
-                            <ChevronDown size={16} className="text-gray-300" />
+                            <ChevronDown size={16} className="opacity-50" />
                           </button>
                           {showQuestionTypesDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown max-h-48 overflow-y-auto">
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-1 question-types-dropdown max-h-48 overflow-y-auto w-48">
                               {[
                                 { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
                                 { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
@@ -1247,7 +1247,7 @@ export default function QuizClient() {
                           onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
                           onOpenChange={() => setShowQuestionTypesDropdown(false)}
                         >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="border-gray-300 max-h-48 overflow-y-auto">
@@ -1269,7 +1269,7 @@ export default function QuizClient() {
                       onValueChange={setSelectedLanguage}
                       onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-gray-300">
@@ -1291,10 +1291,10 @@ export default function QuizClient() {
                               ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
                               : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
                         </span>
-                        <ChevronDown size={16} className="text-gray-300" />
+                        <ChevronDown size={16} className="opacity-50" />
                       </button>
                       {showQuestionTypesDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown w-48">
                           {[
                             { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
                             { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
@@ -1326,7 +1326,7 @@ export default function QuizClient() {
                       onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
                       onOpenChange={() => setShowQuestionTypesDropdown(false)}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 [&_svg]:text-gray-300">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="border-gray-300 max-h-48 overflow-y-auto">
@@ -1347,9 +1347,9 @@ export default function QuizClient() {
                     setLessonsForModule([]);
                     setSelectedLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100 h-9"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black hover:bg-gray-100 h-9"
                 >
-                  {t('interface.generate.backButton', 'Back to previous step')}
+                  {t('interface.generate.backButton', 'To previous step')}
                 </button>
               </div>
             )}
