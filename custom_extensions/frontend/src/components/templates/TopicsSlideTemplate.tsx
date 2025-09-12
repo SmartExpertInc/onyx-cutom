@@ -53,7 +53,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     borderTopRightRadius:'50px',
     borderBottomRightRadius:'50px',
   };
-
+//save
   const avatarContainer: React.CSSProperties = {
     width:'410px',
     position:'absolute',
