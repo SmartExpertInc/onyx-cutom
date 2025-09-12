@@ -442,7 +442,10 @@ export default function DynamicAuditLandingPage() {
                     jobPositions.map((position, index) => (
                       <div key={index} className="bg-white p-[10px] rounded-[4px] flex items-center gap-[15px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                         <div className="w-[40px] xl:w-[50px] h-[40px] xl:h-[50px] min-w-[40px] min-h-[40px] border border-[#F6F6F6] rounded-[1.6px] flex items-center justify-center" style={{ boxShadow: '-0.8px 0.8px 1.6px 0px #0000001A' }}>
-                          <span className="text-[20px]">{position.icon}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F58F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                          </svg>
                         </div>
                         <span className="font-medium text-[16px] xl:text-[18px]">{position.title}</span>
                       </div>
