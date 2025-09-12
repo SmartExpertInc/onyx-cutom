@@ -1,125 +1,10 @@
 // custom_extensions/frontend/src/components/templates/SoftSkillsAssessmentSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SoftSkillsAssessmentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
 
 export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSlideProps & {
   theme?: SlideTheme | string;
@@ -236,7 +121,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           maxWidth: '76%'
         }}>
           {isEditable && editingTitle ? (
-            <InlineEditor
+            <ImprovedInlineEditor
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
@@ -318,7 +203,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                 lineHeight: '1.4',
               }}>
                 {isEditable && editingTips === index ? (
-                  <InlineEditor
+                  <ImprovedInlineEditor
                     initialValue={tip.text}
                     onSave={(value) => handleTipSave(index, value)}
                     onCancel={handleTipCancel}
@@ -373,7 +258,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                 textAlign: 'center'
               }}>
                 {isEditable && editingAdditionalTips === index ? (
-                  <InlineEditor
+                  <ImprovedInlineEditor
                     initialValue={currentAdditionalTips[index]}
                     onSave={(value) => handleAdditionalTipSave(index, value)}
                     onCancel={handleAdditionalTipCancel}

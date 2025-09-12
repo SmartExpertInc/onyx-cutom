@@ -5,7 +5,6 @@ import { StaySafeTipsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
- 
 
 export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = ({
   slideId,
@@ -230,7 +229,6 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
         />
       </div>
 
-      
     </div>
   );
 };

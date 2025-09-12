@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/MarketingAgencyThankYouSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MarketingAgencyThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
