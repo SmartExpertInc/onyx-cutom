@@ -118,8 +118,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const avatarColor = stringToColor(project.createdBy);
   
   // Create gradient colors (lighter version of bgColor)
-  const gradientFrom = bgColor + "40"; // 25% opacity
-  const gradientTo = bgColor + "80"; // 50% opacity
+  const gradientFrom = bgColor + "50"; // 25% opacity
   
   const saturatedColor = bgColor;
   
@@ -176,8 +175,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* Top row with icon and badge */}
           <div className="flex justify-between items-start">
             {/* List icon in top-left */}
-            <div className="w-6 h-6 flex items-center justify-center">
-              <List size={16} className="text-white" />
+            <div className="w-6 h-6 bg-white flex items-center justify-center">
+              <List size={16} className="text-gray-500" />
             </div>
             
             {/* Private badge in top-right */}
