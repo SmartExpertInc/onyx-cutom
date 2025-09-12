@@ -58,7 +58,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor}, title: newTitle });
     }
   };
 
@@ -66,7 +66,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({ ...{title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor}, content: newContent });
     }
   };
 
@@ -82,13 +82,13 @@ const slideStyles: React.CSSProperties = {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor}, profileImagePath: newImagePath });
     }
   };
 
   const handleRightImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
+      onUpdate({ ...{title, content, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor}, rightImagePath: newImagePath });
     }
   };
 

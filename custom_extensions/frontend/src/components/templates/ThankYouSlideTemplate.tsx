@@ -74,7 +74,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, title: newTitle });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, title: newTitle });
     }
   };
 
@@ -82,7 +82,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentEmail(newEmail);
     setEditingEmail(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, email: newEmail });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, email: newEmail });
     }
   };
 
@@ -90,7 +90,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentPhone(newPhone);
     setEditingPhone(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, phone: newPhone });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, phone: newPhone });
     }
   };
 
@@ -98,7 +98,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentAddress(newAddress);
     setEditingAddress(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, address: newAddress });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, address: newAddress });
     }
   };
 
@@ -106,7 +106,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentPostalCode(newPostalCode);
     setEditingPostalCode(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, postalCode: newPostalCode });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, postalCode: newPostalCode });
     }
   };
 
@@ -114,7 +114,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, companyName: newCompanyName });
     }
   };
 
@@ -150,13 +150,13 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, profileImagePath: newImagePath });
     }
   };
 
   const handleLogoNewUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, logoNew: newLogoPath });
+      onUpdate({ ...{title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor}, logoNew: newLogoPath });
     }
   };
 

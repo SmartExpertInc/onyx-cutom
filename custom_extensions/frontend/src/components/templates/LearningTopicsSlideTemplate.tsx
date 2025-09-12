@@ -69,7 +69,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, title: newTitle });
     }
   };
 
@@ -77,7 +77,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, subtitle: newSubtitle });
     }
   };
 
@@ -87,7 +87,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentTopics(newTopics);
     setEditingTopics(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, topics: newTopics });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, topics: newTopics });
     }
   };
 
@@ -95,7 +95,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentCompanyName(newCompanyName);
     setEditingCompanyName(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, companyName: newCompanyName });
     }
   };
 
@@ -121,19 +121,19 @@ const slideStyles: React.CSSProperties = {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, profileImagePath: newImagePath });
     }
   };
 
   const handleBenefitsListIconUploaded = (newIconPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newIconPath });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, logoNew: newIconPath });
     }
   };
 
   const handleLogoNewUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
+      onUpdate({ ...{title, subtitle, topics, profileImagePath, profileImageAlt, companyName, logoNew, backgroundColor, titleColor, contentColor, accentColor}, logoNew: newLogoPath });
     }
   };
 

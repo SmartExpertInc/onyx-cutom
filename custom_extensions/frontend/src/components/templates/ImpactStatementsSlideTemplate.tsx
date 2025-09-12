@@ -62,7 +62,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor}, title: newTitle });
     }
   };
 
@@ -72,7 +72,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentStatements(newStatements);
     setEditingStatements(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, statements: newStatements });
+      onUpdate({ ...{title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor}, statements: newStatements });
     }
   };
 
@@ -82,7 +82,7 @@ const slideStyles: React.CSSProperties = {
     setCurrentStatements(newStatements);
     setEditingNumbers(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, statements: newStatements });
+      onUpdate({ ...{title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor}, statements: newStatements });
     }
   };
 
@@ -103,7 +103,7 @@ const slideStyles: React.CSSProperties = {
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor}, profileImagePath: newImagePath });
     }
   };
 
