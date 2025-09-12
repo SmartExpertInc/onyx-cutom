@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import {
   Plus, Search, Filter, MoreHorizontal, UserPlus, Mail, Shield,
   RefreshCw, CheckCircle, XCircle, Clock, Trash2, Edit, ChevronDown, Users,
@@ -18,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { HeadTextCustom } from './ui/head-text-custom';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Checkbox } from './ui/checkbox';
 // Import test utilities for development
 import '../utils/testUserIds';
 import { Button } from './ui/button';
@@ -100,8 +101,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     }
   };
   
-  // Portal container for modals
-  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 
   // UI State
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
@@ -124,12 +123,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
   const [showColorPalette, setShowColorPalette] = useState(false);
 
-  // Set up portal container
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setPortalContainer(document.body);
-    }
-  }, []);
 
   // Load user's workspaces and initialize user data
   useEffect(() => {
@@ -506,34 +499,13 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           </div>
 
           {/* Create Workspace Modal */}
-          {showCreateWorkspace && portalContainer && (() => {
-            console.log('🔘 Modal render check:', { 
-              showCreateWorkspace, 
-              portalContainer: !!portalContainer,
-              shouldRender: true
-            });
-            return createPortal(
-              <div 
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]"
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) {
-                    setShowCreateWorkspace(false);
-                  }
-                }}
-              >
-                <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-                  <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {t('interface.createWorkspace.title', 'Create New Workspace')}
-                      </h3>
-                      <button
-                        onClick={() => setShowCreateWorkspace(false)}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <XCircle size={24} />
-                      </button>
-                    </div>
+          <Dialog open={showCreateWorkspace} onOpenChange={setShowCreateWorkspace}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>
+                  {t('interface.createWorkspace.title', 'Create New Workspace')}
+                </DialogTitle>
+              </DialogHeader>
 
                     <div className="space-y-4">
                       <div>
@@ -564,28 +536,24 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-6">
-                      <button
-                        onClick={() => setShowCreateWorkspace(false)}
-                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-                      >
-                        {t('interface.createWorkspace.cancel', 'Cancel')}
-                      </button>
-                      <button
-                        onClick={handleCreateWorkspace}
-                        disabled={!newWorkspaceName.trim()}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                      >
-                        <Plus size={16} />
-                        {t('interface.createWorkspace.create', 'Create Workspace')}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>,
-              portalContainer!
-            );
-          })()}
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreateWorkspace(false)}
+                >
+                  {t('interface.createWorkspace.cancel', 'Cancel')}
+                </Button>
+                <Button
+                  onClick={handleCreateWorkspace}
+                  disabled={!newWorkspaceName.trim()}
+                  className="flex items-center gap-2"
+                >
+                  <Plus size={16} />
+                  {t('interface.createWorkspace.create', 'Create Workspace')}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </>
       );
     }
@@ -608,11 +576,11 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
             <div className="flex flex-col gap-2 text-center items-center">
-              <h1 className="text-3xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
+              <h1 className="text-4xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
                 {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
               </h1>
               {selectedWorkspace?.description && (
-                <p className="text-md text-gray-600 leading-relaxed text-center">
+                <p className="text-lg text-gray-600 leading-relaxed text-center">
                   {selectedWorkspace.description}
                 </p>
               )}
@@ -666,7 +634,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <SelectTrigger variant="filter" className="whitespace-nowrap rounded-full border border-gray-300 bg-white/90 text-sm">
                 <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-gray-200 shadow-lg">
                 <SelectItem value="all">{t('interface.filters.allStatuses', 'All Statuses')}</SelectItem>
                 <SelectItem value="active">{t('interface.statuses.active', 'Active')}</SelectItem>
                 <SelectItem value="suspended">{t('interface.statuses.suspended', 'Suspended')}</SelectItem>
@@ -943,64 +911,66 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       </Dialog>
 
       {/* Role Manager Modal */}
-      {showRoleManager && portalContainer && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center backdrop-blur-sm bg-black/20" onClick={() => setShowRoleManager(false)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
-              onClick={() => setShowRoleManager(false)}
-            >
-              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {t('interface.roleManager.title', 'Manage Custom Roles')}
-              </h3>
-              <p className="text-gray-600">
-                {t('interface.roleManager.description', 'Create custom roles with specific permissions and colors')}
-              </p>
-            </div>
+      <Dialog open={showRoleManager} onOpenChange={setShowRoleManager}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-xl border border-gray-200">
+          <DialogHeader>
+            <DialogTitle>
+              {t('interface.roleManager.title', 'Manage Custom Roles')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('interface.roleManager.description', 'Create custom roles with specific permissions and colors')}
+            </DialogDescription>
+          </DialogHeader>
 
             <div className="space-y-6">
               {/* Add New Role */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-lg font-medium text-gray-900 mb-3">{t('interface.roleManager.addNewRole', 'Add New Role')}</h4>
+              <Card className="bg-gray-50/80 backdrop-blur-sm border border-gray-200/50 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium text-gray-900">
+                    {t('interface.roleManager.addNewRole', 'Add New Role')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                 
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <input
+                    <Input
                       type="text"
+                      variant="shadow"
                       value={newRoleName}
                       onChange={(e) => setNewRoleName(e.target.value)}
                       placeholder={t('interface.roleManager.roleNamePlaceholder', 'Enter role name')}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="flex-1"
                     />
                     <div className="relative">
-                      <button
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
                         onClick={() => setShowColorPalette(!showColorPalette)}
-                        className="w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center"
+                        className="w-10 h-10 bg-white"
                         style={{ backgroundColor: newRoleColor }}
                       >
                         <Palette size={16} className="text-gray-600" />
-                      </button>
+                      </Button>
                       {showColorPalette && (
-                        <div className="absolute top-0 right-full mr-2 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-5 gap-1 w-48 z-50">
+                        <div className="absolute top-0 right-full mr-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 grid grid-cols-5 gap-1 w-48 z-50">
                           {ROLE_COLORS.map((colorOption) => (
-                            <button
+                            <Button
                               key={colorOption.bg}
+                              type="button"
+                              variant="outline"
+                              size="icon"
                               onClick={() => {
                                 setNewRoleColor(colorOption.bg);
                                 setNewRoleTextColor(colorOption.text);
                                 setShowColorPalette(false);
                               }}
-                              className="w-8 h-8 rounded border border-gray-300 hover:scale-110 transition-transform flex items-center justify-center"
+                              className="w-8 h-8 rounded-full hover:scale-110 transition-transform"
                               style={{ backgroundColor: colorOption.bg }}
                             >
                               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorOption.text }}></div>
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       )}
@@ -1019,81 +989,93 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         'delete_content',
                         'manage_product_access'
                       ].map((permission) => (
-                        <label key={permission} className="flex items-center">
-                          <input
-                            type="checkbox"
+                        <div key={permission} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={permission}
                             checked={newRolePermissions.includes(permission)}
-                            onChange={() => handleTogglePermission(permission)}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            onCheckedChange={() => handleTogglePermission(permission)}
                           />
-                          <span className="ml-2 text-sm text-gray-700">{permission}</span>
-                        </label>
+                          <label htmlFor={permission} className="text-sm text-gray-700 cursor-pointer">
+                            {permission}
+                          </label>
+                        </div>
                       ))}
                     </div>
                   </div>
 
-                  <button
+                  <Button
                     onClick={handleAddRole}
                     disabled={!newRoleName.trim()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    variant="download"
+                    className="flex items-center gap-2 rounded-full"
                   >
                     <Tag size={16} />
                     {t('interface.roleManager.addRole', 'Add Role')}
-                  </button>
+                  </Button>
                 </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Existing Roles */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-medium text-gray-900">{t('interface.roleManager.existingRoles', 'Existing Roles')}</h4>
+              <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium text-gray-900">
+                    {t('interface.roleManager.existingRoles', 'Existing Roles')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {roles.map((role) => (
-                    <div key={role.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: role.color,
-                            color: role.text_color
-                          }}
-                        >
-                          {role.name}
-                        </span>
-                        {isAdmin && !role.is_default && (
-                          <button
-                            onClick={() => handleDeleteRole(role.id)}
-                            className="text-red-600 hover:text-red-800 text-sm"
+                    <Card key={role.id} className="bg-white/60 backdrop-blur-sm border border-gray-200/30 shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <span
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            style={{
+                              backgroundColor: role.color,
+                              color: role.text_color
+                            }}
                           >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                      <div className="space-y-1">
-                        {role.permissions.map((permission) => (
-                          <div key={permission} className="text-xs text-gray-600 flex items-center">
-                            <CheckCircle size={12} className="mr-1 text-green-500" />
-                            {permission}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                            {role.name}
+                          </span>
+                          {isAdmin && !role.is_default && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteRole(role.id)}
+                              className="text-red-600 hover:text-red-800 h-auto p-1"
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          )}
+                        </div>
+                        <div className="space-y-1">
+                          {role.permissions.map((permission) => (
+                            <div key={permission} className="text-xs text-gray-600 flex items-center">
+                              <CheckCircle size={12} className="mr-1 text-green-500" />
+                              {permission}
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setShowRoleManager(false)}
-                className="px-4 py-2 bg-slate-400 text-white rounded-md hover:bg-slate-500 transition-colors"
-              >
-                {t('interface.roleManager.close', 'Close')}
-              </button>
-            </div>
-          </div>
-        </div>,
-        portalContainer!
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowRoleManager(false)}
+              className="rounded-full"
+            >
+              {t('interface.roleManager.close', 'Close')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

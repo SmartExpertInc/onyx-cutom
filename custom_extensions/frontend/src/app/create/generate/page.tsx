@@ -1129,11 +1129,11 @@ function GenerateProductPicker() {
         {/* Text context indicator */}
         {isFromText && (
           <Alert className="bg-green-50/80 backdrop-blur-sm border border-green-200/50 shadow-sm">
-            <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
-              <FileText className="h-5 w-5" />
-              {t('interface.generate.creatingFromText', 'Creating from text')}
-            </div>
             <AlertDescription className="text-green-700">
+              <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
+                <FileText className="h-5 w-5" />
+                {t('interface.generate.creatingFromText', 'Creating from text')}
+              </div>
               <p className="font-medium">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
