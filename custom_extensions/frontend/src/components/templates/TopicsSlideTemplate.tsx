@@ -131,15 +131,6 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     lineHeight:1.4
   };
 
-  const inline = (style: React.CSSProperties): React.CSSProperties => ({
-    ...style,
-    background:'transparent',
-    border:'none',
-    outline:'none',
-    padding:0,
-    margin:0
-  });
-
   return (
     <div style={slide}>
       {/* Left section - Avatar with dark green background */}
