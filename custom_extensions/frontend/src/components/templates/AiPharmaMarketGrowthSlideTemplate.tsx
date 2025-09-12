@@ -29,7 +29,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [currentBars, setCurrentBars] = useState(bars);
-  const [editingBar, setEditingBar] = useState<{ index: number; field: 'year' | 'widthPercent' } | null>(null);
+  const [editingBar, setEditingBar] = useState<{ index: number; field: 'label' | 'year' | 'widthPercent' } | null>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -140,10 +140,22 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   window.addEventListener('mouseup', onUp);
                 }}
               >
-                {/* Static label text on the bar */}
-                <div style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap' }}>
-                  {b.label}
-                </div>
+                {/* Editable label text on the bar */}
+                {isEditable && editingBar?.index === i && editingBar?.field === 'label' ? (
+                  <ImprovedInlineEditor
+                    initialValue={b.label}
+                    onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
+                    onCancel={() => setEditingBar(null)}
+                    style={{ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', background: 'transparent', border: 'none', outline: 'none' }}
+                  />
+                ) : (
+                  <div 
+                    style={{ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
+                    onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}
+                  >
+                    {b.label}
+                  </div>
+                )}
 
                 {/* Drag handle */}
                 {isEditable && (

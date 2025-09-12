@@ -26,7 +26,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#102412', 
+    background:'#1C3927', 
     color:'#FFFFFF', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative' 
@@ -35,35 +35,37 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   // Left side - avatar frame
   const avatarFrame: React.CSSProperties = {
     position:'absolute',
-    left:'80px',
-    top:'120px',
-    width:'280px',
-    height:'360px',
-    background:'#6CDC78',
-    borderRadius:'24px',
+    left:'55px',
+    top:'50%',
+    transform:'translateY(-50%)',
+    width:'540px',
+    height:'540px',
+    background:'#EEFC83',
+    borderRadius:'40px',
     display:'flex',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    overflow:'hidden'
   };
 
   const avatarContainer: React.CSSProperties = {
-    width:'240px',
-    height:'320px',
+    width:'347px',
+    position:'absolute',
+    bottom:'-28px',
     borderRadius:'16px',
     overflow:'hidden',
-    background:'#FFFFFF'
   };
 
   // Right side - title
   const titleContainer: React.CSSProperties = {
     position:'absolute',
-    right:'80px',
-    top:'120px',
+    right:'130px',
+    top:'70px',
     width:'400px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'48px',
+    fontSize:'55px',
     fontWeight:700,
     color:'#FFFFFF',
     lineHeight:1.2,
@@ -73,31 +75,20 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   // Icon frame
   const iconFrame: React.CSSProperties = {
     position:'absolute',
-    right:'80px',
-    top:'280px',
-    width:'120px',
-    height:'120px',
+    right:'130px',
+    top:'230px',
+    width:'400px',
+    height:'371px',
     background:'#FFFFFF',
-    borderRadius:'16px',
+    borderRadius:'40px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center'
   };
 
   const iconContainer: React.CSSProperties = {
-    width:'80px',
-    height:'80px',
-    borderRadius:'8px',
+    width:'140px',
     overflow:'hidden'
-  };
-
-  // Arrow below icon
-  const arrowStyle: React.CSSProperties = {
-    position:'absolute',
-    right:'130px',
-    top:'420px',
-    fontSize:'24px',
-    color:'#666666'
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
@@ -156,9 +147,6 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
           />
         </div>
       </div>
-
-      {/* Arrow */}
-      <div style={arrowStyle}>↓</div>
     </div>
   );
 };
