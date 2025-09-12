@@ -7,7 +7,7 @@ import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } fro
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { FeatureUsedEvent } from "../../../lib/analyticsTypes";
-import { trackFeatureUsed } from "../../../lib/mixpanelClient"
+//import { trackFeatureUsed } from "../../../lib/mixpanelClient"
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -1019,12 +1019,14 @@ function GenerateProductPicker() {
 
   // Push event to mixpanel
   const handleGenerateEvent = (productName: string) => {
+    /*
     const event: FeatureUsedEvent = {
       "Feature Name": `Generate ${productName}`,
       "Feature Category": "Products",
       "Action": "Clicked"
     };
     trackFeatureUsed(event);
+    */
   };
 
   return (
