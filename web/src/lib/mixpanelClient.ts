@@ -69,11 +69,15 @@ export function resetUser() {
   }
 }
 
-export function trackSignUp(props: SignUpEvent) {
+export function trackSignUp(props: SignUpEvent, useBeacon: boolean = false) {
   if (!isInitialized) {
     return;
   }
-  const queued: unknown = (mixpanel as any).track("Sign Up", { ...props });
+  const queued: unknown = (mixpanel as any).track(
+    "Sign Up", 
+    { ...props },
+    useBeacon ? { transport: "sendBeacon", send_immediately: true } : undefined
+  );
   if (queued === false) {
     console.warn("[analytics] Mixpanel track failed to queue: Sign Up", props);
   }
