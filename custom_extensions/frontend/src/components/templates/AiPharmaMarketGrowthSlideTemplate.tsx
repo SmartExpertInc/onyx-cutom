@@ -120,7 +120,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
               {/* Width resizable via drag */}
               <div
-                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: '18px' }}
+                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px' }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const container = (e.currentTarget.parentElement as HTMLElement);
