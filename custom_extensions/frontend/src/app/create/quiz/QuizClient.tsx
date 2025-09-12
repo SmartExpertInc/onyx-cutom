@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus, Edit } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -859,22 +861,6 @@ export default function QuizClient() {
     }
   }, [streamDone, firstLineRemoved, quizData]);
 
-  // Click outside handler for question types dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showQuestionTypesDropdown) {
-        const target = event.target as Element;
-        if (!target.closest('.question-types-dropdown') && !target.closest('.question-types-button')) {
-          setShowQuestionTypesDropdown(false);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showQuestionTypesDropdown]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -1200,48 +1186,53 @@ export default function QuizClient() {
                             <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
                           </SelectContent>
                         </Select>
-                        <div className="relative">
-                          <button
-                            onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button gap-2"
+                        <DropdownMenu open={showQuestionTypesDropdown} onOpenChange={setShowQuestionTypesDropdown}>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
+                            >
+                              <span className="text-black">
+                                {selectedQuestionTypes.length === 0
+                                  ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
+                                  : selectedQuestionTypes.length === 1
+                                    ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                    : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
+                              </span>
+                              <ChevronDown size={16} className="text-gray-500 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent 
+                            className="w-48 p-2 border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto" 
+                            align="start"
+                            style={{ backgroundColor: 'white' }}
                           >
-                            <span className="text-black">
-                              {selectedQuestionTypes.length === 0
-                                ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                                : selectedQuestionTypes.length === 1
-                                  ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                                  : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                            </span>
-                            <ChevronDown size={16} className="text-gray-500 opacity-50" />
-                          </button>
-                          {showQuestionTypesDropdown && (
-                            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown max-h-48 overflow-y-auto w-48">
-                              {[
-                                { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                                { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                                { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                                { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                                { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                              ].map((type) => (
-                                <label key={type.value} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedQuestionTypes.includes(type.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                      } else {
-                                        setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                      }
-                                    }}
-                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  <span className="text-sm">{type.label}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                            {[
+                              { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                              { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                              { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                              { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                              { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                            ].map((type) => (
+                              <label key={type.value} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedQuestionTypes.includes(type.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                    } else {
+                                      setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                    }
+                                  }}
+                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm">{type.label}</span>
+                              </label>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <Select
                           value={selectedQuestionCount.toString()}
                           onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
@@ -1279,48 +1270,53 @@ export default function QuizClient() {
                         <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 question-types-button gap-2"
+                    <DropdownMenu open={showQuestionTypesDropdown} onOpenChange={setShowQuestionTypesDropdown}>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2"
+                        >
+                          <span className="text-black">
+                            {selectedQuestionTypes.length === 0
+                              ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
+                              : selectedQuestionTypes.length === 1
+                                ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
+                          </span>
+                          <ChevronDown size={16} className="text-gray-500 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent 
+                        className="w-48 p-2 border border-gray-300 rounded-lg shadow-lg" 
+                        align="start"
+                        style={{ backgroundColor: 'white' }}
                       >
-                        <span className="text-black">
-                          {selectedQuestionTypes.length === 0
-                            ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                            : selectedQuestionTypes.length === 1
-                              ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                              : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                        </span>
-                        <ChevronDown size={16} className="text-gray-500 opacity-50" />
-                      </button>
-                      {showQuestionTypesDropdown && (
-                        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown w-48">
-                          {[
-                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                          ].map((type) => (
-                            <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={selectedQuestionTypes.includes(type.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                  } else {
-                                    setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                  }
-                                }}
-                                className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm">{type.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                        {[
+                          { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                          { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                          { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                          { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                          { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                        ].map((type) => (
+                          <label key={type.value} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedQuestionTypes.includes(type.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                } else {
+                                  setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                }
+                              }}
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm">{type.label}</span>
+                          </label>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <Select
                       value={selectedQuestionCount.toString()}
                       onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
