@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
-import WebDAVFileBrowser from './WebDAVFileBrowser';
 
 interface SmartDriveFrameProps {
   className?: string;
@@ -68,6 +67,15 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
       const { type, data } = event.data;
 
       switch (type) {
+        case 'fileSelectionUpdate':
+          // New format: receives complete list of selected files
+          if (data && Array.isArray(data.selectedFiles)) {
+            console.log('[SmartDriveFrame] Received file selection update:', data.selectedFiles.length, 'files');
+            setInternalSelectedFiles(data.selectedFiles);
+          }
+          break;
+          
+        // Legacy support for individual select/deselect actions
         case 'select':
           if (data && data.filePath) {
             setInternalSelectedFiles(prev => {
@@ -447,13 +455,31 @@ const SmartDriveFrame: React.FC<SmartDriveFrameProps> = ({
         </div>
       )}
 
-      {/* WebDAV File Browser */}
+      {/* Iframe Container */}
       <div className="relative" style={{ height: '600px' }}>
-        <WebDAVFileBrowser
-          onFilesSelected={onFilesSelected}
-          selectedFiles={selectedFiles}
-          className="h-full"
+        <iframe
+          key={iframeKey}
+          src={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/smartdrive/${onFilesSelected ? '?fileSelection=true' : ''}` : '/smartdrive/'}
+          className="w-full h-full border-0"
+          title="Smart Drive File Browser"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
+          onLoad={() => {
+            console.log('SmartDrive iframe loaded with file selection:', !!onFilesSelected);
+          }}
+          onError={(e) => {
+            console.error('SmartDrive iframe error:', e);
+          }}
         />
+        
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
+              <span className="text-gray-700 font-medium">Syncing files...</span>
+            </div>
+          </div>
+        )}
       </div>
 
 
