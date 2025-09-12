@@ -169,7 +169,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div 
           className="relative h-32 bg-gradient-to-br from-blue-300 to-blue-500 flex flex-col justify-between p-4"
           style={{
-            background: `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`
+            background: `linear-gradient(to bottom, ${gradientFrom}, white, white)`
           }}
         >
           {/* Top row with icon and badge */}
@@ -181,7 +181,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             
             {/* Private badge in top-right */}
             {project.isPrivate && (
-              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-md px-2 py-1">
+              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-md px-2 py-1 border border-gray-200">
                 <Lock size={10} className="text-gray-600" />
                 <span className="text-xs font-medium text-gray-700">
                   {t("interface.private", "Private")}
@@ -206,7 +206,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 h-24 flex flex-col justify-between">
+        <div className="bg-white p-4 h-20 flex flex-col justify-between">
           {/* Full title */}
           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
