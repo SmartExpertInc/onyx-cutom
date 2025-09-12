@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -886,23 +889,6 @@ export default function TextPresentationClient() {
   //   }
   // }, [content, textareaVisible]);
 
-  // Click outside handler for styles dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest('.styles-dropdown')) {
-        setShowStylesDropdown(false);
-      }
-    };
-
-    if (showStylesDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showStylesDropdown]);
 
   const makeThoughts = () => {
     const list: string[] = [];
@@ -1301,125 +1287,131 @@ export default function TextPresentationClient() {
                 {useExistingOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <div className="relative">
-                      <select
-                        value={selectedOutlineId ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedOutlineId(val ? Number(val) : null);
-                          setSelectedModuleIndex(null);
-                          setLessonsForModule([]);
-                          setSelectedLesson("");
-                        }}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
+                    <Select
+                      value={selectedOutlineId?.toString() ?? ""}
+                      onValueChange={(value: string) => {
+                        const val = value ? Number(value) : null;
+                        setSelectedOutlineId(val);
+                        setSelectedModuleIndex(null);
+                        setLessonsForModule([]);
+                        setSelectedLesson("");
+                      }}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300">
                         {outlines.map((o) => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
+                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
+                      </SelectContent>
+                    </Select>
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedOutlineId && (
-                      <div className="relative">
-                        <select
-                          value={selectedModuleIndex ?? ""}
-                          onChange={(e) => {
-                            const idx = e.target.value ? Number(e.target.value) : null;
-                            setSelectedModuleIndex(idx);
-                            setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                            setSelectedLesson("");
-                          }}
-                          disabled={modulesForOutline.length === 0}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
+                      <Select
+                        value={selectedModuleIndex?.toString() ?? ""}
+                        onValueChange={(value: string) => {
+                          const idx = value ? Number(value) : null;
+                          setSelectedModuleIndex(idx);
+                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          setSelectedLesson("");
+                        }}
+                        disabled={modulesForOutline.length === 0}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300">
                           {modulesForOutline.map((m, idx) => (
-                            <option key={idx} value={idx}>{m.name}</option>
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedModuleIndex !== null && (
-                      <div className="relative">
-                        <select
-                          value={selectedLesson}
-                          onChange={(e) => setSelectedLesson(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
+                      <Select
+                        value={selectedLesson}
+                        onValueChange={setSelectedLesson}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300">
                           {lessonsForModule.map((l) => (
-                            <option key={l} value={l}>{l}</option>
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
                       <>
-                        <div className="relative">
-                          <select
-                            value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            <option value="en">{t('interface.english', 'English')}</option>
-                            <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                            <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                            <option value="ru">{t('interface.russian', 'Russian')}</option>
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={length}
-                            onChange={(e) => setLength(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
+                        <Select
+                          value={language}
+                          onValueChange={setLanguage}
+                        >
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300">
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={length}
+                          onValueChange={setLength}
+                        >
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300">
                             {lengthOptions.map((option) => (
-                              <option key={option.value} value={option.value}>{option.label}</option>
+                              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                             ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
-                        <div className="relative styles-dropdown">
-                          <button
-                            type="button"
-                            onClick={() => setShowStylesDropdown(!showStylesDropdown)}
-                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                          </SelectContent>
+                        </Select>
+                        <DropdownMenu open={showStylesDropdown} onOpenChange={setShowStylesDropdown}>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2 min-w-[200px]"
+                            >
+                              <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                              <ChevronDown size={14} className="text-gray-500 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent 
+                            className="w-56 p-2 border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto" 
+                            align="start"
+                            style={{ backgroundColor: 'white' }}
                           >
-                            <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                            <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
-                          </button>
-                          {showStylesDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                              {styleOptions.map((option) => (
-                                <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedStyles.includes(option.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedStyles([...selectedStyles, option.value]);
-                                      } else {
-                                        setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                      }
-                                    }}
-                                    className="mr-3"
-                                  />
-                                  <span className="text-sm">{option.label}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                            {styleOptions.map((option) => (
+                              <label key={option.value} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedStyles.includes(option.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedStyles([...selectedStyles, option.value]);
+                                    } else {
+                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                    }
+                                  }}
+                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm">{option.label}</span>
+                              </label>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                   </>
@@ -1428,62 +1420,68 @@ export default function TextPresentationClient() {
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
-                    <div className="relative">
-                      <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">{t('interface.english', 'English')}</option>
-                        <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                        <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                        <option value="ru">{t('interface.russian', 'Russian')}</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                    <div className="relative">
-                      <select
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
+                    <Select
+                      value={language}
+                      onValueChange={setLanguage}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300">
+                        <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                        <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                        <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                        <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={length}
+                      onValueChange={setLength}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="border-gray-300">
                         {lengthOptions.map((option) => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                         ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                    <div className="relative styles-dropdown">
-                      <button
-                        type="button"
-                        onClick={() => setShowStylesDropdown(!showStylesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                      </SelectContent>
+                    </Select>
+                    <DropdownMenu open={showStylesDropdown} onOpenChange={setShowStylesDropdown}>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex items-center justify-between px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 gap-2 min-w-[200px]"
+                        >
+                          <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
+                          <ChevronDown size={14} className="text-gray-500 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent 
+                        className="w-56 p-2 border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto" 
+                        align="start"
+                        style={{ backgroundColor: 'white' }}
                       >
-                        <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
-                        <ChevronDown size={14} className={`transition-transform ${showStylesDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-                      {showStylesDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                          {styleOptions.map((option) => (
-                            <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={selectedStyles.includes(option.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedStyles([...selectedStyles, option.value]);
-                                  } else {
-                                    setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                  }
-                                }}
-                                className="mr-3"
-                              />
-                              <span className="text-sm">{option.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                        {styleOptions.map((option) => (
+                          <label key={option.value} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedStyles.includes(option.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedStyles([...selectedStyles, option.value]);
+                                } else {
+                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                }
+                              }}
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm">{option.label}</span>
+                          </label>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </>
                 )}
 
@@ -1496,9 +1494,9 @@ export default function TextPresentationClient() {
                     setLessonsForModule([]);
                     setSelectedLesson("");
                   }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black h-9 shadow-sm hover:shadow-md transition-all duration-200"
                 >
-                  {t('interface.generate.backButton', '← Back')}
+                  {t('interface.generate.backButton', 'To previous step')}
                 </button>
               </div>
             )}
