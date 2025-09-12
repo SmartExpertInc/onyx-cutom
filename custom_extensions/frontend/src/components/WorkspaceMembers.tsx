@@ -574,16 +574,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
-            <div className="flex flex-col gap-2 text-center items-center">
-              <h1 className="text-4xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
-                {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
-              </h1>
-              {selectedWorkspace?.description && (
-                <p className="text-lg text-gray-600 leading-relaxed text-center">
-                  {selectedWorkspace.description}
-                </p>
-              )}
-            </div>
+            <HeadTextCustom 
+              text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
+              description={selectedWorkspace?.description}
+              textSize="text-4xl sm:text-4xl"
+              descriptionSize="text-lg"
+            />
           </div>
           
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
@@ -743,7 +739,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                             style={{ color: getRoleTextColor(member.role_id) }}
                           />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className='border border-gray-200 shadow-lg'>
                           {roles.map((role) => (
                             <SelectItem key={role.id} value={role.id.toString()}>
                               <div 
@@ -893,7 +889,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <Button
               variant="filter"
               onClick={() => setShowAddMember(false)}
-              className="flex-1 px-4 py-2"
+              className="flex-1 px-4 py-2 rounded-full"
             >
               {t('interface.addMemberModal.cancel', 'Cancel')}
             </Button>
@@ -901,7 +897,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               variant="download"
               onClick={handleAddMember}
               disabled={!newMemberEmail.trim() || !newMemberRole}
-              className="flex-1 px-4 py-2"
+              className="flex-1 px-4 py-2 rounded-full"
             >
               {t('interface.addMemberModal.sendInvitation', 'Send Invitation')}
             </Button>
@@ -923,7 +919,12 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
             <div className="space-y-6">
               {/* Add New Role */}
-              <Card className="bg-gray-50/80 backdrop-blur-sm border border-gray-200/50 shadow-sm">
+              <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
+              style={{
+                backgroundColor: 'white',
+                background: `linear-gradient(to top right, white, white, #E8F0FE)`,
+                borderWidth: '1px',
+              }}>
                 <CardHeader>
                   <CardTitle className="text-lg font-medium text-gray-900">
                     {t('interface.roleManager.addNewRole', 'Add New Role')}
@@ -944,10 +945,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                     <div className="relative">
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="blueGradient"
                         size="icon"
                         onClick={() => setShowColorPalette(!showColorPalette)}
-                        className="w-10 h-10 bg-white"
+                        className="w-10 h-10 bg-white rounded-full"
                         style={{ backgroundColor: newRoleColor }}
                       >
                         <Palette size={16} className="text-gray-600" />
@@ -965,7 +966,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                                 setNewRoleTextColor(colorOption.text);
                                 setShowColorPalette(false);
                               }}
-                              className="w-8 h-8 rounded-full hover:scale-110 transition-transform"
+                              className="w-8 h-8 rounded-full border border-gray-200 shadow-lg hover:scale-110 transition-transform"
                               style={{ backgroundColor: colorOption.bg }}
                             >
                               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorOption.text }}></div>
@@ -1066,7 +1067,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
           <DialogFooter>
             <Button
-              variant="outline"
+              variant="blueGradient"
               onClick={() => setShowRoleManager(false)}
               className="rounded-full"
             >
