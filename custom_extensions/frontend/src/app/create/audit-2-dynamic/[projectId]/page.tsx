@@ -181,8 +181,8 @@ export default function DynamicAuditLandingPage() {
   }
 
   return (
-      <>
-        <style jsx global>{`
+    <>
+      <style jsx global>{`
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
             
           .module-item:last-child {
@@ -986,13 +986,150 @@ export default function DynamicAuditLandingPage() {
                           {landingPageData?.courseOutlineModules?.[1] || "Подбор и управление персоналом"}
                         </h5>
                       </div>
-                                    </div>
-                                    <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
-                                      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5.89844 0C3.14129 0 0.898438 2.24286 0.898438 5C0.898438 7.75714 3.14129 10 5.89844 10C8.65558 10 10.8984 7.75714 10.8984 5C10.8984 2.24286 8.65558 0 5.89844 0ZM7.97376 6.43766C8.15183 6.61573 8.15031 6.90387 7.97224 7.08042C7.88397 7.16869 7.76831 7.21282 7.65162 7.21282C7.53493 7.21282 7.41927 7.16868 7.32947 7.08042L5.89688 5.64275L4.46064 7.07535C4.37085 7.16362 4.25569 7.20775 4.14002 7.20775C4.02435 7.20775 3.90615 7.16362 3.81788 7.07383C3.63981 6.89577 3.64133 6.60914 3.81788 6.43108L5.25554 4.99848L3.82294 3.56225C3.64488 3.38418 3.6464 3.09604 3.82446 2.91949C4.00101 2.74143 4.28915 2.74143 4.46722 2.91949L5.89981 4.35716L7.33605 2.92456C7.51411 2.74801 7.80226 2.74801 7.9788 2.92608C8.15687 3.10415 8.15535 3.39077 7.9788 3.56883L6.54114 5.00143L7.97376 6.43766Z" fill="#FF1414"/>
-                                      </svg>
   
-                                      <span className="font-medium text-[12px] text-[#09090B] leading-[120%]">
+                      {/* Module 3*/}
+                      <div className={`module-item flex flex-col gap-[8px] py-[15px] xl:py-[20px] border-b border-[#D2E3F1] ${expandedModules['module3'] ? 'xl:border-b-0' : ''}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              Модуль 03:
+                            </span>
+  
+                            <h5 className="font-medium text-[16px] hidden xl:block">
+                              {landingPageData?.courseOutlineModules?.[2] || "Маркетинг и привлечение клиентов"}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module4')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module4'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module4'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] xl:hidden">
+                          {landingPageData?.courseOutlineModules?.[2] || "Маркетинг и привлечение клиентов"}
+                        </h5>
+                      </div>
+  
+                      {/* Module 4*/}
+                      <div className={`module-item flex flex-col gap-[8px] pt-[15px] xl:pt-[20px] border-b border-[#D2E3F1] ${expandedModules['module4'] ? 'xl:border-b-0' : ''}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="xl:flex xl:items-center xl:gap-[6px]">
+                            <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
+                              Модуль 04:
+                            </span>
+  
+                            <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
+                              {landingPageData?.courseOutlineModules?.[3] || "Финансовый контроль и развитие бизнеса"}
+                            </h5>
+                          </div>
+                          
+                          <button 
+                            onClick={() => toggleModule('module5')}
+                            className={`w-[20px] h-[20px] rounded-full flex items-center justify-center ${
+                              expandedModules['module5'] ? 'bg-[#0F58F9]' : 'bg-[#F3F7FF] xl:bg-white'
+                            }`}
+                          >
+                            {expandedModules['module5'] ? (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 5L5 1L9 5" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            ) : (
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 1L5 5L1 1" stroke="#09090B" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        
+                        <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
+                          {landingPageData?.courseOutlineModules?.[3] || "Финансовый контроль и развитие бизнеса"}
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+  
+              {/* Section 6: Ready-made Course Templates */}
+              <div className="w-[360px] mx-auto px-[20px] xl:w-[1440px] xl:px-[120px] mb-[50px] xl:mb-[100px]">
+                <div className="flex flex-col gap-[20px] xl:gap-[30px]">
+                  <h3 className="font-semibold text-[20px] xl:text-[32px] leading-[100%] text-[#09090B] text-center">
+                    Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-[20px] xl:gap-[30px]">
+                    {landingPageData?.courseTemplates && landingPageData.courseTemplates.length > 0 && landingPageData.courseTemplates.map((template, index) => (
+                      <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
+                        {/* Card Top */}
+                        <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: `url(${template.image})` }}>
+                          <span className="font-semibold text-[16px] text-white">
+                            {template.title}
+                          </span>
+                        </div>
+                        {/* Card Bottom */}
+                        <div className="p-[15px] flex flex-col gap-[6px]">
+                          <h4 className="font-semibold text-[16px]">
+                            {template.title}
+                          </h4>
+                          <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
+                            {template.description}
+                          </p>
+                          <div className="flex gap-[10px] items-center">
+                            {/* SVG for modules */}
+                            <span className="font-medium text-[12px]">
+                              Модулей ({template.modules})
+                            </span>
+                            <span className="font-medium text-[12px]">
+                              Уроков ({template.lessons})
+                            </span>
+                          </div>
+                          <div className="flex gap-[6px] items-center">
+                            <span className="font-medium text-[12px] text-[#09090B]">
+                              {template.rating}
+                            </span>
+                            <div className="flex gap-[3.33px]">
+                              {Array.from({ length: 5 }, (_, i) => (
+                                <svg key={i} width="11.11" height="10" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M5.00214 0.816915C5.23441 0.394362 5.8767 0.394361 6.10896 0.816914L7.38836 3.14444C7.47876 3.30889 7.64641 3.4235 7.84058 3.45357L10.5886 3.87917C11.0875 3.95644 11.286 4.53117 10.9307 4.86959L8.97332 6.73368C8.83502 6.86539 8.77098 7.05083 8.80059 7.23386L9.21958 9.82443C9.29564 10.2947 8.77603 10.6499 8.32414 10.4365L5.83504 9.26108C5.65917 9.17803 5.45194 9.17803 5.27607 9.26108L2.78697 10.4365C2.33508 10.6499 1.81547 10.2947 1.89153 9.82443L2.31052 7.23387C2.34013 7.05083 2.27609 6.86539 2.13779 6.73368L0.180452 4.86959C-0.174895 4.53117 0.0235799 3.95644 0.522477 3.87917L3.27053 3.45357C3.46469 3.4235 3.63235 3.30889 3.72275 3.14444L5.00214 0.816915Z" fill="#F9A139"/>
+                                </svg>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </main>
+  
+            <footer className="bg-[#0F58F9] text-white py-[20px] xl:py-[40px]">
+              <div className="w-[360px] mx-auto px-[20px] xl:w-[1440px] xl:px-[120px]">
+                <div className="text-center">
+                  <p className="text-[14px] xl:text-[16px]">
+                    © 2024 Onyx. Все права защищены.
+                  </p>
+                </div>
+              </div>
+            </footer>
+          </div>
+        </>
+      )
+    }
                                         нет
                                       </span>
                                     </div>
