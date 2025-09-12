@@ -42,50 +42,78 @@ export const ImpactValueSlideTemplate: React.FC<ImpactValueSlideProps & { theme?
     color:'#333333', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
-    padding:'40px'
+    padding:'60px 80px'
   };
 
-  // Top section
+  // Top section with year and subtitle
   const topSection: React.CSSProperties = {
+    position:'absolute',
+    top:'60px',
+    left:'80px',
+    right:'80px',
     display:'flex',
     justifyContent:'space-between',
-    alignItems:'flex-start',
-    marginBottom:'40px'
+    alignItems:'flex-start'
   };
 
   const yearStyle: React.CSSProperties = {
-    fontSize:'16px',
+    fontSize:'18px',
     fontWeight:400,
     color:'#666666'
   };
 
   const subtitleStyle: React.CSSProperties = {
-    fontSize:'16px',
+    fontSize:'18px',
     fontWeight:400,
     color:'#666666'
   };
 
-  // Title section
+  // Title section - positioned on the left
   const titleSection: React.CSSProperties = {
-    marginBottom:'60px'
+    position:'absolute',
+    left:'80px',
+    top:'140px',
+    width:'400px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'64px',
+    fontSize:'72px',
     fontWeight:700,
     color:'#333333',
-    lineHeight:1.1
+    lineHeight:0.9
   };
 
-  // Metrics section
+  // Metrics section - positioned on the right of title
   const metricsSection: React.CSSProperties = {
+    position:'absolute',
+    right:'80px',
+    top:'140px',
+    width:'500px',
     display:'flex',
     justifyContent:'space-between',
-    alignItems:'flex-start',
-    marginBottom:'40px'
+    alignItems:'flex-start'
   };
 
-  const metricStyle: React.CSSProperties = {
+  const metricValueStyle: React.CSSProperties = {
+    fontSize:'56px',
+    fontWeight:700,
+    color:'#333333',
+    lineHeight:1
+  };
+
+  // Bottom section with 4 images
+  const bottomSection: React.CSSProperties = {
+    position:'absolute',
+    bottom:'60px',
+    left:'80px',
+    right:'80px',
+    display:'flex',
+    justifyContent:'space-between',
+    alignItems:'flex-end',
+    gap:'40px'
+  };
+
+  const imageBlock: React.CSSProperties = {
     display:'flex',
     flexDirection:'column',
     alignItems:'center',
@@ -93,60 +121,29 @@ export const ImpactValueSlideTemplate: React.FC<ImpactValueSlideProps & { theme?
     flex:1
   };
 
-  const metricValueStyle: React.CSSProperties = {
-    fontSize:'48px',
-    fontWeight:700,
-    color:'#333333',
-    lineHeight:1
-  };
-
-  // Bottom section with images
-  const bottomSection: React.CSSProperties = {
-    display:'flex',
-    justifyContent:'space-between',
-    alignItems:'flex-end',
-    gap:'20px'
-  };
-
-  const imageBlock: React.CSSProperties = {
-    display:'flex',
-    flexDirection:'column',
-    alignItems:'center',
-    gap:'12px',
-    flex:1
-  };
-
   const imageContainer: React.CSSProperties = {
-    width:'120px',
-    height:'120px',
-    borderRadius:'8px',
+    width:'140px',
+    height:'140px',
+    borderRadius:'12px',
     overflow:'hidden',
     background:'#FFFFFF'
   };
 
+  const avatarContainer: React.CSSProperties = {
+    width:'140px',
+    height:'140px',
+    borderRadius:'12px',
+    overflow:'hidden',
+    background:'#000000'
+  };
+
   const imageDescriptionStyle: React.CSSProperties = {
-    fontSize:'14px',
+    fontSize:'16px',
     fontWeight:400,
     color:'#666666',
     textAlign:'center',
-    lineHeight:1.3
-  };
-
-  // Avatar (first block)
-  const avatarBlock: React.CSSProperties = {
-    display:'flex',
-    flexDirection:'column',
-    alignItems:'center',
-    gap:'12px',
-    flex:1
-  };
-
-  const avatarContainer: React.CSSProperties = {
-    width:'120px',
-    height:'120px',
-    borderRadius:'8px',
-    overflow:'hidden',
-    background:'#000000'
+    lineHeight:1.3,
+    maxWidth:'140px'
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
@@ -217,7 +214,7 @@ export const ImpactValueSlideTemplate: React.FC<ImpactValueSlideProps & { theme?
       {/* Metrics section */}
       <div style={metricsSection}>
         {metrics.map((metric, index) => (
-          <div key={index} style={metricStyle}>
+          <div key={index}>
             <div 
               style={metricValueStyle} 
               onClick={() => isEditable && setEditKey(`metric-value-${index}`)}
@@ -242,10 +239,10 @@ export const ImpactValueSlideTemplate: React.FC<ImpactValueSlideProps & { theme?
         ))}
       </div>
 
-      {/* Bottom section with images */}
+      {/* Bottom section with 4 images */}
       <div style={bottomSection}>
-        {/* Avatar block */}
-        <div style={avatarBlock}>
+        {/* Avatar block (leftmost) */}
+        <div style={imageBlock}>
           <div style={avatarContainer}>
             <ClickableImagePlaceholder
               imagePath={avatarPath}
