@@ -452,7 +452,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
         <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
         <span className="ml-2 text-gray-600">Loading workspace data...</span>
       </div>
@@ -461,7 +461,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
         <XCircle className="h-8 w-8 text-red-600" />
         <span className="ml-2 text-red-600">Error: {error}</span>
         <button
@@ -486,7 +486,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     if (workspaces.length === 0) {
       return (
         <>
-          <div className="flex items-center justify-center py-12">
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
             <div className="text-center">
               <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
@@ -592,7 +592,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     
     // If user has workspaces but none selected
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center py-12">
         <div className="text-center">
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspace Selected</h3>
           <p className="text-gray-600">Please select a workspace to view its members.</p>
@@ -602,15 +602,21 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="space-y-2 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-1">
       {/* Workspace Header and Selector */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
-            <HeadTextCustom 
-              text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
-              description={selectedWorkspace?.description}
-            />
+            <div className="flex flex-col gap-2 text-center items-center">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
+                {selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
+              </h1>
+              {selectedWorkspace?.description && (
+                <p className="text-sm text-gray-600 leading-relaxed text-center">
+                  {selectedWorkspace.description}
+                </p>
+              )}
+            </div>
           </div>
           
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
@@ -641,7 +647,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       </div>
 
       {/* Header with Search, Filter, and Create Button */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           {/* Search and Filter Row */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
