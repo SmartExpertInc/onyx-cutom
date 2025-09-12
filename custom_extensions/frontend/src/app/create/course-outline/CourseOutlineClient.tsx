@@ -1289,7 +1289,7 @@ export default function CourseOutlineClient() {
                 {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} className="text-gray-500 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 p-3 bg-white" align="end">
+            <DropdownMenuContent className="w-56 p-2 bg-white border border-gray-300 rounded-lg shadow-lg" align="start">
               {[
                 { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
                 { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
@@ -1297,10 +1297,10 @@ export default function CourseOutlineClient() {
                 { key: "time", label: t('interface.courseOutline.productionHours', 'Production Hours') },
               ].map(({ key, label }) => (
                 // @ts-ignore dynamic key
-                <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
+                <label key={key} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                   <input
                     type="checkbox"
-                    className="form-checkbox h-4 w-4 text-brand-primary"
+                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                     // @ts-ignore dynamic key
                     checked={filters[key]}
                     onChange={() =>
@@ -1308,7 +1308,7 @@ export default function CourseOutlineClient() {
                       setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
                     }
                   />
-                  {label}
+                  <span className="text-sm">{label}</span>
                 </label>
               ))}
             </DropdownMenuContent>
