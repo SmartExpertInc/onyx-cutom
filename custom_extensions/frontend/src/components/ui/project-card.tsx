@@ -175,8 +175,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* Top row with icon and badge */}
           <div className="flex justify-between items-start">
             {/* List icon in top-left */}
-            <div className="w-6 h-6 bg-white flex items-center justify-center">
-              <List size={16} className="text-gray-500" />
+            <div className="w-6 h-6 flex items-center justify-center">
+              <List size={16} className="text-gray-500/60" />
             </div>
             
             {/* Private badge in top-right */}
@@ -200,7 +200,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
            {/* Truncated title in center */}
            <div className="flex items-center justify-center flex-1 px-2">
              <h3 
-               className="font-semibold text-sm text-center leading-tight line-clamp-2"
+               className="font-semibold text-md text-center leading-tight line-clamp-2"
                style={{ color: saturatedColor }}
              >
                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
