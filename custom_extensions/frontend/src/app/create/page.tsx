@@ -42,16 +42,6 @@ const OptionCard: React.FC<OptionCardProps> = ({
         // Check if data is recent (within 1 hour)
         if (lessonContext.timestamp && (Date.now() - lessonContext.timestamp < 3600000)) {
           e.preventDefault();
-
-          // Push event to mixpanel
-          /*
-          const event: FeatureUsedEvent = {
-            "Feature Name": title,
-            "Feature Category": "Products",
-            "Action": "Clicked"
-          };
-          trackFeatureUsed(event, true);
-          */
           
           // Build URL with lesson/quiz/text-presentation parameters
           const params = new URLSearchParams();
