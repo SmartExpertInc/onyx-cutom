@@ -476,7 +476,7 @@ export default function DynamicAuditLandingPage() {
   
                     <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
                       <p className="font-semibold text-[16px] xl:text-[20px]">
-                        Не хватает в год в HVAC-секторе — и разрыв растет.
+                        Не хватает в год в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.
                       </p>
                       <p className="font-normal italic text-[12px] text-[#BABABE]">
                         По данным Bureau of Labor Statistics
