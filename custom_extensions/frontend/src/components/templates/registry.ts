@@ -70,7 +70,6 @@ import PercentCirclesSlideTemplate from './PercentCirclesSlideTemplate';
 import IntroductionDataAnalysisSlideTemplate from './IntroductionDataAnalysisSlideTemplate';
 import ImpactValueStatementsSlideTemplate from './ImpactValueStatementsSlideTemplate';
 import TopicsSlideTemplate from './TopicsSlideTemplate';
-import ImpactValueSlideTemplate from './ImpactValueSlideTemplate';
 
 
 
@@ -2422,33 +2421,6 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'impact-value': {
-    id: 'impact-value',
-    name: 'Impact Value',
-    description: 'Yellow slide with metrics, images and avatar in bottom row',
-    category: 'content',
-    icon: '📊',
-    component: ImpactValueSlideTemplate,
-    defaultProps: {
-      year: '2024',
-      subtitle: 'Presentation',
-      title: 'Impact Value',
-      metrics: [
-        { value: '+30%', description: 'Trust and loyalty', imagePath: '' },
-        { value: '$3.9', description: 'Saved in costs', imagePath: '' },
-        { value: '-15%', description: 'Legal expenses', imagePath: '' }
-      ],
-      avatarPath: ''
-    },
-    propSchema: {
-      year: { type: 'text', label: 'Year', required: true },
-      subtitle: { type: 'text', label: 'Subtitle', required: true },
-      title: { type: 'text', label: 'Title', required: true },
-      metrics: { type: 'array', label: 'Metrics', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
-    }
-  }
-  ,
 
   
 
