@@ -49,17 +49,17 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'42px',
+    fontSize:'43px',
     fontWeight:700,
-    color:'#333333',
+    color:'rgb(60 58 58)',
     marginBottom:'50px',
     lineHeight:1.2
   };
 
   const statementsContainer: React.CSSProperties = {
-    display:'flex',
-    flexDirection:'column',
-    gap:'32px'
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '32px',
   };
 
   const statementStyle: React.CSSProperties = {
