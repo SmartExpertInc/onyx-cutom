@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
@@ -1321,14 +1321,21 @@ export default function CourseOutlineClient() {
 
         {/* Prompt textarea with regenerate button */}
         <div className="flex gap-2 items-start">
-          <Textarea
-            ref={promptRef}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
-            rows={1}
-            className="flex-1 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-          />
+          <div className="relative group flex-1">
+            <Textarea
+              ref={promptRef}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
+              rows={1}
+              className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+              style={{ background: "rgba(255,255,255,0.95)" }}
+            />
+            <Edit 
+              size={16} 
+              className="absolute top-[27px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+            />
+          </div>
           {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
             <Button
               type="button"

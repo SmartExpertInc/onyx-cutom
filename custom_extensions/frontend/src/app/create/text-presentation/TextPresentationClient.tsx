@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
+import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -1516,27 +1516,34 @@ export default function TextPresentationClient() {
 
           {/* Prompt input for standalone presentation */}
           {useExistingOutline === false && (
-            <textarea
-              value={currentPrompt}
-              onChange={(e) => {
-                const newPrompt = e.target.value;
-                setCurrentPrompt(newPrompt);
-                
-                // Handle prompt storage for long prompts by updating URL
-                const sp = new URLSearchParams(params?.toString() || "");
-                if (newPrompt.length > 500) {
-                  const promptId = generatePromptId();
-                  sessionStorage.setItem(promptId, newPrompt);
-                  sp.set("prompt", promptId);
-                } else {
-                  sp.set("prompt", newPrompt);
-                }
-                router.replace(`?${sp.toString()}`, { scroll: false });
-              }}
-              placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
-              rows={1}
-              className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-            />
+            <div className="relative group">
+              <textarea
+                value={currentPrompt}
+                onChange={(e) => {
+                  const newPrompt = e.target.value;
+                  setCurrentPrompt(newPrompt);
+                  
+                  // Handle prompt storage for long prompts by updating URL
+                  const sp = new URLSearchParams(params?.toString() || "");
+                  if (newPrompt.length > 500) {
+                    const promptId = generatePromptId();
+                    sessionStorage.setItem(promptId, newPrompt);
+                    sp.set("prompt", promptId);
+                  } else {
+                    sp.set("prompt", newPrompt);
+                  }
+                  router.replace(`?${sp.toString()}`, { scroll: false });
+                }}
+                placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
+                rows={1}
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                style={{ background: "rgba(255,255,255,0.95)" }}
+              />
+              <Edit 
+                size={16} 
+                className="absolute top-[27px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+              />
+            </div>
           )}
 
           <section className="flex flex-col gap-3">
