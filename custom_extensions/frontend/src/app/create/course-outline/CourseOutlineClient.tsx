@@ -1212,6 +1212,14 @@ export default function CourseOutlineClient() {
     });
   };
 
+  const [advancedModeUsed, setAdvancedModeUsed] = useState(false);
+  const handleAdvancedModeEvent = () => {
+    if (advancedModeUsed == false) {
+      trackAdvancedMode("Clicked");
+    }
+    setAdvancedModeUsed(true);
+  };
+
   return (
     <>
     <main
@@ -1489,7 +1497,7 @@ export default function CourseOutlineClient() {
                   type="button"
                   onClick={() => {
                     setShowAdvanced((prev) => !prev);
-                    trackAdvancedMode("Clicked");
+                    handleAdvancedModeEvent();
                   }}
                   className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
                 >
