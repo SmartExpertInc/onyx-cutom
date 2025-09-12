@@ -577,8 +577,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             <HeadTextCustom 
               text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
               description={selectedWorkspace?.description}
-              textSize="text-4xl sm:text-4xl"
-              descriptionSize="text-lg"
             />
           </div>
           
@@ -1020,7 +1018,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
               style={{
                 backgroundColor: 'white',
-                background: `linear-gradient(to top right, white, white, #E8F0FE)`,
+                background: `linear-gradient(to top left, white, white, #E8F0FE)`,
                 borderWidth: '1px',
               }}>
                 <CardHeader>
@@ -1031,7 +1029,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {roles.map((role) => (
-                    <Card key={role.id} className="bg-white/60 backdrop-blur-sm border border-gray-200/30 shadow-sm hover:shadow-md transition-shadow">
+                    <Card key={role.id} className="bg-white backdrop-blur-sm border border-gray-200/30 shadow-sm hover:shadow-md transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
                           <span

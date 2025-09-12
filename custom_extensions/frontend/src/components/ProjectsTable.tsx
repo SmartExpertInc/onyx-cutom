@@ -83,6 +83,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
+import { ProjectCard as NewProjectCard } from "@/components/ui/project-card"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -4507,7 +4508,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {getProjectsForFolder(folderId).map((p: Project) => (
-              <ProjectCard
+              <NewProjectCard
                 key={p.id}
                 project={p}
                 onDelete={handleDeleteProject}
@@ -4515,6 +4516,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onDeletePermanently={handleDeletePermanently}
                 isTrashMode={trashMode}
                 folderId={folderId}
+                t={t}
+                language={language}
               />
             ))}
           </div>
