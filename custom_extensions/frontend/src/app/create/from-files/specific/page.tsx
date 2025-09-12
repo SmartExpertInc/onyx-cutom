@@ -74,6 +74,8 @@ export default function CreateFromSpecificFilesPage() {
 
       const data = await response.json();
       
+      console.log('[CreateFromSpecificFiles DEBUG] Raw connector data from API:', data);
+      
       // Filter only private connectors (created via Smart Drive)
       const privateConnectors = data
         .filter((connector: any) => connector.access_type === 'private')
@@ -87,6 +89,8 @@ export default function CreateFromSpecificFilesPage() {
           last_error: connector.last_error_message,
           access_type: connector.access_type
         }));
+      
+      console.log('[CreateFromSpecificFiles DEBUG] Filtered private connectors:', privateConnectors);
       
       setConnectors(privateConnectors);
     } catch (error) {
@@ -103,9 +107,9 @@ export default function CreateFromSpecificFilesPage() {
     loadConnectors();
   }, []);
 
-  // Validate connector and file selection
+  // Validate connector and file selection - allow connectors OR files OR both
   useEffect(() => {
-    setConnectorSelectionValid(selectedConnectors.length > 0 && selectedFiles.length > 0);
+    setConnectorSelectionValid(selectedConnectors.length > 0 || selectedFiles.length > 0);
   }, [selectedConnectors, selectedFiles]);
 
   // Handle file selection from SmartDrive iframe
@@ -123,11 +127,24 @@ export default function CreateFromSpecificFilesPage() {
   };
 
   const handleConnectorToggle = (connectorId: number) => {
-    setSelectedConnectors(prev => 
-      prev.includes(connectorId) 
+    console.log('[CreateFromSpecificFiles DEBUG] Toggling connector:', connectorId);
+    console.log('[CreateFromSpecificFiles DEBUG] Available connectors:', connectors.map(c => ({ id: c.id, name: c.name, source: c.source })));
+    
+    setSelectedConnectors(prev => {
+      const isSelected = prev.includes(connectorId);
+      const newSelection = isSelected 
         ? prev.filter(id => id !== connectorId)
-        : [...prev, connectorId]
-    );
+        : [...prev, connectorId];
+      
+      console.log('[CreateFromSpecificFiles DEBUG] Connector selection changed:', {
+        connectorId,
+        wasSelected: isSelected,
+        previousSelection: prev,
+        newSelection
+      });
+      
+      return newSelection;
+    });
   };
 
   const handleSelectAll = () => {
@@ -144,33 +161,94 @@ export default function CreateFromSpecificFilesPage() {
   );
 
   const handleCreateContent = () => {
-    if (selectedConnectors.length === 0 || selectedFiles.length === 0) {
+    // DEBUG: Log current state
+    console.log('[CreateFromSpecificFiles DEBUG] handleCreateContent called with:', {
+      selectedConnectors,
+      selectedFiles,
+      connectorsData: connectors.map(c => ({ id: c.id, name: c.name, source: c.source })),
+      hasConnectors: selectedConnectors.length > 0,
+      hasFiles: selectedFiles.length > 0
+    });
+
+    // Require at least one selection (connectors OR files OR both)
+    if (selectedConnectors.length === 0 && selectedFiles.length === 0) {
+      console.log('[CreateFromSpecificFiles DEBUG] No selection - returning');
       return;
     }
 
-    // Construct combined context with both connectors and files
-    const combinedContext = {
-      fromConnectors: true,
-      connectorIds: selectedConnectors,
-      connectorSources: selectedConnectors.map(id => {
-        const connector = connectors.find(c => c.id === id);
-        return connector?.source || 'unknown';
-      }),
-      selectedFiles: selectedFiles, // Add selected file paths
+    // Determine the generation mode
+    const hasConnectors = selectedConnectors.length > 0;
+    const hasFiles = selectedFiles.length > 0;
+
+    console.log('[CreateFromSpecificFiles DEBUG] Generation mode:', { hasConnectors, hasFiles });
+
+    // Construct flexible context based on what's selected
+    const combinedContext: any = {
       timestamp: Date.now()
     };
 
-    // Store in sessionStorage for the generate page
-    sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
-
-    // Redirect to generate page with combined information
     const searchParams = new URLSearchParams();
-    searchParams.set('fromConnectors', 'true');
-    searchParams.set('connectorIds', selectedConnectors.join(','));
-    searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
-    searchParams.set('selectedFiles', selectedFiles.join(','));
+
+    if (hasConnectors && hasFiles) {
+      // Both connectors and files selected
+      console.log('[CreateFromSpecificFiles DEBUG] Processing both connectors and files');
+      combinedContext.fromConnectors = true;
+      combinedContext.connectorIds = selectedConnectors;
+      
+      // Debug connector mapping
+      console.log('[CreateFromSpecificFiles DEBUG] Mapping connectors:', selectedConnectors);
+      combinedContext.connectorSources = selectedConnectors.map(id => {
+        const connector = connectors.find(c => c.id === id);
+        console.log(`[CreateFromSpecificFiles DEBUG] Mapping ID ${id}:`, connector ? { id: connector.id, source: connector.source } : 'NOT FOUND');
+        return connector?.source || 'unknown';
+      });
+      console.log('[CreateFromSpecificFiles DEBUG] Final connector sources:', combinedContext.connectorSources);
+      
+      combinedContext.selectedFiles = selectedFiles;
+      
+      searchParams.set('fromConnectors', 'true');
+      searchParams.set('connectorIds', selectedConnectors.join(','));
+      searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
+      searchParams.set('selectedFiles', selectedFiles.join(','));
+    } else if (hasConnectors) {
+      // Only connectors selected
+      console.log('[CreateFromSpecificFiles DEBUG] Processing connectors only');
+      combinedContext.fromConnectors = true;
+      combinedContext.connectorIds = selectedConnectors;
+      
+      // Debug connector mapping
+      console.log('[CreateFromSpecificFiles DEBUG] Mapping connectors:', selectedConnectors);
+      combinedContext.connectorSources = selectedConnectors.map(id => {
+        const connector = connectors.find(c => c.id === id);
+        console.log(`[CreateFromSpecificFiles DEBUG] Mapping ID ${id}:`, connector ? { id: connector.id, source: connector.source } : 'NOT FOUND');
+        return connector?.source || 'unknown';
+      });
+      console.log('[CreateFromSpecificFiles DEBUG] Final connector sources:', combinedContext.connectorSources);
+      
+      searchParams.set('fromConnectors', 'true');
+      searchParams.set('connectorIds', selectedConnectors.join(','));
+      searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
+    } else if (hasFiles) {
+      // Only files selected (from SmartDrive)
+      combinedContext.fromConnectors = true; // Still use connector flow since files come from SmartDrive
+      combinedContext.selectedFiles = selectedFiles;
+      combinedContext.connectorIds = []; // Empty connector list
+      combinedContext.connectorSources = [];
+      
+      searchParams.set('fromConnectors', 'true');
+      searchParams.set('selectedFiles', selectedFiles.join(','));
+    }
+
+    // Store in sessionStorage for the generate page
+    console.log('[CreateFromSpecificFiles DEBUG] Final combinedContext:', combinedContext);
+    console.log('[CreateFromSpecificFiles DEBUG] Final URL params:', searchParams.toString());
     
-    router.push(`/create/generate?${searchParams.toString()}`);
+    sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
+    
+    const finalUrl = `/create/generate?${searchParams.toString()}`;
+    console.log('[CreateFromSpecificFiles DEBUG] Redirecting to:', finalUrl);
+    
+    router.push(finalUrl);
   };
 
   const getStatusColor = (status: string) => {
@@ -428,14 +506,20 @@ export default function CreateFromSpecificFilesPage() {
                   <div className="flex items-center justify-center gap-3">
                     <Sparkles className="w-5 h-5" />
                     {connectorSelectionValid 
-                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
-                          .replace('{count}', selectedConnectors.length.toString())
-                          .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                          .replace('{fileCount}', selectedFiles.length.toString())
-                          .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
-                      : selectedConnectors.length === 0 
-                        ? t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
-                        : t('interface.selectFilesToContinue', 'Select Files to Continue')
+                      ? selectedConnectors.length > 0 && selectedFiles.length > 0
+                        ? t('interface.createContentFromConnectors', 'Create Content from {count} Connector{s} & {fileCount} File{s}')
+                            .replace('{count}', selectedConnectors.length.toString())
+                            .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                            .replace('{fileCount}', selectedFiles.length.toString())
+                            .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
+                        : selectedConnectors.length > 0 
+                          ? t('interface.createContentFromConnectorsOnly', 'Create Content from {count} Connector{s}')
+                              .replace('{count}', selectedConnectors.length.toString())
+                              .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                          : t('interface.createContentFromFilesOnly', 'Create Content from {count} File{s}')
+                              .replace('{count}', selectedFiles.length.toString())
+                              .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
+                      : t('interface.selectConnectorsOrFilesToContinue', 'Select Connectors or Files to Continue')
                     }
                   </div>
                 </button>
