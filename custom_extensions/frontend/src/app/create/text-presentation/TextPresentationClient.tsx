@@ -1032,6 +1032,15 @@ export default function TextPresentationClient() {
       setFinalProjectId(data.id);
 
       await trackCreateProduct("Completed");
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
 
       // Navigate immediately without delay to prevent cancellation
       router.push(`/projects/view/${data.id}`);
@@ -1041,6 +1050,13 @@ export default function TextPresentationClient() {
       clearTimeout(timeoutId);
 
       await trackCreateProduct("Failed");
+      
+      // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+      try {
+        sessionStorage.setItem('createProductFailed', 'true');
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
 
       // Handle specific error types
       if (error.name === 'AbortError') {

@@ -5,8 +5,7 @@ import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { FeatureUsedEvent } from "../../lib/analyticsTypes";
-import { track } from "../../lib/mixpanelClient"
+import { trackCreateProduct } from "../../lib/mixpanelClient"
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -155,11 +154,18 @@ export default function DataSourceLanding() {
   const { t } = useLanguage();
 
   const handleCreateProductEnd = () => {
-    const featureEvent: FeatureUsedEvent = {
-      "Feature Category": "Products",
-      Action: "Clicked",
-    };
-    track("Create Product", featureEvent);
+    // Check if a "Failed" event has already been tracked
+    try {
+      const hasFailed = sessionStorage.getItem('createProductFailed');
+      if (hasFailed === 'true') {
+        // Don't track "Clicked" if "Failed" was already tracked
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking failed state:', error);
+    }
+    
+    trackCreateProduct("Clicked");
   };
 
   return (

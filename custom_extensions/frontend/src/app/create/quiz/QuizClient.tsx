@@ -933,11 +933,28 @@ export default function QuizClient() {
       setFinalProductId(result.id);
 
       await trackCreateProduct("Completed");
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
 
       // Redirect to the created quiz
       router.push(`/projects/view/${result.id}`);
     } catch (error: any) {
       await trackCreateProduct("Failed");
+      
+      // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+      try {
+        sessionStorage.setItem('createProductFailed', 'true');
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
+      
       console.error('Finalization error:', error);
       setError(error.message || 'An error occurred during finalization');
     } finally {

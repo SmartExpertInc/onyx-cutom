@@ -862,6 +862,15 @@ export default function CourseOutlineClient() {
       qp.set("time", filters.time ? "1" : "0");
 
       await trackCreateProduct("Completed");
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
 
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
@@ -869,6 +878,12 @@ export default function CourseOutlineClient() {
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
       await trackCreateProduct("Failed");
+      // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+      try {
+        sessionStorage.setItem('createProductFailed', 'true');
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
       setError(e.message);
       // allow UI interaction again
       setIsGenerating(false);

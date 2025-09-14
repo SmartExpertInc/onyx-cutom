@@ -4297,6 +4297,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   const handleCreateProduct = () => {
+    // Clear previous state of product creation
+    if (sessionStorage.getItem('createProductFailed')) {
+      sessionStorage.removeItem('createProductFailed');
+    }
     // Start timer
     timeEvent('Create Product');
   };
