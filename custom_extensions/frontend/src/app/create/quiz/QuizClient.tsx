@@ -946,11 +946,12 @@ export default function QuizClient() {
       // Redirect to the created quiz
       router.push(`/projects/view/${result.id}`);
     } catch (error: any) {
-      await trackCreateProduct("Failed");
-      
-      // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
       try {
-        sessionStorage.setItem('createProductFailed', 'true');
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct("Failed");
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
       } catch (error) {
         console.error('Error setting failed state:', error);
       }

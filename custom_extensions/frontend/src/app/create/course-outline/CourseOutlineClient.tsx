@@ -877,10 +877,12 @@ export default function CourseOutlineClient() {
       // leave the custom frontend and hit the main app's /projects route.
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
-      await trackCreateProduct("Failed");
-      // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
       try {
-        sessionStorage.setItem('createProductFailed', 'true');
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct("Failed");
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
       } catch (error) {
         console.error('Error setting failed state:', error);
       }
