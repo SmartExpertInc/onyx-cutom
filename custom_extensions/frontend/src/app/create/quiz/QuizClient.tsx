@@ -1545,43 +1545,57 @@ export default function QuizClient() {
           )}
 
           {streamDone && quizData && (
-            <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <h2 className="text-xl font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                  <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+            <section className="flex flex-col gap-3">
+              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
+              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                    <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+                    <span>{t('interface.generate.viewMore', 'View more')}</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-                  <span>{t('interface.generate.viewMore', 'View more')}</span>
-                </button>
-              </div>
 
-              <div className="flex flex-col gap-5">
-                {/* Themes grid */}
-                <div className="grid grid-cols-3 gap-5 justify-items-center">
-                  {themeOptions.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => setSelectedTheme(t.id)}
-                      className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
-                    >
-                      <div className="w-[214px] h-[116px] flex items-center justify-center">
-                        {(() => {
-                          const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                          return <Svg />;
-                        })()}
-                      </div>
-                      <div className="flex items-center gap-1 px-2">
-                        <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
-                        <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
-                      </div>
-                    </button>
-                  ))}
+                <div className="flex flex-col gap-5">
+                  {/* Themes grid */}
+                  <div className="grid grid-cols-3 gap-5 justify-items-center">
+                    {themeOptions.map((theme) => {
+                      const isSelected = selectedTheme === theme.id;
+
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => setSelectedTheme(theme.id)}
+                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
+                            ? 'bg-[#cee2fd]'
+                            : 'hover:shadow-lg'
+                            }`}
+                        >
+                          <div className="w-[214px] h-[116px] flex items-center justify-center">
+                            {(() => {
+                              const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                              return <Svg />;
+                            })()}
+                          </div>
+                          <div className="flex items-center gap-1 px-2">
+                            <span className={`w-4 text-[#0540AB] ${isSelected ? '' : 'opacity-0'}`}>
+                              ✔
+                            </span>
+                            <span className="text-sm text-[#20355D] font-medium select-none">
+                              {theme.label}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </section>

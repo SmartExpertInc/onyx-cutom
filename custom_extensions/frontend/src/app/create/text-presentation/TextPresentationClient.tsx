@@ -1710,9 +1710,9 @@ export default function TextPresentationClient() {
                           key={theme.id}
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
-                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 hover:shadow-lg ${isSelected
+                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
                             ? 'bg-[#cee2fd]'
-                            : ''
+                            : 'hover:shadow-lg'
                             }`}
                         >
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
