@@ -10936,9 +10936,10 @@ async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dic
         logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
         return None
 
-def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any], product_type: str) -> str:
+def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any] | str, product_type: str) -> str:
     """
     Build an enhanced prompt that includes the extracted file context for OpenAI.
+    Handles both dict (structured context) and str (fallback context) cases.
     """
     enhanced_prompt = f"""
 {original_prompt}
@@ -10947,7 +10948,20 @@ def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[
 
 """
     
-    # Check if fallback was used
+    # Handle string file_context (fallback case)
+    if isinstance(file_context, str):
+        enhanced_prompt += file_context
+        enhanced_prompt += "\n\nPlease create the content based on the information above.\n"
+        return enhanced_prompt
+    
+    # Handle dict file_context (normal case)
+    # Handle string file_context (fallback case)
+    if isinstance(file_context, str):
+        enhanced_prompt += file_context
+        enhanced_prompt += "\n\nPlease create the content based on the information above.\n"
+        return enhanced_prompt
+    
+    # Check if fallback was used (dict case)
     if file_context.get("metadata", {}).get("fallback_used"):
         enhanced_prompt += "NOTE: File context extraction was limited, but files were provided for content creation.\n\n"
     
@@ -15006,17 +15020,33 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     # Normalize paths to handle URL encoding and character variations
                     smartdrive_file_paths = []
                     for path in raw_paths:
-                        # Handle URL encoding
-                        try:
-                            from urllib.parse import unquote
-                            normalized_path = unquote(path)
-                        except:
-                            normalized_path = path
+                        # Try multiple variations to match database records
+                        from urllib.parse import unquote, quote
                         
-                        smartdrive_file_paths.append(normalized_path)
-                        # Also try without `+` character if present (filename variation)
-                        if '+' in normalized_path:
-                            smartdrive_file_paths.append(normalized_path.replace('+', ''))
+                        # Add original path
+                        smartdrive_file_paths.append(path)
+                        
+                        # Add URL-decoded version
+                        try:
+                            decoded_path = unquote(path)
+                            if decoded_path != path:
+                                smartdrive_file_paths.append(decoded_path)
+                        except:
+                            pass
+                        
+                        # Add URL-encoded version (in case database has encoded paths)
+                        try:
+                            encoded_path = quote(path, safe='/')
+                            if encoded_path != path:
+                                smartdrive_file_paths.append(encoded_path)
+                        except:
+                            pass
+                        
+                        # Handle space variations (space vs %20)
+                        if ' ' in path:
+                            smartdrive_file_paths.append(path.replace(' ', '%20'))
+                        if '%20' in path:
+                            smartdrive_file_paths.append(path.replace('%20', ' '))
                     
                     onyx_user_id = await get_current_onyx_user_id(request)
                     
