@@ -15450,10 +15450,108 @@ def extract_open_positions_from_table(parsed_json):
     return []
 
 
+async def generate_company_specific_fallback_positions(company_name: str) -> list:
+    """Generate company-specific fallback positions when no real positions are found."""
+    try:
+        prompt = f"""
+        Создай список из 3-5 логичных должностей для компании {company_name}.
+        
+        ИНСТРУКЦИИ:
+        - Создай позиции, которые логично подходят для данной компании
+        - Используй реалистичные названия должностей
+        - Добавь краткое описание для каждой позиции
+        
+        ФОРМАТ ОТВЕТА (только JSON):
+        [
+            {{"Позиция": "название позиции 1", "Описание": "краткое описание"}},
+            {{"Позиция": "название позиции 2", "Описание": "краткое описание"}},
+            ...
+        ]
+        
+        ОТВЕТ (только JSON):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Parse JSON response
+        try:
+            positions = json.loads(response_text.strip())
+            formatted_positions = []
+            for position in positions:
+                formatted_positions.append({
+                    "title": position.get("Позиция", "Position"),
+                    "description": position.get("Описание", f"Open position at {company_name}"),
+                    "icon": "👷"
+                })
+            logger.info(f"💼 [WEBSITE SCRAPING] Generated {len(formatted_positions)} company-specific fallback positions")
+            return formatted_positions
+        except json.JSONDecodeError:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON, using generic fallback")
+            return [
+                {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+                {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+                {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"}
+            ]
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error generating fallback positions: {e}")
+        return [
+            {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+            {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+            {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"}
+        ]
+
+async def extract_job_positions_from_website_content(website_content: str, company_name: str) -> list:
+    """Extract job positions directly from website content using AI."""
+    try:
+        prompt = f"""
+        Проанализируй контент веб-сайта и извлеки список открытых вакансий компании.
+        
+        КОМПАНИЯ: {company_name}
+        КОНТЕНТ ВЕБ-САЙТА:
+        {website_content}
+        
+        ИНСТРУКЦИИ:
+        - Найди все упоминания вакансий, должностей, карьерных возможностей
+        - Извлеки названия конкретных позиций (например: "Менеджер по продажам", "Инженер-механик", "Специалист по маркетингу")
+        - Если конкретных вакансий нет, создай логичные позиции для данной компании
+        - Верни максимум 8 реальных позиций
+        
+        ФОРМАТ ОТВЕТА (только JSON):
+        [
+            {{"Позиция": "название позиции 1", "Описание": "краткое описание"}},
+            {{"Позиция": "название позиции 2", "Описание": "краткое описание"}},
+            ...
+        ]
+        
+        ОТВЕТ (только JSON):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Parse JSON response
+        try:
+            job_positions = json.loads(response_text.strip())
+            logger.info(f"💼 [WEBSITE SCRAPING] Extracted {len(job_positions)} job positions from website")
+            return job_positions
+        except json.JSONDecodeError:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON, using fallback")
+            return []
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting job positions: {e}")
+        return []
+
 async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload, company_name: str) -> list:
     """
-    Generates job positions using the same logic as the old audit system.
-    Creates a one-pager with the АКТИВНЫЙ НАЙМ section and extracts job positions from it.
+    Generates job positions directly from scraped website content using AI.
+    More efficient than generating a full audit one-pager.
     Ensures exactly 11 vacancies are returned by generating additional ones if needed.
     """
     try:
@@ -15461,20 +15559,18 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
         logger.info(f"🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called")
         logger.info(f"🔍 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
         
-        # Use the same logic as the old audit system
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
-        
-        # Extract job positions using the same function as the old system
-        job_positions = extract_open_positions_from_table(parsed_json)
+        # Extract job positions directly from scraped content using AI
+        job_positions = await extract_job_positions_from_website_content(duckduckgo_summary, company_name)
         
         # Convert to the format expected by the frontend
         formatted_positions = []
         for position in job_positions:
-            # Get the position title from the "Позиция" field
+            # Get the position title and description
             position_title = position.get("Позиция", "Position")
+            position_description = position.get("Описание", f"Open position at {company_name}")
             formatted_positions.append({
                 "title": position_title,
-                "description": f"Open position at {company_name}",
+                "description": position_description,
                 "icon": "👷"  # Default icon
             })
         
@@ -15482,14 +15578,12 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
         logger.info(f"🔍 [AUDIT DATA FLOW] Extracted {len(job_positions)} raw positions")
         logger.info(f"🔍 [AUDIT DATA FLOW] Formatted {len(formatted_positions)} positions for frontend")
         
-        # If no positions found, use default fallback
+        # If no positions found, use company-specific fallback
         if not formatted_positions:
-            logger.info(f"🔍 [AUDIT DATA FLOW] No positions found, using default fallback")
-            formatted_positions = [
-                {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
-                {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
-                {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
-            ]
+            logger.info(f"🔍 [AUDIT DATA FLOW] No positions found, using company-specific fallback")
+            # Generate company-specific fallback positions
+            fallback_positions = await generate_company_specific_fallback_positions(company_name)
+            formatted_positions = fallback_positions
         
         # Ensure exactly 11 vacancies by generating additional ones if needed
         target_count = 11
@@ -15498,7 +15592,7 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
             logger.info(f"🔍 [AUDIT DATA FLOW] Need {needed_positions} additional positions to reach {target_count} total")
             
             # Generate additional positions using the same logic as course templates
-            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, combined_payload)
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload)
             
             # Convert additional positions to the expected format
             for position in additional_positions:
@@ -15520,20 +15614,33 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
         
     except Exception as e:
         logger.error(f"❌ [AUDIT DATA FLOW] Error generating job positions: {e}")
-        # Return default positions on error - ensure exactly 11
-        return [
-            {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
-            {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
-            {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"},
-            {"title": "Customer Support", "description": "Customer service and support operations", "icon": "🎧"},
-            {"title": "Marketing Specialist", "description": "Marketing strategies and promotion", "icon": "📢"},
-            {"title": "Logistics Coordinator", "description": "Supply chain and logistics management", "icon": "📦"},
-            {"title": "Quality Assurance", "description": "Quality control and testing", "icon": "✅"},
-            {"title": "Sales Representative", "description": "Sales and business development", "icon": "💼"},
-            {"title": "Technical Support", "description": "Technical assistance and troubleshooting", "icon": "🔧"},
-            {"title": "Operations Manager", "description": "Operations and process management", "icon": "⚙️"},
-            {"title": "Safety Coordinator", "description": "Workplace safety and compliance", "icon": "🛡️"}
-        ]
+        # Return company-specific fallback positions
+        try:
+            fallback_positions = await generate_company_specific_fallback_positions(company_name)
+            # Ensure we have exactly 11 positions
+            while len(fallback_positions) < 11:
+                fallback_positions.append({
+                    "title": f"Position {len(fallback_positions) + 1}",
+                    "description": f"Open position at {company_name}",
+                    "icon": "👷"
+                })
+            return fallback_positions[:11]
+        except Exception as fallback_error:
+            logger.error(f"❌ [AUDIT DATA FLOW] Error generating fallback positions: {fallback_error}")
+            # Ultimate fallback - generic positions
+            return [
+                {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+                {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+                {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"},
+                {"title": "Marketing Specialist", "description": f"Marketing strategies at {company_name}", "icon": "📢"},
+                {"title": "Quality Assurance", "description": f"Quality control at {company_name}", "icon": "✅"},
+                {"title": "Technical Support", "description": f"Technical assistance at {company_name}", "icon": "🔧"},
+                {"title": "Project Manager", "description": f"Project coordination at {company_name}", "icon": "📋"},
+                {"title": "Logistics Coordinator", "description": f"Supply chain management at {company_name}", "icon": "📦"},
+                {"title": "HR Specialist", "description": f"Human resources at {company_name}", "icon": "👥"},
+                {"title": "Finance Analyst", "description": f"Financial analysis at {company_name}", "icon": "💰"},
+                {"title": "IT Administrator", "description": f"IT systems management at {company_name}", "icon": "💻"}
+            ]
 
 
 def extract_job_positions_from_content(content):

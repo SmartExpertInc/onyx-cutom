@@ -48,59 +48,92 @@ custom_backend-1  | INFO:main:Database schema migration completed successfully.
 custom_backend-1  | INFO:     Application startup complete.
 custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:35108 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55848 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55850 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35122 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55866 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55872 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35574 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55876 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35580 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35564 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55890 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35588 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55900 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35602 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55916 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35606 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55930 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35622 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55936 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35624 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55940 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49022 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Starting landing page generation for job c217b261-43c7-4d78-a0de-51623a3f2a8f
+custom_backend-1  | INFO:     172.18.0.12:35634 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Starting landing page generation for job 366b42c6-f2ca-457a-926b-b854209fa815
 custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Initial payload: {'companyWebsite': 'https://www.mercedes-benz.pl/', 'language': 'ru'}
 custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Starting to scrape: https://www.mercedes-benz.pl/
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=+&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 400 Bad Request"
-custom_backend-1  | ERROR:main:❌ [WEBSITE SCRAPING] Error scraping website https://www.mercedes-benz.pl/: Client error '400 Bad Request' for url 'https://serpapi.com/search.json?q=+&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru'
-custom_backend-1  | For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Scraped company data: Company Name
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Company+Name+Company+Description&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Using domain name for search: mercedes-benz.pl
+custom_backend-1  | INFO:     172.18.0.12:43312 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:49026 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Company+Name+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:43318 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Received content length: 2245 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2693 chars
+custom_backend-1  | INFO:     172.18.0.12:37726 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37728 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 20 characters
+custom_backend-1  | INFO:main:🏢 [WEBSITE SCRAPING] Extracted company name: Mercedes-Benz Polska
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2799 chars
+custom_backend-1  | INFO:     172.18.0.12:37742 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 270 characters
+custom_backend-1  | INFO:main:📝 [WEBSITE SCRAPING] Extracted company description: Компания Mercedes-Benz Polska предоставляет услуги по продаже и обслуживанию автомобилей, включая лимузины, купе, кабриолеты, roadstery, SUV и комбинированные модели. Также предлагает карьерные возможности в различных областях, таких как механика, логистика и инженерия.
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3433 chars
+custom_backend-1  | INFO:     172.18.0.12:37758 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 302 characters
+custom_backend-1  | INFO:main:📊 [WEBSITE SCRAPING] Extracted company metadata: {'employees': 'Unknown', 'franchise': 'No', 'onboardingProblems': 'To be analyzed from website content', 'documents': ['Other'], 'documentsOther': 'To be determined from website analysis', 'priorities': ['Other'], 'priorityOther': 'To be determined from website analysis'}
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Successfully scraped data for: Mercedes-Benz Polska
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Scraped company data: Mercedes-Benz Polska
+custom_backend-1  | INFO:     172.18.0.12:37774 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+%D0%9A%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D1%8F+Mercedes-Benz+Polska+%D0%BF%D1%80%D0%B5%D0%B4%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D1%8F%D0%B5%D1%82+%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B8+%D0%BF%D0%BE+%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%D0%B5+%D0%B8+%D0%BE%D0%B1%D1%81%D0%BB%D1%83%D0%B6%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D1%8E+%D0%B0%D0%B2%D1%82%D0%BE%D0%BC%D0%BE%D0%B1%D0%B8%D0%BB%D0%B5%D0%B9%2C+%D0%B2%D0%BA%D0%BB%D1%8E%D1%87%D0%B0%D1%8F+%D0%BB%D0%B8%D0%BC%D1%83%D0%B7%D0%B8%D0%BD%D1%8B%2C+%D0%BA%D1%83%D0%BF%D0%B5%2C+%D0%BA%D0%B0%D0%B1%D1%80%D0%B8%D0%BE%D0%BB%D0%B5%D1%82%D1%8B%2C+roadstery%2C+SUV+%D0%B8+%D0%BA%D0%BE%D0%BC%D0%B1%D0%B8%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5+%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8.+%D0%A2%D0%B0%D0%BA%D0%B6%D0%B5+%D0%BF%D1%80%D0%B5%D0%B4%D0%BB%D0%B0%D0%B3%D0%B0%D0%B5%D1%82+%D0%BA%D0%B0%D1%80%D1%8C%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D0%B2%D0%BE%D0%B7%D0%BC%D0%BE%D0%B6%D0%BD%D0%BE%D1%81%D1%82%D0%B8+%D0%B2+%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%BD%D1%8B%D1%85+%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8F%D1%85%2C+%D1%82%D0%B0%D0%BA%D0%B8%D1%85+%D0%BA%D0%B0%D0%BA+%D0%BC%D0%B5%D1%85%D0%B0%D0%BD%D0%B8%D0%BA%D0%B0%2C+%D0%BB%D0%BE%D0%B3%D0%B8%D1%81%D1%82%D0%B8%D0%BA%D0%B0+%D0%B8+%D0%B8%D0%BD%D0%B6%D0%B5%D0%BD%D0%B5%D1%80%D0%B8%D1%8F.&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48052 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] SERPAPI summary: [SerpAPI General Info]
-custom_backend-1  | A company description is the “biography” or the “about me” component of your company, that directly follows your executive summary.
-custom_backend-1  | A company description is a written summary of your business that explains what your company does, what it offers, and what makes it unique.
-custom_backend-1  | A com
-custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data length: 1892 characters
-custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data preview: [SerpAPI General Info]
-custom_backend-1  | A company description is the “biography” or the “about me” component of your company, that directly follows your executive summary.
-custom_backend-1  | A company description is a written summary of your business that explains what your company does, what it offers, and what makes it unique.
-custom_backend-1  | A company description is an overview of the company's plan, vision, and relationships. These documents typically include the company's name ...
+custom_backend-1  | (Нет релевантных данных SerpAPI)
 custom_backend-1  |
 custom_backend-1  | [Website Info]
 custom_backend-1  | (Нет информации по сайту)
 custom_backend-1  |
 custom_backend-1  | [Open Positions]
-custom_backend-1  | K...
-custom_backend-1  | INFO:main:🏢 [AUDIT DATA FLOW] Generated company name: 'Company Name'
-custom_backend-1  | INFO:main:📝 [AUDIT DATA FLOW] Generated company description: 'Company Description'
+custom_backend-1  | Kariera w Mercedes-Benz
+custom_backend-1  | elektromechanik i mechanik samochodowy, lakiernik, blacharz samochodowy, diagnostyk, sprzedawca części zamiennych, doradca handlowy, pracownik działu logistyki,
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data length: 1838 characters
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data preview: [SerpAPI General Info]
+custom_backend-1  | (Нет релевантных данных SerpAPI)
+custom_backend-1  |
+custom_backend-1  | [Website Info]
+custom_backend-1  | (Нет информации по сайту)
+custom_backend-1  |
+custom_backend-1  | [Open Positions]
+custom_backend-1  | Kariera w Mercedes-Benz
+custom_backend-1  | elektromechanik i mechanik samochodowy, lakiernik, blacharz samochodowy, diagnostyk, sprzedawca części zamiennych, doradca handlowy, pracownik działu logistyki, ...
+custom_backend-1  | https://www.mercedes-benz.pl/passengercars/campaigns/career.html
+custom_backend-1  |
+custom_backend-1  | Mercedes-Benz Group > Careers > Job search
+custom_backend-1  | Electronic Engineer (IS Tests) - expat possible · Production Engineer (Vans internal r...
+custom_backend-1  | INFO:main:🏢 [AUDIT DATA FLOW] Generated company name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📝 [AUDIT DATA FLOW] Generated company description: 'Компания Mercedes-Benz Polska предоставляет услуги по продаже и обслуживанию автомобилей, включая лимузины, купе, кабриолеты, roadstery, SUV и комбинированные модели. Также предлагает карьерные возможности в различных областях, таких как механика, логистика и инженерия.'
 custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Scraped data length: 1892 characters
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Scraped data length: 1838 characters
 custom_backend-1  | INFO:main:[AI-Audit] Final prompt (first 500 chars):
 custom_backend-1  |     Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
 custom_backend-1  |
@@ -109,185 +142,238 @@ custom_backend-1  |     - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМА�
 custom_backend-1  |     - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
 custom_backend-1  |     - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
 custom_backend-1  |     - Если в примере 5
-custom_backend-1  | INFO:     172.18.0.12:49028 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46790 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46806 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46814 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46820 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46822 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48038 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48040 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48056 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48060 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48068 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52738 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52752 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52762 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52776 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52780 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49252 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49254 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49266 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49274 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:49288 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35304 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35306 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35310 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35318 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:35328 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58510 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58522 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58530 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48054 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48064 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48080 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48094 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52030 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52042 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52050 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52052 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52064 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47466 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47474 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47488 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47490 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47494 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48356 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48360 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48364 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48374 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48376 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37582 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37592 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37604 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37618 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37620 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33742 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33748 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33750 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33760 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33764 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34702 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34710 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[AI-Audit] OpenAI result (first 500 chars): # **AI-АУДИТ КОМПАНИИ COMPANY NAME**
+custom_backend-1  | INFO:main:[AI-Audit] OpenAI result (first 500 chars): # **AI-АУДИТ КОМПАНИИ MERCEDES-BENZ POLSKA**
 custom_backend-1  |
 custom_backend-1  | # с.1
 custom_backend-1  |
 custom_backend-1  | ## 🎯 ЦЕЛЬ АУДИТА
 custom_backend-1  |
-custom_backend-1  | Показать, как Company Name может:
+custom_backend-1  | Показать, как Mercedes-Benz Polska может:
 custom_backend-1  |
 custom_backend-1  | - сократить текучесть персонала,
 custom_backend-1  | - ускорить адаптацию новых сотрудников,
-custom_backend-1  | - масштабировать качество по франчайзи и командам,
+custom_backend-1  | - улучшить качество обслуживания клиентов,
 custom_backend-1  |
 custom_backend-1  | — за счёт внедрения автоматизированной системы обучения, создаваемой на базе ваших материалов с помощью AI, в нужном вам формате — от PDF до видео с AI-аватарами на 120+ языках.
 custom_backend-1  |
 custom_backend-1  | # 🧭 О КОМПАНИИ
 custom_backend-1  |
-custom_backend-1  | **Company Name** — Company Description
-custom_backend-1  |
-custom_backend-1  | - **Штат компании:** Unknown
-custom_backend-1  | - **Головной
-custom_backend-1  | INFO:     172.18.0.12:58544 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58558 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53828 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53840 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53842 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53854 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53866 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53628 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53644 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53654 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53662 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53664 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39586 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39588 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39594 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39610 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39622 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60570 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60582 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60594 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60600 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60606 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48562 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48568 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48570 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48584 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48590 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47432 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47442 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47444 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47450 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47462 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60556 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60572 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60584 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60592 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:60606 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57170 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57174 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57178 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57194 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57196 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52322 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52324 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52340 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52350 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:52366 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43676 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43692 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43698 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43702 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43716 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37164 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37168 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37180 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37184 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:37196 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54270 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54276 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54284 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:openai._base_client:Retrying request to /chat/completions in 0.379260 seconds
-custom_backend-1  | INFO:     172.18.0.12:54300 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54310 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44460 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44462 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44468 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44478 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44486 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50318 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50322 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50334 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50336 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:50350 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34926 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34930 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34934 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:=== AI PARSER FUNCTION CALLED ===
-custom_backend-1  | INFO:main:Project: Company Name
-custom_backend-1  | INFO:main:Target model: TextPresentationDetails
-custom_backend-1  | INFO:main:AI response length: 5280
-custom_backend-1  | INFO:main:DB_POOL available: True
-custom_backend-1  | INFO:main:Call stack: 25 frames
-custom_backend-1  | INFO:main:=== END FUNCTION CALL DEBUG ===
-custom_backend-1  | INFO:main:Attempting LLM call for 'Company Name' using API key #1.
-custom_backend-1  | INFO:     172.18.0.12:34946 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34960 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39588 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39598 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39614 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39630 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39644 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53622 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53630 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53638 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53650 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53662 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55654 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55664 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55666 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55676 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55686 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:32860 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:32868 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:32872 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:32886 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:32894 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36238 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36246 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36260 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36268 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36280 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:LLM parsing for 'Company Name' succeeded on attempt #1.
-custom_backend-1  | INFO:main:=== AI PARSER LOGGING DEBUG ===
-custom_backend-1  | INFO:main:Project: Company Name
-custom_backend-1  | INFO:main:Prompt tokens: 2299
-custom_backend-1  | INFO:main:Response tokens: 11481
-custom_backend-1  | INFO:main:Total tokens: 13780
-custom_backend-1  | INFO:main:Response time: 54772ms
-custom_backend-1  | INFO:main:=== END AI PARSER LOGGING DEBUG ===
-custom_backend-1  | INFO:main:About to insert AI parser record for Company Name
-custom_backend-1  | INFO:main:Database insert result: INSERT 0 1
-custom_backend-1  | INFO:main:Successfully logged AI parser usage for Company Name
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted 7 raw positions
-custom_backend-1  | HEADER MAP: {'позиция': 0, 'локация': 1, 'формат работы': 2, 'тип занятости': 3}
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Formatted 7 positions for frontend
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Need 4 additional positions to reach 11 total
-custom_backend-1  | ERROR:main:❌ [AUDIT DATA FLOW] Error generating job positions: name 'combined_payload' is not defined
+custom_backend-1  | **Mercedes-Benz Polska** — компания, предоставляющая услуги по продаже и о
+custom_backend-1  | INFO:     172.18.0.12:34714 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34730 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34746 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46764 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46772 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46774 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46784 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46796 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58482 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58492 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58504 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58508 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58524 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51220 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51234 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51238 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51246 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51252 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60600 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60602 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60612 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60624 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60636 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60726 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60732 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60744 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60760 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60768 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52732 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52744 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52748 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52754 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52762 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49930 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49934 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49944 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49960 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49970 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55488 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55492 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55498 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55514 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55520 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47500 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47502 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47510 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47520 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47526 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55378 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55384 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55398 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55408 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55416 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60322 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60330 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60344 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60356 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60358 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35378 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35394 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:openai._base_client:Retrying request to /chat/completions in 0.462275 seconds
+custom_backend-1  | INFO:     172.18.0.12:35406 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35422 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35424 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48244 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48250 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48256 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48268 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48284 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47570 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47586 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47594 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47602 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47610 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48850 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48864 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48866 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48868 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48874 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35838 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35844 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35848 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35858 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:35862 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59982 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59996 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60008 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60016 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60026 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56634 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56646 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56662 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56674 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56676 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33848 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33860 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33872 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33880 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33894 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44410 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44424 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44428 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44434 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44438 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45994 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45998 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46014 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46020 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46026 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54126 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54142 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54158 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54164 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54180 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40092 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40108 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40114 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40124 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40140 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43564 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43574 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:openai._base_client:Retrying request to /chat/completions in 0.808605 seconds
+custom_backend-1  | INFO:     172.18.0.12:43586 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43590 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43604 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33248 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33254 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33264 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33274 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33278 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59834 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59846 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59860 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59870 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59874 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60290 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60304 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60320 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60336 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60338 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55134 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55144 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55156 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55162 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55176 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36004 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36012 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36022 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36036 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36048 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36552 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36562 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36578 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36586 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36592 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46194 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46196 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46204 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46210 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46222 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53050 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53052 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53064 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53080 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53092 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40318 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40334 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40340 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40356 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40372 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41058 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41062 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41072 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41086 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41100 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59654 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59656 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59666 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59674 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59678 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45622 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45624 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | ERROR:main:❌ [AUDIT DATA FLOW] Error generating job positions: Request timed out.
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Generated 11 job positions
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'title': 'HVAC Technician', 'description': 'Installation and maintenance of heating, ventilation, and air conditioning systems', 'icon': '👷'}
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'title': 'Electrician', 'description': 'Installation and maintenance of electrical systems', 'icon': '⚡'}
@@ -301,25 +387,32 @@ custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'title': 'Te
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'title': 'Operations Manager', 'description': 'Operations and process management', 'icon': '⚙️'}
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'title': 'Safety Coordinator', 'description': 'Workplace safety and compliance', 'icon': '🛡️'}
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2426 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2631 chars
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2872 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3077 chars
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2832 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3037 chars
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2653 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2858 chars
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2565 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2770 chars
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 4655 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 4860 chars
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3460 chars
-custom_backend-1  | INFO:     172.18.0.12:34600 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34608 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3665 chars
+custom_backend-1  | INFO:     172.18.0.12:45640 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45650 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 28 characters
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted industry: Автомобильная промышленность
-custom_backend-1  | INFO:     172.18.0.12:34614 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 29 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted search time data: {'days': '30–60'}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 23 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted losses data: {'amount': '$15K–$25K'}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 82 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted turnover data: {'percentage': '15', 'earlyExit': {'percentage': '30', 'months': '3'}}
+custom_backend-1  | INFO:     172.18.0.12:45666 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45506 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 76 characters
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] Raw burnout response: '```json
@@ -327,75 +420,68 @@ custom_backend-1  | {"months": "24", "industryName": "автомобильной
 custom_backend-1  | ```'
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted burnout data: {'months': '24', 'industryName': 'автомобильной промышленности'}
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 28 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted industry: Автомобильная промышленность
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 23 characters
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted losses data: {'amount': '$15K–$25K'}
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 82 characters
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted turnover data: {'percentage': '70', 'earlyExit': {'percentage': '30', 'months': '3'}}
-custom_backend-1  | INFO:     172.18.0.12:34616 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:34624 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 29 characters
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted search time data: {'days': '30–60'}
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 378 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 347 characters
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated yearly shortage data:
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Industry: Автомобильная промышленность
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Yearly Shortage: 70000 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Description: С учетом текущего дефицита квалифицированных специалистов в области электромеханики, механики, и других смежных профессий, а также роста спроса на автомобили и сервисные услуги, ежегодный дефицит специалистов в автомобильной отрасли составляет около 70000 человек.
-custom_backend-1  | INFO:     172.18.0.12:59388 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59398 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Description: С учетом роста производства автомобилей и увеличения спроса на новые модели, а также недостатка квалифицированных специалистов в таких областях, как механика и инженерия, оценка недостающих специалистов составляет около 70,000 в год.
+custom_backend-1  | INFO:     172.18.0.12:45512 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45520 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45534 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45546 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1073 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1037 characters
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated personnel shortage chart data:
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Industry: Автомобильная промышленность
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Total shortage: 48700
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Total shortage: 45000
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Trend: рост
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Chart data points: 12
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 1: Январь - 3200 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 2: Февраль - 3100 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 3: Март - 3500 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 4: Апрель - 3700 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 5: Май - 4000 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 6: Июнь - 4500 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 7: Июль - 4800 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 8: Август - 4200 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 9: Сентябрь - 4400 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 10: Октябрь - 4600 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 1: Январь - 3000 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 2: Февраль - 2900 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 3: Март - 3200 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 4: Апрель - 3500 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 5: Май - 3400 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 6: Июнь - 4000 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 7: Июль - 4200 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 8: Август - 3800 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 9: Сентябрь - 3900 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 10: Октябрь - 4500 specialists
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 11: Ноябрь - 4300 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 12: Декабрь - 4900 specialists
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated workforce crisis data: {'industry': 'Автомобильная промышленность', 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'turnover': {'percentage': '70', 'earlyExit': {'percentage': '30', 'months': '3'}}, 'losses': {'amount': '$15K–$25K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3200}, {'month': 'Февраль', 'shortage': 3100}, {'month': 'Март', 'shortage': 3500}, {'month': 'Апрель', 'shortage': 3700}, {'month': 'Май', 'shortage': 4000}, {'month': 'Июнь', 'shortage': 4500}, {'month': 'Июль', 'shortage': 4800}, {'month': 'Август', 'shortage': 4200}, {'month': 'Сентябрь', 'shortage': 4400}, {'month': 'Октябрь', 'shortage': 4600}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4900}], 'totalShortage': 48700, 'trend': 'рост', 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда спрос на рабочую силу увеличивается из-за повышения производственных объемов. Однако в августе наблюдается снижение, связанное с отпускным сезоном. В целом, отрасль сталкивается с постоянными вызовами в привлечении и удержании специалистов.'}, 'yearlyShortage': {'yearlyShortage': 70000, 'industry': 'Автомобильная промышленность', 'description': 'С учетом текущего дефицита квалифицированных специалистов в области электромеханики, механики, и других смежных профессий, а также роста спроса на автомобили и сервисные услуги, ежегодный дефицит специалистов в автомобильной отрасли составляет около 70000 человек.'}}
-custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Generated workforce crisis data: {'industry': 'Автомобильная промышленность', 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'turnover': {'percentage': '70', 'earlyExit': {'percentage': '30', 'months': '3'}}, 'losses': {'amount': '$15K–$25K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3200}, {'month': 'Февраль', 'shortage': 3100}, {'month': 'Март', 'shortage': 3500}, {'month': 'Апрель', 'shortage': 3700}, {'month': 'Май', 'shortage': 4000}, {'month': 'Июнь', 'shortage': 4500}, {'month': 'Июль', 'shortage': 4800}, {'month': 'Август', 'shortage': 4200}, {'month': 'Сентябрь', 'shortage': 4400}, {'month': 'Октябрь', 'shortage': 4600}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4900}], 'totalShortage': 48700, 'trend': 'рост', 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда спрос на рабочую силу увеличивается из-за повышения производственных объемов. Однако в августе наблюдается снижение, связанное с отпускным сезоном. В целом, отрасль сталкивается с постоянными вызовами в привлечении и удержании специалистов.'}, 'yearlyShortage': {'yearlyShortage': 70000, 'industry': 'Автомобильная промышленность', 'description': 'С учетом текущего дефицита квалифицированных специалистов в области электромеханики, механики, и других смежных профессий, а также роста спроса на автомобили и сервисные услуги, ежегодный дефицит специалистов в автомобильной отрасли составляет около 70000 человек.'}}
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 12: Декабрь - 4600 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated workforce crisis data: {'industry': 'Автомобильная промышленность', 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'turnover': {'percentage': '15', 'earlyExit': {'percentage': '30', 'months': '3'}}, 'losses': {'amount': '$15K–$25K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3000}, {'month': 'Февраль', 'shortage': 2900}, {'month': 'Март', 'shortage': 3200}, {'month': 'Апрель', 'shortage': 3500}, {'month': 'Май', 'shortage': 3400}, {'month': 'Июнь', 'shortage': 4000}, {'month': 'Июль', 'shortage': 4200}, {'month': 'Август', 'shortage': 3800}, {'month': 'Сентябрь', 'shortage': 3900}, {'month': 'Октябрь', 'shortage': 4500}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4600}], 'totalShortage': 45000, 'trend': 'рост', 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда наблюдается высокий спрос на новые модели автомобилей. Снижение в августе связано с отпускным сезоном, однако в целом наблюдается устойчивый рост потребности в специалистах, таких как механики и инженеры.'}, 'yearlyShortage': {'yearlyShortage': 70000, 'industry': 'Автомобильная промышленность', 'description': 'С учетом роста производства автомобилей и увеличения спроса на новые модели, а также недостатка квалифицированных специалистов в таких областях, как механика и инженерия, оценка недостающих специалистов составляет около 70,000 в год.'}}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Generated workforce crisis data: {'industry': 'Автомобильная промышленность', 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'turnover': {'percentage': '15', 'earlyExit': {'percentage': '30', 'months': '3'}}, 'losses': {'amount': '$15K–$25K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3000}, {'month': 'Февраль', 'shortage': 2900}, {'month': 'Март', 'shortage': 3200}, {'month': 'Апрель', 'shortage': 3500}, {'month': 'Май', 'shortage': 3400}, {'month': 'Июнь', 'shortage': 4000}, {'month': 'Июль', 'shortage': 4200}, {'month': 'Август', 'shortage': 3800}, {'month': 'Сентябрь', 'shortage': 3900}, {'month': 'Октябрь', 'shortage': 4500}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4600}], 'totalShortage': 45000, 'trend': 'рост', 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда наблюдается высокий спрос на новые модели автомобилей. Снижение в августе связано с отпускным сезоном, однако в целом наблюдается устойчивый рост потребности в специалистах, таких как механики и инженеры.'}, 'yearlyShortage': {'yearlyShortage': 70000, 'industry': 'Автомобильная промышленность', 'description': 'С учетом роста производства автомобилей и увеличения спроса на новые модели, а также недостатка квалифицированных специалистов в таких областях, как механика и инженерия, оценка недостающих специалистов составляет около 70,000 в год.'}}
 custom_backend-1  | INFO:main:[COURSE OUTLINE] Generating course outline for position: HVAC Technician
 custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2876 chars
-custom_backend-1  | INFO:     172.18.0.12:59412 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59416 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59428 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59292 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59300 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59302 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59314 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:59324 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51046 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51048 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51050 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51054 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51062 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58802 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58816 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58830 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58846 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:58852 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55140 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55148 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55150 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55158 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55168 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48184 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48192 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3095 chars
+custom_backend-1  | INFO:     172.18.0.12:34180 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34188 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34196 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34198 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34208 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36440 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36442 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36450 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36460 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36470 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45398 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45410 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45424 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45428 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45434 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53450 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53462 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53468 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53472 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53482 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49108 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49110 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49116 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49120 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 4809 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 4737 characters
 custom_backend-1  | ERROR:main:[COURSE OUTLINE] Error generating course outline for landing page: 'async for' requires an object with __aiter__ method, got str
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Generated course outline with 4 modules
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Введение в компанию и корпоративную культуру', 'lessons': ['Знакомство с компанией', 'Корпоративные ценности и стандарты', 'Организационная структура', 'Политики и процедуры', 'Системы коммуникации']}
@@ -409,131 +495,123 @@ custom_backend-1  | ERROR:main:❌ [COURSE DESCRIPTION] Error generating course 
 custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: HVAC Technician
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a person working as a...'
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
-custom_backend-1  | INFO:     172.18.0.12:48208 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48218 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48224 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41968 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41970 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41986 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41988 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42000 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36516 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36522 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49126 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37588 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37590 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37598 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37600 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37616 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54586 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54594 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54600 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, downloading from: https://oaidalleapiprodscus.blob.core.windows.net/...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-f2Dl9YuLntzTkEM0x9Ts17CW.png?st=2025-09-15T16%3A25%3A43Z&se=2025-09-15T18%3A25%3A43Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=475fd488-6c59-44a5-9aa9-31c4db451bea&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T05%3A22%3A19Z&ske=2025-09-16T05%3A22%3A19Z&sks=b&skv=2024-08-04&sig=dy4ZNlnYXM4XuYVubkS7jSVkOnItwTXqXNuUgj2djPU%3D "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:36526 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_08508604-420c-4f0b-bc5d-c3ab447b9b95.png
-custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for HVAC Technician: /static_design_images/ai_generated_08508604-420c-4f0b-bc5d-c3ab447b9b95.png
-custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_08508604-420c-4f0b-bc5d-c3ab447b9b95.png
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-ebUfd7z2k0lDJI6dlpKlNQsL.png?st=2025-09-15T16%3A56%3A56Z&se=2025-09-15T18%3A56%3A56Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=fbf4b681-538a-442a-8e58-f3b99f10cd54&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T16%3A38%3A45Z&ske=2025-09-16T16%3A38%3A45Z&sks=b&skv=2024-08-04&sig=CdIDNOaXYNTcsBYY7jvYbOweZp5ImZ6hUHeXQGb6ax4%3D "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_d27c1119-f99f-4dfa-87c4-9fbefe170916.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for HVAC Technician: /static_design_images/ai_generated_d27c1119-f99f-4dfa-87c4-9fbefe170916.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_d27c1119-f99f-4dfa-87c4-9fbefe170916.png
 custom_backend-1  | ERROR:main:❌ [COURSE DESCRIPTION] Error generating course description for Electrician: stream_openai_response_direct() got an unexpected keyword argument 'temperature'
 custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Electrician
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a person working as a...'
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
-custom_backend-1  | INFO:     172.18.0.12:36530 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:36536 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54396 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54412 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54420 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54430 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54440 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41964 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41972 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:41982 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54608 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54610 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57076 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57088 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57100 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57112 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57124 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38582 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38596 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38612 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38628 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38630 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, downloading from: https://oaidalleapiprodscus.blob.core.windows.net/...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-l309h6ORtTbsJiI8DFycSmhv.png?st=2025-09-15T16%3A26%3A04Z&se=2025-09-15T18%3A26%3A04Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=7aed557a-269d-4dda-ab8b-c66e34024151&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T17%3A26%3A04Z&ske=2025-09-16T17%3A26%3A04Z&sks=b&skv=2024-08-04&sig=DiV9d3wAigXjf6tDztuUaoHa8eBuPhhRYq8IUFew4Bc%3D "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_526c5c01-360c-4bc0-aea7-493fc270c84a.png
-custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Electrician: /static_design_images/ai_generated_526c5c01-360c-4bc0-aea7-493fc270c84a.png
-custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_526c5c01-360c-4bc0-aea7-493fc270c84a.png
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-tNpnBigc8GFDo8yLPQfRRSb6.png?st=2025-09-15T16%3A57%3A19Z&se=2025-09-15T18%3A57%3A19Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=1726b4ce-fee1-450b-8b92-1731ad8745f6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T17%3A57%3A19Z&ske=2025-09-16T17%3A57%3A19Z&sks=b&skv=2024-08-04&sig=ZxvZOFEmDtjCg%2BmIFgsbqTJM0xxRsq0d8EexKnk4W2E%3D "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_7606e834-5a5e-4164-8681-644377d6a5df.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Electrician: /static_design_images/ai_generated_7606e834-5a5e-4164-8681-644377d6a5df.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_7606e834-5a5e-4164-8681-644377d6a5df.png
 custom_backend-1  | ERROR:main:❌ [COURSE DESCRIPTION] Error generating course description for Project Manager: stream_openai_response_direct() got an unexpected keyword argument 'temperature'
 custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Project Manager
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a person working as a...'
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
-custom_backend-1  | INFO:     172.18.0.12:57532 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57542 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57558 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54720 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54726 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54728 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54738 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60090 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60098 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60108 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60110 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60114 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53022 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53038 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53044 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53054 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, downloading from: https://oaidalleapiprodscus.blob.core.windows.net/...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-PlImIkez1efKqnBWVCPPXzQj.png?st=2025-09-15T16%3A26%3A26Z&se=2025-09-15T18%3A26%3A26Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=fbf4b681-538a-442a-8e58-f3b99f10cd54&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T17%3A26%3A26Z&ske=2025-09-16T17%3A26%3A26Z&sks=b&skv=2024-08-04&sig=cdZrp5arkU13MbBK0z4fs3nWj6wR2OtQgzweT79I/JE%3D "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_bee158ed-cbb9-4db9-bfb5-14ec485c7e75.png
-custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Project Manager: /static_design_images/ai_generated_bee158ed-cbb9-4db9-bfb5-14ec485c7e75.png
-custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_bee158ed-cbb9-4db9-bfb5-14ec485c7e75.png
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-5jEuD3yIxRapzZFcJ71F1rBh.png?st=2025-09-15T16%3A57%3A37Z&se=2025-09-15T18%3A57%3A37Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=52f8f7b3-ca8d-4b21-9807-8b9df114d84c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-14T18%3A20%3A59Z&ske=2025-09-15T18%3A20%3A59Z&sks=b&skv=2024-08-04&sig=jr5Ezp90Jg2bFONhILSk12YdlNeppqOEfZAiIBWc88M%3D "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_58f3fb02-7989-4317-80a6-03e438066145.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Project Manager: /static_design_images/ai_generated_58f3fb02-7989-4317-80a6-03e438066145.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_58f3fb02-7989-4317-80a6-03e438066145.png
 custom_backend-1  | ERROR:main:❌ [COURSE DESCRIPTION] Error generating course description for Customer Support: stream_openai_response_direct() got an unexpected keyword argument 'temperature'
 custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Customer Support
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a person working as a...'
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
-custom_backend-1  | INFO:     172.18.0.12:54740 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42348 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42360 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42364 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42378 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:42390 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38356 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38360 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38368 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38376 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:38384 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53068 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59196 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59212 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59216 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59224 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59232 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44918 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44926 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44930 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44946 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, downloading from: https://oaidalleapiprodscus.blob.core.windows.net/...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-xZ63A5T6k19rvyTsLPOq94q2.png?st=2025-09-15T16%3A26%3A48Z&se=2025-09-15T18%3A26%3A48Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=52f8f7b3-ca8d-4b21-9807-8b9df114d84c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T13%3A54%3A53Z&ske=2025-09-16T13%3A54%3A53Z&sks=b&skv=2024-08-04&sig=YsAwJU77LNAj/tVUdbKNXKAy5VLJKRcXYwrebGybnxc%3D "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_ddbf5cee-23cd-42c0-8348-ee067d23be12.png
-custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Customer Support: /static_design_images/ai_generated_ddbf5cee-23cd-42c0-8348-ee067d23be12.png
-custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_ddbf5cee-23cd-42c0-8348-ee067d23be12.png
+custom_backend-1  | INFO:     172.18.0.12:44950 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-4JC0jnJ2mv3X9eFspjATjkgi.png?st=2025-09-15T16%3A57%3A58Z&se=2025-09-15T18%3A57%3A58Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8c7ba6b3-5a55-4cb2-a31e-3fe3f598c469&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T17%3A57%3A58Z&ske=2025-09-16T17%3A57%3A58Z&sks=b&skv=2024-08-04&sig=yexftF4IBIWE3Br2/9kjAPna8JyjHlO7ZrwkSWpSma0%3D "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_9d346797-6bea-4e68-a033-2d94da8b80ef.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Customer Support: /static_design_images/ai_generated_9d346797-6bea-4e68-a033-2d94da8b80ef.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_9d346797-6bea-4e68-a033-2d94da8b80ef.png
 custom_backend-1  | ERROR:main:❌ [COURSE DESCRIPTION] Error generating course description for Marketing Specialist: stream_openai_response_direct() got an unexpected keyword argument 'temperature'
 custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Marketing Specialist
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a person working as a...'
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
-custom_backend-1  | INFO:     172.18.0.12:46560 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46562 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46578 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46594 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46600 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48906 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48920 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 502 Bad Gateway"
-custom_backend-1  | INFO:openai._base_client:Retrying request to /images/generations in 0.425806 seconds
-custom_backend-1  | INFO:     172.18.0.12:48924 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48938 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:48948 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46282 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46292 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46298 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46302 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:46306 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39660 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39670 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40428 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40444 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40446 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40448 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33122 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33132 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33134 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33148 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33156 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, downloading from: https://oaidalleapiprodscus.blob.core.windows.net/...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-V77t0QSTjI2pahvIbsKc0pnx.png?st=2025-09-15T16%3A27%3A23Z&se=2025-09-15T18%3A27%3A23Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=7aed557a-269d-4dda-ab8b-c66e34024151&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T14%3A26%3A28Z&ske=2025-09-16T14%3A26%3A28Z&sks=b&skv=2024-08-04&sig=Ojim40TFI1qD1l8iwe%2BTGoJVoC44Sm589BgJxUdSWmE%3D "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:39684 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_a23214c0-a644-43b1-af0c-a1498c24a1ba.png
-custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Marketing Specialist: /static_design_images/ai_generated_a23214c0-a644-43b1-af0c-a1498c24a1ba.png
-custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_a23214c0-a644-43b1-af0c-a1498c24a1ba.png
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-raDxghu18ZRVXJJR8wdubEE9.png?st=2025-09-15T16%3A58%3A18Z&se=2025-09-15T18%3A58%3A18Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=70313862-61f1-446b-9bb2-fa32b037e024&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T17%3A58%3A18Z&ske=2025-09-16T17%3A58%3A18Z&sks=b&skv=2024-08-04&sig=sKb%2BYeAKeyLDDHEHKUcnh9YISQfjOXd%2By0/rlAx6MvQ%3D "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_8e54e134-843c-4c14-b21e-f7fc25797e2a.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Marketing Specialist: /static_design_images/ai_generated_8e54e134-843c-4c14-b21e-f7fc25797e2a.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_8e54e134-843c-4c14-b21e-f7fc25797e2a.png
 custom_backend-1  | ERROR:main:❌ [COURSE DESCRIPTION] Error generating course description for Logistics Coordinator: stream_openai_response_direct() got an unexpected keyword argument 'temperature'
 custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Logistics Coordinator
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a person working as a...'
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
- custom_backend-1  | INFO:     172.18.0.12:39696 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:39698 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57694 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57706 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57714 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57726 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:57730 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44796 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44802 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44810 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45340 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45352 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45362 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45366 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:45368 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50610 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50620 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50630 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50640 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50646 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, downloading from: https://oaidalleapiprodscus.blob.core.windows.net/...
-custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-Jq9Pm2bNU9lJ5DcichH5UIs2.png?st=2025-09-15T16%3A27%3A44Z&se=2025-09-15T18%3A27%3A44Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=52f8f7b3-ca8d-4b21-9807-8b9df114d84c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T09%3A07%3A59Z&ske=2025-09-16T09%3A07%3A59Z&sks=b&skv=2024-08-04&sig=EZfoM5TnZ3TIoqCngqukMZDoTOC8RVk187YrpOzdH74%3D "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_e757c082-a3db-4e60-9d8f-8bdaa15f872b.png
-custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Logistics Coordinator: /static_design_images/ai_generated_e757c082-a3db-4e60-9d8f-8bdaa15f872b.png
-custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_e757c082-a3db-4e60-9d8f-8bdaa15f872b.png
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://oaidalleapiprodscus.blob.core.windows.net/private/org-j9FbWvXsjufFLq5thvS732Vz/user-WHLnqH7Alj7A7S8Awj4hGgjz/img-rE3sVh0SGT0aTemVOg3xIulC.png?st=2025-09-15T16%3A58%3A39Z&se=2025-09-15T18%3A58%3A39Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=52f8f7b3-ca8d-4b21-9807-8b9df114d84c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-09-15T05%3A02%3A11Z&ske=2025-09-16T05%3A02%3A11Z&sks=b&skv=2024-08-04&sig=kztcdyoFQXxScQAj%2BB48kcZKiziCBVOFGa7KfKFeRy4%3D "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:54712 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_8ace4bc9-f4ec-4976-8c23-96102b66d810.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Logistics Coordinator: /static_design_images/ai_generated_8ace4bc9-f4ec-4976-8c23-96102b66d810.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_8ace4bc9-f4ec-4976-8c23-96102b66d810.png
 custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Generated 6 course templates
 custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 1: HVAC Technician
 custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 2: Electrician
@@ -550,51 +628,47 @@ custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Marketing Spe
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Logistics Coordinator
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] Landing page data structure created:
-custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyName: 'Company Name'
-custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyDescription: 'Company Description'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyName: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyDescription: 'Компания Mercedes-Benz Polska предоставляет услуги по продаже и обслуживанию автомобилей, включая лимузины, купе, кабриолеты, roadstery, SUV и комбинированные модели. Также предлагает карьерные возможности в различных областях, таких как механика, логистика и инженерия.'
 custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - originalPayload keys: ['companyWebsite', 'language']
-custom_backend-1  | INFO:main:[AI-Audit Landing Page] Successfully created project with ID: 121
-custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project saved to database with ID: 121
-custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: Company Name'
-custom_backend-1  | INFO:main:🔧 [AUDIT DATA FLOW] Created new folder and assigned landing page: 10
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Successfully created project with ID: 122
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project saved to database with ID: 122
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:🔧 [AUDIT DATA FLOW] Created new folder and assigned landing page: 11
 custom_backend-1  | INFO:main:[AI-Audit Landing Page] Finished the Landing Page Generation
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data: {'id': 121, 'name': 'AI-Аудит Landing Page: Company Name', 'companyName': 'Company Name', 'companyDescription': 'Company Description'}
-custom_backend-1  | INFO:     172.18.0.12:44822 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:44836 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51010 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51012 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51028 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51034 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:51040 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53336 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53350 - "GET /api/custom/ai-audit/progress?jobId=c217b261-43c7-4d78-a0de-51623a3f2a8f HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data: {'id': 122, 'name': 'AI-Аудит Landing Page: Mercedes-Benz Polska', 'companyName': 'Mercedes-Benz Polska', 'companyDescription': 'Компания Mercedes-Benz Polska предоставляет услуги по продаже и обслуживанию автомобилей, включая лимузины, купе, кабриолеты, roadstery, SUV и комбинированные модели. Также предлагает карьерные возможности в различных областях, таких как механика, логистика и инженерия.'}
+custom_backend-1  | INFO:     172.18.0.12:54726 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54742 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54752 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54758 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54774 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46872 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46886 - "GET /api/custom/ai-audit/progress?jobId=366b42c6-f2ca-457a-926b-b854209fa815 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53366 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53368 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46892 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53374 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53378 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:53390 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53402 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53404 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53420 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53426 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53438 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:53440 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46888 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46904 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 121 - Raw details_data type: <class 'dict'>
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 121 - Already dict, after round_hours: {
-custom_backend-1  |   "companyName": "Company Name",
+custom_backend-1  | INFO:     172.18.0.12:46916 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46910 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:46926 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:46938 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:46948 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:46952 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:46956 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 122 - Raw details_data type: <class 'dict'>
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 122 - Already dict, after round_hours: {
+custom_backend-1  |   "companyName": "Mercedes-Benz Polska",
 custom_backend-1  |   "jobPositions": [
 custom_backend-1  |     {
 custom_backend-1  |       "icon": "\ud83d\udc77",
@@ -654,7 +728,7 @@ custom_backend-1  |     }
 custom_backend-1  |   ],
 custom_backend-1  |   "courseTemplates": [
 custom_backend-1  |     {
-custom_backend-1  |       "image": "/static_design_images/ai_generated_08508604-420c-4f0b-bc5d-c3ab447b9b95.png",
+custom_backend-1  |       "image": "/static_design_images/ai_generated_d27c1119-f99f-4dfa-87c4-9fbefe170916.png",
 custom_backend-1  |       "title": "HVAC Technician",
 custom_backend-1  |       "rating": "5.0",
 custom_backend-1  |       "lessons": 20,
@@ -662,7 +736,7 @@ custom_backend-1  |       "modules": 4,
 custom_backend-1  |       "description": "\u041e\u0431\u0443\u0447\u0435\u043d\u0438\u0435 \u043a\u043b\u044e\u0447\u0435\u0432\u044b\u043c \u043d\u0430\u0432\u044b\u043a\u0430\u043c \u0434\u043b\u044f \u043f\u043e\u0437\u0438\u0446\u0438\u0438 HVAC Technician."
 custom_backend-1  |     },
 custom_backend-1  |     {
-custom_backend-1  |       "image": "/static_design_images/ai_generated_526c5c01-360c-4bc0-aea7-493fc270c84a.png",
+custom_backend-1  |       "image": "/static_design_images/ai_generated_7606e834-5a5e-4164-8681-644377d6a5df.png",
 custom_backend-1  |       "title": "Electrician",
 custom_backend-1  |       "rating": "5.0",
 custom_backend-1  |       "lessons": 20,
@@ -670,7 +744,7 @@ custom_backend-1  |       "modules": 4,
 custom_backend-1  |       "description": "\u041e\u0431\u0443\u0447\u0435\u043d\u0438\u0435 \u043a\u043b\u044e\u0447\u0435\u0432\u044b\u043c \u043d\u0430\u0432\u044b\u043a\u0430\u043c \u0434\u043b\u044f \u043f\u043e\u0437\u0438\u0446\u0438\u0438 Electrician."
 custom_backend-1  |     },
 custom_backend-1  |     {
-custom_backend-1  |       "image": "/static_design_images/ai_generated_bee158ed-cbb9-4db9-bfb5-14ec485c7e75.png",
+custom_backend-1  |       "image": "/static_design_images/ai_generated_58f3fb02-7989-4317-80a6-03e438066145.png",
 custom_backend-1  |       "title": "Project Manager",
 custom_backend-1  |       "rating": "5.0",
 custom_backend-1  |       "lessons": 20,
@@ -678,7 +752,7 @@ custom_backend-1  |       "modules": 4,
 custom_backend-1  |       "description": "\u041e\u0431\u0443\u0447\u0435\u043d\u0438\u0435 \u043a\u043b\u044e\u0447\u0435\u0432\u044b\u043c \u043d\u0430\u0432\u044b\u043a\u0430\u043c \u0434\u043b\u044f \u043f\u043e\u0437\u0438\u0446\u0438\u0438 Project Manager."
 custom_backend-1  |     },
 custom_backend-1  |     {
-custom_backend-1  |       "image": "/static_design_images/ai_generated_ddbf5cee-23cd-42c0-8348-ee067d23be12.png",
+custom_backend-1  |       "image": "/static_design_images/ai_generated_9d346797-6bea-4e68-a033-2d94da8b80ef.png",
 custom_backend-1  |       "title": "Customer Support",
 custom_backend-1  |       "rating": "5.0",
 custom_backend-1  |       "lessons": 20,
@@ -686,7 +760,7 @@ custom_backend-1  |       "modules": 4,
 custom_backend-1  |       "description": "\u041e\u0431\u0443\u0447\u0435\u043d\u0438\u0435 \u043a\u043b\u044e\u0447\u0435\u0432\u044b\u043c \u043d\u0430\u0432\u044b\u043a\u0430\u043c \u0434\u043b\u044f \u043f\u043e\u0437\u0438\u0446\u0438\u0438 Customer Support."
 custom_backend-1  |     },
 custom_backend-1  |     {
-custom_backend-1  |       "image": "/static_design_images/ai_generated_a23214c0-a644-43b1-af0c-a1498c24a1ba.png",
+custom_backend-1  |       "image": "/static_design_images/ai_generated_8e54e134-843c-4c14-b21e-f7fc25797e2a.png",
 custom_backend-1  |       "title": "Marketing Specialist",
 custom_backend-1  |       "rating": "5.0",
 custom_backend-1  |       "lessons": 20,
@@ -694,7 +768,7 @@ custom_backend-1  |       "modules": 4,
 custom_backend-1  |       "description": "\u041e\u0431\u0443\u0447\u0435\u043d\u0438\u0435 \u043a\u043b\u044e\u0447\u0435\u0432\u044b\u043c \u043d\u0430\u0432\u044b\u043a\u0430\u043c \u0434\u043b\u044f \u043f\u043e\u0437\u0438\u0446\u0438\u0438 Marketing Specialist."
 custom_backend-1  |     },
 custom_backend-1  |     {
-custom_backend-1  |       "image": "/static_design_images/ai_generated_e757c082-a3db-4e60-9d8f-8bdaa15f872b.png",
+custom_backend-1  |       "image": "/static_design_images/ai_generated_8ace4bc9-f4ec-4976-8c23-96102b66d810.png",
 custom_backend-1  |       "title": "Logistics Coordinator",
 custom_backend-1  |       "rating": "5.0",
 custom_backend-1  |       "lessons": 20,
@@ -720,7 +794,7 @@ custom_backend-1  |       "earlyExit": {
 custom_backend-1  |         "months": "3",
 custom_backend-1  |         "percentage": "30"
 custom_backend-1  |       },
-custom_backend-1  |       "percentage": "70"
+custom_backend-1  |       "percentage": "15"
 custom_backend-1  |     },
 custom_backend-1  |     "chartData": {
 custom_backend-1  |       "trend": "\u0440\u043e\u0441\u0442",
@@ -728,43 +802,43 @@ custom_backend-1  |       "industry": "\u0410\u0432\u0442\u043e\u043c\u043e\u043
 custom_backend-1  |       "chartData": [
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u042f\u043d\u0432\u0430\u0440\u044c",
-custom_backend-1  |           "shortage": 3200
+custom_backend-1  |           "shortage": 3000
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u0424\u0435\u0432\u0440\u0430\u043b\u044c",
-custom_backend-1  |           "shortage": 3100
+custom_backend-1  |           "shortage": 2900
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u041c\u0430\u0440\u0442",
-custom_backend-1  |           "shortage": 3500
+custom_backend-1  |           "shortage": 3200
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u0410\u043f\u0440\u0435\u043b\u044c",
-custom_backend-1  |           "shortage": 3700
+custom_backend-1  |           "shortage": 3500
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u041c\u0430\u0439",
-custom_backend-1  |           "shortage": 4000
+custom_backend-1  |           "shortage": 3400
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u0418\u044e\u043d\u044c",
-custom_backend-1  |           "shortage": 4500
+custom_backend-1  |           "shortage": 4000
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u0418\u044e\u043b\u044c",
-custom_backend-1  |           "shortage": 4800
-custom_backend-1  |         },
-custom_backend-1  |         {
-custom_backend-1  |           "month": "\u0410\u0432\u0433\u0443\u0441\u0442",
 custom_backend-1  |           "shortage": 4200
 custom_backend-1  |         },
 custom_backend-1  |         {
+custom_backend-1  |           "month": "\u0410\u0432\u0433\u0443\u0441\u0442",
+custom_backend-1  |           "shortage": 3800
+custom_backend-1  |         },
+custom_backend-1  |         {
 custom_backend-1  |           "month": "\u0421\u0435\u043d\u0442\u044f\u0431\u0440\u044c",
-custom_backend-1  |           "shortage": 4400
+custom_backend-1  |           "shortage": 3900
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u041e\u043a\u0442\u044f\u0431\u0440\u044c",
-custom_backend-1  |           "shortage": 4600
+custom_backend-1  |           "shortage": 4500
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u041d\u043e\u044f\u0431\u0440\u044c",
@@ -772,22 +846,22 @@ custom_backend-1  |           "shortage": 4300
 custom_backend-1  |         },
 custom_backend-1  |         {
 custom_backend-1  |           "month": "\u0414\u0435\u043a\u0430\u0431\u0440\u044c",
-custom_backend-1  |           "shortage": 4900
+custom_backend-1  |           "shortage": 4600
 custom_backend-1  |         }
 custom_backend-1  |       ],
-custom_backend-1  |       "description": "\u0414\u0435\u0444\u0438\u0446\u0438\u0442 \u043a\u0432\u0430\u043b\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u043a\u0430\u0434\u0440\u043e\u0432 \u0432 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c\u043d\u043e\u0439 \u043f\u0440\u043e\u043c\u044b\u0448\u043b\u0435\u043d\u043d\u043e\u0441\u0442\u0438 \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0430\u0435\u0442 \u0440\u0430\u0441\u0442\u0438, \u043e\u0441\u043e\u0431\u0435\u043d\u043d\u043e \u0432 \u043b\u0435\u0442\u043d\u0438\u0435 \u043c\u0435\u0441\u044f\u0446\u044b, \u043a\u043e\u0433\u0434\u0430 \u0441\u043f\u0440\u043e\u0441 \u043d\u0430 \u0440\u0430\u0431\u043e\u0447\u0443\u044e \u0441\u0438\u043b\u0443 \u0443\u0432\u0435\u043b\u0438\u0447\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0438\u0437-\u0437\u0430 \u043f\u043e\u0432\u044b\u0448\u0435\u043d\u0438\u044f \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0445 \u043e\u0431\u044a\u0435\u043c\u043e\u0432. \u041e\u0434\u043d\u0430\u043a\u043e \u0432 \u0430\u0432\u0433\u0443\u0441\u0442\u0435 \u043d\u0430\u0431\u043b\u044e\u0434\u0430\u0435\u0442\u0441\u044f \u0441\u043d\u0438\u0436\u0435\u043d\u0438\u0435, \u0441\u0432\u044f\u0437\u0430\u043d\u043d\u043e\u0435 \u0441 \u043e\u0442\u043f\u0443\u0441\u043a\u043d\u044b\u043c \u0441\u0435\u0437\u043e\u043d\u043e\u043c. \u0412 \u0446\u0435\u043b\u043e\u043c, \u043e\u0442\u0440\u0430\u0441\u043b\u044c \u0441\u0442\u0430\u043b\u043a\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0441 \u043f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u044b\u043c\u0438 \u0432\u044b\u0437\u043e\u0432\u0430\u043c\u0438 \u0432 \u043f\u0440\u0438\u0432\u043b\u0435\u0447\u0435\u043d\u0438\u0438 \u0438 \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u0438 \u0441\u043f\u0435\u0446\u0438\u0430\u043b\u0438\u0441\u0442\u043e\u0432.",
-custom_backend-1  |       "totalShortage": 48700
+custom_backend-1  |       "description": "\u0414\u0435\u0444\u0438\u0446\u0438\u0442 \u043a\u0432\u0430\u043b\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u043a\u0430\u0434\u0440\u043e\u0432 \u0432 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c\u043d\u043e\u0439 \u043f\u0440\u043e\u043c\u044b\u0448\u043b\u0435\u043d\u043d\u043e\u0441\u0442\u0438 \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0430\u0435\u0442 \u0440\u0430\u0441\u0442\u0438, \u043e\u0441\u043e\u0431\u0435\u043d\u043d\u043e \u0432 \u043b\u0435\u0442\u043d\u0438\u0435 \u043c\u0435\u0441\u044f\u0446\u044b, \u043a\u043e\u0433\u0434\u0430 \u043d\u0430\u0431\u043b\u044e\u0434\u0430\u0435\u0442\u0441\u044f \u0432\u044b\u0441\u043e\u043a\u0438\u0439 \u0441\u043f\u0440\u043e\u0441 \u043d\u0430 \u043d\u043e\u0432\u044b\u0435 \u043c\u043e\u0434\u0435\u043b\u0438 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439. \u0421\u043d\u0438\u0436\u0435\u043d\u0438\u0435 \u0432 \u0430\u0432\u0433\u0443\u0441\u0442\u0435 \u0441\u0432\u044f\u0437\u0430\u043d\u043e \u0441 \u043e\u0442\u043f\u0443\u0441\u043a\u043d\u044b\u043c \u0441\u0435\u0437\u043e\u043d\u043e\u043c, \u043e\u0434\u043d\u0430\u043a\u043e \u0432 \u0446\u0435\u043b\u043e\u043c \u043d\u0430\u0431\u043b\u044e\u0434\u0430\u0435\u0442\u0441\u044f \u0443\u0441\u0442\u043e\u0439\u0447\u0438\u0432\u044b\u0439 \u0440\u043e\u0441\u0442 \u043f\u043e\u0442\u0440\u0435\u0431\u043d\u043e\u0441\u0442\u0438 \u0432 \u0441\u043f\u0435\u0446\u0438\u0430\u043b\u0438\u0441\u0442\u0430\u0445, \u0442\u0430\u043a\u0438\u0445 \u043a\u0430\u043a \u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0438 \u0438 \u0438\u043d\u0436\u0435\u043d\u0435\u0440\u044b.",
+custom_backend-1  |       "totalShortage": 45000
 custom_backend-1  |     },
 custom_backend-1  |     "searchTime": {
 custom_backend-1  |       "days": "30\u201360"
 custom_backend-1  |     },
 custom_backend-1  |     "yearlyShortage": {
 custom_backend-1  |       "industry": "\u0410\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c\u043d\u0430\u044f \u043f\u0440\u043e\u043c\u044b\u0448\u043b\u0435\u043d\u043d\u043e\u0441\u0442\u044c",
-custom_backend-1  |       "description": "\u0421 \u0443\u0447\u0435\u0442\u043e\u043c \u0442\u0435\u043a\u0443\u0449\u0435\u0433\u043e \u0434\u0435\u0444\u0438\u0446\u0438\u0442\u0430 \u043a\u0432\u0430\u043b\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0441\u043f\u0435\u0446\u0438\u0430\u043b\u0438\u0441\u0442\u043e\u0432 \u0432 \u043e\u0431\u043b\u0430\u0441\u0442\u0438 \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0438, \u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0438, \u0438 \u0434\u0440\u0443\u0433\u0438\u0445 \u0441\u043c\u0435\u0436\u043d\u044b\u0445 \u043f\u0440\u043e\u0444\u0435\u0441\u0441\u0438\u0439, \u0430 \u0442\u0430\u043a\u0436\u0435 \u0440\u043e\u0441\u0442\u0430 \u0441\u043f\u0440\u043e\u0441\u0430 \u043d\u0430 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0438 \u0438 \u0441\u0435\u0440\u0432\u0438\u0441\u043d\u044b\u0435 \u0443\u0441\u043b\u0443\u0433\u0438, \u0435\u0436\u0435\u0433\u043e\u0434\u043d\u044b\u0439 \u0434\u0435\u0444\u0438\u0446\u0438\u0442 \u0441\u043f\u0435\u0446\u0438\u0430\u043b\u0438\u0441\u0442\u043e\u0432 \u0432 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044c\u043d\u043e\u0439 \u043e\u0442\u0440\u0430\u0441\u043b\u0438 \u0441\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u0442 \u043e\u043a\u043e\u043b\u043e 70000 \u0447\u0435\u043b\u043e\u0432\u0435\u043a.",
+custom_backend-1  |       "description": "\u0421 \u0443\u0447\u0435\u0442\u043e\u043c \u0440\u043e\u0441\u0442\u0430 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0441\u0442\u0432\u0430 \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439 \u0438 \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u044f \u0441\u043f\u0440\u043e\u0441\u0430 \u043d\u0430 \u043d\u043e\u0432\u044b\u0435 \u043c\u043e\u0434\u0435\u043b\u0438, \u0430 \u0442\u0430\u043a\u0436\u0435 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043a\u0430 \u043a\u0432\u0430\u043b\u0438\u0444\u0438\u0446\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0445 \u0441\u043f\u0435\u0446\u0438\u0430\u043b\u0438\u0441\u0442\u043e\u0432 \u0432 \u0442\u0430\u043a\u0438\u0445 \u043e\u0431\u043b\u0430\u0441\u0442\u044f\u0445, \u043a\u0430\u043a \u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0430 \u0438 \u0438\u043d\u0436\u0435\u043d\u0435\u0440\u0438\u044f, \u043e\u0446\u0435\u043d\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u044e\u0449\u0438\u0445 \u0441\u043f\u0435\u0446\u0438\u0430\u043b\u0438\u0441\u0442\u043e\u0432 \u0441\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u0442 \u043e\u043a\u043e\u043b\u043e 70,000 \u0432 \u0433\u043e\u0434.",
 custom_backend-1  |       "yearlyShortage": 70000
 custom_backend-1  |     }
 custom_backend-1  |   },
-custom_backend-1  |   "companyDescription": "Company Description",
+custom_backend-1  |   "companyDescription": "\u041a\u043e\u043c\u043f\u0430\u043d\u0438\u044f Mercedes-Benz Polska \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u044f\u0435\u0442 \u0443\u0441\u043b\u0443\u0433\u0438 \u043f\u043e \u043f\u0440\u043e\u0434\u0430\u0436\u0435 \u0438 \u043e\u0431\u0441\u043b\u0443\u0436\u0438\u0432\u0430\u043d\u0438\u044e \u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u0435\u0439, \u0432\u043a\u043b\u044e\u0447\u0430\u044f \u043b\u0438\u043c\u0443\u0437\u0438\u043d\u044b, \u043a\u0443\u043f\u0435, \u043a\u0430\u0431\u0440\u0438\u043e\u043b\u0435\u0442\u044b, roadstery, SUV \u0438 \u043a\u043e\u043c\u0431\u0438\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0435 \u043c\u043e\u0434\u0435\u043b\u0438. \u0422\u0430\u043a\u0436\u0435 \u043f\u0440\u0435\u0434\u043b\u0430\u0433\u0430\u0435\u0442 \u043a\u0430\u0440\u044c\u0435\u0440\u043d\u044b\u0435 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438 \u0432 \u0440\u0430\u0437\u043b\u0438\u0447\u043d\u044b\u0445 \u043e\u0431\u043b\u0430\u0441\u0442\u044f\u0445, \u0442\u0430\u043a\u0438\u0445 \u043a\u0430\u043a \u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0430, \u043b\u043e\u0433\u0438\u0441\u0442\u0438\u043a\u0430 \u0438 \u0438\u043d\u0436\u0435\u043d\u0435\u0440\u0438\u044f.",
 custom_backend-1  |   "courseOutlineModules": [
 custom_backend-1  |     {
 custom_backend-1  |       "title": "\u0412\u0432\u0435\u0434\u0435\u043d\u0438\u0435 \u0432 \u043a\u043e\u043c\u043f\u0430\u043d\u0438\u044e \u0438 \u043a\u043e\u0440\u043f\u043e\u0440\u0430\u0442\u0438\u0432\u043d\u0443\u044e \u043a\u0443\u043b\u044c\u0442\u0443\u0440\u0443",
@@ -831,17 +905,19 @@ custom_backend-1  |       ]
 custom_backend-1  |     }
 custom_backend-1  |   ]
 custom_backend-1  | }
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 121 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:56788 - "GET /api/custom/projects/view/121 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56792 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 121
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 122 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:46976 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:46968 - "GET /api/custom/projects/view/122 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:46992 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 122
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
-custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Company Name'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
 custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['companyName', 'jobPositions', 'courseTemplates', 'originalPayload', 'workforceCrisis', 'companyDescription', 'courseOutlineModules']
 custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Company Name'
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company Description'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Компания Mercedes-Benz Polska предоставляет услуги по продаже и обслуживанию автомобилей, включая лимузины, купе, кабриолеты, roadstery, SUV и комбинированные модели. Также предлагает карьерные возможности в различных областях, таких как механика, логистика и инженерия.'
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 11 positions
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Job positions found in landing page data:
@@ -857,7 +933,7 @@ custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'icon': '�
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'icon': '⚙️', 'title': 'Operations Manager', 'description': 'Operations and process management'}
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'icon': '🛡️', 'title': 'Safety Coordinator', 'descri ption': 'Workplace safety and compliance'}
 custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
-custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {'losses': {'amount': '$15K–$25K'}, 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'industry': 'Автомобильная промышленность', 'turnover': {'earlyExit': {'months': '3', 'percentage': '30'}, 'percentage': '70'}, 'chartData': {'trend': 'рост', 'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3200}, {'month': 'Февраль', 'shortage': 3100}, {'month': 'Март', 'shortage': 3500}, {'month': 'Апрель', 'shortage': 3700}, {'month': 'Май', 'shortage': 4000}, {'month': 'Июнь', 'shortage': 4500}, {'month': 'Июль', 'shortage': 4800}, {'month': 'Август', 'shortage': 4200}, {'month': 'Сентябрь', 'shortage': 4400}, {'month': 'Октябрь', 'shortage': 4600}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4900}], 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда спрос на рабочую силу увеличивается из-за повышения производственных объемов. Однако в августе наблюдается снижение, связанное с отпускным сезоном. В целом, отрасль сталкивается с постоянными вызовами в привлечении и удержании специалистов.', 'totalShortage': 48700}, 'searchTime': {'days': '30–60'}, 'yearlyShortage': {'industry': 'Автомобильная промышленность', 'description': 'С учетом текущего дефицита квалифицированных специалистов в области электромеханики, механики, и других смежных профессий, а также роста спроса на автомобили и сервисные услуги, ежегодный дефицит специалистов в автомобильной отрасли составляет около 70000 человек.', 'yearlyShortage': 70000}}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {'losses': {'amount': '$15K–$25K'}, 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'industry': 'Автомобильная промышленность', 'turnover': {'earlyExit': {'months': '3', 'percentage': '30'}, 'percentage': '15'}, 'chartData': {'trend': 'рост', 'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3000}, {'month': 'Февраль', 'shortage': 2900}, {'month': 'Март', 'shortage': 3200}, {'month': 'Апрель', 'shortage': 3500}, {'month': 'Май', 'shortage': 3400}, {'month': 'Июнь', 'shortage': 4000}, {'month': 'Июль', 'shortage': 4200}, {'month': 'Август', 'shortage': 3800}, {'month': 'Сентябрь', 'shortage': 3900}, {'month': 'Октябрь', 'shortage': 4500}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4600}], 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда наблюдается высокий спрос на новые модели автомобилей. Снижение в августе связано с отпускным сезоном, однако в целом наблюдается устойчивый рост потребности в специалистах, таких как механики и инженеры.', 'totalShortage': 45000}, 'searchTime': {'days': '30–60'}, 'yearlyShortage': {'industry': 'Автомобильная промышленность', 'description': 'С учетом роста производства автомобилей и увеличения спроса на новые модели, а также недостатка квалифицированных специалистов в таких областях, как механика и инженерия, оценка недостающих специалистов составляет около 70,000 в год.', 'yearlyShortage': 70000}}
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 4
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Введение в компанию и корпоративную культуру', 'lessons': ['Знакомство с компанией', 'Корпоративные ценности и стандарты', 'Организационная структура', 'Политики и процедуры', 'Системы коммуникации']}
@@ -873,16 +949,16 @@ custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 4: Customer Supp
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Marketing Specialist
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Logistics Coordinator
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 121
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Company Name'
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Company Name'
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company Description'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 122
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Компания Mercedes-Benz Polska предоставляет услуги по продаже и обслуживанию автомобилей, включая лимузины, купе, кабриолеты, roadstery, SUV и комбинированные модели. Также предлагает карьерные возможности в различных областях, таких как механика, логистика и инженерия.'
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 11
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {'losses': {'amount': '$15K–$25K'}, 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'industry': 'Автомобильная промышленность', 'turnover': {'earlyExit': {'months': '3', 'percentage': '30'}, 'percentage': '70'}, 'chartData': {'trend': 'рост', 'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3200}, {'month': 'Февраль', 'shortage': 3100}, {'month': 'Март', 'shortage': 3500}, {'month': 'Апрель', 'shortage': 3700}, {'month': 'Май', 'shortage': 4000}, {'month': 'Июнь', 'shortage': 4500}, {'month': 'Июль', 'shortage': 4800}, {'month': 'Август', 'shortage': 4200}, {'month': 'Сентябрь', 'shortage': 4400}, {'month': 'Октябрь', 'shortage': 4600}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4900}], 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда спрос на рабочую силу увеличивается из-за повышения производственных объемов. Однако в августе наблюдается снижение, связанное с отпускным сезоном. В целом, отрасль сталкивается с постоянными вызовами в привлечении и удержании специалистов.', 'totalShortage': 48700}, 'searchTime': {'days': '30–60'}, 'yearlyShortage': {'industry': 'Автомобильная промышленность', 'description': 'С учетом текущего дефицита квалифицированных специалистов в области электромеханики, механики, и других смежных профессий, а также роста спроса на автомобили и сервисные услуги, ежегодный дефицит специалистов в автомобильной отрасли составляет около 70000 человек.', 'yearlyShortage': 70000}}
-custom_backend-1  | INFO:     172.18.0.12:56794 - "GET /api/custom/ai-audit/landing-page/121 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56822 - "GET /static_design_images/ai_generated_526c5c01-360c-4bc0-aea7-493fc270c84a.png HTTP/1.0" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56842 - "GET /static_design_images/ai_generated_ddbf5cee-23cd-42c0-8348-ee067d23be12.png HTTP/1.0" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56846 - "GET /static_design_images/ai_generated_e757c082-a3db-4e60-9d8f-8bdaa15f872b.png HTTP/1.0" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56796 - "GET /static_design_images/ai_generated_08508604-420c-4f0b-bc5d-c3ab447b9b95.png HTTP/1.0" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56826 - "GET /static_design_images/ai_generated_bee158ed-cbb9-4db9-bfb5-14ec485c7e75.png HTTP/1.0" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:56806 - "GET /static_design_images/ai_generated_a23214c0-a644-43b1-af0c-a1498c24a1ba.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {'losses': {'amount': '$15K–$25K'}, 'burnout': {'months': '24', 'industryName': 'автомобильной промышленности'}, 'industry': 'Автомобильная промышленность', 'turnover': {'earlyExit': {'months': '3', 'percentage': '30'}, 'percentage': '15'}, 'chartData': {'trend': 'рост', 'industry': 'Автомобильная промышленность', 'chartData': [{'month': 'Январь', 'shortage': 3000}, {'month': 'Февраль', 'shortage': 2900}, {'month': 'Март', 'shortage': 3200}, {'month': 'Апрель', 'shortage': 3500}, {'month': 'Май', 'shortage': 3400}, {'month': 'Июнь', 'shortage': 4000}, {'month': 'Июль', 'shortage': 4200}, {'month': 'Август', 'shortage': 3800}, {'month': 'Сентябрь', 'shortage': 3900}, {'month': 'Октябрь', 'shortage': 4500}, {'month': 'Ноябрь', 'shortage': 4300}, {'month': 'Декабрь', 'shortage': 4600}], 'description': 'Дефицит квалифицированных кадров в автомобильной промышленности продолжает расти, особенно в летние месяцы, когда наблюдается высокий спрос на новые модели автомобилей. Снижение в августе связано с отпускным сезоном, однако в целом наблюдается устойчивый рост потребности в специалистах, таких как механики и инженеры.', 'totalShortage': 45000}, 'searchTime': {'days': '30–60'}, 'yearlyShortage': {'industry': 'Автомобильная промышленность', 'description': 'С учетом роста производства автомобилей и увеличения спроса на новые модели, а также недостатка квалифицированных специалистов в таких областях, как механика и инженерия, оценка недостающих специалистов составляет около 70,000 в год.', 'yearlyShortage': 70000}}
+custom_backend-1  | INFO:     172.18.0.12:42596 - "GET /api/custom/ai-audit/landing-page/122 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42640 - "GET /static_design_images/ai_generated_8e54e134-843c-4c14-b21e-f7fc25797e2a.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42610 - "GET /static_design_images/ai_generated_d27c1119-f99f-4dfa-87c4-9fbefe170916.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42620 - "GET /static_design_images/ai_generated_58f3fb02-7989-4317-80a6-03e438066145.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42614 - "GET /static_design_images/ai_generated_7606e834-5a5e-4164-8681-644377d6a5df.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42652 - "GET /static_design_images/ai_generated_9d346797-6bea-4e68-a033-2d94da8b80ef.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42624 - "GET /static_design_images/ai_generated_8ace4bc9-f4ec-4976-8c23-96102b66d810.png HTTP/1.0" 200 OK
