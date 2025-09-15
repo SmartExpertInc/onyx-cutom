@@ -133,6 +133,7 @@ export default function QuizClient() {
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
+  const nextEditingIdRef = useRef<number | null>(null);
 
   // ---- Inline Advanced Mode ----
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -1414,7 +1415,7 @@ export default function QuizClient() {
                 {questionList.length > 0 && (
                   <div className="flex flex-col gap-4">
                     {questionList.map((question, idx: number) => (
-                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
                           {idx + 1}
                         </div>
@@ -1426,7 +1427,7 @@ export default function QuizClient() {
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8"
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8 h-auto"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                   onKeyDown={(e) => {
@@ -1437,7 +1438,7 @@ export default function QuizClient() {
                                 {(editedTitles[idx] || question.title) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1 right-0 text-gray-400 opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
@@ -1445,26 +1446,29 @@ export default function QuizClient() {
                               <div className="relative group">
                                 <h4
                                   className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
-                                  onClick={() => setEditingQuestionId(idx)}
+                                  onMouseDown={() => {
+                                    // Set the next editing ID before the blur event fires
+                                    nextEditingIdRef.current = idx;
+                                  }}
+                                  onClick={() => {
+                                    setEditingQuestionId(idx);
+                                  }}
                                 >
                                   {getTitleForQuestion(question, idx)}
                                 </h4>
                                 {getTitleForQuestion(question, idx) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
                             )}
                           </div>
                           {question.content && (
-                            <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${(() => {
-                              const shouldBlur = editedTitleIds.has(idx);
-
-                              return shouldBlur ? 'filter blur-[2px]' : '';
-                            })()}`}>
-                              {question.content}
+                            <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                              {question.content.substring(0, 100)}
+                              {question.content.length > 100 && '...'}
                             </div>
                           )}
                         </div>

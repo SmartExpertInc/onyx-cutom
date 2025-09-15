@@ -1375,24 +1375,25 @@ export default function CourseOutlineClient() {
                 </div>
               )}
               {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex rounded-xl shadow-sm overflow-hidden">
-                  {/* Left colored bar with index */}
-                  <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                    <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{modIdx + 1}</span>
+                <div key={mod.id} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                  {/* Left numbered section */}
+                  <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                    {modIdx + 1}
                   </div>
 
-                  {/* Main card */}
-                  <Card className="flex-1 rounded-r-xl border-gray-300">
-                    <CardContent className="p-5">
+                  {/* Main content section */}
+                  <div className="flex-1 p-4">
                     {/* Module title */}
-                    <Input
-                      type="text"
-                      value={mod.title}
-                      onChange={(e) => handleModuleChange(modIdx, e.target.value)}
-                      data-modtitle={modIdx}
-                      className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                      placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
-                    />
+                    <div className="mb-2">
+                      <Input
+                        type="text"
+                        value={mod.title}
+                        onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                        data-modtitle={modIdx}
+                        className="text-[#20355D] text-base font-semibold bg-transparent border-none p-0 w-full focus:outline-none focus:ring-0"
+                        placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
+                      />
+                    </div>
 
                     {/* Lessons list */}
                     <ul className="flex flex-col gap-1 text-gray-900">
@@ -1417,15 +1418,14 @@ export default function CourseOutlineClient() {
                                onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                data-mod={modIdx}
                                data-les={lessonIdx}
-                               className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
+                               className="flex-grow bg-transparent border-none p-0 text-sm text-gray-700 focus:outline-none focus:ring-0"
                                placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                              />
                            </li>
                          );
                        })}
                     </ul>
-                    </CardContent>
-                  </Card>
+                  </div>
                 </div>
               ))}
               {/* Add-module button – pill style, full-width */}

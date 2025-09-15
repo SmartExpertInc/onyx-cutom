@@ -1445,33 +1445,41 @@ export default function LessonPresentationClient() {
                     }
 
                     return (
-                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
-                        {/* Left colored bar with index - matching course outline styling */}
-                        <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                          <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{slideIdx + 1}</span>
+                      <div key={slideIdx} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                        {/* Left numbered section */}
+                        <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                          {slideIdx + 1}
                         </div>
 
-                        {/* Main card - matching course outline styling */}
-                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                        {/* Main content section */}
+                        <div className="flex-1 p-4">
                           {/* Slide title */}
-                          <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => {
-                              const newTitle = e.target.value;
-                              // Update the content with new title using language-agnostic pattern
-                              const slidePattern = titleMatch
-                                ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
-                                : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
+                          <div className="relative group">
+                            <input
+                              type="text"
+                              value={title}
+                              onChange={(e) => {
+                                const newTitle = e.target.value;
+                                // Update the content with new title using language-agnostic pattern
+                                const slidePattern = titleMatch
+                                  ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
+                                  : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
 
-                              const updatedContent = content.replace(slidePattern,
-                                titleMatch ? `$1${newTitle}` : `**${newTitle}**`
-                              );
-                              setContent(updatedContent);
-                            }}
-                            className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                            placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
-                          />
+                                const updatedContent = content.replace(slidePattern,
+                                  titleMatch ? `$1${newTitle}` : `**${newTitle}**`
+                                );
+                                setContent(updatedContent);
+                              }}
+                              className="text-[#20355D] text-base font-semibold bg-transparent border-none p-0 w-full pr-8 focus:outline-none focus:ring-0 mb-3"
+                              placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
+                            />
+                            {title && (
+                              <Edit
+                                size={14}
+                                className="absolute top-1 right-0 text-gray-400 opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                              />
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
