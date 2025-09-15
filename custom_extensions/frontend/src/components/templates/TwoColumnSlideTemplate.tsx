@@ -89,7 +89,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: '#EDEDED',
+        backgroundColor: '#E0E7FF',
         padding: '60px',
         paddingBottom: '110px',
         display: 'flex',
@@ -99,13 +99,13 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
       }}>
         {/* Profile image */}
         <div style={{
-          width: '120px',
-          height: '120px',
+          width: '135px',
+          height: '135px',
           borderRadius: '50%',
           position: 'absolute',
-          backgroundColor: '#000',
+          backgroundColor: '#ffffff',
           top: '40px',
-          right: '8px',
+          right: '40px',
           overflow: 'hidden'
         }}>
           <ClickableImagePlaceholder
@@ -116,7 +116,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '94%',
+              width: '88%',
               height: '100%',
               borderRadius: '50%',
               objectFit: 'cover',
@@ -140,12 +140,11 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
           {/* Content text */}
           <div style={{
-            fontSize: '13px',
-            color: '#7A7A7A',
+            fontSize: '15px',
+            color: '#09090B',
             lineHeight: '1.6',
             position: 'relative',
-            bottom: '-205px',
-            textAlign: 'right',
+            bottom: '-185px',
             width: '100%'
           }}>
             {isEditable && editingContent ? (
@@ -156,11 +155,10 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 multiline={true}
                 className="two-column-content-editor"
                 style={{
-                  fontSize: '13px',
-                  color: '#7A7A7A',
+                  fontSize: '15px',
+                  color: '#09090B',
                   lineHeight: '1.6',
                   width: '100%',
-                  textAlign: 'right',
                   minHeight: 'auto'
                 }}
               />
@@ -170,10 +168,9 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
-                  fontSize: '13px',
-                  color: '#7A7A7A',
+                  fontSize: '15px',
+                  color: '#09090B',
                   lineHeight: '1.6',
-                  textAlign: 'right',
                   width: '100%'
                 }}
               >
@@ -186,7 +183,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
 
       {/* Right section with image */}
       <div style={{
-        width: '85%',
+        width: '50%',
         height: '100%',
         position: 'relative'
       }}>

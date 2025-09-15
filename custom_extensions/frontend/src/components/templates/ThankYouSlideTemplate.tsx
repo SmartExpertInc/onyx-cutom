@@ -459,6 +459,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           style={{
             width: '90%',
             height: '100%',
+            position: 'absolute',
+            bottom: '-30px',
             borderRadius: '50%',
             overflow: 'hidden'
           }}
