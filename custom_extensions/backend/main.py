@@ -15008,8 +15008,8 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                             file_context = connector_context
                     else:
                         # For connector-based filtering only, extract context from specific connectors
-                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
