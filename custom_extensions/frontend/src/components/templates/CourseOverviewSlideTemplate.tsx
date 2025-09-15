@@ -229,7 +229,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         <div style={{
           position: 'absolute',
           bottom: '30px',
-          left: '23px',
+          left: '0px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'

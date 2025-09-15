@@ -154,7 +154,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#4D4828',
+    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -277,7 +277,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Title - Centered vertically */}
         <div style={{ 
           position: 'absolute',
-          top: '40%',
+          top: '22%',
           left: '60px',
           transform: 'translateY(-50%)',
           marginBottom: '40px'
@@ -291,7 +291,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 marginTop: '162px',
                 fontSize: '58px',
-                color: '#E3DEBE',
+                color: '#ffffff',
                 lineHeight: '1.1',
                 fontFamily: currentTheme.fonts.titleFont,
                 position: 'relative'
@@ -303,7 +303,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 marginTop: '162px',
                 fontSize: '58px',
-                color: '#E3DEBE',
+                color: '#ffffff',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.titleFont,
@@ -319,7 +319,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Content */}
         <div style={{ 
           position: 'absolute',
-          top: '55%',
+          top: '39%',
           left: '60px',
         }}>
           {isEditable && editingContent ? (
@@ -332,9 +332,9 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 marginTop: '31px',
                 marginLeft: '6px',
-                width: '558px',
-                fontSize: '27px',
-                color: '#D6D2B2',
+                width: '500px',
+                fontSize: '23px',
+                color: '#ffffff',
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont,
                 position: 'relative'
@@ -346,9 +346,9 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 marginTop: '31px',
                 marginLeft: '6px',
-                width: '558px',
-                fontSize: '27px',
-                color: '#D6D2B2',
+                width: '500px',
+                fontSize: '23px',
+                color: '#ffffff',
                 lineHeight: '1.6',
                 cursor: isEditable ? 'pointer' : 'default',
                 fontFamily: currentTheme.fonts.contentFont,
@@ -359,6 +359,31 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               {currentContent}
             </div>
           )}
+        </div>
+
+        {/* Page number with line */}
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          left: '0px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          {/* Small line */}
+          <div style={{
+            width: '20px',
+            height: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          }} />
+          {/* Page number */}
+          <div style={{
+            color: '#ffffff',
+            fontSize: '17px',
+            fontWeight: '300'
+          }}>
+            02
+          </div>
         </div>
       </div>
 
@@ -379,7 +404,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
           transform: 'rotate(90deg)',
           width: '125%',
           height: '77%',
-          backgroundColor: '#9E9E58',
+          backgroundColor: '#ffffff',
           borderRadius: '50% 0 0 50%',
           zIndex: 1
         }} />
@@ -387,10 +412,10 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Image */}
         <div style={{
           position: 'absolute',
-          left: '0px',
+          left: '-42px',
           bottom: '-27px',
           zIndex: 2,
-          width: '80%',
+          width: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
