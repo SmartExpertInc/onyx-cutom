@@ -163,7 +163,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       onClick={handleExport}
       disabled={!hasSelectedProducts || isExporting}
       variant={getButtonVariant()}
-      className={`flex items-center gap-2 px-6 py-3 ${getButtonClassName()}`}
+      className={`flex items-center gap-2 px-6 py-3 rounded-full ${getButtonClassName()}`}
     >
       {isExporting ? (
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

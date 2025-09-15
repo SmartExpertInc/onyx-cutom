@@ -125,7 +125,9 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
       onClick={handleCardClick}
     >
       {/* Selection checkbox */}
-      <div className="absolute top-3 right-3 z-10">
+      <div className={`absolute top-3 right-3 z-10 transition-opacity duration-200 ${
+        isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+      }`}>
         <Checkbox
           checked={isSelected}
           onCheckedChange={() => onToggleSelect(product.id)}
@@ -137,7 +139,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
       {/* Card content - exact copy from ProjectsTable */}
       <div className="block">
         <div 
-          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
+          className="relative rounded-t-xl h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
           style={{
             backgroundColor: bgColor,
             backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
@@ -186,7 +188,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
         </div>
         
         {/* Lower section with white background */}
-        <div className="bg-white p-4 h-25 flex flex-col justify-between">
+        <div className="bg-white p-4 h-25 flex flex-col justify-between rounded-b-xl">
           {/* Full title */}
           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
