@@ -14179,14 +14179,14 @@ async def extract_company_name_from_data(duckduckgo_summary: str, payload) -> st
         # Clean up the response
         company_name = response_text.strip()
         if not company_name:
-            company_name = payload.companyName  # Fallback to original name
+            company_name = getattr(payload, 'companyName', 'Company Name')  # Fallback to original name
         
         logger.info(f"[AI-Audit Landing Page] Extracted company name: {company_name}")
         return company_name
         
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error extracting company name: {e}")
-        return payload.companyName  # Fallback to original name
+        return getattr(payload, 'companyName', 'Company Name')  # Fallback to original name
 
 
 async def generate_company_description_from_data(duckduckgo_summary: str, payload) -> str:
@@ -14329,14 +14329,14 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
         wizard_request = {
             "product": "Course Outline",
             "prompt": (
-                f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{payload.companyName}'. \n"
+                f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
                 f"КОНТЕКСТ КОМПАНИИ:\n"
-                f"- Название компании: {payload.companyName}\n"
-                f"- Описание компании: {payload.companyDescription}\n"
+                f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
+                f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
                 f"- Должность: {position_title}\n"
                 f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
                 f"ТРЕБОВАНИЯ К КУРСУ:\n"
-                f"- Курс должен быть специфичным для компании {payload.companyName} и должности {position_title}\n"
+                f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
                 f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
                 f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
                 f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
@@ -14438,7 +14438,7 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
             # Generate proper course description for scraped positions
             course_description = await generate_course_description_for_position(
                 job_title, 
-                payload.companyName, 
+                getattr(payload, 'companyName', 'Company Name'), 
                 duckduckgo_summary
             )
             
@@ -14446,7 +14446,7 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
             logger.info(f"🎨 [COURSE TEMPLATES] Generating AI image for position: {job_title}")
             ai_image_path = await generate_ai_image_for_job_position(
                 job_title,
-                payload.companyName
+                getattr(payload, 'companyName', 'Company Name')
             )
             logger.info(f"🎨 [COURSE TEMPLATES] Generated AI image path: {ai_image_path}")
             
@@ -14474,7 +14474,7 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
                 logger.info(f"🎨 [COURSE TEMPLATES] Generating AI image for AI-generated position: {job_title}")
                 ai_image_path = await generate_ai_image_for_job_position(
                     job_title,
-                    payload.companyName
+                    getattr(payload, 'companyName', 'Company Name')
                 )
                 logger.info(f"🎨 [COURSE TEMPLATES] Generated AI image path for AI-generated position: {ai_image_path}")
                 
@@ -15296,7 +15296,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             'priorityOther': scraped_data.priorityOther
         })()
         # Generate job positions using the same logic as the old audit
-        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, combined_payload)
+        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, combined_payload, company_name)
         
         # 📊 LOG: Job positions generated
         logger.info(f"💼 [AUDIT DATA FLOW] Generated {len(job_positions)} job positions")
@@ -15305,14 +15305,14 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating workforce crisis data...")
         # Generate workforce crisis data for the "Кадровый кризис" section
-        workforce_crisis_data = await generate_workforce_crisis_data(duckduckgo_summary, payload)
+        workforce_crisis_data = await generate_workforce_crisis_data(duckduckgo_summary, combined_payload)
         
         # 📊 LOG: Workforce crisis data generated
         logger.info(f"📊 [AUDIT DATA FLOW] Generated workforce crisis data: {workforce_crisis_data}")
 
         set_progress(job_id, "Generating course outline...")
         # Generate course outline for the "План обучения" section
-        course_outline_modules = await generate_course_outline_for_landing_page(duckduckgo_summary, job_positions, payload)
+        course_outline_modules = await generate_course_outline_for_landing_page(duckduckgo_summary, job_positions, combined_payload)
         
         # 📊 LOG: Course outline generated
         logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline_modules)} modules")
@@ -15321,7 +15321,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating course templates...")
         # Generate course templates for the "Готовые шаблоны курсов" section
-        course_templates = await generate_course_templates(duckduckgo_summary, job_positions, payload, course_outline_modules)
+        course_templates = await generate_course_templates(duckduckgo_summary, job_positions, combined_payload, course_outline_modules)
         
         # 📊 LOG: Course templates generated
         logger.info(f"🎓 [AUDIT DATA FLOW] Generated {len(course_templates)} course templates")
@@ -15374,7 +15374,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             AND p.microproduct_name LIKE $2
             LIMIT 1
             """
-            existing_folder = await conn.fetchrow(existing_folder_query, onyx_user_id, f"%{payload.companyName}%")
+            existing_folder = await conn.fetchrow(existing_folder_query, onyx_user_id, f"%{company_name}%")
             
             if existing_folder:
                 # Assign to existing folder
@@ -15383,7 +15383,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
                 logger.info(f"🔧 [AUDIT DATA FLOW] Assigned landing page to existing folder: {folder_id}")
             else:
                 # Create new folder and assign
-                folder_id = await create_audit_folder(pool, onyx_user_id, payload.companyName)
+                folder_id = await create_audit_folder(pool, onyx_user_id, company_name)
                 await conn.execute("UPDATE projects SET folder_id = $1 WHERE id = $2", folder_id, project_id)
                 logger.info(f"🔧 [AUDIT DATA FLOW] Created new folder and assigned landing page: {folder_id}")
 
@@ -15432,7 +15432,7 @@ def extract_open_positions_from_table(parsed_json):
     return []
 
 
-async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload) -> list:
+async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload, company_name: str) -> list:
     """
     Generates job positions using the same logic as the old audit system.
     Creates a one-pager with the АКТИВНЫЙ НАЙМ section and extracts job positions from it.
@@ -15456,7 +15456,7 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
             position_title = position.get("Позиция", "Position")
             formatted_positions.append({
                 "title": position_title,
-                "description": f"Open position at {payload.companyName}",
+                "description": f"Open position at {company_name}",
                 "icon": "👷"  # Default icon
             })
         
@@ -15480,13 +15480,13 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
             logger.info(f"🔍 [AUDIT DATA FLOW] Need {needed_positions} additional positions to reach {target_count} total")
             
             # Generate additional positions using the same logic as course templates
-            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload)
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, combined_payload)
             
             # Convert additional positions to the expected format
             for position in additional_positions:
                 formatted_positions.append({
                     "title": position.get("title", "Generated Position"),
-                    "description": position.get("description", f"Open position at {payload.companyName}"),
+                    "description": position.get("description", f"Open position at {company_name}"),
                     "icon": "👷"  # Default icon
                 })
             
