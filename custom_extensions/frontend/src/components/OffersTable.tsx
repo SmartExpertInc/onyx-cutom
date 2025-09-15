@@ -36,6 +36,8 @@ import {
   Copy,
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 interface Offer {
   id: number;
@@ -385,20 +387,21 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header with Search, Filter, and Create Button */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           {/* Search and Filter Row */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-              <input
+              <Input
+                variant="shadow"
                 type="text"
                 placeholder={t('interface.searchOffers', 'Search offers...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-black text-black"
+                className="w-full pl-10 pr-4 py-2"
               />
             </div>
             {/* <select
@@ -420,18 +423,19 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           </div>
 
           {/* Create Button */}
-          <button
+          <Button
+            variant="download"
             onClick={() => {
               // Dispatch event to open create offer modal in parent component
               window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
                 detail: { folder: null }
               }));
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
           >
             <Plus size={16} />
             {t('interface.createOffer', 'Create Offer')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -439,7 +443,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-white">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
