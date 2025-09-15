@@ -512,24 +512,42 @@ export default function DynamicAuditLandingPage() {
                     className="w-full max-w-[290px] h-[256px] py-[15px] pl-[10px] pr-[9px] border border-[#E0E0E0] rounded-[4px] xl:hidden"
                     style={{ minHeight: '256px', maxHeight: '256px' }}
                   >
-                    <Image 
-                      src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
-                      alt="Audit section 3 card 2 mobile" 
-                      width={271}
-                      height={226}
-                      className="w-full h-[226px] object-cover"
-                      style={{ maxHeight: '226px' }}
-                    />
+                    {landingPageData?.workforceCrisis?.chartData ? (
+                      <div className="w-full h-[226px] flex justify-center items-center">
+                        <PersonnelShortageChart 
+                          chartData={landingPageData.workforceCrisis.chartData} 
+                          isMobile={true}
+                        />
+                      </div>
+                    ) : (
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-3-card-2-mobile.png" 
+                        alt="Audit section 3 card 2 mobile" 
+                        width={271}
+                        height={226}
+                        className="w-full h-[226px] object-cover"
+                        style={{ maxHeight: '226px' }}
+                      />
+                    )}
                   </div>
   
                   <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
-                    <Image 
-                      src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
-                      alt="Audit section 3 card 2 desktop" 
-                      width={620}
-                      height={420}
-                      className="w-full h-full object-cover"
-                    />
+                    {landingPageData?.workforceCrisis?.chartData ? (
+                      <div className="w-full h-full flex justify-center items-center">
+                        <PersonnelShortageChart 
+                          chartData={landingPageData.workforceCrisis.chartData} 
+                          isMobile={false}
+                        />
+                      </div>
+                    ) : (
+                      <Image 
+                        src="/custom-projects-ui/images/audit-section-3-card-2-desktop.png" 
+                        alt="Audit section 3 card 2 desktop" 
+                        width={620}
+                        height={420}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -541,22 +559,13 @@ export default function DynamicAuditLandingPage() {
                 Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли
               </h2>
   
-              {landingPageData?.workforceCrisis?.chartData ? (
-                <div className="w-full xl:hidden flex justify-center">
-                  <PersonnelShortageChart 
-                    chartData={landingPageData.workforceCrisis.chartData} 
-                    isMobile={true}
-                  />
-                </div>
-              ) : (
-                <Image 
-                  src="/custom-projects-ui/images/audit-section-4-image.png" 
-                  alt="Кадровый кризис в HVAC-отрасли" 
-                  width={320}
-                  height={220}
-                  className="w-full xl:hidden"
-                />
-              )}
+              <Image 
+                src="/custom-projects-ui/images/audit-section-4-image.png" 
+                alt="Кадровый кризис в HVAC-отрасли" 
+                width={320}
+                height={220}
+                className="w-full xl:hidden"
+              />
                 
               <div className="flex flex-col gap-[15px] xl:hidden">
                 <div className="flex items-center gap-[10px]">
@@ -658,20 +667,13 @@ export default function DynamicAuditLandingPage() {
                   </div>
                 </div>
   
-                {landingPageData?.workforceCrisis?.chartData ? (
-                  <PersonnelShortageChart 
-                    chartData={landingPageData.workforceCrisis.chartData} 
-                    isMobile={false}
-                  />
-                ) : (
-                  <Image 
-                    src="/custom-projects-ui/images/audit-section-4-image-desktop.png" 
-                    alt="Кадровый кризис в HVAC-отрасли" 
-                    width={360}
-                    height={280}
-                    className="w-[360px] h-[280px]"
-                  />
-                )}
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-4-image-desktop.png" 
+                  alt="Кадровый кризис в HVAC-отрасли" 
+                  width={360}
+                  height={280}
+                  className="w-[360px] h-[280px]"
+                />
   
                 <div className="flex flex-col gap-[50px] my-[36px] w-[340px]">
                   <div className="flex flex-col gap-[12px]">
