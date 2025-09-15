@@ -110,7 +110,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState<number | ''>('');
-  const [newMemberStatus, setNewMemberStatus] = useState<'pending' | 'active' | 'suspended'>('pending');
+  const [newMemberStatus, setNewMemberStatus] = useState<'pending' | 'active' | 'suspended'>('active');
 
   // Workspace creation state
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
@@ -846,7 +846,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 </Select>
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t('interface.addMemberModal.statusLabel', 'Status')}
                 </label>
@@ -863,7 +863,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                     <SelectItem value="suspended">{t('interface.statuses.suspended', 'Suspended')}</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
             </div>
 
           <DialogFooter className="flex gap-3">
