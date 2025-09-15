@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { PhishingDefinitionSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -143,12 +145,16 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  logoPath = '',
+  pageNumber = '06'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDefinitions, setEditingDefinitions] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentDefinitions, setCurrentDefinitions] = useState(definitions);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -168,7 +174,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, title: newTitle });
     }
   };
 
@@ -178,7 +184,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
     setCurrentDefinitions(newDefinitions);
     setEditingDefinitions(null);
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, definitions: newDefinitions });
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, definitions: newDefinitions });
     }
   };
 
@@ -194,13 +200,32 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, profileImagePath: newImagePath });
     }
   };
 
   const handleRightImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor }, rightImagePath: newImagePath });
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, rightImagePath: newImagePath });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
+  const handleLogoUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, definitions, profileImagePath, profileImageAlt, rightImagePath, rightImageAlt, backgroundColor, titleColor, contentColor, accentColor, logoPath, pageNumber }, logoPath: newLogoPath });
     }
   };
 
@@ -210,7 +235,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#E0E7FF',
         padding: '60px',
         paddingTop: '40px',
         display: 'flex',
@@ -219,7 +244,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       }}>
         {/* Title */}
         <div style={{
-          fontSize: '56px',
+          fontSize: '50px',
           color: '#212222',
           marginBottom: '15px',
           lineHeight: '1.2'
@@ -232,7 +257,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               multiline={true}
               className="phishing-title-editor"
               style={{
-                fontSize: '56px',
+                fontSize: '50px',
                 color: '#212222',
                 lineHeight: '1.2'
               }}
@@ -262,7 +287,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             <div
               key={index}
               style={{
-                fontSize: '11px',
+                fontSize: '14px',
                 color: '#545555',
                 lineHeight: '1.5'
               }}
@@ -275,7 +300,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
                   multiline={true}
                   className="definition-editor"
                   style={{
-                    fontSize: '11px',
+                    fontSize: '14px',
                     color: '#545555',
                     lineHeight: '1.5'
                   }}
@@ -298,12 +323,13 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         {/* Profile image at bottom left */}
         <div style={{
           position: 'absolute',
-          bottom: '40px',
+          bottom: '115px',
           left: '60px',
-          width: '130px',
-          height: '130px',
+          width: '145px',
+          height: '145px',
           borderRadius: '50%',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          backgroundColor: '#ffffff'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -313,12 +339,61 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '100%',
+              width: '88%',
               height: '100%',
               borderRadius: '50%',
+              position: 'relative',
+              bottom: '-10px',
               objectFit: 'cover'
             }}
           />
+        </div>
+
+        {/* Page number with line */}
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          left: '0px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          zIndex: 20
+        }}>
+          {/* Small line */}
+          <div style={{
+            width: '20px',
+            height: '1px',
+            backgroundColor: 'rgba(9, 9, 11, 0.3)'
+          }} />
+          {/* Page number */}
+          {isEditable && editingPageNumber ? (
+            <ImprovedInlineEditor
+              initialValue={currentPageNumber}
+              onSave={handlePageNumberSave}
+              onCancel={handlePageNumberCancel}
+              className="page-number-editor"
+              style={{
+                color: '#09090B',
+                fontSize: '17px',
+                fontWeight: '300',
+                width: '30px',
+                height: 'auto'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingPageNumber(true)}
+              style={{
+                color: '#09090B',
+                fontSize: '17px',
+                fontWeight: '300',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentPageNumber}
+            </div>
+          )}
         </div>
       </div>
 
@@ -342,6 +417,22 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             objectFit: 'cover'
           }}
         />
+
+        {/* Logo in bottom-right corner */}
+        <div style={{
+          position: 'absolute',
+          bottom: '30px',
+          right: '30px',
+          zIndex: 20
+        }}>
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={handleLogoUploaded}
+            isEditable={isEditable}
+            color="#ffffff"
+            text="Your Logo"
+          />
+        </div>
       </div>
     </div>
   );

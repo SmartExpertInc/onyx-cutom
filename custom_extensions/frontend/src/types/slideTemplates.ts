@@ -512,6 +512,8 @@ export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  logoPath?: string;
+  pageNumber?: string;
 }
 
 export interface ImpactStatementsSlideProps extends BaseTemplateProps {
