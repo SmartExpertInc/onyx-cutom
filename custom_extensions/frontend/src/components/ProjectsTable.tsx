@@ -116,7 +116,7 @@ const getProductTypeDisplayName = (type: string): string => {
     case "Slide Deck":
       return "Presentation";
     case "Text Presentation":
-      return "Onepager";
+      return "One-pager";
     default:
       return type;
   }
