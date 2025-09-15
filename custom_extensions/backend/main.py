@@ -10530,25 +10530,27 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         persona_id = await get_contentbuilder_persona_id(cookies)
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
-        # Step 3: Enhanced analysis prompt with explicit file reference
+        # Step 3: Flexible analysis prompt that works with both text files and images
         analysis_prompt = f"""
-        I have provided you with file ID {file_id}. This file should be directly attached to this message and available for analysis.
+        I have attached a file (ID: {file_id}) to this message. Please help me understand what this file contains.
         
-        Please analyze this specific file and provide:
-        1. A concise summary of the main content (max 200 words)
-        2. Key topics and concepts covered
-        3. The most important information that would be relevant for content creation
+        For images: Tell me what you see in this image, what it shows, and what it might be about.
+        For documents: Provide a summary of the main content and key topics.
+        For any file type: Focus on information that would be useful for creating educational content.
         
-        IMPORTANT: 
-        - The file is attached to this message with ID {file_id}
-        - Do not ask for the file content - it should already be available to you
-        - If you cannot see the file content, respond with "FILE_ACCESS_ERROR"
-        - If you can see the file content, proceed with the analysis
+        Please describe:
+        1. What is this file? (image, document, etc.)
+        2. What does it contain or show? (max 200 words)
+        3. What are the main topics, concepts, or subjects?
+        4. What information would be most relevant for lesson planning or content creation?
+        
+        If you can see/access the file, please proceed with the description.
+        If you cannot access it, simply say "FILE_ACCESS_ERROR".
         
         Format your response as:
-        SUMMARY: [summary here]
-        TOPICS: [comma-separated topics]
-        KEY_INFO: [most important information]
+        SUMMARY: [what this file contains/shows]
+        TOPICS: [main topics or subjects, comma-separated]  
+        KEY_INFO: [most educational/relevant information]
         """
         
         # Step 4: Multiple retry attempts with different strategies
@@ -10747,27 +10749,31 @@ def is_generic_response(text: str) -> bool:
     """
     Check if the AI response is generic (indicating file access issues).
     """
+    # Updated to be less strict for image descriptions and more specific
     generic_phrases = [
         "could you please share the file",
-        "please share the file",
+        "please share the file", 
         "paste its content",
         "upload the file",
         "provide the file",
-        "share the document",
-        "i don't see any file",
-        "no file was provided",
-        "file content is not available",
+        "share the document", 
+        "i don't see any file attached",
+        "no file was provided to me",
         "file_access_error",
-        "i cannot access",
-        "i don't have access to",
         "please provide the content",
-        "i wasn't able to access the file",
-        "it might be in a format i don't support",
-        "could be password-protected",
         "try a different file",
         "proceed based on a general topic",
         "using my knowledge"
     ]
+    
+    # Additional check: if response is very short and contains access issue, it's likely generic
+    # But allow longer responses that might contain some useful info even if they mention access issues
+    text_lower = text.lower()
+    if len(text) < 150 and any(phrase in text_lower for phrase in [
+        "cannot access", "unable to access", "don't have access", 
+        "wasn't able to access", "access the file"
+    ]):
+        return True
     
     text_lower = text.lower()
     return any(phrase in text_lower for phrase in generic_phrases)
