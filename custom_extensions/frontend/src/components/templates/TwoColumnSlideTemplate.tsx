@@ -228,13 +228,13 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          zIndex: 10
+          zIndex: 20
         }}>
           {/* Small line */}
           <div style={{
             width: '20px',
             height: '1px',
-            backgroundColor: 'rgba(0, 0, 0, 0.3)'
+            backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }} />
           {/* Page number */}
           {isEditable && editingPageNumber ? (
@@ -244,7 +244,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
               onCancel={handlePageNumberCancel}
               className="page-number-editor"
               style={{
-                color: '#000000',
+                color: '#ffffff',
                 fontSize: '17px',
                 fontWeight: '300',
                 width: '30px',
@@ -255,7 +255,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             <div
               onClick={() => isEditable && setEditingPageNumber(true)}
               style={{
-                color: '#000000',
+                color: '#ffffff',
                 fontSize: '17px',
                 fontWeight: '300',
                 cursor: isEditable ? 'pointer' : 'default',
