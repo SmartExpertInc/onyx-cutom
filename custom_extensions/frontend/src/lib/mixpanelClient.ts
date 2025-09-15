@@ -151,11 +151,12 @@ export const trackSmartEdit = async (action: string) => {
   );
 };
 
-export const trackConnector = async (action: string, name: string) => {
+export const trackConnector = async (action: string, connectorId: string, connectorName: string) => {
   const props = {
     "Feature Category": "Smart Drive",
     "Action": action,
-    "Name": name
+    "Connector Id": connectorId,
+    "Connector Name": connectorName
   };
 
   await track(
