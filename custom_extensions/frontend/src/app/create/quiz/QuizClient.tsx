@@ -7,6 +7,7 @@ import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Setti
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -1341,7 +1342,7 @@ export default function QuizClient() {
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
             <div className="relative group">
-              <textarea
+              <Textarea
                 value={currentPrompt || ""}
                 onChange={(e) => {
                   const newPrompt = e.target.value;

@@ -8,6 +8,7 @@ import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
@@ -1350,7 +1351,7 @@ export default function LessonPresentationClient() {
           {/* Prompt input for standalone lessons */}
           {useExistingOutline === false && (
             <div className="relative group">
-              <textarea
+              <Textarea
                 value={currentPrompt || ""}
                 onChange={(e) => {
                   const newPrompt = e.target.value;
@@ -1485,7 +1486,7 @@ export default function LessonPresentationClient() {
             <>
               {showAdvanced && (
                 <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <textarea
+                  <Textarea
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
