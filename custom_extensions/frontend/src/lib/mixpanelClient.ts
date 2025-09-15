@@ -166,6 +166,20 @@ export const trackConnector = async (action: string, connectorId: string, connec
   );
 };
 
+export const trackExportProduct = async (action: string, amount?: number) => {
+  const props = {
+    "Feature Category": "LMS Export",
+    "Action": action,
+    "Amount": amount
+  };
+
+  await track(
+    "Export Product", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
 export const trackAddMember = async (action: string, role?: string) => {
   const props = {
     "Feature Category": "Workspace",
