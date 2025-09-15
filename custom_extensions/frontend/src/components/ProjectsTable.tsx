@@ -18,7 +18,7 @@ import {
   Clock,
   User,
   Star,
-  ArrowUpDown,
+  ListFilter ,
   LayoutGrid,
   List,
   Plus,
@@ -3640,7 +3640,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             <Input
               type="text"
               variant="shadow"
-              placeholder={t('interface.searchPlaceholder', 'Search projects...')}
+              placeholder={t('interface.searchPlaceholderProjects', 'Search projects...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -3653,7 +3653,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    variant="sort" 
                    className="flex items-center gap-2 text-sm font-semibold"
                  >
-                   <ArrowUpDown size={16} className="text-gray-800" />
+                   <ListFilter size={16} className="text-gray-800" />
                    {activeFilter}
                    <ChevronDown size={14} className="text-gray-600" />
                  </Button>

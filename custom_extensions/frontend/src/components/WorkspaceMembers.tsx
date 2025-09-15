@@ -511,26 +511,14 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           {t('interface.createWorkspace.nameLabel', 'Workspace Name')} *
                         </label>
-                        <input
+                        <Input
                           type="text"
+                          variant="shadow"
                           value={newWorkspaceName}
                           onChange={(e) => setNewWorkspaceName(e.target.value)}
                           placeholder={t('interface.createWorkspace.namePlaceholder', 'Enter workspace name')}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                           required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {t('interface.createWorkspace.descriptionLabel', 'Description')}
-                        </label>
-                        <textarea
-                          value={newWorkspaceDescription}
-                          onChange={(e) => setNewWorkspaceDescription(e.target.value)}
-                          placeholder={t('interface.createWorkspace.descriptionPlaceholder', 'Optional description')}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                          rows={3}
                         />
                       </div>
                     </div>
@@ -539,13 +527,15 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 <Button
                   variant="outline"
                   onClick={() => setShowCreateWorkspace(false)}
+                  className="text-gray-600 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
                 >
                   {t('interface.createWorkspace.cancel', 'Cancel')}
                 </Button>
                 <Button
+                  variant="download"
                   onClick={handleCreateWorkspace}
                   disabled={!newWorkspaceName.trim()}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-full"
                 >
                   <Plus size={16} />
                   {t('interface.createWorkspace.create', 'Create Workspace')}
@@ -569,19 +559,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-3">
       {/* Workspace Header and Selector */}
       <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-          {/* <div className="flex-1">
-            <HeadTextCustom 
-              text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
-              description={selectedWorkspace?.description}
-              textSize = "text-2xl sm:text-4xl"
-              descriptionSize = "text-md sm:text-lg"
-            />
-          </div> */}
-          
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
           {!workspaceId && workspaces.length > 1 && (
             <div className="flex items-center gap-2">

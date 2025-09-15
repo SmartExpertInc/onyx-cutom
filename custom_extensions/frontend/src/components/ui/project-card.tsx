@@ -424,11 +424,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
             
             {/* Badges in top-right */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Course type badge */}
               {project.designMicroproductType && (
-                <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
-                  <span className="text-xs font-medium text-gray-700">
+                <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 flex-shrink-0">
+                  <span className="text-xs font-medium text-gray-700 whitespace-nowrap">
                     {getProductTypeDisplayName(project.designMicroproductType)}
                   </span>
                 </div>
