@@ -15211,6 +15211,7 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
     """
     Generates job positions using the same logic as the old audit system.
     Creates a one-pager with the АКТИВНЫЙ НАЙМ section and extracts job positions from it.
+    Ensures exactly 11 vacancies are returned by generating additional ones if needed.
     """
     try:
         # 📊 LOG: Starting job positions generation
@@ -15247,15 +15248,48 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
                 {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
             ]
         
+        # Ensure exactly 11 vacancies by generating additional ones if needed
+        target_count = 11
+        if len(formatted_positions) < target_count:
+            needed_positions = target_count - len(formatted_positions)
+            logger.info(f"🔍 [AUDIT DATA FLOW] Need {needed_positions} additional positions to reach {target_count} total")
+            
+            # Generate additional positions using the same logic as course templates
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload)
+            
+            # Convert additional positions to the expected format
+            for position in additional_positions:
+                formatted_positions.append({
+                    "title": position.get("title", "Generated Position"),
+                    "description": position.get("description", f"Open position at {payload.companyName}"),
+                    "icon": "👷"  # Default icon
+                })
+            
+            logger.info(f"🔍 [AUDIT DATA FLOW] Added {len(additional_positions)} additional positions")
+        
+        # Ensure we don't exceed 11 positions
+        if len(formatted_positions) > target_count:
+            formatted_positions = formatted_positions[:target_count]
+            logger.info(f"🔍 [AUDIT DATA FLOW] Trimmed positions to exactly {target_count}")
+        
+        logger.info(f"🔍 [AUDIT DATA FLOW] Final result: {len(formatted_positions)} positions")
         return formatted_positions
         
     except Exception as e:
         logger.error(f"❌ [AUDIT DATA FLOW] Error generating job positions: {e}")
-        # Return default positions on error
+        # Return default positions on error - ensure exactly 11
         return [
             {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
             {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
-            {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+            {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"},
+            {"title": "Customer Support", "description": "Customer service and support operations", "icon": "🎧"},
+            {"title": "Marketing Specialist", "description": "Marketing strategies and promotion", "icon": "📢"},
+            {"title": "Logistics Coordinator", "description": "Supply chain and logistics management", "icon": "📦"},
+            {"title": "Quality Assurance", "description": "Quality control and testing", "icon": "✅"},
+            {"title": "Sales Representative", "description": "Sales and business development", "icon": "💼"},
+            {"title": "Technical Support", "description": "Technical assistance and troubleshooting", "icon": "🔧"},
+            {"title": "Operations Manager", "description": "Operations and process management", "icon": "⚙️"},
+            {"title": "Safety Coordinator", "description": "Workplace safety and compliance", "icon": "🛡️"}
         ]
 
 
