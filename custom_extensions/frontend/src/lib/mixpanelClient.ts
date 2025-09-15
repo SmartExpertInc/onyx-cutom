@@ -168,13 +168,13 @@ export const trackConnector = async (action: string, connectorId: string, connec
 
 export const trackAddMember = async (action: string, role?: string) => {
   const props = {
-    "Feature Category": "Smart Drive",
+    "Feature Category": "Workspace",
     "Action": action,
     "Role": role
   };
 
   await track(
-    "Workspace", 
+    "Add Member", 
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );
