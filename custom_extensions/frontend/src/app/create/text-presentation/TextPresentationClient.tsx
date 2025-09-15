@@ -1525,12 +1525,12 @@ export default function TextPresentationClient() {
                 }}
                 placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                 rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
                 size={16} 
-                className="absolute top-[22px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
               />
             </div>
           )}
@@ -1586,7 +1586,7 @@ export default function TextPresentationClient() {
                                 {(editedTitles[idx] || lesson.title) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1 right-0 text-gray-400 opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
@@ -1607,7 +1607,7 @@ export default function TextPresentationClient() {
                                 {getTitleForLesson(lesson, idx) && (
                                   <Edit 
                                     size={14} 
-                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
