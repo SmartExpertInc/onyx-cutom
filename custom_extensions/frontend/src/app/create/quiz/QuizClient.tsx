@@ -1565,36 +1565,29 @@ export default function QuizClient() {
                 <div className="flex flex-col gap-5">
                   {/* Themes grid */}
                   <div className="grid grid-cols-3 gap-5 justify-items-center">
-                    {themeOptions.map((theme) => {
-                      const isSelected = selectedTheme === theme.id;
-
-                      return (
-                        <button
-                          key={theme.id}
-                          type="button"
-                          onClick={() => setSelectedTheme(theme.id)}
-                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
-                            ? 'bg-[#cee2fd]'
-                            : 'hover:shadow-lg'
-                            }`}
-                        >
-                          <div className="w-[214px] h-[116px] flex items-center justify-center">
-                            {(() => {
-                              const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                              return <Svg />;
-                            })()}
-                          </div>
-                          <div className="flex items-center gap-1 px-2">
-                            <span className={`w-4 text-[#0540AB] ${isSelected ? '' : 'opacity-0'}`}>
-                              ✔
-                            </span>
-                            <span className="text-sm text-[#20355D] font-medium select-none">
-                              {theme.label}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
+                    {themeOptions.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSelectedTheme(t.id)}
+                        className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : 'hover:shadow-lg'}`}
+                      >
+                        <div className="w-[214px] h-[116px] flex items-center justify-center">
+                          {(() => {
+                            const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                            return <Svg />;
+                          })()}
+                        </div>
+                        <div className="flex items-center gap-1 px-2">
+                          <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>
+                            ✔
+                          </span>
+                          <span className="text-sm text-[#20355D] font-medium select-none">
+                            {t.label}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
