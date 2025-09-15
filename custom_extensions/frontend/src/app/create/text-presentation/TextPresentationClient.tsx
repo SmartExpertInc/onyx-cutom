@@ -1525,7 +1525,7 @@ export default function TextPresentationClient() {
                 }}
                 placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                 rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
@@ -1575,7 +1575,7 @@ export default function TextPresentationClient() {
                                   type="text"
                                   value={editedTitles[idx] || lesson.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border-none rounded px-2 py-1 w-full pr-8 h-auto focus:outline-none"
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border-none rounded px-2 py-1 w-full pr-8 h-auto focus:outline-none focus:ring-0"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                                   onKeyDown={(e) => {
@@ -1586,7 +1586,7 @@ export default function TextPresentationClient() {
                                 {(editedTitles[idx] || lesson.title) && (
                                   <Edit 
                                     size={16} 
-                                    className="absolute top-[23px] right-7 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
@@ -1637,7 +1637,7 @@ export default function TextPresentationClient() {
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                     style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
@@ -1648,7 +1648,7 @@ export default function TextPresentationClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left border rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'border-blue-300 bg-[#D9ECFF]' : 'border-gray-200 bg-[#D9ECFF] hover:shadow-lg'
+                        className={`relative text-left border rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'border-gray-200 bg-[#B8D4F0]' : 'border-gray-200 bg-[#D9ECFF] hover:shadow-lg'
                           }`}
                       >
                         {ex.short}
