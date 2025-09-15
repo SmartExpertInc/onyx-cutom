@@ -11052,7 +11052,7 @@ Ensure that the content aligns with the topics and information provided in the f
     
     return enhanced_prompt
 
-async def stream_hybrid_response(prompt: str, file_context: Dict[str, Any], product_type: str, model: str = None):
+async def stream_hybrid_response(prompt: str, file_context: Union[Dict[str, Any], str], product_type: str, model: str = None):
     """
     Stream response using OpenAI with enhanced context from Onyx file extraction.
     """
@@ -15008,8 +15008,8 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                             file_context = connector_context
                     else:
                         # For connector-based filtering only, extract context from specific connectors
-                        logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -15022,31 +15022,51 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     for path in raw_paths:
                         # Try multiple variations to match database records
                         from urllib.parse import unquote, quote
+                        import re
                         
-                        # Add original path
-                        smartdrive_file_paths.append(path)
-                        
-                        # Add URL-decoded version
+                        candidates = []
+                        # Base variants
+                        candidates.append(path)
                         try:
                             decoded_path = unquote(path)
-                            if decoded_path != path:
-                                smartdrive_file_paths.append(decoded_path)
+                            candidates.append(decoded_path)
                         except:
-                            pass
-                        
-                        # Add URL-encoded version (in case database has encoded paths)
+                            decoded_path = path
                         try:
                             encoded_path = quote(path, safe='/')
-                            if encoded_path != path:
-                                smartdrive_file_paths.append(encoded_path)
+                            candidates.append(encoded_path)
                         except:
                             pass
-                        
-                        # Handle space variations (space vs %20)
                         if ' ' in path:
-                            smartdrive_file_paths.append(path.replace(' ', '%20'))
+                            candidates.append(path.replace(' ', '%20'))
                         if '%20' in path:
-                            smartdrive_file_paths.append(path.replace('%20', ' '))
+                            candidates.append(path.replace('%20', ' '))
+                        
+                        # Derived variants: trim spaces before dot and collapse multiple spaces
+                        derived = []
+                        for c in list(candidates):
+                            trimmed_dot = re.sub(r"\s+\.", ".", c)
+                            if trimmed_dot != c:
+                                derived.append(trimmed_dot)
+                            collapsed = re.sub(r"\s{2,}", " ", c)
+                            if collapsed != c:
+                                derived.append(collapsed)
+                        candidates.extend(derived)
+                        
+                        # Encode derived variants as well
+                        for c in list(candidates):
+                            try:
+                                enc = quote(c, safe='/')
+                                candidates.append(enc)
+                            except:
+                                pass
+                        
+                        # Deduplicate while preserving order
+                        seen = set()
+                        for c in candidates:
+                            if c and c not in seen:
+                                seen.add(c)
+                                smartdrive_file_paths.append(c)
                     
                     onyx_user_id = await get_current_onyx_user_id(request)
                     
@@ -25171,24 +25191,24 @@ async def import_smartdrive_files(
                         # Store mapping in smartdrive_imports with REAL file ID
                         async with pool.acquire() as conn:
                             import_record_id = await conn.fetchval(
-                        """
-                        INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
-                        VALUES ($1, $2, $3, $4, $5, $6)
+                    """
+                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                                 ON CONFLICT (onyx_user_id, smartdrive_path) 
                                 DO UPDATE SET 
                                     onyx_file_id = EXCLUDED.onyx_file_id,
                                     etag = EXCLUDED.etag,
                                     checksum = EXCLUDED.checksum,
                                     imported_at = EXCLUDED.imported_at
-                        RETURNING id
-                        """,
-                        onyx_user_id,
-                        file_path,
+                    RETURNING id
+                    """,
+                    onyx_user_id,
+                    file_path,
                                 real_file_id,  # REAL Onyx file ID!
                                 response.headers.get("etag", f"etag_{hash(file_path)}"),
                                 f"imported_{int(time.time())}",  # Simple checksum
-                        datetime.now(timezone.utc)
-                    )
+                    datetime.now(timezone.utc)
+                )
                         
                         imported_file_ids.append(import_record_id)
                         logger.info(f"✅ Successfully imported {file_path} -> Onyx file ID: {real_file_id}")
