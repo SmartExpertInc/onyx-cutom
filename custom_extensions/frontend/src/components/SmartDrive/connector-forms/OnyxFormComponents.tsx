@@ -320,7 +320,7 @@ export const FileInput: FC<FileInputProps> = ({
         name={name}
         onChange={handleFileChange}
         accept={isZip ? ".zip" : undefined}
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-gradient-to-r file:from-blue-600 file:to-indigo-600 file:text-white hover:file:from-blue-700 hover:file:to-indigo-700 file:cursor-pointer file:min-h-[40px] ${
           hasError ? "border-red-500" : "border-gray-300"
         }`}
       />
