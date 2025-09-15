@@ -1292,7 +1292,7 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Connector context indicator */}
+        {/* Connector and Files context indicator */}
         {isFromConnectors && connectorContext && (
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
@@ -1303,10 +1303,36 @@ function GenerateProductPicker() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-purple-900">
-                  {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
+                  {(() => {
+                    const hasConnectors = connectorContext.connectorIds && connectorContext.connectorIds.length > 0;
+                    const hasFiles = connectorContext.selectedFiles && connectorContext.selectedFiles.length > 0;
+                    
+                    if (hasConnectors && hasFiles) {
+                      return t('interface.generate.creatingFromConnectorsAndFiles', 'Creating from Connectors and Files');
+                    } else if (hasConnectors) {
+                      return t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors');
+                    } else if (hasFiles) {
+                      return t('interface.generate.creatingFromFiles', 'Creating from Selected Files');
+                    } else {
+                      return t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors');
+                    }
+                  })()}
                 </h3>
                 <p className="text-sm text-purple-700 mt-1">
-                  {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
+                  {(() => {
+                    const hasConnectors = connectorContext.connectorIds && connectorContext.connectorIds.length > 0;
+                    const hasFiles = connectorContext.selectedFiles && connectorContext.selectedFiles.length > 0;
+                    
+                    if (hasConnectors && hasFiles) {
+                      return t('interface.generate.aiWillUseConnectorAndFileData', 'The AI will use data from your selected connectors and files to create educational content.');
+                    } else if (hasConnectors) {
+                      return t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.');
+                    } else if (hasFiles) {
+                      return t('interface.generate.aiWillUseFileData', 'The AI will use data from your selected files to create educational content.');
+                    } else {
+                      return t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.');
+                    }
+                  })()}
                 </p>
               </div>
             </div>
@@ -1342,36 +1368,7 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Connector context indicator */}
-        {isFromConnectors && connectorContext && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-purple-900">
-                  {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
-                </h3>
-                <p className="text-sm text-purple-700 mt-1">
-                  {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {connectorContext.connectorSources.map((source, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
-                >
-                  {source}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* Tab selector */}
         <div className="flex justify-center gap-6 mb-8">
