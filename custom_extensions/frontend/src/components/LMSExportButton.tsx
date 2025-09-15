@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Button } from './ui/button';
 
 interface LMSExportButtonProps {
   selectedProducts: Set<number>;
@@ -125,33 +126,44 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     return t('interface.lmsExport', 'Export to LMS');
   };
 
-  const getButtonClass = () => {
-    const baseClass = "flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200";
-    
+  const getButtonVariant = () => {
     if (!hasSelectedProducts) {
-      return `${baseClass} bg-gray-200 text-gray-500 cursor-not-allowed`;
+      return "secondary";
     }
     
     if (exportStatus === 'success') {
-      return `${baseClass} bg-green-600 text-white`;
+      return "default";
     }
     
     if (exportStatus === 'error') {
-      return `${baseClass} bg-red-600 text-white`;
+      return "destructive";
+    }
+    
+    return "default";
+  };
+
+  const getButtonClassName = () => {
+    if (exportStatus === 'success') {
+      return "bg-green-600 hover:bg-green-700 text-white";
+    }
+    
+    if (exportStatus === 'error') {
+      return "bg-red-600 hover:bg-red-600 text-white";
     }
     
     if (isExporting) {
-      return `${baseClass} bg-blue-500 text-white cursor-wait`;
+      return "bg-blue-500 hover:bg-blue-500 text-white cursor-wait";
     }
     
-    return `${baseClass} bg-blue-600 text-white hover:bg-blue-700 active:scale-95`;
+    return "bg-blue-600 hover:bg-blue-700 text-white";
   };
 
   return (
-    <button
+    <Button
       onClick={handleExport}
       disabled={!hasSelectedProducts || isExporting}
-      className={getButtonClass()}
+      variant={getButtonVariant()}
+      className={`flex items-center gap-2 px-6 py-3 ${getButtonClassName()}`}
     >
       {isExporting ? (
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
@@ -159,7 +171,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
         <Upload size={18} />
       )}
       {getButtonText()}
-    </button>
+    </Button>
   );
 };
 

@@ -769,7 +769,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               handleConnectClick(connector.id, connector.name);
                             }}
                             variant="download"
-                            className="flex-1 rounded-full bg-green-500 hover:bg-green-600 border border-green-600 hover:border-green-700"
+                            className="flex-1 rounded-full bg-green-600 hover:bg-green-700 border border-green-800 hover:border-green-900"
                           >
                             {t('interface.connect', 'Connect')}
                           </Button>
