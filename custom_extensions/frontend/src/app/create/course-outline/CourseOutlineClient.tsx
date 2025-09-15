@@ -1377,7 +1377,7 @@ export default function CourseOutlineClient() {
               {preview.map((mod: ModulePreview, modIdx: number) => (
                 <div key={mod.id} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
                   {/* Left numbered section */}
-                  <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                  <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-300 to-blue-200 text-white font-semibold text-base select-none flex-shrink-0">
                     {modIdx + 1}
                   </div>
 
@@ -1409,10 +1409,8 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="relative flex items-start gap-2 py-0.5 group">
-                             {/* Gradient left bar */}
-                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-300 to-blue-200 rounded-r-sm opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                             <span className="text-lg leading-none select-none ml-1">•</span>
+                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
+                             <span className="text-lg leading-none select-none">•</span>
                              <input
                                type="text"
                                value={titleLine}
