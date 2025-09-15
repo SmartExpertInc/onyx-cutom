@@ -227,16 +227,6 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           />
         </div>
 
-        {/* Bottom line */}
-        <div style={{
-          position: 'absolute',
-          bottom: '30px',
-          left: '23px',
-          right: '23px',
-          height: '1px',
-          backgroundColor: 'rgba(255, 255, 255, 0.3)'
-        }} />
-
         {/* Page number */}
         <div style={{
           position: 'absolute',
