@@ -1564,6 +1564,7 @@ export default function LessonPresentationClient() {
                   {/* Themes grid */}
                   <div className="grid grid-cols-3 gap-5 justify-items-center">
                     {themeOptions.map((theme) => {
+                      const ThemeSvgComponent = getThemeSvg(theme.id);
                       const isSelected = selectedTheme === theme.id;
 
                       return (
@@ -1577,10 +1578,7 @@ export default function LessonPresentationClient() {
                             }`}
                         >
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
-                            {(() => {
-                              const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                              return <Svg />;
-                            })()}
+                            <ThemeSvgComponent />
                           </div>
                           <div className="flex items-center gap-1 px-2">
                             <span className={`w-4 ${currentTheme.accentText} ${isSelected ? '' : 'opacity-0'}`}>
@@ -1598,7 +1596,7 @@ export default function LessonPresentationClient() {
                   {/* Content section */}
                   <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
                     <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                    <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
+                    <p className="text-sm text-[#858587] font-medium">{t('interface.generate.contentDescription', 'Adjust text and image styles for your lesson')}</p>
 
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
