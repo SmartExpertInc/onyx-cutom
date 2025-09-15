@@ -1385,14 +1385,22 @@ export default function CourseOutlineClient() {
                   <div className="flex-1 p-4">
                     {/* Module title */}
                     <div className="mb-2">
-                      <Input
-                        type="text"
-                        value={mod.title}
-                        onChange={(e) => handleModuleChange(modIdx, e.target.value)}
-                        data-modtitle={modIdx}
-                        className="text-[#20355D] text-base font-semibold bg-transparent border-none p-0 w-full focus:outline-none focus:ring-0"
-                        placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
-                      />
+                      <div className="relative group">
+                        <Input
+                          type="text"
+                          value={mod.title}
+                          onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                          data-modtitle={modIdx}
+                          className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
+                          placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
+                        />
+                        {mod.title && (
+                          <Edit 
+                            size={16} 
+                            className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                          />
+                        )}
+                      </div>
                     </div>
 
                     {/* Lessons list */}
@@ -1411,16 +1419,24 @@ export default function CourseOutlineClient() {
                          return (
                            <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
                              <span className="text-lg leading-none select-none">•</span>
-                             <input
-                               type="text"
-                               value={titleLine}
-                               onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
-                               onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
-                               data-mod={modIdx}
-                               data-les={lessonIdx}
-                               className="flex-grow bg-transparent border-none p-0 text-sm text-gray-700 focus:outline-none focus:ring-0"
-                               placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
-                             />
+                             <div className="relative group flex-grow">
+                               <input
+                                 type="text"
+                                 value={titleLine}
+                                 onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
+                                 onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
+                                 data-mod={modIdx}
+                                 data-les={lessonIdx}
+                                 className="w-full bg-transparent border-none p-0 text-sm text-gray-700 focus:outline-none focus:ring-0 cursor-pointer pr-6"
+                                 placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
+                               />
+                               {titleLine && (
+                                 <Edit 
+                                   size={16} 
+                                   className="absolute top-1/2 right-0 -translate-y-1/2 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                 />
+                               )}
+                             </div>
                            </li>
                          );
                        })}

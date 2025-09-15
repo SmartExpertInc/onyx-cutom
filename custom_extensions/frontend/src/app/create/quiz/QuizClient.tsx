@@ -1077,7 +1077,7 @@ export default function QuizClient() {
           <h1 className="text-2xl font-semibold text-center bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mt-2">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1416,7 +1416,7 @@ export default function QuizClient() {
                   <div className="flex flex-col gap-4">
                     {questionList.map((question, idx: number) => (
                       <div key={idx} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                        <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-100 to-blue-50 text-gray-700 font-semibold text-base select-none flex-shrink-0">
                           {idx + 1}
                         </div>
                         <div className="flex-1 p-4">
@@ -1427,7 +1427,7 @@ export default function QuizClient() {
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8 h-auto"
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border-none rounded px-2 py-1 w-full pr-8 h-auto focus:outline-none focus:ring-0"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                   onKeyDown={(e) => {
@@ -1437,8 +1437,8 @@ export default function QuizClient() {
                                 />
                                 {(editedTitles[idx] || question.title) && (
                                   <Edit 
-                                    size={14} 
-                                    className="absolute top-1 right-0 text-gray-400 opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                    size={16} 
+                                    className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
@@ -1458,7 +1458,7 @@ export default function QuizClient() {
                                 </h4>
                                 {getTitleForQuestion(question, idx) && (
                                   <Edit 
-                                    size={14} 
+                                    size={16} 
                                     className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
