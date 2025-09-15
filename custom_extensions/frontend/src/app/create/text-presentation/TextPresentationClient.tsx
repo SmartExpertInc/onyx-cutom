@@ -1524,7 +1524,8 @@ export default function TextPresentationClient() {
                 }}
                 placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                 rows={1}
-                className="w-full resize-none min-h-[56px] text-black"
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
                 size={16} 
