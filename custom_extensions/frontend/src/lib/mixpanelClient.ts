@@ -105,12 +105,14 @@ export const trackCreateProduct = async (
   action: string,
   language?: string,
   productType?: string,
+  advancedModeState?: string
 ) => {
   const props = {
     "Feature Category": "Products",
     "Action": action,
     "Language": language,
-    "Product Type": productType
+    "Product Type": productType,
+    "Advanced Mode": advancedModeState
   };
 
   await track("Create Product", props);
