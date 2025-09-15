@@ -37,6 +37,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
 import WorkspaceMembers from '../../components/WorkspaceMembers';
 import useFeaturePermission from '../../hooks/useFeaturePermission';
+import workspaceService from '../../services/workspaceService';
 import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
@@ -553,7 +554,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean; isExportLMS: boolean }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, workspaceData }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -583,7 +584,9 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS }: {
     if (isTrash) return t('interface.trash', 'Trash');
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
-    if (isWorkspace) return t('interface.workspace', 'Workspace');
+    if (isWorkspace) {
+      return workspaceData?.name || t('interface.workspace', 'Workspace');
+    }
     if (isExportLMS) return t('interface.exportToLMS', 'Export to LMS');
     return t('interface.products', 'Products');
   };
@@ -622,6 +625,7 @@ const ProjectsPageInner: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
   const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
+  const [workspaceData, setWorkspaceData] = useState<any>(null);
   
   // LMS Export states
   const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
@@ -671,6 +675,25 @@ const ProjectsPageInner: React.FC = () => {
   }, []);
 
   // Load folders and projects after authentication is confirmed
+  // Fetch workspace data when on workspace tab
+  useEffect(() => {
+    const fetchWorkspaceData = async () => {
+      if (isAuthenticated === true && isWorkspace) {
+        try {
+          const workspaces = await workspaceService.getWorkspaces();
+          // Get the first workspace (assuming user has access to one workspace)
+          if (workspaces.length > 0) {
+            setWorkspaceData(workspaces[0]);
+          }
+        } catch (error) {
+          console.error('Failed to fetch workspace data:', error);
+        }
+      }
+    };
+
+    fetchWorkspaceData();
+  }, [isAuthenticated, isWorkspace]);
+
   useEffect(() => {
     if (isAuthenticated === true) {
       const loadFoldersAndProjects = async () => {
@@ -958,7 +981,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} isExportLMS={isExportLMS} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} isExportLMS={isExportLMS} workspaceData={workspaceData} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
           {isSmartDrive ? (
             <SmartDriveConnectors />

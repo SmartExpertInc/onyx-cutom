@@ -1715,7 +1715,7 @@ const ProjectRowMenu: React.FC<{
                   setTrashConfirmOpen(false);
                 }}
                 variant="download"
-                className="rounded-full bg-red-100 hover:bg-red-200 border border-red-200 hover:border-red-300"
+                className="rounded-full bg-red-300 hover:bg-red-400 border border-red-400 hover:border-red-500"
               >
                 {t("actions.moveAll", "Move All")}
               </Button>
@@ -2704,14 +2704,54 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
   // Helper function to get unassigned projects
   const getUnassignedProjects = useCallback(() => {
-    return projects.filter((p) => p.folderId === null);
-  }, [projects]);
+    let filteredProjects = projects.filter((p) => p.folderId === null);
 
-  // Helper function to get projects for a specific folder (including subfolders)
+    // Apply search filter if search term exists
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filteredProjects = filteredProjects.filter((p) => {
+        const title = (p.title || "").toLowerCase();
+        const instanceName = (p.instanceName || "").toLowerCase();
+        const designType = (p.designMicroproductType || "").toLowerCase();
+        const createdBy = (p.createdBy || "").toLowerCase();
+        
+        return (
+          title.includes(searchLower) ||
+          instanceName.includes(searchLower) ||
+          designType.includes(searchLower) ||
+          createdBy.includes(searchLower)
+        );
+      });
+    }
+
+    return filteredProjects;
+  }, [projects, searchTerm]);
+
+  // Helper function to get projects for a specific folder (including subfolders) with search
   const getProjectsForFolder = useCallback(
     (targetFolderId: number | null) => {
+      let filteredProjects = projects;
+
+      // Apply search filter if search term exists
+      if (searchTerm.trim()) {
+        const searchLower = searchTerm.toLowerCase().trim();
+        filteredProjects = projects.filter((p) => {
+          const title = (p.title || "").toLowerCase();
+          const instanceName = (p.instanceName || "").toLowerCase();
+          const designType = (p.designMicroproductType || "").toLowerCase();
+          const createdBy = (p.createdBy || "").toLowerCase();
+          
+          return (
+            title.includes(searchLower) ||
+            instanceName.includes(searchLower) ||
+            designType.includes(searchLower) ||
+            createdBy.includes(searchLower)
+          );
+        });
+      }
+
       if (targetFolderId === null) {
-        return projects;
+        return filteredProjects;
       }
 
       // Get all projects that belong to this folder or any of its subfolders
@@ -2727,11 +2767,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       };
 
       const folderIds = getFolderAndSubfolderIds(targetFolderId);
-      return projects.filter(
+      return filteredProjects.filter(
         (p) => p.folderId && folderIds.includes(p.folderId)
       );
     },
-    [projects, folders]
+    [projects, folders, searchTerm]
   );
 
   // Helper function to calculate lesson data for a project
@@ -3614,7 +3654,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    className="flex items-center gap-2 text-sm font-semibold"
                  >
                    <ArrowUpDown size={16} className="text-gray-800" />
-                   {t("interface.sort", "Sort")}
+                   {activeFilter}
                    <ChevronDown size={14} className="text-gray-600" />
                  </Button>
                </DropdownMenuTrigger>

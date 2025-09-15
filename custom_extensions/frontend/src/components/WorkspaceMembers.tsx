@@ -573,14 +573,14 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       {/* Workspace Header and Selector */}
       <div className="rounded-lg p-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-          <div className="flex-1">
+          {/* <div className="flex-1">
             <HeadTextCustom 
               text={selectedWorkspace?.name || `Workspace ${targetWorkspaceId}`}
               description={selectedWorkspace?.description}
               textSize = "text-2xl sm:text-4xl"
               descriptionSize = "text-md sm:text-lg"
             />
-          </div>
+          </div> */}
           
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
           {!workspaceId && workspaces.length > 1 && (

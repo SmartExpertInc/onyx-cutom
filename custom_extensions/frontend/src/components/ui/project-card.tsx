@@ -122,6 +122,7 @@ const redirectToMainAuth = (path: string) => {
   window.location.href = mainAppUrl;
 };
 
+
 // Generate color from string
 const stringToColor = (str: string): string => {
   let hash = 0;
@@ -378,6 +379,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     );
   };
 
+  const getProductTypeDisplayName = (type: string): string => {
+    switch (type) {
+      case "Training Plan":
+        return "Course Outline";
+      case "Slide Deck":
+        return "Presentation";
+      case "Text Presentation":
+        return "Onepager";
+      default:
+        return type;
+    }
+  };
+
   return (
     <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
       !getModalState()
@@ -409,15 +423,27 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <List size={16} className="text-gray-500/60" />
             </div>
             
-            {/* Private badge in top-right */}
-            {project.isPrivate && (
-              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
-                <Lock size={10} className="text-gray-600" />
-                <span className="text-xs font-medium text-gray-700">
-                  {t("interface.private", "Private")}
-                </span>
-              </div>
-            )}
+            {/* Badges in top-right */}
+            <div className="flex items-center gap-2">
+              {/* Course type badge */}
+              {project.designMicroproductType && (
+                <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
+                  <span className="text-xs font-medium text-gray-700">
+                    {getProductTypeDisplayName(project.designMicroproductType)}
+                  </span>
+                </div>
+              )}
+              
+              {/* Private badge */}
+              {project.isPrivate && (
+                <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
+                  <Lock size={10} className="text-gray-600" />
+                  <span className="text-xs font-medium text-gray-700">
+                    {t("interface.private", "Private")}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Project type icon overlay */}
