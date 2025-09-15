@@ -14171,9 +14171,9 @@ async def extract_company_name_from_data(duckduckgo_summary: str, payload) -> st
     Извлеки ТОЛЬКО название компании из предоставленных данных.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -14216,9 +14216,9 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
     Создай краткое описание компании в стиле: "Компания предоставляющий услуги по [основные услуги]. [дополнительная информация о компании]"
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -14243,14 +14243,14 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
         # Clean up the response
         company_description = response_text.strip()
         if not company_description:
-            company_description = payload.companyDesc  # Fallback to original description
+            company_description = getattr(payload, 'companyDesc', 'Company Description')  # Fallback to original description
         
         logger.info(f"[AI-Audit Landing Page] Generated company description: {company_description}")
         return company_description
         
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error generating company description: {e}")
-        return payload.companyDesc  # Fallback to original description
+        return getattr(payload, 'companyDesc', 'Company Description')  # Fallback to original description
 
 
 async def generate_ai_image_for_job_position(job_title: str, company_name: str) -> str:
@@ -14576,9 +14576,9 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
         Проанализируй данные компании и сгенерируй {count} дополнительных логических позиций для курсов обучения.
         
         ДАННЫЕ АНКЕТЫ:
-        - Название компании: {payload.companyName}
-        - Описание компании: {payload.companyDesc}
-        - Веб-сайт: {payload.companyWebsite}
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
         
         ДАННЫЕ ИЗ ИНТЕРНЕТА:
         {duckduckgo_summary}
@@ -14719,9 +14719,9 @@ async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
     Определи основную отрасль/индустрию компании на основе предоставленных данных.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -14760,9 +14760,9 @@ async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
     Проанализируй данные и определи статистику выгорания сотрудников в отрасли компании.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -14828,9 +14828,9 @@ async def extract_turnover_data(duckduckgo_summary: str, payload) -> dict:
     Проанализируй данные и определи статистику текучести кадров в отрасли компании.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -14892,9 +14892,9 @@ async def extract_losses_data(duckduckgo_summary: str, payload) -> dict:
     Проанализируй данные и определи финансовые потери компании при незакрытой позиции.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -14957,9 +14957,9 @@ async def extract_search_time_data(duckduckgo_summary: str, payload) -> dict:
     Проанализируй данные и определи среднее время поиска кандидата в отрасли компании.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -15022,9 +15022,9 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
     Проанализируй данные и сгенерируй структурированный набор данных для графика "Дефицит квалифицированных кадров" за последние 12 месяцев.
 
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
 
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
@@ -15174,9 +15174,9 @@ async def extract_yearly_shortage_data(duckduckgo_summary: str, payload) -> dict
     Проанализируй данные и определи точное количество недостающих квалифицированных специалистов в год для отрасли компании.
     
     ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Веб-сайт: {payload.companyWebsite}
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
     
     ДАННЫЕ ИЗ ИНТЕРНЕТА:
     {duckduckgo_summary}
