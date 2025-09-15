@@ -103,13 +103,31 @@ export function timeEvent(event: string): void {
 
 export const trackCreateProduct = async (
   action: string,
+  isFromFiles?: boolean,
+  isFromText?: boolean,
+  isFromKnowledgeBase?: boolean,
+  isFromConnectors?: boolean,
   language?: string,
   productType?: string,
   advancedModeState?: string
 ) => {
+  // Decide generation method based on the flags
+  let generationMethod: string | undefined = undefined;
+
+  if (isFromFiles) {
+    generationMethod = "Files";
+  } else if (isFromText) {
+    generationMethod = "Text";
+  } else if (isFromKnowledgeBase) {
+    generationMethod = "Knowledge Base";
+  } else if (isFromConnectors) {
+    generationMethod = "Connectors";
+  }
+
   const props = {
     "Feature Category": "Products",
     "Action": action,
+    "Generation Method": generationMethod,
     "Language": language,
     "Product Type": productType,
     "Advanced Mode": advancedModeState

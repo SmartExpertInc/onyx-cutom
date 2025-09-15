@@ -941,7 +941,16 @@ export default function QuizClient() {
       const result = await response.json();
       setFinalProductId(result.id);
 
-      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
+      await trackCreateProduct(
+        "Completed",
+        fromFiles,
+        fromText,
+        fromKnowledgeBase,
+        fromConnectors,
+        language, 
+        activeProductType === null ? undefined : activeProductType, 
+        advancedModeState
+      );
       
       // Clear the failed state since we successfully completed
       try {
@@ -958,7 +967,16 @@ export default function QuizClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
+          await trackCreateProduct(
+            "Failed",
+            fromFiles,
+            fromText,
+            fromKnowledgeBase,
+            fromConnectors,
+            language, 
+            activeProductType === null ? undefined : activeProductType, 
+            advancedModeState
+          );
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {

@@ -1041,7 +1041,16 @@ export default function TextPresentationClient() {
 
       setFinalProjectId(data.id);
 
-      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
+      await trackCreateProduct(
+        "Completed",
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType === null ? undefined : activeProductType, 
+        advancedModeState
+      );
       
       // Clear the failed state since we successfully completed
       try {
@@ -1062,7 +1071,16 @@ export default function TextPresentationClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
+          await trackCreateProduct(
+            "Failed",
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType === null ? undefined : activeProductType, 
+            advancedModeState
+          );
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {

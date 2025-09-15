@@ -845,7 +845,16 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
-      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
+      await trackCreateProduct(
+        "Completed",
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType === null ? undefined : activeProductType, 
+        advancedModeState
+      );
       
       // Clear the failed state since we successfully completed
       try {
@@ -866,7 +875,16 @@ export default function LessonPresentationClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
+          await trackCreateProduct(
+            "Failed",
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType === null ? undefined : activeProductType, 
+            advancedModeState
+          );
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {
