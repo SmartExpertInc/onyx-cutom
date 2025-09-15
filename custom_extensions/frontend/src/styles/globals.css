@@ -1,46 +1,22 @@
 /* Global CSS Reset and Base Styles */
 
-/* Inter Font Definitions - ONLY INTER */
+/* Lora Font Definitions - LORA EVERYWHERE */
 @font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter_18pt-Regular.ttf') format('truetype');
-  font-weight: 400;
+  font-family: 'Lora';
+  src: url('../fonts/Lora-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter_18pt-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+/* Global Font Class - LORA */
+.lora-font {
+  font-family: 'Lora', serif;
 }
 
-@font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter_18pt-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter_18pt-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Global Font Class - ONLY INTER */
-.inter-font {
-  font-family: 'Inter', sans-serif;
-}
-
-/* Force Inter everywhere */
+/* Force Lora everywhere */
 * {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Lora', serif !important;
 }
 
 *, *::before, *::after {

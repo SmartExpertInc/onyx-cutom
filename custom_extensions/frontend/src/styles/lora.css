@@ -1,4 +1,4 @@
-/* Lora Font Styles for All Slides - LORA EVERYWHERE */
+/* Lora Font Styles for All Slides */
 
 /* Font Face Definitions */
 @font-face {
@@ -74,4 +74,11 @@ h1, h2, h3, h4, h5, h6,
 .content-block * {
   font-family: 'Lora', serif !important;
   font-weight: 400 !important;
-} 
+}
+
+/* Page numbers and logos - LORA */
+.page-number-editor,
+.page-number-display {
+  font-family: 'Lora', serif !important;
+  font-weight: 300 !important;
+}

@@ -1,6 +1,7 @@
 // custom_extensions/frontend/src/app/layout.tsx
 import './globals.css'; // Your global styles and Tailwind imports
 import '../styles/inter.css'; // Inter font styles - ONLY INTER
+import '../styles/lora.css'; // Lora font styles - LORA EVERYWHERE
 import React from 'react';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { MontFontLoader } from '../components/MontFontLoader';
