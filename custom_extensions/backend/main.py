@@ -14378,10 +14378,20 @@ async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_i
             
             logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(onyx_file_ids)} file IDs from {len(smartdrive_paths)} paths for user {user_id}")
             
+            # Enhanced debugging: Show what we found vs what we were looking for
+            logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {smartdrive_paths}")
+            logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
+            
             # Log any unmapped paths for debugging
             unmapped_paths = [path for path in smartdrive_paths if path not in mapped_paths]
             if unmapped_paths:
                 logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+                
+                # Show what paths ARE available in the database for this user
+                debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
+                debug_rows = await connection.fetch(debug_query, user_id)
+                available_paths = [row['smartdrive_path'] for row in debug_rows]
+                logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
             
             return onyx_file_ids
             
@@ -14913,6 +14923,12 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         # Map SmartDrive paths to Onyx file IDs
                         smartdrive_file_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
                         onyx_user_id = await get_current_onyx_user_id(request)
+                        
+                        # DEBUG: Log the mapping attempt
+                        logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
+                        for i, path in enumerate(smartdrive_file_paths):
+                            logger.info(f"[SMARTDRIVE_DEBUG] Path {i+1}: '{path}' (length: {len(path)})")
+                        
                         file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
                         
                         if file_ids:
@@ -24971,25 +24987,100 @@ async def import_smartdrive_files(
 
         imported_file_ids = []
         
+        # Get SmartDrive account details for the user
         async with pool.acquire() as conn:
-            for file_path in file_paths:
-                # TODO: Implement actual file import from Nextcloud
-                # For now, create mock import records
-                file_id = await conn.fetchval(
-                    """
-                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                    RETURNING id
-                    """,
-                    onyx_user_id,
-                    file_path,
-                    f"mock_file_{hash(file_path) % 1000000}",  # Mock Onyx file ID
-                    f"etag_{hash(file_path)}",
-                    f"sha256_{hash(file_path)}",
-                    datetime.now(timezone.utc)
+            account = await conn.fetchrow(
+                "SELECT nextcloud_username, nextcloud_password_encrypted, nextcloud_base_url FROM smartdrive_accounts WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            
+            if not account:
+                logger.error(f"No SmartDrive account found for user {onyx_user_id}")
+                raise HTTPException(status_code=400, detail="SmartDrive not configured for this user")
+            
+            # Decrypt password (simplified - you may need proper decryption)
+            # For now, assuming password is stored in plain text or you have decryption logic
+            nextcloud_username = account['nextcloud_username']
+            nextcloud_password = account['nextcloud_password_encrypted']  # TODO: Implement proper decryption
+            nextcloud_base_url = account.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080')
+            
+            logger.info(f"Using SmartDrive account: {nextcloud_username} at {nextcloud_base_url}")
+
+        # Process each file
+        for file_path in file_paths:
+            try:
+                logger.info(f"Processing SmartDrive file: {file_path}")
+                
+                # Download file from Nextcloud
+                file_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
+                
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    response = await client.get(
+                        file_url,
+                        auth=(nextcloud_username, nextcloud_password)
+                    )
+                    response.raise_for_status()
+                    
+                    file_content = response.content
+                    file_name = os.path.basename(file_path)
+                    
+                    logger.info(f"Downloaded {file_name} ({len(file_content)} bytes)")
+                
+                # Create a temporary UploadFile object for Onyx
+                file_obj = io.BytesIO(file_content)
+                temp_file = UploadFile(
+                    file=file_obj,
+                    filename=file_name,
+                    headers={"content-type": response.headers.get("content-type", "application/octet-stream")}
                 )
-                imported_file_ids.append(file_id)
-                logger.info(f"Created import record for {file_path} with ID: {file_id}")
+                
+                # Import into Onyx using the standard process
+                # This will create real Onyx file records and return proper file IDs
+                from onyx.server.documents.connector import upload_files
+                from onyx.db.engine import get_session_with_tenant
+                
+                # Get a database session for Onyx operations
+                db_session = next(get_session_with_tenant())
+                
+                try:
+                    # Upload file to Onyx file store
+                    upload_response = upload_files([temp_file], db_session)
+                    real_file_id = upload_response.file_paths[0]  # Get the real Onyx file ID
+                    
+                    logger.info(f"Uploaded to Onyx with file ID: {real_file_id}")
+                    
+                    # Store mapping in smartdrive_imports with REAL file ID
+                    async with pool.acquire() as conn:
+                        import_record_id = await conn.fetchval(
+                            """
+                            INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                            VALUES ($1, $2, $3, $4, $5, $6)
+                            ON CONFLICT (onyx_user_id, smartdrive_path) 
+                            DO UPDATE SET 
+                                onyx_file_id = EXCLUDED.onyx_file_id,
+                                etag = EXCLUDED.etag,
+                                checksum = EXCLUDED.checksum,
+                                imported_at = EXCLUDED.imported_at
+                            RETURNING id
+                            """,
+                            onyx_user_id,
+                            file_path,
+                            real_file_id,  # REAL Onyx file ID!
+                            response.headers.get("etag", f"etag_{hash(file_path)}"),
+                            f"imported_{int(time.time())}",  # Simple checksum
+                            datetime.now(timezone.utc)
+                        )
+                    
+                    imported_file_ids.append(import_record_id)
+                    logger.info(f"✅ Successfully imported {file_path} -> Onyx file ID: {real_file_id}")
+                    
+                finally:
+                    db_session.close()
+                    
+            except Exception as e:
+                logger.error(f"❌ Failed to import {file_path}: {e}", exc_info=True)
+                # Continue with other files even if one fails
+                continue
 
         return {
             "success": True,

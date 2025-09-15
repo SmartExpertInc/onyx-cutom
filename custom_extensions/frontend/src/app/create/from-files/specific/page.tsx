@@ -554,8 +554,8 @@ export default function CreateFromSpecificFilesPage() {
                             .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
                         : selectedConnectors.length > 0 
                           ? t('interface.createContentFromConnectorsOnly', 'Create Content from {count} Connector{s}')
-                              .replace('{count}', selectedConnectors.length.toString())
-                              .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                          .replace('{count}', selectedConnectors.length.toString())
+                          .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
                           : t('interface.createContentFromFilesOnly', 'Create Content from {count} File{s}')
                               .replace('{count}', selectedFiles.length.toString())
                               .replace('{s}', selectedFiles.length !== 1 ? 's' : '')
