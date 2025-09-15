@@ -1343,19 +1343,6 @@ export default function LessonPresentationClient() {
                   </>
                 )}
 
-                {/* Reset button */}
-                <button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black h-9 hover:shadow-md transition-all duration-200"
-                >
-                  {t('interface.generate.backButton', 'To previous step')}
-                </button>
               </div>
             )}
           </div>
@@ -1502,7 +1489,8 @@ export default function LessonPresentationClient() {
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
                   {/* Example prompts */}

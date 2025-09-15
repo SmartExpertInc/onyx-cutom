@@ -1322,7 +1322,7 @@ export default function CourseOutlineClient() {
         {/* Prompt textarea with regenerate button */}
         <div className="flex gap-2 items-start">
           <div className="relative group flex-1">
-            <Textarea
+            <textarea
               ref={promptRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
