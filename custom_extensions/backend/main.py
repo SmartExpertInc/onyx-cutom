@@ -248,10 +248,13 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
     )
     
-    # Check if connector-based filtering is requested
+    # Check if connector-based filtering is requested (including SmartDrive files)
     has_connector_filtering = (
         hasattr(payload, 'fromConnectors') and payload.fromConnectors and
-        hasattr(payload, 'connectorSources') and payload.connectorSources
+        (
+            (hasattr(payload, 'connectorSources') and payload.connectorSources) or
+            (hasattr(payload, 'selectedFiles') and payload.selectedFiles)
+        )
     )
     
     # Use hybrid approach when there's file context, text context, Knowledge Base search, or connector filtering
@@ -14920,14 +14923,31 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         # Extract connector context
                         connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                         
-                        # Map SmartDrive paths to Onyx file IDs
-                        smartdrive_file_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                        # Map SmartDrive paths to Onyx file IDs with proper normalization
+                        raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                        
+                        # Normalize paths to handle URL encoding and character variations
+                        smartdrive_file_paths = []
+                        for path in raw_paths:
+                            # Handle URL encoding
+                            try:
+                                from urllib.parse import unquote
+                                normalized_path = unquote(path)
+                            except:
+                                normalized_path = path
+                            
+                            # Handle `+` character variations (some systems use `+` in filenames)
+                            # Try both with and without `+` to match database records
+                            smartdrive_file_paths.append(normalized_path)
+                            if '+' in normalized_path:
+                                smartdrive_file_paths.append(normalized_path.replace('+', ''))
+                            
                         onyx_user_id = await get_current_onyx_user_id(request)
                         
                         # DEBUG: Log the mapping attempt
                         logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
-                        for i, path in enumerate(smartdrive_file_paths):
-                            logger.info(f"[SMARTDRIVE_DEBUG] Path {i+1}: '{path}' (length: {len(path)})")
+                        logger.info(f"[SMARTDRIVE_DEBUG] Raw paths: {raw_paths}")
+                        logger.info(f"[SMARTDRIVE_DEBUG] Normalized paths: {smartdrive_file_paths}")
                         
                         file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
                         

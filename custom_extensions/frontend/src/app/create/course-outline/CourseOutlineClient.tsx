@@ -224,7 +224,7 @@ export default function CourseOutlineClient() {
   const isFromConnectors = params?.get("fromConnectors") === "true";
   const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
   const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
-  const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean) || [];
+  const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean).map(file => decodeURIComponent(file)) || [];
   
   // Retrieve user text from sessionStorage
   useEffect(() => {
