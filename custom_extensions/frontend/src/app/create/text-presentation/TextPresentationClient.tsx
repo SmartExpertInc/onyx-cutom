@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -1570,11 +1571,11 @@ export default function TextPresentationClient() {
                           <div className="mb-2">
                             {editingLessonId === idx ? (
                               <div className="relative group">
-                                <input
+                                <Input
                                   type="text"
                                   value={editedTitles[idx] || lesson.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8"
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8 h-auto"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                                   onKeyDown={(e) => {
