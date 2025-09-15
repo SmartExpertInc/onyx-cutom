@@ -7456,15 +7456,27 @@ async def serpapi_company_research(company_name: str, company_desc: str, company
     url = "https://serpapi.com/search.json"
     async with httpx.AsyncClient(timeout=20.0) as client:
         # 1. General company info
+        search_query = company_name
+        if company_desc and company_desc.strip():
+            search_query = f"{company_name} {company_desc}"
+        
         params_general = {
-            "q": f"{company_name} {company_desc}",
+            "q": search_query,
             "engine": "google",
             "api_key": SERPAPI_KEY,
             "hl": "ru"
         }
-        resp = await client.get(url, params=params_general)
-        resp.raise_for_status()
-        data = resp.json()
+        try:
+            resp = await client.get(url, params=params_general)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as e:
+            logger.error(f"❌ [SERPAPI] Error in general search: {e}")
+            # If general search fails, try with just the company name
+            params_general["q"] = company_name
+            resp = await client.get(url, params=params_general)
+            resp.raise_for_status()
+            data = resp.json()
         general_snippets = []
         if "organic_results" in data:
             for item in data["organic_results"][:3]:
@@ -13552,7 +13564,13 @@ async def scrape_company_data_from_website(company_website: str) -> AiAuditScrap
         logger.info(f"🌐 [WEBSITE SCRAPING] Starting to scrape: {company_website}")
         
         # Use the existing SERPAPI research function to get website content
-        website_content = await serpapi_company_research("", "", company_website)
+        # For website-only scraping, we need to extract domain name for the search
+        from urllib.parse import urlparse
+        parsed_url = urlparse(company_website)
+        domain_name = parsed_url.netloc.replace('www.', '')
+        logger.info(f"🌐 [WEBSITE SCRAPING] Using domain name for search: {domain_name}")
+        website_content = await serpapi_company_research(domain_name, "", company_website)
+        logger.info(f"🌐 [WEBSITE SCRAPING] Received content length: {len(website_content)} characters")
         
         # Extract company name from website content
         company_name = await extract_company_name_from_website_content(website_content, company_website)
