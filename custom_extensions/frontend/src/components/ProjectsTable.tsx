@@ -123,11 +123,11 @@ const getProductTypeDisplayName = (type: string): string => {
 };
 
 const TitleIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 12H20M4 8H20M4 16H12" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="#6A7282" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 12H20M4 8H20M4 16H12" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
 const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
-  <svg height={size} width={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note" className="icon glyph" fill="#364153"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20.71,3.29a2.91,2.91,0,0,0-2.2-.84,3.25,3.25,0,0,0-2.17,1L9.46,10.29s0,0,0,0a.62.62,0,0,0-.11.17,1,1,0,0,0-.1.18l0,0L8,14.72A1,1,0,0,0,9,16a.9.9,0,0,0,.28,0l4-1.17,0,0,.18-.1a.62.62,0,0,0,.17-.11l0,0,6.87-6.88a3.25,3.25,0,0,0,1-2.17A2.91,2.91,0,0,0,20.71,3.29Z"></path><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style={{fill:"#364153"}}></path></g></svg>
+  <svg height={size} width={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note" className="icon glyph" fill="#6A7282"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20.71,3.29a2.91,2.91,0,0,0-2.2-.84,3.25,3.25,0,0,0-2.17,1L9.46,10.29s0,0,0,0a.62.62,0,0,0-.11.17,1,1,0,0,0-.1.18l0,0L8,14.72A1,1,0,0,0,9,16a.9.9,0,0,0,.28,0l4-1.17,0,0,.18-.1a.62.62,0,0,0,.17-.11l0,0,6.87-6.88a3.25,3.25,0,0,0,1-2.17A2.91,2.91,0,0,0,20.71,3.29Z"></path><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style={{fill:"#6A728"}}></path></g></svg>
 );
 
 const TypeIcon: React.FC<{ size?: number }> = ({ size }) => (
@@ -3831,7 +3831,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         ) : (
           // List view (table/row style)
           <div
-            className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${
+            className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
           >
@@ -3855,7 +3855,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <TableRow>
                   {columnVisibility.title && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.title}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3870,7 +3870,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.created && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.created}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3885,7 +3885,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.type && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3900,7 +3900,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.creator && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.creator}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3915,7 +3915,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.numberOfLessons && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3931,7 +3931,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.estCreationTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.estCreationTime}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3947,7 +3947,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.estCompletionTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3962,7 +3962,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     </TableHead>
                   )}
                   <TableHead
-                    className="px-6 py-3 text-right text-xs font-semibold text-gray-700 tracking-wider"
+                    className="px-6 py-3 text-right text-xs font-semibold text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
                     {/* {t("interface.actions", "Actions")} */}

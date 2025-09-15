@@ -8,6 +8,8 @@ import SmartDriveFrame from './SmartDriveFrame';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { Card, CardContent } from '../ui/card';
+import { Button } from '../ui/button';
 
 interface ConnectorConfig {
   id: string;
@@ -564,40 +566,55 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
              const hasConnectors = userConnectorsForSource.length > 0;
 
              return (
-               <div
+               <Card
                  key={connector.id}
-                 className="group relative bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer"
+                 className="group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105"
+                 style={{
+                   backgroundColor: 'white',
+                   borderColor: '#e2e8f0',
+                   background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                   borderWidth: '1px',
+                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                 }}
+                 onMouseEnter={(e) => {
+                   e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                 }}
+                 onMouseLeave={(e) => {
+                   e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                 }}
                  onClick={() => handleConnectClick(connector.id, connector.name)}
                >
-                 <div className="flex items-center gap-4 mb-4">
-                   <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
-                     <Image
-                       src={connector.logoPath}
-                       alt={`${connector.name} logo`}
-                       width={32}
-                       height={32}
-                       className="object-contain w-8 h-8"
-                       priority={false}
-                       unoptimized={true}
-                     />
+                 <CardContent className="p-6">
+                   <div className="flex items-center gap-4 mb-4">
+                     <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                       <Image
+                         src={connector.logoPath}
+                         alt={`${connector.name} logo`}
+                         width={32}
+                         height={32}
+                         className="object-contain w-8 h-8"
+                         priority={false}
+                         unoptimized={true}
+                       />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <h3 className="text-lg font-semibold text-gray-900 truncate">
+                         {connector.name}
+                       </h3>
+                     </div>
                    </div>
-                   <div className="flex-1 min-w-0">
-                     <h3 className="text-lg font-semibold text-gray-900 truncate">
-                       {connector.name}
-                     </h3>
-                   </div>
-                 </div>
 
-                 <div className="flex gap-2">
-                   <button
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       handleConnectClick(connector.id, connector.name);
-                     }}
-                     className="flex-1 text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg"
-                   >
-                     {t('interface.connect', 'Connect')}
-                   </button>
+                   <div className="flex gap-2">
+                     <Button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         handleConnectClick(connector.id, connector.name);
+                       }}
+                       variant="download"
+                       className="flex-1 rounded-full"
+                     >
+                       {t('interface.connect', 'Connect')}
+                     </Button>
 
                    {hasConnectors && (
                      <div className="relative">
@@ -671,7 +688,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                      </div>
                    </div>
                  )}
-               </div>
+                 </CardContent>
+               </Card>
              );
            })}
          </div>

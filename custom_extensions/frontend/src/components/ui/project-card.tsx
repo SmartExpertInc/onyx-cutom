@@ -387,6 +387,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         return "Presentation";
       case "Text Presentation":
         return "Onepager";
+      case "Video Lesson Presentation":
+        return "Video Lesson";
       default:
         return type;
     }
@@ -424,18 +426,18 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
             
             {/* Badges in top-right */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2">
               {/* Course type badge */}
               {project.designMicroproductType && (
                 <div 
-                  className="flex items-center gap-1 backdrop-blur-sm rounded-full px-2 py-1 border flex-shrink-0"
-                  style={{
-                    backgroundColor: `${bgColor}20`,
-                    borderColor: `${bgColor}40`,
-                    color: bgColor
-                  }}
+                  className="flex items-center gap-1 backdrop-blur-sm rounded-full px-2 py-1 border"
+                    style={{
+                      backgroundColor: `${bgColor}`,
+                      borderColor: `${bgColor}40`,
+                      color: "white"
+                    }}
                 >
-                  <span className="text-xs font-medium whitespace-nowrap">
+                  <span className="text-xs font-medium">
                     {getProductTypeDisplayName(project.designMicroproductType)}
                   </span>
                 </div>
