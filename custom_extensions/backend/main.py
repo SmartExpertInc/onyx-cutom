@@ -266,7 +266,7 @@ def should_use_hybrid_approach(payload) -> bool:
     )
     
     logger.info(f"🔍 [HYBRID_CHECK] Final has_connector_filtering: {has_connector_filtering}")
-
+    
     # Use hybrid approach when there's file context, text context, Knowledge Base search, or connector filtering
     use_hybrid = has_files or has_text_context or has_knowledge_base or has_connector_filtering
     
@@ -14996,6 +14996,44 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                         # For connector-based filtering only, extract context from specific connectors
                         logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
                         file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromConnectors and payload.selectedFiles:
+                    # SmartDrive files only (no connectors)
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
+                    
+                    # Map SmartDrive paths to Onyx file IDs
+                    raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                    
+                    # Normalize paths to handle URL encoding and character variations
+                    smartdrive_file_paths = []
+                    for path in raw_paths:
+                        # Handle URL encoding
+                        try:
+                            from urllib.parse import unquote
+                            normalized_path = unquote(path)
+                        except:
+                            normalized_path = path
+                        
+                        smartdrive_file_paths.append(normalized_path)
+                        # Also try without `+` character if present (filename variation)
+                        if '+' in normalized_path:
+                            smartdrive_file_paths.append(normalized_path.replace('+', ''))
+                    
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    
+                    # DEBUG: Log the mapping attempt
+                    logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Raw paths: {raw_paths}")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Normalized paths: {smartdrive_file_paths}")
+                    
+                    file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
+                    
+                    if file_ids:
+                        logger.info(f"[HYBRID_CONTEXT] Successfully mapped {len(file_ids)} SmartDrive files to Onyx file IDs: {file_ids}")
+                        # Extract context from the mapped file IDs
+                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                    else:
+                        logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths: {smartdrive_file_paths}")
+                        file_context = f"Selected files: {', '.join(raw_paths)}\nNote: These files are from SmartDrive but could not be mapped to indexed content. Please ensure the files have been properly imported and indexed."
                 elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
@@ -25058,7 +25096,7 @@ async def import_smartdrive_files(
             logger.info(f"Using SmartDrive account: {nextcloud_username} at {nextcloud_base_url}")
 
         # Process each file
-        for file_path in file_paths:
+            for file_path in file_paths:
             try:
                 logger.info(f"Processing SmartDrive file: {file_path}")
                 
@@ -25103,24 +25141,24 @@ async def import_smartdrive_files(
                     # Store mapping in smartdrive_imports with REAL file ID
                     async with pool.acquire() as conn:
                         import_record_id = await conn.fetchval(
-                            """
-                            INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
-                            VALUES ($1, $2, $3, $4, $5, $6)
+                    """
+                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                             ON CONFLICT (onyx_user_id, smartdrive_path) 
                             DO UPDATE SET 
                                 onyx_file_id = EXCLUDED.onyx_file_id,
                                 etag = EXCLUDED.etag,
                                 checksum = EXCLUDED.checksum,
                                 imported_at = EXCLUDED.imported_at
-                            RETURNING id
-                            """,
-                            onyx_user_id,
-                            file_path,
+                    RETURNING id
+                    """,
+                    onyx_user_id,
+                    file_path,
                             real_file_id,  # REAL Onyx file ID!
                             response.headers.get("etag", f"etag_{hash(file_path)}"),
                             f"imported_{int(time.time())}",  # Simple checksum
-                            datetime.now(timezone.utc)
-                        )
+                    datetime.now(timezone.utc)
+                )
                     
                     imported_file_ids.append(import_record_id)
                     logger.info(f"✅ Successfully imported {file_path} -> Onyx file ID: {real_file_id}")
