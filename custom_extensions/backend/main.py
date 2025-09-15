@@ -10936,7 +10936,7 @@ async def extract_folder_context(folder_id: int, cookies: Dict[str, str]) -> Dic
         logger.error(f"[FILE_CONTEXT] Error extracting folder context for folder {folder_id}: {e}")
         return None
 
-def build_enhanced_prompt_with_context(original_prompt: str, file_context: Dict[str, Any] | str, product_type: str) -> str:
+def build_enhanced_prompt_with_context(original_prompt: str, file_context: Union[Dict[str, Any], str], product_type: str) -> str:
     """
     Build an enhanced prompt that includes the extracted file context for OpenAI.
     Handles both dict (structured context) and str (fallback context) cases.
