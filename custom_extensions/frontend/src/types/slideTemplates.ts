@@ -496,6 +496,8 @@ export interface TwoColumnSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  logoPath?: string;
+  pageNumber?: string;
 }
 
 export interface PhishingDefinitionSlideProps extends BaseTemplateProps {
