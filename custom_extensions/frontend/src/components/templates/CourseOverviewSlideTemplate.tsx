@@ -203,7 +203,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     <div className="course-overview-slide-template inter-theme" style={slideStyles}>
       {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
-        width: '50%',
+        width: '45%',
         height: '100%',
         background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
         position: 'relative',
@@ -225,16 +225,29 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           />
         </div>
 
-        {/* Page number */}
+        {/* Page number with line */}
         <div style={{
           position: 'absolute',
           bottom: '30px',
           left: '23px',
-          color: '#ffffff',
-          fontSize: '17px',
-          fontWeight: '300'
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          01
+          {/* Small line */}
+          <div style={{
+            width: '20px',
+            height: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          }} />
+          {/* Page number */}
+          <div style={{
+            color: '#ffffff',
+            fontSize: '17px',
+            fontWeight: '300'
+          }}>
+            01
+          </div>
         </div>
 
         {/* Title and Subtitle - Centered vertically */}
