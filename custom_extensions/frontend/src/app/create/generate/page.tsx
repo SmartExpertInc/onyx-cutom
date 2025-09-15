@@ -134,44 +134,72 @@ function GenerateProductPicker() {
   const isFromConnectors = searchParams?.get('fromConnectors') === 'true';
   const connectorIds = searchParams?.get('connectorIds')?.split(',').filter(Boolean) || [];
   const connectorSources = searchParams?.get('connectorSources')?.split(',').filter(Boolean) || [];
+  const selectedFiles = searchParams?.get('selectedFiles')?.split(',').filter(Boolean).map(file => decodeURIComponent(file)) || [];
   const [connectorContext, setConnectorContext] = useState<{
     fromConnectors: boolean;
     connectorIds: string[];
     connectorSources: string[];
+    selectedFiles: string[];
   } | null>(null);
 
   // Load connector context from sessionStorage
   useEffect(() => {
+    console.log('🔍 [STEP 3] Generate page useEffect triggered with:', {
+      isFromConnectors,
+      connectorIds,
+      connectorSources,
+      selectedFiles,
+      urlParams: window.location.search
+    });
+    
     if (isFromConnectors) {
       try {
-        const storedConnectorContext = sessionStorage.getItem('connectorContext');
+        const storedConnectorContext = sessionStorage.getItem('combinedContext');
+        console.log('🔍 [STEP 3] SessionStorage combinedContext:', storedConnectorContext);
+        
         if (storedConnectorContext) {
           const context = JSON.parse(storedConnectorContext);
+          console.log('🔍 [STEP 3] Parsed sessionStorage context:', context);
+          
           // Check if data is recent (within 1 hour)
           if (context.timestamp && (Date.now() - context.timestamp < 3600000)) {
-            setConnectorContext(context);
+            const finalContext = {
+              fromConnectors: true,
+              connectorIds: connectorIds.length > 0 ? connectorIds : (context.connectorIds || []),
+              connectorSources: connectorSources.length > 0 ? connectorSources : (context.connectorSources || []),
+              selectedFiles: selectedFiles.length > 0 ? selectedFiles : (context.selectedFiles || [])
+            };
+            console.log('🔍 [STEP 3] Setting merged connectorContext:', finalContext);
+            setConnectorContext(finalContext);
           } else {
-            sessionStorage.removeItem('connectorContext');
+            console.log('🔍 [STEP 3] SessionStorage data expired, removing');
+            sessionStorage.removeItem('combinedContext');
           }
         } else {
           // Use URL parameters if sessionStorage is not available
-          setConnectorContext({
+          const urlContext = {
             fromConnectors: true,
             connectorIds,
-            connectorSources
-          });
+            connectorSources,
+            selectedFiles
+          };
+          console.log('🔍 [STEP 3] No sessionStorage, using URL parameters:', urlContext);
+          setConnectorContext(urlContext);
         }
       } catch (error) {
-        console.error('Error retrieving connector context:', error);
+        console.error('🔍 [STEP 3] Error retrieving connector context:', error);
         // Fallback to URL parameters
-        setConnectorContext({
+        const fallbackContext = {
           fromConnectors: true,
           connectorIds,
-          connectorSources
-        });
+          connectorSources,
+          selectedFiles
+        };
+        console.log('🔍 [STEP 3] Using fallback context:', fallbackContext);
+        setConnectorContext(fallbackContext);
       }
     }
-  }, [isFromConnectors, connectorIds.join(','), connectorSources.join(',')]);
+  }, [isFromConnectors, connectorIds.join(','), connectorSources.join(','), selectedFiles.join(',')]);
   
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -315,9 +343,33 @@ function GenerateProductPicker() {
 
     // Add connector context if coming from connectors
     if (connectorContext?.fromConnectors) {
+      console.log('[GeneratePageDEBUG] Adding connector context to course outline URL:', connectorContext);
       params.set("fromConnectors", "true");
       params.set("connectorIds", connectorContext.connectorIds.join(','));
       params.set("connectorSources", connectorContext.connectorSources.join(','));
+
+      // Fallback: if connectorContext.selectedFiles is empty, use selectedFiles from URL params
+      const filesToUse = (connectorContext.selectedFiles && connectorContext.selectedFiles.length > 0)
+        ? connectorContext.selectedFiles
+        : (selectedFiles && selectedFiles.length > 0 ? selectedFiles : []);
+
+      if (filesToUse.length > 0) {
+        console.log('[GeneratePageDEBUG] Adding selectedFiles to URL (resolved):', filesToUse);
+        params.set("selectedFiles", filesToUse.join(','));
+      } else {
+        console.log('[GeneratePageDEBUG] No selectedFiles to add after fallback:', { 
+          connectorContextSelectedFiles: connectorContext.selectedFiles,
+          urlSelectedFiles: selectedFiles
+        });
+      }
+    } else {
+      console.log('[GeneratePageDEBUG] No connector context:', { 
+        connectorContext,
+        isFromConnectors,
+        connectorIds,
+        connectorSources,
+        selectedFiles 
+      });
     }
 
     router.push(`/create/course-outline?${params.toString()}`);
