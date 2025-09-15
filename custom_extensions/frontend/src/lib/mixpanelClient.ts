@@ -79,7 +79,7 @@ export function resetUser() {
 // Wrap mixpanel.track in a Promise for async/await usage
 export async function track(
   event: string,
-  properties?: FeatureUsedEvent,
+  properties?: Record<string, unknown>,
   options?: Record<string, unknown>
 ): Promise<void> {
   return new Promise((resolve) => {
@@ -101,24 +101,32 @@ export function timeEvent(event: string): void {
   mixpanel.time_event(event);
 }
 
-export const trackCreateProduct = async (action: string) => {
-  const featureEvent: FeatureUsedEvent = {
+export const trackCreateProduct = async (
+  action: string,
+  modules?: number,
+  lessonsPerModule?: string,
+  language?: string
+) => {
+  const props = {
     "Feature Category": "Products",
-    Action: action,
+    "Action": action,
+    "Modules": modules,
+    "Lessons Per Module": lessonsPerModule,
+    "Language": language
   };
 
-  await track("Create Product", featureEvent);
+  await track("Create Product", props);
 };
 
 export const trackAdvancedMode = async (action: string) => {
-  const featureEvent: FeatureUsedEvent = {
+  const props = {
     "Feature Category": "Products",
-    Action: action,
+    "Action": action,
   };
 
   await track(
     "Advanced Mode Used", 
-    featureEvent, 
+    props, 
     { transport: "sendBeacon", send_immediately: true }
   );
 };

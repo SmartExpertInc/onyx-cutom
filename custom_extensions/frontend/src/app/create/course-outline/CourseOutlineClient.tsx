@@ -861,7 +861,7 @@ export default function CourseOutlineClient() {
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
 
-      await trackCreateProduct("Completed");
+      await trackCreateProduct("Completed", modules, lessonsPerModule, language);
       
       // Clear the failed state since we successfully completed
       try {
