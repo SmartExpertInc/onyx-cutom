@@ -6,6 +6,7 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
+import ProjectSettingsModal from "../../app/projects/ProjectSettingsModal";
 import { 
   MoreHorizontal, 
   Lock, 
@@ -189,11 +190,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
-  
-  // Create gradient colors (lighter version of bgColor)
-  const gradientFrom = bgColor + "50"; // 25% opacity
-  const gradientTo = bgColor + "80";
-  const saturatedColor = bgColor;
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -400,7 +396,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div 
           className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
           style={{
-            background: `linear-gradient(to bottom right, ${gradientFrom}, ${gradientTo})`
+            backgroundColor: bgColor,
+            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
+              displayTitle.split("").reverse().join("")
+            )}99)`,
           }}
         >
           {/* Top row with icon and badge */}
@@ -879,33 +878,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {/* Project Settings Modal */}
       {showSettingsModal && (
-        <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
-          onClick={() => setShowSettingsModal(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">
-              {t("actions.settings", "Settings")}
-            </h4>
-            <p className="text-sm text-gray-600 mb-4">
-              {t("actions.settingsDescription", "Project settings for {name}").replace(
-                "{name}",
-                project.title
-              )}
-            </p>
-            <div className="flex justify-end gap-3">
-              <Button
-                onClick={() => setShowSettingsModal(false)}
-                variant="outline"
-              >
-                {t("actions.close", "Close")}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ProjectSettingsModal
+          open={showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
+          projectName={project.title}
+          projectId={project.id}
+          onTierChange={(tier: string) => {
+            console.log("Project tier changed to:", tier);
+          }}
+        />
       )}
     </Card>
   );

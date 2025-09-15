@@ -1695,6 +1695,7 @@ const ProjectRowMenu: React.FC<{
               <Button
                 onClick={() => setTrashConfirmOpen(false)}
                 variant="outline"
+                className="text-gray-600 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
               >
                 {t("actions.cancel", "Cancel")}
               </Button>
@@ -1703,7 +1704,8 @@ const ProjectRowMenu: React.FC<{
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                variant="secondary"
+                variant="blueGradient"
+                className="rounded-full"
               >
                 {t("actions.outlineOnly", "Outline Only")}
               </Button>
@@ -1712,7 +1714,8 @@ const ProjectRowMenu: React.FC<{
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                variant="destructive"
+                variant="download"
+                className="rounded-full bg-red-100 hover:bg-red-200 border border-red-200 hover:border-red-300"
               >
                 {t("actions.moveAll", "Move All")}
               </Button>
@@ -3591,42 +3594,56 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       )}
 
       {!trashMode && (
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4 mb-6">
           <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
-              <Input
-                type="text"
-                variant="shadow"
-                placeholder={t('interface.searchPlaceholder', 'Search members...')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            {/* {filters.map((filter) => {
-              const Icon = filterIcons[filter];
-              return (
-                <Button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  variant={activeFilter === filter ? "filter-active" : "filter"}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
-                >
-                  <Icon size={16} />
-                  {filter}
-                </Button>
-              );
-            })} */}
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
+            <Input
+              type="text"
+              variant="shadow"
+              placeholder={t('interface.searchPlaceholder', 'Search projects...')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="sort" 
-              className="flex items-center gap-2 text-sm font-semibold"
-            >
-              <ArrowUpDown size={16} className="text-gray-800" />
-              {t("interface.sort", "Sort")}
-            </Button>
+           <div className="flex items-center gap-4">
+             <DropdownMenu>
+               <DropdownMenuTrigger asChild>
+                 <Button 
+                   variant="sort" 
+                   className="flex items-center gap-2 text-sm font-semibold"
+                 >
+                   <ArrowUpDown size={16} className="text-gray-800" />
+                   {t("interface.sort", "Sort")}
+                   <ChevronDown size={14} className="text-gray-600" />
+                 </Button>
+               </DropdownMenuTrigger>
+               <DropdownMenuContent className="w-48">
+                 <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+                   <p className="font-semibold text-sm text-gray-900">
+                     {t("interface.filterBy", "Filter by")}
+                   </p>
+                 </DropdownMenuLabel>
+                 <DropdownMenuSeparator />
+                 {filters.map((filter) => {
+                   const Icon = filterIcons[filter];
+                   return (
+                     <DropdownMenuItem
+                       key={filter}
+                       onClick={() => setActiveFilter(filter)}
+                       className={`flex items-center gap-2 px-3 py-2 text-sm ${
+                         activeFilter === filter 
+                           ? "bg-blue-50 text-blue-700 font-semibold" 
+                           : "text-gray-700 hover:bg-gray-50"
+                       }`}
+                     >
+                       <Icon size={16} />
+                       {filter}
+                     </DropdownMenuItem>
+                   );
+                 })}
+               </DropdownMenuContent>
+             </DropdownMenu>
 
             {/* Columns Dropdown - only show in list view */}
             {viewMode === "list" && (
