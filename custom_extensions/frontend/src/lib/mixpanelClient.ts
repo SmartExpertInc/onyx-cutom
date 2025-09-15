@@ -118,14 +118,14 @@ export const trackCreateProduct = async (
   await track("Create Product", props);
 };
 
-export const trackAdvancedMode = async (action: string) => {
+export const trackSmartEdit = async (action: string) => {
   const props = {
     "Feature Category": "Products",
     "Action": action,
   };
 
   await track(
-    "Advanced Mode Used", 
+    "Smart Edit", 
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );

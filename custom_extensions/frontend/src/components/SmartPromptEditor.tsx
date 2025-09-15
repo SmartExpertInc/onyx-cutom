@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Plus, CheckCircle, RotateCcw } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackSmartEdit } from '../lib/mixpanelClient'
 
 interface SmartPromptEditorProps {
   projectId: number;
@@ -113,6 +114,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
       const decoder = new TextDecoder();
       let buffer = "";
+      let hasTrackedCompletion = false;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -127,6 +129,11 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           try {
             const packet = JSON.parse(line);
             if (packet.type === "done" && packet.updatedContent) {
+              if (!hasTrackedCompletion) {
+                trackSmartEdit("Completed");
+                hasTrackedCompletion = true;
+              }
+
               if (packet.isPreview) {
                 // This is a preview - show confirmation UI and immediately update the display
                 setPreviewContent(packet.updatedContent);
@@ -150,6 +157,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
         }
       }
     } catch (error: any) {
+      trackSmartEdit("Failed");
       onError(error.message || "Failed to apply edit");
     } finally {
       setLoadingEdit(false);

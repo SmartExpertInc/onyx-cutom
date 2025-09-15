@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { trackCreateProduct, trackAdvancedMode } from "../../../lib/mixpanelClient"
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -127,6 +127,14 @@ export default function TextPresentationClient() {
 
   // Advanced mode state
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
@@ -1033,7 +1041,7 @@ export default function TextPresentationClient() {
 
       setFinalProjectId(data.id);
 
-      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType);
+      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
       
       // Clear the failed state since we successfully completed
       try {
@@ -1054,7 +1062,7 @@ export default function TextPresentationClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType);
+          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {
@@ -1583,7 +1591,10 @@ export default function TextPresentationClient() {
                     <button
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={handleApplyEdit}
+                      onClick={() => {
+                        handleApplyEdit();
+                        setAdvancedModeState("Used");
+                      }}
                       className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
                     >
                       {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
@@ -1596,7 +1607,7 @@ export default function TextPresentationClient() {
                   type="button"
                   onClick={() => {
                     setShowAdvanced((prev) => !prev);
-                    trackAdvancedMode("Clicked");
+                    handleAdvancedModeClick();
                   }}
                   className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
                 >

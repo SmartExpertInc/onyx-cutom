@@ -14,7 +14,7 @@ import PresentationPreview from "../../../components/PresentationPreview";
 import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
-import { trackCreateProduct, trackAdvancedMode } from "../../../lib/mixpanelClient"
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -286,6 +286,14 @@ export default function LessonPresentationClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
 
   const lessonExamples: { short: string; detailed: string }[] = [
     {
@@ -792,7 +800,7 @@ export default function LessonPresentationClient() {
     }, 300000); // 5 minutes timeout
 
     const activeProductType = sessionStorage.getItem('activeProductType');
-    
+
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = params?.get("prompt")?.trim() || "";
@@ -837,7 +845,7 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
-      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType);
+      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
       
       // Clear the failed state since we successfully completed
       try {
@@ -858,7 +866,7 @@ export default function LessonPresentationClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType);
+          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType, advancedModeState);
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {
@@ -1523,7 +1531,10 @@ export default function LessonPresentationClient() {
                     <button
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={handleApplyLessonEdit}
+                      onClick={() => {
+                        handleApplyLessonEdit();
+                        setAdvancedModeState("Used");
+                      }}
                       className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
                     >
                       {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
@@ -1536,7 +1547,7 @@ export default function LessonPresentationClient() {
                   type="button"
                   onClick={() => {
                     setShowAdvanced((prev) => !prev);
-                    trackAdvancedMode("Clicked");
+                    handleAdvancedModeClick();
                   }}
                   className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
                 >
