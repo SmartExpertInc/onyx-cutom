@@ -1967,11 +1967,14 @@ const ProjectCard: React.FC<{
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
                 variant="outline"
+                className="text-gray-600 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
                 disabled={isRenaming}
               >
                 {t("actions.cancel", "Cancel")}
               </Button>
               <Button
+                variant="download"
+                className="rounded-full"
                 onClick={async () => {
                   setIsRenaming(true);
                   try {
@@ -2063,7 +2066,6 @@ const ProjectCard: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                variant="default"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
