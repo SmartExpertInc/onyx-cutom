@@ -226,6 +226,15 @@ export default function CourseOutlineClient() {
   const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
   const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean).map(file => decodeURIComponent(file)) || [];
   
+  console.log('🔍 [STEP 4] Course Outline Client loaded with URL params:', {
+    isFromConnectors,
+    connectorIds,
+    connectorSources,
+    selectedFiles,
+    fullUrl: window.location.href,
+    searchParams: window.location.search
+  });
+  
   // Retrieve user text from sessionStorage
   useEffect(() => {
     if (isFromText) {
@@ -573,13 +582,29 @@ export default function CourseOutlineClient() {
 
           // Add connector context if creating from connectors
           if (isFromConnectors) {
+            console.log('🔍 [STEP 5] Adding connector context to backend request:', {
+              isFromConnectors,
+              connectorIds,
+              connectorSources,
+              selectedFiles,
+              connectorIdsJoined: connectorIds.join(','),
+              connectorSourcesJoined: connectorSources.join(','),
+              selectedFilesJoined: selectedFiles.join(',')
+            });
+            
             requestBody.fromConnectors = true;
             requestBody.connectorIds = connectorIds.join(',');
             requestBody.connectorSources = connectorSources.join(',');
             if (selectedFiles.length > 0) {
               requestBody.selectedFiles = selectedFiles.join(',');
+              console.log('🔍 [STEP 5] Added selectedFiles to request body:', requestBody.selectedFiles);
+            } else {
+              console.log('🔍 [STEP 5] No selectedFiles to add (length = 0)');
             }
           }
+
+          console.log('🔍 [STEP 5] Final request body being sent to backend:', requestBody);
+          console.log('🔍 [STEP 5] Request body keys:', Object.keys(requestBody));
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",

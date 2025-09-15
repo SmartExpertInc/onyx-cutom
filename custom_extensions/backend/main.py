@@ -248,19 +248,35 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
     )
     
-    # Check if connector-based filtering is requested (including SmartDrive files)
-    has_connector_filtering = (
-        hasattr(payload, 'fromConnectors') and payload.fromConnectors and
-        (
-            (hasattr(payload, 'connectorSources') and payload.connectorSources) or
-            (hasattr(payload, 'selectedFiles') and payload.selectedFiles)
+            # Check if connector-based filtering is requested (including SmartDrive files)
+        logger.info(f"🔍 [HYBRID_CHECK] Checking connector filtering:")
+        logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'fromConnectors'): {hasattr(payload, 'fromConnectors')}")
+        logger.info(f"🔍 [HYBRID_CHECK] payload.fromConnectors: {getattr(payload, 'fromConnectors', None)}")
+        logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'connectorSources'): {hasattr(payload, 'connectorSources')}")
+        logger.info(f"🔍 [HYBRID_CHECK] payload.connectorSources: {getattr(payload, 'connectorSources', None)}")
+        logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'selectedFiles'): {hasattr(payload, 'selectedFiles')}")
+        logger.info(f"🔍 [HYBRID_CHECK] payload.selectedFiles: {getattr(payload, 'selectedFiles', None)}")
+        
+        has_connector_filtering = (
+            hasattr(payload, 'fromConnectors') and payload.fromConnectors and
+            (
+                (hasattr(payload, 'connectorSources') and payload.connectorSources) or
+                (hasattr(payload, 'selectedFiles') and payload.selectedFiles)
+            )
         )
-    )
+        
+        logger.info(f"🔍 [HYBRID_CHECK] Final has_connector_filtering: {has_connector_filtering}")
     
     # Use hybrid approach when there's file context, text context, Knowledge Base search, or connector filtering
     use_hybrid = has_files or has_text_context or has_knowledge_base or has_connector_filtering
     
     logger.info(f"[HYBRID_SELECTION] has_files={has_files}, has_text_context={has_text_context}, has_knowledge_base={has_knowledge_base}, has_connector_filtering={has_connector_filtering}, use_hybrid={use_hybrid}")
+    
+    # EXTENSIVE DEBUG: Show why connector filtering failed
+    if hasattr(payload, 'fromConnectors') and payload.fromConnectors:
+        logger.info(f"🔍 [HYBRID_DEBUG] fromConnectors=True but connector_filtering={has_connector_filtering}")
+        logger.info(f"🔍 [HYBRID_DEBUG] connectorSources check: hasattr={hasattr(payload, 'connectorSources')}, value={getattr(payload, 'connectorSources', None)}, truthy={bool(getattr(payload, 'connectorSources', None))}")
+        logger.info(f"🔍 [HYBRID_DEBUG] selectedFiles check: hasattr={hasattr(payload, 'selectedFiles')}, value={getattr(payload, 'selectedFiles', None)}, truthy={bool(getattr(payload, 'selectedFiles', None))}")
     return use_hybrid
 
 DB_POOL = None
@@ -14742,11 +14758,26 @@ def _parse_outline_markdown(md: str) -> List[Dict[str, Any]]:
 
 @app.post("/api/custom/course-outline/preview")
 async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request):
+    # EXTENSIVE DEBUG LOGGING: Log all incoming parameters
+    logger.info(f"🔍 [STEP 6] Backend received request with payload attributes:")
+    for attr in ['prompt', 'modules', 'lessonsPerModule', 'language', 'fromConnectors', 'connectorIds', 'connectorSources', 'selectedFiles', 'fromFiles', 'fileIds', 'folderIds', 'fromText', 'userText', 'fromKnowledgeBase']:
+        value = getattr(payload, attr, 'NOT_SET')
+        logger.info(f"🔍 [STEP 6] payload.{attr} = {value}")
+    
+    logger.info(f"🔍 [STEP 6] Raw request body size: {len(await request.body())} bytes")
     logger.info(f"[PREVIEW_START] Course outline preview initiated")
     logger.info(f"[PREVIEW_PARAMS] prompt='{payload.prompt[:50]}...' modules={payload.modules} lessonsPerModule={payload.lessonsPerModule} lang={payload.language}")
     logger.info(f"[PREVIEW_PARAMS] fromFiles={payload.fromFiles} fromText={payload.fromText} textMode={payload.textMode}")
     logger.info(f"[PREVIEW_PARAMS] userText length={len(payload.userText) if payload.userText else 0}")
     logger.info(f"[PREVIEW_PARAMS] folderIds={payload.folderIds} fileIds={payload.fileIds}")
+    
+    # EXTENSIVE DEBUG: Check all connector-related attributes
+    logger.info(f"🔍 [CRITICAL] payload.fromConnectors = {getattr(payload, 'fromConnectors', 'MISSING')}")
+    logger.info(f"🔍 [CRITICAL] payload.connectorIds = {getattr(payload, 'connectorIds', 'MISSING')}")
+    logger.info(f"🔍 [CRITICAL] payload.connectorSources = {getattr(payload, 'connectorSources', 'MISSING')}")
+    logger.info(f"🔍 [CRITICAL] payload.selectedFiles = {getattr(payload, 'selectedFiles', 'MISSING')}")
+    logger.info(f"🔍 [CRITICAL] HasAttr selectedFiles: {hasattr(payload, 'selectedFiles')}")
+    logger.info(f"🔍 [CRITICAL] All payload attributes: {[attr for attr in dir(payload) if not attr.startswith('_')]}")
     logger.info(f"[PREVIEW_PARAMS] chatSessionId={payload.chatSessionId}")
     logger.info(f"[PREVIEW_PARAMS] originalOutline length={len(payload.originalOutline) if payload.originalOutline else 0}")
     
