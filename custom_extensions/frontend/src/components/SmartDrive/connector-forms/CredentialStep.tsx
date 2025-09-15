@@ -424,7 +424,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
             />
           ) : field.type === 'file' ? (
             <div className="relative">
-              <Input
+              <input
                 type="file"
                 name={field.name}
                 onChange={(e) => {
@@ -436,7 +436,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
                   }
                 }}
                 required={field.required}
-                className="w-full px-4 py-3 duration-200 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-gradient-to-r file:from-blue-600 file:to-indigo-600 file:text-white hover:file:from-blue-700 hover:file:to-indigo-700 file:cursor-pointer file:min-h-[40px] file:flex-shrink-0 file:whitespace-nowrap"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
             </div>
           ) : field.type === 'email' ? (
