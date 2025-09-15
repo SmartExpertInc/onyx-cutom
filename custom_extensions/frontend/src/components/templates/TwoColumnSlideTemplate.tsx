@@ -114,7 +114,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
         position: 'absolute',
         top: '30px',
         left: '30px',
-        zIndex: 10
+        zIndex: 20
       }}>
         <YourLogo
           logoPath={logoPath}
@@ -227,7 +227,8 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
           left: '0px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '8px',
+          zIndex: 10
         }}>
           {/* Small line */}
           <div style={{
