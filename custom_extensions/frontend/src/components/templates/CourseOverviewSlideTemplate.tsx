@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CourseOverviewSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -137,10 +136,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText,
-  logoPath = ''
-}: CourseOverviewSlideProps & {
-  theme?: SlideTheme | string;
+  voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -154,6 +150,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
+    backgroundColor: '#ffffff',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -166,7 +163,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, title: newTitle });
     }
   };
 
@@ -174,7 +171,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
@@ -190,13 +187,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, imagePath: newImagePath });
-    }
-  };
-
-  const handleLogoUploaded = (newLogoPath: string) => {
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, logoPath: newLogoPath });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, imagePath: newImagePath });
     }
   };
 
@@ -211,20 +202,6 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         boxSizing: 'border-box'
       }}>
 
-        {/* Logo in top-left corner */}
-        <div style={{
-          position: 'absolute',
-          top: '30px',
-          left: '30px'
-        }}>
-          <YourLogo
-            logoPath={logoPath}
-            onLogoUploaded={handleLogoUploaded}
-            isEditable={isEditable}
-            color="#ffffff"
-            text="Your Logo"
-          />
-        </div>
 
         {/* Page number */}
         <div style={{

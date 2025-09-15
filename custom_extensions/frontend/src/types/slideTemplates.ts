@@ -361,7 +361,6 @@ export interface CourseOverviewSlideProps extends BaseTemplateProps {
   subtitleColor?: string;
   accentColor?: string;
   voiceoverText?: string;
-  logoPath?: string;
 }
 
 export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
