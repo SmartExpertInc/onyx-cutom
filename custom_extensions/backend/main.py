@@ -248,25 +248,25 @@ def should_use_hybrid_approach(payload) -> bool:
         hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
     )
     
-            # Check if connector-based filtering is requested (including SmartDrive files)
-        logger.info(f"🔍 [HYBRID_CHECK] Checking connector filtering:")
-        logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'fromConnectors'): {hasattr(payload, 'fromConnectors')}")
-        logger.info(f"🔍 [HYBRID_CHECK] payload.fromConnectors: {getattr(payload, 'fromConnectors', None)}")
-        logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'connectorSources'): {hasattr(payload, 'connectorSources')}")
-        logger.info(f"🔍 [HYBRID_CHECK] payload.connectorSources: {getattr(payload, 'connectorSources', None)}")
-        logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'selectedFiles'): {hasattr(payload, 'selectedFiles')}")
-        logger.info(f"🔍 [HYBRID_CHECK] payload.selectedFiles: {getattr(payload, 'selectedFiles', None)}")
-        
-        has_connector_filtering = (
-            hasattr(payload, 'fromConnectors') and payload.fromConnectors and
-            (
-                (hasattr(payload, 'connectorSources') and payload.connectorSources) or
-                (hasattr(payload, 'selectedFiles') and payload.selectedFiles)
-            )
-        )
-        
-        logger.info(f"🔍 [HYBRID_CHECK] Final has_connector_filtering: {has_connector_filtering}")
+    # Check if connector-based filtering is requested (including SmartDrive files)
+    logger.info(f"🔍 [HYBRID_CHECK] Checking connector filtering:")
+    logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'fromConnectors'): {hasattr(payload, 'fromConnectors')}")
+    logger.info(f"🔍 [HYBRID_CHECK] payload.fromConnectors: {getattr(payload, 'fromConnectors', None)}")
+    logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'connectorSources'): {hasattr(payload, 'connectorSources')}")
+    logger.info(f"🔍 [HYBRID_CHECK] payload.connectorSources: {getattr(payload, 'connectorSources', None)}")
+    logger.info(f"🔍 [HYBRID_CHECK] hasattr(payload, 'selectedFiles'): {hasattr(payload, 'selectedFiles')}")
+    logger.info(f"🔍 [HYBRID_CHECK] payload.selectedFiles: {getattr(payload, 'selectedFiles', None)}")
     
+    has_connector_filtering = (
+        hasattr(payload, 'fromConnectors') and payload.fromConnectors and
+        (
+            (hasattr(payload, 'connectorSources') and payload.connectorSources) or
+            (hasattr(payload, 'selectedFiles') and payload.selectedFiles)
+        )
+    )
+    
+    logger.info(f"🔍 [HYBRID_CHECK] Final has_connector_filtering: {has_connector_filtering}")
+
     # Use hybrid approach when there's file context, text context, Knowledge Base search, or connector filtering
     use_hybrid = has_files or has_text_context or has_knowledge_base or has_connector_filtering
     
