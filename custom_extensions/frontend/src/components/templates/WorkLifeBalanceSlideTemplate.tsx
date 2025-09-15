@@ -139,12 +139,15 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  pageNumber = '02'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   // Use theme colors instead of props
@@ -165,7 +168,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, title: newTitle });
     }
   };
 
@@ -173,7 +176,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     setCurrentContent(newContent);
     setEditingContent(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, content: newContent });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, content: newContent });
     }
   };
 
@@ -189,14 +192,27 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, imagePath: newImagePath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, imagePath: newImagePath });
     }
   };
 
   const handleLogoUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor }, logoPath: newLogoPath });
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, logoPath: newLogoPath });
     }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, imagePath, imageAlt, logoPath, logoAlt, backgroundColor, titleColor, contentColor, accentColor, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
   };
 
   return (
@@ -377,13 +393,34 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
             backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }} />
           {/* Page number */}
-          <div style={{
-            color: '#ffffff',
-            fontSize: '17px',
-            fontWeight: '300'
-          }}>
-            02
-          </div>
+          {isEditable && editingPageNumber ? (
+            <InlineEditor
+              initialValue={currentPageNumber}
+              onSave={handlePageNumberSave}
+              onCancel={handlePageNumberCancel}
+              className="page-number-editor"
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                width: '30px',
+                height: 'auto'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingPageNumber(true)}
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentPageNumber}
+            </div>
+          )}
         </div>
       </div>
 

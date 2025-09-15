@@ -362,6 +362,7 @@ export interface CourseOverviewSlideProps extends BaseTemplateProps {
   accentColor?: string;
   voiceoverText?: string;
   logoPath?: string;
+  pageNumber?: string;
 }
 
 export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
@@ -376,6 +377,7 @@ export interface WorkLifeBalanceSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
 }
 
 export interface ThankYouSlideProps extends BaseTemplateProps {
@@ -393,6 +395,7 @@ export interface ThankYouSlideProps extends BaseTemplateProps {
   textColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
 }
 
 // New slide templates based on images

@@ -27,7 +27,8 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  pageNumber = '03'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
@@ -35,6 +36,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [editingAddress, setEditingAddress] = useState(false);
   const [editingPostalCode, setEditingPostalCode] = useState(false);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
@@ -43,6 +45,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const [currentAddress, setCurrentAddress] = useState(address);
   const [currentPostalCode, setCurrentPostalCode] = useState(postalCode);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -146,8 +149,21 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   const handleLogoNewUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor }, logoNew: newLogoPath });
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor, pageNumber }, logoNew: newLogoPath });
     }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, email, phone, address, postalCode, companyName, logoNew, profileImagePath, profileImageAlt, backgroundColor, titleColor, textColor, accentColor, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
   };
 
   return (
@@ -473,13 +489,34 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           backgroundColor: 'rgba(255, 255, 255, 0.5)'
         }} />
         {/* Page number */}
-        <div style={{
-          color: '#ffffff',
-          fontSize: '17px',
-          fontWeight: '300'
-        }}>
-          03
-        </div>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#ffffff',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#ffffff',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {/* Logo Upload Modal */}

@@ -138,12 +138,15 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   onUpdate,
   theme,
   voiceoverText,
-  logoPath = ''
+  logoPath = '',
+  pageNumber = '01'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -165,7 +168,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, title: newTitle });
     }
   };
 
@@ -173,7 +176,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, subtitle: newSubtitle });
     }
   };
 
@@ -189,14 +192,27 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, imagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, imagePath: newImagePath });
     }
   };
 
   const handleLogoUploaded = (newLogoPath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, logoPath: newLogoPath });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, logoPath: newLogoPath });
     }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath, pageNumber }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
   };
 
   return (
@@ -241,13 +257,34 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
             backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }} />
           {/* Page number */}
-          <div style={{
-            color: '#ffffff',
-            fontSize: '17px',
-            fontWeight: '300'
-          }}>
-            01
-          </div>
+          {isEditable && editingPageNumber ? (
+            <InlineEditor
+              initialValue={currentPageNumber}
+              onSave={handlePageNumberSave}
+              onCancel={handlePageNumberCancel}
+              className="page-number-editor"
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                width: '30px',
+                height: 'auto'
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingPageNumber(true)}
+              style={{
+                color: '#ffffff',
+                fontSize: '17px',
+                fontWeight: '300',
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {currentPageNumber}
+            </div>
+          )}
         </div>
 
         {/* Title and Subtitle - Centered vertically */}
