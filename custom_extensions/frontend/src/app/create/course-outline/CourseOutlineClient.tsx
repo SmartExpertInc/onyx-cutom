@@ -1333,7 +1333,7 @@ export default function CourseOutlineClient() {
             />
             <Edit 
               size={16} 
-              className="absolute top-[20px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+              className="absolute top-[22px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
             />
           </div>
           {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
