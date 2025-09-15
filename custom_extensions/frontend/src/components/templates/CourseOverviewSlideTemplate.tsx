@@ -203,9 +203,9 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     <div className="course-overview-slide-template inter-theme" style={slideStyles}>
       {/* Left Panel - Theme-based with rounded corners */}
       <div style={{
-        width: '45%',
+        width: '50%',
         height: '100%',
-        backgroundColor: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+        background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
         position: 'relative',
         boxSizing: 'border-box'
       }}>
