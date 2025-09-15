@@ -1427,7 +1427,7 @@ export default function QuizClient() {
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border-none rounded px-2 py-1 w-full pr-8 h-auto focus:outline-none focus:ring-0"
+                                  className="text-[#20355D] text-base font-semibold border-none rounded px-2 py-1 w-full pr-8 h-auto focus:border-blue-300 focus:outline-none focus:ring-0"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                   onKeyDown={(e) => {
