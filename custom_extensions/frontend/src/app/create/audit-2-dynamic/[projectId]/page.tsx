@@ -513,7 +513,7 @@ export default function DynamicAuditLandingPage() {
                     style={{ minHeight: '256px', maxHeight: '256px' }}
                   >
                     {landingPageData?.workforceCrisis?.chartData ? (
-                      <div className="w-full h-[226px] flex justify-center items-center">
+                      <div className="w-full h-[226px] flex justify-center items-center overflow-hidden">
                         <PersonnelShortageChart 
                           chartData={landingPageData.workforceCrisis.chartData} 
                           isMobile={true}
@@ -533,7 +533,7 @@ export default function DynamicAuditLandingPage() {
   
                   <div className="hidden xl:block w-[620px] h-[420px] border border-[#E0E0E0] rounded-[4px]">
                     {landingPageData?.workforceCrisis?.chartData ? (
-                      <div className="w-full h-full flex justify-center items-center">
+                      <div className="w-full h-full flex justify-center items-center overflow-hidden">
                         <PersonnelShortageChart 
                           chartData={landingPageData.workforceCrisis.chartData} 
                           isMobile={false}

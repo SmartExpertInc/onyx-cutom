@@ -38,8 +38,8 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
   ];
 
   // Chart dimensions based on original static images
-  const chartHeight = isMobile ? 220 : 280;
-  const chartWidth = isMobile ? 320 : 360;
+  const chartHeight = isMobile ? 226 : 420;
+  const chartWidth = isMobile ? 271 : 620;
 
   return (
     <div 
@@ -48,18 +48,20 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
         width: `${chartWidth}px`, 
         height: `${chartHeight}px`,
         minWidth: `${chartWidth}px`,
-        minHeight: `${chartHeight}px`
+        minHeight: `${chartHeight}px`,
+        maxWidth: `${chartWidth}px`,
+        maxHeight: `${chartHeight}px`
       }}
     >
-      <div className="p-4 h-full">
-        <div className="h-full">
+      <div className="h-full w-full" style={{ padding: isMobile ? '8px' : '12px' }}>
+        <div className="h-full w-full">
           <ResponsiveLine
             data={nivoData}
             margin={{ 
-              top: 20, 
-              right: 30, 
-              bottom: 60, 
-              left: 50 
+              top: isMobile ? 15 : 20, 
+              right: isMobile ? 20 : 30, 
+              bottom: isMobile ? 45 : 60, 
+              left: isMobile ? 35 : 50 
             }}
             xScale={{ type: 'point' }}
             yScale={{
@@ -76,16 +78,16 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
               tickSize: 5,
               tickPadding: 5,
               tickRotation: -45,
-              legend: 'Месяц',
-              legendOffset: 50,
+              legend: isMobile ? '' : 'Месяц',
+              legendOffset: isMobile ? 35 : 50,
               legendPosition: 'middle'
             }}
             axisLeft={{
               tickSize: 5,
               tickPadding: 5,
               tickRotation: 0,
-              legend: 'Количество специалистов',
-              legendOffset: -40,
+              legend: isMobile ? '' : 'Количество специалистов',
+              legendOffset: isMobile ? -30 : -40,
               legendPosition: 'middle'
             }}
             colors={['#0F58F9']}
@@ -109,7 +111,7 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
             theme={{
               background: 'transparent',
               text: {
-                fontSize: 12,
+                fontSize: isMobile ? 10 : 12,
                 fill: '#374151',
                 fontFamily: 'Inter, sans-serif'
               },
@@ -122,7 +124,7 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
                 },
                 legend: {
                   text: {
-                    fontSize: 11,
+                    fontSize: isMobile ? 9 : 11,
                     fill: '#6B7280',
                     fontFamily: 'Inter, sans-serif'
                   }
@@ -133,7 +135,7 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
                     strokeWidth: 1
                   },
                   text: {
-                    fontSize: 10,
+                    fontSize: isMobile ? 8 : 10,
                     fill: '#6B7280',
                     fontFamily: 'Inter, sans-serif'
                   }
