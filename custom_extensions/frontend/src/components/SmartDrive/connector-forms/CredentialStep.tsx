@@ -3,6 +3,7 @@
 import React, { FC, useState, useEffect } from "react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "../../ui/card";
 
 export interface Credential {
   id: number;
@@ -148,44 +149,63 @@ const CredentialStep: FC<CredentialStepProps> = ({
         ) : (
           <div className="space-y-4">
             {credentials.map((credential) => (
-              <div
+              <Card
                 key={credential.id}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-                  selectedCredential?.id === credential.id
-                    ? "border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg"
-                    : "border-gray-200 hover:border-blue-300 hover:shadow-md bg-white"
+                className={`group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105 ${
+                  selectedCredential?.id === credential.id ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
                 }`}
+                style={{
+                  backgroundColor: 'white',
+                  borderColor: selectedCredential?.id === credential.id ? '#3b82f6' : '#e2e8f0',
+                  background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                  borderWidth: '1px',
+                  boxShadow: selectedCredential?.id === credential.id 
+                    ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
+                    : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedCredential?.id !== credential.id) {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedCredential?.id !== credential.id) {
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                  }
+                }}
                 onClick={() => handleCredentialSelect(credential)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      selectedCredential?.id === credential.id
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600"
-                        : "bg-gradient-to-r from-gray-100 to-gray-200"
-                    }`}>
-                      <svg className={`w-6 h-6 ${
-                        selectedCredential?.id === credential.id ? "text-white" : "text-gray-600"
-                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-900">{credential.name}</h4>
-                      <p className="text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        {credential.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
                         Created for {credential.source}
                       </p>
                     </div>
                   </div>
-                  {selectedCredential?.id === credential.id && (
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCredentialSelect(credential);
+                      }}
+                      variant="download"
+                      className="flex-1 rounded-full"
+                    >
+                      {selectedCredential?.id === credential.id ? 'Selected' : 'Select'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}

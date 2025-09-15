@@ -27,7 +27,7 @@ const buttonVariants = cva(
         gradient:
           "bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] text-white shadow-lg hover:opacity-90 active:scale-95 transition-all",
         blueGradient:
-          "bg-gradient-to-r from-[#E5EFFF] to-[#F2F2FF] text-gray-600 shadow-lg hover:opacity-90 active:scale-95 transition-all",
+          "bg-gradient-to-r from-[#E5EFFF] to-[#F2F2FF] text-gray-600 shadow-lg hover:opacity-90 rounded-full active:scale-95 transition-all",
         import:
           "bg-white text-gray-800 border border-gray-300 shadow-sm hover:bg-gray-50 active:scale-95 transition-all",
         filter:
