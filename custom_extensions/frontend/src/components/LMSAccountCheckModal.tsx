@@ -3,6 +3,7 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LMSAccountStatus } from '../types/lmsTypes';
+import { Button } from './ui/button';
 
 interface LMSAccountCheckModalProps {
   isOpen: boolean;
@@ -96,19 +97,21 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
           </h2>
           
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
-            <button
+            <Button
+              variant="download"
               onClick={handleYes}
-              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex-1 px-4 py-2 rounded-full"
             >
               {t('interface.lmsAccountYes', 'Yes, I have an account')}
-            </button>
+            </Button>
             
-            <button
+            <Button
+              variant="outline"
               onClick={handleNo}
-              className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              className="flex-1 px-4 py-2 rounded-full"
             >
               {t('interface.lmsAccountNo', 'No, I need to create one')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

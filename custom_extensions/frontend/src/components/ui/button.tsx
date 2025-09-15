@@ -39,7 +39,7 @@ const buttonVariants = cva(
         columns:
           "text-black hover:text-gray-700 transition-colors",
         download:
-          "bg-blue-600 text-white hover:bg-blue-700 transition-colors",
+          "bg-blue-600 rounded-full text-white hover:bg-blue-700 transition-colors",
         view:
           "p-1.5 rounded-md cursor-pointer",
         "view-active":

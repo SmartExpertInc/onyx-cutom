@@ -484,16 +484,17 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
               <p className="text-gray-600 mb-6">Create your first workspace to start collaborating with your team.</p>
-                          <button
+                          <Button
+                          variant="download"
               onClick={() => {
                 console.log('🔘 Create Workspace button clicked!');
                 setShowCreateWorkspace(true);
               }}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full transition-colors"
             >
                 <Plus size={20} />
                 Create Your First Workspace
-              </button>
+              </Button>
             </div>
           </div>
 
