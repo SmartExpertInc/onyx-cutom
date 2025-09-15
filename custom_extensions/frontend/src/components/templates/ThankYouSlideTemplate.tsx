@@ -51,7 +51,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#252525',
+    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -152,6 +152,54 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
   return (
     <div className="thank-you-slide-template inter-theme" style={slideStyles}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #ffffff',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '14px', fontWeight: 300, color: '#ffffff' }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
@@ -200,7 +248,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '2px',
-        backgroundColor: `#5B5B5B`
+        backgroundColor: `rgb(165 165 165)`
       }} />
 
       {/* Content area */}
@@ -219,7 +267,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div>
             <div style={{
               fontSize: '12px',
-              color: '#848484',
+              color: 'rgb(219 219 219)',
               marginBottom: '10px',
               fontWeight: '300'
             }}>
@@ -235,7 +283,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-email-editor"
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
@@ -246,7 +294,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingEmail(true)}
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -267,7 +315,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-phone-editor"
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
@@ -278,7 +326,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingPhone(true)}
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -295,7 +343,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div>
             <div style={{
               fontSize: '12px',
-              color: '#848484',
+              color: 'rgb(219 219 219)',
               marginBottom: '10px',
               fontWeight: '300'
             }}>
@@ -311,7 +359,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-address-editor"
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
@@ -322,7 +370,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingAddress(true)}
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -343,7 +391,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   className="thank-you-postal-code-editor"
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     fontFamily: currentTheme.fonts.contentFont,
                     width: '100%',
                     height: 'auto'
@@ -354,7 +402,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
                   onClick={() => isEditable && setEditingPostalCode(true)}
                   style={{
                     fontSize: '22px',
-                    color: '#C0C0C0',
+                    color: '#ffffff',
                     cursor: isEditable ? 'pointer' : 'default',
                     fontFamily: currentTheme.fonts.contentFont,
                     userSelect: 'none',
@@ -406,85 +454,31 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         left: '80px',
         right: '80px',
         height: '3px',
-        backgroundColor: '#5B5B5B'
+        backgroundColor: 'rgb(165 165 165)'
       }} />
 
-      {/* Company name */}
+      {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '40px',
-        left: '7%',
+        bottom: '30px',
+        left: '0px',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
+        gap: '8px'
       }}>
-{logoNew ? (
-          // Show uploaded logo image
-          <ClickableImagePlaceholder
-            imagePath={logoNew}
-            onImageUploaded={handleLogoNewUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              height: '24px',
-              width: '24px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          // Show default logo image
-          <div 
-            onClick={() => isEditable && setShowUploadModal(true)}
-            style={{
-              width: '24px',
-              height: '24px',
-              cursor: isEditable ? 'pointer' : 'default',
-              position: 'relative'
-            }}
-          >
-            <img
-              src="/custom-projects-ui/logoNew.png"
-              alt="Company Logo"
-              style={{
-                width: '24px',
-                height: '24px',
-                objectFit: 'contain'
-              }}
-            />
-          </div>
-        )}
-        <div style={{ position: 'relative' }}>
-          {isEditable && editingCompanyName ? (
-            <ImprovedInlineEditor
-              initialValue={currentCompanyName}
-              onSave={handleCompanyNameSave}
-              onCancel={handleCompanyNameCancel}
-              className="thank-you-company-name-editor"
-              style={{
-                fontSize: '11px',
-                color: '#848484',
-                fontFamily: currentTheme.fonts.contentFont,
-                width: '100%',
-                height: 'auto'
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingCompanyName(true)}
-              style={{
-                fontSize: '11px',
-                color: '#848484',
-                cursor: isEditable ? 'pointer' : 'default',
-                fontFamily: currentTheme.fonts.contentFont,
-                userSelect: 'none',
-                position: 'relative'
-              }}
-            >
-              {currentCompanyName}
-            </div>
-          )}
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(255, 255, 255, 0.5)'
+        }} />
+        {/* Page number */}
+        <div style={{
+          color: '#ffffff',
+          fontSize: '17px',
+          fontWeight: '300'
+        }}>
+          03
         </div>
       </div>
 
