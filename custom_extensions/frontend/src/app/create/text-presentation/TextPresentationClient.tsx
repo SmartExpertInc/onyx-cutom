@@ -1606,7 +1606,7 @@ export default function TextPresentationClient() {
                                 </h4>
                                 {getTitleForLesson(lesson, idx) && (
                                   <Edit 
-                                    size={14} 
+                                    size={16} 
                                     className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
@@ -1648,7 +1648,7 @@ export default function TextPresentationClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left border rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'border-gray-200 bg-[#B8D4F0]' : 'border-gray-200 bg-[#D9ECFF] hover:shadow-lg'
+                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
                           }`}
                       >
                         {ex.short}

@@ -1464,14 +1464,14 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <Card className="w-full mb-4 bg-white border-none" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <CardContent className="p-4 flex flex-col gap-3">
-                  <Textarea
-                    value={editPrompt}
-                    onChange={(e) => setEditPrompt(e.target.value)}
-                    placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-                    className="w-full resize-none min-h-[80px] text-black"
-                  />
+              <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <Textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+                  className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                  style={{ background: "rgba(255,255,255,0.95)" }}
+                />
 
                 {/* Example prompts */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
@@ -1480,10 +1480,10 @@ export default function CourseOutlineClient() {
                       key={ex.short}
                       type="button"
                       onClick={() => toggleExample(ex)}
-                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${
+                      className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${
                         selectedExamples.includes(ex.short)
-                          ? 'bg-white shadow'
-                          : 'bg-[#D9ECFF] hover:bg-white'
+                          ? 'bg-[#B8D4F0]'
+                          : 'bg-[#D9ECFF] hover:shadow-lg'
                       }`}
                     >
                       {ex.short}
@@ -1501,8 +1501,7 @@ export default function CourseOutlineClient() {
                     {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
                   </Button>
                 </div>
-                </CardContent>
-              </Card>
+              </div>
             )}
             <div className="w-full flex justify-center mt-2 mb-6">
                               <Button
