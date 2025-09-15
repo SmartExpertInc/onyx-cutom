@@ -25097,79 +25097,79 @@ async def import_smartdrive_files(
 
         # Process each file
             for file_path in file_paths:
-            try:
-                logger.info(f"Processing SmartDrive file: {file_path}")
-                
-                # Download file from Nextcloud
-                file_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
-                
-                async with httpx.AsyncClient(timeout=30.0) as client:
-                    response = await client.get(
-                        file_url,
-                        auth=(nextcloud_username, nextcloud_password)
-                    )
-                    response.raise_for_status()
-                    
-                    file_content = response.content
-                    file_name = os.path.basename(file_path)
-                    
-                    logger.info(f"Downloaded {file_name} ({len(file_content)} bytes)")
-                
-                # Create a temporary UploadFile object for Onyx
-                file_obj = io.BytesIO(file_content)
-                temp_file = UploadFile(
-                    file=file_obj,
-                    filename=file_name,
-                    headers={"content-type": response.headers.get("content-type", "application/octet-stream")}
-                )
-                
-                # Import into Onyx using the standard process
-                # This will create real Onyx file records and return proper file IDs
-                from onyx.server.documents.connector import upload_files
-                from onyx.db.engine import get_session_with_tenant
-                
-                # Get a database session for Onyx operations
-                db_session = next(get_session_with_tenant())
-                
                 try:
-                    # Upload file to Onyx file store
-                    upload_response = upload_files([temp_file], db_session)
-                    real_file_id = upload_response.file_paths[0]  # Get the real Onyx file ID
+                    logger.info(f"Processing SmartDrive file: {file_path}")
                     
-                    logger.info(f"Uploaded to Onyx with file ID: {real_file_id}")
+                    # Download file from Nextcloud
+                    file_url = f"{nextcloud_base_url}/remote.php/dav/files/{nextcloud_username}{file_path}"
                     
-                    # Store mapping in smartdrive_imports with REAL file ID
-                    async with pool.acquire() as conn:
-                        import_record_id = await conn.fetchval(
-                    """
-                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                            ON CONFLICT (onyx_user_id, smartdrive_path) 
-                            DO UPDATE SET 
-                                onyx_file_id = EXCLUDED.onyx_file_id,
-                                etag = EXCLUDED.etag,
-                                checksum = EXCLUDED.checksum,
-                                imported_at = EXCLUDED.imported_at
-                    RETURNING id
-                    """,
-                    onyx_user_id,
-                    file_path,
-                            real_file_id,  # REAL Onyx file ID!
-                            response.headers.get("etag", f"etag_{hash(file_path)}"),
-                            f"imported_{int(time.time())}",  # Simple checksum
-                    datetime.now(timezone.utc)
-                )
+                    async with httpx.AsyncClient(timeout=30.0) as client:
+                        response = await client.get(
+                            file_url,
+                            auth=(nextcloud_username, nextcloud_password)
+                        )
+                        response.raise_for_status()
+                        
+                        file_content = response.content
+                        file_name = os.path.basename(file_path)
+                        
+                        logger.info(f"Downloaded {file_name} ({len(file_content)} bytes)")
                     
-                    imported_file_ids.append(import_record_id)
-                    logger.info(f"✅ Successfully imported {file_path} -> Onyx file ID: {real_file_id}")
+                    # Create a temporary UploadFile object for Onyx
+                    file_obj = io.BytesIO(file_content)
+                    temp_file = UploadFile(
+                        file=file_obj,
+                        filename=file_name,
+                        headers={"content-type": response.headers.get("content-type", "application/octet-stream")}
+                    )
                     
-                finally:
-                    db_session.close()
+                    # Import into Onyx using the standard process
+                    # This will create real Onyx file records and return proper file IDs
+                    from onyx.server.documents.connector import upload_files
+                    from onyx.db.engine import get_session_with_tenant
                     
-            except Exception as e:
-                logger.error(f"❌ Failed to import {file_path}: {e}", exc_info=True)
-                # Continue with other files even if one fails
-                continue
+                    # Get a database session for Onyx operations
+                    db_session = next(get_session_with_tenant())
+                    
+                    try:
+                        # Upload file to Onyx file store
+                        upload_response = upload_files([temp_file], db_session)
+                        real_file_id = upload_response.file_paths[0]  # Get the real Onyx file ID
+                        
+                        logger.info(f"Uploaded to Onyx with file ID: {real_file_id}")
+                        
+                        # Store mapping in smartdrive_imports with REAL file ID
+                        async with pool.acquire() as conn:
+                            import_record_id = await conn.fetchval(
+                        """
+                        INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                        VALUES ($1, $2, $3, $4, $5, $6)
+                                ON CONFLICT (onyx_user_id, smartdrive_path) 
+                                DO UPDATE SET 
+                                    onyx_file_id = EXCLUDED.onyx_file_id,
+                                    etag = EXCLUDED.etag,
+                                    checksum = EXCLUDED.checksum,
+                                    imported_at = EXCLUDED.imported_at
+                        RETURNING id
+                        """,
+                        onyx_user_id,
+                        file_path,
+                                real_file_id,  # REAL Onyx file ID!
+                                response.headers.get("etag", f"etag_{hash(file_path)}"),
+                                f"imported_{int(time.time())}",  # Simple checksum
+                        datetime.now(timezone.utc)
+                    )
+                        
+                        imported_file_ids.append(import_record_id)
+                        logger.info(f"✅ Successfully imported {file_path} -> Onyx file ID: {real_file_id}")
+                        
+                    finally:
+                        db_session.close()
+                        
+                except Exception as e:
+                    logger.error(f"❌ Failed to import {file_path}: {e}", exc_info=True)
+                    # Continue with other files even if one fails
+                    continue
 
         return {
             "success": True,
