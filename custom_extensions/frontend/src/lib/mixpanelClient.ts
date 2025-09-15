@@ -32,7 +32,7 @@ export const initMixpanel = (): void => {
     debug: true,
     track_pageview: false,
     // Heatmap config
-    record_sessions_percent: 10, // Recording 10% of all sessions
+    record_sessions_percent: 2, // Recording 10% of all sessions
     record_idle_timeout_ms: 600000, // End a replay capture after 10mins of inactivity
     record_max_ms: 600000, // Maximum length of a single replay
     record_mask_text_selector: '', // Unmask all text elements
@@ -161,6 +161,20 @@ export const trackConnector = async (action: string, connectorId: string, connec
 
   await track(
     "Connect Connector", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackAddMember = async (action: string, role?: string) => {
+  const props = {
+    "Feature Category": "Smart Drive",
+    "Action": action,
+    "Role": role
+  };
+
+  await track(
+    "Workspace", 
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );

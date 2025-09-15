@@ -15,6 +15,7 @@ import workspaceService, {
 import { getCurrentUserId, getCurrentUser, initializeUser } from '../services/userService';
 // Import test utilities for development
 import '../utils/testUserIds';
+import { trackAddMember } from '@/lib/mixpanelClient'
 
 // Predefined color options for roles (pale backgrounds with darker text)
 const ROLE_COLORS = [
@@ -271,13 +272,15 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
       
       const addedMember = await workspaceService.addMember(targetWorkspaceId, newMember);
       setMembers(prev => [...prev, addedMember]);
-      
+      await trackAddMember("Completed", getRoleById(newMemberRole)?.name);
+
       // Reset form
       setNewMemberEmail('');
       setNewMemberRole('');
       setNewMemberStatus('pending');
       setShowAddMember(false);
     } catch (err) {
+      await trackAddMember("Failed", getRoleById(newMemberRole)?.name);
       console.error('Failed to add member:', err);
     }
   }, [newMemberEmail, newMemberRole, newMemberStatus, targetWorkspaceId]);
