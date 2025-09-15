@@ -1,1 +1,253 @@
- 'chartData': [{'month': 'Январь', 'shortage': 120}, {'month': 'Февраль', 'shortage': 130}, {'month': 'Март', 'shortage': 140}, {'month': 'Апрель', 'shortage': 160}, {'month': 'Май', 'shortage': 180}, {'month': 'Июнь', 'shortage': 200}, {'month': 'Июль', 'shortage': 220}, {'month': 'Август', 'shortage': 240}, {'month': 'Сентябрь', 'shortage': 260}, {'month': 'Октябрь', 'shortage': 280}, {'month': 'Ноябрь', 'shortage': 300}, {'month': 'Декабрь', 'shortage': 320}], 'description': 'В автомобильной промышленности наблюдается постоянный рост дефицита квалифицированных кадров, особенно в летние месяцы, когда увеличивается спрос на производство и обслуживание автомобилей.', 'totalShortage': 2760}, 
+frontend:
+
+Updated Folders: (9) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+page-e8b9e3afad4d458c.js:1 Folder Tree: (9) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+projects:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttfUnderstand this warning
+projects:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont bold font from /fonts/fonnts.com-Mont_Bold.ttf
+window.console.error @ 1684-77cc8bacad49b839.js:1
+a.onerror @ layout-2b772baf2b88c263.js:1Understand this error
+1684-77cc8bacad49b839.js:1 ⚠️ Some Mont fonts failed to preload: Error: Failed to preload Mont bold font
+    at a.onerror (layout-2b772baf2b88c263.js:1:885)
+window.console.error @ 1684-77cc8bacad49b839.js:1
+r @ layout-2b772baf2b88c263.js:1
+await in r
+(anonymous) @ layout-2b772baf2b88c263.js:1
+(anonymous) @ layout-2b772baf2b88c263.js:1
+oq @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+um @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+uh @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+iS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+w @ 1684-77cc8bacad49b839.js:1Understand this error
+layout-2b772baf2b88c263.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
+projects:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttfUnderstand this warning
+projects:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont regular font from /fonts/fonnts.com-Mont_Regular.ttf
+window.console.error @ 1684-77cc8bacad49b839.js:1
+a.onerror @ layout-2b772baf2b88c263.js:1Understand this error
+projects:1 Failed to decode downloaded font: https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttfUnderstand this warning
+projects:1 OTS parsing error: invalid sfntVersion: 1008813135Understand this warning
+1684-77cc8bacad49b839.js:1 ❌ Failed to preload Mont thin font from /fonts/fonnts.com-Mont_Thin.ttf
+window.console.error @ 1684-77cc8bacad49b839.js:1
+a.onerror @ layout-2b772baf2b88c263.js:1Understand this error
+page-10d1a673f06e3bce.js:1 🚀 [FRONTEND DATA FLOW] Starting landing page generation
+page-10d1a673f06e3bce.js:1 📝 [FRONTEND DATA FLOW] Form data to be submitted: {companyWebsite: 'https://www.mercedes-benz.pl/', language: 'en'}
+page-10d1a673f06e3bce.js:1 ✅ [FRONTEND DATA FLOW] Form validation passed
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] Making API request to: /api/custom-projects-backend/ai-audit/landing-page/generate
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] Request payload: {companyWebsite: 'https://www.mercedes-benz.pl/', language: 'en'}
+requests.js:1  POST https://dev4.contentbuilder.ai/api/custom-projects-backend/ai-audit/landing-page/generate 422 (Unprocessable Entity)
+(anonymous) @ requests.js:1
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+T @ page-10d1a673f06e3bce.js:1
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] API response status: 422
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] API response ok: false
+1684-77cc8bacad49b839.js:1 ❌ [FRONTEND DATA FLOW] API request failed: 422 - {"detail":[{"type":"missing","loc":["body","companyName"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}},{"type":"missing","loc":["body","companyDesc"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}},{"type":"missing","loc":["body","employees"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}},{"type":"missing","loc":["body","franchise"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}},{"type":"missing","loc":["body","onboardingProblems"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}},{"type":"missing","loc":["body","documents"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}},{"type":"missing","loc":["body","priorities"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"en"}}]}
+window.console.error @ 1684-77cc8bacad49b839.js:1
+T @ page-10d1a673f06e3bce.js:1
+await in T
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+1684-77cc8bacad49b839.js:1 ❌ [FRONTEND DATA FLOW] Error in landing page generation: Error: Ошибка генерации landing page
+    at T (page-10d1a673f06e3bce.js:1:5237)
+window.console.error @ 1684-77cc8bacad49b839.js:1
+T @ page-10d1a673f06e3bce.js:1
+await in T
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+page-10d1a673f06e3bce.js:1 🚀 [FRONTEND DATA FLOW] Starting landing page generation
+page-10d1a673f06e3bce.js:1 📝 [FRONTEND DATA FLOW] Form data to be submitted: {companyWebsite: 'https://www.mercedes-benz.pl/', language: 'ru'}
+page-10d1a673f06e3bce.js:1 ✅ [FRONTEND DATA FLOW] Form validation passed
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] Making API request to: /api/custom-projects-backend/ai-audit/landing-page/generate
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] Request payload: {companyWebsite: 'https://www.mercedes-benz.pl/', language: 'ru'}
+requests.js:1  POST https://dev4.contentbuilder.ai/api/custom-projects-backend/ai-audit/landing-page/generate 422 (Unprocessable Entity)
+(anonymous) @ requests.js:1
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+T @ page-10d1a673f06e3bce.js:1
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] API response status: 422
+page-10d1a673f06e3bce.js:1 📡 [FRONTEND DATA FLOW] API response ok: false
+1684-77cc8bacad49b839.js:1 ❌ [FRONTEND DATA FLOW] API request failed: 422 - {"detail":[{"type":"missing","loc":["body","companyName"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}},{"type":"missing","loc":["body","companyDesc"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}},{"type":"missing","loc":["body","employees"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}},{"type":"missing","loc":["body","franchise"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}},{"type":"missing","loc":["body","onboardingProblems"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}},{"type":"missing","loc":["body","documents"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}},{"type":"missing","loc":["body","priorities"],"msg":"Field required","input":{"companyWebsite":"https://www.mercedes-benz.pl/","language":"ru"}}]}
+window.console.error @ 1684-77cc8bacad49b839.js:1
+T @ page-10d1a673f06e3bce.js:1
+await in T
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+1684-77cc8bacad49b839.js:1 ❌ [FRONTEND DATA FLOW] Error in landing page generation: Error: Ошибка генерации landing page
+    at T (page-10d1a673f06e3bce.js:1:5237)
+window.console.error @ 1684-77cc8bacad49b839.js:1
+T @ page-10d1a673f06e3bce.js:1
+await in T
+iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
+s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
+
+
+backend:
+custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
+custom_backend-1  | INFO:     Started server process [1]
+custom_backend-1  | INFO:     Waiting for application startup.
+custom_backend-1  | INFO:main:Custom Backend starting...
+custom_backend-1  | INFO:main:'projects' table ensured and updated.
+custom_backend-1  | INFO:main:'microproduct_pipelines' table ensured.
+custom_backend-1  | INFO:main:'projects' table ensured and updated with 'source_chat_session_id'.
+custom_backend-1  | INFO:main:'design_templates' table ensured.
+custom_backend-1  | INFO:main:'trashed_projects' table ensured (soft-delete).
+custom_backend-1  | INFO:main:'user_credits' table ensured.
+custom_backend-1  | INFO:main:Updated credit_transactions table to support admin_removal type
+custom_backend-1  | INFO:main:'credit_transactions' table ensured.
+custom_backend-1  | INFO:main:Attempting to connect to Onyx database: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | WARNING:main:Failed to connect to postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db: database "onyx_db" does not exist
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres
+custom_backend-1  | INFO:main:Found 3 Onyx users to migrate
+custom_backend-1  | INFO:main:Populated user_credits table with 3 existing Onyx users (100 credits each).
+custom_backend-1  | INFO:main:Added quality_tier column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default 'medium' tier
+custom_backend-1  | INFO:main:Created index for quality_tier column
+custom_backend-1  | INFO:main:Added custom_rate column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default custom_rate
+custom_backend-1  | INFO:main:Created index for custom_rate column
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to projects table
+custom_backend-1  | INFO:main:Created indexes for project-level custom_rate and quality_tier columns
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to trashed_projects table
+custom_backend-1  | INFO:main:Applying critical fix: Ensuring order and completion_time columns are TEXT type
+custom_backend-1  | INFO:main:Successfully set projects.order and projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set default values for empty order and completion_time fields
+custom_backend-1  | INFO:main:Projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:Trashed_projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:'request_analytics' table ensured.
+custom_backend-1  | INFO:main:AI parser tracking columns added to request_analytics table.
+custom_backend-1  | INFO:main:Added is_standalone column to projects table.
+custom_backend-1  | INFO:main:Added is_standalone column to trashed_projects table.
+custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NULL for existing products.
+custom_backend-1  | INFO:main:Database schema migration completed successfully.
+custom_backend-1  | INFO:     Application startup complete.
+custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41120 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41110 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41134 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41140 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41144 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41150 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41156 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41162 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41168 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41182 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:41194 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33126 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33152 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33134 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33136 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:33162 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33176 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33188 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33194 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33196 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33210 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:33220 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50904 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 422 Unprocessable Entity
+custom_backend-1  | INFO:     172.18.0.12:33138 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 422 Unprocessable Entity
+custom_backend-1  | INFO:     172.18.0.12:55078 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 422 Unprocessable Entity

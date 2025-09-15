@@ -131,13 +131,19 @@ export default function AiAuditQuestionnaire() {
     setFinalRedirectUrl(null);
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      
+      // Create minimal payload - backend will scrape website for all other data
+      const payload = {
+        companyWebsite,
+        language: selectedLanguage,
+      };
+      
+      console.log(`📡 [FRONTEND DATA FLOW] Sending minimal payload:`, payload);
+      
       const res = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyWebsite,
-          language: selectedLanguage,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Ошибка генерации AI-аудита");
       const data = await res.json();
@@ -164,11 +170,7 @@ export default function AiAuditQuestionnaire() {
     });
     
     // 📊 LOG: Form validation
-    const formData = {
-      companyWebsite,
-      language: selectedLanguage,
-    }
-    console.log(`📝 [FRONTEND DATA FLOW] Form data to be submitted:`, formData)
+    console.log(`📝 [FRONTEND DATA FLOW] Form data to be submitted:`, { companyWebsite, language: selectedLanguage })
     
     if (!companyWebsite.trim()) {
       console.error(`❌ [FRONTEND DATA FLOW] Form validation failed`)
@@ -187,14 +189,20 @@ export default function AiAuditQuestionnaire() {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/generate`
       
+      // Create minimal payload - backend will scrape website for all other data
+      const payload = {
+        companyWebsite,
+        language: selectedLanguage,
+      };
+      
       // 📊 LOG: API request details
       console.log(`📡 [FRONTEND DATA FLOW] Making API request to: ${apiUrl}`)
-      console.log(`📡 [FRONTEND DATA FLOW] Request payload:`, formData)
+      console.log(`📡 [FRONTEND DATA FLOW] Request payload:`, payload)
       
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       
       // 📊 LOG: API response

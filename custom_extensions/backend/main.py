@@ -3585,9 +3585,12 @@ app.add_middleware(
 )
 
 class AiAuditQuestionnaireRequest(BaseModel):
+    companyWebsite: str
+    language: str = "ru"  # Default to Russian
+
+class AiAuditScrapedData(BaseModel):
     companyName: str
     companyDesc: str
-    companyWebsite: str
     employees: str
     franchise: str
     onboardingProblems: str
@@ -13540,6 +13543,190 @@ async def get_audit_progress(jobId: str):
     return {"messages": AI_AUDIT_PROGRESS.get(jobId, [])}
 
 
+async def scrape_company_data_from_website(company_website: str) -> AiAuditScrapedData:
+    """
+    Scrape company website to extract all necessary data for AI audit.
+    Returns structured data that can be used in prompts.
+    """
+    try:
+        logger.info(f"🌐 [WEBSITE SCRAPING] Starting to scrape: {company_website}")
+        
+        # Use the existing SERPAPI research function to get website content
+        website_content = await serpapi_company_research("", "", company_website)
+        
+        # Extract company name from website content
+        company_name = await extract_company_name_from_website_content(website_content, company_website)
+        
+        # Extract company description from website content
+        company_description = await extract_company_description_from_website_content(website_content, company_website)
+        
+        # Extract other company data using AI analysis
+        company_data = await extract_company_metadata_from_website(website_content, company_website)
+        
+        scraped_data = AiAuditScrapedData(
+            companyName=company_name,
+            companyDesc=company_description,
+            employees=company_data.get("employees", "Unknown"),
+            franchise=company_data.get("franchise", "Unknown"),
+            onboardingProblems=company_data.get("onboardingProblems", "To be analyzed from website content"),
+            documents=company_data.get("documents", ["Other"]),
+            documentsOther=company_data.get("documentsOther", "To be determined from website analysis"),
+            priorities=company_data.get("priorities", ["Other"]),
+            priorityOther=company_data.get("priorityOther", "To be determined from website analysis")
+        )
+        
+        logger.info(f"🌐 [WEBSITE SCRAPING] Successfully scraped data for: {company_name}")
+        return scraped_data
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error scraping website {company_website}: {e}")
+        # Return fallback data if scraping fails
+        return AiAuditScrapedData(
+            companyName="Company Name",
+            companyDesc="Company Description",
+            employees="Unknown",
+            franchise="Unknown",
+            onboardingProblems="To be analyzed from website content",
+            documents=["Other"],
+            documentsOther="To be determined from website analysis",
+            priorities=["Other"],
+            priorityOther="To be determined from website analysis"
+        )
+
+async def extract_company_name_from_website_content(website_content: str, company_website: str) -> str:
+    """Extract company name from website content using AI."""
+    try:
+        prompt = f"""
+        Извлеки точное название компании из предоставленного контента веб-сайта.
+        
+        ВЕБ-САЙТ: {company_website}
+        КОНТЕНТ ВЕБ-САЙТА:
+        {website_content}
+        
+        ИНСТРУКЦИИ:
+        - Найди официальное название компании
+        - Верни только название компании, без дополнительной информации
+        - Если не можешь определить название, верни "Company Name"
+        
+        ОТВЕТ (только название компании):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        company_name = response_text.strip()
+        if not company_name or company_name.lower() in ["unknown", "неизвестно", "not found"]:
+            company_name = "Company Name"
+            
+        logger.info(f"🏢 [WEBSITE SCRAPING] Extracted company name: {company_name}")
+        return company_name
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company name: {e}")
+        return "Company Name"
+
+async def extract_company_description_from_website_content(website_content: str, company_website: str) -> str:
+    """Extract company description from website content using AI."""
+    try:
+        prompt = f"""
+        Создай краткое описание компании на основе контента веб-сайта.
+        
+        ВЕБ-САЙТ: {company_website}
+        КОНТЕНТ ВЕБ-САЙТА:
+        {website_content}
+        
+        ИНСТРУКЦИИ:
+        - Создай описание в стиле: "Компания, предоставляющая услуги по [основные услуги]. [дополнительная информация]"
+        - Используй только информацию с веб-сайта
+        - Описание должно быть кратким (1-2 предложения)
+        - Если не можешь определить описание, верни "Company Description"
+        
+        ОТВЕТ (только описание компании):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        company_description = response_text.strip()
+        if not company_description or company_description.lower() in ["unknown", "неизвестно", "not found"]:
+            company_description = "Company Description"
+            
+        logger.info(f"📝 [WEBSITE SCRAPING] Extracted company description: {company_description}")
+        return company_description
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company description: {e}")
+        return "Company Description"
+
+async def extract_company_metadata_from_website(website_content: str, company_website: str) -> dict:
+    """Extract additional company metadata from website content using AI."""
+    try:
+        prompt = f"""
+        Проанализируй контент веб-сайта и извлеки следующую информацию о компании:
+        
+        ВЕБ-САЙТ: {company_website}
+        КОНТЕНТ ВЕБ-САЙТА:
+        {website_content}
+        
+        ИНСТРУКЦИИ:
+        - Определи примерное количество сотрудников (если указано)
+        - Определи, является ли компания франшизой или планирует открывать филиалы
+        - Определи основные проблемы с онбордингом (если упоминаются)
+        - Определи типы документов, которые использует компания
+        - Определи приоритеты компании в области HR
+        
+        ФОРМАТ ОТВЕТА (только JSON):
+        {{
+            "employees": "количество сотрудников или Unknown",
+            "franchise": "Yes/No/Unknown",
+            "onboardingProblems": "основные проблемы или To be analyzed from website content",
+            "documents": ["список типов документов или [\"Other\"]"],
+            "documentsOther": "дополнительные документы или To be determined from website analysis",
+            "priorities": ["список приоритетов или [\"Other\"]"],
+            "priorityOther": "дополнительные приоритеты или To be determined from website analysis"
+        }}
+        
+        ОТВЕТ (только JSON):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Parse JSON response
+        try:
+            company_data = json.loads(response_text.strip())
+            logger.info(f"📊 [WEBSITE SCRAPING] Extracted company metadata: {company_data}")
+            return company_data
+        except json.JSONDecodeError:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
+            return {
+                "employees": "Unknown",
+                "franchise": "Unknown",
+                "onboardingProblems": "To be analyzed from website content",
+                "documents": ["Other"],
+                "documentsOther": "To be determined from website analysis",
+                "priorities": ["Other"],
+                "priorityOther": "To be determined from website analysis"
+            }
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company metadata: {e}")
+        return {
+            "employees": "Unknown",
+            "franchise": "Unknown",
+            "onboardingProblems": "To be analyzed from website content",
+            "documents": ["Other"],
+            "documentsOther": "To be determined from website analysis",
+            "priorities": ["Other"],
+            "priorityOther": "To be determined from website analysis"
+        }
+
 async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
     try:
         with open(example_text_path, encoding="utf-8") as f:
@@ -13869,12 +14056,31 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
 
 async def _run_audit_generation(payload, request, pool, job_id):
     try:
-        set_progress(job_id, "Researching company info...")
-        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        set_progress(job_id, "Scraping company website...")
+        # Scrape company data from website
+        scraped_data = await scrape_company_data_from_website(payload.companyWebsite)
+        logger.info(f"[AI-Audit] Scraped company data: {scraped_data.companyName}")
+        
+        set_progress(job_id, "Researching additional company info...")
+        # Get additional research data using scraped company name and description
+        duckduckgo_summary = await serpapi_company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit] SERPAPI summary: {duckduckgo_summary[:300]}")
 
         set_progress(job_id, "Generating first one-pager...")
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
+        # Create a combined payload with scraped data for the prompt
+        combined_payload = type('CombinedPayload', (), {
+            'companyName': scraped_data.companyName,
+            'companyDesc': scraped_data.companyDesc,
+            'companyWebsite': payload.companyWebsite,
+            'employees': scraped_data.employees,
+            'franchise': scraped_data.franchise,
+            'onboardingProblems': scraped_data.onboardingProblems,
+            'documents': scraped_data.documents,
+            'documentsOther': scraped_data.documentsOther,
+            'priorities': scraped_data.priorities,
+            'priorityOther': scraped_data.priorityOther
+        })()
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", combined_payload)
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -13882,7 +14088,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         project_id = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит: {payload.companyName}",
+            project_name=f"AI-Аудит: {scraped_data.companyName}",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
             chat_session_id=None
         )
@@ -13896,20 +14102,20 @@ async def _run_audit_generation(payload, request, pool, job_id):
         for position in positions:
             set_progress(job_id, f"Generating onboarding for '{position.get('Позиция', 'New Position')}'")
             project = await generate_and_finalize_course_outline_for_position(
-                payload.companyName, position, onyx_user_id, pool, request
+                scraped_data.companyName, position, onyx_user_id, pool, request
             )
             results.append(project)
 
         logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
 
         set_progress(job_id, "Generating closing one-pager...")
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", combined_payload)
 
         # After you get the parsed content from the AI parser:
         project_id_2 = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит: {payload.companyName} (2)",
+            project_name=f"AI-Аудит: {scraped_data.companyName} (2)",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
             chat_session_id=None
         )
@@ -13920,7 +14126,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         all_project_ids = [project_id] + [p.id for p in results] + [project_id_2]
 
         # 1. Create a new folder
-        folder_id = await create_audit_folder(pool, onyx_user_id, payload.companyName)
+        folder_id = await create_audit_folder(pool, onyx_user_id, scraped_data.companyName)
 
         # 2. Assign all projects to this folder
         await assign_projects_to_folder(pool, folder_id, all_project_ids)
@@ -13930,7 +14136,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         return {
             "id": project_id,
             "id_2": project_id_2,
-            "name": f"AI-Аудит: {payload.companyName}",
+            "name": f"AI-Аудит: {scraped_data.companyName}",
             "folderId": folder_id
         }
     
@@ -15049,29 +15255,48 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         logger.info(f"🔍 [AUDIT DATA FLOW] Starting landing page generation for job {job_id}")
         logger.info(f"📥 [AUDIT DATA FLOW] Initial payload: {payload.model_dump()}")
         
-        set_progress(job_id, "Researching company info...")
-        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        set_progress(job_id, "Scraping company website...")
+        # Scrape company data from website
+        scraped_data = await scrape_company_data_from_website(payload.companyWebsite)
+        logger.info(f"[AI-Audit Landing Page] Scraped company data: {scraped_data.companyName}")
+        
+        set_progress(job_id, "Researching additional company info...")
+        # Get additional research data using scraped company name and description
+        duckduckgo_summary = await serpapi_company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit Landing Page] SERPAPI summary: {duckduckgo_summary[:300]}")
         
         # 📊 LOG: Scraped data received
         logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
         logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data preview: {duckduckgo_summary[:500]}...")
 
-        set_progress(job_id, "Generating company name...")
-        company_name = await extract_company_name_from_data(duckduckgo_summary, payload)
+        set_progress(job_id, "Using scraped company name...")
+        company_name = scraped_data.companyName
         
         # 📊 LOG: Company name generated
         logger.info(f"🏢 [AUDIT DATA FLOW] Generated company name: '{company_name}'")
 
-        set_progress(job_id, "Generating company description...")
-        company_description = await generate_company_description_from_data(duckduckgo_summary, payload)
+        set_progress(job_id, "Using scraped company description...")
+        company_description = scraped_data.companyDesc
 
         # 📊 LOG: Company description generated
         logger.info(f"📝 [AUDIT DATA FLOW] Generated company description: '{company_description}'")
 
         set_progress(job_id, "Generating job positions from scraped data...")
+        # Create a combined payload with scraped data for job positions generation
+        combined_payload = type('CombinedPayload', (), {
+            'companyName': scraped_data.companyName,
+            'companyDesc': scraped_data.companyDesc,
+            'companyWebsite': payload.companyWebsite,
+            'employees': scraped_data.employees,
+            'franchise': scraped_data.franchise,
+            'onboardingProblems': scraped_data.onboardingProblems,
+            'documents': scraped_data.documents,
+            'documentsOther': scraped_data.documentsOther,
+            'priorities': scraped_data.priorities,
+            'priorityOther': scraped_data.priorityOther
+        })()
         # Generate job positions using the same logic as the old audit
-        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, payload)
+        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, combined_payload)
         
         # 📊 LOG: Job positions generated
         logger.info(f"💼 [AUDIT DATA FLOW] Generated {len(job_positions)} job positions")
