@@ -244,7 +244,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                   {t('interface.offerName', 'Offer Name')} *
                 </label>
                 <Input
-
+                  variant="shadow"
                   type="text"
                   value={formData.offer_name}
                   onChange={(e) => setFormData({ ...formData, offer_name: e.target.value })}
@@ -302,7 +302,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                   variant="download"
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="flex-1 px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 px-6 py-3"
                 >
                   {isSubmitting ? t('interface.creating', 'Creating...') : t('interface.create', 'Create')}
                 </Button>
