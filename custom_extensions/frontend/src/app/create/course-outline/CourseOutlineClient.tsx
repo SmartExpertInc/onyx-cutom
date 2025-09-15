@@ -1377,7 +1377,7 @@ export default function CourseOutlineClient() {
               {preview.map((mod: ModulePreview, modIdx: number) => (
                 <div key={mod.id} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
                   {/* Left numbered section */}
-                  <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-300 to-blue-200 text-white font-semibold text-base select-none flex-shrink-0">
+                  <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-100 to-blue-50 text-gray-700 font-semibold text-base select-none flex-shrink-0">
                     {modIdx + 1}
                   </div>
 
