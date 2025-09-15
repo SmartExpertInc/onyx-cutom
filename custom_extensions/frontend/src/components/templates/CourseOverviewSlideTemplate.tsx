@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CourseOverviewSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -136,7 +137,10 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  logoPath = ''
+}: CourseOverviewSlideProps & {
+  theme?: SlideTheme | string;
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
@@ -163,7 +167,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentTitle(newTitle);
     setEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, title: newTitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, title: newTitle });
     }
   };
 
@@ -171,7 +175,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     setCurrentSubtitle(newSubtitle);
     setEditingSubtitle(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, subtitle: newSubtitle });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, subtitle: newSubtitle });
     }
   };
 
@@ -187,7 +191,13 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
 
   const handleImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor }, imagePath: newImagePath });
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, imagePath: newImagePath });
+    }
+  };
+
+  const handleLogoUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, imagePath, imageAlt, backgroundColor, titleColor, subtitleColor, accentColor, logoPath }, logoPath: newLogoPath });
     }
   };
 
@@ -197,34 +207,34 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
       <div style={{
         width: '45%',
         height: '100%',
-        backgroundColor: '#483DA6',
+        backgroundColor: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
         position: 'relative',
-        borderTopRightRadius: '50px',
-        borderBottomRightRadius: '50px',
         boxSizing: 'border-box'
       }}>
-        {/* Star icon in top left */}
+
+        {/* Logo in top-left corner */}
         <div style={{
           position: 'absolute',
           top: '30px',
-          left: '23px',
-          width: '20px',
-          height: '20px',
-          color: '#ffffff',
-          fontSize: '16px',
-          fontWeight: 'bold'
+          left: '30px'
         }}>
-          ✦
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={handleLogoUploaded}
+            isEditable={isEditable}
+            color="#ffffff"
+            text="Your Logo"
+          />
         </div>
 
-        {/* Vertical line on left edge */}
+        {/* Bottom line */}
         <div style={{
           position: 'absolute',
-          left: '58px',
-          top: '0',
-          width: '1px',
-          height: '100%',
-          backgroundColor: '#D3CEFF'
+          bottom: '30px',
+          left: '23px',
+          right: '23px',
+          height: '1px',
+          backgroundColor: 'rgba(255, 255, 255, 0.3)'
         }} />
 
         {/* Page number */}
@@ -232,8 +242,8 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
           position: 'absolute',
           bottom: '30px',
           left: '23px',
-          color: '#979797',
-          fontSize: '11px',
+          color: '#ffffff',
+          fontSize: '17px',
           fontWeight: '300'
         }}>
           01
@@ -243,7 +253,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
         <div style={{
           position: 'absolute',
           top: '50%',
-          left: '120px',
+          left: '50px',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
