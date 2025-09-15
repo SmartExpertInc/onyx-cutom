@@ -1409,8 +1409,10 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
-                             <span className="text-lg leading-none select-none">•</span>
+                           <li key={lessonIdx} className="relative flex items-start gap-2 py-0.5 group">
+                             {/* Gradient left bar */}
+                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-300 to-blue-200 rounded-r-sm opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                             <span className="text-lg leading-none select-none ml-1">•</span>
                              <input
                                type="text"
                                value={titleLine}
