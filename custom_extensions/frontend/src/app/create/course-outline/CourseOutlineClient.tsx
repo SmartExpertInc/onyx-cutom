@@ -717,6 +717,7 @@ export default function CourseOutlineClient() {
     // Ensure the preview spinner / fake-thoughts are not shown while we're in finalize mode
     setLoading(false);
     setError(null);
+    const activeProductType = sessionStorage.getItem('activeProductType');
     try {
       const outlineForBackend = {
         mainTitle: prompt,
@@ -861,7 +862,7 @@ export default function CourseOutlineClient() {
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
 
-      await trackCreateProduct("Completed", modules, lessonsPerModule, language);
+      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType);
       
       // Clear the failed state since we successfully completed
       try {
@@ -880,7 +881,7 @@ export default function CourseOutlineClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed");
+          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType);
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {

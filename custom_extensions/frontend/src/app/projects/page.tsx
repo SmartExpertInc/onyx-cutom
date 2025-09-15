@@ -640,6 +640,7 @@ const ProjectsPageInner: React.FC = () => {
       // Clear lesson context from sessionStorage
       sessionStorage.removeItem('lessonContext');
       sessionStorage.removeItem('lessonContextForDropdowns');
+      sessionStorage.removeItem('activeProductType');
     } catch (error) {
       console.error('Error clearing lesson context:', error);
     }

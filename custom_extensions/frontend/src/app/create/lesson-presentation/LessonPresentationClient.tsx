@@ -791,6 +791,8 @@ export default function LessonPresentationClient() {
       setError("Finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
+    const activeProductType = sessionStorage.getItem('activeProductType');
+    
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = params?.get("prompt")?.trim() || "";
@@ -835,7 +837,7 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
-      await trackCreateProduct("Completed");
+      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType);
       
       // Clear the failed state since we successfully completed
       try {
@@ -856,7 +858,7 @@ export default function LessonPresentationClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed");
+          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType);
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {

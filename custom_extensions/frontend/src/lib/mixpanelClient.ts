@@ -103,16 +103,14 @@ export function timeEvent(event: string): void {
 
 export const trackCreateProduct = async (
   action: string,
-  modules?: number,
-  lessonsPerModule?: string,
-  language?: string
+  language?: string,
+  productType?: string,
 ) => {
   const props = {
     "Feature Category": "Products",
     "Action": action,
-    "Modules": modules,
-    "Lessons Per Module": lessonsPerModule,
-    "Language": language
+    "Language": language,
+    "Product Type": productType
   };
 
   await track("Create Product", props);

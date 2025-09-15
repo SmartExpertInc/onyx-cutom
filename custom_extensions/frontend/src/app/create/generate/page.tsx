@@ -1933,6 +1933,7 @@ function GenerateProductPicker() {
           <div className="flex justify-center mt-6">
             <button
               onClick={() => {
+                sessionStorage.setItem('activeProductType', activeProduct);
                 switch (activeProduct) {
                   case "Course Outline":
                     handleCourseOutlineStart();

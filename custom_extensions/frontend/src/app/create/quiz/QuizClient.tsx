@@ -879,6 +879,7 @@ export default function QuizClient() {
     if (!quizData.trim()) return;
 
     setIsCreatingFinal(true);
+    const activeProductType = sessionStorage.getItem('activeProductType');
     try {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = quizData;
@@ -932,7 +933,7 @@ export default function QuizClient() {
       const result = await response.json();
       setFinalProductId(result.id);
 
-      await trackCreateProduct("Completed");
+      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType);
       
       // Clear the failed state since we successfully completed
       try {
@@ -949,7 +950,7 @@ export default function QuizClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed");
+          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType);
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {

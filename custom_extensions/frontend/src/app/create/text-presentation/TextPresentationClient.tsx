@@ -965,6 +965,8 @@ export default function TextPresentationClient() {
       setError("Presentation finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
+    const activeProductType = sessionStorage.getItem('activeProductType');
+
     try {
       console.log("DEBUG: handleFinalize - hasUserEdits:", hasUserEdits);
       console.log("DEBUG: handleFinalize - editedTitleNames:", Array.from(editedTitleNames));
@@ -1031,7 +1033,7 @@ export default function TextPresentationClient() {
 
       setFinalProjectId(data.id);
 
-      await trackCreateProduct("Completed");
+      await trackCreateProduct("Completed", language, activeProductType === null ? undefined : activeProductType);
       
       // Clear the failed state since we successfully completed
       try {
@@ -1052,7 +1054,7 @@ export default function TextPresentationClient() {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
         if (!sessionStorage.getItem('createProductFailed')) {
-          await trackCreateProduct("Failed");
+          await trackCreateProduct("Failed", language, activeProductType === null ? undefined : activeProductType);
           sessionStorage.setItem('createProductFailed', 'true');
         }
       } catch (error) {
