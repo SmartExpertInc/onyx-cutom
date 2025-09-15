@@ -122,6 +122,8 @@ export const trackCreateProduct = async (
     generationMethod = "Knowledge Base";
   } else if (isFromConnectors) {
     generationMethod = "Connectors";
+  } else {
+    generationMethod = "Generate"
   }
 
   const props = {
@@ -144,6 +146,20 @@ export const trackSmartEdit = async (action: string) => {
 
   await track(
     "Smart Edit", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
+export const trackConnector = async (action: string, name: string) => {
+  const props = {
+    "Feature Category": "Smart Drive",
+    "Action": action,
+    "Name": name
+  };
+
+  await track(
+    "Connect Connector", 
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );

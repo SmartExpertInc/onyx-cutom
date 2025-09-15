@@ -8,6 +8,7 @@ import SmartDriveFrame from './SmartDriveFrame';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { timeEvent, trackConnector } from '@/lib/mixpanelClient';
 
 interface ConnectorConfig {
   id: string;
@@ -445,6 +446,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   const handleConnectClick = (connectorId: string, connectorName: string) => {
+    timeEvent("Connect Connector");
     setSelectedConnector({ id: connectorId, name: connectorName });
     setShowConnectorModal(true);
   };
@@ -457,6 +459,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   const handleConnectorSubmit = async (formData: any) => {
+    const connector = Object.values(connectorCategories).flat().find(c => c.id === formData.connector_id);
     try {
       const response = await fetch("/api/custom-projects-backend/smartdrive/connectors/create", {
         method: "POST",
@@ -472,12 +475,18 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
       const result = await response.json();
       console.log("Connector created successfully:", result);
+      if (connector) {
+        trackConnector("Completed", connector.name);
+      }
 
       // Close the modal and refresh the connector list
       setShowConnectorModal(false);
       setSelectedConnector(null);
       loadUserConnectors();
     } catch (error) {
+      if (connector) {
+        trackConnector("Failed", connector.name);
+      }
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
     }
@@ -848,6 +857,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 </h2>
                 <button
                   onClick={() => {
+                    trackConnector("Clicked", selectedConnector.name);
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
@@ -863,6 +873,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 connectorId={selectedConnector.id}
                 onSubmit={handleConnectorSubmit}
                 onCancel={() => {
+                  trackConnector("Clicked", selectedConnector.name);
                   setShowConnectorModal(false);
                   setSelectedConnector(null);
                 }}
