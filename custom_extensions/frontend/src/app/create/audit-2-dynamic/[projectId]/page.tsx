@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
+import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
 
 interface JobPosition {
   title: string
@@ -540,13 +541,22 @@ export default function DynamicAuditLandingPage() {
                 Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли
               </h2>
   
-              <Image 
-                src="/custom-projects-ui/images/audit-section-4-image.png" 
-                alt="Кадровый кризис в HVAC-отрасли" 
-                width={320}
-                height={220}
-                className="w-full xl:hidden"
-              />
+              {landingPageData?.workforceCrisis?.chartData ? (
+                <div className="w-full xl:hidden flex justify-center">
+                  <PersonnelShortageChart 
+                    chartData={landingPageData.workforceCrisis.chartData} 
+                    isMobile={true}
+                  />
+                </div>
+              ) : (
+                <Image 
+                  src="/custom-projects-ui/images/audit-section-4-image.png" 
+                  alt="Кадровый кризис в HVAC-отрасли" 
+                  width={320}
+                  height={220}
+                  className="w-full xl:hidden"
+                />
+              )}
                 
               <div className="flex flex-col gap-[15px] xl:hidden">
                 <div className="flex items-center gap-[10px]">
@@ -648,13 +658,20 @@ export default function DynamicAuditLandingPage() {
                   </div>
                 </div>
   
-                <Image 
-                  src="/custom-projects-ui/images/audit-section-4-image-desktop.png" 
-                  alt="Кадровый кризис в HVAC-отрасли" 
-                  width={360}
-                  height={280}
-                  className="w-[360px] h-[280px]"
-                />
+                {landingPageData?.workforceCrisis?.chartData ? (
+                  <PersonnelShortageChart 
+                    chartData={landingPageData.workforceCrisis.chartData} 
+                    isMobile={false}
+                  />
+                ) : (
+                  <Image 
+                    src="/custom-projects-ui/images/audit-section-4-image-desktop.png" 
+                    alt="Кадровый кризис в HVAC-отрасли" 
+                    width={360}
+                    height={280}
+                    className="w-[360px] h-[280px]"
+                  />
+                )}
   
                 <div className="flex flex-col gap-[50px] my-[36px] w-[340px]">
                   <div className="flex flex-col gap-[12px]">
