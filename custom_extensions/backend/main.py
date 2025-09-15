@@ -14430,10 +14430,11 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
         losses_task = extract_losses_data(duckduckgo_summary, payload)
         search_time_task = extract_search_time_data(duckduckgo_summary, payload)
         chart_data_task = extract_personnel_shortage_chart_data(duckduckgo_summary, payload)
+        yearly_shortage_task = extract_yearly_shortage_data(duckduckgo_summary, payload)
         
         # Wait for all tasks to complete
-        industry, burnout, turnover, losses, search_time, chart_data = await asyncio.gather(
-            industry_task, burnout_task, turnover_task, losses_task, search_time_task, chart_data_task
+        industry, burnout, turnover, losses, search_time, chart_data, yearly_shortage = await asyncio.gather(
+            industry_task, burnout_task, turnover_task, losses_task, search_time_task, chart_data_task, yearly_shortage_task
         )
         
         workforce_crisis_data = {
@@ -14442,7 +14443,8 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
             "turnover": turnover,
             "losses": losses,
             "searchTime": search_time,
-            "chartData": chart_data
+            "chartData": chart_data,
+            "yearlyShortage": yearly_shortage
         }
         
         logger.info(f"[AI-Audit Landing Page] Generated workforce crisis data: {workforce_crisis_data}")
@@ -14476,6 +14478,11 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
                 "totalShortage": 2775,
                 "trend": "рост",
                 "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+            },
+            "yearlyShortage": {
+                "yearlyShortage": 80000,
+                "industry": "HVAC",
+                "description": "Типичный дефицит квалифицированных кадров в HVAC-отрасли"
             }
         }
 
@@ -14931,6 +14938,108 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
             "totalShortage": 2775,
             "trend": "рост",
             "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+        }
+
+
+async def extract_yearly_shortage_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Generate a single yearly shortage number for the company's specific industry.
+    Returns a dictionary with the annual shortage count.
+    """
+    prompt = f"""
+    Проанализируй данные и определи точное количество недостающих квалифицированных специалистов в год для отрасли компании.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    1. Определи отрасль компании на основе предоставленных данных
+    2. Рассчитай реалистичное количество недостающих специалистов в год для данной отрасли
+    3. Учти размер отрасли, темпы роста и текущий дефицит кадров
+    4. Число должно быть реалистичным и обоснованным для данной отрасли
+    5. Учти региональные особенности и масштаб отрасли
+    
+    ТРЕБОВАНИЯ:
+    - Верни ТОЛЬКО одно число (количество недостающих специалистов в год)
+    - Число должно быть целым
+    - Число должно быть реалистичным для отрасли
+    - Учти масштаб отрасли (локальная, региональная, национальная)
+    
+    ФОРМАТ ОТВЕТА:
+    Верни ТОЛЬКО валидный JSON объект в следующем формате:
+    {{
+        "yearlyShortage": 80000,
+        "industry": "название отрасли",
+        "description": "Краткое обоснование числа"
+    }}
+    
+    ПРИМЕРЫ ДЛЯ РАЗНЫХ ОТРАСЛЕЙ:
+    - HVAC: 45000-80000 специалистов в год
+    - IT: 120000-200000 специалистов в год  
+    - Строительство: 60000-100000 специалистов в год
+    - Медицина: 80000-150000 специалистов в год
+    - Производство: 70000-120000 специалистов в год
+    
+    ВАЖНО: 
+    - Число должно быть реалистичным для отрасли
+    - Учти размер и масштаб отрасли
+    - Включи обоснование в description
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean and parse the response
+        cleaned_response = response_text.strip()
+        if cleaned_response.startswith('```json'):
+            cleaned_response = cleaned_response[7:]
+        if cleaned_response.endswith('```'):
+            cleaned_response = cleaned_response[:-3]
+        cleaned_response = cleaned_response.strip()
+        
+        # Parse JSON response
+        yearly_data = json.loads(cleaned_response)
+        
+        # Validate the structure
+        if not isinstance(yearly_data, dict) or 'yearlyShortage' not in yearly_data:
+            raise ValueError("Invalid yearly shortage data structure")
+        
+        if not isinstance(yearly_data['yearlyShortage'], int) or yearly_data['yearlyShortage'] <= 0:
+            raise ValueError("Yearly shortage must be a positive integer")
+        
+        # Log the generated data for verification
+        logger.info(f"[AI-Audit Landing Page] Generated yearly shortage data:")
+        logger.info(f"[AI-Audit Landing Page] - Industry: {yearly_data.get('industry', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Yearly Shortage: {yearly_data.get('yearlyShortage', 'Unknown')} specialists")
+        logger.info(f"[AI-Audit Landing Page] - Description: {yearly_data.get('description', 'No description')}")
+        
+        return yearly_data
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"[AI-Audit Landing Page] Yearly shortage JSON parsing error: {e}")
+        logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+        logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+        # Fallback to default values
+        return {
+            "yearlyShortage": 80000,
+            "industry": "HVAC",
+            "description": "Типичный дефицит квалифицированных кадров в HVAC-отрасли"
+        }
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating yearly shortage data: {e}")
+        return {
+            "yearlyShortage": 80000,
+            "industry": "HVAC", 
+            "description": "Типичный дефицит квалифицированных кадров в HVAC-отрасли"
         }
 
 
