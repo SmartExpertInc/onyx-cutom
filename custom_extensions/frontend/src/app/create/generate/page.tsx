@@ -1294,7 +1294,7 @@ function GenerateProductPicker() {
         {activeProduct === "Course Outline" && (
           <div className="flex flex-wrap justify-center gap-2 mb-2">
             <Select value={modulesCount.toString()} onValueChange={(value) => setModulesCount(Number(value))}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1304,7 +1304,7 @@ function GenerateProductPicker() {
               </SelectContent>
             </Select>
             <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1314,7 +1314,7 @@ function GenerateProductPicker() {
               </SelectContent>
             </Select>
             <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-black">
+              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1370,10 +1370,10 @@ function GenerateProductPicker() {
                         setSelectedLesson("");
                       }}
                     >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
                         <SelectValue placeholder="Select Outline" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white text-gray-700">
                         {outlines.map((o) => (
                           <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                         ))}
@@ -1391,10 +1391,10 @@ function GenerateProductPicker() {
                           setSelectedLesson("");
                         }}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
                           <SelectValue placeholder="Select Module" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white text-gray-700">
                           {modulesForOutline.map((m, idx) => (
                             <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
                           ))}
@@ -1408,10 +1408,10 @@ function GenerateProductPicker() {
                         value={selectedLesson}
                         onValueChange={setSelectedLesson}
                       >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
                           <SelectValue placeholder="Select Lesson" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white text-gray-700">
                           {lessonsForModule.map((l) => (
                             <SelectItem key={l} value={l}>{l}</SelectItem>
                           ))}
@@ -1423,10 +1423,10 @@ function GenerateProductPicker() {
                     {selectedLesson && (
                       <>
                         <Select value={language} onValueChange={setLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white text-gray-700">
                             <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
@@ -1437,7 +1437,7 @@ function GenerateProductPicker() {
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white text-gray-700">
                             {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                               <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
                             ))}
@@ -1466,7 +1466,7 @@ function GenerateProductPicker() {
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white text-gray-700">
                         {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                           <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
                         ))}
@@ -1541,7 +1541,7 @@ function GenerateProductPicker() {
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white text-gray-700">
                         {quizOutlines.map((outline) => (
                           <SelectItem key={outline.id} value={outline.id.toString()}>
                             {outline.name}
@@ -1564,7 +1564,7 @@ function GenerateProductPicker() {
                         <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                           <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white text-gray-700">
                           {quizModulesForOutline.map((m, idx) => (
                             <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
                           ))}
@@ -1581,7 +1581,7 @@ function GenerateProductPicker() {
                         <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                           <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white text-gray-700">
                           {quizLessonsForModule.map((l) => (
                             <SelectItem key={l} value={l}>{l}</SelectItem>
                           ))}
@@ -1596,7 +1596,7 @@ function GenerateProductPicker() {
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white text-gray-700">
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1621,11 +1621,9 @@ function GenerateProductPicker() {
                           </Button>
                           {showQuestionTypesDropdown && (
                             <div 
-                              className="absolute top-full left-0 mt-1 w-full rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
+                              className="absolute top-full text-gray-700 left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
                               style={{
-                                backgroundColor: `rgb(var(--generate-card-bg))`,
-                                borderColor: `rgb(var(--generate-card-border))`,
-                                borderWidth: '1px'
+                                backgroundColor: `white`,
                               }}
                             >
                                                         {[

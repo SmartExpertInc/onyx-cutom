@@ -112,8 +112,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
     onToggleSelect(product.id);
   };
 
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCheckboxChange = (checked: boolean) => {
     onToggleSelect(product.id);
   };
 
@@ -125,13 +124,15 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
       onClick={handleCardClick}
     >
       {/* Selection checkbox */}
-      <div className={`absolute top-3 right-3 z-10 transition-opacity duration-200 ${
-        isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-      }`}>
+      <div 
+        className={`absolute top-3 right-3 z-10 transition-opacity duration-200 ${
+          isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onToggleSelect(product.id)}
-          onClick={handleCheckboxClick}
+          onCheckedChange={handleCheckboxChange}
           className="w-5 h-5"
         />
       </div>

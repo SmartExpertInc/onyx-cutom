@@ -712,7 +712,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                variant="secondary"
+                variant="blueGradient"
               >
                 {t("actions.outlineOnly", "Outline Only")}
               </Button>
@@ -721,7 +721,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                variant="destructive"
+                variant="download"
+                className="rounded-full bg-red-300 hover:bg-red-400 border border-red-400 hover:border-red-500"
               >
                 {t("actions.moveAll", "Move All")}
               </Button>
