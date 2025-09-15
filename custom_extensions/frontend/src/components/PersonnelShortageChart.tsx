@@ -43,18 +43,19 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-sm border border-gray-200"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 relative"
       style={{ 
         width: `${chartWidth}px`, 
         height: `${chartHeight}px`,
         minWidth: `${chartWidth}px`,
         minHeight: `${chartHeight}px`,
         maxWidth: `${chartWidth}px`,
-        maxHeight: `${chartHeight}px`
+        maxHeight: `${chartHeight}px`,
+        overflow: 'visible'
       }}
     >
       <div className="h-full w-full" style={{ padding: isMobile ? '8px' : '12px' }}>
-        <div className="h-full w-full">
+        <div className="h-full w-full" style={{ overflow: 'visible' }}>
           <ResponsiveLine
             data={nivoData}
             margin={{ 
@@ -78,16 +79,16 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
               tickSize: 5,
               tickPadding: 5,
               tickRotation: -45,
-              legend: isMobile ? '' : 'Месяц',
-              legendOffset: isMobile ? 35 : 50,
+              legend: '',
+              legendOffset: 35,
               legendPosition: 'middle'
             }}
             axisLeft={{
               tickSize: 5,
               tickPadding: 5,
               tickRotation: 0,
-              legend: isMobile ? '' : 'Количество специалистов',
-              legendOffset: isMobile ? -30 : -40,
+              legend: '',
+              legendOffset: -30,
               legendPosition: 'middle'
             }}
             colors={['#0F58F9']}
@@ -100,8 +101,17 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
             enableArea={true}
             areaOpacity={0.1}
             useMesh={true}
+            enableSlices={false}
+            sliceTooltip={({ slice }) => (
+              <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="font-semibold text-gray-900">{slice.points[0]?.data.x}</div>
+                <div className="text-gray-600">
+                  Недостаток: {slice.points[0]?.data.y} специалистов
+                </div>
+              </div>
+            )}
             tooltip={({ point }) => (
-              <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+              <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="font-semibold text-gray-900">{point.data.x}</div>
                 <div className="text-gray-600">
                   Недостаток: {point.data.y} специалистов

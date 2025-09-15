@@ -13650,17 +13650,18 @@ async def extract_company_description_from_website_content(website_content: str,
     try:
         prompt = f"""
         Создай краткое описание компании на основе контента веб-сайта.
-        
+
         ВЕБ-САЙТ: {company_website}
         КОНТЕНТ ВЕБ-САЙТА:
         {website_content}
-        
+
         ИНСТРУКЦИИ:
-        - Создай описание в стиле: "Компания, предоставляющая услуги по [основные услуги]. [дополнительная информация]"
+        - Создай описание в стиле: "Компания, предоставляющая услуги по [основные услуги]"
         - Используй только информацию с веб-сайта
-        - Описание должно быть кратким (1-2 предложения)
+        - Описание должно быть максимально кратким (ТОЛЬКО 1 предложение)
+        - НЕ добавляй дополнительные детали или примеры
         - Если не можешь определить описание, верни "Company Description"
-        
+
         ОТВЕТ (только описание компании):
         """
         
@@ -14259,8 +14260,24 @@ async def generate_ai_image_for_job_position(job_title: str, company_name: str) 
     """
     try:
         # Create a professional prompt for the job position with enhanced framing
-        prompt = f"A professional photograph of a person working as a {job_title} at {company_name}. Wide angle shot with person centered in frame, full head and shoulders visible, lots of background space. The person should be in a modern office or workplace setting, wearing professional attire appropriate for their role. The image should be clean, well-lit, and convey competence and professionalism. High quality, business photography style."
-        
+        prompt = f"""A professional photograph of a {job_title} actively working at {company_name}. 
+    
+        SCENE: The person is engaged in their typical work activities in an authentic workplace environment appropriate for a {job_title}. Show them using professional tools, equipment, or technology relevant to their role. The composition should capture both the person (from waist up or full body) and their work environment.
+
+        ACTIVITY: Include specific work processes - for example:
+        - If barista: preparing coffee, operating espresso machine, arranging cups
+        - If programmer: coding at multiple monitors, reviewing code, collaborating with team
+        - If mechanic: working on equipment, using tools, diagnostic work
+        - If teacher: conducting lesson, using whiteboard, interacting with materials
+        - If sales representative: presenting products, meeting with clients, demonstrating features
+        - If nurse: caring for patients, using medical equipment, documenting care
+
+        ENVIRONMENT: Authentic workplace setting that matches the {job_title} role - not just a generic office. Include relevant background elements, tools, equipment, and work materials that tell the story of what this person does.
+
+        STYLE: High-quality professional photography with good lighting that shows both the person and their work context. The person should be wearing appropriate work attire/uniform for their specific role.
+
+        COMPOSITION: Environmental portrait style that captures the essence of the job, not just a headshot."""
+
         # Use wider dimensions for course template images to better fit the container
         width, height = 1792, 1024
         
@@ -14661,8 +14678,12 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
             industry_task, burnout_task, turnover_task, losses_task, search_time_task, chart_data_task, yearly_shortage_task
         )
         
+        # Get grammatically correct industry text variants
+        industry_forms = get_industry_text_variants(industry)
+        
         workforce_crisis_data = {
             "industry": industry,
+            "industryForms": industry_forms,  # Add grammatically correct forms
             "burnout": burnout,
             "turnover": turnover,
             "losses": losses,
@@ -14676,15 +14697,17 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
         
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error generating workforce crisis data: {e}")
-        # Return default values as fallback
+        # Return default values as fallback with grammatically correct forms
+        industry_forms = get_industry_text_variants("hvac")
         return {
-            "industry": "HVAC",
+            "industry": "hvac",
+            "industryForms": industry_forms,
             "burnout": {"months": "14", "industryName": "HVAC-компаниях"},
             "turnover": {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}},
             "losses": {"amount": "$10К–$18К"},
             "searchTime": {"days": "30–60"},
             "chartData": {
-                "industry": "HVAC",
+                "industry": "hvac",
                 "chartData": [
                     {"month": "Январь", "shortage": 150},
                     {"month": "Февраль", "shortage": 165},
@@ -14701,14 +14724,113 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
                 ],
                 "totalShortage": 2775,
                 "trend": "рост",
-                "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+                "description": f"Постоянный рост дефицита квалифицированных кадров {industry_forms['crisis_in']}"
             },
             "yearlyShortage": {
                 "yearlyShortage": 80000,
-                "industry": "HVAC",
-                "description": "Типичный дефицит квалифицированных кадров в HVAC-отрасли"
+                "industry": "hvac",
+                "description": f"Типичный дефицит квалифицированных кадров {industry_forms['of_industry']}"
             }
         }
+
+
+def get_industry_text_variants(industry_name: str) -> dict:
+    """Generate grammatically correct industry references for Russian text"""
+    
+    # Normalize industry name to lowercase
+    industry = industry_name.lower().strip()
+    
+    # Define proper grammatical forms for common industries
+    industry_forms = {
+        "автомобильная промышленность": {
+            "in_sector": "в автомобильном секторе",
+            "in_industry": "в автомобильной отрасли",
+            "crisis_in": "в автомобильной отрасли",
+            "shortage_in": "в автомобильном секторе",
+            "of_industry": "автомобильной отрасли"
+        },
+        "информационные технологии": {
+            "in_sector": "в IT-секторе", 
+            "in_industry": "в IT-отрасли",
+            "crisis_in": "в сфере информационных технологий",
+            "shortage_in": "в IT-секторе",
+            "of_industry": "IT-отрасли"
+        },
+        "it": {
+            "in_sector": "в IT-секторе", 
+            "in_industry": "в IT-отрасли",
+            "crisis_in": "в сфере информационных технологий",
+            "shortage_in": "в IT-секторе",
+            "of_industry": "IT-отрасли"
+        },
+        "строительство": {
+            "in_sector": "в строительном секторе",
+            "in_industry": "в строительной отрасли", 
+            "crisis_in": "в строительной отрасли",
+            "shortage_in": "в строительном секторе",
+            "of_industry": "строительной отрасли"
+        },
+        "медицина": {
+            "in_sector": "в медицинском секторе",
+            "in_industry": "в медицинской отрасли",
+            "crisis_in": "в сфере здравоохранения", 
+            "shortage_in": "в медицинском секторе",
+            "of_industry": "медицинской отрасли"
+        },
+        "здравоохранение": {
+            "in_sector": "в медицинском секторе",
+            "in_industry": "в сфере здравоохранения",
+            "crisis_in": "в сфере здравоохранения", 
+            "shortage_in": "в медицинском секторе",
+            "of_industry": "сферы здравоохранения"
+        },
+        "образование": {
+            "in_sector": "в образовательном секторе",
+            "in_industry": "в сфере образования",
+            "crisis_in": "в сфере образования", 
+            "shortage_in": "в образовательном секторе",
+            "of_industry": "сферы образования"
+        },
+        "hvac": {
+            "in_sector": "в HVAC-секторе",
+            "in_industry": "в HVAC-отрасли",
+            "crisis_in": "в HVAC-отрасли", 
+            "shortage_in": "в HVAC-секторе",
+            "of_industry": "HVAC-отрасли"
+        },
+        "производство": {
+            "in_sector": "в производственном секторе",
+            "in_industry": "в производственной отрасли",
+            "crisis_in": "в производственной отрасли", 
+            "shortage_in": "в производственном секторе",
+            "of_industry": "производственной отрасли"
+        },
+        "торговля": {
+            "in_sector": "в торговом секторе",
+            "in_industry": "в торговой отрасли",
+            "crisis_in": "в торговой отрасли", 
+            "shortage_in": "в торговом секторе",
+            "of_industry": "торговой отрасли"
+        },
+        "финансы": {
+            "in_sector": "в финансовом секторе",
+            "in_industry": "в финансовой отрасли",
+            "crisis_in": "в финансовой отрасли", 
+            "shortage_in": "в финансовом секторе",
+            "of_industry": "финансовой отрасли"
+        }
+    }
+    
+    # Default fallback for unknown industries
+    default_forms = {
+        "in_sector": f"в {industry} секторе",
+        "in_industry": f"в {industry} отрасли", 
+        "crisis_in": f"в {industry} отрасли",
+        "shortage_in": f"в {industry} секторе",
+        "of_industry": f"{industry} отрасли"
+    }
+    
+    return industry_forms.get(industry, default_forms)
 
 
 async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
@@ -14728,10 +14850,20 @@ async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
     
     ИНСТРУКЦИИ:
     - Определи основную отрасль деятельности компании
-    - Верни только название отрасли (например: HVAC, IT, строительство, медицина, образование)
-    - Если не можешь определить, верни "HVAC"
+    - Верни название отрасли в именительном падеже, строчными буквами
+    - Используй стандартные названия отраслей из списка:
+      * автомобильная промышленность
+      * информационные технологии (или IT)
+      * строительство
+      * медицина (или здравоохранение)
+      * образование
+      * производство
+      * торговля
+      * финансы
+      * HVAC
+    - Если не можешь определить, верни "общие услуги"
     
-    ОТВЕТ (только название отрасли):
+    ОТВЕТ (только название отрасли в именительном падеже, строчными буквами):
     """
     
     try:
@@ -14740,9 +14872,9 @@ async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
             model=LLM_DEFAULT_MODEL
         )
         
-        industry = response_text.strip()
+        industry = response_text.strip().lower()
         if not industry:
-            industry = "HVAC"
+            industry = "общие услуги"
         
         logger.info(f"[AI-Audit Landing Page] Extracted industry: {industry}")
         return industry
@@ -15063,7 +15195,7 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
         ],
         "totalShortage": [сумма всех shortage],
         "trend": "рост/стабильность/снижение",
-        "description": "Краткое описание тренда дефицита кадров в отрасли с упоминанием ключевых факторов"
+        "description": "Краткое описание тренда дефицита кадров в отрасли с упоминанием ключевых факторов. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
     }}
 
     ОТРИЦАТЕЛЬНЫЙ ПРИМЕР (НЕ делай так):
@@ -15199,7 +15331,7 @@ async def extract_yearly_shortage_data(duckduckgo_summary: str, payload) -> dict
     {{
         "yearlyShortage": 80000,
         "industry": "название отрасли",
-        "description": "Краткое обоснование числа"
+        "description": "Краткое обоснование числа. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
     }}
     
     ПРИМЕРЫ ДЛЯ РАЗНЫХ ОТРАСЛЕЙ:
