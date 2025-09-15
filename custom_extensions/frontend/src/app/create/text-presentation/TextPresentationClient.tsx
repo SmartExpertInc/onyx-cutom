@@ -1524,7 +1524,7 @@ export default function TextPresentationClient() {
                 }}
                 placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                 rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
@@ -1549,7 +1549,7 @@ export default function TextPresentationClient() {
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 relative"
+                className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
                 style={{ animation: 'fadeInDown 0.25s ease-out both' }}
               >
                 {loadingEdit && (
@@ -1562,41 +1562,54 @@ export default function TextPresentationClient() {
                 {lessonList.length > 0 && (
                   <div className="flex flex-col gap-4">
                     {lessonList.map((lesson, idx: number) => (
-                      <div key={idx} className="flex rounded-xl shadow-sm overflow-hidden">
-                        {/* Left colored bar with index - matching course outline styling */}
-                        <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                          <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{idx + 1}</span>
+                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                          {idx + 1}
                         </div>
-
-                        {/* Main card - matching course outline styling */}
-                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                        <div className="flex-1 p-4">
                           <div className="mb-2">
                             {editingLessonId === idx ? (
-                              <input
-                                type="text"
-                                value={editedTitles[idx] || lesson.title}
-                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                                autoFocus
-                                onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
-                                  if (e.key === 'Escape') handleTitleCancel(idx);
-                                }}
-                              />
+                              <div className="relative group">
+                                <input
+                                  type="text"
+                                  value={editedTitles[idx] || lesson.title}
+                                  onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1 w-full pr-8"
+                                  autoFocus
+                                  onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                    if (e.key === 'Escape') handleTitleCancel(idx);
+                                  }}
+                                />
+                                {(editedTitles[idx] || lesson.title) && (
+                                  <Edit 
+                                    size={14} 
+                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                  />
+                                )}
+                              </div>
                             ) : (
-                              <h4
-                                className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3 cursor-pointer"
-                                onMouseDown={() => {
-                                  // Set the next editing ID before the blur event fires
-                                  nextEditingIdRef.current = idx;
-                                }}
-                                onClick={() => {
-                                  setEditingLessonId(idx);
-                                }}
-                              >
-                                {getTitleForLesson(lesson, idx)}
-                              </h4>
+                              <div className="relative group">
+                                <h4
+                                  className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
+                                  onMouseDown={() => {
+                                    // Set the next editing ID before the blur event fires
+                                    nextEditingIdRef.current = idx;
+                                  }}
+                                  onClick={() => {
+                                    setEditingLessonId(idx);
+                                  }}
+                                >
+                                  {getTitleForLesson(lesson, idx)}
+                                </h4>
+                                {getTitleForLesson(lesson, idx) && (
+                                  <Edit 
+                                    size={14} 
+                                    className="absolute top-1 right-0 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+                                  />
+                                )}
+                              </div>
                             )}
                           </div>
                           {lesson.content && (
