@@ -14419,7 +14419,7 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
 
 async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> dict:
     """
-    Generate workforce crisis data including industry, burnout, turnover, losses, and search time.
+    Generate workforce crisis data including industry, burnout, turnover, losses, search time, and chart data.
     Returns a dictionary with all the dynamic values for the "Кадровый кризис" section.
     """
     try:
@@ -14429,10 +14429,11 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
         turnover_task = extract_turnover_data(duckduckgo_summary, payload)
         losses_task = extract_losses_data(duckduckgo_summary, payload)
         search_time_task = extract_search_time_data(duckduckgo_summary, payload)
+        chart_data_task = extract_personnel_shortage_chart_data(duckduckgo_summary, payload)
         
         # Wait for all tasks to complete
-        industry, burnout, turnover, losses, search_time = await asyncio.gather(
-            industry_task, burnout_task, turnover_task, losses_task, search_time_task
+        industry, burnout, turnover, losses, search_time, chart_data = await asyncio.gather(
+            industry_task, burnout_task, turnover_task, losses_task, search_time_task, chart_data_task
         )
         
         workforce_crisis_data = {
@@ -14440,7 +14441,8 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
             "burnout": burnout,
             "turnover": turnover,
             "losses": losses,
-            "searchTime": search_time
+            "searchTime": search_time,
+            "chartData": chart_data
         }
         
         logger.info(f"[AI-Audit Landing Page] Generated workforce crisis data: {workforce_crisis_data}")
@@ -14454,7 +14456,27 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> di
             "burnout": {"months": "14", "industryName": "HVAC-компаниях"},
             "turnover": {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}},
             "losses": {"amount": "$10К–$18К"},
-            "searchTime": {"days": "30–60"}
+            "searchTime": {"days": "30–60"},
+            "chartData": {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Январь", "shortage": 150},
+                    {"month": "Февраль", "shortage": 165},
+                    {"month": "Март", "shortage": 180},
+                    {"month": "Апрель", "shortage": 195},
+                    {"month": "Май", "shortage": 210},
+                    {"month": "Июнь", "shortage": 225},
+                    {"month": "Июль", "shortage": 240},
+                    {"month": "Август", "shortage": 255},
+                    {"month": "Сентябрь", "shortage": 270},
+                    {"month": "Октябрь", "shortage": 285},
+                    {"month": "Ноябрь", "shortage": 300},
+                    {"month": "Декабрь", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "рост",
+                "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+            }
         }
 
 
@@ -14758,6 +14780,153 @@ async def extract_search_time_data(duckduckgo_summary: str, payload) -> dict:
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error extracting search time data: {e}")
         return {"days": "30–60"}
+
+
+async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload) -> dict:
+    """
+    Generate structured dataset for the "Shortage of qualified personnel" chart.
+    Returns a dictionary with 12 months of personnel shortage data.
+    """
+    prompt = f"""
+    Проанализируй данные и сгенерируй структурированный набор данных для графика "Дефицит квалифицированных кадров" за последние 12 месяцев.
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {payload.companyName}
+    - Описание компании: {payload.companyDesc}
+    - Веб-сайт: {payload.companyWebsite}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ИНСТРУКЦИИ:
+    1. Определи отрасль компании на основе предоставленных данных
+    2. Сгенерируй реалистичные данные о нехватке квалифицированных кадров за последние 12 месяцев
+    3. Данные должны отражать реальные тенденции в отрасли (сезонность, рост/снижение спроса)
+    4. Учти специфику отрасли при генерации данных
+    5. Включи естественные колебания и тренды
+    
+    ТРЕБОВАНИЯ К ДАННЫМ:
+    - 12 месяцев данных (январь - декабрь текущего года)
+    - Каждый месяц должен содержать количество недостающих специалистов
+    - Данные должны быть реалистичными для данной отрасли
+    - Включи сезонные колебания (например, больше вакансий летом для строительства)
+    - Покажи общий тренд роста дефицита кадров
+    
+    ФОРМАТ ОТВЕТА:
+    Верни ТОЛЬКО валидный JSON объект в следующем формате:
+    {{
+        "industry": "название отрасли",
+        "chartData": [
+            {{"month": "Январь", "shortage": 150}},
+            {{"month": "Февраль", "shortage": 165}},
+            {{"month": "Март", "shortage": 180}},
+            {{"month": "Апрель", "shortage": 195}},
+            {{"month": "Май", "shortage": 210}},
+            {{"month": "Июнь", "shortage": 225}},
+            {{"month": "Июль", "shortage": 240}},
+            {{"month": "Август", "shortage": 255}},
+            {{"month": "Сентябрь", "shortage": 270}},
+            {{"month": "Октябрь", "shortage": 285}},
+            {{"month": "Ноябрь", "shortage": 300}},
+            {{"month": "Декабрь", "shortage": 315}}
+        ],
+        "totalShortage": 2775,
+        "trend": "рост",
+        "description": "Краткое описание тренда дефицита кадров в отрасли"
+    }}
+    
+    ВАЖНО: 
+    - Используй только русские названия месяцев
+    - Значения shortage должны быть целыми числами
+    - Данные должны быть логически последовательными
+    - Учти специфику отрасли компании
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean and parse the response
+        cleaned_response = response_text.strip()
+        if cleaned_response.startswith('```json'):
+            cleaned_response = cleaned_response[7:]
+        if cleaned_response.endswith('```'):
+            cleaned_response = cleaned_response[:-3]
+        cleaned_response = cleaned_response.strip()
+        
+        # Parse JSON response
+        chart_data = json.loads(cleaned_response)
+        
+        # Validate the structure
+        if not isinstance(chart_data, dict) or 'chartData' not in chart_data:
+            raise ValueError("Invalid chart data structure")
+        
+        if not isinstance(chart_data['chartData'], list) or len(chart_data['chartData']) != 12:
+            raise ValueError("Chart data must contain exactly 12 months")
+        
+        # Log the generated data for verification
+        logger.info(f"[AI-Audit Landing Page] Generated personnel shortage chart data:")
+        logger.info(f"[AI-Audit Landing Page] - Industry: {chart_data.get('industry', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Total shortage: {chart_data.get('totalShortage', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Trend: {chart_data.get('trend', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Chart data points: {len(chart_data.get('chartData', []))}")
+        
+        # Log each month's data for detailed verification
+        for i, month_data in enumerate(chart_data.get('chartData', [])):
+            logger.info(f"[AI-Audit Landing Page] - Month {i+1}: {month_data.get('month', 'Unknown')} - {month_data.get('shortage', 'Unknown')} specialists")
+        
+        return chart_data
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"[AI-Audit Landing Page] Chart data JSON parsing error: {e}")
+        logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+        logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+        # Fallback to default values
+        return {
+            "industry": "HVAC",
+            "chartData": [
+                {"month": "Январь", "shortage": 150},
+                {"month": "Февраль", "shortage": 165},
+                {"month": "Март", "shortage": 180},
+                {"month": "Апрель", "shortage": 195},
+                {"month": "Май", "shortage": 210},
+                {"month": "Июнь", "shortage": 225},
+                {"month": "Июль", "shortage": 240},
+                {"month": "Август", "shortage": 255},
+                {"month": "Сентябрь", "shortage": 270},
+                {"month": "Октябрь", "shortage": 285},
+                {"month": "Ноябрь", "shortage": 300},
+                {"month": "Декабрь", "shortage": 315}
+            ],
+            "totalShortage": 2775,
+            "trend": "рост",
+            "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+        }
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating chart data: {e}")
+        return {
+            "industry": "HVAC",
+            "chartData": [
+                {"month": "Январь", "shortage": 150},
+                {"month": "Февраль", "shortage": 165},
+                {"month": "Март", "shortage": 180},
+                {"month": "Апрель", "shortage": 195},
+                {"month": "Май", "shortage": 210},
+                {"month": "Июнь", "shortage": 225},
+                {"month": "Июль", "shortage": 240},
+                {"month": "Август", "shortage": 255},
+                {"month": "Сентябрь", "shortage": 270},
+                {"month": "Октябрь", "shortage": 285},
+                {"month": "Ноябрь", "shortage": 300},
+                {"month": "Декабрь", "shortage": 315}
+            ],
+            "totalShortage": 2775,
+            "trend": "рост",
+            "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+        }
 
 
 async def _run_landing_page_generation(payload, request, pool, job_id):

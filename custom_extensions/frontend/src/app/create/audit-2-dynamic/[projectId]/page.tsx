@@ -10,6 +10,19 @@ interface JobPosition {
   icon: string
 }
 
+interface PersonnelShortageChartData {
+  month: string
+  shortage: number
+}
+
+interface ChartData {
+  industry: string
+  chartData: PersonnelShortageChartData[]
+  totalShortage: number
+  trend: string
+  description: string
+}
+
 interface WorkforceCrisisData {
   industry: string
   burnout: {
@@ -29,6 +42,7 @@ interface WorkforceCrisisData {
   searchTime: {
     days: string
   }
+  chartData: ChartData
 }
 
 interface CourseTemplate {
@@ -116,7 +130,15 @@ export default function DynamicAuditLandingPage() {
       const data = generateAssessmentData()
       setAssessmentData(data)
     }
-  }, [landingPageData?.courseOutlineModules])
+    
+    // Log chart data for verification
+    if (landingPageData?.workforceCrisis?.chartData) {
+      console.log('📊 Chart Data Received:', landingPageData.workforceCrisis.chartData)
+      console.log('📊 Chart Data Points:', landingPageData.workforceCrisis.chartData.chartData)
+      console.log('📊 Total Shortage:', landingPageData.workforceCrisis.chartData.totalShortage)
+      console.log('📊 Trend:', landingPageData.workforceCrisis.chartData.trend)
+    }
+  }, [landingPageData?.courseOutlineModules, landingPageData?.workforceCrisis?.chartData])
 
   useEffect(() => {
     const fetchLandingPageData = async () => {
