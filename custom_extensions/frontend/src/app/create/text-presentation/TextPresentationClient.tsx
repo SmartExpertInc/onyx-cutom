@@ -1632,12 +1632,13 @@ export default function TextPresentationClient() {
           {streamDone && content && (
             <>
               {showAdvanced && (
-                <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <textarea
+                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <Textarea
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
                   {/* Example prompts */}
@@ -1647,7 +1648,7 @@ export default function TextPresentationClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                        className={`relative text-left border rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'border-blue-300 bg-[#D9ECFF]' : 'border-gray-200 bg-[#D9ECFF] hover:shadow-lg'
                           }`}
                       >
                         {ex.short}
