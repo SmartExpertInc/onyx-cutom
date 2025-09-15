@@ -627,7 +627,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       variant="destructive"
                     >
                       <Trash2 size={14} />
-                      <span className="text-red-500 hover:bg-red-200">{t("actions.sendToTrash", "Send to trash")}</span>
+                      <span className="text-red-500">{t("actions.sendToTrash", "Send to trash")}</span>
                     </DropdownMenuItem>
                   </>
                 )}

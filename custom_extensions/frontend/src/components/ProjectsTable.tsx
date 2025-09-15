@@ -1746,9 +1746,10 @@ const ProjectRowMenu: React.FC<{
               <Input
                 id="newName"
                 type="text"
+                variant="shadow"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                className="w-full px-3 py-2"
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -1848,7 +1849,7 @@ const ProjectRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                variant="default"
+                variant="download"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming

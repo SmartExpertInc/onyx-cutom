@@ -245,7 +245,13 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
         </div>
 
         {/* Subtitle on the left */}
-        <div className="flex items-center -mt-2">
+        <div className="flex items-center -mt-2" style={{
+          backgroundColor: 'white',
+          borderColor: '#C5CAD1',
+          background: `linear-gradient(to top right, white, white, #E8F0FE)`,
+          borderWidth: '1px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+        }}>
           <p className="text-sm text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
             Choose which course outlines to export to Smart Expert LMS
           </p>

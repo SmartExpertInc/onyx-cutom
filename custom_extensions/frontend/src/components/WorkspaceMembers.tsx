@@ -837,7 +837,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                   <SelectTrigger variant="filter" className="w-full">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className='border border-gray-200 shadow-lg'>
                     {roles.map(role => (
                       <SelectItem key={role.id} value={role.id.toString()}>
                         {getRoleDisplayName(role.name)}

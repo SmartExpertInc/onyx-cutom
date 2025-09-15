@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ChevronDown, AlertCircle, CheckCircle } from 'lucide-react';
 import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 
 interface CustomConnectorFormProps {
   isOpen: boolean;
@@ -329,17 +330,19 @@ const CustomConnectorForm: React.FC<CustomConnectorFormProps> = ({
           {/* Footer */}
           {!success && (
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-[#F7F7F7]">
-              <button
+              <Button
+                variant="outline"
                 onClick={onClose}
                 type="button"
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 transition-colors"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="download"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
               >
                 {isSubmitting ? (
                   <>
@@ -349,7 +352,7 @@ const CustomConnectorForm: React.FC<CustomConnectorFormProps> = ({
                 ) : (
                   'Create Connector'
                 )}
-              </button>
+              </Button>
             </div>
           )}
         </div>
