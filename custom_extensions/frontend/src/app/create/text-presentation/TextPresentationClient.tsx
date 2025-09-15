@@ -1684,7 +1684,7 @@ export default function TextPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-              <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
@@ -1710,7 +1710,7 @@ export default function TextPresentationClient() {
                           key={theme.id}
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
-                          className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${isSelected
+                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 hover:shadow-lg ${isSelected
                             ? 'bg-[#cee2fd]'
                             : ''
                             }`}
@@ -1752,22 +1752,30 @@ export default function TextPresentationClient() {
 
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                      <div className="relative w-full">
-                        <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                      <Select value={imageSource} onValueChange={setImageSource}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300" side="top">
+                          <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
+                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
-                      <div className="relative w-full">
-                        <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                      <Select value={aiModel} onValueChange={setAiModel}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300" side="top">
+                          <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
+                          <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
+                          <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
