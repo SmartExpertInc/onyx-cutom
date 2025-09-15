@@ -224,6 +224,7 @@ export default function CourseOutlineClient() {
   const isFromConnectors = params?.get("fromConnectors") === "true";
   const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
   const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+  const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean) || [];
   
   // Retrieve user text from sessionStorage
   useEffect(() => {
@@ -575,6 +576,9 @@ export default function CourseOutlineClient() {
             requestBody.fromConnectors = true;
             requestBody.connectorIds = connectorIds.join(',');
             requestBody.connectorSources = connectorSources.join(',');
+            if (selectedFiles.length > 0) {
+              requestBody.selectedFiles = selectedFiles.join(',');
+            }
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
