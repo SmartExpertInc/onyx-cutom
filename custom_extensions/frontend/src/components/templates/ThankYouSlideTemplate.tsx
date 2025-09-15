@@ -440,12 +440,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         height: '210px',
         borderRadius: '100%',
         display: 'flex',
+        backgroundColor: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
         top: '80px',
         right: '60px',
-        zIndex: 10
+        zIndex: 10,
+        overflow: 'hidden'
       }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
@@ -455,7 +457,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           description="Profile photo"
           isEditable={isEditable}
           style={{
-            width: '100%',
+            width: '90%',
             height: '100%',
             borderRadius: '50%',
             overflow: 'hidden'
