@@ -3648,7 +3648,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             />
           </div>
            <div className="flex items-center gap-4">
-             <DropdownMenu>
+           {viewMode === "grid" && (
+            <DropdownMenu>
                <DropdownMenuTrigger asChild>
                  <Button 
                    variant="sort" 
@@ -3685,6 +3686,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                  })}
                </DropdownMenuContent>
              </DropdownMenu>
+            )}
 
             {/* Columns Dropdown - only show in list view */}
             {viewMode === "list" && (

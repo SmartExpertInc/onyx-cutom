@@ -419,7 +419,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }}
         >
           {/* Top row with icon and badge */}
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-end">
             
             {/* Badges in top-right */}
             <div className="flex items-center gap-2">  
@@ -435,13 +435,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
           </div>
           
-          {/* Project type icon overlay */}
-          {project.designMicroproductType && (
-            <div className="absolute top-3 left-3 w-6 h-6 bg-white/20 backdrop-blur-sm rounded-md flex items-center justify-center">
-              {getDesignMicroproductIcon(project.designMicroproductType)}
-            </div>
-          )}
-          
            {/* Truncated title in center */}
            <div className="flex items-center justify-center flex-1 px-2">
              <h3 
@@ -454,14 +447,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 h-25 flex flex-col justify-between">
+        <div className="bg-white p-4 h-27 gap-2 flex flex-col justify-between">
           {/* Full title */}
           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200"
+              className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
             >
               <span className="text-xs font-medium text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
