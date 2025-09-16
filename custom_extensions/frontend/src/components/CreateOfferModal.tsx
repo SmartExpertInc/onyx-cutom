@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackCreateOffer } from '@/lib/mixpanelClient'
 
 interface Folder {
   id: number;
@@ -164,8 +165,10 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
         throw new Error(errorData.detail || 'Failed to create offer');
       }
 
+      await trackCreateOffer("Completed");
       onOfferCreated();
     } catch (error) {
+      await trackCreateOffer("Failed");
       console.error('Error creating offer:', error);
       setError(error instanceof Error ? error.message : 'Failed to create offer');
     } finally {

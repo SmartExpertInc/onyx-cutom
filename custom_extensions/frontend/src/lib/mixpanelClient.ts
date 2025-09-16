@@ -151,6 +151,19 @@ export const trackSmartEdit = async (action: string) => {
   );
 };
 
+export const trackCreateOffer = async (action: string) => {
+  const props = {
+    "Feature Category": "Offers",
+    "Action": action
+  };
+
+  await track(
+    "Create Offer", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
 export const trackConnector = async (action: string, connectorId: string, connectorName: string) => {
   const props = {
     "Feature Category": "Smart Drive",
