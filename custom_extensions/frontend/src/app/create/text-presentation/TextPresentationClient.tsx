@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit } from "lucide-react";
@@ -15,34 +16,40 @@ import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/prom
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
-// Custom Tooltip Component with thought cloud style
+// Custom Tooltip Component with thought cloud style using React Portal
 const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
+  const handleMouseEnter = () => {
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
       setPosition({
-        top: rect.top - 10, // Position above the element
-        left: rect.left + rect.width / 2 // Center horizontally
+        top: rect.top - 10,
+        left: rect.left + rect.width / 2
       });
     }
     setIsVisible(true);
   };
 
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
   return (
-    <div 
-      ref={elementRef}
-      className="relative inline-block w-full"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setIsVisible(false)}
-    >
-      {children}
-      {isVisible && (
+    <>
+      <div 
+        ref={elementRef}
+        className="relative inline-block w-full"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+      {isVisible && typeof window !== 'undefined' && createPortal(
         <div 
-          className="fixed z-[9999] pointer-events-none"
+          className="fixed z-50 pointer-events-none"
           style={{
             top: `${position.top}px`,
             left: `${position.left}px`,
@@ -56,9 +63,10 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
               <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-blue-500"></div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 };
 
