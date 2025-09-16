@@ -284,7 +284,7 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                    <div className={`w-6 h-6 rounded-full ${
+                    <div className={`w-10 h-10 rounded-full ${
                       isActive ? 'bg-green-500' : 
                       isPaused ? 'bg-yellow-500' : 
                       isInvalid ? 'bg-red-500' : 'bg-gray-500'
@@ -293,14 +293,14 @@ export default function ConnectorManagementPage({
                 
                 {/* Text section */}
                 <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-                  <h3 className={`text-lg font-semibold ${
+                  <h3 className={`text-xl font-semibold ${
                     isActive ? 'text-green-600' : 
                     isPaused ? 'text-yellow-600' : 
                     isInvalid ? 'text-red-600' : 'text-gray-600'
                   }`}>
                     {t('interface.connectorStatus', 'Status')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-600">
+                  <p className="text-lg font-bold text-gray-600">
                     {ccPair.status}
                   </p>
                 </div>
@@ -315,15 +315,15 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                    <FileText size={30} className="text-blue-600" />
+                    <FileText size={40} className="text-blue-600" />
                 </div>
                 
                 {/* Text section */}
                 <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-                  <h3 className="text-lg font-semibold text-blue-600">
+                  <h3 className="text-xl font-semibold text-blue-600">
                     {t('interface.documentsIndexed', 'Documents Indexed')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-600">
+                  <p className="text-lg font-bold text-gray-600">
                     {ccPair.num_docs_indexed.toLocaleString()}
                   </p>
                 </div>
@@ -338,15 +338,15 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                    <Clock size={30} className="text-purple-600" />
+                    <Clock size={40} className="text-purple-600" />
                 </div>
                 
                 {/* Text section */}
                 <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-                  <h3 className="text-lg font-semibold text-purple-600">
+                  <h3 className="text-xl font-semibold text-purple-600">
                     {t('interface.lastIndexed', 'Last Indexed')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-600">
+                  <p className="text-lg font-bold text-gray-600">
                     {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
                   </p>
                 </div>
