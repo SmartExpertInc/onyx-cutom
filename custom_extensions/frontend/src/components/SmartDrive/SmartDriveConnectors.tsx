@@ -658,7 +658,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                            </div>
                          </div>
                        ) : (
-                         <button
+                         <Button
+                           variant="outline"
                            onClick={(e) => {
                              e.stopPropagation();
                              console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
@@ -672,10 +673,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                }, 500);
                              }
                            }}
-                           className="px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                           className="px-4 py-2.5"
                          >
                            {t('interface.manage', 'Manage')}
-                         </button>
+                         </Button>
                        )}
                      </div>
                    )}
@@ -816,7 +817,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                 </div>
                               </div>
                             ) : (
-                              <button
+                              <Button
+                                variant="outline"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
@@ -830,10 +832,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                     }, 500);
                                   }
                                 }}
-                                className="flex items-center gap-1 text-xs font-medium px-3 py-2 bg-gray-100 text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                                className="flex items-center gap-1 px-3 py-2"
                               >
                                 {t('interface.manage', 'Manage')}
-                              </button>
+                              </Button>
                             )}
                           </div>
                         )}

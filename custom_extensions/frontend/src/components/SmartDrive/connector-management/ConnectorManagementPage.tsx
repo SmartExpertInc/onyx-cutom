@@ -273,7 +273,7 @@ export default function ConnectorManagementPage({
           {/* Status and Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Status Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg">
               {/* Gradient at top right corner */}
               <div className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br rounded-bl-3xl opacity-60 ${
                 isActive ? 'from-green-300 to-emerald-200' : 
@@ -284,17 +284,11 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    isActive ? 'bg-green-100' : 
-                    isPaused ? 'bg-yellow-100' : 
-                    isInvalid ? 'bg-red-100' : 'bg-gray-100'
-                  }`}>
                     <div className={`w-6 h-6 rounded-full ${
                       isActive ? 'bg-green-500' : 
                       isPaused ? 'bg-yellow-500' : 
                       isInvalid ? 'bg-red-500' : 'bg-gray-500'
                     }`}></div>
-                  </div>
                 </div>
                 
                 {/* Text section */}
@@ -306,7 +300,7 @@ export default function ConnectorManagementPage({
                   }`}>
                     {t('interface.connectorStatus', 'Status')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-gray-700">
                     {ccPair.status}
                   </p>
                 </div>
@@ -314,16 +308,14 @@ export default function ConnectorManagementPage({
             </div>
 
             {/* Documents Indexed Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg">
               {/* Gradient at top right corner */}
               <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-blue-300 to-indigo-200 rounded-bl-3xl opacity-60" />
               
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-100">
-                    <FileText size={24} className="text-blue-600" />
-                  </div>
+                    <FileText size={26} className="text-blue-600" />
                 </div>
                 
                 {/* Text section */}
@@ -331,7 +323,7 @@ export default function ConnectorManagementPage({
                   <h3 className="text-lg font-semibold text-blue-600">
                     {t('interface.documentsIndexed', 'Documents Indexed')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-gray-700">
                     {ccPair.num_docs_indexed.toLocaleString()}
                   </p>
                 </div>
@@ -339,16 +331,14 @@ export default function ConnectorManagementPage({
             </div>
 
             {/* Last Indexed Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg">
               {/* Gradient at top right corner */}
               <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-purple-300 to-pink-200 rounded-bl-3xl opacity-60" />
               
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-100">
-                    <Clock size={24} className="text-purple-600" />
-                  </div>
+                    <Clock size={26} className="text-purple-600" />
                 </div>
                 
                 {/* Text section */}
@@ -356,7 +346,7 @@ export default function ConnectorManagementPage({
                   <h3 className="text-lg font-semibold text-purple-600">
                     {t('interface.lastIndexed', 'Last Indexed')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-gray-700">
                     {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
                   </p>
                 </div>
@@ -368,9 +358,7 @@ export default function ConnectorManagementPage({
           {isInvalid && (
             <div className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-xl">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                   <AlertCircle className="w-5 h-5 text-red-600" />
-                </div>
                 <div>
                   <h3 className="text-lg font-semibold text-red-800">{t('interface.connectorInvalidState', 'Connector is in an invalid state')}</h3>
                   <p className="text-red-700 text-sm mt-1">{t('interface.checkConfigurationAndRetry', 'Please check your configuration and try again.')}</p>
@@ -386,7 +374,7 @@ export default function ConnectorManagementPage({
               onClick={() => handleIndexing(false)}
               disabled={!!tooltipMessage}
               title={tooltipMessage}
-              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg'
@@ -401,7 +389,7 @@ export default function ConnectorManagementPage({
               onClick={() => handleIndexing(true)}
               disabled={!!tooltipMessage}
               title={tooltipMessage}
-              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:from-orange-700 hover:to-red-700 shadow-md hover:shadow-lg'
@@ -415,7 +403,7 @@ export default function ConnectorManagementPage({
             <button
               onClick={handleStatusChange}
               disabled={isDeleting || isIndexing}
-              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
                 isActive 
                   ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700 shadow-md hover:shadow-lg' 
                   : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg'
@@ -430,7 +418,7 @@ export default function ConnectorManagementPage({
               onClick={handleDelete}
               disabled={isDeleting || isIndexing || !isPaused}
               title={!isPaused ? t('interface.connectorMustBePaused', 'Connector must be paused before deletion') : ""}
-              className={`px-6 py-3 rounded-lg flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
                 isDeleting || isIndexing || !isPaused
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg'
@@ -442,10 +430,17 @@ export default function ConnectorManagementPage({
           </div>
 
           {/* Configuration Display */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-xl border border-gray-200">
+          <div className="p-8 rounded-xl border border-blue-200"
+          style={{
+            backgroundColor: 'white',
+            background: `linear-gradient(to top right, white, white, #E8F0FE)`,
+            borderWidth: '1px',
+          }}>
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-gray-600" />
-              {t('interface.configuration', 'Configuration')}
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-100">
+              <Settings className="w-6 h-6 text-blue-600" />
+            </div>
+              <span className="text-blue-600">{t('interface.configuration', 'Configuration')}</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
               <div className="bg-white p-4 rounded-lg border border-gray-200">
