@@ -37,7 +37,7 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => {
 };
 
 export default function QuizClient() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -265,6 +265,24 @@ export default function QuizClient() {
   };
 
   const questionList = parseQuizIntoQuestions(quizData);
+
+  // Function to get the correct plural form for questions
+  const getQuestionPluralForm = (count: number) => {
+    if (language === 'ru') {
+      // Russian pluralization rules
+      if (count === 1) return t('interface.generate.questionSingular', 'вопрос');
+      if (count >= 2 && count <= 4) return t('interface.generate.questionFew', 'вопроса');
+      return t('interface.generate.questionMany', 'вопросов');
+    } else if (language === 'uk') {
+      // Ukrainian pluralization rules
+      if (count === 1) return t('interface.generate.questionSingular', 'питання');
+      if (count >= 2 && count <= 4) return t('interface.generate.questionFew', 'питання');
+      return t('interface.generate.questionMany', 'питань');
+    } else {
+      // English and Spanish use simple pluralization
+      return count === 1 ? t('interface.generate.questionSingular', 'question') : t('interface.generate.questions', 'questions');
+    }
+  };
 
   // Handle question title editing
   const handleTitleEdit = (questionIndex: number, newTitle: string) => {
@@ -1612,8 +1630,8 @@ export default function QuizClient() {
               </div>
               <div className="flex items-center gap-[7.5rem]">
                 <span className="text-lg text-gray-700 font-medium select-none">
-                  {/* This can be word count or removed */}
-                  {quizData.split(/\s+/).length} {t('interface.generate.words', 'words')}
+                  {/* Show question count with proper pluralization */}
+                  {questionList.length} {getQuestionPluralForm(questionList.length)}
                 </span>
                 <button
                   type="button"

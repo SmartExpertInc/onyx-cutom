@@ -1015,6 +1015,7 @@ export const en = {
       generate: "Generate",
       finalizingQuiz: "Finalizing quiz...",
       words: "words",
+      questionSingular: "question",
       // Additional keys for course outline
       courseOutline: "Course Outline",
       videoLesson: "Video Lesson",

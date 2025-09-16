@@ -1345,6 +1345,7 @@ export const es = {
       creatingQuiz: "Creando cuestionario...",
       finalizingQuiz: "Finalizando cuestionario...",
       words: "palabras",
+      questionSingular: "pregunta",
       short: "Corto",
       medium: "Medio",
       long: "Largo",
