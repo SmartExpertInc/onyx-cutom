@@ -1420,20 +1420,20 @@ export default function CourseOutlineClient() {
                            <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
                              <span className="text-lg leading-none select-none">•</span>
                              <div className="relative group flex-grow">
-                               <input
+                               <Input
                                  type="text"
                                  value={titleLine}
                                  onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none p-0 text-sm text-gray-700 focus:outline-none focus:ring-0 cursor-pointer pr-6"
+                                 className="w-full bg-transparent border-none p-0 text-sm text-gray-700 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                />
                                {titleLine && (
                                  <Edit 
                                    size={16} 
-                                   className="absolute top-1/2 right-0 -translate-y-1/2 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                   className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                  />
                                )}
                              </div>
