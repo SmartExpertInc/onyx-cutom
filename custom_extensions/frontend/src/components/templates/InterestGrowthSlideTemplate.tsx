@@ -243,14 +243,15 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           const isBottomLeft = originalIndex === 2;   // Маленький блок с отрицательным margin
           const isBottomRight = originalIndex === 3;  // Большой блок
           
-          const cardMarginTop = isBottomLeft ? -64 : 0;
-          const cardHeight = (isTopLeft || isBottomRight) ? 225 : 160;  // Большие: 225px, маленькие: 160px
+          const cardMarginTop = isBottomLeft ? 0 : 0;
+          const cardMainMarginTop = isBottomRight ? -130 : 0;
+          const cardHeight = (isTopLeft || isBottomRight) ? 290 : 160;  // Большие: 225px, маленькие: 160px
           const percentageFontSize = (isTopRight || isBottomLeft) ? '48px' : '79px';  // Маленькие: 48px, большие: 79px
           const percentageMinHeight = (isTopRight || isBottomLeft) ? 0 : 88;
           return (
           <div
             key={i}
-            style={{ ...cardStyle, height: `${cardHeight}px`, marginTop: `${cardMarginTop}px` }}
+            style={{ ...cardStyle, height: `${cardHeight}px`, marginTop: `${cardMainMarginTop}px`, borderRadius: '5px' }}
             onMouseEnter={(e) => {
               const btn = e.currentTarget.querySelector('.card-delete-btn') as HTMLElement | null;
               if (btn) btn.style.opacity = '1';
