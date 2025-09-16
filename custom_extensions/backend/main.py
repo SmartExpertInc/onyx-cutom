@@ -24874,7 +24874,7 @@ async def get_smartdrive_login_credentials(
 
                     raw_id = str(row["onyx_user_id"])  # uuid or string
                     sanitized = re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
-                    userid = f"onyx_{sanitized[:24]}"
+                    userid = f"sd_{sanitized[:24]}"
                     new_password = secrets.token_urlsafe(16)
 
                     async with httpx.AsyncClient(timeout=30.0) as client:
