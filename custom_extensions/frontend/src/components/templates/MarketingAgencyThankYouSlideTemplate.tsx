@@ -287,7 +287,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       <div style={{
         position: 'absolute',
         top: '120px',
-        left: '0px',
+        left: '60px',
         right: '60px',
         bottom: '10px',
         display: 'flex',
@@ -406,8 +406,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
-        left: '60px',
+        bottom: '20px',
+        left: '0',
         display: 'flex',
         alignItems: 'center',
         gap: '8px'

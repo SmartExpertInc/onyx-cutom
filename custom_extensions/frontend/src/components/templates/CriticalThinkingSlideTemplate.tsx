@@ -30,9 +30,13 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingContent, setEditingContent] = useState(false);
   const [editingHighlightedPhrases, setEditingHighlightedPhrases] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentContent, setCurrentContent] = useState(content);
   const [currentHighlightedPhrases, setCurrentHighlightedPhrases] = useState(highlightedPhrases);
+  const [currentPageNumber, setCurrentPageNumber] = useState('04');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
@@ -43,14 +47,13 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffffff', // Light grey background as per screenshot
+    backgroundColor: '#E0E7FF', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     padding: '40px 60px',
-    border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
   // Content block styles
@@ -60,7 +63,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     left: '15px',
     right: '15px',
     bottom: '80px', // Leave space for logo at bottom
-    backgroundColor: '#EDEDED', // Darker grey for content block
+    backgroundColor: '#E0E7FF', // Darker grey for content block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
@@ -122,6 +125,22 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     }
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, highlightedPhrases, profileImagePath, profileImageAlt, companyLogoPath, companyLogoAlt, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, content, highlightedPhrases, profileImagePath, profileImageAlt, companyLogoPath, companyLogoAlt, backgroundColor, titleColor, contentColor, accentColor }, yourLogoText: newYourLogoText });
+    }
+  };
+
   // Function to render content with highlighted phrases
   const renderContentWithHighlights = () => {
     let contentText = currentContent;
@@ -145,8 +164,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           <span
             key={`highlight-${index}`}
             style={{
-              backgroundColor: '#E8CCC6', // Light red/orange background as per screenshot
-              color: '#DA8372', // Red/orange text color as per screenshot
+              backgroundColor: '#0F58F9', // Light red/orange background as per screenshot
+              color: '#ffffff', // Red/orange text color as per screenshot
               opacity: 1,
               padding: '0px 10px',
               borderRadius: '3px'
@@ -196,7 +215,102 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   };
 
   return (
-    <div className="critical-thinking-slide-template inter-theme" style={slideStyles}>
+    <div className="critical-thinking-slide-template" style={slideStyles}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#000000',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#000000',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Content Block - contains everything except logo */}
       <div style={contentBlockStyles}>
         {/* Profile Image - Top Left with orange background */}
@@ -237,7 +351,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           top: '55px',
           left: '300px',
           fontSize: '38px',
-          color: '#646464', // Dark grey color as per screenshot
+          color: '#09090B', // Dark grey color as per screenshot
           lineHeight: '1.2',
           whiteSpace: 'pre-line',
           minHeight: '60px',
@@ -245,6 +359,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           display: 'flex',
           alignItems: 'flex-start',
           overflow: 'hidden',
+          width: '485px',
         }}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
@@ -255,7 +370,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               className="critical-thinking-title-editor"
               style={{
                 fontSize: '38px',
-                color: '#646464',
+                color: '#09090B',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 width: '100%',
@@ -275,7 +390,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 display: 'flex',
                 alignItems: 'flex-start',
                 fontSize: '38px',
-                color: '#646464',
+                color: '#09090B',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
                 minHeight: '60px',
@@ -290,8 +405,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
 
         {/* Content */}
         <div style={{
-          fontSize: '38px',
-          color: '#646464', // Dark grey color as per screenshot
+          fontSize: '34px',
+          color: '#09090B', // Dark grey color as per screenshot
           lineHeight: '1.6',
           maxWidth: '700px',
           minHeight: '40px',
@@ -309,8 +424,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-content-editor"
               style={{
-                fontSize: '38px',
-                color: '#646464',
+                fontSize: '34px',
+                color: '#09090B',
                 lineHeight: '1.6',
                 maxWidth: '700px',
                 width: '100%',
@@ -324,8 +439,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                fontSize: '38px',
-                color: '#646464',
+                fontSize: '34px',
+                color: '#09090B',
                 lineHeight: '1.6',
                 maxWidth: '700px',
                 minHeight: '40px',
@@ -338,65 +453,51 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         </div>
       </div>
 
-      {/* Company Logo - Bottom Left, below content block */}
+      {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '15px',
-        left: '15px',
+        bottom: '20px',
+        left: '0',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
+        gap: '8px'
       }}>
-        {currentCompanyLogoPath ? (
-          <ClickableImagePlaceholder
-            imagePath={currentCompanyLogoPath}
-            onImageUploaded={handleCompanyLogoUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
             style={{
-              width: '60px',
-              height: '30px',
-              objectFit: 'contain'
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
             }}
           />
         ) : (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            cursor: isEditable ? 'pointer' : 'default'
-          }}
-          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
           >
-            <div style={{
-              width: '30px',
-              height: '30px',
-              border: `2px solid #4A4A4A`, // Dark grey border as per screenshot
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{
-                width: '12px',
-                height: '2px',
-                backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
-                position: 'absolute'
-              }} />
-              <div style={{
-                width: '2px',
-                height: '12px',
-                backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)'
-              }} />
-            </div>
-            <span style={{ fontSize: '14px', fontWeight: '300', color: '#4A4A4A' }}>Your Logo</span>
+            {currentPageNumber}
           </div>
         )}
       </div>
