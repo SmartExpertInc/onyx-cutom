@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
@@ -15,7 +15,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -451,7 +450,6 @@ export default function CourseOutlineClient() {
         setLessonsPerModule(parsedData.lessonsPerModule);
         setLanguage(parsedData.language);
         setChatId(parsedData.chatId);
-        setFilters(parsedData.filters);
         setRawOutline(parsedData.rawOutline || "");
         lastPreviewParamsRef.current = {
           prompt: parsedData.prompt,
@@ -860,12 +858,8 @@ export default function CourseOutlineClient() {
         throw new Error("Invalid response from server: missing project ID");
       }
 
-      // Build query params to encode which additional info columns should be shown in the product view
+      // Build query params for the product view
       const qp = new URLSearchParams();
-      qp.set("knowledgeCheck", filters.knowledgeCheck ? "1" : "0");
-      qp.set("contentAvailability", filters.contentAvailability ? "1" : "0");
-      qp.set("informationSource", filters.informationSource ? "1" : "0");
-      qp.set("time", filters.time ? "1" : "0");
 
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
@@ -969,28 +963,7 @@ export default function CourseOutlineClient() {
     });
   };
 
-  // Extra boolean filters (all true by default)
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState(() => ({
-    knowledgeCheck: params?.get("knowledgeCheck") === "0" ? false : true,
-    contentAvailability: params?.get("contentAvailability") === "0" ? false : true,
-    informationSource: params?.get("informationSource") === "0" ? false : true,
-    time: params?.get("time") === "0" ? false : true,
-  }));
 
-  // Ref for closing the dropdown when clicking outside
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showFilters) return;
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowFilters(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showFilters]);
 
   // Total characters in editable outline preview (titles + lessons)
   const charCount = useMemo(() => {
@@ -1278,45 +1251,6 @@ export default function CourseOutlineClient() {
             </SelectContent>
           </Select>
 
-          {/* Additional Info dropdown */}
-          <DropdownMenu open={showFilters} onOpenChange={setShowFilters}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9 flex items-center gap-2"
-              >
-                {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} className="text-gray-500 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              className="w-56 p-2 border border-gray-300 rounded-lg shadow-lg" 
-              align="start"
-              style={{ backgroundColor: 'white' }}
-            >
-              {[
-                { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
-                { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
-                { key: "informationSource", label: t('interface.courseOutline.source', 'Source') },
-                { key: "time", label: t('interface.courseOutline.productionHours', 'Production Hours') },
-              ].map(({ key, label }) => (
-                // @ts-ignore dynamic key
-                <label key={key} className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                    // @ts-ignore dynamic key
-                    checked={filters[key]}
-                    onChange={() =>
-                      // @ts-ignore dynamic key
-                      setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
-                    }
-                  />
-                  <span className="text-sm">{label}</span>
-                </label>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
 
         {/* Prompt textarea with regenerate button */}
@@ -1433,7 +1367,7 @@ export default function CourseOutlineClient() {
                                {titleLine && (
                                  <Edit 
                                    size={16} 
-                                   className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                   className="absolute top-[10px] right-[12px] text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
                                  />
                                )}
                              </div>
