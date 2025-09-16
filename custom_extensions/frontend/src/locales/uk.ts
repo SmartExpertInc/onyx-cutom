@@ -1265,6 +1265,17 @@ export const uk = {
       sectionBreaks: "Розриви розділів",
       icons: "Іконки",
       importantSections: "Важливі розділи",
+      // Style purposes for tooltips
+      headlinesPurpose: "Заголовки розділів та підзаголовки",
+      paragraphsPurpose: "Звичайні текстові блоки",
+      bulletListsPurpose: "Немарковані списки з точками",
+      numberedListsPurpose: "Упорядковані списки з номерами",
+      tablesPurpose: "Дані в рядках та стовпцях",
+      alertsPurpose: "Важливі попередження або поради",
+      recommendationsPurpose: "Практичні поради",
+      sectionBreaksPurpose: "Візуальні роздільники між розділами",
+      iconsPurpose: "Емодзі та візуальні елементи",
+      importantSectionsPurpose: "Виділений критичний контент",
       // One-pager specific translations
       onePagerContent: "Контент Однієї Сторінки",
       generatingOnePagerContent: "Генерація контенту однієї сторінки...",

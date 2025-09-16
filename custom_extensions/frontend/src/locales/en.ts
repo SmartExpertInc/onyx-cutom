@@ -1051,6 +1051,17 @@ export const en = {
       sectionBreaks: "Section Breaks",
       icons: "Icons",
       importantSections: "Important Sections",
+      // Style purposes for tooltips
+      headlinesPurpose: "Section titles and headings",
+      paragraphsPurpose: "Regular text blocks",
+      bulletListsPurpose: "Unordered lists with bullet points",
+      numberedListsPurpose: "Ordered lists with numbers",
+      tablesPurpose: "Data in rows and columns",
+      alertsPurpose: "Important warnings or tips",
+      recommendationsPurpose: "Actionable advice",
+      sectionBreaksPurpose: "Visual separators between sections",
+      iconsPurpose: "Emojis and visual elements",
+      importantSectionsPurpose: "Highlighted critical content",
       // One-pager specific translations
       yesContentForOnePager: "Yes, content for the one-pager from the outline",
       noStandaloneOnePager: "No, I want standalone one-pager",

@@ -1284,6 +1284,17 @@ export const es = {
       sectionBreaks: "Saltos de sección",
       icons: "Iconos",
       importantSections: "Secciones importantes",
+      // Style purposes for tooltips
+      headlinesPurpose: "Títulos de sección y encabezados",
+      paragraphsPurpose: "Bloques de texto regulares",
+      bulletListsPurpose: "Listas desordenadas con viñetas",
+      numberedListsPurpose: "Listas ordenadas con números",
+      tablesPurpose: "Datos en filas y columnas",
+      alertsPurpose: "Advertencias o consejos importantes",
+      recommendationsPurpose: "Consejos prácticos",
+      sectionBreaksPurpose: "Separadores visuales entre secciones",
+      iconsPurpose: "Emojis y elementos visuales",
+      importantSectionsPurpose: "Contenido crítico resaltado",
       // One-pager specific translations
       onePagerContent: "Contenido de Una Página",
       generatingOnePagerContent: "Generando contenido de una página...",

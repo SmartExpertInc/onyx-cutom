@@ -1274,6 +1274,17 @@ export const ru = {
       sectionBreaks: "Разрывы разделов",
       icons: "Иконки",
       importantSections: "Важные разделы",
+      // Style purposes for tooltips
+      headlinesPurpose: "Заголовки разделов и подзаголовки",
+      paragraphsPurpose: "Обычные текстовые блоки",
+      bulletListsPurpose: "Немаркированные списки с точками",
+      numberedListsPurpose: "Упорядоченные списки с номерами",
+      tablesPurpose: "Данные в строках и столбцах",
+      alertsPurpose: "Важные предупреждения или советы",
+      recommendationsPurpose: "Практические советы",
+      sectionBreaksPurpose: "Визуальные разделители между разделами",
+      iconsPurpose: "Эмодзи и визуальные элементы",
+      importantSectionsPurpose: "Выделенный критический контент",
       // One-pager specific translations
       onePagerContent: "Контент Одной Страницы",
       generatingOnePagerContent: "Генерация контента одной страницы...",

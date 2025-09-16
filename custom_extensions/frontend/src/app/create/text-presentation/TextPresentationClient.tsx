@@ -15,6 +15,32 @@ import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/prom
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
+// Custom Tooltip Component with thought cloud style
+const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div 
+      className="relative inline-block"
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 z-50 animate-in fade-in-0 zoom-in-95 duration-200">
+          <div className="bg-blue-500 text-white px-4 py-3 rounded-2xl shadow-xl text-sm whitespace-nowrap relative max-w-xs">
+            <div className="font-medium">{content}</div>
+            {/* Simple triangle tail */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+              <div className="w-0 h-0 border-l-6 border-r-6 border-t-6 border-l-transparent border-r-transparent border-t-blue-500"></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LoadingAnimation: React.FC<{ message?: string; fallbackMessage?: string }> = ({ message, fallbackMessage }) => (
   <div className="flex flex-col items-center mt-4" aria-label="Loading">
     <div className="flex gap-1 mb-2">
@@ -975,7 +1001,7 @@ export default function TextPresentationClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, length, selectedStyles, prompt, language]);
 
 
@@ -1190,16 +1216,16 @@ export default function TextPresentationClient() {
   ];
 
   const stylePurposes = {
-    headlines: 'Section titles and headings',
-    paragraphs: 'Regular text blocks',
-    bullet_lists: 'Unordered lists with bullet points',
-    numbered_lists: 'Ordered lists with numbers',
-    tables: 'Data in rows and columns',
-    alerts: 'Important warnings or tips',
-    recommendations: 'Actionable advice',
-    section_breaks: 'Visual separators between sections',
-    icons: 'Emojis and visual elements',
-    important_sections: 'Highlighted critical content'
+    headlines: t('interface.generate.headlinesPurpose', 'Section titles and headings'),
+    paragraphs: t('interface.generate.paragraphsPurpose', 'Regular text blocks'),
+    bullet_lists: t('interface.generate.bulletListsPurpose', 'Unordered lists with bullet points'),
+    numbered_lists: t('interface.generate.numberedListsPurpose', 'Ordered lists with numbers'),
+    tables: t('interface.generate.tablesPurpose', 'Data in rows and columns'),
+    alerts: t('interface.generate.alertsPurpose', 'Important warnings or tips'),
+    recommendations: t('interface.generate.recommendationsPurpose', 'Actionable advice'),
+    section_breaks: t('interface.generate.sectionBreaksPurpose', 'Visual separators between sections'),
+    icons: t('interface.generate.iconsPurpose', 'Emojis and visual elements'),
+    important_sections: t('interface.generate.importantSectionsPurpose', 'Highlighted critical content')
   };
   const lengthOptions = [
     { value: "short", label: t('interface.generate.short', 'Short') },
@@ -1415,25 +1441,26 @@ export default function TextPresentationClient() {
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
-                              <label 
+                              <CustomTooltip 
                                 key={option.value} 
-                                className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer"
-                                title={stylePurposes[option.value as keyof typeof stylePurposes]}
+                                content={stylePurposes[option.value as keyof typeof stylePurposes]}
                               >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedStyles.includes(option.value)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedStyles([...selectedStyles, option.value]);
-                                    } else {
-                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                    }
-                                  }}
-                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm">{option.label}</span>
-                              </label>
+                                <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedStyles.includes(option.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedStyles([...selectedStyles, option.value]);
+                                      } else {
+                                        setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                      }
+                                    }}
+                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <span className="text-sm">{option.label}</span>
+                                </label>
+                              </CustomTooltip>
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1495,25 +1522,26 @@ export default function TextPresentationClient() {
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
-                          <label 
+                          <CustomTooltip 
                             key={option.value} 
-                            className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer"
-                            title={stylePurposes[option.value as keyof typeof stylePurposes]}
+                            content={stylePurposes[option.value as keyof typeof stylePurposes]}
                           >
-                            <input
-                              type="checkbox"
-                              checked={selectedStyles.includes(option.value)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedStyles([...selectedStyles, option.value]);
-                                } else {
-                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                }
-                              }}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm">{option.label}</span>
-                          </label>
+                            <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selectedStyles.includes(option.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedStyles([...selectedStyles, option.value]);
+                                  } else {
+                                    setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                  }
+                                }}
+                                className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm">{option.label}</span>
+                            </label>
+                          </CustomTooltip>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
