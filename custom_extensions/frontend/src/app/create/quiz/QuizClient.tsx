@@ -647,7 +647,7 @@ export default function QuizClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, selectedQuestionCount, selectedQuestionTypes, prompt, language]);
 
   // Fetch lessons when a course outline is selected

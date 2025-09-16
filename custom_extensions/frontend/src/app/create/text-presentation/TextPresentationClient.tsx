@@ -18,21 +18,42 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/c
 // Custom Tooltip Component with thought cloud style
 const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    if (elementRef.current) {
+      const rect = elementRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.top - 10, // Position above the element
+        left: rect.left + rect.width / 2 // Center horizontally
+      });
+    }
+    setIsVisible(true);
+  };
 
   return (
     <div 
-      className="relative inline-block"
-      onMouseEnter={() => setIsVisible(true)}
+      ref={elementRef}
+      className="relative inline-block w-full"
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsVisible(false)}
     >
       {children}
       {isVisible && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 z-50 animate-in fade-in-0 zoom-in-95 duration-200">
-          <div className="bg-blue-500 text-white px-4 py-3 rounded-2xl shadow-xl text-sm whitespace-nowrap relative max-w-xs">
+        <div 
+          className="fixed z-[9999] pointer-events-none"
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div className="bg-blue-500 text-white px-2 py-1.5 rounded-md shadow-lg text-sm whitespace-nowrap relative max-w-xs">
             <div className="font-medium">{content}</div>
             {/* Simple triangle tail */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-              <div className="w-0 h-0 border-l-6 border-r-6 border-t-6 border-l-transparent border-r-transparent border-t-blue-500"></div>
+              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-blue-500"></div>
             </div>
           </div>
         </div>

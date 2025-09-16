@@ -435,7 +435,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, modules, lessonsPerModule, prompt, language]);
 
   // Kick off chat-session creation on first mount when absent.
@@ -487,7 +487,7 @@ export default function CourseOutlineClient() {
       }
     };
     createChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)

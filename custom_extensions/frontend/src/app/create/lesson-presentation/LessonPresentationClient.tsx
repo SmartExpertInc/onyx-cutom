@@ -445,7 +445,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, slidesCount, lengthOption, params, language]);
 
   // Fetch lessons when a course outline is selected
