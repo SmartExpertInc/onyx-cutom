@@ -97,6 +97,10 @@ export default function DynamicAuditLandingPage() {
 
   // Helper function to generate random assessment type and duration
   const getRandomAssessment = () => {
+    // 📊 DETAILED LOGGING: Language parameter usage in conditional rendering
+    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "${landingPageData?.language}"`)
+    console.log(`🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': ${landingPageData?.language === 'en'}`)
+    
     const assessments = landingPageData?.language === 'en' ? ['none', 'test', 'practice'] : ['нет', 'тест', 'практика']
     const durations = landingPageData?.language === 'en' ? ['3 min', '4 min', '5 min', '6 min', '7 min', '8 min'] : ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
     
@@ -198,6 +202,11 @@ export default function DynamicAuditLandingPage() {
         console.log(`📥 [FRONTEND DATA FLOW] - Company Description: "${data.companyDescription}"`)
         console.log(`📥 [FRONTEND DATA FLOW] - Job Positions Count: ${data.jobPositions?.length || 0}`)
         
+        // 📊 DETAILED LOGGING: Language parameter received from API
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data - language: "${data.language}"`)
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data keys:`, Object.keys(data))
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data type:`, typeof data.language)
+        
         if (data.jobPositions && data.jobPositions.length > 0) {
           console.log(`📥 [FRONTEND DATA FLOW] Job Positions:`)
           data.jobPositions.forEach((position: any, index: number) => {
@@ -207,6 +216,10 @@ export default function DynamicAuditLandingPage() {
         
         setLandingPageData(data)
         console.log(`✅ [FRONTEND DATA FLOW] Landing page data set successfully`)
+        
+        // 📊 DETAILED LOGGING: Language parameter after setting state
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "${data.language}"`)
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering`)
         
       } catch (err) {
         console.error(`❌ [FRONTEND DATA FLOW] Error occurred:`, err)

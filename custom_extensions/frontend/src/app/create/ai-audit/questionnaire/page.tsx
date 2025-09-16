@@ -138,6 +138,9 @@ export default function AiAuditQuestionnaire() {
         language: selectedLanguage,
       };
       
+      // 📊 DETAILED LOGGING: Language selection in form
+      console.log(`🔍 [LANGUAGE FLOW DEBUG] Form submission - selectedLanguage:`, selectedLanguage);
+      console.log(`🔍 [LANGUAGE FLOW DEBUG] Form submission - payload.language:`, payload.language);
       console.log(`📡 [FRONTEND DATA FLOW] Sending minimal payload:`, payload);
       
       const res = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/generate`, {
@@ -194,6 +197,10 @@ export default function AiAuditQuestionnaire() {
         companyWebsite,
         language: selectedLanguage,
       };
+      
+      // 📊 DETAILED LOGGING: Language selection in landing page generation
+      console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page generation - selectedLanguage:`, selectedLanguage);
+      console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page generation - payload.language:`, payload.language);
       
       // 📊 LOG: API request details
       console.log(`📡 [FRONTEND DATA FLOW] Making API request to: ${apiUrl}`)
