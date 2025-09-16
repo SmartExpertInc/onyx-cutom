@@ -14,9 +14,9 @@
   font-family: 'Lora', serif;
 }
 
-/* Force Lora everywhere */
+/* Inter as default font for non-slide components */
 * {
-  font-family: 'Lora', serif !important;
+  font-family: 'Inter', sans-serif;
 }
 
 *, *::before, *::after {
@@ -34,7 +34,9 @@ html, body {
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
 }
 
 img, picture, video, canvas, svg {

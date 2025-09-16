@@ -216,7 +216,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
   };
 
   return (
-    <div className="work-life-balance-slide-template inter-theme" style={slideStyles}>
+    <div className="work-life-balance-slide-template" style={slideStyles}>
       {/* Left Content Area */}
       <div style={{
         width: '60%',
@@ -436,11 +436,11 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Arch background */}
         <div style={{
           position: 'absolute',
-          right: '-18px',
-          top: '11%',
+          right: '0px',
+          bottom: '0',
           transform: 'rotate(90deg)',
-          width: '125%',
-          height: '77%',
+          width: '116%',
+          height: '74%',
           backgroundColor: '#ffffff',
           borderRadius: '50% 0 0 50%',
           zIndex: 1

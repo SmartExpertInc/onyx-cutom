@@ -78,6 +78,8 @@
 body {
   color: var(--foreground);
   font-family: 'Inter', Arial, Helvetica, sans-serif;
+  font-weight: 500;
+  font-size: 18px;
 }
 /* Styles for Project Table Expand/Collapse */
 
@@ -269,7 +271,7 @@ body:has([aria-modal="true"]) [draggable="true"] {
 
 /* Base styles for code blocks */
 
-/* Apply Inter to all slide templates by default */
+/* Apply Lora Variable to slide templates */
 .slide-content,
 .slide-title,
 .slide-text,
@@ -279,14 +281,15 @@ body:has([aria-modal="true"]) [draggable="true"] {
 .professional-headline .heading-text,
 .professional-bullet-item,
 .professional-numbered-item {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500 !important;
+  font-family: 'Lora Variable', 'Lora', serif !important;
+  font-weight: 400 !important;
 }
 
-/* Inter Font Classes for All Slides */
+/* Inter Font Classes for Non-Slide Components */
 .inter-theme {
   font-family: 'Inter', sans-serif;
   font-weight: 500;
+  font-size: 18px;
 }
 
 .inter-theme h1,
@@ -297,6 +300,7 @@ body:has([aria-modal="true"]) [draggable="true"] {
 .inter-theme .slide-title-display {
   font-family: 'Inter', sans-serif !important;
   font-weight: 600 !important;
+  font-size: 18px;
 }
 
 .inter-theme p,
@@ -310,4 +314,5 @@ body:has([aria-modal="true"]) [draggable="true"] {
 .inter-theme .number-text {
   font-family: 'Inter', sans-serif !important;
   font-weight: 500 !important;
+  font-size: 18px;
 }
