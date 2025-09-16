@@ -7,6 +7,7 @@ import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Setti
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
@@ -1423,7 +1424,7 @@ export default function QuizClient() {
                           <div className="mb-2">
                             {editingQuestionId === idx ? (
                               <div className="relative group">
-                                <input
+                                <Input
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
