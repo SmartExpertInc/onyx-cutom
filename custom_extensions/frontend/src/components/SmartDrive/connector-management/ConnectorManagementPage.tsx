@@ -5,6 +5,7 @@ import { CCPairFullInfo, ConnectorCredentialPairStatus, statusIsNotCurrentlyActi
 import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
 import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Settings, FileText, Clock } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -284,7 +285,7 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                    <div className={`w-10 h-10 rounded-full ${
+                    <div className={`w-6 h-6 rounded-full ${
                       isActive ? 'bg-green-500' : 
                       isPaused ? 'bg-yellow-500' : 
                       isInvalid ? 'bg-red-500' : 'bg-gray-500'
@@ -370,11 +371,11 @@ export default function ConnectorManagementPage({
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mb-8">
             {/* Index Button */}
-            <button
+            <Button
               onClick={() => handleIndexing(false)}
               disabled={!!tooltipMessage}
               title={tooltipMessage}
-              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg'
@@ -382,14 +383,14 @@ export default function ConnectorManagementPage({
             >
               <RefreshCwIcon className="w-5 h-5" />
               {t('interface.index', 'Index')}
-            </button>
+            </Button>
 
             {/* Full Re-index Button */}
-            <button
+            <Button
               onClick={() => handleIndexing(true)}
               disabled={!!tooltipMessage}
               title={tooltipMessage}
-              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:from-orange-700 hover:to-red-700 shadow-md hover:shadow-lg'
@@ -397,13 +398,13 @@ export default function ConnectorManagementPage({
             >
               <RefreshCwIcon className="w-5 h-5" />
               {t('interface.fullReindex', 'Full Re-index')}
-            </button>
+            </Button>
 
             {/* Pause/Resume Button */}
-            <button
+            <Button
               onClick={handleStatusChange}
               disabled={isDeleting || isIndexing}
-              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 isActive 
                   ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700 shadow-md hover:shadow-lg' 
                   : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg'
@@ -411,14 +412,14 @@ export default function ConnectorManagementPage({
             >
               {isActive ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
               {isActive ? t('interface.pause', 'Pause') : t('interface.resume', 'Resume')}
-            </button>
+            </Button>
 
             {/* Delete Button */}
-            <button
+            <Button
               onClick={handleDelete}
               disabled={isDeleting || isIndexing || !isPaused}
               title={!isPaused ? t('interface.connectorMustBePaused', 'Connector must be paused before deletion') : ""}
-              className={`px-6 py-3 rounded-full flex items-center gap-3 font-medium transition-all duration-200 ${
+              className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 isDeleting || isIndexing || !isPaused
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg'
@@ -426,11 +427,11 @@ export default function ConnectorManagementPage({
             >
               <Trash2Icon className="w-5 h-5" />
               {t('interface.delete', 'Delete')}
-            </button>
+            </Button>
           </div>
 
           {/* Configuration Display */}
-          <div className="p-8 rounded-xl border border-blue-200"
+          <div className="p-8 rounded-xl border border-blue-200 shadow-lg"
           style={{
             backgroundColor: 'white',
             background: `linear-gradient(to top right, white, white, #E8F0FE)`,
@@ -443,27 +444,27 @@ export default function ConnectorManagementPage({
               <span className="text-blue-600">{t('interface.configuration', 'Configuration')}</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                 <span className="font-semibold text-gray-900">{t('interface.connectorName', 'Connector Name')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.name}</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                 <span className="font-semibold text-gray-900">{t('interface.source', 'Source')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.source}</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                 <span className="font-semibold text-gray-900">{t('interface.credential', 'Credential')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.credential.name}</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                 <span className="font-semibold text-gray-900">{t('interface.accessType', 'Access Type')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.access_type}</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                 <span className="font-semibold text-gray-900">{t('interface.refreshFrequency', 'Refresh Frequency')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.refresh_freq}s</span>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-md">
                 <span className="font-semibold text-gray-900">{t('interface.pruneFrequency', 'Prune Frequency')}:</span>
                 <span className="text-gray-900 ml-2">{ccPair.connector.prune_freq}s</span>
               </div>
