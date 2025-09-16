@@ -1391,13 +1391,13 @@ export default function CourseOutlineClient() {
                           value={mod.title}
                           onChange={(e) => handleModuleChange(modIdx, e.target.value)}
                           data-modtitle={modIdx}
-                          className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
+                          className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent"
                           placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
                         />
                         {mod.title && (
                           <Edit 
                             size={16} 
-                            className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                            className="absolute top-[23px] right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                           />
                         )}
                       </div>

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
@@ -1399,7 +1400,7 @@ export default function LessonPresentationClient() {
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 relative"
+                className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
                 style={{ animation: 'fadeInDown 0.25s ease-out both' }}
               >
                 {loadingEdit && (
@@ -1455,7 +1456,7 @@ export default function LessonPresentationClient() {
                         <div className="flex-1 p-4">
                           {/* Slide title */}
                           <div className="relative group">
-                            <input
+                            <Input
                               type="text"
                               value={title}
                               onChange={(e) => {
@@ -1470,13 +1471,15 @@ export default function LessonPresentationClient() {
                                 );
                                 setContent(updatedContent);
                               }}
-                              className="text-[#20355D] text-base font-semibold bg-transparent border-none p-0 w-full pr-8 focus:outline-none focus:ring-0 mb-3 cursor-pointer"
+                              className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent"
                               placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                             />
-                            <Edit
-                              size={16}
-                              className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
-                            />
+                            {title && (
+                              <Edit
+                                size={16}
+                                className="absolute top-[23px] right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
