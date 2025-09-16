@@ -870,8 +870,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
       {/* Role Manager Modal */}
       <Dialog open={showRoleManager} onOpenChange={setShowRoleManager}>
-        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-xl border border-gray-200">
+         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-xl border border-gray-200">
           <DialogHeader>
             <DialogTitle>
               {t('interface.roleManager.title', 'Manage Custom Roles')}
@@ -1044,7 +1043,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
             </Button>
           </DialogFooter>
         </DialogContent>
-        </div>
       </Dialog>
     </div>
   );

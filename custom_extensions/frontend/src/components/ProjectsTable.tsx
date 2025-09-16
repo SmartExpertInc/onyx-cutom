@@ -1675,7 +1675,7 @@ const ProjectRowMenu: React.FC<{
       {/* Trash Confirm Modal */}
       {trashConfirmOpen && (
         <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => setTrashConfirmOpen(false)}
         >
           <div
@@ -1704,8 +1704,8 @@ const ProjectRowMenu: React.FC<{
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                variant="blueGradient"
-                className="rounded-full"
+                variant="outline"
+                className="rounded-full bg-white hover:bg-gray-50"
               >
                 {t("actions.outlineOnly", "Outline Only")}
               </Button>
@@ -1726,7 +1726,7 @@ const ProjectRowMenu: React.FC<{
       {/* Rename Modal */}
       {renameModalOpen && (
         <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => {
             if (!isRenaming) setRenameModalOpen(false);
           }}

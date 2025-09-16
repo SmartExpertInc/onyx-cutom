@@ -404,22 +404,6 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                 className="w-full pl-10 pr-4 py-2"
               />
             </div>
-            {/* <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black whitespace-nowrap"
-            >
-              <option value="" className="text-black">{t('interface.allStatuses', 'All Statuses')}</option>
-              <option value="Draft" className="text-black">{t('interface.draft', 'Draft')}</option>
-              <option value="Internal Review" className="text-black">{t('interface.internalReview', 'Internal Review')}</option>
-              <option value="Approved" className="text-black">{t('interface.approved', 'Approved')}</option>
-              <option value="Sent to Client" className="text-black">{t('interface.sentToClient', 'Sent to Client')}</option>
-              <option value="Viewed by Client" className="text-black">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-              <option value="Negotiation" className="text-black">{t('interface.negotiation', 'Negotiation')}</option>
-              <option value="Accepted" className="text-black">{t('interface.accepted', 'Accepted')}</option>
-              <option value="Rejected" className="text-black">{t('interface.rejected', 'Rejected')}</option>
-              <option value="Archived" className="text-black">{t('interface.archived', 'Archived')}</option>
-            </select> */}
           </div>
 
           {/* Create Button */}
@@ -541,41 +525,6 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                           {offer.manager}
                         </div>
                       </td>
-                      {/* <td className="px-6 py-4 whitespace-nowrap">
-                        {editingStatus === offer.id ? (
-                          <select
-                            value={offer.status}
-                            onChange={(e) => updateOfferStatus(offer.id, e.target.value)}
-                            onBlur={() => setEditingStatus(null)}
-                            autoFocus
-                            disabled={updatingStatus === offer.id}
-                            className={`text-xs font-medium border border-gray-300 rounded-full px-2.5 py-0.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 ${statusInfo.bgColor} text-gray-900`}
-                          >
-                            <option value="Draft">{t('interface.draft', 'Draft')}</option>
-                            <option value="Internal Review">{t('interface.internalReview', 'Internal Review')}</option>
-                            <option value="Approved">{t('interface.approved', 'Approved')}</option>
-                            <option value="Sent to Client">{t('interface.sentToClient', 'Sent to Client')}</option>
-                            <option value="Viewed by Client">{t('interface.viewedByClient', 'Viewed by Client')}</option>
-                            <option value="Negotiation">{t('interface.negotiation', 'Negotiation')}</option>
-                            <option value="Accepted">{t('interface.accepted', 'Accepted')}</option>
-                            <option value="Rejected">{t('interface.rejected', 'Rejected')}</option>
-                            <option value="Archived">{t('interface.archived', 'Archived')}</option>
-                          </select>
-                        ) : (
-                          <span 
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${statusInfo.bgColor} text-gray-900`}
-                            onClick={() => setEditingStatus(offer.id)}
-                          >
-                            <StatusIcon className="h-3 w-3 mr-1" />
-                            {getLocalizedStatus(offer.status)}
-                            {updatingStatus === offer.id ? (
-                              <div className="ml-1 w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
-                            ) : (
-                              <ChevronDown className="h-3 w-3 ml-1" />
-                            )}
-                          </span>
-                        )}
-                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 text-gray-400 mr-2" />
@@ -852,7 +801,7 @@ const EditOfferModal: React.FC<EditOfferModalProps> = ({ offer, onClose, onOffer
   };
 
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
