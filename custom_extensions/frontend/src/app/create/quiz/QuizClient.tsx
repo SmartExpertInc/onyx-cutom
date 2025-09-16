@@ -37,7 +37,7 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => {
 };
 
 export default function QuizClient() {
-  const { t, language } = useLanguage();
+  const { t, language: currentLanguage } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -268,12 +268,12 @@ export default function QuizClient() {
 
   // Function to get the correct plural form for questions
   const getQuestionPluralForm = (count: number) => {
-    if (language === 'ru') {
+    if (currentLanguage === 'ru') {
       // Russian pluralization rules
       if (count === 1) return t('interface.generate.questionSingular', 'вопрос');
       if (count >= 2 && count <= 4) return t('interface.generate.questionFew', 'вопроса');
       return t('interface.generate.questionMany', 'вопросов');
-    } else if (language === 'uk') {
+    } else if (currentLanguage === 'uk') {
       // Ukrainian pluralization rules
       if (count === 1) return t('interface.generate.questionSingular', 'питання');
       if (count >= 2 && count <= 4) return t('interface.generate.questionFew', 'питання');
