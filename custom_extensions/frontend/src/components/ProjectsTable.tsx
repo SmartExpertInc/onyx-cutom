@@ -2101,7 +2101,7 @@ const FolderRowMenu: React.FC<{
       {/* ---------------- Rename Modal ---------------- */}
       {renameModalOpen && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20 p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm p-4"
           onClick={() => {
             if (!isRenaming) setRenameModalOpen(false);
           }}

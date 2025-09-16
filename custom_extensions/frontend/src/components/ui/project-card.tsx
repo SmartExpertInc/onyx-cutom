@@ -662,7 +662,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {trashConfirmOpen && (
         <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => setTrashConfirmOpen(false)}
         >
           <div
@@ -745,7 +745,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       {/* ---------------- Rename Modal ---------------- */}
       {renameModalOpen && (
         <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => {
             if (!isRenaming) setRenameModalOpen(false);
           }}
