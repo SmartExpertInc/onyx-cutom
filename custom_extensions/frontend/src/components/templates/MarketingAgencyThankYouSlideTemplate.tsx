@@ -31,6 +31,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   const [editingMainTitle, setEditingMainTitle] = useState(false);
   const [editingBodyText, setEditingBodyText] = useState(false);
   const [editingIntroText, setEditingIntroText] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
   const [currentHeaderTitle, setCurrentHeaderTitle] = useState(headerTitle);
@@ -38,6 +40,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   const [currentMainTitle, setCurrentMainTitle] = useState(mainTitle);
   const [currentBodyText, setCurrentBodyText] = useState(bodyText);
   const [currentIntroText, setCurrentIntroText] = useState('Introduction to Our Marketing Agency');
+  const [currentPageNumber, setCurrentPageNumber] = useState('03');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
@@ -93,6 +97,22 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     setEditingIntroText(false);
     if (onUpdate) {
       onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, introText: newIntroText });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ headerTitle, logoText, mainTitle, bodyText, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, yourLogoText: newYourLogoText });
     }
   };
 
@@ -171,7 +191,37 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 transform: 'translate(-50%, -50%)'
               }} />
             </div>
-            <div style={{ fontSize: '14px', fontWeight: '400', color: '#000000' }}>Your Logo</div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -368,13 +418,37 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           backgroundColor: 'rgba(0, 0, 0, 0.3)'
         }} />
         {/* Page number */}
-        <div style={{
-          color: '#000000',
-          fontSize: '17px',
-          fontWeight: '300'
-        }}>
-          03
-        </div>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {/* Logo Upload Modal */}
