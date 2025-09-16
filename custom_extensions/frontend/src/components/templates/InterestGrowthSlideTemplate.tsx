@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { theme?: SlideTheme | string }>= ({
   slideId,
@@ -26,8 +27,14 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [cardList, setCardList] = useState(cards);
   const [editingCard, setEditingCard] = useState<{ index: number; field: 'label' | 'percentage' } | null>(null);
+  const [currentPageNumber, setCurrentPageNumber] = useState('05');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -43,7 +50,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
   };
 
   const titleStyle: React.CSSProperties = {
-    gridColumn: '1 / 2',
+    gridColumn: '2 / 3',
     fontSize: '65px',
     color: '#2A2B2C',
     fontWeight: 800,
@@ -51,7 +58,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
   };
 
   const cardsGrid: React.CSSProperties = {
-    gridColumn: '1 / 2',
+    gridColumn: '2 / 3',
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gridTemplateRows: 'auto auto',
@@ -75,7 +82,8 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     width: '430px',
     backgroundColor: '#4D70D4',
     position: 'relative',
-    marginLeft: '18%',
+    gridColumn: '1 / 2',
+    gridRow: '1 / 3',
     marginTop: '-100px'
   };
 
@@ -86,8 +94,127 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     border: '2px solid rgba(255,255,255,0.8)'
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, cards, rightImagePath, rightImageAlt, rightPanelColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, cards, rightImagePath, rightImageAlt, rightPanelColor }, yourLogoText: newYourLogoText });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, cards, rightImagePath, rightImageAlt, rightPanelColor }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
-    <div className="interest-growth-slide inter-theme" style={slideStyles}>
+    <div className="interest-growth-slide" style={slideStyles}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        zIndex: 10
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#000000',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#000000',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div style={titleStyle}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
@@ -182,6 +309,68 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           style={{ position: 'relative', top: '24px', width: '405px', height: '595px', objectFit: 'cover' }}
         />
       </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '0',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
