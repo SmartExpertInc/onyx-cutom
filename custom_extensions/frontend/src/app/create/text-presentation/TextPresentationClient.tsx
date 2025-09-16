@@ -9,7 +9,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -1416,28 +1415,25 @@ export default function TextPresentationClient() {
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
-                              <Tooltip key={option.value}>
-                                <TooltipTrigger asChild>
-                                  <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={selectedStyles.includes(option.value)}
-                                      onChange={(e) => {
-                                        if (e.target.checked) {
-                                          setSelectedStyles([...selectedStyles, option.value]);
-                                        } else {
-                                          setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                        }
-                                      }}
-                                      className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                    />
-                                    <span className="text-sm">{option.label}</span>
-                                  </label>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{stylePurposes[option.value as keyof typeof stylePurposes]}</p>
-                                </TooltipContent>
-                              </Tooltip>
+                              <label 
+                                key={option.value} 
+                                className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer"
+                                title={stylePurposes[option.value as keyof typeof stylePurposes]}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedStyles.includes(option.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedStyles([...selectedStyles, option.value]);
+                                    } else {
+                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                    }
+                                  }}
+                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm">{option.label}</span>
+                              </label>
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1499,28 +1495,25 @@ export default function TextPresentationClient() {
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
-                          <Tooltip key={option.value}>
-                            <TooltipTrigger asChild>
-                              <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedStyles.includes(option.value)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedStyles([...selectedStyles, option.value]);
-                                    } else {
-                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                    }
-                                  }}
-                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm">{option.label}</span>
-                              </label>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{stylePurposes[option.value as keyof typeof stylePurposes]}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                          <label 
+                            key={option.value} 
+                            className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer"
+                            title={stylePurposes[option.value as keyof typeof stylePurposes]}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedStyles.includes(option.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedStyles([...selectedStyles, option.value]);
+                                } else {
+                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                }
+                              }}
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm">{option.label}</span>
+                          </label>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
