@@ -563,7 +563,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-3">
       {/* Workspace Header and Selector */}
       <div className="rounded-lg p-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+        <div className="flex flex-col gap-4">
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
           {!workspaceId && workspaces.length > 1 && (
             <div className="flex items-center gap-2">
@@ -588,12 +588,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               </select>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Header with Search, Filter, and Create Button */}
-      <div className="rounded-lg p-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+          
+          {/* Search, Filter, and Create Button Row */}
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           {/* Search and Filter Row */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="relative flex-1 min-w-0">
@@ -623,15 +620,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           {/* Action Buttons */}
           <div className="flex gap-2">
             <Button
-              variant="blueGradient"
-              size="sm"
-              onClick={() => setShowRoleManager(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full"
-            >
-              <Settings size={15} />
-              {t('interface.manageRoles', 'Manage Roles')}
-            </Button>
-            <Button
               variant="download"
               onClick={() => setShowAddMember(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-full"
@@ -640,6 +628,18 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <UserPlus size={15} />
               {t('interface.addMember', 'Add Member')}
             </Button>
+            <Button
+              variant="blueGradient"
+              size="sm"
+              onClick={() => setShowRoleManager(true)}
+              className="group flex items-center gap-2 px-2 py-2 hover:px-4 rounded-full transition-all duration-200 overflow-hidden"
+            >
+              <Settings size={15} />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                {t('interface.manageRoles', 'Manage Roles')}
+              </span>
+            </Button>
+          </div>
           </div>
         </div>
       </div>
@@ -846,25 +846,6 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('interface.addMemberModal.statusLabel', 'Status')}
-                </label>
-                <Select
-                  value={newMemberStatus}
-                  onValueChange={(value) => setNewMemberStatus(value as 'pending' | 'active' | 'suspended')}
-                >
-                  <SelectTrigger variant="filter" className="w-full">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">{t('interface.statuses.pending', 'Pending')}</SelectItem>
-                    <SelectItem value="active">{t('interface.statuses.active', 'Active')}</SelectItem>
-                    <SelectItem value="suspended">{t('interface.statuses.suspended', 'Suspended')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
             </div>
 
           <DialogFooter className="flex gap-3">

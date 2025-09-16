@@ -42,24 +42,6 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
   }
 };
 
-// Helper function to get product type display name - copied from project-card
-const getProductTypeDisplayName = (type: string): string => {
-  switch (type) {
-    case "Training Plan":
-      return "Training Plan";
-    case "Quiz":
-      return "Quiz";
-    case "Slide Deck":
-      return "Slide Deck";
-    case "Video Lesson Presentation":
-      return "Video Lesson";
-    case "Text Presentation":
-      return "One-pager";
-    default:
-      return type;
-  }
-};
-
 const LMSProductCard: React.FC<LMSProductCardProps> = ({
   product,
   isSelected,
@@ -147,36 +129,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
               displayTitle.split("").reverse().join("")
             )}99)`,
           }}
-        >
-          {/* Top row with icon and badge */}
-          <div className="flex justify-between items-start">
-            {/* List icon in top-left */}
-            <div className="w-6 h-6 flex items-center justify-center">
-              <List size={16} className="text-gray-500/60" />
-            </div>
-            
-            {/* Course type badge in top-right */}
-            <div className="flex items-center gap-2">
-              <div 
-                className="flex items-center gap-1 backdrop-blur-sm rounded-full px-2 py-1 border"
-                style={{
-                  backgroundColor: `${bgColor}`,
-                  borderColor: `${bgColor}40`,
-                  color: "white"
-                }}
-              >
-                <span className="text-xs font-medium">
-                  {getProductTypeDisplayName("Training Plan")}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Project type icon overlay */}
-          <div className="absolute top-3 left-3 w-6 h-6 bg-white/20 backdrop-blur-sm rounded-md flex items-center justify-center">
-            {getDesignMicroproductIcon("Training Plan")}
-          </div>
-          
+        >        
           {/* Truncated title in center */}
           <div className="flex items-center justify-center flex-1 px-2">
             <h3 

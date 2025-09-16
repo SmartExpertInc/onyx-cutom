@@ -420,29 +420,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         >
           {/* Top row with icon and badge */}
           <div className="flex justify-between items-start">
-            {/* List icon in top-left */}
-            <div className="w-6 h-6 flex items-center justify-center">
-              <List size={16} className="text-gray-500/60" />
-            </div>
             
             {/* Badges in top-right */}
-            <div className="flex items-center gap-2">
-              {/* Course type badge */}
-              {project.designMicroproductType && (
-                <div 
-                  className="flex items-center gap-1 backdrop-blur-sm rounded-full px-2 py-1 border"
-                    style={{
-                      backgroundColor: `${bgColor}`,
-                      borderColor: `${bgColor}40`,
-                      color: "white"
-                    }}
-                >
-                  <span className="text-xs font-medium">
-                    {getProductTypeDisplayName(project.designMicroproductType)}
-                  </span>
-                </div>
-              )}
-              
+            <div className="flex items-center gap-2">  
               {/* Private badge */}
               {project.isPrivate && (
                 <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
@@ -479,6 +459,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
+          {project.designMicroproductType && (
+            <div 
+              className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200"
+            >
+              <span className="text-xs font-medium text-gray-700">
+                {getProductTypeDisplayName(project.designMicroproductType)}
+              </span>
+            </div>
+          )}
           
           {/* Creator info and options */}
           <div className="flex items-center justify-between">
