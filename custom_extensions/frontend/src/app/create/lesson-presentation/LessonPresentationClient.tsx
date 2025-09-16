@@ -1477,7 +1477,7 @@ export default function LessonPresentationClient() {
                             {title && (
                               <Edit
                                 size={16}
-                                className="absolute top-[7px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                               />
                             )}
                           </div>
