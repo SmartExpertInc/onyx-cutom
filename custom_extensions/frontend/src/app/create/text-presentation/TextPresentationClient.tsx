@@ -1575,7 +1575,7 @@ export default function TextPresentationClient() {
                                   type="text"
                                   value={editedTitles[idx] || lesson.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold bg-gray-50 border-none rounded px-2 py-1 w-full pr-8 h-auto focus:outline-none focus:ring-0"
+                                  className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                                   onKeyDown={(e) => {
@@ -1586,7 +1586,7 @@ export default function TextPresentationClient() {
                                 {(editedTitles[idx] || lesson.title) && (
                                   <Edit 
                                     size={16} 
-                                    className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
