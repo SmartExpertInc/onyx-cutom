@@ -62,6 +62,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [showAllConnectors, setShowAllConnectors] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const isLoadingRef = useRef(false);
+  const [isConnectorFailed, setIsConnectorFailed] = useState(false);
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -485,6 +486,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       loadUserConnectors();
     } catch (error) {
       if (connector) {
+        setIsConnectorFailed(true);
         await trackConnector("Failed", connector.id, connector.name);
       }
       console.error("Error creating connector:", error);
@@ -857,7 +859,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 </h2>
                 <button
                   onClick={() => {
-                    trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                    !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
                     setShowConnectorModal(false);
                     setSelectedConnector(null);
                   }}
@@ -873,7 +875,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                 connectorId={selectedConnector.id}
                 onSubmit={handleConnectorSubmit}
                 onCancel={() => {
-                  trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
+                  !isConnectorFailed && trackConnector("Clicked", selectedConnector.id, selectedConnector.name);
                   setShowConnectorModal(false);
                   setSelectedConnector(null);
                 }}
