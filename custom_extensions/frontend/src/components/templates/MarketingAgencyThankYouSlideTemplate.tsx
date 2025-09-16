@@ -134,8 +134,8 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       {/* Logo in top-right corner */}
       <div style={{
         position: 'absolute',
-        top: '40px',
-        right: '60px',
+        top: '30px',
+        left: '30px',
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
@@ -229,28 +229,28 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       {/* Introduction Text */}
       <div style={{
         position: 'absolute',
-        top: '40px',
-        left: '60px',
+        top: '135px',
+        right: '237px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
+        border: '1px solid #09090B',
+        padding: '7px 16px',
+        borderRadius: '20px',
       }}>
         {/* Small blue dot */}
         <div style={{
           width: '8px',
           height: '8px',
-          backgroundColor: '#3B82F6',
+          backgroundColor: 'blue',
           borderRadius: '50%'
         }} />
         {/* Introduction text */}
         <div style={{
           fontSize: '16px',
           fontWeight: '500',
-          color: '#374151',
-          backgroundColor: '#F3F4F6',
-          padding: '8px 16px',
+          color: '#09090B',
           borderRadius: '20px',
-          border: '1px solid #E5E7EB'
         }}>
           {isEditable && editingIntroText ? (
             <ImprovedInlineEditor
@@ -287,9 +287,9 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
       <div style={{
         position: 'absolute',
         top: '120px',
-        left: '60px',
+        left: '0px',
         right: '60px',
-        bottom: '40px',
+        bottom: '10px',
         display: 'flex',
         gap: '40px',
       }}>
