@@ -274,7 +274,7 @@ export default function ConnectorManagementPage({
           {/* Status and Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Status Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg">
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
               {/* Gradient at top right corner */}
               <div className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br rounded-bl-3xl opacity-60 ${
                 isActive ? 'from-green-300 to-emerald-200' : 
@@ -309,7 +309,7 @@ export default function ConnectorManagementPage({
             </div>
 
             {/* Documents Indexed Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg">
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
               {/* Gradient at top right corner */}
               <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-blue-300 to-indigo-200 rounded-bl-3xl opacity-60" />
               
@@ -332,7 +332,7 @@ export default function ConnectorManagementPage({
             </div>
 
             {/* Last Indexed Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg">
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
               {/* Gradient at top right corner */}
               <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-purple-300 to-pink-200 rounded-bl-3xl opacity-60" />
               
