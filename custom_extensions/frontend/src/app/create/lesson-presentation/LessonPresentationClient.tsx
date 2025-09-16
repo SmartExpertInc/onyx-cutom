@@ -1471,13 +1471,13 @@ export default function LessonPresentationClient() {
                                 );
                                 setContent(updatedContent);
                               }}
-                              className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent"
+                              className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
                               placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                             />
                             {title && (
                               <Edit
                                 size={16}
-                                className="absolute top-[23px] right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                className="absolute top-[13px] right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                               />
                             )}
                           </div>
