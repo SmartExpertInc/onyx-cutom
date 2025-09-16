@@ -59,7 +59,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   // Content block styles
   const contentBlockStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '15px', // From the top of the slide
+    top: '80px', // From the top of the slide
     left: '15px',
     right: '15px',
     bottom: '80px', // Leave space for logo at bottom
@@ -318,13 +318,14 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           position: 'absolute',
           top: '33px',
           left: '70px',
-          width: '120px',
-          height: '120px',
+          width: '140px',
+          height: '140px',
           borderRadius: '50%',
-          backgroundColor: '#E26B54', // Orange background as per screenshot
+          backgroundColor: '#0F58F9', // Orange background as per screenshot
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          overflow: 'hidden'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -334,11 +335,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
             description="Profile"
             isEditable={isEditable}
             style={{
-              width: '100%',
               height: '100%',
               borderRadius: '50%',
               position: 'absolute',
-              bottom: '-24px',
+              bottom: '-34px',
               objectFit: 'cover',
               overflow: 'hidden'
             }}
@@ -413,7 +413,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           display: 'flex',
           alignItems: 'flex-start',
           position: 'absolute',
-          top: '215px',
+          top: '185px',
           left: '300px',
         }}>
           {isEditable && editingContent ? (
