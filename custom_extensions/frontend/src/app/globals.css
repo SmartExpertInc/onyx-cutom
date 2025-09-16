@@ -77,8 +77,8 @@
 
 body {
   color: var(--foreground);
-  font-family: 'Inter', Arial, Helvetica, sans-serif;
-  font-weight: 500;
+  font-family: 'Mont Regular', 'Mont', Arial, Helvetica, sans-serif;
+  font-weight: 400;
   font-size: 18px;
 }
 /* Styles for Project Table Expand/Collapse */
@@ -285,34 +285,34 @@ body:has([aria-modal="true"]) [draggable="true"] {
   font-weight: 400 !important;
 }
 
-/* Inter Font Classes for Non-Slide Components */
-.inter-theme {
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
+/* Mont Font Classes for Non-Slide Components */
+.mont-theme {
+  font-family: 'Mont Regular', 'Mont', sans-serif;
+  font-weight: 400;
   font-size: 18px;
 }
 
-.inter-theme h1,
-.inter-theme h2,
-.inter-theme h3,
-.inter-theme .slide-title,
-.inter-theme .slide-title-text,
-.inter-theme .slide-title-display {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 600 !important;
+.mont-theme h1,
+.mont-theme h2,
+.mont-theme h3,
+.mont-theme .slide-title,
+.mont-theme .slide-title-text,
+.mont-theme .slide-title-display {
+  font-family: 'Mont Bold', 'Mont', sans-serif !important;
+  font-weight: 700 !important;
   font-size: 18px;
 }
 
-.inter-theme p,
-.inter-theme .slide-content,
-.inter-theme .slide-subtitle,
-.inter-theme .slide-text,
-.inter-theme li,
-.inter-theme span,
-.inter-theme .paragraph-text,
-.inter-theme .bullet-text,
-.inter-theme .number-text {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500 !important;
+.mont-theme p,
+.mont-theme .slide-content,
+.mont-theme .slide-subtitle,
+.mont-theme .slide-text,
+.mont-theme li,
+.mont-theme span,
+.mont-theme .paragraph-text,
+.mont-theme .bullet-text,
+.mont-theme .number-text {
+  font-family: 'Mont Regular', 'Mont', sans-serif !important;
+  font-weight: 400 !important;
   font-size: 18px;
 }

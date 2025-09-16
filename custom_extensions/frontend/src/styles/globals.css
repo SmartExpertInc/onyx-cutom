@@ -1,10 +1,27 @@
 /* Global CSS Reset and Base Styles */
 
-/* Lora Font Definitions - LORA EVERYWHERE */
+/* Lora Font Definitions - FOR SLIDES ONLY */
 @font-face {
   font-family: 'Lora';
   src: url('../fonts/Lora-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mont Font Definitions - FOR ALL NON-SLIDE TEXT */
+@font-face {
+  font-family: 'Mont Regular';
+  src: url('/fonts/fonnts.com-Mont_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mont Bold';
+  src: url('/fonts/fonnts.com-Mont_Bold.ttf') format('truetype');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
@@ -14,9 +31,9 @@
   font-family: 'Lora', serif;
 }
 
-/* Inter as default font for non-slide components */
+/* Mont Regular as default font for non-slide components */
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Mont Regular', 'Mont', sans-serif;
 }
 
 *, *::before, *::after {
@@ -34,8 +51,8 @@ html, body {
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
+  font-family: 'Mont Regular', 'Mont', sans-serif;
+  font-weight: 400;
   font-size: 18px;
 }
 
