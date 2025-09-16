@@ -14087,6 +14087,13 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         for i, template in enumerate(course_templates):
             logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template.get('title', 'Unknown')}")
         
+        # Extract language information from the project data
+        language = content.get("language", "ru")  # Default to Russian if not specified
+        
+        # 📊 LOG: Language information
+        logger.info(f"🌐 [AUDIT DATA FLOW] Language information:")
+        logger.info(f"🌐 [AUDIT DATA FLOW] - Language: '{language}'")
+        
         # 📊 LOG: Final response data structure
         response_data = {
             "projectId": project_id,
@@ -14096,7 +14103,8 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             "jobPositions": job_positions,
             "workforceCrisis": workforce_crisis,
             "courseOutlineModules": course_outline_modules,
-            "courseTemplates": course_templates
+            "courseTemplates": course_templates,
+            "language": language
         }
         
         logger.info(f"📤 [AUDIT DATA FLOW] Final response data:")
@@ -15531,6 +15539,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "workforceCrisis": workforce_crisis_data,
             "courseOutlineModules": course_outline_modules,
             "courseTemplates": course_templates,
+            "language": payload.language,  # Store the language preference
             "originalPayload": payload.model_dump()
         }
         
@@ -15544,7 +15553,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         project_id = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит Landing Page: {company_name}",
+            project_name=f"AI-Audit Landing Page: {company_name}" if payload.language == "en" else f"AI-Аудит Landing Page: {company_name}",
             microproduct_content=landing_page_data,
             chat_session_id=None
         )
@@ -15586,7 +15595,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         # 📊 LOG: Final response data
         final_response = {
             "id": project_id,
-            "name": f"AI-Аудит Landing Page: {company_name}",
+            "name": f"AI-Audit Landing Page: {company_name}" if payload.language == "en" else f"AI-Аудит Landing Page: {company_name}",
             "companyName": company_name,
             "companyDescription": company_description
         }

@@ -76,7 +76,86 @@ interface LandingPageData {
   workforceCrisis: WorkforceCrisisData
   courseOutlineModules: CourseModule[]
   courseTemplates: CourseTemplate[]
+  language: string
 }
+
+// Localization function for static text
+const getLocalizedText = (language: string) => {
+  if (language === "en") {
+    return {
+      specialists: "specialists",
+      shortageInYear: "Shortage per year in",
+      sector: "sector",
+      gapGrowing: "— and the gap is growing.",
+      workforceCrisis: "Workforce Crisis",
+      inIndustry: "in",
+      industry: "industry",
+      burnout: "Burnout",
+      averageDuration: "Average work duration in",
+      companies: "companies",
+      lessThan: "less than",
+      months: "months",
+      turnover: "Turnover up to",
+      perYear: "per year",
+      leave: "leave",
+      inFirst: "in the first",
+      losses: "Losses",
+      companyLosses: "Company losses",
+      perPosition: "per position per year, including missed profit, overtime and downtime.",
+      coursePlan: "Course Plan",
+      module: "Module",
+      lessonsInModule: "Lessons in module",
+      knowledgeCheck: "Knowledge check: test / practice with mentor",
+      duration: "Duration",
+      lessons: "Lessons",
+      noAssessment: "no",
+      test: "test",
+      practice: "practice",
+      min: "min",
+      knowledgeCheckNo: "Knowledge check: no",
+      readyTemplates: "Ready Course Templates",
+      modules: "Modules",
+      rating: "Rating"
+    };
+  } else {
+    // Russian (default)
+    return {
+      specialists: "специалистов",
+      shortageInYear: "Не хватает в год в",
+      sector: "секторе",
+      gapGrowing: "— и разрыв растет.",
+      workforceCrisis: "Кадровый кризис",
+      inIndustry: "в",
+      industry: "отрасли",
+      burnout: "Выгорание",
+      averageDuration: "Средняя продолжительность работы в",
+      companies: "компаниях",
+      lessThan: "менее",
+      months: "месяцев",
+      turnover: "Текучка до",
+      perYear: "в год",
+      leave: "увольняются",
+      inFirst: "в первые",
+      losses: "Убытки",
+      companyLosses: "Потери компании",
+      perPosition: "при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.",
+      coursePlan: "План курса",
+      module: "Модуль",
+      lessonsInModule: "Уроки в модуле",
+      knowledgeCheck: "Проверка знаний: тест / практика с куратором",
+      duration: "Длительность",
+      lessons: "Уроков",
+      noAssessment: "нет",
+      test: "тест",
+      practice: "практика",
+      min: "мин",
+      knowledgeCheckNo: "Проверка знаний: нет",
+      readyTemplates: "Готовые шаблоны курсов",
+      modules: "Модулей",
+      rating: "Рейтинг"
+    };
+  }
+};
 
 export default function DynamicAuditLandingPage() {
   const params = useParams()
@@ -95,9 +174,10 @@ export default function DynamicAuditLandingPage() {
   }
 
   // Helper function to generate random assessment type and duration
-  const getRandomAssessment = () => {
-    const assessments = ['нет', 'тест', 'практика']
-    const durations = ['3 мин', '4 мин', '5 мин', '6 мин', '7 мин', '8 мин']
+  const getRandomAssessment = (language: string = "ru") => {
+    const localizedText = getLocalizedText(language);
+    const assessments = [localizedText.noAssessment, localizedText.test, localizedText.practice]
+    const durations = [`3 ${localizedText.min}`, `4 ${localizedText.min}`, `5 ${localizedText.min}`, `6 ${localizedText.min}`, `7 ${localizedText.min}`, `8 ${localizedText.min}`]
     
     return {
       type: assessments[Math.floor(Math.random() * assessments.length)],
@@ -110,10 +190,11 @@ export default function DynamicAuditLandingPage() {
     if (!landingPageData?.courseOutlineModules) return {}
     
     const data: { [key: string]: { type: string; duration: string }[] } = {}
+    const language = landingPageData.language || "ru"
     
     landingPageData.courseOutlineModules.forEach((module, moduleIndex) => {
       if (module.lessons) {
-        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment())
+        data[`module-${moduleIndex}`] = module.lessons.map(() => getRandomAssessment(language))
       }
     })
     
@@ -513,7 +594,7 @@ export default function DynamicAuditLandingPage() {
                             {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
                           </div>
                           <div className="font-normal text-[12px] text-[#09090B]">
-                            специалистов
+                            {getLocalizedText(landingPageData?.language || "ru").specialists}
                           </div>
                         </div>
                       </div>
@@ -535,7 +616,7 @@ export default function DynamicAuditLandingPage() {
                             {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
                           </div>
                           <div className="font-normal text-[14px] text-[#09090B]">
-                            специалистов
+                            {getLocalizedText(landingPageData?.language || "ru").specialists}
                           </div>
                         </div>
                       </div>
@@ -543,7 +624,7 @@ export default function DynamicAuditLandingPage() {
   
                     <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
                       <p className="font-semibold text-[16px] xl:text-[20px]">
-                        Не хватает в год в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.
+                        {getLocalizedText(landingPageData?.language || "ru").shortageInYear} {landingPageData?.workforceCrisis?.industry || 'HVAC'}-{getLocalizedText(landingPageData?.language || "ru").sector} {getLocalizedText(landingPageData?.language || "ru").gapGrowing}
                       </p>
                       <p className="font-normal italic text-[12px] text-[#BABABE]">
                         По данным Bureau of Labor Statistics
@@ -600,7 +681,7 @@ export default function DynamicAuditLandingPage() {
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
-                Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли
+                {getLocalizedText(landingPageData?.language || "ru").workforceCrisis} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language || "ru").inIndustry} {landingPageData?.workforceCrisis?.industry || 'HVAC'}-{getLocalizedText(landingPageData?.language || "ru").industry}
               </h2>
   
               <Image 
@@ -623,10 +704,10 @@ export default function DynamicAuditLandingPage() {
                     <path d="M13.9639 15.7071C14.1597 15.7071 14.3185 15.5484 14.3185 15.3526C14.3185 15.1568 14.1597 14.998 13.9639 14.998C13.7681 14.998 13.6094 15.1568 13.6094 15.3526C13.6094 15.5484 13.7681 15.7071 13.9639 15.7071Z" fill="white"/>
                     <path d="M14.4483 16.6603C14.6441 16.6603 14.8028 16.5015 14.8028 16.3057C14.8028 16.1099 14.6441 15.9512 14.4483 15.9512C14.2525 15.9512 14.0938 16.1099 14.0938 16.3057C14.0938 16.5015 14.2525 16.6603 14.4483 16.6603Z" fill="white"/>
                   </svg>
-                  <span className="font-semibold text-[20px]">Выгорание</span>
+                  <span className="font-semibold text-[20px]">{getLocalizedText(landingPageData?.language || "ru").burnout}</span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  Средняя продолжительность работы в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span>
+                  {getLocalizedText(landingPageData?.language || "ru").averageDuration}<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">{getLocalizedText(landingPageData?.language || "ru").lessThan} {landingPageData?.workforceCrisis?.burnout?.months || '14'} {getLocalizedText(landingPageData?.language || "ru").months}.</span>
                 </p>
               </div>
   
@@ -638,10 +719,10 @@ export default function DynamicAuditLandingPage() {
                     <path d="M20.1567 9.5913C20.1459 9.58658 20.1367 9.57981 20.1256 9.57552C20.1201 9.57342 20.1145 9.57299 20.1091 9.57103C20.0687 9.5564 20.0278 9.54542 19.9864 9.53742C19.9783 9.53585 19.9703 9.53291 19.9622 9.53159C19.9131 9.52365 19.8638 9.52063 19.8145 9.52169C19.8006 9.522 19.7871 9.52436 19.7732 9.52538C19.738 9.52795 19.703 9.53191 19.6685 9.53902C19.6518 9.54244 19.6357 9.54714 19.6193 9.55159C19.5879 9.56008 19.5572 9.57014 19.527 9.58236C19.511 9.58881 19.4954 9.59548 19.4798 9.60293C19.4504 9.61701 19.4222 9.63334 19.3944 9.65103C19.3801 9.66009 19.3658 9.66854 19.3521 9.67848C19.3242 9.69874 19.2983 9.72184 19.2729 9.74588C19.2618 9.75635 19.2498 9.76554 19.2392 9.77668C19.237 9.77898 19.2345 9.78068 19.2323 9.783C19.2001 9.8178 19.1717 9.85492 19.1466 9.89367C19.1429 9.89941 19.1404 9.90602 19.1368 9.91188C19.1136 9.94969 19.0937 9.98883 19.0772 10.0293C19.0752 10.0342 19.072 10.0383 19.0701 10.0434L18.1029 12.5507C17.9407 12.9713 18.1502 13.4438 18.5709 13.606C18.6675 13.6433 18.7668 13.6609 18.8644 13.6609C19.1921 13.6609 19.5012 13.4623 19.6263 13.1382L19.8801 12.4802C20.009 12.9743 20.0785 13.4843 20.0785 14.0007C20.0785 15.6245 19.447 17.1465 18.2967 18.2897C17.1569 19.4365 15.635 20.0681 14.0112 20.0681C12.868 20.0681 11.7522 19.7442 10.7843 19.1314C10.4035 18.8905 9.89925 19.0038 9.65792 19.3845C9.41679 19.7655 9.53017 20.2697 9.91101 20.5109C11.1404 21.2892 12.5584 21.7007 14.0112 21.7007C16.073 21.7007 18.0061 20.898 19.451 19.4441C20.9084 17.9957 21.7111 16.0625 21.7111 14.0007C21.7111 13.3663 21.6328 12.7386 21.4795 12.1303L22.0433 12.4281C22.4429 12.639 22.9361 12.486 23.1464 12.0874C23.3568 11.6887 23.2044 11.195 22.8058 10.9844L20.213 9.6153C20.1947 9.6056 20.1755 9.59946 20.1567 9.5913Z" fill="white"/>
                   </svg>
   
-                  <span className="font-semibold text-[20px]">Текучка до {landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% в год</span>
+                  <span className="font-semibold text-[20px]">{getLocalizedText(landingPageData?.language || "ru").turnover} {landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% {getLocalizedText(landingPageData?.language || "ru").perYear}</span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% увольняются</span> в первые {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} месяца
+                  <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% {getLocalizedText(landingPageData?.language || "ru").leave}</span> {getLocalizedText(landingPageData?.language || "ru").inFirst} {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} {getLocalizedText(landingPageData?.language || "ru").months}
                 </p>
               </div>
               
@@ -652,10 +733,10 @@ export default function DynamicAuditLandingPage() {
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M14.3685 13.3505H14.1373V13.3344C13.6341 13.2558 13.2039 12.8873 13.1025 12.38H13.0799V12.1553C13.0799 11.6025 13.4759 11.1525 13.9922 11.0086L13.9944 10.7061C13.9959 10.4939 14.168 10.3236 14.3787 10.3258C14.5895 10.3273 14.7587 10.5005 14.7565 10.7127L14.7543 11.021C15.248 11.1767 15.6221 11.6179 15.6265 12.1516C15.6287 12.3638 15.4587 12.5371 15.2487 12.5386C15.038 12.54 14.8666 12.3697 14.8644 12.1583C14.8608 11.775 14.2978 11.5753 13.9784 11.8661C13.6859 12.1318 13.8916 12.5819 14.3612 12.5819H14.5705V12.598C15.0737 12.6766 15.504 13.0451 15.6053 13.5524H15.6279V13.7771C15.6279 14.3299 15.232 14.78 14.7156 14.9239L14.7135 15.2256C14.712 15.4378 14.5399 15.6081 14.3291 15.6059C14.1184 15.6044 13.9492 15.4312 13.9514 15.219L13.9536 14.9107C13.4599 14.755 13.0865 14.3138 13.0814 13.78C13.0792 13.5679 13.2491 13.3946 13.4591 13.3931C13.6692 13.3917 13.8413 13.562 13.8434 13.7734C13.8471 14.1567 14.4108 14.3564 14.7295 14.0656C15.027 13.7955 14.8017 13.3564 14.3685 13.3505ZM7.21079 15.4796L5.74279 15.7043C5.65163 15.7182 5.58964 15.8041 5.6035 15.8959L6.55372 22.2575C6.56757 22.3507 6.64998 22.4131 6.74405 22.3984L8.21205 22.1738C8.30321 22.1598 8.3652 22.0739 8.35134 21.9822L7.40112 15.6206C7.38727 15.5273 7.30486 15.4649 7.21079 15.4796ZM14.8461 16.5787C16.6291 16.3349 17.9746 14.7968 17.9746 12.9658C17.9746 10.9519 16.3535 9.31997 14.3532 9.31997C12.3528 9.31997 10.7318 10.952 10.7318 12.9658C10.7318 13.4246 10.8156 13.8636 10.9695 14.2674C11.1212 14.6661 11.3393 15.031 11.6105 15.3474C12.1866 15.4531 12.8386 15.6462 13.5984 15.9538C13.605 15.956 13.6108 15.959 13.6166 15.9626C13.9609 16.1256 14.2343 16.2659 14.4721 16.3892C14.6062 16.4582 14.7287 16.5207 14.8461 16.5787ZM14.7469 16.9465L14.3042 16.7226C14.0694 16.6014 13.8003 16.4634 13.4598 16.3019C10.6616 15.1705 9.40352 15.6609 7.88236 16.3224L8.59267 21.0769C8.78009 21.0204 9.03387 20.9543 9.19868 20.9345C9.67781 20.8772 10.6105 21.0564 11.6636 21.2583C12.5299 21.4242 13.37 21.582 14.2408 21.6804C14.6675 21.7237 15.423 21.6936 16.2959 21.5541C16.9931 21.4425 17.7632 21.2605 18.4968 20.9903C19.0883 20.7722 20.5672 20.2062 21.7062 19.5007C22.7483 18.8553 23.4987 18.0991 22.8738 17.4472C22.682 17.2989 22.453 17.2908 22.1759 17.3781C21.855 17.4795 21.4743 17.7049 21.0251 17.9956C20.7837 18.152 20.3571 18.3656 19.8925 18.5668C19.4615 18.754 18.9926 18.9324 18.6054 19.0484C17.8149 19.4478 16.7881 19.7128 16.3322 19.7693C15.1574 19.9154 13.9206 19.4397 13.0571 19.1079C12.7545 18.9911 12.4992 18.8935 12.3228 18.8516C12.0843 18.7951 12.1689 18.431 12.4074 18.4868C12.6094 18.5345 12.8748 18.6365 13.1899 18.7577C14.0176 19.0756 15.2041 19.5322 16.2878 19.3971C16.7735 19.3369 17.8616 19.0432 18.6069 18.6255C19.0517 18.3759 19.3741 18.0888 19.3427 17.7988C19.2836 17.2614 17.9243 17.6527 17.206 17.5683C15.8773 17.4112 15.3544 17.2409 14.7469 16.9465ZM8.54241 10.96L10.467 8.17237C10.5181 8.09822 10.4707 7.99544 10.3751 7.99544H9.70494C9.60211 7.99544 9.51897 7.91174 9.51897 7.80823L9.51825 5.97575C9.51825 5.76944 9.35051 5.60059 9.14559 5.60059H7.32681C7.12188 5.60059 6.95416 5.76944 6.95416 5.97575V7.80823C6.95416 7.91174 6.87102 7.99544 6.7682 7.99544H6.09727C6.00174 7.99544 5.95434 8.09822 6.00538 8.17237L7.92923 10.96C8.07946 11.1773 8.39218 11.1773 8.54241 10.96ZM20.7772 10.96L22.701 8.17237C22.7521 8.09822 22.7047 7.99544 22.6091 7.99544H21.939C21.8361 7.99544 21.753 7.91174 21.753 7.80823V5.97575C21.753 5.76944 21.5853 5.60059 21.3804 5.60059H19.5616C19.3566 5.60059 19.1889 5.76944 19.1889 5.97575V7.80823C19.1889 7.91174 19.1058 7.99544 19.003 7.99544H18.3328C18.2372 7.99544 18.1898 8.09822 18.2409 8.17237L20.1647 10.96C20.315 11.1773 20.6277 11.1773 20.7772 10.96Z" fill="white"/>
                   </svg>
   
-                  <span className="font-semibold text-[20px]">Убытки {landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}</span>
+                  <span className="font-semibold text-[20px]">{getLocalizedText(landingPageData?.language || "ru").losses} {landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}</span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  <span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.
+                  <span className="font-medium text-[#09090B]">{getLocalizedText(landingPageData?.language || "ru").companyLosses}</span> {getLocalizedText(landingPageData?.language || "ru").perPosition}
                 </p>
               </div>
               
@@ -809,7 +890,7 @@ export default function DynamicAuditLandingPage() {
                           </span>
                           
                           <span className="font-medium text-[12px]">
-                            Уроков ({template.lessons})
+                            {getLocalizedText(landingPageData?.language || "ru").lessons} ({template.lessons})
                           </span>
                         </div>
                         
@@ -867,7 +948,7 @@ export default function DynamicAuditLandingPage() {
                         </span>
                         
                         <span className="font-medium text-[12px] text-white">
-                          Уроков ({getTotalModulesAndLessons().lessons})
+                          {getLocalizedText(landingPageData?.language || "ru").lessons} ({getTotalModulesAndLessons().lessons})
                         </span>
                       </div>
                       
@@ -906,7 +987,7 @@ export default function DynamicAuditLandingPage() {
                         <div className="flex items-center justify-between">
                           <div className="xl:flex xl:items-center xl:gap-[6px]">
                             <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 01:
+                              {getLocalizedText(landingPageData?.language || "ru").module} 01:
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
@@ -949,13 +1030,13 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Уроки в модуле
+                                    {getLocalizedText(landingPageData?.language || "ru").lessonsInModule}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    Проверка знаний: тест / практика с куратором
+                                    {getLocalizedText(landingPageData?.language || "ru").knowledgeCheck}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    Длительность обучения
+                                    {getLocalizedText(landingPageData?.language || "ru").duration}
                                   </div>
                                 </div>
                               </div>
