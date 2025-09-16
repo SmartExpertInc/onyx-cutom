@@ -39,20 +39,20 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '24px',
+    gridTemplateColumns: '1fr 57%',
+    gap: '0px',
     padding: '24px'
   };
 
   const titleStyle: React.CSSProperties = {
     gridColumn: '2 / 3',
-    fontSize: '65px',
-    color: '#2A2B2C',
+    fontSize: '55px',
+    color: '#09090B',
     fontWeight: 800,
     letterSpacing: '-0.5px',
   };
@@ -80,11 +80,14 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
   const rightPanel: React.CSSProperties = {
     width: '430px',
-    backgroundColor: '#4D70D4',
+    height: '498px',
+    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     gridColumn: '1 / 2',
     gridRow: '1 / 3',
-    marginTop: '-100px'
+    marginTop: '69px',
+    overflow: 'hidden',
+    borderRadius: '20px',
   };
 
   const cornerLine: React.CSSProperties = {
@@ -235,7 +238,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           const isRightBottom = i === 3;
           const isLeftBottom = i === 2;
           const cardMarginTop = isLeftBottom ? -64 : 0;
-          const cardHeight = isRightTop ? 287 : (isRightBottom ? 160 : 225);
+          const cardHeight = isRightTop ? 287 : (isRightBottom ? 160 : 280px);
           const percentageFontSize = isRightBottom ? '48px' : '79px';
           const percentageMinHeight = isRightBottom ? 0 : 88;
           return (
@@ -296,9 +299,6 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
 
       <div style={rightPanel}>
         {/* Optional unified logo in the top-left of the right panel if needed in future */}
-        <div style={{ ...cornerLine, width: '120px', borderTop: 'none', borderLeft: 'none' }} />
-        <div style={{ ...cornerLine, height: '120px', right: '0', top: '50%', transform: 'translateY(-50%)', borderRight: 'none' }} />
-        <div style={{ ...cornerLine, width: '100px', zIndex: 10, height: '60px', left: '50px', bottom: '0px', borderBottom: 'none' }} />
         <ClickableImagePlaceholder
           imagePath={rightImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ rightImagePath: p })}
@@ -306,7 +306,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           position="CENTER"
           description="Right image"
           isEditable={isEditable}
-          style={{ position: 'relative', top: '24px', width: '405px', height: '595px', objectFit: 'cover' }}
+          style={{ position: 'relative', top: '24px', height: '485px', objectFit: 'cover' }}
         />
       </div>
 
