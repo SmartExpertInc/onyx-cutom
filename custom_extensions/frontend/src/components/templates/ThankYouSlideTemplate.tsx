@@ -270,7 +270,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Content area */}
       <div style={{
         position: 'absolute',
-        top: '390px',
+        top: '400px',
         left: '85px',
         right: '80px'
       }}>
@@ -282,7 +282,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           {/* Contacts */}
           <div>
             <div style={{
-              fontSize: '12px',
+              fontSize: '14px',
               color: 'rgb(219 219 219)',
               marginBottom: '10px',
               fontWeight: '300'
@@ -358,7 +358,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           {/* Address */}
           <div>
             <div style={{
-              fontSize: '12px',
+              fontSize: '14px',
               color: 'rgb(219 219 219)',
               marginBottom: '10px',
               fontWeight: '300'
@@ -470,10 +470,10 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Bottom horizontal separator line */}
       <div style={{
         position: 'absolute',
-        bottom: '135px',
+        bottom: '115px',
         left: '80px',
         right: '80px',
-        height: '1px',
+        height: '2px',
         backgroundColor: 'rgb(165 165 165)'
       }} />
 
