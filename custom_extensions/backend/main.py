@@ -503,6 +503,37 @@ effective_origins = list(set(filter(None, [
     os.environ.get("WEB_DOMAIN", "http://localhost:3000"),
     settings.CUSTOM_FRONTEND_URL if 'settings' in globals() and hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get("CUSTOM_FRONTEND_URL", "http://custom_frontend:3001")
 ])))
+
+# Optionally include Nextcloud origins (when iframe points to direct Nextcloud domain rather than proxied /smartdrive)
+try:
+    from urllib.parse import urlparse
+    def _to_origin(url_value: Optional[str]) -> Optional[str]:
+        if not url_value:
+            return None
+        u = url_value.strip()
+        if not u:
+            return None
+        try:
+            p = urlparse(u)
+            if p.scheme and p.netloc:
+                return f"{p.scheme}://{p.netloc}"
+            if u.startswith("http://") or u.startswith("https://"):
+                return u.rstrip('/')
+            return None
+        except Exception:
+            return None
+
+    nc_candidates = [
+        os.environ.get("NEXTCLOUD_BASE_URL"),
+        os.environ.get("NEXTCLOUD_PUBLIC_SHARE_DOMAIN"),
+        os.environ.get("NEXTCLOUD_ALLOWED_ORIGIN"),
+    ]
+    nc_origins = [o for o in map(_to_origin, nc_candidates) if o]
+    if nc_origins:
+        effective_origins = list(set(effective_origins + nc_origins))
+except Exception:
+    pass
+
 if not effective_origins: effective_origins = ["http://localhost:3001"]
 
 app.add_middleware(
@@ -24749,6 +24780,119 @@ async def get_quality_distribution(
 # ============================
 # SMART DRIVE API ENDPOINTS
 # ============================
+
+@app.post("/api/custom/smartdrive/login-token")
+async def create_smartdrive_login_token(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a short-lived, one-time token to allow Nextcloud autologin script to fetch credentials.
+    The token is bound to the current user and expires quickly to reduce risk.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        import secrets
+        from datetime import datetime, timedelta, timezone
+
+        token = secrets.token_urlsafe(32)
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(minutes=2)
+
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS smartdrive_login_tokens (
+                    token TEXT PRIMARY KEY,
+                    onyx_user_id VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL,
+                    expires_at TIMESTAMPTZ NOT NULL,
+                    used BOOLEAN NOT NULL DEFAULT FALSE
+                )
+                """
+            )
+            await conn.execute(
+                """
+                INSERT INTO smartdrive_login_tokens (token, onyx_user_id, created_at, expires_at, used)
+                VALUES ($1, $2, $3, $4, FALSE)
+                """,
+                token, str(onyx_user_id), now, expires_at
+            )
+
+        return {"success": True, "token": token, "expires_in_seconds": 120}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating SmartDrive login token: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create login token")
+
+
+@app.get("/api/custom/smartdrive/login-credentials")
+async def get_smartdrive_login_credentials(
+    request: Request,
+    token: str = Query(..., description="One-time autologin token"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Redeem a short-lived token for Nextcloud credentials for the bound user.
+    Marks the token as used. Returns username/password/base_url for the user's account.
+    """
+    try:
+        from datetime import datetime, timezone
+
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT token, onyx_user_id, created_at, expires_at, used
+                FROM smartdrive_login_tokens
+                WHERE token = $1
+                """,
+                token
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Invalid token")
+            if row["used"]:
+                raise HTTPException(status_code=400, detail="Token already used")
+            if row["expires_at"] < datetime.now(timezone.utc):
+                raise HTTPException(status_code=400, detail="Token expired")
+
+            account = await conn.fetchrow(
+                """
+                SELECT nextcloud_username, nextcloud_password_encrypted, nextcloud_base_url
+                FROM smartdrive_accounts
+                WHERE onyx_user_id = $1
+                """,
+                row["onyx_user_id"]
+            )
+            if not account or not account.get("nextcloud_username") or not account.get("nextcloud_password_encrypted"):
+                raise HTTPException(status_code=400, detail="Credentials not configured for user")
+
+            try:
+                password_plain = decrypt_password(account["nextcloud_password_encrypted"])  # type: ignore
+            except Exception:
+                raise HTTPException(status_code=500, detail="Failed to decrypt credentials")
+
+            await conn.execute(
+                "UPDATE smartdrive_login_tokens SET used = TRUE WHERE token = $1",
+                token
+            )
+
+        headers = {
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+        }
+        return JSONResponse(
+            content={
+                "success": True,
+                "username": account["nextcloud_username"],
+                "password": password_plain,
+                "base_url": account.get("nextcloud_base_url") or "http://nc1.contentbuilder.ai:8080",
+            },
+            headers=headers
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error redeeming SmartDrive login token: {e}")
+        raise HTTPException(status_code=500, detail="Failed to redeem login token")
 
 @app.post("/api/custom/smartdrive/session")
 async def bootstrap_smartdrive_session(
