@@ -24863,7 +24863,55 @@ async def get_smartdrive_login_credentials(
                 row["onyx_user_id"]
             )
             if not account or not account.get("nextcloud_username") or not account.get("nextcloud_password_encrypted"):
-                raise HTTPException(status_code=400, detail="Credentials not configured for user")
+                # Auto-provision a Nextcloud account for this user
+                try:
+                    import secrets, re
+                    base_url = os.environ.get("NEXTCLOUD_BASE_URL") or "http://nc1.contentbuilder.ai:8080"
+                    nc_admin_user = os.environ.get("NEXTCLOUD_ADMIN_USERNAME")
+                    nc_admin_pass = os.environ.get("NEXTCLOUD_ADMIN_PASSWORD")
+                    if not (nc_admin_user and nc_admin_pass):
+                        raise HTTPException(status_code=400, detail="Credentials not configured for user and auto-provisioning is not configured")
+
+                    raw_id = str(row["onyx_user_id"])  # uuid or string
+                    sanitized = re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
+                    userid = f"onyx_{sanitized[:24]}"
+                    new_password = secrets.token_urlsafe(16)
+
+                    async with httpx.AsyncClient(timeout=30.0) as client:
+                        create_resp = await client.post(
+                            f"{base_url}/ocs/v1.php/cloud/users",
+                            data={"userid": userid, "password": new_password},
+                            headers={"OCS-APIRequest": "true", "Accept": "application/json"},
+                            auth=(nc_admin_user, nc_admin_pass)
+                        )
+                        if create_resp.status_code == 409:
+                            update_resp = await client.put(
+                                f"{base_url}/ocs/v1.php/cloud/users/{userid}",
+                                data={"key": "password", "value": new_password},
+                                headers={"OCS-APIRequest": "true", "Accept": "application/json"},
+                                auth=(nc_admin_user, nc_admin_pass)
+                            )
+                            if update_resp.status_code not in (200, 201, 204):
+                                logger.warning(f"Failed to reset Nextcloud password for existing user {userid}: {update_resp.status_code} {update_resp.text[:200]}")
+                        elif create_resp.status_code not in (200, 201):
+                            logger.error(f"Failed to create Nextcloud user: {create_resp.status_code} {create_resp.text[:200]}")
+                            raise HTTPException(status_code=500, detail="Failed to auto-provision Nextcloud user")
+
+                    encrypted = encrypt_password(new_password)
+                    await conn.execute(
+                        """
+                        UPDATE smartdrive_accounts 
+                        SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                        WHERE onyx_user_id = $1
+                        """,
+                        row["onyx_user_id"], userid, encrypted, base_url, datetime.now(timezone.utc)
+                    )
+                    account = {"nextcloud_username": userid, "nextcloud_password_encrypted": encrypted, "nextcloud_base_url": base_url}
+                except HTTPException:
+                    raise
+                except Exception as provision_err:
+                    logger.error(f"Auto-provision failed: {provision_err}")
+                    raise HTTPException(status_code=500, detail="Failed to auto-provision Nextcloud account")
 
             try:
                 password_plain = decrypt_password(account["nextcloud_password_encrypted"])  # type: ignore
