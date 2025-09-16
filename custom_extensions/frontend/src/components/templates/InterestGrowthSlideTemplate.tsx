@@ -233,10 +233,14 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
       </div>
 
       <div style={cardsGrid}>
-        {cardList.slice(0, 4).map((c, i) => {
-          const isRightTop = i === 3;  // Поменяли местами: теперь i === 3 это правый верхний
-          const isRightBottom = i === 1;  // Поменяли местами: теперь i === 1 это правый нижний
-          const isLeftBottom = i === 2;
+        {[0, 1, 2, 3].map((originalIndex) => {
+          const c = cardList[originalIndex];
+          const i = originalIndex;
+          // Новый порядок: 0, 1, 2, 3 -> 0, 3, 2, 1 (поменяли местами 1 и 3)
+          const displayIndex = originalIndex === 1 ? 3 : (originalIndex === 3 ? 1 : originalIndex);
+          const isRightTop = displayIndex === 1;  // Правый верхний
+          const isRightBottom = displayIndex === 3;  // Правый нижний
+          const isLeftBottom = displayIndex === 2;
           const cardMarginTop = isLeftBottom ? -64 : 0;
           const cardHeight = isRightTop ? 287 : (isRightBottom ? 160 : 225);
           const percentageFontSize = isRightBottom ? '48px' : '79px';
