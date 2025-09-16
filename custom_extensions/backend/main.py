@@ -7474,9 +7474,9 @@ async def serpapi_company_research(company_name: str, company_desc: str, company
             logger.error(f"❌ [SERPAPI] Error in general search: {e}")
             # If general search fails, try with just the company name
             params_general["q"] = company_name
-            resp = await client.get(url, params=params_general)
-            resp.raise_for_status()
-            data = resp.json()
+        resp = await client.get(url, params=params_general)
+        resp.raise_for_status()
+        data = resp.json()
         general_snippets = []
         if "organic_results" in data:
             for item in data["organic_results"][:3]:

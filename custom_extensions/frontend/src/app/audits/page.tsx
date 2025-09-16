@@ -1,4 +1,4 @@
-// custom_extensions/frontend/src/app/projects/page.tsx 
+// custom_extensions/frontend/src/app/audits/page.tsx 
 "use client";
 
 import React, { Suspense, useState, useEffect } from 'react';
@@ -26,7 +26,7 @@ import {
   ClipboardCheck
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import FolderModal from './FolderModal';
+import FolderModal from '../projects/FolderModal';
 import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -210,8 +210,6 @@ interface Folder {
   quality_tier?: string;
   children?: Folder[];
 }
-
-
 
 // Recursive folder component for nested display
 const FolderItem: React.FC<{
@@ -554,7 +552,7 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
 
   return (
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? t('interface.trash', 'Trash') : t('interface.products', 'Products')}</h1>
+      <h1 className="text-3xl font-bold text-gray-900">{isTrash ? t('interface.trash', 'Trash') : t('interface.audits', 'Audits')}</h1>
       <div className="flex items-center gap-4">
         <Link href="#" className="text-sm font-semibold flex items-center gap-1 text-purple-600">
           <Sparkles size={16} className="text-yellow-500" />
@@ -572,12 +570,12 @@ const Header = ({ isTrash }: { isTrash: boolean }) => {
 };
 
 // --- Inner client component that can read search params ---
-const ProjectsPageInner: React.FC = () => {
+const AuditsPageInner: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLanguage();
-  const currentTab = searchParams?.get('tab') || 'products';
-  const isTrash = currentTab === 'trash';
+  const currentTab = 'audits'; // Always set to audits for this page
+  const isTrash = false; // Audits page doesn't have trash functionality
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [folders, setFolders] = useState<any[]>([]);
@@ -585,7 +583,7 @@ const ProjectsPageInner: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Clear lesson context when user visits the projects page
+  // Clear lesson context when user visits the audits page
   useEffect(() => {
     try {
       // Clear lesson context from sessionStorage
@@ -659,9 +657,24 @@ const ProjectsPageInner: React.FC = () => {
           const foldersData = await foldersResponse.json();
           const projectsData = await projectsResponse.json();
 
-          // Process projects to get folder mappings
+          // Filter projects to only include audits
+          const auditProjects = projectsData.filter((project: any) => {
+            // Check if it's an AI audit by project name pattern
+            const isAIAudit = project.project_name && (
+              project.project_name.includes('AI-Аудит') || 
+              project.project_name.includes('AI-Audit')
+            );
+            
+            // Check if it's a Text Presentation (which includes audits)
+            const isTextPresentation = project.design_microproduct_type === 'Text Presentation' || 
+                                     project.design_microproduct_type === 'TextPresentationDisplay';
+            
+            return isAIAudit || isTextPresentation;
+          });
+
+          // Process audit projects to get folder mappings
           const folderProjectsMap: Record<number, any[]> = {};
-          projectsData.forEach((project: any) => {
+          auditProjects.forEach((project: any) => {
             if (project.folder_id) {
               if (!folderProjectsMap[project.folder_id]) {
                 folderProjectsMap[project.folder_id] = [];
@@ -670,7 +683,7 @@ const ProjectsPageInner: React.FC = () => {
             }
           });
 
-          // Update folders with accurate project counts
+          // Update folders with accurate project counts (only for audit projects)
           const updatedFolders = foldersData.map((folder: any) => ({
             ...folder,
             project_count: folderProjectsMap[folder.id]?.length || 0
@@ -680,9 +693,9 @@ const ProjectsPageInner: React.FC = () => {
           setFolderProjects(folderProjectsMap);
           
           // Debug logging
+          console.log('Audit Projects:', auditProjects);
           console.log('Folder Projects Map:', folderProjectsMap);
           console.log('Updated Folders:', updatedFolders);
-          console.log('Folder Tree:', buildFolderTree(updatedFolders));
         } catch (error) {
           if (error instanceof Error && error.message === 'UNAUTHORIZED') {
             redirectToMainAuth('/auth/login');
@@ -810,7 +823,7 @@ const ProjectsPageInner: React.FC = () => {
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
-          <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
+          <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} auditMode={true} />
         </main>
         <div className="fixed bottom-4 right-4">
           <button
@@ -827,10 +840,10 @@ const ProjectsPageInner: React.FC = () => {
   );
 };
 
-export default function ProjectsPage() {
+export default function AuditsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center">Loading Projects...</div>}>
-      <ProjectsPageInner />
+    <Suspense fallback={<div className="p-8 text-center">Loading Audits...</div>}>
+      <AuditsPageInner />
     </Suspense>
   );
 }

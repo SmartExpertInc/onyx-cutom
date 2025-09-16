@@ -839,6 +839,8 @@ interface ProjectsTableProps {
   /** If true – table displays items from Trash and hides create/filter toolbars */
   trashMode?: boolean;
   folderId?: number | null;
+  /** If true – table displays only audit projects */
+  auditMode?: boolean;
 }
 
 interface ColumnVisibility {
@@ -2984,6 +2986,7 @@ const FolderRowMenu: React.FC<{
 const ProjectsTable: React.FC<ProjectsTableProps> = ({
   trashMode = false,
   folderId = null,
+  auditMode = false,
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
@@ -3324,7 +3327,44 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         return filteredProjects;
       };
 
-      const allProjects = deduplicateProjects(sortedProjects);
+      // ---- Filter projects based on audit mode ----
+      const filterByAuditMode = (projectsArr: Project[]): Project[] => {
+        if (auditMode) {
+          // Only show audit projects
+          return projectsArr.filter((proj) => {
+            // Check if it's an AI audit by project name pattern
+            const isAIAudit = proj.title && (
+              proj.title.includes('AI-Аудит') || 
+              proj.title.includes('AI-Audit')
+            );
+            
+            // Check if it's a Text Presentation (which includes audits)
+            const isTextPresentation = proj.designMicroproductType === 'Text Presentation' || 
+                                     proj.designMicroproductType === 'TextPresentationDisplay';
+            
+            return isAIAudit || isTextPresentation;
+          });
+        } else {
+          // Exclude audit projects from main projects page
+          return projectsArr.filter((proj) => {
+            // Check if it's an AI audit by project name pattern
+            const isAIAudit = proj.title && (
+              proj.title.includes('AI-Аудит') || 
+              proj.title.includes('AI-Audit')
+            );
+            
+            // Check if it's a Text Presentation (which includes audits)
+            const isTextPresentation = proj.designMicroproductType === 'Text Presentation' || 
+                                     proj.designMicroproductType === 'TextPresentationDisplay';
+            
+            // Exclude audits from main projects page
+            return !(isAIAudit || isTextPresentation);
+          });
+        }
+      };
+
+      const deduplicatedProjects = deduplicateProjects(sortedProjects);
+      const allProjects = filterByAuditMode(deduplicatedProjects);
       setProjects(allProjects);
 
       // Calculate folder projects mapping for all folders
@@ -3361,7 +3401,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [trashMode, folderId, router]);
+  }, [trashMode, folderId, router, auditMode]);
 
   // Fetch projects for a specific folder
   const fetchFolderProjects = useCallback(
@@ -4314,10 +4354,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
+            <Link href={auditMode ? "/create/ai-audit/questionnaire" : (folderId ? `/create?folderId=${folderId}` : "/create")}>
               <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
                 <Plus size={16} className="text-white" />
-                {t("interface.createNew", "Create new")}
+                {auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}
                 <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                   AI
                 </span>
