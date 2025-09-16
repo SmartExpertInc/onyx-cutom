@@ -447,7 +447,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 h-27 gap-2 flex flex-col justify-between">
+        <div className="bg-white p-4 min-h-28 flex flex-col justify-between gap-2">
           {/* Full title */}
           <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}

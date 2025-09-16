@@ -2,6 +2,9 @@
 
 import React, { FC, useEffect } from "react";
 import { useFormikContext } from "formik";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 // Helper function to safely get error message
 const getErrorMessage = (errors: any, name: string): string => {
@@ -164,14 +167,15 @@ export const NumberInput: FC<NumberInputProps> = ({
         {label}
         {!optional && <span className="text-red-500 ml-1">*</span>}
       </label>
-      <input
+      <Input
         type="number"
+        variant="shadow"
         name={name}
         value={values[name] || ""}
         onChange={(e) => setFieldValue(name, e.target.value)}
         min={min}
         max={max}
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+        className={`w-full px-3 py-2 ${
           hasError ? "border-red-500" : "border-gray-300"
         }`}
       />
@@ -213,17 +217,20 @@ export const BooleanFormField: FC<BooleanFormFieldProps> = ({
 
   return (
     <div className="mb-4">
-      <label className="flex items-center space-x-2">
-        <input
-          type="checkbox"
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id={name}
           name={name}
           checked={values[name] || false}
-          onChange={handleChange}
+          onCheckedChange={(checked) => {
+            setFieldValue(name, checked);
+          }}
           disabled={disabled}
-          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
         />
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-      </label>
+        <label htmlFor={name} className="text-sm font-medium text-gray-700 cursor-pointer">
+          {label}
+        </label>
+      </div>
       {subtext && (
         <p className="text-sm text-gray-500 mt-1 ml-6">{subtext}</p>
       )}
@@ -261,13 +268,13 @@ export const ListInput: FC<ListInputProps> = ({
       <label className="block text-sm font-medium text-gray-700 mb-2">
         {label}
       </label>
-      <textarea
+      <Textarea
         name={name}
         value={Array.isArray(listValue) ? listValue.join(', ') : listValue}
         onChange={handleChange}
         placeholder="Enter items separated by commas"
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20 ${
-          hasError ? "border-red-500" : "border-gray-300"
+        className={`h-20 ${
+          hasError ? "border-red-500" : ""
         }`}
         rows={3}
       />
