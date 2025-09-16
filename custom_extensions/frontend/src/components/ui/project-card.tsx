@@ -690,7 +690,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                variant="blueGradient"
+                variant="outline"
+                className="bg-white hover:bg-gray-50"
               >
                 {t("actions.outlineOnly", "Outline Only")}
               </Button>
