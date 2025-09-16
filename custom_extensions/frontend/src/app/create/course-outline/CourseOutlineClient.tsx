@@ -1417,8 +1417,8 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
-                             <span className="text-lg leading-none select-none">•</span>
+                           <li key={lessonIdx} className="flex items-center gap-2 py-0.5">
+                             <span className="text-lg leading-none select-none mt-0.5">•</span>
                              <div className="relative group flex-grow">
                                <Input
                                  type="text"
@@ -1427,7 +1427,7 @@ export default function CourseOutlineClient() {
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none p-0 text-sm text-gray-700 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
+                                 className="w-full bg-transparent border-none shadow-none text-sm text-gray-700 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                />
                                {titleLine && (
