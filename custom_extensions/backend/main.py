@@ -13555,7 +13555,7 @@ async def get_audit_progress(jobId: str):
     return {"messages": AI_AUDIT_PROGRESS.get(jobId, [])}
 
 
-async def scrape_company_data_from_website(company_website: str) -> AiAuditScrapedData:
+async def scrape_company_data_from_website(company_website: str, language: str = "ru") -> AiAuditScrapedData:
     """
     Scrape company website to extract all necessary data for AI audit.
     Returns structured data that can be used in prompts.
@@ -13576,7 +13576,7 @@ async def scrape_company_data_from_website(company_website: str) -> AiAuditScrap
         company_name = await extract_company_name_from_website_content(website_content, company_website)
         
         # Extract company description from website content
-        company_description = await extract_company_description_from_website_content(website_content, company_website)
+        company_description = await extract_company_description_from_website_content(website_content, company_website, language)
         
         # Extract other company data using AI analysis
         company_data = await extract_company_metadata_from_website(website_content, company_website)
@@ -13645,25 +13645,44 @@ async def extract_company_name_from_website_content(website_content: str, compan
         logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company name: {e}")
         return "Company Name"
 
-async def extract_company_description_from_website_content(website_content: str, company_website: str) -> str:
+async def extract_company_description_from_website_content(website_content: str, company_website: str, language: str = "ru") -> str:
     """Extract company description from website content using AI."""
     try:
-        prompt = f"""
-        Создай краткое описание компании на основе контента веб-сайта.
+        if language == "en":
+            prompt = f"""
+            Create a brief company description based on the website content.
 
-        ВЕБ-САЙТ: {company_website}
-        КОНТЕНТ ВЕБ-САЙТА:
-        {website_content}
+            WEBSITE: {company_website}
+            WEBSITE CONTENT:
+            {website_content}
 
-        ИНСТРУКЦИИ:
-        - Создай описание в стиле: "Компания, предоставляющая услуги по [основные услуги]"
-        - Используй только информацию с веб-сайта
-        - Описание должно быть максимально кратким (ТОЛЬКО 1 предложение)
-        - НЕ добавляй дополнительные детали или примеры
-        - Если не можешь определить описание, верни "Company Description"
+            INSTRUCTIONS:
+            - Create description in style: "Company providing services in [main services]"
+            - Use only information from the website
+            - Description should be maximally brief (ONLY 1 sentence)
+            - DO NOT add additional details or examples
+            - Generate ALL content EXCLUSIVELY in English
+            - If you cannot determine description, return "Company Description"
 
-        ОТВЕТ (только описание компании):
-        """
+            RESPONSE (company description only):
+            """
+        else:
+            prompt = f"""
+            Создай краткое описание компании на основе контента веб-сайта.
+
+            ВЕБ-САЙТ: {company_website}
+            КОНТЕНТ ВЕБ-САЙТА:
+            {website_content}
+
+            ИНСТРУКЦИИ:
+            - Создай описание в стиле: "Компания, предоставляющая услуги по [основные услуги]"
+            - Используй только информацию с веб-сайта
+            - Описание должно быть максимально кратким (ТОЛЬКО 1 предложение)
+            - НЕ добавляй дополнительные детали или примеры
+            - Если не можешь определить описание, верни "Company Description"
+
+            ОТВЕТ (только описание компании):
+            """
         
         response_text = await stream_openai_response_direct(
             prompt=prompt,
@@ -14093,7 +14112,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
     try:
         set_progress(job_id, "Scraping company website...")
         # Scrape company data from website
-        scraped_data = await scrape_company_data_from_website(payload.companyWebsite)
+        scraped_data = await scrape_company_data_from_website(payload.companyWebsite, payload.language)
         logger.info(f"[AI-Audit] Scraped company data: {scraped_data.companyName}")
         
         set_progress(job_id, "Researching additional company info...")
@@ -15168,31 +15187,59 @@ async def extract_losses_data(duckduckgo_summary: str, payload, language: str = 
     """
     Extract financial losses data from scraped data.
     """
-    prompt = f"""
-    Проанализируй данные и определи финансовые потери компании при незакрытой позиции.
-    
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-    
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
-    
-    ИНСТРУКЦИИ:
-    - Найди информацию о финансовых потерях при незакрытой позиции в год
-    - Учитывай упущенную прибыль, переработки и простои
-    - Если данных нет, используй типичные значения для отрасли
-    - Верни данные в формате JSON: {{"amount": "сумма в долларах"}}
-    
-    ПРИМЕРЫ:
-    - HVAC: {{"amount": "$10К–$18К"}}
-    - IT: {{"amount": "$15К–$25К"}}
-    - Строительство: {{"amount": "$8К–$15К"}}
-    - Медицина: {{"amount": "$20К–$35К"}}
-    
-    ОТВЕТ (только JSON):
-    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine the company's financial losses for unfilled positions.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Find information about financial losses per year for unfilled positions
+        - Consider lost profits, overtime, and downtime
+        - If no data is available, use typical values for the industry
+        - Return data in JSON format: {{"amount": "amount in dollars"}}
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - HVAC: {{"amount": "$10K–$18K"}}
+        - IT: {{"amount": "$15K–$25K"}}
+        - Construction: {{"amount": "$8K–$15K"}}
+        - Healthcare: {{"amount": "$20K–$35K"}}
+        
+        RESPONSE (JSON only):
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи финансовые потери компании при незакрытой позиции.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Найди информацию о финансовых потерях при незакрытой позиции в год
+        - Учитывай упущенную прибыль, переработки и простои
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни данные в формате JSON: {{"amount": "сумма в долларах"}}
+        
+        ПРИМЕРЫ:
+        - HVAC: {{"amount": "$10К–$18К"}}
+        - IT: {{"amount": "$15К–$25К"}}
+        - Строительство: {{"amount": "$8К–$15К"}}
+        - Медицина: {{"amount": "$20К–$35К"}}
+        
+        ОТВЕТ (только JSON):
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -15233,30 +15280,57 @@ async def extract_search_time_data(duckduckgo_summary: str, payload, language: s
     """
     Extract candidate search time data from scraped data.
     """
-    prompt = f"""
-    Проанализируй данные и определи среднее время поиска кандидата в отрасли компании.
-    
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-    
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
-    
-    ИНСТРУКЦИИ:
-    - Найди информацию о среднем времени поиска кандидата в отрасли
-    - Если данных нет, используй типичные значения для отрасли
-    - Верни данные в формате JSON: {{"days": "диапазон дней"}}
-    
-    ПРИМЕРЫ:
-    - HVAC: {{"days": "30–60"}}
-    - IT: {{"days": "45–90"}}
-    - Строительство: {{"days": "20–45"}}
-    - Медицина: {{"days": "60–120"}}
-    
-    ОТВЕТ (только JSON):
-    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine the average candidate search time in the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Find information about average candidate search time in the industry
+        - If no data is available, use typical values for the industry
+        - Return data in JSON format: {{"days": "day range"}}
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - HVAC: {{"days": "30–60"}}
+        - IT: {{"days": "45–90"}}
+        - Construction: {{"days": "20–45"}}
+        - Healthcare: {{"days": "60–120"}}
+        
+        RESPONSE (JSON only):
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи среднее время поиска кандидата в отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Найди информацию о среднем времени поиска кандидата в отрасли
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни данные в формате JSON: {{"days": "диапазон дней"}}
+        
+        ПРИМЕРЫ:
+        - HVAC: {{"days": "30–60"}}
+        - IT: {{"days": "45–90"}}
+        - Строительство: {{"days": "20–45"}}
+        - Медицина: {{"days": "60–120"}}
+        
+        ОТВЕТ (только JSON):
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -15298,65 +15372,127 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
     Generate structured dataset for the "Shortage of qualified personnel" chart.
     Returns a dictionary with 12 months of personnel shortage data.
     """
-    prompt = f"""
-    Проанализируй данные и сгенерируй структурированный набор данных для графика "Дефицит квалифицированных кадров" за последние 12 месяцев.
+    if language == "en":
+        prompt = f"""
+        Analyze the data and generate a structured dataset for the "Shortage of qualified personnel" chart for the last 12 months.
 
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
 
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
+        INTERNET DATA:
+        {duckduckgo_summary}
 
-    ИНСТРУКЦИИ:
-    1. Определи ОТРАСЛЬ в целом (не конкретную компанию) на основе предоставленных данных
-    2. Анализируй дефицит кадров для ВСЕЙ ОТРАСЛИ, а не только для указанной компании
-    3. Сгенерируй реалистичные данные с естественными колебаниями (НЕ линейный рост)
-    4. Учти отраслевую специфику: сезонность, экономические циклы, рыночные события
-    5. Масштаб дефицита должен соответствовать размеру отрасли (крупные отрасли = большие числа)
+        INSTRUCTIONS:
+        1. Determine the INDUSTRY as a whole (not the specific company) based on the provided data
+        2. Analyze personnel shortage for the ENTIRE INDUSTRY, not just the specified company
+        3. Generate realistic data with natural fluctuations (NOT linear growth)
+        4. Consider industry specifics: seasonality, economic cycles, market events
+        5. The shortage scale should match the industry size (large industries = large numbers)
+        6. Generate ALL content EXCLUSIVELY in English
 
-    ТРЕБОВАНИЯ К РЕАЛИСТИЧНОСТИ:
-    - ЗАПРЕЩЕНО: идеально линейное увеличение каждый месяц
-    - ОБЯЗАТЕЛЬНО: включи месячные колебания (некоторые месяцы могут показывать снижение)
-    - Сезонные факторы: учти специфику отрасли (например, строительство - пик летом, автопром - снижение в августе из-за отпусков)
-    - Масштаб должен отражать размер отрасли (машиностроение, IT, финансы = тысячи специалистов)
-    - Включи 2-3 месяца с незначительным снижением показателей
+        REALISM REQUIREMENTS:
+        - FORBIDDEN: perfectly linear increase every month
+        - MANDATORY: include monthly fluctuations (some months may show decrease)
+        - Seasonal factors: consider industry specifics (e.g., construction - peak in summer, automotive - decrease in August due to vacations)
+        - Scale should reflect industry size (manufacturing, IT, finance = thousands of specialists)
+        - Include 2-3 months with slight decrease in indicators
 
-    ФОРМАТ ОТВЕТА:
-    Верни ТОЛЬКО валидный JSON объект в следующем формате:
-    {{
-        "industry": "название отрасли (не компании)",
-        "chartData": [
-            {{"month": "Январь", "shortage": 2800}},
-            {{"month": "Февраль", "shortage": 2650}},
-            {{"month": "Март", "shortage": 3100}},
-            {{"month": "Апрель", "shortage": 3450}},
-            {{"month": "Май", "shortage": 3200}},
-            {{"month": "Июнь", "shortage": 3800}},
-            {{"month": "Июль", "shortage": 4100}},
-            {{"month": "Август", "shortage": 3600}},
-            {{"month": "Сентябрь", "shortage": 3900}},
-            {{"month": "Октябрь", "shortage": 4200}},
-            {{"month": "Ноябрь", "shortage": 3950}},
-            {{"month": "Декабрь", "shortage": 4300}}
-        ],
-        "totalShortage": [сумма всех shortage],
-        "trend": "рост/стабильность/снижение",
-        "description": "Краткое описание тренда дефицита кадров в отрасли с упоминанием ключевых факторов. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
-    }}
+        RESPONSE FORMAT:
+        Return ONLY a valid JSON object in the following format:
+        {{
+            "industry": "industry name (not company)",
+            "chartData": [
+                {{"month": "January", "shortage": 2800}},
+                {{"month": "February", "shortage": 2650}},
+                {{"month": "March", "shortage": 3100}},
+                {{"month": "April", "shortage": 3450}},
+                {{"month": "May", "shortage": 3200}},
+                {{"month": "June", "shortage": 3800}},
+                {{"month": "July", "shortage": 4100}},
+                {{"month": "August", "shortage": 3600}},
+                {{"month": "September", "shortage": 3900}},
+                {{"month": "October", "shortage": 4200}},
+                {{"month": "November", "shortage": 3950}},
+                {{"month": "December", "shortage": 4300}}
+            ],
+            "totalShortage": [sum of all shortage values],
+            "trend": "growth/stability/decline",
+            "description": "Brief description of personnel shortage trend in the industry with mention of key factors"
+        }}
 
-    ОТРИЦАТЕЛЬНЫЙ ПРИМЕР (НЕ делай так):
-    - Данные: 100, 110, 120, 130, 140... (слишком линейно и маленький масштаб)
-    - Фокус только на одной компании вместо отрасли
+        NEGATIVE EXAMPLE (DON'T do this):
+        - Data: 100, 110, 120, 130, 140... (too linear and small scale)
+        - Focus only on one company instead of industry
 
-    ОБЯЗАТЕЛЬНЫЕ ПРОВЕРКИ:
-    - Используй только русские названия месяцев
-    - Значения shortage - целые числа, соответствующие размеру отрасли
-    - Минимум 2 месяца должны показывать снижение по сравнению с предыдущим
-    - industry должно быть названием отрасли, а не компании
-    - Учитывай реальный масштаб отрасли при генерации чисел
-    """
+        MANDATORY CHECKS:
+        - Use only English month names
+        - Shortage values - whole numbers corresponding to industry size
+        - Minimum 2 months should show decrease compared to previous
+        - industry should be industry name, not company name
+        - Consider real industry scale when generating numbers
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и сгенерируй структурированный набор данных для графика "Дефицит квалифицированных кадров" за последние 12 месяцев.
+
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+
+        ИНСТРУКЦИИ:
+        1. Определи ОТРАСЛЬ в целом (не конкретную компанию) на основе предоставленных данных
+        2. Анализируй дефицит кадров для ВСЕЙ ОТРАСЛИ, а не только для указанной компании
+        3. Сгенерируй реалистичные данные с естественными колебаниями (НЕ линейный рост)
+        4. Учти отраслевую специфику: сезонность, экономические циклы, рыночные события
+        5. Масштаб дефицита должен соответствовать размеру отрасли (крупные отрасли = большие числа)
+
+        ТРЕБОВАНИЯ К РЕАЛИСТИЧНОСТИ:
+        - ЗАПРЕЩЕНО: идеально линейное увеличение каждый месяц
+        - ОБЯЗАТЕЛЬНО: включи месячные колебания (некоторые месяцы могут показывать снижение)
+        - Сезонные факторы: учти специфику отрасли (например, строительство - пик летом, автопром - снижение в августе из-за отпусков)
+        - Масштаб должен отражать размер отрасли (машиностроение, IT, финансы = тысячи специалистов)
+        - Включи 2-3 месяца с незначительным снижением показателей
+
+        ФОРМАТ ОТВЕТА:
+        Верни ТОЛЬКО валидный JSON объект в следующем формате:
+        {{
+            "industry": "название отрасли (не компании)",
+            "chartData": [
+                {{"month": "Январь", "shortage": 2800}},
+                {{"month": "Февраль", "shortage": 2650}},
+                {{"month": "Март", "shortage": 3100}},
+                {{"month": "Апрель", "shortage": 3450}},
+                {{"month": "Май", "shortage": 3200}},
+                {{"month": "Июнь", "shortage": 3800}},
+                {{"month": "Июль", "shortage": 4100}},
+                {{"month": "Август", "shortage": 3600}},
+                {{"month": "Сентябрь", "shortage": 3900}},
+                {{"month": "Октябрь", "shortage": 4200}},
+                {{"month": "Ноябрь", "shortage": 3950}},
+                {{"month": "Декабрь", "shortage": 4300}}
+            ],
+            "totalShortage": [сумма всех shortage],
+            "trend": "рост/стабильность/снижение",
+            "description": "Краткое описание тренда дефицита кадров в отрасли с упоминанием ключевых факторов. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
+        }}
+
+        ОТРИЦАТЕЛЬНЫЙ ПРИМЕР (НЕ делай так):
+        - Данные: 100, 110, 120, 130, 140... (слишком линейно и маленький масштаб)
+        - Фокус только на одной компании вместо отрасли
+
+        ОБЯЗАТЕЛЬНЫЕ ПРОВЕРКИ:
+        - Используй только русские названия месяцев
+        - Значения shortage - целые числа, соответствующие размеру отрасли
+        - Минимум 2 месяца должны показывать снижение по сравнению с предыдущим
+        - industry должно быть названием отрасли, а не компании
+        - Учитывай реальный масштаб отрасли при генерации чисел
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -15450,50 +15586,97 @@ async def extract_yearly_shortage_data(duckduckgo_summary: str, payload, languag
     Generate a single yearly shortage number for the company's specific industry.
     Returns a dictionary with the annual shortage count.
     """
-    prompt = f"""
-    Проанализируй данные и определи точное количество недостающих квалифицированных специалистов в год для отрасли компании.
-    
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-    
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
-    
-    ИНСТРУКЦИИ:
-    1. Определи отрасль компании на основе предоставленных данных
-    2. Рассчитай реалистичное количество недостающих специалистов в год для данной отрасли
-    3. Учти размер отрасли, темпы роста и текущий дефицит кадров
-    4. Число должно быть реалистичным и обоснованным для данной отрасли
-    5. Учти региональные особенности и масштаб отрасли
-    
-    ТРЕБОВАНИЯ:
-    - Верни ТОЛЬКО одно число (количество недостающих специалистов в год)
-    - Число должно быть целым
-    - Число должно быть реалистичным для отрасли
-    - Учти масштаб отрасли (локальная, региональная, национальная)
-    
-    ФОРМАТ ОТВЕТА:
-    Верни ТОЛЬКО валидный JSON объект в следующем формате:
-    {{
-        "yearlyShortage": 80000,
-        "industry": "название отрасли",
-        "description": "Краткое обоснование числа. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
-    }}
-    
-    ПРИМЕРЫ ДЛЯ РАЗНЫХ ОТРАСЛЕЙ:
-    - HVAC: 45000-80000 специалистов в год
-    - IT: 120000-200000 специалистов в год  
-    - Строительство: 60000-100000 специалистов в год
-    - Медицина: 80000-150000 специалистов в год
-    - Производство: 70000-120000 специалистов в год
-    
-    ВАЖНО: 
-    - Число должно быть реалистичным для отрасли
-    - Учти размер и масштаб отрасли
-    - Включи обоснование в description
-    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine the exact number of missing qualified specialists per year for the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        1. Determine the company's industry based on the provided data
+        2. Calculate a realistic number of missing specialists per year for this industry
+        3. Consider industry size, growth rates, and current personnel shortage
+        4. The number should be realistic and justified for this industry
+        5. Consider regional characteristics and industry scale
+        6. Generate ALL content EXCLUSIVELY in English
+        
+        REQUIREMENTS:
+        - Return ONLY one number (number of missing specialists per year)
+        - The number should be whole
+        - The number should be realistic for the industry
+        - Consider industry scale (local, regional, national)
+        
+        RESPONSE FORMAT:
+        Return ONLY a valid JSON object in the following format:
+        {{
+            "yearlyShortage": 80000,
+            "industry": "industry name",
+            "description": "Brief justification of the number"
+        }}
+        
+        EXAMPLES FOR DIFFERENT INDUSTRIES:
+        - HVAC: 45000-80000 specialists per year
+        - IT: 120000-200000 specialists per year  
+        - Construction: 60000-100000 specialists per year
+        - Healthcare: 80000-150000 specialists per year
+        - Manufacturing: 70000-120000 specialists per year
+        
+        IMPORTANT: 
+        - The number should be realistic for the industry
+        - Consider industry size and scale
+        - Include justification in description
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи точное количество недостающих квалифицированных специалистов в год для отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        1. Определи отрасль компании на основе предоставленных данных
+        2. Рассчитай реалистичное количество недостающих специалистов в год для данной отрасли
+        3. Учти размер отрасли, темпы роста и текущий дефицит кадров
+        4. Число должно быть реалистичным и обоснованным для данной отрасли
+        5. Учти региональные особенности и масштаб отрасли
+        
+        ТРЕБОВАНИЯ:
+        - Верни ТОЛЬКО одно число (количество недостающих специалистов в год)
+        - Число должно быть целым
+        - Число должно быть реалистичным для отрасли
+        - Учти масштаб отрасли (локальная, региональная, национальная)
+        
+        ФОРМАТ ОТВЕТА:
+        Верни ТОЛЬКО валидный JSON объект в следующем формате:
+        {{
+            "yearlyShortage": 80000,
+            "industry": "название отрасли",
+            "description": "Краткое обоснование числа. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
+        }}
+        
+        ПРИМЕРЫ ДЛЯ РАЗНЫХ ОТРАСЛЕЙ:
+        - HVAC: 45000-80000 специалистов в год
+        - IT: 120000-200000 специалистов в год  
+        - Строительство: 60000-100000 специалистов в год
+        - Медицина: 80000-150000 специалистов в год
+        - Производство: 70000-120000 специалистов в год
+        
+        ВАЖНО: 
+        - Число должно быть реалистичным для отрасли
+        - Учти размер и масштаб отрасли
+        - Включи обоснование в description
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -15555,7 +15738,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         
         set_progress(job_id, "Scraping company website...")
         # Scrape company data from website
-        scraped_data = await scrape_company_data_from_website(payload.companyWebsite)
+        scraped_data = await scrape_company_data_from_website(payload.companyWebsite, payload.language)
         logger.info(f"[AI-Audit Landing Page] Scraped company data: {scraped_data.companyName}")
         
         set_progress(job_id, "Researching additional company info...")
