@@ -473,7 +473,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           href="/projects?tab=offers"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => {
-            trackPageView("Smart Drive");
+            trackPageView("Offers");
             onFolderSelect(null);
           }}
         >
@@ -492,7 +492,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           href="/projects?tab=export-lms"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => {
-            trackPageView("Smart Drive");
+            trackPageView("Export to LMS");
             onFolderSelect(null);
           }}
         >
