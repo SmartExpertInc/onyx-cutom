@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CCPairFullInfo, ConnectorCredentialPairStatus, statusIsNotCurrentlyActive } from "./types";
 import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
-import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Settings } from "lucide-react";
+import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Settings, FileText, Clock } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 
 // Global counter to track component instances
@@ -272,31 +272,94 @@ export default function ConnectorManagementPage({
 
           {/* Status and Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-semibold text-gray-900">{t('interface.connectorStatus', 'Status')}</div>
-                <div className={`w-3 h-3 rounded-full ${
-                  isActive ? 'bg-green-500' : 
-                  isPaused ? 'bg-yellow-500' : 
-                  isInvalid ? 'bg-red-500' : 'bg-gray-500'
-                }`}></div>
-              </div>
-              <div className={`text-2xl font-bold ${
-                isActive ? 'text-green-600' : 
-                isPaused ? 'text-yellow-600' : 
-                isInvalid ? 'text-red-600' : 'text-gray-600'
-              }`}>
-                {ccPair.status}
+            {/* Status Card */}
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
+              {/* Gradient at top right corner */}
+              <div className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br rounded-bl-3xl opacity-60 ${
+                isActive ? 'from-green-300 to-emerald-200' : 
+                isPaused ? 'from-yellow-300 to-amber-200' : 
+                isInvalid ? 'from-red-300 to-rose-200' : 'from-gray-300 to-slate-200'
+              }`} />
+              
+              <div className="relative p-6 h-full flex flex-col">
+                {/* Icon section */}
+                <div className="flex items-start justify-start h-16 relative mb-3">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    isActive ? 'bg-green-100' : 
+                    isPaused ? 'bg-yellow-100' : 
+                    isInvalid ? 'bg-red-100' : 'bg-gray-100'
+                  }`}>
+                    <div className={`w-6 h-6 rounded-full ${
+                      isActive ? 'bg-green-500' : 
+                      isPaused ? 'bg-yellow-500' : 
+                      isInvalid ? 'bg-red-500' : 'bg-gray-500'
+                    }`}></div>
+                  </div>
+                </div>
+                
+                {/* Text section */}
+                <div className="flex flex-col items-start gap-3 flex-1 justify-start">
+                  <h3 className={`text-lg font-semibold ${
+                    isActive ? 'text-green-600' : 
+                    isPaused ? 'text-yellow-600' : 
+                    isInvalid ? 'text-red-600' : 'text-gray-600'
+                  }`}>
+                    {t('interface.connectorStatus', 'Status')}
+                  </h3>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {ccPair.status}
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-              <div className="text-sm font-semibold text-gray-900 mb-2">{t('interface.documentsIndexed', 'Documents Indexed')}</div>
-              <div className="text-2xl font-bold text-blue-600">{ccPair.num_docs_indexed.toLocaleString()}</div>
+
+            {/* Documents Indexed Card */}
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
+              {/* Gradient at top right corner */}
+              <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-blue-300 to-indigo-200 rounded-bl-3xl opacity-60" />
+              
+              <div className="relative p-6 h-full flex flex-col">
+                {/* Icon section */}
+                <div className="flex items-start justify-start h-16 relative mb-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-100">
+                    <FileText size={24} className="text-blue-600" />
+                  </div>
+                </div>
+                
+                {/* Text section */}
+                <div className="flex flex-col items-start gap-3 flex-1 justify-start">
+                  <h3 className="text-lg font-semibold text-blue-600">
+                    {t('interface.documentsIndexed', 'Documents Indexed')}
+                  </h3>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {ccPair.num_docs_indexed.toLocaleString()}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
-              <div className="text-sm font-semibold text-gray-900 mb-2">{t('interface.lastIndexed', 'Last Indexed')}</div>
-              <div className="text-2xl font-bold text-purple-600">
-                {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
+
+            {/* Last Indexed Card */}
+            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
+              {/* Gradient at top right corner */}
+              <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-purple-300 to-pink-200 rounded-bl-3xl opacity-60" />
+              
+              <div className="relative p-6 h-full flex flex-col">
+                {/* Icon section */}
+                <div className="flex items-start justify-start h-16 relative mb-3">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-100">
+                    <Clock size={24} className="text-purple-600" />
+                  </div>
+                </div>
+                
+                {/* Text section */}
+                <div className="flex flex-col items-start gap-3 flex-1 justify-start">
+                  <h3 className="text-lg font-semibold text-purple-600">
+                    {t('interface.lastIndexed', 'Last Indexed')}
+                  </h3>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

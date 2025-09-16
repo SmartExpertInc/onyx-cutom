@@ -418,21 +418,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}99)`,
           }}
         >
-          {/* Top row with icon and badge */}
-          <div className="flex justify-between items-end">
-            
-            {/* Badges in top-right */}
-            <div className="flex items-center gap-2">  
-              {/* Private badge */}
-              {project.isPrivate && (
-                <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200">
-                  <Lock size={10} className="text-gray-600" />
-                  <span className="text-xs font-medium text-gray-700">
-                    {t("interface.private", "Private")}
-                  </span>
-                </div>
-              )}
-            </div>
+          {/* Top row with badge positioned absolutely */}
+          <div className="relative">
+            {/* Private badge positioned absolutely in top-right */}
+            {project.isPrivate && (
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-gray-200">
+                <Lock size={8} className="text-gray-600" />
+                <span className="text-xs font-medium text-gray-700">
+                  {t("interface.private", "Private")}
+                </span>
+              </div>
+            )}
           </div>
           
            {/* Truncated title in center */}
