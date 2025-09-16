@@ -238,7 +238,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
           const isRightBottom = i === 3;
           const isLeftBottom = i === 2;
           const cardMarginTop = isLeftBottom ? -64 : 0;
-          const cardHeight = isRightTop ? 287 : (isRightBottom ? 160 : 280px);
+          const cardHeight = isRightTop ? 287 : (isRightBottom ? 160 : 280);
           const percentageFontSize = isRightBottom ? '48px' : '79px';
           const percentageMinHeight = isRightBottom ? 0 : 88;
           return (
