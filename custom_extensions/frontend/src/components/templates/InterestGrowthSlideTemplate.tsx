@@ -236,17 +236,17 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
         {[0, 1, 2, 3].map((originalIndex) => {
           const c = cardList[originalIndex];
           const i = originalIndex;
-          // Порядок как на фото: 0, 1, 2, 3
-          // 0: top-left (высокая), 1: top-right (низкая), 2: bottom-left (высокая), 3: bottom-right (низкая)
-          const isTopLeft = originalIndex === 0;      // Высокая карточка
-          const isTopRight = originalIndex === 1;     // Низкая карточка
-          const isBottomLeft = originalIndex === 2;   // Высокая карточка с отрицательным margin
-          const isBottomRight = originalIndex === 3;  // Низкая карточка
+          // Правильный порядок: 
+          // 0: top-left (большой), 1: top-right (маленький), 2: bottom-left (маленький), 3: bottom-right (большой)
+          const isTopLeft = originalIndex === 0;      // Большой блок
+          const isTopRight = originalIndex === 1;     // Маленький блок
+          const isBottomLeft = originalIndex === 2;   // Маленький блок с отрицательным margin
+          const isBottomRight = originalIndex === 3;  // Большой блок
           
           const cardMarginTop = isBottomLeft ? -64 : 0;
-          const cardHeight = (isTopLeft || isBottomLeft) ? 225 : 160;  // Высокие: 225px, низкие: 160px
-          const percentageFontSize = (isTopRight || isBottomRight) ? '48px' : '79px';  // Низкие: 48px, высокие: 79px
-          const percentageMinHeight = (isTopRight || isBottomRight) ? 0 : 88;
+          const cardHeight = (isTopLeft || isBottomRight) ? 225 : 160;  // Большие: 225px, маленькие: 160px
+          const percentageFontSize = (isTopRight || isBottomLeft) ? '48px' : '79px';  // Маленькие: 48px, большие: 79px
+          const percentageMinHeight = (isTopRight || isBottomLeft) ? 0 : 88;
           return (
           <div
             key={i}
