@@ -155,7 +155,14 @@ export default function AiAuditQuestionnaire() {
           setGenerationDone(true);
             
             // Check if this is a landing page generation result
-            if (data.result.name && data.result.name.includes("Landing Page")) {
+            // Check for both English and Russian landing page indicators
+            const isLandingPage = data.result.name && (
+              data.result.name.includes("Landing Page") || 
+              data.result.name.includes("AI-Audit Landing Page") ||
+              data.result.name.includes("AI-Аудит Landing Page")
+            );
+            
+            if (isLandingPage) {
               const redirectUrl = `/create/audit-2-dynamic/${data.result.id}`
               console.log(`🎯 [FRONTEND DATA FLOW] Landing page detected, redirecting to: ${redirectUrl}`)
               setFinalRedirectUrl(redirectUrl);
@@ -289,6 +296,7 @@ export default function AiAuditQuestionnaire() {
         // fallback: immediate result
         console.log(`✅ [FRONTEND DATA FLOW] Immediate result received, project ID: ${data.id}`)
         setGenerationDone(true);
+        // For landing page generation, always redirect to audit-2-dynamic
         setFinalRedirectUrl(`/create/audit-2-dynamic/${data.id}`);
         setLoading(false);
       }
