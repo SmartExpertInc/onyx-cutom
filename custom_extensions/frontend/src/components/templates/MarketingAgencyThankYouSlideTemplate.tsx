@@ -296,6 +296,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         {/* Left Section - Orange Background with Profile Image */}
         <div style={{
           width: '480px',
+          height: '460px',
           background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Vibrant orange background as per screenshot
           borderRadius: '20px',
           position: 'relative',
@@ -314,7 +315,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             style={{
               position: 'relative',
               bottom: '-20px',
-              height: '505px',
+              height: '460px',
               objectFit: 'cover'
             }}
           />
