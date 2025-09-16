@@ -301,7 +301,7 @@ export default function ConnectorManagementPage({
                   }`}>
                     {t('interface.connectorStatus', 'Status')}
                   </h3>
-                  <p className="text-lg font-bold text-gray-600">
+                  <p className="text-lg text-gray-600">
                     {ccPair.status}
                   </p>
                 </div>
@@ -324,7 +324,7 @@ export default function ConnectorManagementPage({
                   <h3 className="text-xl font-semibold text-blue-600">
                     {t('interface.documentsIndexed', 'Documents Indexed')}
                   </h3>
-                  <p className="text-lg font-bold text-gray-600">
+                  <p className="text-lg text-gray-600">
                     {ccPair.num_docs_indexed.toLocaleString()}
                   </p>
                 </div>
@@ -347,7 +347,7 @@ export default function ConnectorManagementPage({
                   <h3 className="text-xl font-semibold text-purple-600">
                     {t('interface.lastIndexed', 'Last Indexed')}
                   </h3>
-                  <p className="text-lg font-bold text-gray-600">
+                  <p className="text-lg text-gray-600">
                     {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
                   </p>
                 </div>

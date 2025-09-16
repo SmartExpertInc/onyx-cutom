@@ -634,10 +634,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               onClick={() => setShowRoleManager(true)}
               className="group border border-gray-200 flex items-center justify-end gap-2 w-8 h-8 hover:w-auto hover:px-4 hover:pl-27 rounded-full transition-all duration-300 overflow-hidden relative"
             >
+              <Settings size={15} className="flex-shrink-0 z-10" />
               <span className="absolute right-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-20 pointer-events-none">
                 {t('interface.manageRoles', 'Manage Roles')}
               </span>
-              <Settings size={15} className="flex-shrink-0 z-10" />
             </Button>
           </div>
           </div>
@@ -801,7 +801,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
       {/* Add Member Dialog */}
       <Dialog open={showAddMember} onOpenChange={setShowAddMember}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border-none">
           <DialogHeader>
             <DialogTitle>
               {t('interface.addMemberModal.title', 'Add Member')}
