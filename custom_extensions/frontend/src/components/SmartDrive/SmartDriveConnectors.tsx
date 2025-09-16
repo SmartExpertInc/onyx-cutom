@@ -476,7 +476,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       const result = await response.json();
       console.log("Connector created successfully:", result);
       if (connector) {
-        trackConnector("Completed", connector.id, connector.name);
+        await trackConnector("Completed", connector.id, connector.name);
       }
 
       // Close the modal and refresh the connector list
@@ -485,7 +485,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       loadUserConnectors();
     } catch (error) {
       if (connector) {
-        trackConnector("Failed", connector.id, connector.name);
+        await trackConnector("Failed", connector.id, connector.name);
       }
       console.error("Error creating connector:", error);
       // You might want to show an error message to the user here
