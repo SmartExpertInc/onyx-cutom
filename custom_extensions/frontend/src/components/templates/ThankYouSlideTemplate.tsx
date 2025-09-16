@@ -219,7 +219,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '315px',
+        top: '235px',
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
@@ -260,7 +260,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Horizontal separator line */}
       <div style={{
         position: 'absolute',
-        top: '425px',
+        top: '365px',
         left: '80px',
         right: '80px',
         height: '2px',
@@ -270,7 +270,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Content area */}
       <div style={{
         position: 'absolute',
-        top: '450px',
+        top: '390px',
         left: '85px',
         right: '80px'
       }}>
@@ -470,10 +470,10 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Bottom horizontal separator line */}
       <div style={{
         position: 'absolute',
-        bottom: '76px',
+        bottom: '135px',
         left: '80px',
         right: '80px',
-        height: '3px',
+        height: '1px',
         backgroundColor: 'rgb(165 165 165)'
       }} />
 
