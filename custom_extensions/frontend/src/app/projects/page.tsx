@@ -41,7 +41,7 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
-import { identifyUser } from '../../lib/mixpanelClient';
+import { identifyUser, trackPageView } from '@/lib/mixpanelClient';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -461,7 +461,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link
           href="/projects?tab=smart-drive"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
+          onClick={() => {
+            trackPageView("Smart Drive");
+            onFolderSelect(null);
+          }}
         >
           <HardDrive size={18} />
           <span>{t('interface.smartDrive', 'Smart Drive')}</span>
@@ -469,7 +472,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link
           href="/projects?tab=offers"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
+          onClick={() => {
+            trackPageView("Smart Drive");
+            onFolderSelect(null);
+          }}
         >
           <FileText size={18} />
           <span>{t('interface.offers', 'Offers')}</span>
@@ -485,7 +491,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link
           href="/projects?tab=export-lms"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
+          onClick={() => {
+            trackPageView("Smart Drive");
+            onFolderSelect(null);
+          }}
         >
           <Upload size={18} />
           <span>{t('interface.exportToLMS', 'Export to LMS')}</span>

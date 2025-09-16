@@ -101,6 +101,12 @@ export function timeEvent(event: string): void {
   mixpanel.time_event(event);
 }
 
+export function trackPageView(pageName: string): void {
+  mixpanel.track_pageview({
+    "page": pageName
+  });
+}
+
 export const trackCreateProduct = async (
   action: string,
   isFromFiles?: boolean,
