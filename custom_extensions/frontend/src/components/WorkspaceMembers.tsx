@@ -632,10 +632,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               variant="blueGradient"
               size="sm"
               onClick={() => setShowRoleManager(true)}
-              className="group flex items-center justify-center gap-2 w-8 h-8 hover:w-auto hover:px-4 rounded-full transition-all duration-300 overflow-hidden"
+              className="group border border-gray-200 flex items-center justify-center gap-2 w-8 h-8 hover:w-auto hover:px-4 rounded-full transition-all duration-300 overflow-hidden relative"
             >
-              <Settings size={15} className="flex-shrink-0" />
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+              <Settings size={15} className="flex-shrink-0 z-10" />
+              <span className="absolute left-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                 {t('interface.manageRoles', 'Manage Roles')}
               </span>
             </Button>
