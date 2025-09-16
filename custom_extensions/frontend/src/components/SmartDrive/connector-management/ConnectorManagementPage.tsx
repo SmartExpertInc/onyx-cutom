@@ -300,7 +300,7 @@ export default function ConnectorManagementPage({
                   }`}>
                     {t('interface.connectorStatus', 'Status')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-700">
+                  <p className="text-2xl font-bold text-gray-500">
                     {ccPair.status}
                   </p>
                 </div>
@@ -315,7 +315,7 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                    <FileText size={26} className="text-blue-600" />
+                    <FileText size={30} className="text-blue-600" />
                 </div>
                 
                 {/* Text section */}
@@ -323,7 +323,7 @@ export default function ConnectorManagementPage({
                   <h3 className="text-lg font-semibold text-blue-600">
                     {t('interface.documentsIndexed', 'Documents Indexed')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-700">
+                  <p className="text-2xl font-bold text-gray-500">
                     {ccPair.num_docs_indexed.toLocaleString()}
                   </p>
                 </div>
@@ -338,7 +338,7 @@ export default function ConnectorManagementPage({
               <div className="relative p-6 h-full flex flex-col">
                 {/* Icon section */}
                 <div className="flex items-start justify-start h-16 relative mb-3">
-                    <Clock size={26} className="text-purple-600" />
+                    <Clock size={30} className="text-purple-600" />
                 </div>
                 
                 {/* Text section */}
@@ -346,7 +346,7 @@ export default function ConnectorManagementPage({
                   <h3 className="text-lg font-semibold text-purple-600">
                     {t('interface.lastIndexed', 'Last Indexed')}
                   </h3>
-                  <p className="text-2xl font-bold text-gray-700">
+                  <p className="text-2xl font-bold text-gray-500">
                     {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
                   </p>
                 </div>
